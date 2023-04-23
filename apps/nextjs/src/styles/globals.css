@@ -1,0 +1,84 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+a {
+  color: var(--joy-palette-primary-500);
+}
+:root {
+  --light-color: rgb(254, 231, 188);
+  --dark-color: rgb(250, 181, 97);
+  --background-color: rgba(24, 24, 27, 0);
+}
+
+.dark {
+  --light-color: rgb(48, 26, 0, 0.9);
+  --dark-color: rgb(119, 71, 14);
+  --background-color: rgba(35, 23, 3, 0.05);
+}
+
+.bg-honeycomb {
+  @apply h-full w-full;
+  background: radial-gradient(
+        circle farthest-side at 0% 50%,
+        var(--light-color) 23.5%,
+        var(--background-color) 0
+      )
+      21px 30px,
+    radial-gradient(
+        circle farthest-side at 0% 50%,
+        var(--dark-color) 24%,
+        var(--background-color) 0
+      )
+      19px 30px,
+    linear-gradient(
+        var(--light-color) 14%,
+        var(--background-color) 0,
+        var(--background-color) 85%,
+        var(--light-color) 0
+      )
+      0 0,
+    linear-gradient(
+        150deg,
+        var(--light-color) 24%,
+        var(--dark-color) 0,
+        var(--dark-color) 26%,
+        var(--background-color) 0,
+        var(--background-color) 74%,
+        var(--dark-color) 0,
+        var(--dark-color) 76%,
+        var(--light-color) 0
+      )
+      0 0,
+    linear-gradient(
+        30deg,
+        var(--light-color) 24%,
+        var(--dark-color) 0,
+        var(--dark-color) 26%,
+        var(--background-color) 0,
+        var(--background-color) 74%,
+        var(--dark-color) 0,
+        var(--dark-color) 76%,
+        var(--light-color) 0
+      )
+      0 0,
+    linear-gradient(
+        90deg,
+        var(--dark-color) 2%,
+        var(--light-color) 0,
+        var(--light-color) 98%,
+        var(--dark-color) 0%
+      )
+      0 0 var(--light-color);
+  background-size: 40px 60px;
+}
+
+.sticky-footer {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+}
+
+footer {
+  padding-bottom: 100px;
+}

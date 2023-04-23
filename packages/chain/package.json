@@ -1,0 +1,27 @@
+{
+  "name": "@acme/chain",
+  "version": "0.1.0",
+  "main": "./index.ts",
+  "types": "./index.ts",
+  "license": "MIT",
+  "scripts": {
+    "clean": "rm -rf .turbo node_modules",
+    "lint": "eslint .",
+    "lint:fix": "pnpm lint --fix",
+    "type-check": "tsc --noEmit"
+  },
+  "dependencies": {
+    "cheerio": "1.0.0-rc.12",
+    "net": "^1.0.2",
+    "redis": "^4.6.6",
+    "serpapi": "^1.1.1",
+    "tls": "^0.0.1",
+    "yaml": "^2.3.1"
+  },
+  "devDependencies": {
+    "@acme/eslint-config": "^0.1.0",
+    "@types/crypto-js": "^4.1.1",
+    "eslint": "^8.45.0",
+    "typescript": "^5.1.6"
+  }
+}

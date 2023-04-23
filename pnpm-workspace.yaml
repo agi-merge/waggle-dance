@@ -1,0 +1,9 @@
+packages:
+  # - apps/expo
+  - apps/nextjs
+  # - apps/docs
+  - packages/api
+  - packages/auth
+  - packages/db
+  - packages/chain
+  - packages/config/*

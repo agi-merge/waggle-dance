@@ -1,0 +1,11 @@
+{
+  "github": {
+    "silent": true
+  },
+  "crons": [
+    {
+      "path": "/api/cron/usage",
+      "schedule": "*/10 * * * *"
+    }
+  ]
+}

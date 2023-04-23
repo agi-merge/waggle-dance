@@ -1,0 +1,69 @@
+{
+  "$schema": "https://turborepo.org/schema.json",
+  "globalDependencies": ["**/.env"],
+  "pipeline": {
+    "db:generate": {
+      "inputs": ["prisma/schema.prisma"],
+      "cache": false
+    },
+    "db:push": {
+      "inputs": ["prisma/schema.prisma"],
+      "cache": false
+    },
+    "dev": {
+      "persistent": true,
+      "cache": false
+    },
+    "build": {
+      "dependsOn": ["^build", "^db:generate"],
+      "outputs": [".next/**", ".expo/**"]
+    },
+    "lint": {},
+    "lint:fix": {},
+    "clean": {
+      "cache": false
+    },
+    "//#clean": {
+      "cache": false
+    },
+    "type-check": {
+      "dependsOn": ["^db:generate"],
+      "cache": false
+    }
+  },
+  "globalEnv": [
+    "CI",
+    "DATABASE_URL",
+    "DISCORD_ID",
+    "DISCORD_SECRET",
+    "GITHUB_ID",
+    "GITHUB_SECRET",
+    "EXPO_ROUTER_APP_ROOT",
+    "NEXTAUTH_SECRET",
+    "NEXTAUTH_URL",
+    "NODE_ENV",
+    "SKIP_ENV_VALIDATION",
+    "VERCEL",
+    "VERCEL_URL",
+    "NEXT_PUBLIC_DISCORD_INVITE_URL",
+    "MEMORY_TYPE",
+    "MEMORY_URL",
+    "MEMORY_REST_API_URL",
+    "MEMORY_REST_API_TOKEN",
+    "MEMORY_REST_API_READ_ONLY_TOKEN",
+    "OPENAI_API_KEY",
+    "OPENAI_ORGANIZATION_ID",
+    "SERPAPI_API_KEY",
+    "NEXT_PUBLIC_APP_VERSION",
+    "DIGITALOCEAN_SPACES_KEY",
+    "DIGITALOCEAN_SPACES_SECRET",
+    "PINECONE_API_KEY",
+    "PINECONE_ENVIRONMENT",
+    "PINECONE_INDEX",
+    "NEXT_PUBLIC_LANGCHAIN_VERBOSE",
+    "LANGCHAIN_TRACE",
+    "EDGE_CONFIG",
+    "EDGE_CONFIG_WRITE",
+    "VERCEL_ACCESS_TOKEN"
+  ]
+}

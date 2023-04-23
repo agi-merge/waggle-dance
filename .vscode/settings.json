@@ -1,0 +1,45 @@
+{
+  "editor.codeActionsOnSave": {
+    "source.fixAll.eslint": true
+  },
+  "editor.defaultFormatter": "esbenp.prettier-vscode",
+  "editor.formatOnSave": true,
+  "eslint.rules.customizations": [
+    {
+      "rule": "*",
+      "severity": "warn"
+    }
+  ],
+  "eslint.workingDirectories": [
+    { "pattern": "apps/**/*" },
+    { "pattern": "packages/**/*" },
+    {
+      "pattern": "apps/*/"
+    },
+    {
+      "pattern": "packages/*/"
+    }
+  ],
+  "eslint.options": {},
+  "typescript.tsdk": "node_modules/typescript/lib",
+  "typescript.enablePromptUseWorkspaceTsdk": true,
+  "typescript.tsserver.maxTsServerMemory": 6144,
+  "typescript.tsserver.experimental.enableProjectDiagnostics": true,
+  "tailwindCSS.experimental.configFile": "./packages/config/tailwind/index.ts",
+  "eslint.validate": [
+    "javascript",
+    "javascriptreact",
+    "typescript",
+    "typescriptreact"
+  ],
+  "eslint.timeBudget.onValidation": {
+    "warn": 4000,
+    "error": 8000
+  },
+  "eslint.packageManager": "pnpm",
+  "[typescript]": {
+    "editor.defaultFormatter": "vscode.typescript-language-features"
+  },
+  "eslint.enable": true,
+  "eslint.format.enable": true
+}

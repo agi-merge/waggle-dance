@@ -1,0 +1,119 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url = env("DATABASE_URL")
+  relationMode = "prisma"
+}
+
+// NextAuth.js Models
+// NOTE: When using postgresql, mysql or sqlserver, 
+// uncomment the @db.Text annotations below
+// @see https://next-auth.js.org/schemas/models
+
+model Account {
+  id                String  @id @default(cuid())
+  userId            String
+  type              String
+  provider          String
+  providerAccountId String
+  refresh_token     String? @db.Text
+  access_token      String? @db.Text
+  expires_at        Int?
+  token_type        String?
+  scope             String?
+  id_token          String? @db.Text
+  session_state     String?
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([provider, providerAccountId])
+  @@index([userId])
+}
+
+model Session {
+  id           String   @id @default(cuid())
+  sessionToken String   @unique
+  userId       String
+  expires      DateTime
+  user         User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId])
+}
+
+model User {
+  id            String    @id @default(cuid())
+  name          String?
+  email         String?   @unique
+  emailVerified DateTime?
+  image         String?
+  accounts      Account[]
+  sessions      Session[]
+  goals         Goal[]
+  executions    Execution[]
+}
+
+model VerificationToken {
+  identifier String
+  token      String   @unique
+  expires    DateTime
+
+  @@unique([identifier, token])
+}
+
+model Goal {
+  id          String   @id @default(cuid())
+  prompt      String
+  user        User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  userId      String
+  createdAt   DateTime   @default(now())
+  updatedAt   DateTime   @default(now()) @updatedAt
+  executions  Execution[]
+  results     Result[]
+
+  @@index([userId])
+}
+
+enum ExecutionState {
+  EXECUTING
+  SUCCEEDED
+  FAILED
+}
+
+model Execution {
+  id          String  @id @default(cuid())
+  goal        Goal    @relation(fields: [goalId], references: [id], onDelete: Cascade)
+  goalId      String
+  user        User    @relation(fields: [userId], references: [id], onDelete: Cascade)
+  userId      String
+  graph       Json?
+  results     Result[]
+  state       ExecutionState @default(EXECUTING)
+  createdAt   DateTime       @default(now())
+  updatedAt   DateTime       @default(now()) @updatedAt
+  uniqueToken String
+
+  @@index([userId])
+  @@index([goalId])
+  @@unique([goalId, userId, uniqueToken])
+}
+
+model Result {
+  id          String     @id @default(cuid())
+  goal        Goal       @relation(fields: [goalId], references: [id], onDelete: Cascade)
+  goalId      String
+  execution   Execution  @relation(fields: [executionId], references: [id], onDelete: Cascade)
+  executionId String
+  value       String
+  createdAt   DateTime   @default(now())
+  updatedAt   DateTime   @default(now()) @updatedAt
+
+  @@index([executionId])
+  @@index([goalId])
+}
+
