@@ -10,7 +10,10 @@
 // } satisfies Config;
 
 const config = {
-  content: ["./src/**/*.{ts,tsx}"],
+  content: [
+    "./src/**/*.{ts,tsx}",
+    "./node_modules/tw-elements/dist/js/**/*.js",
+  ],
 };
 
 module.exports = config;
