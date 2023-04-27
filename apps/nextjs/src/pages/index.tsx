@@ -1,7 +1,7 @@
 import { useState } from "react";
 import type { NextPage } from "next";
 import Head from "next/head";
-import { User } from "@nextui-org/react";
+import { Avatar } from "@mantine/core";
 import { signIn, signOut } from "next-auth/react";
 
 import { api, type RouterOutputs } from "~/utils/api";
@@ -148,7 +148,7 @@ const AuthShowcase: React.FC = () => {
       {session?.user && (
         <p className="text-center text-2xl text-white">
           {session && (
-            <User src={session.user.image} name={session.user.name} />
+            <Avatar src={session.user.image} name={session.user.name} />
           )}
           {secretMessage && secretMessage.length > 0 && (
             <span> - {secretMessage[0]}</span>
