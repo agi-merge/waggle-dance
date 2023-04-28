@@ -24,6 +24,7 @@ import { signIn, signOut, useSession } from "next-auth/react";
 import { api, type RouterOutputs } from "~/utils/api";
 import DarkModeToggle from "~/components/DarkModeToggle";
 import GoalInput from "~/components/GoalInput";
+import GoalWorkspace from "~/components/GoalWorkspace";
 import Header from "~/components/Header";
 import { app } from "~/constants";
 
@@ -33,24 +34,29 @@ export interface Handlers {
 }
 
 export enum GoalInputState {
-  editing,
-  running,
+  start,
+  refine,
+  configure,
+  run,
+  done,
 }
 
 const Home: NextPage = () => {
   const { mode } = useColorScheme();
   const [mounted, setMounted] = React.useState(false);
   const [goalInputState, setGoalInputState] = React.useState(
-    GoalInputState.editing,
+    GoalInputState.start,
   );
+  const [newGoal, setNewGoal] = React.useState("");
 
   // Define handleSetGoal function
   const handleSetGoal = (goal: string) => {
     console.log("Goal set:", goal);
     if (goal.trim().length > 0) {
-      setGoalInputState(GoalInputState.running);
+      setGoalInputState(GoalInputState.refine);
+      setNewGoal(goal);
     } else {
-      setGoalInputState(GoalInputState.editing);
+      setGoalInputState(GoalInputState.start);
     }
     // Do something with the goal, e.g., setState or call an API
   };
@@ -88,33 +94,14 @@ const Home: NextPage = () => {
               callbacks={{
                 setGoal: handleSetGoal,
                 onStop: () => {
-                  setGoalInputState(GoalInputState.editing);
+                  setGoalInputState(GoalInputState.start);
                 },
               }}
             />
           </Sheet>
-          {goalInputState === GoalInputState.running && (
+          {goalInputState !== GoalInputState.start && (
             <Card>
-              <Tabs
-                aria-label="Basic tabs"
-                defaultValue={0}
-                sx={{ borderRadius: "lg" }}
-              >
-                <TabList>
-                  <Tab>First tab</Tab>
-                  <Tab>Second tab</Tab>
-                  <Tab>Third tab</Tab>
-                </TabList>
-                <TabPanel value={0} sx={{ p: 2 }}>
-                  <b>First</b> tab panel
-                </TabPanel>
-                <TabPanel value={1} sx={{ p: 2 }}>
-                  <b>Second</b> tab panel
-                </TabPanel>
-                <TabPanel value={2} sx={{ p: 2 }}>
-                  <b>Third</b> tab panel
-                </TabPanel>
-              </Tabs>
+              <GoalWorkspace goal={newGoal} />
             </Card>
           )}
         </main>

@@ -45,7 +45,7 @@ export default function GoalInput({ state, callbacks }: GoalInputProps) {
 
   const handleSubmit = (event: React.FormEvent) => {
     event.preventDefault();
-    if (state === GoalInputState.running) {
+    if (state !== GoalInputState.start) {
       callbacks.onStop();
     } else {
       callbacks.setGoal(goalInputValue);
@@ -97,7 +97,7 @@ export default function GoalInput({ state, callbacks }: GoalInputProps) {
               placeholder={placeholders[currentPlaceholderIndex]}
               minRows={2}
               size="lg"
-              disabled={state === GoalInputState.running}
+              disabled={state !== GoalInputState.start}
               required
               variant="outlined"
               className="py-5"
@@ -117,14 +117,14 @@ export default function GoalInput({ state, callbacks }: GoalInputProps) {
             className="col-end mt-2"
             type="submit"
             disabled={
-              state !== GoalInputState.running &&
+              state === GoalInputState.start &&
               goalInputValue.trim().length === 0
             }
           >
             Create
           </Button>
           {goalInputValue.trim().length > 0 &&
-            state == GoalInputState.editing && (
+            state != GoalInputState.start && (
               <Button className="col-end mt-2" color="neutral">
                 Refine Goal
               </Button>
