@@ -2,8 +2,6 @@ import { type ServerResponse } from "http";
 import { BaseCallbackHandler } from "langchain/callbacks";
 import { type AgentAction } from "langchain/dist/schema";
 
-import { type Message } from "@acme/api/src/router/agentTypes";
-
 export default class StreamingCallbackHandler extends BaseCallbackHandler {
   name = "streaming_handler";
   res?: ServerResponse;

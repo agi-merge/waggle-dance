@@ -9,7 +9,7 @@ import { extractTasks } from "~/utils/helpers";
 import { createModel } from "~/utils/llm";
 import { createPrompt } from "~/utils/prompts";
 import { type ModelSettings } from "~/utils/types";
-import { createMemory } from "./memory";
+import { createMemory } from "./utils/memory";
 
 export async function reviewChain(
   modelSettings: ModelSettings,

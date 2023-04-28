@@ -7,17 +7,16 @@ import { OpenAIEmbeddings } from "langchain/embeddings/openai";
 import { Calculator } from "langchain/tools/calculator";
 import { WebBrowser } from "langchain/tools/webbrowser";
 
-import { createModel } from "~/utils/llm";
-import type { ModelSettings } from "../../utils/types";
-import type StreamingCallbackHandler from "./callbacks";
-import { createMemory } from "./memory";
+import { createMemory } from "../utils/memory";
+import { createModel } from "../utils/model";
+import { ModelCreationProps } from "../utils/types";
 
 export default async function executeChain({
   modelSettings,
   goal,
   task,
 }: {
-  modelSettings: ModelSettings;
+  modelSettings: ModelCreationProps;
   goal: string;
   task: string;
 }): Promise<string> {

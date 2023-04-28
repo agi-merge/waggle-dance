@@ -1,12 +1,15 @@
 import { ConversationChain } from "langchain/chains";
 
-import { createModel } from "~/utils/llm";
-import { extractTasks } from "../../utils/helpers";
-import { createPrompt } from "../../utils/prompts";
-import type { ModelSettings } from "../../utils/types";
-import { createMemory } from "./memory";
+import { createMemory } from "../utils/memory";
+import { createModel } from "../utils/model";
+import { createPrompt } from "../utils/prompts";
+import { extractTasks } from "../utils/serialization";
+import { ModelCreationProps } from "../utils/types";
 
-export async function planChain(modelSettings: ModelSettings, goal: string) {
+export async function planChain(
+  modelSettings: ModelCreationProps,
+  goal: string,
+) {
   const llm = createModel(modelSettings);
   const memory = await createMemory(goal); // loads previous state from Motörhead 🤘
   const prompt = createPrompt("plan");

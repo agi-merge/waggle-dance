@@ -6,7 +6,7 @@ import { NextResponse } from "next/server";
 import axios from "axios";
 
 import { planChain } from "~/server/chains/plan";
-import type { RequestBody } from "../../../utils/interfaces";
+import type { StrategyRequestBody } from "../../../utils/interfaces";
 
 export const config = {
   runtime: "edge",
@@ -16,8 +16,8 @@ const handler = async (req, res) => {
   const isNode = config.runtime == "nodejs";
   try {
     const { modelSettings, goal } = isNode
-      ? (JSON.parse(JSON.stringify(req.body)) as RequestBody)
-      : ((await req.json()) as RequestBody);
+      ? (JSON.parse(JSON.stringify(req.body)) as StrategyRequestBody)
+      : ((await req.json()) as StrategyRequestBody);
     const newTasks = await planChain(modelSettings, goal);
     if (isNode) {
       res.status(200).json({ newTasks });

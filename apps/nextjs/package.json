@@ -15,6 +15,7 @@
   "dependencies": {
     "@acme/api": "^0.1.0",
     "@acme/auth": "^0.1.0",
+    "@acme/chain": "^0.1.0",
     "@acme/db": "^0.1.0",
     "@acme/tailwind-config": "^0.1.0",
     "@emotion/react": "^11.10.6",
@@ -29,6 +30,7 @@
     "@trpc/next": "^10.20.0",
     "@trpc/react-query": "^10.20.0",
     "@trpc/server": "^10.20.0",
+    "eventsource-parser": "^1.0.0",
     "langchain": "^0.0.64",
     "next": "^13.3.1",
     "next-auth": "^4.22.1",

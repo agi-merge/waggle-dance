@@ -4,19 +4,40 @@
 
 import axios from "axios";
 
-import { reviewChain } from "~/server/chains/review";
-import type { RequestBody } from "../../../utils/interfaces";
+import { reviewChain } from "@acme/chain";
+
+import { StrategyRequestBody } from "./types";
 
 export const config = {
   runtime: "edge",
 };
 
-const handler = async (req, res) => {
+const handler = async (
+  req: {
+    body: any;
+    json: () => StrategyRequestBody | PromiseLike<StrategyRequestBody>;
+  },
+  res: {
+    status: (arg0: number) => {
+      (): any;
+      new (): any;
+      json: {
+        (arg0: {
+          newTasks?: any;
+          stack?: string | undefined;
+          message?: string;
+          status?: number;
+        }): void;
+        new (): any;
+      };
+    };
+  },
+) => {
   try {
     const { modelSettings, goal, tasks, lastTask, result, completedTasks } =
       config.runtime == "nodejs"
-        ? (JSON.parse(JSON.stringify(req.body)) as RequestBody)
-        : ((await req.json()) as RequestBody);
+        ? (JSON.parse(JSON.stringify(req.body)) as StrategyRequestBody)
+        : ((await req.json()) as StrategyRequestBody);
 
     if (tasks === undefined || lastTask === undefined || result === undefined) {
       return;

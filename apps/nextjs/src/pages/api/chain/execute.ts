@@ -7,7 +7,7 @@ import axios from "axios";
 
 import StreamingCallbackHandler from "~/server/chains/callbacks";
 import executeChain from "../../../server/chains/execute";
-import type { RequestBody } from "../../../utils/interfaces";
+import type { StrategyRequestBody } from "../../../utils/interfaces";
 
 export const config = {
   runtime: "nodejs",
@@ -20,8 +20,8 @@ const handler = async (req, res: ServerResponse) => {
     res.flushHeaders();
     const { modelSettings, goal, task } =
       config.runtime == "nodejs"
-        ? (JSON.parse(JSON.stringify(req.body)) as RequestBody)
-        : ((await req.json()) as RequestBody);
+        ? (JSON.parse(JSON.stringify(req.body)) as StrategyRequestBody)
+        : ((await req.json()) as StrategyRequestBody);
     Object.assign(modelSettings, {
       callbacks: new StreamingCallbackHandler(res),
     });

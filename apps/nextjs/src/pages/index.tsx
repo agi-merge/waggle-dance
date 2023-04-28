@@ -15,6 +15,7 @@ import { signIn, signOut } from "next-auth/react";
 
 import { api, type RouterOutputs } from "~/utils/api";
 import DarkModeToggle from "~/components/darkModeToggle";
+import GoalInput from "~/components/goalInput";
 import { app } from "~/constants";
 
 const Home: NextPage = () => {
@@ -54,6 +55,7 @@ const Home: NextPage = () => {
                 </Typography>
                 <DarkModeToggle />
               </Stack>
+              <GoalInput></GoalInput>
             </Stack>
           </Sheet>
         </main>
