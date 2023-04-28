@@ -1,61 +1,58 @@
-import { useState } from "react";
+import React, { useState } from "react";
 import type { NextPage } from "next";
 import Head from "next/head";
-import { Avatar, Breadcrumbs, Card, Link, Typography } from "@mui/joy";
-import { useColorScheme } from "@mui/joy/styles";
+import {
+  Avatar,
+  Breadcrumbs,
+  Card,
+  Link,
+  Sheet,
+  Stack,
+  Typography,
+} from "@mui/joy";
+import { getInitColorSchemeScript, useColorScheme } from "@mui/joy/styles";
 import { signIn, signOut } from "next-auth/react";
 
 import { api, type RouterOutputs } from "~/utils/api";
+import DarkModeToggle from "~/components/darkModeToggle";
 import { app } from "~/constants";
 
-const PostCard: React.FC<{
-  post: RouterOutputs["post"]["all"][number];
-  onPostDelete?: () => void;
-}> = ({ post, onPostDelete }) => {
-  return (
-    <div className="flex flex-row rounded-lg bg-white/10 p-4 transition-all hover:scale-[101%]">
-      <div className="flex-grow">
-        <h2 className="text-2xl font-bold text-pink-400">{post.title}</h2>
-        <p className="mt-2 text-sm">{post.content}</p>
-      </div>
-      <div>
-        <span
-          className="cursor-pointer text-sm font-bold uppercase text-pink-400"
-          onClick={onPostDelete}
-        >
-          Delete
-        </span>
-      </div>
-    </div>
-  );
-};
-
 const Home: NextPage = () => {
-  const postQuery = api.post.all.useQuery();
+  const { mode } = useColorScheme();
+  const [mounted, setMounted] = React.useState(false);
 
-  const { mode, setMode } = useColorScheme();
-
-  const deletePostMutation = api.post.delete.useMutation({
-    onSettled: () => postQuery.refetch(),
-  });
-
+  // necessary for server-side rendering
+  // because mode is undefined on the server
+  React.useEffect(() => {
+    setMounted(true);
+  }, []);
+  if (!mounted) {
+    return null;
+  }
   return (
-    <div className="bg-honeycomb">
-      <Head>
-        <title>{app.name}</title>
-        <meta name="description" content={app.description} />
-        <meta name="viewport" content="initial-scale=1, width=device-width" />
-        <link rel="icon" href="/favicon.ico" />
-      </Head>
-      <main className="flex h-screen flex-col items-center text-white">
-        <div className="container my-2 flex flex-col items-center justify-center gap-4 px-4 py-8">
-          <Card variant="outlined">
-            <Typography level="h1">
-              waggle🐝<Typography color="">💃dance</Typography>
-            </Typography>
-          </Card>
-        </div>
-      </main>
+    <div className={mode === "dark" ? "dark" : "light"}>
+      {getInitColorSchemeScript()}
+      <div className="bg-honeycomb">
+        <Head>
+          <title>{app.name}</title>
+          <meta name="description" content={app.description} />
+          <meta name="viewport" content="initial-scale=1, width=device-width" />
+          <link rel="icon" href="/favicon.ico" />
+        </Head>
+        <main className="mx-10 flex h-screen flex-col items-center text-white">
+          <Stack className="my-5 flex flex-col">
+            <Card variant="outlined" className="items-center">
+              <Stack direction="row">
+                <Typography level="h1">
+                  waggle🐝<Typography>💃dance</Typography>
+                </Typography>
+                <DarkModeToggle />
+              </Stack>
+            </Card>
+          </Stack>
+          <div className="container my-2 flex flex-col items-center justify-center gap-4 px-4 py-8"></div>
+        </main>
+      </div>
     </div>
   );
 };

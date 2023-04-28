@@ -1,6 +1,10 @@
 import "../styles/globals.css";
 import type { AppType } from "next/app";
-import { CssVarsProvider, extendTheme } from "@mui/joy/styles";
+import {
+  CssVarsProvider,
+  extendTheme,
+  getInitColorSchemeScript,
+} from "@mui/joy/styles";
 import type { Session } from "next-auth";
 import { SessionProvider } from "next-auth/react";
 
@@ -64,7 +68,9 @@ const MyApp: AppType<{ session: Session | null }> = ({
 }) => {
   return (
     <SessionProvider session={session}>
-      <CssVarsProvider theme={mantineTheme} defaultMode="system">
+      {getInitColorSchemeScript()}
+
+      <CssVarsProvider>
         <Component {...pageProps} />
       </CssVarsProvider>
     </SessionProvider>
