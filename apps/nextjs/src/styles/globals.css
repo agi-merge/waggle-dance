@@ -1,3 +1,56 @@
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
+
+a {
+  color: orange;
+}
+
+.bg-honeycomb {
+  @apply h-full w-full;
+  background: radial-gradient(
+        circle farthest-side at 0% 50%,
+        orange 23.5%,
+        rgba(35, 23, 3, 0) 0
+      )
+      21px 30px,
+    radial-gradient(
+        circle farthest-side at 0% 50%,
+        gold 24%,
+        rgba(35, 23, 3, 0) 0
+      )
+      19px 30px,
+    linear-gradient(
+        orange 14%,
+        rgba(35, 23, 3, 0) 0,
+        rgba(35, 23, 3, 0) 85%,
+        orange 0
+      )
+      0 0,
+    linear-gradient(
+        150deg,
+        orange 24%,
+        gold 0,
+        gold 26%,
+        rgba(35, 23, 3, 0) 0,
+        rgba(35, 23, 3, 0) 74%,
+        gold 0,
+        gold 76%,
+        orange 0
+      )
+      0 0,
+    linear-gradient(
+        30deg,
+        orange 24%,
+        gold 0,
+        gold 26%,
+        rgba(35, 23, 3, 0) 0,
+        rgba(35, 23, 3, 0) 74%,
+        gold 0,
+        gold 76%,
+        orange 0
+      )
+      0 0,
+    linear-gradient(90deg, gold 2%, orange 0, orange 98%, gold 0%) 0 0 orange;
+  background-size: 40px 60px;
+}

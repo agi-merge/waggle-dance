@@ -1,10 +1,11 @@
 import { useState } from "react";
 import type { NextPage } from "next";
 import Head from "next/head";
-import { Avatar } from "@mantine/core";
+import { Avatar, Typography } from "@mui/joy";
 import { signIn, signOut } from "next-auth/react";
 
 import { api, type RouterOutputs } from "~/utils/api";
+import { app } from "~/constants";
 
 const PostCard: React.FC<{
   post: RouterOutputs["post"]["all"][number];
@@ -95,7 +96,7 @@ const Home: NextPage = () => {
         <meta name="description" content={app.description} />
         <link rel="icon" href="/favicon.ico" />
       </Head>
-      <main className="flex h-screen flex-col items-center bg-gradient-to-b from-[#2e026d] to-[#15162c] text-white">
+      <main className="bg-honeycomb flex h-screen flex-col items-center text-white">
         <div className="container mt-12 flex flex-col items-center justify-center gap-4 px-4 py-8">
           <h1 className="text-5xl font-extrabold tracking-tight sm:text-[5rem]">
             Create <span className="text-pink-400">T3</span> Turbo
@@ -148,10 +149,13 @@ const AuthShowcase: React.FC = () => {
       {session?.user && (
         <p className="text-center text-2xl text-white">
           {session && (
-            <Avatar src={session.user.image} name={session.user.name} />
+            <Avatar
+              alt={session.user.name || undefined}
+              src={session.user.image || undefined}
+            />
           )}
           {secretMessage && secretMessage.length > 0 && (
-            <span> - {secretMessage[0]}</span>
+            <Typography> - {secretMessage[0]}</Typography>
           )}
         </p>
       )}

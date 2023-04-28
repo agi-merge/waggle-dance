@@ -84,6 +84,7 @@ export const authOptions: NextAuthOptions = {
             return {
               id: "0",
               name: "Jon Willis",
+              image: "https://avatars.githubusercontent.com/u/10000000?v=4",
             };
           case "zachstein":
           case "jordanmack":
