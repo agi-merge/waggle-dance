@@ -1,5 +1,4 @@
-import React from "react";
-import { Label } from "@mui/icons-material";
+import React, { useEffect, useState } from "react";
 import {
   Button,
   Card,
@@ -7,30 +6,110 @@ import {
   FormHelperText,
   FormLabel,
   Textarea,
+  Tooltip,
+  Typography,
 } from "@mui/joy";
 
-export default function GoalInput() {
-  const fart = "hi";
+import { Handlers } from "~/pages";
+
+const examplePrompts = [
+  "What is the most popular event planning trend right now in April 2023?",
+  "Who came in fourth place in the latest golf major?",
+  "How do fluctuations in mortgage interest rates affect the demand for home loans in the current market?",
+  "How does the current competitive landscape in the renewable energy sector influence market strategy?",
+  "How are electric vehicle charging infrastructure regulations evolving in response to the rapid growth of EV adoption?",
+  "What are the implications of the most recent antitrust investigations on major tech companies?",
+  "What are the top five rising star SaaS startups serving sales teams?",
+  "in nextjs 13, write a minimal example of a streaming API HTTP response that uses langchainjs CallbackHandler callbacks",
+];
+
+const placeholders = [
+  "What's your goal?",
+  "What do you want to know?",
+  "Is there an abstract concept want to understand?",
+  "Add a feature to a GitHub repository?",
+];
+
+export enum GoalInputState {
+  editing,
+  running,
+}
+interface GoalInputProps {
+  state?: GoalInputState;
+  callbacks: Handlers; // Update the type of callbacks
+}
+
+export default function GoalInput({ state, callbacks }: GoalInputProps) {
+  const [currentPromptIndex, setCurrentPromptIndex] = useState(0);
+  const [currentPlaceholderIndex, setCurrentPlaceholderIndex] = useState(0);
+
+  const [goalInputValue, setGoalInputValue] = useState("");
+
+  const handleSubmit = (event: React.FormEvent) => {
+    event.preventDefault();
+    if (state === GoalInputState.running) {
+      callbacks.onStop();
+    } else {
+      callbacks.setGoal(goalInputValue);
+    }
+  };
+
+  const handleChange = (event: React.ChangeEvent<HTMLTextAreaElement>) => {
+    setGoalInputValue(event.target.value);
+  };
+
+  useEffect(() => {
+    const timer = setInterval(() => {
+      setCurrentPromptIndex((prevIndex) =>
+        prevIndex + 1 >= examplePrompts.length ? 0 : prevIndex + 1,
+      );
+      setCurrentPlaceholderIndex((prevIndex) =>
+        prevIndex + 1 >= placeholders.length ? 0 : prevIndex + 1,
+      );
+    }, 5000); // The tooltip title will change every 3 seconds.
+
+    return () => clearInterval(timer);
+  }, []);
+
   return (
     <Card color="neutral">
-      <form
-        onSubmit={(event) => {
-          event.preventDefault();
-        }}
-      >
-        <FormControl>
-          <FormLabel>Label</FormLabel>
-          <Textarea
-            placeholder="What's your goal?"
-            minRows={2}
-            size="lg"
-            required
-            variant="outlined"
-          />
-          {/* <FormHelperText>This is a helper text.</FormHelperText> */}
-        </FormControl>
-        <Button className="col-end" type="submit">
-          Submit
+      <form onSubmit={handleSubmit} className="flex flex-col space-y-2">
+        <Tooltip
+          title={
+            <div className="max-w-sm">
+              <Typography color="info">
+                Try a complex task or question that you perform in your
+                profession. <Typography color="neutral">e.g.</Typography>
+              </Typography>
+              <Typography level="body1" className="mt-2">
+                {examplePrompts[currentPromptIndex]}
+              </Typography>
+            </div>
+          }
+          variant="outlined"
+          arrow
+          color="info"
+          placement="right"
+        >
+          <FormControl>
+            <FormLabel>Goal:</FormLabel>
+            <Textarea
+              id="goalTextarea"
+              name="goalTextarea"
+              placeholder={placeholders[currentPlaceholderIndex]}
+              minRows={2}
+              size="lg"
+              disabled={state === GoalInputState.running}
+              required
+              variant="outlined"
+              className="py-5"
+              value={goalInputValue}
+              onChange={handleChange}
+            />
+          </FormControl>
+        </Tooltip>
+        <Button className="col-end mt-2" type="submit">
+          {state === GoalInputState.running ? "Pause" : "Start"}
         </Button>
       </form>
     </Card>
