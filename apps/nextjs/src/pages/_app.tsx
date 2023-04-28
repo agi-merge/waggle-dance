@@ -1,11 +1,8 @@
 import "../styles/globals.css";
 import type { AppType } from "next/app";
+import { CssVarsProvider, extendTheme } from "@mui/joy/styles";
 import type { Session } from "next-auth";
 import { SessionProvider } from "next-auth/react";
-
-import "tw-elements/dist/css/tw-elements.min.css";
-import Button from "@mui/joy/Button";
-import { CssVarsProvider, extendTheme } from "@mui/joy/styles";
 
 import { api } from "~/utils/api";
 

@@ -6,51 +6,72 @@ a {
   color: orange;
 }
 
+:root {
+  --light-color: orange;
+  --dark-color: gold;
+  --background-color: rgba(35, 23, 3, 0);
+}
+
+@media (prefers-color-scheme: dark) {
+  :root {
+    --light-color: rgb(71, 32, 2);
+    --dark-color: darkorange;
+    --background-color: rgba(35, 23, 3, 0);
+  }
+}
+
 .bg-honeycomb {
   @apply h-full w-full;
   background: radial-gradient(
         circle farthest-side at 0% 50%,
-        orange 23.5%,
-        rgba(35, 23, 3, 0) 0
+        var(--light-color) 23.5%,
+        var(--background-color) 0
       )
       21px 30px,
     radial-gradient(
         circle farthest-side at 0% 50%,
-        gold 24%,
-        rgba(35, 23, 3, 0) 0
+        var(--dark-color) 24%,
+        var(--background-color) 0
       )
       19px 30px,
     linear-gradient(
-        orange 14%,
-        rgba(35, 23, 3, 0) 0,
-        rgba(35, 23, 3, 0) 85%,
-        orange 0
+        var(--light-color) 14%,
+        var(--background-color) 0,
+        var(--background-color) 85%,
+        var(--light-color) 0
       )
       0 0,
     linear-gradient(
         150deg,
-        orange 24%,
-        gold 0,
-        gold 26%,
-        rgba(35, 23, 3, 0) 0,
-        rgba(35, 23, 3, 0) 74%,
-        gold 0,
-        gold 76%,
-        orange 0
+        var(--light-color) 24%,
+        var(--dark-color) 0,
+        var(--dark-color) 26%,
+        var(--background-color) 0,
+        var(--background-color) 74%,
+        var(--dark-color) 0,
+        var(--dark-color) 76%,
+        var(--light-color) 0
       )
       0 0,
     linear-gradient(
         30deg,
-        orange 24%,
-        gold 0,
-        gold 26%,
-        rgba(35, 23, 3, 0) 0,
-        rgba(35, 23, 3, 0) 74%,
-        gold 0,
-        gold 76%,
-        orange 0
+        var(--light-color) 24%,
+        var(--dark-color) 0,
+        var(--dark-color) 26%,
+        var(--background-color) 0,
+        var(--background-color) 74%,
+        var(--dark-color) 0,
+        var(--dark-color) 76%,
+        var(--light-color) 0
       )
       0 0,
-    linear-gradient(90deg, gold 2%, orange 0, orange 98%, gold 0%) 0 0 orange;
+    linear-gradient(
+        90deg,
+        var(--dark-color) 2%,
+        var(--light-color) 0,
+        var(--light-color) 98%,
+        var(--dark-color) 0%
+      )
+      0 0 var(--light-color);
   background-size: 40px 60px;
 }
