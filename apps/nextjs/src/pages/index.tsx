@@ -4,11 +4,16 @@ import Head from "next/head";
 import {
   Avatar,
   Breadcrumbs,
+  Button,
   Card,
   Divider,
   Link,
   Sheet,
   Stack,
+  Tab,
+  TabList,
+  TabPanel,
+  Tabs,
   Tooltip,
   Typography,
 } from "@mui/joy";
@@ -31,21 +36,30 @@ const Header = () => {
   return (
     <Sheet>
       <Stack direction="row" className="">
-        <Typography level="h1" className="flex-grow pr-5">
-          waggle🐝<Typography>💃dance</Typography>
-        </Typography>
-        <Stack direction="row" spacing="10" className="mt-2">
+        <Stack className="flex-grow pr-5">
+          <Typography level="h2">
+            waggle🐝<Typography>💃dance</Typography>
+          </Typography>
+          <Typography level="body5" className="pl-2">
+            {app.version}
+          </Typography>
+        </Stack>
+        <Stack direction="row" spacing="10">
           {session?.user && (
-            <Avatar
-              src={session.user.image || undefined}
-              alt={session.user.name || undefined}
-              className="mr-3 mt-2"
-            />
+            <Tooltip title={`${session.user.name} has 100 credits`}>
+              <Link>
+                <Avatar
+                  className="mr-3"
+                  src={session.user.image || undefined}
+                  alt={session.user.name || undefined}
+                />
+              </Link>
+            </Tooltip>
           )}
           <DarkModeToggle />
         </Stack>
       </Stack>
-      <p className="m-2">
+      <Typography className="m-2">
         Complete complex tasks with{" "}
         <Tooltip title="I swear it is a thing" color="info">
           <a
@@ -56,7 +70,7 @@ const Header = () => {
           </a>
         </Tooltip>
         of large language models.
-      </p>
+      </Typography>
       <Divider />
     </Sheet>
   );
@@ -97,10 +111,10 @@ const Home: NextPage = () => {
           <meta name="viewport" content="initial-scale=1, width=device-width" />
           <link rel="icon" href="/favicon.ico" />
         </Head>
-        <main className="mx-10 flex h-screen flex-col items-center text-white">
+        <main className="flex h-screen flex-col items-center text-white">
           <Sheet
             variant="outlined"
-            className="my-5 items-center p-5"
+            className="full my-5 items-center p-5"
             sx={{
               borderRadius: "lg",
               shadowRadius: "xl",
@@ -118,6 +132,30 @@ const Home: NextPage = () => {
               }}
             />
           </Sheet>
+          {goalInputState === GoalInputState.running && (
+            <Card>
+              <Tabs
+                aria-label="Basic tabs"
+                defaultValue={0}
+                sx={{ borderRadius: "lg" }}
+              >
+                <TabList>
+                  <Tab>First tab</Tab>
+                  <Tab>Second tab</Tab>
+                  <Tab>Third tab</Tab>
+                </TabList>
+                <TabPanel value={0} sx={{ p: 2 }}>
+                  <b>First</b> tab panel
+                </TabPanel>
+                <TabPanel value={1} sx={{ p: 2 }}>
+                  <b>Second</b> tab panel
+                </TabPanel>
+                <TabPanel value={2} sx={{ p: 2 }}>
+                  <b>Third</b> tab panel
+                </TabPanel>
+              </Tabs>
+            </Card>
+          )}
         </main>
       </div>
     </div>

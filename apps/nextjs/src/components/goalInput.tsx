@@ -91,7 +91,7 @@ export default function GoalInput({ state, callbacks }: GoalInputProps) {
           variant="outlined"
           arrow
           color="info"
-          placement="bottom"
+          placement="right"
         >
           <FormControl>
             <FormLabel>Goal:</FormLabel>
@@ -105,21 +105,31 @@ export default function GoalInput({ state, callbacks }: GoalInputProps) {
               required
               variant="outlined"
               className="py-5"
+              onKeyPress={(event) => {
+                if (event.key === "Enter") {
+                  event.preventDefault();
+                  handleSubmit(event);
+                }
+              }}
               value={goalInputValue}
               onChange={handleChange}
             />
           </FormControl>
         </Tooltip>
         <Stack direction="row-reverse" gap="1rem">
-          {(goalInputValue.trim().length > 0 ||
-            state == GoalInputState.running) && (
-            <Button className="col-end mt-2" type="submit">
-              {state === GoalInputState.running ? "Pause" : "Start!"}
-            </Button>
-          )}
+          <Button
+            className="col-end mt-2"
+            type="submit"
+            disabled={
+              state !== GoalInputState.running &&
+              goalInputValue.trim().length === 0
+            }
+          >
+            {state === GoalInputState.running ? "Pause" : "Start!"}
+          </Button>
           {goalInputValue.trim().length > 0 &&
             state == GoalInputState.editing && (
-              <Button className="col-end mt-2" color="info">
+              <Button className="col-end mt-2" color="neutral">
                 Refine Goal
               </Button>
             )}
