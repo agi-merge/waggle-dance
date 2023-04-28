@@ -307,6 +307,10 @@ importers:
         version: 5.0.4
 
   packages/chain:
+    dependencies:
+      serpapi:
+        specifier: ^1.1.1
+        version: 1.1.1
     devDependencies:
       '@acme/eslint-config':
         specifier: ^0.1.0
@@ -10836,6 +10840,12 @@ packages:
       type-fest: 0.12.0
     dev: false
 
+  /serpapi@1.1.1:
+    resolution: {integrity: sha512-t5Bqu/6VMJ9naX8K+qCgUStpZOaNQFvIM4AudhMJLS6sqQT/EHaYrhGidDZHVx8QvcEdY6y1wNlxizOCtvJtUQ==}
+    dependencies:
+      undici: 5.22.0
+    dev: false
+
   /serve-static@1.15.0:
     resolution: {integrity: sha512-XGuRDNjXUijsUL0vl6nSD7cwURuzEgglbOaFuZM9g3kwDXOWVTck0jLzjPzGD+TazWbboZYu52/9/XPdUgne9g==}
     engines: {node: '>= 0.8.0'}
@@ -11759,6 +11769,13 @@ packages:
       has-bigints: 1.0.2
       has-symbols: 1.0.3
       which-boxed-primitive: 1.0.2
+    dev: false
+
+  /undici@5.22.0:
+    resolution: {integrity: sha512-fR9RXCc+6Dxav4P9VV/sp5w3eFiSdOjJYsbtWfd4s5L5C4ogyuVpdKIVHeW0vV1MloM65/f7W45nR9ZxwVdyiA==}
+    engines: {node: '>=14.0'}
+    dependencies:
+      busboy: 1.6.0
     dev: false
 
   /unicode-canonical-property-names-ecmascript@2.0.0:

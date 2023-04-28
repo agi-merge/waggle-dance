@@ -2,6 +2,7 @@ import { AgentExecutor, ZeroShotAgent } from "langchain/agents";
 import type { CallbackManager } from "langchain/callbacks";
 import { LLMChain } from "langchain/chains";
 import { type Tool } from "langchain/dist/tools/base";
+import { SerpAPI } from "langchain/dist/tools/serpapi";
 import { OpenAIEmbeddings } from "langchain/embeddings/openai";
 import { Calculator } from "langchain/tools/calculator";
 import { WebBrowser } from "langchain/tools/webbrowser";
@@ -27,10 +28,16 @@ export default async function executeChain({
   // const history = memory?.context ?? await memory.loadMemoryVariables({})
   // const skipHistory = history.length === 0;
 
-  const tools: Tool[] = [
-    new Calculator(),
-    new WebBrowser({ model, embeddings }),
-  ];
+  var tools: Tool[] = [new Calculator(), new WebBrowser({ model, embeddings })];
+  if (process.env.SERPAPI_API_KEY?.length) {
+    tools.push(
+      new SerpAPI(process.env.SERPAPI_API_KEY, {
+        location: "Los Angeles,California,United States",
+        hl: "en",
+        gl: "us",
+      }),
+    );
+  }
   const instructions = `Given your goal "${goal}", and the task "${task}", execute the task.`;
 
   const prompt = ZeroShotAgent.createPrompt(tools);

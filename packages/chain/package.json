@@ -10,7 +10,9 @@
     "lint:fix": "pnpm lint --fix",
     "type-check": "tsc --noEmit"
   },
-  "dependencies": {},
+  "dependencies": {
+    "serpapi": "^1.1.1"
+  },
   "devDependencies": {
     "@acme/eslint-config": "^0.1.0",
     "eslint": "^8.38.0",
