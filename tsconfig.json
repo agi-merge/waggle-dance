@@ -15,7 +15,10 @@
     "isolatedModules": true,
     "jsx": "preserve",
     "incremental": true,
-    "noUncheckedIndexedAccess": true
+    "noUncheckedIndexedAccess": true,
+    "paths": {
+      "@mui/material": ["./node_modules/@mui/joy"]
+    }
   },
   "include": [".eslintrc.js", "prettier.config.cjs"]
 }

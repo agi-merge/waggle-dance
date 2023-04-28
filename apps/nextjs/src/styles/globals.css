@@ -2,18 +2,15 @@
 @tailwind components;
 @tailwind utilities;
 
-a {
-  color: orange;
-}
 :root {
-  --light-color: darkorange;
-  --dark-color: gold;
+  --light-color: rgb(250, 181, 97);
+  --dark-color: rgb(255, 247, 202);
   --background-color: rgba(35, 23, 3, 0);
 }
 
 .dark {
   --light-color: rgb(48, 26, 0);
-  --dark-color: rgb(156, 86, 0);
+  --dark-color: rgb(188, 114, 24);
   --background-color: rgba(35, 23, 3, 0);
 }
 

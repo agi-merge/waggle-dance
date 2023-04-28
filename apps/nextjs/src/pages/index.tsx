@@ -40,17 +40,22 @@ const Home: NextPage = () => {
           <link rel="icon" href="/favicon.ico" />
         </Head>
         <main className="mx-10 flex h-screen flex-col items-center text-white">
-          <Stack className="my-5 flex flex-col">
-            <Card variant="outlined" className="items-center">
-              <Stack direction="row">
-                <Typography level="h1">
+          <Sheet
+            variant="outlined"
+            className="my-5 items-center"
+            sx={{
+              borderRadius: "md",
+            }}
+          >
+            <Stack className="m-5">
+              <Stack direction="row" className="">
+                <Typography level="h1" className="flex-grow pr-5">
                   waggle🐝<Typography>💃dance</Typography>
                 </Typography>
                 <DarkModeToggle />
               </Stack>
-            </Card>
-          </Stack>
-          <div className="container my-2 flex flex-col items-center justify-center gap-4 px-4 py-8"></div>
+            </Stack>
+          </Sheet>
         </main>
       </div>
     </div>
