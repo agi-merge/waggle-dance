@@ -1,6 +1,7 @@
 import React, { useState } from "react";
 import type { NextPage } from "next";
 import Head from "next/head";
+import { KeyboardArrowRight } from "@mui/icons-material";
 import {
   Avatar,
   Breadcrumbs,
@@ -21,8 +22,9 @@ import { getInitColorSchemeScript, useColorScheme } from "@mui/joy/styles";
 import { signIn, signOut, useSession } from "next-auth/react";
 
 import { api, type RouterOutputs } from "~/utils/api";
-import DarkModeToggle from "~/components/darkModeToggle";
-import GoalInput, { GoalInputState } from "~/components/goalInput";
+import DarkModeToggle from "~/components/DarkModeToggle";
+import GoalInput from "~/components/GoalInput";
+import Header from "~/components/Header";
 import { app } from "~/constants";
 
 export interface Handlers {
@@ -30,51 +32,10 @@ export interface Handlers {
   onStop: () => void;
 }
 
-const Header = () => {
-  const { data: session } = useSession();
-
-  return (
-    <Sheet>
-      <Stack direction="row" className="">
-        <Stack className="flex-grow pr-5">
-          <Typography level="h2">
-            waggle🐝<Typography>💃dance</Typography>
-          </Typography>
-          <Typography level="body5" className="pl-2">
-            {app.version}
-          </Typography>
-        </Stack>
-        <Stack direction="row" spacing="10">
-          {session?.user && (
-            <Tooltip title={`${session.user.name} has 100 credits`}>
-              <Link>
-                <Avatar
-                  className="mr-3"
-                  src={session.user.image || undefined}
-                  alt={session.user.name || undefined}
-                />
-              </Link>
-            </Tooltip>
-          )}
-          <DarkModeToggle />
-        </Stack>
-      </Stack>
-      <Typography className="m-2">
-        Complete complex tasks with{" "}
-        <Tooltip title="I swear it is a thing" color="info">
-          <a
-            href="https://wikipedia.org/wiki/Waggle_dance"
-            className="text-blue font-bold"
-          >
-            wagglin' 🐝 swarms{" "}
-          </a>
-        </Tooltip>
-        of large language models.
-      </Typography>
-      <Divider />
-    </Sheet>
-  );
-};
+export enum GoalInputState {
+  editing,
+  running,
+}
 
 const Home: NextPage = () => {
   const { mode } = useColorScheme();

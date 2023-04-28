@@ -11,7 +11,7 @@ import {
   Typography,
 } from "@mui/joy";
 
-import { Handlers } from "~/pages";
+import { GoalInputState, Handlers } from "~/pages";
 
 const examplePrompts = [
   "What is the most popular event planning trend right now in April 2023?",
@@ -32,10 +32,6 @@ const placeholders = [
   "Try something that ChatGPT might be not able to do!",
 ];
 
-export enum GoalInputState {
-  editing,
-  running,
-}
 interface GoalInputProps {
   state?: GoalInputState;
   callbacks: Handlers; // Update the type of callbacks
@@ -94,7 +90,7 @@ export default function GoalInput({ state, callbacks }: GoalInputProps) {
           placement="right"
         >
           <FormControl>
-            <FormLabel>Goal:</FormLabel>
+            {/* <FormLabel>Goal:</FormLabel> */}
             <Textarea
               id="goalTextarea"
               name="goalTextarea"
@@ -125,7 +121,7 @@ export default function GoalInput({ state, callbacks }: GoalInputProps) {
               goalInputValue.trim().length === 0
             }
           >
-            {state === GoalInputState.running ? "Pause" : "Start!"}
+            Create
           </Button>
           {goalInputValue.trim().length > 0 &&
             state == GoalInputState.editing && (
