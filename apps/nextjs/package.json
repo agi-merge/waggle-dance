@@ -36,6 +36,8 @@
     "next-auth": "^4.22.1",
     "react": "18.2.0",
     "react-dom": "18.2.0",
+    "react-robot": "^0.3.0",
+    "robot3": "^0.4.0",
     "superjson": "1.9.1",
     "utils": "link:@mui/material/utils",
     "zod": "^3.21.4"

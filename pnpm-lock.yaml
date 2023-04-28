@@ -103,6 +103,12 @@ importers:
       react-dom:
         specifier: 18.2.0
         version: 18.2.0(react@18.2.0)
+      react-robot:
+        specifier: ^0.3.0
+        version: 0.3.0(react@18.2.0)(robot3@0.4.0)
+      robot3:
+        specifier: ^0.4.0
+        version: 0.4.0
       superjson:
         specifier: 1.9.1
         version: 1.9.1
@@ -4115,6 +4121,17 @@ packages:
     resolution: {integrity: sha512-xWGDIW6x921xtzPkhiULtthJHoJvBbF3q26fzloPCK0hsvxtPVelvftw3zjbHWSkR2km9Z+4uxbDDK/6Zw9B8w==}
     dev: false
 
+  /react-robot@0.3.0(react@18.2.0)(robot3@0.4.0):
+    resolution: {integrity: sha512-+7NqHd9g60mmtZGoICsPaq/XDGcF9LDj85Oj7h/sdrn8zAlhpYhavZrz6eaH5poamTgIsqGrKgrEHtyACAZEuQ==}
+    peerDependencies:
+      react: ^16.9.0 || ^17.0.0 || ^18.2.0
+      robot3: ^0.4.0
+    dependencies:
+      react: 18.2.0
+      robot-hooks: 0.4.0(robot3@0.4.0)
+      robot3: 0.4.0
+    dev: false
+
   /react-ssr-prepass@1.5.0(react@18.2.0):
     resolution: {integrity: sha512-yFNHrlVEReVYKsLI5lF05tZoHveA5pGzjFbFJY/3pOqqjGOmMmqx83N4hIjN2n6E1AOa+eQEUxs3CgRnPmT0RQ==}
     peerDependencies:
@@ -4244,6 +4261,18 @@ packages:
     hasBin: true
     dependencies:
       glob: 7.2.3
+
+  /robot-hooks@0.4.0(robot3@0.4.0):
+    resolution: {integrity: sha512-BLImCRTsuIcwmH7v6XOxrl+8PsW/QuXW8IF8xuF2HtV/qYdDj46F+J62h54ByR/PrFtHyaA0sUBCuwSeNBcrEg==}
+    peerDependencies:
+      robot3: ^0.4.0
+    dependencies:
+      robot3: 0.4.0
+    dev: false
+
+  /robot3@0.4.0:
+    resolution: {integrity: sha512-6WjtNe2jawFiAkqIwfA3ikhQjjDtm2EZ4e8Hz6VqxHmQYNQcpSZKIOr4OCDbw0PBBrRR9AIDrMRyagnIkapm6A==}
+    dev: false
 
   /run-parallel@1.2.0:
     resolution: {integrity: sha512-5l4VyZR86LZ/lDxZTR6jqL8AFE2S0IFLMP26AbjsLVADxHdhB/c0GUsH+y39UfCi3dzz8OlQuPmnaJOMoDHQBA==}
