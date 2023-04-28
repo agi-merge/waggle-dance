@@ -5,13 +5,15 @@ import {
   Avatar,
   Breadcrumbs,
   Card,
+  Divider,
   Link,
   Sheet,
   Stack,
+  Tooltip,
   Typography,
 } from "@mui/joy";
 import { getInitColorSchemeScript, useColorScheme } from "@mui/joy/styles";
-import { signIn, signOut } from "next-auth/react";
+import { signIn, signOut, useSession } from "next-auth/react";
 
 import { api, type RouterOutputs } from "~/utils/api";
 import DarkModeToggle from "~/components/darkModeToggle";
@@ -22,6 +24,43 @@ export interface Handlers {
   setGoal: (goal: string) => void;
   onStop: () => void;
 }
+
+const Header = () => {
+  const { data: session } = useSession();
+
+  return (
+    <Sheet>
+      <Stack direction="row" className="">
+        <Typography level="h1" className="flex-grow pr-5">
+          waggle🐝<Typography>💃dance</Typography>
+        </Typography>
+        <Stack direction="row" spacing="10" className="mt-2">
+          {session?.user && (
+            <Avatar
+              src={session.user.image || undefined}
+              alt={session.user.name || undefined}
+              className="mr-3 mt-2"
+            />
+          )}
+          <DarkModeToggle />
+        </Stack>
+      </Stack>
+      <p className="m-2">
+        Complete complex tasks with{" "}
+        <Tooltip title="I swear it is a thing" color="info">
+          <a
+            href="https://wikipedia.org/wiki/Waggle_dance"
+            className="text-blue font-bold"
+          >
+            wagglin' 🐝 swarms{" "}
+          </a>
+        </Tooltip>
+        of large language models.
+      </p>
+      <Divider />
+    </Sheet>
+  );
+};
 
 const Home: NextPage = () => {
   const { mode } = useColorScheme();
@@ -61,29 +100,23 @@ const Home: NextPage = () => {
         <main className="mx-10 flex h-screen flex-col items-center text-white">
           <Sheet
             variant="outlined"
-            className="my-5 items-center"
+            className="my-5 items-center p-5"
             sx={{
-              borderRadius: "md",
+              borderRadius: "lg",
+              shadowRadius: "xl",
             }}
             invertedColors
           >
-            <Stack className="m-5">
-              <Stack direction="row" className="">
-                <Typography level="h1" className="flex-grow pr-5">
-                  waggle🐝<Typography>💃dance</Typography>
-                </Typography>
-                <DarkModeToggle />
-              </Stack>
-              <GoalInput
-                state={goalInputState}
-                callbacks={{
-                  setGoal: handleSetGoal,
-                  onStop: () => {
-                    setGoalInputState(GoalInputState.editing);
-                  },
-                }}
-              />
-            </Stack>
+            <Header />
+            <GoalInput
+              state={goalInputState}
+              callbacks={{
+                setGoal: handleSetGoal,
+                onStop: () => {
+                  setGoalInputState(GoalInputState.editing);
+                },
+              }}
+            />
           </Sheet>
         </main>
       </div>

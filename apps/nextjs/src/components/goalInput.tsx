@@ -27,8 +27,9 @@ const examplePrompts = [
 const placeholders = [
   "What's your goal?",
   "What do you want to know?",
-  "Is there an abstract concept want to understand?",
+  "Is there an abstract concept that you want to understand?",
   "Add a feature to a GitHub repository?",
+  "Try something that ChatGPT might be not able to do!",
 ];
 
 export enum GoalInputState {
@@ -90,7 +91,7 @@ export default function GoalInput({ state, callbacks }: GoalInputProps) {
           variant="outlined"
           arrow
           color="info"
-          placement="right"
+          placement="bottom"
         >
           <FormControl>
             <FormLabel>Goal:</FormLabel>
@@ -110,9 +111,12 @@ export default function GoalInput({ state, callbacks }: GoalInputProps) {
           </FormControl>
         </Tooltip>
         <Stack direction="row-reverse" gap="1rem">
-          <Button className="col-end mt-2" type="submit">
-            {state === GoalInputState.running ? "Pause" : "Start!"}
-          </Button>
+          {(goalInputValue.trim().length > 0 ||
+            state == GoalInputState.running) && (
+            <Button className="col-end mt-2" type="submit">
+              {state === GoalInputState.running ? "Pause" : "Start!"}
+            </Button>
+          )}
           {goalInputValue.trim().length > 0 &&
             state == GoalInputState.editing && (
               <Button className="col-end mt-2" color="info">
