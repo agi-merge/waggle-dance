@@ -5,6 +5,7 @@ import {
   FormControl,
   FormHelperText,
   FormLabel,
+  Stack,
   Textarea,
   Tooltip,
   Typography,
@@ -72,7 +73,7 @@ export default function GoalInput({ state, callbacks }: GoalInputProps) {
   }, []);
 
   return (
-    <Card color="neutral">
+    <Card color="primary" invertedColors>
       <form onSubmit={handleSubmit} className="flex flex-col space-y-2">
         <Tooltip
           title={
@@ -108,9 +109,17 @@ export default function GoalInput({ state, callbacks }: GoalInputProps) {
             />
           </FormControl>
         </Tooltip>
-        <Button className="col-end mt-2" type="submit">
-          {state === GoalInputState.running ? "Pause" : "Start"}
-        </Button>
+        <Stack direction="row-reverse" gap="1rem">
+          <Button className="col-end mt-2" type="submit">
+            {state === GoalInputState.running ? "Pause" : "Start!"}
+          </Button>
+          {goalInputValue.trim().length > 0 &&
+            state == GoalInputState.editing && (
+              <Button className="col-end mt-2" color="info">
+                Refine Goal
+              </Button>
+            )}
+        </Stack>
       </form>
     </Card>
   );
