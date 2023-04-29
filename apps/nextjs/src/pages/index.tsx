@@ -22,11 +22,11 @@ import { getInitColorSchemeScript, useColorScheme } from "@mui/joy/styles";
 import { signIn, signOut, useSession } from "next-auth/react";
 
 import { api, type RouterOutputs } from "~/utils/api";
-import DarkModeToggle from "~/components/DarkModeToggle";
 import GoalInput from "~/components/GoalInput";
 import GoalWorkspace from "~/components/GoalWorkspace";
 import Header from "~/components/Header";
 import { app } from "~/constants";
+import DarkModeToggle from "../components/DarkModeToggle";
 
 export interface Handlers {
   setGoal: (goal: string) => void;
