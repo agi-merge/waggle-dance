@@ -201,7 +201,7 @@ const ChainMachine: React.FC<ChainMachineProps> = ({ initialPlan }) => {
   return (
     <div>
       <ForceTree data={graphData} />
-      <button onClick={startChain}>Start Chain</button>
+      <Button onClick={startChain}>Start Chain</Button>
     </div>
   );
 };

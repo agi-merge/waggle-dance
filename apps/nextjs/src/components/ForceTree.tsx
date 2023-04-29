@@ -3,8 +3,6 @@ import dynamic from "next/dynamic";
 import d3 from "d3";
 import { ForceGraph2D } from "react-force-graph";
 
-// import { ForceGraph2D } from "react-force-graph";
-
 import { ChainTask, DirectedAcyclicGraph } from "./ChainMachine";
 
 const useForceUpdate = () => {
@@ -63,13 +61,13 @@ const ForceTree: React.FC<ForceTreeProps> = ({ data }) => {
   const [controls] = useState({ "DAG Orientation": "td" });
   const forceUpdate = useForceUpdate();
 
-  useEffect(() => {
-    // add collision force
-    fgRef?.current?.d3Force(
-      "collision",
-      d3.forceCollide((node) => Math.sqrt(100 / (node.level + 1))),
-    );
-  }, []);
+  // useEffect(() => {
+  //   // add collision force
+  //   fgRef?.current?.d3Force(
+  //     "collision",
+  //     d3.forceCollide((node) => Math.sqrt(100 / (node.level + 1))),
+  //   );
+  // }, []);
 
   return (
     <ForceGraph2D
@@ -77,6 +75,7 @@ const ForceTree: React.FC<ForceTreeProps> = ({ data }) => {
       graphData={data}
       dagMode="radialout"
       dagLevelDistance={50}
+      backgroundColor="#101020"
       linkColor={() => "rgba(255,255,255,0.2)"}
       nodeRelSize={1}
       nodeId="path"
