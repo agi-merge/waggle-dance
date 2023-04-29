@@ -18,7 +18,10 @@ Another state could be waiting for human input if there is a fatal error (e.g. s
 The component renders the raw JSON as well as a simplistic visualization of the DAG. The DAG visualization is a stretch goal, but would be a nice to have.
 Again, the following code is only a starting point and can be totally changed.
 */
+
 import { useEffect, useState } from "react";
+import { Button, Stack } from "@mui/joy";
+import { Graph } from "react-d3-graph";
 import { useMachine } from "react-robot";
 import { createMachine, invoke, reduce, state, transition } from "robot3";
 
@@ -41,8 +44,8 @@ class DAG {
     this.nodes = [];
   }
 
-  addNode(agent: ChainTask) {
-    const node = new DAGNode(agent);
+  addNode(chainTask: ChainTask) {
+    const node = new DAGNode(chainTask);
     this.nodes.push(node);
     return node;
   }
@@ -54,12 +57,12 @@ class DAG {
 }
 
 class DAGNode {
-  agent: ChainTask;
+  chainTask: ChainTask;
   parents: DAGNode[];
   children: DAGNode[];
 
-  constructor(agent: ChainTask) {
-    this.agent = agent;
+  constructor(chainTask: ChainTask) {
+    this.chainTask = chainTask;
     this.parents = [];
     this.children = [];
   }
@@ -118,9 +121,46 @@ const getCircularReplacer = () => {
   };
 };
 
+function convertToGraphData(script: DAG): { nodes: any[]; links: any[] } {
+  return {
+    nodes: script.nodes.map((node) => ({ id: node.chainTask.type })),
+    links: script.nodes.flatMap((node) =>
+      node.children.map((child) => ({
+        source: node.chainTask.type,
+        target: child.chainTask.type,
+      })),
+    ),
+  };
+}
+
 const ChainMachine = () => {
   const [current, send] = useMachine(machine);
   const { goal, script } = current.context;
+
+  const executeTask = async (task: ChainTask) => {
+    const result = await task.execute();
+    console.log("Task executed:", task.type, "Result:", result);
+  };
+
+  const goodReview = () => {
+    // Simulate a good review by changing the review task's executed result
+    script.nodes[1].chainTask.execute = async () => ({
+      cancel: false,
+      score: 1,
+      reason: "Good review",
+    });
+  };
+
+  const badReview = () => {
+    // Simulate a bad review by changing the review task's executed result
+    script.nodes[1].chainTask.execute = async () => ({
+      cancel: true,
+      score: 0,
+      reason: "Bad review",
+    });
+  };
+
+  const graphData = convertToGraphData(script);
 
   useEffect(() => {
     const nextGoal = "example goal";
@@ -128,9 +168,29 @@ const ChainMachine = () => {
   }, []);
 
   return (
-    <>
+    <Stack>
       <div>{JSON.stringify(script, getCircularReplacer())}</div>
-    </>
+      <div>
+        {
+          <Graph
+            id="dag-graph"
+            data={graphData}
+            config={{
+              node: { labelProperty: "id" },
+              link: { renderLabel: true },
+            }}
+          />
+        }
+      </div>
+      <Button onClick={() => executeTask(script.nodes[0].chainTask)}>
+        Execute Task 1
+      </Button>
+      <Button onClick={() => executeTask(script.nodes[1].chainTask)}>
+        Execute Review Task
+      </Button>
+      <Button onClick={() => goodReview()}>Simulate Good Review</Button>
+      <Button onClick={() => badReview()}>Simulate Bad Review</Button>
+    </Stack>
   );
 };
 
