@@ -39,7 +39,7 @@ export const getGraphDataFromDAG = (
   const nodes: NodeObject[] = [];
   const links: LinkObject[] = [];
 
-  dag.tasks.forEach((task) => {
+  dag.nodes.forEach((task) => {
     nodes.push({
       id: task.id,
       ...task.data,
@@ -71,9 +71,9 @@ const ForceTree: React.FC<ForceTreeProps> = ({ data }) => {
 
   return (
     <ForceGraph2D
-      // ref={fgRef}
+      ref={fgRef}
       graphData={data}
-      dagMode="radialout"
+      dagMode="td"
       dagLevelDistance={50}
       linkColor={() => "rgba(255,255,255,0.2)"}
       nodeRelSize={1}
@@ -84,6 +84,7 @@ const ForceTree: React.FC<ForceTreeProps> = ({ data }) => {
       linkDirectionalParticles={2}
       linkDirectionalParticleWidth={2}
       d3VelocityDecay={0.3}
+      onEngineStop={() => fgRef.current.zoomToFit(400)}
     />
   );
 };

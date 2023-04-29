@@ -10,8 +10,8 @@ A task chain is said to be complete when all of its nodes have been canceled or 
 
 */
 
-import { useCallback, useState } from "react";
-import { Button } from "@mui/joy";
+import { useCallback, useEffect, useState } from "react";
+import { Button, Stack, Typography } from "@mui/joy";
 
 import ForceTree, { GraphData, getGraphDataFromDAG } from "./ForceTree";
 
@@ -28,18 +28,18 @@ export type Plan = {
   dependencies: Set<string>;
 };
 export class DirectedAcyclicGraph<T> {
-  tasks: Map<string, DAGNode<T>>;
+  nodes: Map<string, DAGNode<T>>;
 
   constructor() {
-    this.tasks = new Map();
+    this.nodes = new Map();
   }
 
   addNode(id: string, data: T): void {
-    if (this.tasks.has(id)) {
+    if (this.nodes.has(id)) {
       throw new Error(`Node with id "${id}" already exists.`);
     }
 
-    this.tasks.set(id, {
+    this.nodes.set(id, {
       id,
       data,
       dependencies: new Set(),
@@ -48,8 +48,8 @@ export class DirectedAcyclicGraph<T> {
   }
 
   addEdge(from: string, to: string): void {
-    const fromNode = this.tasks.get(from);
-    const toNode = this.tasks.get(to);
+    const fromNode = this.nodes.get(from);
+    const toNode = this.nodes.get(to);
 
     if (!fromNode || !toNode) {
       throw new Error("Both nodes must exist to create an edge.");
@@ -60,35 +60,35 @@ export class DirectedAcyclicGraph<T> {
   }
 
   removeNode(id: string): void {
-    const task = this.tasks.get(id);
+    const task = this.nodes.get(id);
 
     if (!task) {
       throw new Error(`Node with id "${id}" does not exist.`);
     }
 
     task.dependencies.forEach((dependencyId) => {
-      const dependency = this.tasks.get(dependencyId);
+      const dependency = this.nodes.get(dependencyId);
       if (dependency) {
         dependency.dependents.delete(id);
       }
     });
 
     task.dependents.forEach((dependentId) => {
-      const dependent = this.tasks.get(dependentId);
+      const dependent = this.nodes.get(dependentId);
       if (dependent) {
         dependent.dependencies.delete(id);
       }
     });
 
-    this.tasks.delete(id);
+    this.nodes.delete(id);
   }
 
   getNode(id: string): DAGNode<T> | undefined {
-    return this.tasks.get(id);
+    return this.nodes.get(id);
   }
 
   cancelTask(id: string): void {
-    const task = this.tasks.get(id);
+    const task = this.nodes.get(id);
 
     if (!task) {
       throw new Error(`Node with id "${id}" does not exist.`);
@@ -102,7 +102,7 @@ export class DirectedAcyclicGraph<T> {
   }
 
   executeTask(id: string, execute: (data: T) => void): void {
-    const task = this.tasks.get(id);
+    const task = this.nodes.get(id);
 
     if (!task) {
       throw new Error(`Node with id "${id}" does not exist.`);
@@ -112,7 +112,7 @@ export class DirectedAcyclicGraph<T> {
       execute(task.data);
 
       task.dependents.forEach((dependentId) => {
-        const dependent = this.tasks.get(dependentId);
+        const dependent = this.nodes.get(dependentId);
         if (dependent) {
           dependent.dependencies.delete(id);
         }
@@ -180,6 +180,7 @@ const ChainMachine: React.FC<ChainMachineProps> = ({ initialPlan }) => {
           task.dependents.add(reviewId);
         }
 
+        const dependentPromises = []; // Add a new array for Promises of dependent tasks
         task.dependents.forEach((dependentId) => {
           setDAG((prevDag) => {
             const updatedDag = prevDag;
@@ -188,16 +189,19 @@ const ChainMachine: React.FC<ChainMachineProps> = ({ initialPlan }) => {
             if (dependent) {
               dependent.dependencies.delete(id);
             }
-
+            console.log("updatedDag1", updatedDag);
             return updatedDag;
           });
 
-          executeTask(dependentId);
+          dependentPromises.push(executeTask(dependentId)); // Add Promises for each dependent task
         });
+
+        await Promise.all(dependentPromises); // Wait for all dependent tasks to finish concurrently
 
         setDAG((prevDag) => {
           const updatedDag = prevDag;
           updatedDag.removeNode(id);
+          console.log("updatedDag2", updatedDag);
           return updatedDag;
         });
       }
@@ -207,19 +211,31 @@ const ChainMachine: React.FC<ChainMachineProps> = ({ initialPlan }) => {
 
   const startChain = useCallback(async () => {
     if (dag.getNode(initialPlan)) {
-      await executeTask(initialPlan);
+      const taskPromises = [executeTask(initialPlan)];
+
+      await Promise.all(taskPromises); // Wait for all concurrent tasks to finish
     }
   }, [initialPlan, executeTask, dag]);
 
   const [graphData, setGraphData] = useState<GraphData>(() =>
     getGraphDataFromDAG(dag),
   );
+  useEffect(() => {
+    // Update graphData whenever dag changes
+    console.log("dag", dag);
+    setGraphData(getGraphDataFromDAG(dag));
+  }, [dag]);
 
   return (
-    <div>
+    <Stack className="h-200 max-w-md">
+      <Typography>
+        {JSON.stringify(dag.nodes, getCircularReplacer())}
+      </Typography>
       <Button onClick={startChain}>Start Chain</Button>
-      <ForceTree data={graphData} />
-    </div>
+      <div>
+        <ForceTree data={graphData} />
+      </div>
+    </Stack>
   );
 };
 const execute = async (task: ChainTask) => {
@@ -260,6 +276,19 @@ const reviewTask = async (id: string, taskId: string) => {
 // Simulate async executeSubTask
 const executeSubTask = async (id: string) => {
   return new Promise<void>((resolve) => setTimeout(resolve, 1000));
+};
+
+const getCircularReplacer = () => {
+  const seen = new WeakSet();
+  return (key, value) => {
+    if (typeof value === "object" && value !== null) {
+      if (seen.has(value)) {
+        return;
+      }
+      seen.add(value);
+    }
+    return value;
+  };
 };
 
 export default ChainMachine;
