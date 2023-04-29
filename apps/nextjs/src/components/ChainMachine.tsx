@@ -1,199 +1,243 @@
 /*
-As such the actual long-running task of planning, reviewing, executing, and whatever else will be stubbed.
 
-ChainTask is currently a toy, but will need to support the use case:
+Given a DAG, write a idiomatic and complete ChainMachine React component that achieves the following:
 
-ChainMachine will need to intelligently manage tasks performed by large language model agents.
-The first task is to plan how to achieve a variable goal.
-The return value could be a DAG-like structure in json of the task dependency structure.
-If a task can be run concurrently without any dependent tasks, it may be represented as a more top-level node.
-If it is dependent on another task's completion, it must be parented under that node.
-The next steps would be to start executing the top level tasks as well as launch a review agent of the chain-of-thought of the plan task.
-This is true for all task types other than review.
-If the review agent judges the task to not be completed or heading in a good direction, the task and all subsequent tasks must be canceled and invalidated.
-Then a new plan must occur, in a loop, until the goal is achieved.
-Another state could be waiting for human input if there is a fatal error (e.g. stuck, loss of network, etc.).
+Tasks have async executions.
+The first task in the demo is to add a plan type task. The result of the plan task is an array of sub-task strings.
+When a task (≠ review type) returns a result, it must be reviewed.
+However, because review is also async and slow, we want to start executing the sub-tasks while waiting. Similarly, some can be executed in parallel, while others are dependent.
+A task chain is said to be complete when all of its nodes have been canceled or completed.
 
-
-The component renders the raw JSON as well as a simplistic visualization of the DAG. The DAG visualization is a stretch goal, but would be a nice to have.
-Again, the following code is only a starting point and can be totally changed.
 */
 
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
+import dynamic from "next/dynamic";
 import { Button, Stack } from "@mui/joy";
-import { Graph } from "react-d3-graph";
 import { useMachine } from "react-robot";
 import { createMachine, invoke, reduce, state, transition } from "robot3";
 
-enum ChainTaskType {
+import ForceTree, { GraphData, getGraphDataFromDAG } from "./ForceTree";
+
+export type DAGNode<T> = {
+  id: string;
+  data: T;
+  dependencies: Set<string>;
+  dependents: Set<string>;
+};
+
+export class DirectedAcyclicGraph<T> {
+  tasks: Map<string, DAGNode<T>>;
+
+  constructor() {
+    this.tasks = new Map();
+  }
+
+  addNode(id: string, data: T): void {
+    if (this.tasks.has(id)) {
+      throw new Error(`Node with id "${id}" already exists.`);
+    }
+
+    this.tasks.set(id, {
+      id,
+      data,
+      dependencies: new Set(),
+      dependents: new Set(),
+    });
+  }
+
+  addEdge(from: string, to: string): void {
+    const fromNode = this.tasks.get(from);
+    const toNode = this.tasks.get(to);
+
+    if (!fromNode || !toNode) {
+      throw new Error("Both nodes must exist to create an edge.");
+    }
+
+    fromNode.dependents.add(to);
+    toNode.dependencies.add(from);
+  }
+
+  removeNode(id: string): void {
+    const task = this.tasks.get(id);
+
+    if (!task) {
+      throw new Error(`Node with id "${id}" does not exist.`);
+    }
+
+    task.dependencies.forEach((dependencyId) => {
+      const dependency = this.tasks.get(dependencyId);
+      if (dependency) {
+        dependency.dependents.delete(id);
+      }
+    });
+
+    task.dependents.forEach((dependentId) => {
+      const dependent = this.tasks.get(dependentId);
+      if (dependent) {
+        dependent.dependencies.delete(id);
+      }
+    });
+
+    this.tasks.delete(id);
+  }
+
+  getNode(id: string): DAGNode<T> | undefined {
+    return this.tasks.get(id);
+  }
+
+  cancelTask(id: string): void {
+    const task = this.tasks.get(id);
+
+    if (!task) {
+      throw new Error(`Node with id "${id}" does not exist.`);
+    }
+
+    task.dependents.forEach((dependentId) => {
+      this.cancelTask(dependentId);
+    });
+
+    this.removeNode(id);
+  }
+
+  executeTask(id: string, execute: (data: T) => void): void {
+    const task = this.tasks.get(id);
+
+    if (!task) {
+      throw new Error(`Node with id "${id}" does not exist.`);
+    }
+
+    if (task.dependencies.size === 0) {
+      execute(task.data);
+
+      task.dependents.forEach((dependentId) => {
+        const dependent = this.tasks.get(dependentId);
+        if (dependent) {
+          dependent.dependencies.delete(id);
+        }
+        this.executeTask(dependentId, execute);
+      });
+
+      this.removeNode(id);
+    }
+  }
+}
+
+export enum ChainTaskType {
   plan = "plan",
   review = "review",
   execute = "execute",
   error = "error",
 }
 
-interface ChainTask {
-  execute: () => Promise<any>;
+export type ChainTask = {
+  id: string;
   type: ChainTaskType;
-}
-
-class DAG {
-  nodes: DAGNode[];
-
-  constructor() {
-    this.nodes = [];
-  }
-
-  addNode(chainTask: ChainTask) {
-    const node = new DAGNode(chainTask);
-    this.nodes.push(node);
-    return node;
-  }
-
-  connectNodes(parentNode: DAGNode, childNode: DAGNode) {
-    parentNode.children.push(childNode);
-    childNode.parents.push(parentNode);
-  }
-}
-
-class DAGNode {
-  chainTask: ChainTask;
-  parents: DAGNode[];
-  children: DAGNode[];
-
-  constructor(chainTask: ChainTask) {
-    this.chainTask = chainTask;
-    this.parents = [];
-    this.children = [];
-  }
-}
-
-const context = () => ({
-  goal: "",
-  script: new DAG(),
-});
-
-async function createPlan(goal: string) {
-  const task: ChainTask = {
-    execute: async () => ["Task 1. do something", "Task 2. research"],
-    type: ChainTaskType.plan,
-  };
-
-  const reviewTask: ChainTask = {
-    execute: async () => ({ cancel: false, score: 1 }),
-    type: ChainTaskType.review,
-  };
-
-  const script = new DAG();
-  const agentNode = script.addNode(task);
-  const reviewNode = script.addNode(reviewTask);
-  script.connectNodes(agentNode, reviewNode);
-
-  return script;
-}
-
-const machine = createMachine(
-  {
-    idle: state(transition("start", "planning")),
-    planning: invoke(
-      createPlan,
-      transition(
-        "done",
-        "executing",
-        reduce((ctx, ev) => ({ ...ctx, script: ev.data })),
-      ),
-    ),
-    executing: state(),
-  },
-  context,
-);
-
-const getCircularReplacer = () => {
-  const seen = new WeakSet();
-  return (key, value) => {
-    if (typeof value === "object" && value !== null) {
-      if (seen.has(value)) {
-        return;
-      }
-      seen.add(value);
-    }
-    return value;
-  };
+  dependencies: Set<string>;
+  dependents: Set<string>;
 };
 
-function convertToGraphData(script: DAG): { nodes: any[]; links: any[] } {
-  return {
-    nodes: script.nodes.map((node) => ({ id: node.chainTask.type })),
-    links: script.nodes.flatMap((node) =>
-      node.children.map((child) => ({
-        source: node.chainTask.type,
-        target: child.chainTask.type,
-      })),
-    ),
-  };
-}
+export type ChainMachineProps = {
+  initialPlan: string;
+};
 
-const ChainMachine = () => {
-  const [current, send] = useMachine(machine);
-  const { goal, script } = current.context;
-
-  const executeTask = async (task: ChainTask) => {
-    const result = await task.execute();
-    console.log("Task executed:", task.type, "Result:", result);
-  };
-
-  const goodReview = () => {
-    // Simulate a good review by changing the review task's executed result
-    script.nodes[1].chainTask.execute = async () => ({
-      cancel: false,
-      score: 1,
-      reason: "Good review",
+const ChainMachine: React.FC<ChainMachineProps> = ({ initialPlan }) => {
+  const [dag, setDAG] = useState(() => {
+    const initialDag = new DirectedAcyclicGraph<ChainTask>();
+    initialDag.addNode(initialPlan, {
+      id: initialPlan,
+      type: ChainTaskType.plan,
+      dependencies: new Set(),
+      dependents: new Set(),
     });
-  };
+    return initialDag;
+  });
 
-  const badReview = () => {
-    // Simulate a bad review by changing the review task's executed result
-    script.nodes[1].chainTask.execute = async () => ({
-      cancel: true,
-      score: 0,
-      reason: "Bad review",
-    });
-  };
+  const executeTask = useCallback(
+    async (id: string) => {
+      const task = dag.getNode(id)?.data;
 
-  const graphData = convertToGraphData(script);
+      if (!task) {
+        throw new Error(`Task with id "${id}" does not exist.`);
+      }
 
-  useEffect(() => {
-    const nextGoal = "example goal";
-    send({ type: "start", data: nextGoal });
-  }, []);
+      if (task.dependencies.size === 0) {
+        const result = await execute(task);
+
+        task.dependents.forEach((dependentId) => {
+          setDAG((prevDag) => {
+            const updatedDag = prevDag;
+            const dependent = updatedDag.getNode(dependentId)?.data;
+
+            if (dependent) {
+              dependent.dependencies.delete(id);
+            }
+
+            return updatedDag;
+          });
+
+          executeTask(dependentId);
+        });
+
+        setDAG((prevDag) => {
+          const updatedDag = prevDag;
+          updatedDag.removeNode(id);
+          return updatedDag;
+        });
+      }
+    },
+    [dag],
+  );
+
+  const startChain = useCallback(() => {
+    if (dag.getNode(initialPlan)) {
+      executeTask(initialPlan);
+    }
+  }, [initialPlan, executeTask, dag]);
+
+  const [graphData, setGraphData] = useState<GraphData>(() =>
+    getGraphDataFromDAG(dag),
+  );
 
   return (
-    <Stack>
-      <div>{JSON.stringify(script, getCircularReplacer())}</div>
-      <div>
-        {
-          <Graph
-            id="dag-graph"
-            data={graphData}
-            config={{
-              node: { labelProperty: "id" },
-              link: { renderLabel: true },
-            }}
-          />
-        }
-      </div>
-      <Button onClick={() => executeTask(script.nodes[0].chainTask)}>
-        Execute Task 1
-      </Button>
-      <Button onClick={() => executeTask(script.nodes[1].chainTask)}>
-        Execute Review Task
-      </Button>
-      <Button onClick={() => goodReview()}>Simulate Good Review</Button>
-      <Button onClick={() => badReview()}>Simulate Bad Review</Button>
-    </Stack>
+    <div>
+      <ForceTree data={graphData} />
+      <button onClick={startChain}>Start Chain</button>
+    </div>
   );
+};
+
+const execute = async (task: ChainTask) => {
+  // Implement your execution logic here based on task.type
+  // demo mode
+  switch (task.type) {
+    case ChainTaskType.plan:
+      return await planTask(task.id);
+    case ChainTaskType.review:
+      return await reviewTask(task.id, task.id);
+    case ChainTaskType.execute:
+      return await executeSubTask(task.id);
+  }
+};
+
+// Simulate async planTask
+const planTask = async (id: string) => {
+  return new Promise<string[]>((resolve) =>
+    setTimeout(() => resolve(["task1", "task2", "task3"]), 1000),
+  );
+};
+
+// Simulate async reviewTask
+const reviewTask = async (id: string, taskId: string) => {
+  return new Promise<boolean>((resolve) =>
+    setTimeout(() => resolve(true), 1000),
+  );
+};
+
+// Simulate async executeSubTask
+const executeSubTask = async (id: string) => {
+  return new Promise<void>((resolve) => setTimeout(resolve, 1000));
 };
 
 export default ChainMachine;
 
-// RETURN ONLY: A new ChainMachine.tsx that implements the header comment's stated goal of creating a demo.
+/* Return ONLY Improvements to the code, preserving the stated goals and implied intents */
