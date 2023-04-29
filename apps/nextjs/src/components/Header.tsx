@@ -12,7 +12,7 @@ import {
 import { useSession } from "next-auth/react";
 
 import { app } from "~/constants";
-import DarkModeToggle from "./darkModeToggle";
+import DarkModeToggle from "./DarkModeToggle";
 
 const Header = () => {
   const { data: session } = useSession();

@@ -3,17 +3,19 @@
 /* eslint-disable @typescript-eslint/no-unsafe-member-access */
 
 import { type ServerResponse } from "http";
+import { NextRequest } from "next/server";
 import axios from "axios";
 
-import StreamingCallbackHandler from "~/server/chains/callbacks";
-import executeChain from "../../../server/chains/execute";
-import type { StrategyRequestBody } from "../../../utils/interfaces";
+import executeChain from "@acme/chain/src/strategy/execute";
+import StreamingCallbackHandler from "@acme/chain/src/utils/callbacks";
+
+import { StrategyRequestBody } from "./types";
 
 export const config = {
   runtime: "nodejs",
 };
 
-const handler = async (req, res: ServerResponse) => {
+const handler = async (req: NextRequest, res: ServerResponse) => {
   try {
     res.setHeader("Content-Type", "text/plain");
     res.setHeader("Transfer-Encoding", "chunked");

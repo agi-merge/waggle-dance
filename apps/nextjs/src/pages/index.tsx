@@ -1,32 +1,13 @@
 import React, { useState } from "react";
 import type { NextPage } from "next";
 import Head from "next/head";
-import { KeyboardArrowRight } from "@mui/icons-material";
-import {
-  Avatar,
-  Breadcrumbs,
-  Button,
-  Card,
-  Divider,
-  Link,
-  Sheet,
-  Stack,
-  Tab,
-  TabList,
-  TabPanel,
-  Tabs,
-  Tooltip,
-  Typography,
-} from "@mui/joy";
+import { Card, Sheet } from "@mui/joy";
 import { getInitColorSchemeScript, useColorScheme } from "@mui/joy/styles";
-import { signIn, signOut, useSession } from "next-auth/react";
 
-import { api, type RouterOutputs } from "~/utils/api";
-import GoalInput from "~/components/GoalInput";
 import GoalWorkspace from "~/components/GoalWorkspace";
 import Header from "~/components/Header";
+import GoalInput from "~/components/goalInput";
 import { app } from "~/constants";
-import DarkModeToggle from "../components/DarkModeToggle";
 
 export interface Handlers {
   setGoal: (goal: string) => void;
