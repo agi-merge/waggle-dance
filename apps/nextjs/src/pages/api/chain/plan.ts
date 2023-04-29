@@ -2,17 +2,19 @@
 /* eslint-disable @typescript-eslint/no-unsafe-assignment */
 /* eslint-disable @typescript-eslint/no-unsafe-member-access */
 
-import { NextResponse } from "next/server";
+import { ServerResponse } from "http";
+import { NextRequest, NextResponse } from "next/server";
 import axios from "axios";
 
-import { planChain } from "~/server/chains/plan";
-import type { StrategyRequestBody } from "../../../utils/interfaces";
+import { planChain } from "@acme/chain";
+
+import { StrategyRequestBody } from "./types";
 
 export const config = {
   runtime: "edge",
 };
 
-const handler = async (req, res) => {
+const handler = async (req: NextRequest, res) => {
   const isNode = config.runtime == "nodejs";
   try {
     const { modelSettings, goal } = isNode

@@ -2,8 +2,8 @@ import { AgentExecutor, ZeroShotAgent } from "langchain/agents";
 import type { CallbackManager } from "langchain/callbacks";
 import { LLMChain } from "langchain/chains";
 import { type Tool } from "langchain/dist/tools/base";
-import { SerpAPI } from "langchain/dist/tools/serpapi";
 import { OpenAIEmbeddings } from "langchain/embeddings/openai";
+import { SerpAPI } from "langchain/tools";
 import { Calculator } from "langchain/tools/calculator";
 import { WebBrowser } from "langchain/tools/webbrowser";
 
