@@ -75,7 +75,6 @@ const ForceTree: React.FC<ForceTreeProps> = ({ data }) => {
       graphData={data}
       dagMode="radialout"
       dagLevelDistance={50}
-      backgroundColor="#101020"
       linkColor={() => "rgba(255,255,255,0.2)"}
       nodeRelSize={1}
       nodeId="path"

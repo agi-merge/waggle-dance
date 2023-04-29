@@ -10,11 +10,8 @@ A task chain is said to be complete when all of its nodes have been canceled or 
 
 */
 
-import { useCallback, useEffect, useState } from "react";
-import dynamic from "next/dynamic";
-import { Button, Stack } from "@mui/joy";
-import { useMachine } from "react-robot";
-import { createMachine, invoke, reduce, state, transition } from "robot3";
+import { useCallback, useState } from "react";
+import { Button } from "@mui/joy";
 
 import ForceTree, { GraphData, getGraphDataFromDAG } from "./ForceTree";
 
@@ -25,6 +22,11 @@ export type DAGNode<T> = {
   dependents: Set<string>;
 };
 
+export type Plan = {
+  id: string;
+  task: string;
+  dependencies: Set<string>;
+};
 export class DirectedAcyclicGraph<T> {
   tasks: Map<string, DAGNode<T>>;
 
@@ -155,13 +157,28 @@ const ChainMachine: React.FC<ChainMachineProps> = ({ initialPlan }) => {
   const executeTask = useCallback(
     async (id: string) => {
       const task = dag.getNode(id)?.data;
-
+      console.log("loop task", task);
       if (!task) {
         throw new Error(`Task with id "${id}" does not exist.`);
       }
 
       if (task.dependencies.size === 0) {
         const result = await execute(task);
+
+        if (task.type !== ChainTaskType.review) {
+          const reviewId = `review-${id}`;
+          dag.addNode(reviewId, {
+            id: reviewId,
+            type: ChainTaskType.review,
+            dependencies: new Set([id]),
+            dependents: new Set(task.dependents),
+          });
+          task.dependents.forEach((dependentId) => {
+            dag.addEdge(reviewId, dependentId);
+          });
+          task.dependents.clear();
+          task.dependents.add(reviewId);
+        }
 
         task.dependents.forEach((dependentId) => {
           setDAG((prevDag) => {
@@ -188,9 +205,9 @@ const ChainMachine: React.FC<ChainMachineProps> = ({ initialPlan }) => {
     [dag],
   );
 
-  const startChain = useCallback(() => {
+  const startChain = useCallback(async () => {
     if (dag.getNode(initialPlan)) {
-      executeTask(initialPlan);
+      await executeTask(initialPlan);
     }
   }, [initialPlan, executeTask, dag]);
 
@@ -200,12 +217,11 @@ const ChainMachine: React.FC<ChainMachineProps> = ({ initialPlan }) => {
 
   return (
     <div>
-      <ForceTree data={graphData} />
       <Button onClick={startChain}>Start Chain</Button>
+      <ForceTree data={graphData} />
     </div>
   );
 };
-
 const execute = async (task: ChainTask) => {
   // Implement your execution logic here based on task.type
   // demo mode
@@ -221,8 +237,16 @@ const execute = async (task: ChainTask) => {
 
 // Simulate async planTask
 const planTask = async (id: string) => {
-  return new Promise<string[]>((resolve) =>
-    setTimeout(() => resolve(["task1", "task2", "task3"]), 1000),
+  return new Promise<Plan[]>((resolve) =>
+    setTimeout(
+      () =>
+        resolve([
+          { id: "task1", task: "", dependencies: new Set<string>("") },
+          { id: "task2", task: "", dependencies: new Set<string>(["task1"]) },
+          { id: "task3", task: "", dependencies: new Set<string>(["task1"]) },
+        ]),
+      1000,
+    ),
   );
 };
 
