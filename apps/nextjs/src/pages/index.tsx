@@ -4,10 +4,10 @@ import Head from "next/head";
 import { Card, Sheet } from "@mui/joy";
 import { getInitColorSchemeScript, useColorScheme } from "@mui/joy/styles";
 
+import GoalInput from "~/components/GoalInput";
 import GoalWorkspace from "~/components/GoalWorkspace";
 import Header from "~/components/Header";
 import { app } from "~/constants";
-import GoalInput from "../components/GoalInput";
 
 export interface Handlers {
   setGoal: (goal: string) => void;
