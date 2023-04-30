@@ -43,39 +43,23 @@ const ForceTree: React.FC<ForceTreeProps> = ({ data }) => {
       width={600}
       height={300}
       ref={fgRef}
-      dagMode="radial"
+      dagMode="td"
       nodeLabel="id"
-      nodeAutoColorBy={(node) => node.id}
+      nodeAutoColorBy={(node) => node.id || null}
       graphData={data}
-      // cooldownTicks={100}
+      cooldownTicks={100}
       linkWidth={3}
-      onNodeDragEnd={(node) => {
-        node.fx = node.x;
-        node.fy = node.y;
-      }}
-      // dagLevelDistance={100}
+      dagLevelDistance={50}
       linkDirectionalParticles={1}
       linkDirectionalArrowLength={5}
       linkDirectionalArrowRelPos={1}
-      onEngineStop={() => fgRef.current.zoomToFit(100)}
-      // ref={fgRef}
-      // graphData={data}
-      // dagMode="td"
-      // dagLevelDistance={50}
-      // linkColor={() => "rgba(255,255,255,0.2)"}
-      // nodeRelSize={1}
-      // nodeId="path"
-      // nodeVal={(node) => 0}
-      // nodeLabel="path"
-      // nodeAutoColorBy="module"
-      // linkDirectionalParticles={2}
-      // linkDirectionalParticleWidth={2}
-      // d3VelocityDecay={0.3}
-      // onEngineStop={() => {
-      //   const current = fgRef.current;
-      //   console.log("current", current);
-      //   return current?.zoomToFit(400);
-      // }}
+      onEngineTick={() => {
+        fgRef.current.zoomToFit();
+      }}
+      onDagError={(loopNodeIds) => {
+        console.error(`DAG error: ${loopNodeIds}`);
+      }}
+      onEngineStop={() => fgRef.current.zoomToFit(0)}
     />
   );
 };

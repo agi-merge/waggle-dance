@@ -75,15 +75,9 @@ const addReviewTask = (
     type: "review",
     dependents: [],
     execute: async () => {
-      const randomTime = 0; //Math.floor(Math.random() * 3000) + 1000;
       const cancelNodes = Math.random() < 0.15;
-      return new Promise((resolve) =>
-        setTimeout(
-          () =>
-            resolve({ result: `Review of ${taskId} completed`, cancelNodes }),
-          randomTime,
-        ),
-      );
+      console.log(`Review of ${taskId} completed: cancel ${cancelNodes}`);
+      return cancelNodes;
     },
   };
   tasks.push(reviewTask);
@@ -130,7 +124,7 @@ const DemoChainMachine: React.FC = () => {
       taskPrefixes[Math.floor(Math.random() * taskPrefixes.length)];
     const suffix =
       taskSuffixes[Math.floor(Math.random() * taskSuffixes.length)];
-    return `${prefix}-${suffix}`;
+    return `${prefix}-${tasks.length}-${suffix}`;
   }
 
   function generateRandomTasks() {
@@ -178,44 +172,55 @@ const DemoChainMachine: React.FC = () => {
       type: "execute",
       dependents: [],
       execute: async () => {
-        const randomTime = 0; //Math.floor(Math.random() * 3000) + 1000;
+        const randomTime = 0;
         return new Promise((resolve) =>
           setTimeout(() => resolve(`Result of ${id}`), randomTime),
         );
       },
     }));
+
     planTask.dependents = subTasks.map((task) => task.id);
+
     let newTasks = [...tasks, ...subTasks];
     subTasks.forEach((task) => {
       newTasks = addReviewTask(newTasks, task.id, planTask.id);
     });
+
     setTasks(newTasks);
 
     const executeTasks = tasks.filter((task) => task.type === "execute");
     if (executeTasks.length === 0) return;
 
-    const subTaskResults = await Promise.all(
-      executeTasks.map((task) => executeTask(task)),
+    const reviewTasks = executeTasks.map((task) =>
+      tasks.find((review) => review.id === `review-${task.id}`),
     );
 
-    console.log("All sub-tasks completed");
-    console.log("Starting review...");
+    const taskPromises = Promise.all([
+      ...executeTasks.map((task) => executeTask(task)),
+      ...reviewTasks.map((task) => executeTask(task)),
+    ]);
 
-    for (const task of executeTasks) {
-      const reviewTask = tasks.find(
-        (review) => review.id === `review-${task.id}`,
+    const raceReviewTasks = Promise.race(
+      reviewTasks.map((task, index) =>
+        task.execute().then((result) => ({ task, result })),
+      ),
+    );
+
+    const firstFailedReview = await raceReviewTasks;
+    if (firstFailedReview.result.cancelNodes) {
+      console.log(
+        `Cancelling nodes related to task ${firstFailedReview.task.id}`,
       );
-      if (reviewTask) {
-        const reviewResult = await executeTask(reviewTask);
-        if (reviewResult.cancelNodes) {
-          console.log(`Cancelling nodes related to task ${task.id}`);
-          setTasks(
-            tasks.filter((t) => t.id !== task.id && t.id !== reviewTask.id),
-          );
-        }
-      }
+      setTasks(
+        tasks.filter(
+          (t) =>
+            !firstFailedReview.task.dependents.includes(t.id) &&
+            t.id !== firstFailedReview.task.id,
+        ),
+      );
     }
-    console.log("Review completed");
+
+    await taskPromises.then(() => console.log("Review completed"));
   }, [tasks]);
 
   return (
