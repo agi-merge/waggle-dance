@@ -1,4 +1,4 @@
-import { useCallback, useState } from "react";
+import { useCallback, useMemo, useState } from "react";
 
 import { ChainTask, ChainTaskType } from "~/components/ChainMachine";
 
@@ -135,9 +135,8 @@ export class DirectedAcyclicGraph<T> {
     }
   }
 }
-
 const useDAG = (initialPlan: string) => {
-  const [dag, setDAG] = useState(() => {
+  const dagRef = useRef<DirectedAcyclicGraph<ChainTask>>(() => {
     const initialDag = new DirectedAcyclicGraph<ChainTask>();
     initialDag.addNode(initialPlan, {
       id: initialPlan,
@@ -148,16 +147,13 @@ const useDAG = (initialPlan: string) => {
     return initialDag;
   });
 
+  const dag = useMemo(() => dagRef.current, []);
+
   const updateDAG = useCallback(
     (updateFn: (dag: DirectedAcyclicGraph<ChainTask>) => void) => {
-      setDAG((prevDag) => {
-        const updatedDag = new DirectedAcyclicGraph<ChainTask>();
-        updatedDag.nodes = new Map(prevDag.nodes);
-        updateFn(updatedDag);
-        return updatedDag;
-      });
+      updateFn(dag);
     },
-    [],
+    [dag],
   );
 
   return { dag, updateDAG };
