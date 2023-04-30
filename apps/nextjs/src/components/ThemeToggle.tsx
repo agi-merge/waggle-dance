@@ -1,8 +1,8 @@
 import React from "react";
 import { DarkMode, LightMode } from "@mui/icons-material";
-import { Button, Switch, useColorScheme } from "@mui/joy";
+import { Switch, useColorScheme } from "@mui/joy";
 
-export default function DarkModeToggle() {
+export default function ThemeToggle() {
   const { mode, setMode } = useColorScheme();
   const [mounted, setMounted] = React.useState(false);
 

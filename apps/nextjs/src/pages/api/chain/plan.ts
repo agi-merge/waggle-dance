@@ -2,7 +2,7 @@
 /* eslint-disable @typescript-eslint/no-unsafe-assignment */
 /* eslint-disable @typescript-eslint/no-unsafe-member-access */
 
-import { ServerResponse } from "http";
+import { NextApiResponse } from "next";
 import { NextRequest, NextResponse } from "next/server";
 import axios from "axios";
 
@@ -14,7 +14,7 @@ export const config = {
   runtime: "edge",
 };
 
-const handler = async (req: NextRequest, res) => {
+const handler = async (req: NextRequest, res: NextApiResponse) => {
   const isNode = config.runtime == "nodejs";
   try {
     const { modelSettings, goal } = isNode

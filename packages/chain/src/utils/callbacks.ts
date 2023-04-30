@@ -2,6 +2,8 @@ import { type ServerResponse } from "http";
 import { BaseCallbackHandler } from "langchain/callbacks";
 import { type AgentAction } from "langchain/dist/schema";
 
+import { ChainPacket } from "./types";
+
 export default class StreamingCallbackHandler extends BaseCallbackHandler {
   name = "streaming_handler";
   res?: ServerResponse;
@@ -17,38 +19,38 @@ export default class StreamingCallbackHandler extends BaseCallbackHandler {
 
   handleLLMStart(llm: { name: string }, _prompts: string[]) {
     console.debug("handleLLMStart", { llm });
-    const message: Message = {
+    const packet: ChainPacket = {
       type: "system",
-      info: JSON.stringify({ llm }),
+      value: JSON.stringify({ llm }),
     };
-    this.res?.write(JSON.stringify(message) + "\n");
+    this.res?.write(JSON.stringify(packet) + "\n");
   }
 
   handleChainStart(chain: { name: string }) {
     console.debug("handleChainStart", { chain });
-    this.res.write("handleChainStart");
-    const message: Message = {
+    this.res?.write("handleChainStart");
+    const packet: ChainPacket = {
       type: "system",
-      info: JSON.stringify({ chain }),
+      value: JSON.stringify({ chain }),
     };
-    this.res?.write(JSON.stringify(message) + "\n");
+    this.res?.write(JSON.stringify(packet) + "\n");
   }
 
   handleAgentAction(action: AgentAction) {
     console.debug("handleAgentAction", action);
-    const message: Message = {
+    const packet: ChainPacket = {
       type: "system",
-      info: JSON.stringify({ action }),
+      value: JSON.stringify({ action }),
     };
-    this.res?.write(JSON.stringify(message) + "\n");
+    this.res?.write(JSON.stringify(packet) + "\n");
   }
 
   handleToolStart(tool: { name: string }) {
     console.debug("handleToolStart", { tool });
-    const message: Message = {
+    const packet: ChainPacket = {
       type: "system",
-      info: JSON.stringify({ tool }),
+      value: JSON.stringify({ tool }),
     };
-    this.res?.write(JSON.stringify(message) + "\n");
+    this.res?.write(JSON.stringify(packet) + "\n");
   }
 }

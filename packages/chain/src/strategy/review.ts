@@ -5,14 +5,14 @@ import {
   MotorheadMemory,
 } from "langchain/memory";
 
-import { extractTasks } from "~/utils/helpers";
-import { createModel } from "~/utils/llm";
-import { createPrompt } from "~/utils/prompts";
-import { type ModelSettings } from "~/utils/types";
-import { createMemory } from "./utils/memory";
+import { createMemory } from "../utils/memory";
+import { createModel } from "../utils/model";
+import { createPrompt } from "../utils/prompts";
+import { extractTasks } from "../utils/serialization";
+import { ModelCreationProps } from "../utils/types";
 
 export async function reviewChain(
-  modelSettings: ModelSettings,
+  modelSettings: ModelCreationProps,
   goal: string,
   tasks: string[],
   lastTask: string,

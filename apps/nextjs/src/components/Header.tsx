@@ -12,7 +12,7 @@ import {
 import { useSession } from "next-auth/react";
 
 import { app } from "~/constants";
-import DarkModeToggle from "./DarkModeToggle";
+import ThemeToggle from "./ThemeToggle";
 
 const Header = () => {
   const { data: session } = useSession();
@@ -40,7 +40,7 @@ const Header = () => {
               </Link>
             </Tooltip>
           )}
-          <DarkModeToggle />
+          <ThemeToggle />
         </Stack>
       </Stack>
       <Typography className="pl-2 pt-3" level="body2" color="neutral">

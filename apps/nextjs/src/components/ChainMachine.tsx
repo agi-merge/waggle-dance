@@ -180,7 +180,7 @@ const ChainMachine: React.FC<ChainMachineProps> = ({ initialPlan }) => {
           task.dependents.add(reviewId);
         }
 
-        const dependentPromises = []; // Add a new array for Promises of dependent tasks
+        const dependentPromises: any[] = []; // Add a new array for Promises of dependent tasks
         task.dependents.forEach((dependentId) => {
           setDAG((prevDag) => {
             const updatedDag = prevDag;
@@ -280,7 +280,7 @@ const executeSubTask = async (id: string) => {
 
 const getCircularReplacer = () => {
   const seen = new WeakSet();
-  return (key, value) => {
+  return (key: any, value: object | null) => {
     if (typeof value === "object" && value !== null) {
       if (seen.has(value)) {
         return;

@@ -4,7 +4,7 @@ import { api, type RouterOutputs } from "~/utils/api";
 import ChainMachine from "./ChainMachine";
 
 interface GoalWorkspaceProps {
-  goal: RouterOutputs["goal"]["all"][number];
+  goal: string;
   onDelete?: () => void;
 }
 

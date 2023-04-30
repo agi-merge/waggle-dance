@@ -7,7 +7,7 @@ import {
   type BaseChatMemory,
 } from "langchain/memory";
 
-import { LLM } from "~/utils/constants";
+import { LLM } from "./types";
 
 function sha256(str: string): string {
   const hash = CryptoJS.SHA256(str);
@@ -17,7 +17,7 @@ function sha256(str: string): string {
 export async function createMemory(
   goal: string,
   inputKey: "goal" | "task" = "goal",
-): Promise<BaseChatMemory> {
+): Promise<BaseChatMemory | undefined> {
   switch (process.env.MEMORY_TYPE) {
     case "motorhead":
       const memory: MotorheadMemory = new MotorheadMemory({

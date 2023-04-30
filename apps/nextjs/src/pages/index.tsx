@@ -4,9 +4,9 @@ import Head from "next/head";
 import { Card, Sheet } from "@mui/joy";
 import { getInitColorSchemeScript, useColorScheme } from "@mui/joy/styles";
 
+import GoalInput from "~/components/GoalInput";
 import GoalWorkspace from "~/components/GoalWorkspace";
 import Header from "~/components/Header";
-import GoalInput from "~/components/goalInput";
 import { app } from "~/constants";
 
 export interface Handlers {

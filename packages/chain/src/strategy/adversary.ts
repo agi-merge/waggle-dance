@@ -14,6 +14,8 @@
 import { ConversationChain } from "langchain/chains";
 import type { BaseLLM } from "langchain/llms/base";
 
+import { createPrompt } from "../utils/prompts";
+
 // const selfTerminateIfNeededPrompt = createPrompt("selfTerminateIfNeeded")//.format({ brutal, constructive })
 // const chain2 = new ConversationChain({
 //   // memory,

@@ -1,7 +1,6 @@
-import { useEffect, useRef, useState } from "react";
-import dynamic from "next/dynamic";
-import d3 from "d3";
-import { ForceGraph2D } from "react-force-graph";
+import React, { forwardRef, useRef, useState } from "react";
+import { ForceGraphInstance } from "force-graph";
+import { ForceGraph2D as OriginalForceGraph2D } from "react-force-graph";
 
 import { ChainTask, DirectedAcyclicGraph } from "./ChainMachine";
 
@@ -41,7 +40,6 @@ export const getGraphDataFromDAG = (
 
   dag.nodes.forEach((task) => {
     nodes.push({
-      id: task.id,
       ...task.data,
     });
     task.dependents.forEach((dependentId) => {
@@ -55,8 +53,25 @@ export const getGraphDataFromDAG = (
   return { nodes, links };
 };
 
+interface ForceGraphMethods {
+  zoomToFit(
+    durationMs?: number,
+    padding?: number,
+    nodeFilter?: (node: NodeObject) => boolean,
+  ): ForceGraphInstance;
+  // Add other methods if needed
+}
+
+interface ForceGraphProps {
+  // Add the necessary properties here based on the library's documentation
+}
+
 const ForceTree: React.FC<ForceTreeProps> = ({ data }) => {
-  const fgRef = useRef<typeof ForceGraph2D>();
+  const ForceGraph2D = forwardRef((props: any, ref: any) => (
+    <OriginalForceGraph2D ref={ref} {...props} />
+  ));
+  // const fgRef = useRef<ForceGraphMethods | undefined>(undefined);
+  const fgRef = useRef<React.RefObject<any>>(React.createRef());
 
   const [controls] = useState({ "DAG Orientation": "td" });
   const forceUpdate = useForceUpdate();
@@ -78,13 +93,15 @@ const ForceTree: React.FC<ForceTreeProps> = ({ data }) => {
       linkColor={() => "rgba(255,255,255,0.2)"}
       nodeRelSize={1}
       nodeId="path"
-      nodeVal={(node) => 0}
+      // nodeVal={(node) => 0}
       nodeLabel="path"
       nodeAutoColorBy="module"
       linkDirectionalParticles={2}
       linkDirectionalParticleWidth={2}
       d3VelocityDecay={0.3}
-      onEngineStop={() => fgRef.current.zoomToFit(400)}
+      onEngineStop={() => {
+        return fgRef.current?.current?.zoomToFit(400);
+      }}
     />
   );
 };
