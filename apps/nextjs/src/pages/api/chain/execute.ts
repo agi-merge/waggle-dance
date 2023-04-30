@@ -6,7 +6,7 @@ import { type ServerResponse } from "http";
 import { NextRequest } from "next/server";
 import axios from "axios";
 
-import executeChain from "@acme/chain/src/strategy/execute";
+import { executeChain } from "@acme/chain";
 import StreamingCallbackHandler from "@acme/chain/src/utils/callbacks";
 
 import { StrategyRequestBody } from "./types";

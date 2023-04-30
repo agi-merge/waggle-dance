@@ -11,7 +11,7 @@ import { createMemory } from "../utils/memory";
 import { createModel } from "../utils/model";
 import { ModelCreationProps } from "../utils/types";
 
-export default async function executeChain({
+export async function executeChain({
   modelSettings,
   goal,
   task,
