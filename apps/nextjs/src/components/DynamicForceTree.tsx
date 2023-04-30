@@ -48,11 +48,12 @@ const ForceTree: React.FC<ForceTreeProps> = ({ data }) => {
       nodeAutoColorBy={(node) => node.id || null}
       graphData={data}
       cooldownTicks={100}
-      linkWidth={3}
+      linkWidth={4}
+      linkAutoColorBy="id"
       dagLevelDistance={50}
       linkDirectionalParticles={1}
       linkDirectionalArrowLength={5}
-      linkDirectionalArrowRelPos={1}
+      linkDirectionalArrowRelPos={2}
       onEngineTick={() => {
         fgRef.current.zoomToFit();
       }}
