@@ -49,7 +49,7 @@ export const getGraphDataFromDAG = (
   return { nodes, links };
 };
 
-const ForceTreeComponent = dynamic(() => import("./ForceTree"), {
+const ForceTreeComponent = dynamic(() => import("./DynamicForceTree"), {
   ssr: false,
 });
 

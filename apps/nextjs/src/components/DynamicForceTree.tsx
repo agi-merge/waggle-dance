@@ -1,10 +1,31 @@
 // ForceTreeComponent.tsx or ForceTreeComponent.jsx (depending on your file extension)
-import React, { forwardRef, useRef, useState } from "react";
+import React, { forwardRef, useEffect, useRef, useState } from "react";
 import { ForceGraphInstance } from "force-graph";
 import { ForceGraph2D as OriginalForceGraph2D } from "react-force-graph";
 
-import { ChainTask, DirectedAcyclicGraph } from "./ChainMachine";
-import { ForceTreeProps } from "./ForceTree";
+export interface GraphData {
+  nodes: NodeObject[];
+  links: LinkObject[];
+}
+
+export type NodeObject = object & {
+  id?: string | number;
+  x?: number;
+  y?: number;
+  vx?: number;
+  vy?: number;
+  fx?: number;
+  fy?: number;
+};
+
+export type LinkObject = object & {
+  source?: string | number | NodeObject;
+  target?: string | number | NodeObject;
+};
+
+export interface ForceTreeProps {
+  data: GraphData;
+}
 
 const useForceUpdate = () => {
   const setToggle = useState(false)[1];
@@ -20,14 +41,6 @@ const ForceTree: React.FC<ForceTreeProps> = ({ data }) => {
 
   const [controls] = useState({ "DAG Orientation": "td" });
   const forceUpdate = useForceUpdate();
-
-  // useEffect(() => {
-  //   // add collision force
-  //   fgRef?.current?.d3Force(
-  //     "collision",
-  //     d3.forceCollide((node) => Math.sqrt(100 / (node.level + 1))),
-  //   );
-  // }, []);
 
   return (
     <ForceGraph2D
@@ -45,7 +58,9 @@ const ForceTree: React.FC<ForceTreeProps> = ({ data }) => {
       linkDirectionalParticleWidth={2}
       d3VelocityDecay={0.3}
       onEngineStop={() => {
-        return fgRef.current?.current?.zoomToFit(400);
+        const current = fgRef.current?.current;
+        console.log("current", current);
+        return current?.zoomToFit(400);
       }}
     />
   );
