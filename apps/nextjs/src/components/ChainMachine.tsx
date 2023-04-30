@@ -74,7 +74,9 @@ const ChainMachine: React.FC<ChainMachineProps> = ({ initialPlan }) => {
 
   const executeTasks = async () => {
     for (const taskNode of dag.nodes.values()) {
-      await execute(taskNode);
+      dag.executeTask(taskNode.id, async (task) => {
+        await execute(taskNode);
+      });
     }
   };
 
@@ -101,12 +103,10 @@ const ChainMachine: React.FC<ChainMachineProps> = ({ initialPlan }) => {
   return (
     <Stack className="h-200 max-w-md">
       <Typography>
-        {JSON.stringify(dag.nodes, getCircularReplacer())}
+        {JSON.stringify(graphData, getCircularReplacer())}
       </Typography>
       {/* <Button onClick={startChain}>Start Chain</Button> */}
-      <div className="h-200">
-        <ForceTree data={graphData} />
-      </div>
+      <div className="h-200">{/* <ForceTree data={graphData} /> */}</div>
     </Stack>
   );
 };
@@ -148,7 +148,7 @@ const planTask = async (id: string) => {
           },
           { id: "task4", task: "peepee", dependencies: new Set<string>() },
         ]),
-      1000 + Math.random() * 10000,
+      1000 + Math.random() * 3000,
     ),
   );
 };
@@ -156,17 +156,14 @@ const planTask = async (id: string) => {
 // Simulate async reviewTask
 const reviewTask = async (id: string, taskId: string) => {
   return new Promise<boolean>((resolve) =>
-    setTimeout(
-      () => resolve(Math.random() > 0.9),
-      1000 + Math.random() * 10000,
-    ),
+    setTimeout(() => resolve(Math.random() > 0.9), 1000 + Math.random() * 3000),
   );
 };
 
 // Simulate async executeSubTask
 const executeSubTask = async (id: string) => {
   return new Promise<void>((resolve) =>
-    setTimeout(resolve, 1000 + Math.random() * 10000),
+    setTimeout(resolve, 1000 + Math.random() * 3000),
   );
 };
 

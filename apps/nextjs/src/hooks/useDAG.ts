@@ -34,11 +34,13 @@ export class DirectedAcyclicGraph<T> {
     const toNode = this.nodes.get(to);
 
     if (!fromNode || !toNode) {
-      throw new Error("Both nodes must exist to create an edge.");
+      throw new Error(`Both nodes must exist to create an edge. ${from} ${to}`);
     }
 
     if (this.checkCircularDependency(from, to)) {
-      throw new Error("Adding this edge would create a circular dependency.");
+      throw new Error(
+        `Adding this edge (from ${from} to ${to}) would create a circular dependency.`,
+      );
     }
 
     fromNode.dependents.add(to);
@@ -53,16 +55,16 @@ export class DirectedAcyclicGraph<T> {
       const current = stack.pop();
       if (current === from) {
         return true;
-      }
-
-      visited.add(current);
-      const currentNode = this.nodes.get(current);
-      if (currentNode) {
-        currentNode.dependencies.forEach((dependencyId) => {
-          if (!visited.has(dependencyId)) {
-            stack.push(dependencyId);
-          }
-        });
+      } else if (current !== undefined) {
+        visited.add(current);
+        const currentNode = this.nodes.get(current);
+        if (currentNode) {
+          currentNode.dependencies.forEach((dependencyId) => {
+            if (!visited.has(dependencyId)) {
+              stack.push(dependencyId);
+            }
+          });
+        }
       }
     }
 

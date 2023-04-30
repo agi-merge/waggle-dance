@@ -2,7 +2,8 @@
 import React from "react";
 import dynamic from "next/dynamic";
 
-import { ChainTask, DirectedAcyclicGraph } from "./ChainMachine";
+import { DirectedAcyclicGraph } from "~/hooks/useDAG";
+import { ChainTask } from "./ChainMachine";
 
 export interface GraphData {
   nodes: NodeObject[];
