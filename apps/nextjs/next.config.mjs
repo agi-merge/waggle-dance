@@ -12,6 +12,16 @@ const config = {
   /** We already do linting and typechecking as separate tasks in CI */
   eslint: { ignoreDuringBuilds: !!process.env.CI },
   typescript: { ignoreBuildErrors: !!process.env.CI },
+  webpack: (config, { buildId, dev, isServer, defaultLoaders, webpack }) => {
+    config.module.rules.push({
+      test: /\.m?js/,
+      resolve: {
+        fullySpecified: false,
+      },
+    });
+
+    return config;
+  },
 };
 
 export default config;

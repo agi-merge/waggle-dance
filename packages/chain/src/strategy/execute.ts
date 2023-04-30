@@ -4,7 +4,6 @@ import { LLMChain } from "langchain/chains";
 import { type Tool } from "langchain/dist/tools/base";
 import { OpenAIEmbeddings } from "langchain/embeddings/openai";
 import { SerpAPI } from "langchain/tools";
-import { Calculator } from "langchain/tools/calculator";
 import { WebBrowser } from "langchain/tools/webbrowser";
 
 import { createMemory } from "../utils/memory";
@@ -27,7 +26,7 @@ export async function executeChain({
   // const history = memory?.context ?? await memory.loadMemoryVariables({})
   // const skipHistory = history.length === 0;
 
-  var tools: Tool[] = [new Calculator(), new WebBrowser({ model, embeddings })];
+  var tools: Tool[] = [new WebBrowser({ model, embeddings })];
   if (process.env.SERPAPI_API_KEY?.length) {
     tools.push(
       new SerpAPI(process.env.SERPAPI_API_KEY, {
