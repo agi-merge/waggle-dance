@@ -124,6 +124,9 @@ importers:
       superjson:
         specifier: 1.9.1
         version: 1.9.1
+      typescript-graph:
+        specifier: ^0.3.0
+        version: 0.3.0
       utils:
         specifier: link:@mui/material/utils
         version: link:@mui/material/utils
@@ -5829,6 +5832,13 @@ packages:
       call-bind: 1.0.2
       for-each: 0.3.3
       is-typed-array: 1.1.10
+    dev: false
+
+  /typescript-graph@0.3.0:
+    resolution: {integrity: sha512-9OuXEs8QksTao7Aa76sxOtlAZbnjyf1mjG0KO+TFKtG/PaWmnIGrr33gsyc35nfwyNKGHpv6tumW56/DY/68vA==}
+    engines: {node: '>=6.0.0'}
+    dependencies:
+      object-hash: 2.2.0
     dev: false
 
   /typescript@5.0.4:

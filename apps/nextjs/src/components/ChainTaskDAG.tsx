@@ -31,21 +31,12 @@ const ChainTaskDAG: React.FC<ChainTaskDAGProps> = ({ onStopSimulation }) => {
         dag.addNode(taskId, {
           id: taskId,
           type: taskType,
-          dependencies: new Set(),
+          dependencies: new Set((parentTaskId && [parentTaskId]) || []),
           dependents: new Set(),
         });
 
         if (parentTaskId) {
           dag.addEdge(parentTaskId, taskId);
-        }
-
-        if (
-          taskType !== ChainTaskType.plan &&
-          taskType !== ChainTaskType.review
-        ) {
-          // Add a review task for the added task
-          const reviewId = `review-${taskId}`;
-          addTask(reviewId, ChainTaskType.review, taskId);
         }
       });
     },
@@ -68,11 +59,10 @@ const ChainTaskDAG: React.FC<ChainTaskDAGProps> = ({ onStopSimulation }) => {
       }
 
       if (task && task.data.type !== ChainTaskType.review) {
-        const subTaskCount = 1 + Math.floor(Math.random() * 3);
+        const subTaskCount = 1 + Math.floor(Math.random() * 10);
         for (let i = 0; i < subTaskCount; i++) {
           const newTaskId = `task-${generateUniqueId()}`;
-          addTask(newTaskId, ChainTaskType.execute);
-          dag.addEdge(task.data.id, newTaskId);
+          addTask(newTaskId, ChainTaskType.execute, task.data.id);
         }
       }
 

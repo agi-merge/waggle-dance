@@ -3,7 +3,7 @@ import { useCallback, useState } from "react";
 
 import { GraphData, LinkObject, NodeObject } from "~/components/ForceTree";
 
-export enum ChainTaskType {
+export enum ChainOperationType {
   plan = "plan",
   review = "review",
   execute = "execute",
@@ -11,11 +11,10 @@ export enum ChainTaskType {
   error = "error",
 }
 
-export type ChainTask = {
+export type ChainOperation = {
   id: string;
-  type: ChainTaskType;
-  dependencies: Set<string>;
-  dependents: Set<string>;
+  type: ChainOperationType;
+  execute: () => void;
 };
 
 export type DAGNode<T> = {
@@ -24,10 +23,6 @@ export type DAGNode<T> = {
   dependencies: Set<string>;
   dependents: Set<string>;
 };
-
-// DirectedAcyclicGraph class is a generic implementation of a directed acyclic graph (DAG) data structure.
-// It allows adding nodes with data and directed edges between nodes.
-// It consists of methods to add nodes, remove nodes, add edges, and identify cyclic dependencies.
 export class DirectedAcyclicGraph<T> {
   nodes: Map<string, DAGNode<T>>;
 
@@ -166,8 +161,6 @@ export class DirectedAcyclicGraph<T> {
     dag.nodes.forEach((task) => {
       nodes.push({
         ...task.data,
-        dependencies: Array.from(task.dependencies),
-        dependents: Array.from(task.dependents),
       });
       task.dependents.forEach((dependentId) => {
         links.push({
@@ -182,10 +175,10 @@ export class DirectedAcyclicGraph<T> {
 }
 
 const useChainTaskDAG = () => {
-  const [dag] = useState(new DirectedAcyclicGraph<ChainTask>());
+  const [dag] = useState(new DirectedAcyclicGraph<ChainOperation>());
 
   const updateDAG = useCallback(
-    (updateFn: (dag: DirectedAcyclicGraph<ChainTask>) => void) => {
+    (updateFn: (dag: DirectedAcyclicGraph<ChainOperation>) => void) => {
       updateFn(dag);
     },
     [dag],

@@ -43,6 +43,7 @@
     "react-robot": "^0.3.0",
     "robot3": "^0.4.0",
     "superjson": "1.9.1",
+    "typescript-graph": "^0.3.0",
     "utils": "link:@mui/material/utils",
     "zod": "^3.21.4"
   },
