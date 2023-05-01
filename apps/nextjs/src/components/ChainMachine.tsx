@@ -4,7 +4,7 @@ import React, { useCallback, useState } from "react";
 import { Button } from "@mui/joy";
 import { DirectedGraph, DirectedAcyclicGraph as G } from "typescript-graph";
 
-import { useSimulation } from "~/hooks/useSimulation";
+import { useSimulation } from "~/hooks/useChainMachine";
 import ForceTree, { GraphData, LinkObject, NodeObject } from "./ForceTree";
 
 // types.ts
@@ -166,7 +166,7 @@ const ChainMachine: React.FC = () => {
       task: `Task for ${nodeName}`,
     };
     childNode.execution = createExecution(childNode);
-    graph.insert(childNode);
+    graph.upsert(childNode);
     graph.addEdge(parentId, childNode.id);
     return graph;
   };

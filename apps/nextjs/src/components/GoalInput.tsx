@@ -39,7 +39,7 @@ export default function GoalInput({ state, callbacks }: GoalInputProps) {
   const [currentPromptIndex, setCurrentPromptIndex] = useState(0);
   const [currentPlaceholderIndex, setCurrentPlaceholderIndex] = useState(0);
 
-  const [goalInputValue, setGoalInputValue] = useState("");
+  const [goalInputValue, setGoalInputValue] = useState("fart");
 
   const handleSubmit = (event: React.FormEvent) => {
     event.preventDefault();

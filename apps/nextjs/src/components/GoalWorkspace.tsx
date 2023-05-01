@@ -1,12 +1,12 @@
-import { useMachine } from "react-robot";
+import { useMemo, useState } from "react";
+import { Button, Stack } from "@mui/joy";
 
-import { api, type RouterOutputs } from "~/utils/api";
-import { useSimulation } from "~/hooks/useSimulation";
-import ChainMachine from "./ChainMachine";
-import ChainTaskDAG from "./ChainTaskDAG";
-import DemoChainMachine from "./DemoChainMachine";
+import {
+  SimulatedChainMachine,
+  useChainMachine,
+  useDAGSimulation,
+} from "~/hooks/useChainMachine";
 import ForceTree from "./ForceTree";
-import Simulation from "./Simulation";
 
 interface GoalWorkspaceProps {
   goal: string;
@@ -14,12 +14,23 @@ interface GoalWorkspaceProps {
 }
 
 const GoalWorkspace = ({ goal, onDelete }: GoalWorkspaceProps) => {
-  const data = useSimulation();
+  const { dag, graphData, execute } = useDAGSimulation();
+
+  // This will execute the DAG simulation and update the component
+  const handleSimulationStep = async () => {
+    await execute();
+  };
+
+  const dagMemo = useMemo(() => {
+    return dag;
+  }, [dag]);
+
   return (
-    <div className="flex flex-row rounded-lg bg-white/10 p-4 transition-all hover:scale-[101%]">
-      {/* <ChainMachine /> */}
-      <ForceTree data={data} />
-    </div>
+    <Stack>
+      <Button onClick={handleSimulationStep}>Simulate next step</Button>
+      <div>{JSON.stringify(dagMemo)}</div>
+      <ForceTree data={graphData} />
+    </Stack>
   );
 };
 

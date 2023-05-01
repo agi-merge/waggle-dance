@@ -51,9 +51,10 @@ const ForceTree: React.FC<ForceTreeProps> = ({ data }) => {
       linkWidth={4}
       linkAutoColorBy="id"
       dagLevelDistance={50}
-      linkDirectionalParticles={1}
-      linkDirectionalArrowLength={5}
-      linkDirectionalArrowRelPos={2}
+      linkDirectionalParticles={2}
+      linkDirectionalParticleWidth={6}
+      linkDirectionalArrowLength={6}
+      linkDirectionalArrowRelPos={1}
       onEngineTick={() => {
         fgRef.current.zoomToFit();
       }}
