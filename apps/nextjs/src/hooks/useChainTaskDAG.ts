@@ -1,6 +1,22 @@
-import { useCallback, useMemo, useState } from "react";
+// useChainTaskDAG.ts
+import { useCallback, useState } from "react";
 
-import { ChainTask, ChainTaskType } from "~/components/ChainMachine";
+import { GraphData, LinkObject, NodeObject } from "~/components/ForceTree";
+
+export enum ChainTaskType {
+  plan = "plan",
+  review = "review",
+  execute = "execute",
+  complete = "complete",
+  error = "error",
+}
+
+export type ChainTask = {
+  id: string;
+  type: ChainTaskType;
+  dependencies: Set<string>;
+  dependents: Set<string>;
+};
 
 export type DAGNode<T> = {
   id: string;
@@ -9,6 +25,9 @@ export type DAGNode<T> = {
   dependents: Set<string>;
 };
 
+// DirectedAcyclicGraph class is a generic implementation of a directed acyclic graph (DAG) data structure.
+// It allows adding nodes with data and directed edges between nodes.
+// It consists of methods to add nodes, remove nodes, add edges, and identify cyclic dependencies.
 export class DirectedAcyclicGraph<T> {
   nodes: Map<string, DAGNode<T>>;
 
@@ -16,10 +35,13 @@ export class DirectedAcyclicGraph<T> {
     this.nodes = new Map();
   }
 
+  // Adds a new node with a unique id and associated data to the graph.
   addNode(id: string, data: T): void {
-    if (this.nodes.has(id)) {
-      throw new Error(`Node with id "${id}" already exists.`);
-    }
+    console.log(JSON.stringify(this.nodes));
+    // if (this.nodes.has(id)) {
+    //   return;
+    //   //throw new Error(`Node with id "${id}" already exists.`);
+    // }
 
     this.nodes.set(id, {
       id,
@@ -29,6 +51,7 @@ export class DirectedAcyclicGraph<T> {
     });
   }
 
+  // Adds a directed edge between two nodes (from `from` node to the `to` node) in the graph.
   addEdge(from: string, to: string): void {
     const fromNode = this.nodes.get(from);
     const toNode = this.nodes.get(to);
@@ -47,6 +70,7 @@ export class DirectedAcyclicGraph<T> {
     toNode.dependencies.add(from);
   }
 
+  // Checks if adding an edge between the two nodes (from `from` node to the `to` node) would create a circular dependency.
   checkCircularDependency(from: string, to: string): boolean {
     const visited = new Set<string>();
     const stack = [to];
@@ -71,6 +95,7 @@ export class DirectedAcyclicGraph<T> {
     return false;
   }
 
+  // Removes a node with a specified id from the graph, updating dependencies and dependents lists for connected nodes.
   removeNode(id: string): void {
     const task = this.nodes.get(id);
 
@@ -134,20 +159,30 @@ export class DirectedAcyclicGraph<T> {
       this.removeNode(id);
     }
   }
-}
-const useDAG = (initialPlan: string) => {
-  const dagRef = useRef<DirectedAcyclicGraph<ChainTask>>(() => {
-    const initialDag = new DirectedAcyclicGraph<ChainTask>();
-    initialDag.addNode(initialPlan, {
-      id: initialPlan,
-      type: ChainTaskType.plan,
-      dependencies: new Set(),
-      dependents: new Set(),
-    });
-    return initialDag;
-  });
+  getGraphDataFromDAG = (dag: DirectedAcyclicGraph<ChainTask>): GraphData => {
+    const nodes: NodeObject[] = [];
+    const links: LinkObject[] = [];
 
-  const dag = useMemo(() => dagRef.current, []);
+    dag.nodes.forEach((task) => {
+      nodes.push({
+        ...task.data,
+        dependencies: Array.from(task.dependencies),
+        dependents: Array.from(task.dependents),
+      });
+      task.dependents.forEach((dependentId) => {
+        links.push({
+          source: task.id,
+          target: dependentId,
+        });
+      });
+    });
+
+    return { nodes, links };
+  };
+}
+
+const useChainTaskDAG = () => {
+  const [dag] = useState(new DirectedAcyclicGraph<ChainTask>());
 
   const updateDAG = useCallback(
     (updateFn: (dag: DirectedAcyclicGraph<ChainTask>) => void) => {
@@ -159,4 +194,4 @@ const useDAG = (initialPlan: string) => {
   return { dag, updateDAG };
 };
 
-export default useDAG;
+export default useChainTaskDAG;

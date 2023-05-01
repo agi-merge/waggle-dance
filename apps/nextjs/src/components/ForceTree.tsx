@@ -2,7 +2,7 @@
 import React from "react";
 import dynamic from "next/dynamic";
 
-import { DirectedAcyclicGraph } from "~/hooks/useDAG";
+import { DirectedAcyclicGraph } from "~/hooks/useChainTaskDAG";
 import { ChainTask } from "./ChainMachine";
 
 export interface GraphData {
@@ -28,27 +28,6 @@ export type LinkObject = object & {
 export interface ForceTreeProps {
   data: GraphData;
 }
-
-export const getGraphDataFromDAG = (
-  dag: DirectedAcyclicGraph<ChainTask>,
-): GraphData => {
-  const nodes: NodeObject[] = [];
-  const links: LinkObject[] = [];
-
-  dag.nodes.forEach((task) => {
-    nodes.push({
-      ...task.data,
-    });
-    task.dependents.forEach((dependentId) => {
-      links.push({
-        source: task.id,
-        target: dependentId,
-      });
-    });
-  });
-
-  return { nodes, links };
-};
 
 const ForceTreeComponent = dynamic(() => import("./DynamicForceTree"), {
   ssr: false,
