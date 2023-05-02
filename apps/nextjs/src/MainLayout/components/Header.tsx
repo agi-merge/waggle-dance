@@ -2,7 +2,6 @@ import { KeyboardArrowRight } from "@mui/icons-material";
 import {
   Avatar,
   Breadcrumbs,
-  Card,
   Link,
   Sheet,
   Stack,
@@ -12,7 +11,7 @@ import {
 import { useSession } from "next-auth/react";
 
 import { app } from "~/constants";
-import ThemeToggle from "./ThemeToggle";
+import ThemeToggle from "../../components/ThemeToggle";
 
 const Header = () => {
   const { data: session } = useSession();
