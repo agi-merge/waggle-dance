@@ -154,9 +154,11 @@ class TaskSimulation {
         return { target: plan.id, review };
       },
     };
-    const seeds = tasks.map((task) => {
+
+    const seeds: SeedDef<any, any> = tasks.map((task) => {
       return reviewSubtask(task);
     });
+    seeds.unshift(reviewPlan);
     try {
       const taskResult = await Balamb.run(seeds);
       if (taskResult instanceof BalambError) {
