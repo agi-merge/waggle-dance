@@ -27,11 +27,6 @@ export interface ForceGraphProps {
   data: GraphData;
 }
 
-const useForceUpdate = () => {
-  const setToggle = useState(false)[1];
-  return () => setToggle((b) => !b);
-};
-
 const NoSSRForceGraph: React.FC<ForceGraphProps> = ({ data }) => {
   // const ForceGraph2D = forwardRef((props: any, ref: any) => (
   //   <OriginalForceGraph2D ref={ref} {...props} />
