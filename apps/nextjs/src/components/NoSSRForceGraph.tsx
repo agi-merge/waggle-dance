@@ -1,4 +1,4 @@
-// ForceTreeComponent.tsx or ForceTreeComponent.jsx (depending on your file extension)
+// NoSSRForceGraph.tsx
 import React, { forwardRef, useEffect, useRef, useState } from "react";
 import d3 from "d3";
 import { ForceGraph2D as OriginalForceGraph2D } from "react-force-graph";
@@ -23,7 +23,7 @@ export type LinkObject = object & {
   target?: string | number | NodeObject;
 };
 
-export interface ForceTreeProps {
+export interface ForceGraphProps {
   data: GraphData;
 }
 
@@ -32,7 +32,7 @@ const useForceUpdate = () => {
   return () => setToggle((b) => !b);
 };
 
-const ForceTree: React.FC<ForceTreeProps> = ({ data }) => {
+const NoSSRForceGraph: React.FC<ForceGraphProps> = ({ data }) => {
   // const ForceGraph2D = forwardRef((props: any, ref: any) => (
   //   <OriginalForceGraph2D ref={ref} {...props} />
   // ));
@@ -48,12 +48,13 @@ const ForceTree: React.FC<ForceTreeProps> = ({ data }) => {
       nodeAutoColorBy={(node) => node.id || null}
       graphData={data}
       cooldownTicks={100}
-      linkWidth={4}
+      linkWidth={3}
       linkAutoColorBy="id"
-      dagLevelDistance={30}
-      linkDirectionalParticles={1}
+      // dagLevelDistance={5}
+      linkDirectionalParticles={3}
+      linkDirectionalParticleSpeed={0.005}
       linkDirectionalParticleWidth={6}
-      linkDirectionalArrowLength={0}
+      // linkDirectionalArrowLength={10}
       linkDirectionalArrowRelPos={1}
       onEngineTick={() => {
         fgRef.current.zoomToFit();
@@ -66,4 +67,4 @@ const ForceTree: React.FC<ForceTreeProps> = ({ data }) => {
   );
 };
 
-export default ForceTree;
+export default NoSSRForceGraph;

@@ -21,10 +21,6 @@ const GoalWorkspace = ({ goal, onDelete }: GoalWorkspaceProps) => {
   return (
     <Stack>
       <ChainGraph />
-      {/* <TaskGraph rootTask={rootTask} /> */}
-      {/* <Button onClick={handleSimulationStep}>Simulate next step</Button>
-      <div>{JSON.stringify(dagMemo)}</div>
-      <ForceTree data={graphData} /> */}
     </Stack>
   );
 };

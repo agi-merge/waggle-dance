@@ -2,7 +2,7 @@ import React, { useState } from "react";
 import { Button, Stack, Typography } from "@mui/joy";
 import Balamb, { BalambError, SeedDef } from "balamb";
 
-import ForceTree, { GraphData, LinkObject, NodeObject } from "./ForceTree";
+import ForceGraph, { GraphData, LinkObject, NodeObject } from "./ForceGraph";
 
 type PlanResult = {
   planId: string;
@@ -56,17 +56,17 @@ class TaskSimulation {
     const getSubtaskResult = (of: string) => {
       const getSubtaskResult: SeedDef<TaskResult, { planResult: PlanResult }> =
         {
-          id: `getSubtaskResult-${of}`,
+          id: `${of}`,
           description: "Get results of subtasks",
           dependsOn: { planResult: plan },
           plant: async ({ planResult }) => {
             callbacks.onTaskCreated(
-              { id: `getSubtaskResult-${of}` },
-              { target: plan.id, source: `getSubtaskResult-${of}` },
+              { id: `${of}` },
+              { target: planResult.planId, source: `${of}` },
             );
             const result = `${Math.random()}`;
             console.log(`Got result ${result} for ${of}`);
-            return { taskId: of, result } as TaskResult;
+            return { taskId: `${of}`, result } as TaskResult;
           },
         };
       return getSubtaskResult;
@@ -82,8 +82,8 @@ class TaskSimulation {
             overall: Math.random(),
           };
           callbacks.onTaskCreated(
-            { id: taskResult.taskId /*, label: taskResult.result */ },
-            { source: of, target: plan.id },
+            { id: `review-${of}` /*, label: taskResult.result */ },
+            { target: `review-${of}`, source: taskResult.taskId },
           );
           if (review.overall < 0.01) {
             throw new Error(`random review failure of target: ${plan.id}`);
@@ -101,7 +101,7 @@ class TaskSimulation {
       plant: async ({ planResult }) => {
         callbacks.onTaskCreated(
           { id: `review-${plan.id}` },
-          { source: `review-${plan.id}`, target: plan.id },
+          { target: `review-${plan.id}`, source: plan.id },
         );
         const review: Review = {
           overall: Math.random(),
@@ -201,7 +201,7 @@ const ChainGraph = () => {
     <Stack>
       <Button onClick={handleRunSimulation}>Run Simulation</Button>
       <Typography>{JSON.stringify(simulation)}</Typography>
-      {graphData.links.length > 0 && <ForceTree data={graphData} />}
+      {graphData.links.length > 0 && <ForceGraph data={graphData} />}
     </Stack>
   );
 };

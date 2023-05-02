@@ -1,4 +1,4 @@
-// ForceTree.tsx or ForceTree.jsx (depending on your file extension)
+// ForceGraph.tsx
 import React from "react";
 import dynamic from "next/dynamic";
 
@@ -22,16 +22,16 @@ export type LinkObject = object & {
   target?: string | number | NodeObject;
 };
 
-export interface ForceTreeProps {
+export interface ForceGraphProps {
   data: GraphData;
 }
 
-const ForceTreeComponent = dynamic(() => import("./DynamicForceTree"), {
+const NoSSRForceGraph = dynamic(() => import("./NoSSRForceGraph"), {
   ssr: false,
 });
 
-const ForceTree: React.FC<ForceTreeProps> = ({ data }) => {
-  return <ForceTreeComponent data={data} />;
+const ForceGraph: React.FC<ForceGraphProps> = ({ data }) => {
+  return <NoSSRForceGraph data={data} />;
 };
 
-export default ForceTree;
+export default ForceGraph;
