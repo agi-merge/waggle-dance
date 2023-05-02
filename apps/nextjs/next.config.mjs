@@ -19,6 +19,10 @@ const config = {
         fullySpecified: false,
       },
     });
+    config.experiments = {
+      ...config.experiments,
+      ...{ asyncWebAssembly: true },
+    };
 
     return config;
   },
