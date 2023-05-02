@@ -134,6 +134,9 @@ class TaskSimulation {
           console.log(
             `Reviewed plan ${of} ${taskResult} with result ${review.overall}`,
           );
+          if (review.overall < 0.01) {
+            throw new Error(`random review failure of target: ${plan.id}`);
+          }
           return { target: plan.id, review };
         },
       };
@@ -154,12 +157,19 @@ class TaskSimulation {
     const seeds = tasks.map((task) => {
       return reviewSubtask(task);
     });
-    const taskResult = await Balamb.run(seeds);
-    if (taskResult instanceof BalambError) {
-      console.error(taskResult);
-      onReviewFailure(taskName, taskResult);
-    } else {
-      console.log(JSON.stringify(taskResult));
+    try {
+      const taskResult = await Balamb.run(seeds);
+      if (taskResult instanceof BalambError) {
+        console.error(taskResult);
+        onReviewFailure(taskName, taskResult);
+      } else {
+        console.log(JSON.stringify(taskResult));
+      }
+    } catch (error) {
+      if (error instanceof Error) {
+        console.error(error);
+        onReviewFailure(taskName, error);
+      }
     }
     //   const reviewResult = await Balamb.run([
     //     { ...reviewTask(), args: { target: taskResult } },
