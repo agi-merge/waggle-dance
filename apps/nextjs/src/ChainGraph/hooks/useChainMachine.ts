@@ -1,13 +1,15 @@
 import { useState } from "react";
 
 import ChainMachine from "../ChainMachine";
+import ChainMachineSimulation from "../ChainMachineSimulation";
 // import ChainMachineSimulation from "../ChainMachineSimulation";
 import { LinkObject, NodeObject } from "../components/ForceGraph";
 import { GraphData } from "../types";
 
-const useChainMachine = () => {
-  // const [simulation] = useState(() => new ChainMachineSimulation());
-  const [chainMachine] = useState(() => new ChainMachine());
+const useChainMachine = (isSimulated: boolean = false) => {
+  const [chainMachine] = useState(() =>
+    isSimulated ? new ChainMachineSimulation() : new ChainMachine(),
+  );
 
   const [graphData, setGraphData] = useState<GraphData>({
     nodes: [],

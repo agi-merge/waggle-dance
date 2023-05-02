@@ -1,4 +1,4 @@
-import { Stack } from "@mui/joy";
+import { Card, Typography } from "@mui/joy";
 
 import ChainGraphSimulation from "../ChainGraph/components/ChainGraphSimulation";
 
@@ -8,9 +8,10 @@ interface GoalWorkspaceProps {
 }
 const GoalWorkspace = ({ goal, onDelete }: GoalWorkspaceProps) => {
   return (
-    <Stack>
+    <Card>
+      <Typography level="display2">Goal: {goal}</Typography>
       <ChainGraphSimulation />
-    </Stack>
+    </Card>
   );
 };
 

@@ -4,12 +4,15 @@ import { Button, Stack, Typography } from "@mui/joy";
 import useChainMachine from "../hooks/useChainMachine";
 import ForceGraph from "./ForceGraph";
 
-const ChainGraphSimulation = () => {
-  const { chainMachine, graphData, run } = useChainMachine(true);
+interface ChainGraphSimulationProps {
+  goal: string;
+}
+const ChainGraphSimulation = ({ goal }: ChainGraphSimulationProps) => {
+  const { chainMachine, graphData, run } = useChainMachine();
 
   return (
     <Stack>
-      <Button onClick={run}>Run Simulation</Button>
+      <Button onClick={run}>Run</Button>
       {graphData.links.length > 0 && <ForceGraph data={graphData} />}
     </Stack>
   );

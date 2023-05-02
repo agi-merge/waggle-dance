@@ -1,18 +1,18 @@
-import Balamb, { BalambError, SeedDef } from "balamb";
+import Balamb, { BalambError, BalambResult, SeedDef } from "balamb";
 
 import {
+  TaskSimulationCallbacks as ChainMachineCallbacks,
   PlanResult,
   Review,
   ReviewResult,
   TaskResult,
-  TaskSimulationCallbacks,
 } from "./types";
 
-class ChainMachine {
-  async runTaskWithReview(
-    taskName: string,
-    callbacks: TaskSimulationCallbacks,
-  ) {
+interface BaseChainMachine {
+  run(callbacks: ChainMachineCallbacks): Promise<BalambResult>;
+}
+class ChainMachine implements BaseChainMachine {
+  async runTaskWithReview(taskName: string, callbacks: ChainMachineCallbacks) {
     const subTaskCount = 1 + Math.floor(Math.random() * 10);
     var tasks: string[] = [];
     for (let i = 0; i < subTaskCount; i++) {
@@ -115,7 +115,7 @@ class ChainMachine {
     return `${Math.floor(Math.random() * 10000)}`;
   }
 
-  async run(callbacks: TaskSimulationCallbacks) {
+  async run(callbacks: ChainMachineCallbacks) {
     return await this.runTaskWithReview(
       `GOAL-${this.generateTaskName()}`,
       callbacks,

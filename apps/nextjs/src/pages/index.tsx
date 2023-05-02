@@ -1,7 +1,7 @@
 import React, { useState } from "react";
 import type { NextPage } from "next";
 import Head from "next/head";
-import { Card, Sheet } from "@mui/joy";
+import { Card, Divider, Sheet } from "@mui/joy";
 import { getInitColorSchemeScript, useColorScheme } from "@mui/joy/styles";
 
 import GoalInput from "~/components/GoalInput";
@@ -62,7 +62,7 @@ const Home: NextPage = () => {
         <main className="flex h-screen flex-col items-center text-white">
           <Sheet
             variant="outlined"
-            className="full my-5 items-center p-5"
+            className="full w-xl mx-auto my-5 max-w-xl items-center p-5"
             sx={{
               borderRadius: "lg",
               shadowRadius: "xl",
@@ -70,21 +70,24 @@ const Home: NextPage = () => {
             invertedColors
           >
             <Header />
-            <GoalInput
-              state={goalInputState}
-              callbacks={{
-                setGoal: handleSetGoal,
-                onStop: () => {
-                  setGoalInputState(GoalInputState.start);
-                },
-              }}
-            />
-          </Sheet>
-          {goalInputState !== GoalInputState.start && (
-            <Card>
-              <GoalWorkspace goal={newGoal} />
+            <Divider />
+            <Card className="mx-auto max-w-lg">
+              {goalInputState !== GoalInputState.start && (
+                <GoalWorkspace goal={newGoal} />
+              )}
+              {goalInputState === GoalInputState.start && (
+                <GoalInput
+                  state={goalInputState}
+                  callbacks={{
+                    setGoal: handleSetGoal,
+                    onStop: () => {
+                      setGoalInputState(GoalInputState.start);
+                    },
+                  }}
+                />
+              )}
             </Card>
-          )}
+          </Sheet>
         </main>
       </div>
     </div>
