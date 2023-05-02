@@ -146,12 +146,12 @@ function extractArgs(fn: Function) {
 
 export class Viae {
   private readonly ROOT_NODE_NAME = "root";
-  private dependencies: {
+  dependencies: {
     [key: string]: GraphNode;
   } = {};
   private executionId = 0;
   // Isolate data and snapshot definition at each execution.
-  private executions: {
+  executions: {
     // Key is executionId.
     [key: number]: {
       copy: {
@@ -200,10 +200,24 @@ export class Viae {
     if (graphNode.type == NodeType.Value) {
       throw new Error("Internal error. Did not expect value node.");
     }
-    return graphNode.dependencies.map((nodeName) => {
-      const node: GraphNode = this.executions[executionId].copy[nodeName];
+    console.log(
+      `makePromiseAsyncExecutable: ${name}, graphNode.type: ${JSON.stringify(
+        graphNode,
+      )}`,
+    );
+    return graphNode.dependencies.flatMap((nodeName) => {
+      const node: GraphNode | undefined =
+        this.executions[executionId].copy[nodeName];
+      console.log(
+        `graphNode.dependencies.map: ${JSON.stringify(
+          nodeName,
+        )}, node: ${JSON.stringify(node)}}`,
+      );
+
       if (!node) {
-        throw new Error(`Node '${nodeName}' was not found in graph.`);
+        console.error(`Node '${nodeName}' was not found in graph.`);
+        // throw new Error(`Node '${nodeName}' was not found in graph.`);
+        return null;
       }
       if (node.type == NodeType.Async) {
         const resolvedValuesPromise: Promise<any[]> = this.resolveDependencies(

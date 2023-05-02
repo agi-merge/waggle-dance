@@ -17,10 +17,11 @@ const rootTask: Task = {
   name: "plan",
   execute: async () => {
     // Replace this with your actual root task logic
-    await new Promise((resolve) =>
-      setTimeout(() => resolve("Root task results"), 1000),
-    );
+    // await new Promise((resolve) =>
+    //   setTimeout(() => resolve("Root task results"), 1000),
+    // );
     console.log("Root task executed");
+    return "fart";
   },
 };
 const GoalWorkspace = ({ goal, onDelete }: GoalWorkspaceProps) => {
