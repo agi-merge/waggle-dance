@@ -48,6 +48,7 @@ class TaskSimulation {
       description: "Plan tasks to achieve goal",
       plant: async () => {
         callbacks.onTaskCreated({ id: `plan-${taskName}` });
+
         return { planId: `plan-${taskName}`, tasks };
       },
     };
@@ -61,7 +62,7 @@ class TaskSimulation {
           plant: async ({ planResult }) => {
             callbacks.onTaskCreated(
               { id: `getSubtaskResult-${of}` },
-              { source: of, target: plan.id },
+              { source: plan.id, target: `getSubtaskResult-${of}` },
             );
             const result = `${Math.random()}`;
             console.log(`Got result ${result} for ${of}`);
@@ -100,7 +101,7 @@ class TaskSimulation {
       plant: async ({ planResult }) => {
         callbacks.onTaskCreated(
           { id: `review-${plan.id}` },
-          { source: planResult.planId, target: plan.id },
+          { source: `review-${plan.id}`, target: plan.id },
         );
         const review: Review = {
           overall: Math.random(),
