@@ -1,12 +1,6 @@
 import React, { useState } from "react";
 import Head from "next/head";
-import {
-  Card,
-  Divider,
-  Sheet,
-  getInitColorSchemeScript,
-  useColorScheme,
-} from "@mui/joy";
+import { Card, Divider, Sheet, useColorScheme } from "@mui/joy";
 
 import { app } from "~/constants";
 import Header from "./components/Header";
@@ -26,7 +20,6 @@ const MainLayout = ({ children }) => {
     <div
       className={mode === "dark" ? "bg-honeycomb dark" : "light bg-honeycomb"}
     >
-      {getInitColorSchemeScript()}
       <div className="h-screen">
         <Head>
           <title>{app.name}</title>

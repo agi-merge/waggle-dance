@@ -141,11 +141,6 @@ export default function GoalInput({ state, callbacks }: GoalInputProps) {
         >
           Create
         </Button>
-        {goalInputValue.trim().length > 0 && state != GoalInputState.start && (
-          <Button className="col-end mt-2" color="neutral">
-            Refine Goal
-          </Button>
-        )}
       </Stack>
     </form>
   );

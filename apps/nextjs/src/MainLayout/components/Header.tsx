@@ -1,3 +1,4 @@
+import { useRouter } from "next/router";
 import { KeyboardArrowRight } from "@mui/icons-material";
 import {
   Avatar,
@@ -14,6 +15,11 @@ import { app } from "~/constants";
 import ThemeToggle from "../../components/ThemeToggle";
 
 const Header = () => {
+  const router = useRouter();
+  const isAddDocumentsPage = router.pathname === "/add-documents";
+  const isWaggleDancePage = router.pathname === "/waggle-dance";
+  const isHomePage = !isAddDocumentsPage && !isWaggleDancePage;
+
   const { data: session } = useSession();
 
   return (
@@ -61,15 +67,26 @@ const Header = () => {
         className="-ml-1"
         size="lg"
       >
-        <Typography color="primary" className="font-bold">
+        <Typography
+          color={isHomePage ? "primary" : "neutral"}
+          className={isHomePage ? "font-bold" : ""}
+        >
           Goal
         </Typography>
-        <Typography level="body2" color="neutral">
+        <Typography
+          level="body2"
+          color={isAddDocumentsPage ? "primary" : "neutral"}
+          className={isAddDocumentsPage ? "font-bold" : ""}
+        >
           Add Docs
-        </Typography>{" "}
-        <Typography level="body2" color="neutral">
+        </Typography>
+        <Typography
+          level="body2"
+          color={isWaggleDancePage ? "primary" : "neutral"}
+          className={isWaggleDancePage ? "font-bold" : ""}
+        >
           Waggle
-        </Typography>{" "}
+        </Typography>
         <Typography level="body2" color="neutral">
           Goal Done
         </Typography>
