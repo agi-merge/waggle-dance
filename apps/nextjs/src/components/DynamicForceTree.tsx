@@ -43,17 +43,17 @@ const ForceTree: React.FC<ForceTreeProps> = ({ data }) => {
       width={600}
       height={300}
       ref={fgRef}
-      dagMode="td"
+      dagMode="radial"
       nodeLabel="id"
       nodeAutoColorBy={(node) => node.id || null}
       graphData={data}
       cooldownTicks={100}
       linkWidth={4}
       linkAutoColorBy="id"
-      dagLevelDistance={50}
-      linkDirectionalParticles={2}
+      dagLevelDistance={30}
+      linkDirectionalParticles={1}
       linkDirectionalParticleWidth={6}
-      linkDirectionalArrowLength={6}
+      linkDirectionalArrowLength={0}
       linkDirectionalArrowRelPos={1}
       onEngineTick={() => {
         fgRef.current.zoomToFit();

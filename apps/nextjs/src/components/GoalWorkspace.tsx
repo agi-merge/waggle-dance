@@ -1,6 +1,6 @@
 import { Stack } from "@mui/joy";
 
-import TaskSimulator from "./TaskSimulator";
+import ChainGraph from "./ChainGraph";
 
 interface GoalWorkspaceProps {
   goal: string;
@@ -20,7 +20,7 @@ const GoalWorkspace = ({ goal, onDelete }: GoalWorkspaceProps) => {
 
   return (
     <Stack>
-      <TaskSimulator />
+      <ChainGraph />
       {/* <TaskGraph rootTask={rootTask} /> */}
       {/* <Button onClick={handleSimulationStep}>Simulate next step</Button>
       <div>{JSON.stringify(dagMemo)}</div>

@@ -62,7 +62,7 @@ class TaskSimulation {
           plant: async ({ planResult }) => {
             callbacks.onTaskCreated(
               { id: `getSubtaskResult-${of}` },
-              { source: plan.id, target: `getSubtaskResult-${of}` },
+              { target: plan.id, source: `getSubtaskResult-${of}` },
             );
             const result = `${Math.random()}`;
             console.log(`Got result ${result} for ${of}`);
@@ -145,7 +145,7 @@ class TaskSimulation {
   }
 }
 
-const TaskSimulator = () => {
+const ChainGraph = () => {
   const [simulation, setSimulation] = useState(() => {
     const sim = new TaskSimulation();
     sim;
@@ -206,4 +206,4 @@ const TaskSimulator = () => {
   );
 };
 
-export default TaskSimulator;
+export default ChainGraph;
