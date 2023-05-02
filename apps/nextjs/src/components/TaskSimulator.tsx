@@ -28,55 +28,6 @@ class TaskSimulation {
     taskName: string,
     onReviewFailure: (target: string, error: Error) => void,
   ) {
-    // const planTask = (taskName: string) => {
-    // let id = `plan-${taskName}-${this.generateTaskName()}`;
-    // const planTask: SeedDef<string[], void> = {
-    //   id,
-    //   description: "Plan a tasks to achieve goal",
-    //   plant: async () => {
-    //     const subTaskCount = 1 + Math.floor(Math.random() * 10);
-    //     var tasks: string[] = [];
-    //     for (let i = 0; i < subTaskCount; i++) {
-    //       const newTaskId = `subTask-${this.generateTaskName()}`;
-    //       tasks.push(newTaskId);
-    //     }
-    //     console.log(`Planned ${subTaskCount} new tasks for ${id}`);
-    //     return tasks;
-    //   },
-    // };
-    //   return planTask;
-    // };
-
-    // const executeTask = (taskName: string) => {
-    // id = `execute-${taskName}-${this.generateTaskName()}`;
-    // const executeTask: SeedDef<TaskResult, void> = {
-    //   id,
-    //   description: "Execute a task and return its result",
-    //   plant: async () => {
-    //     // Simulate task execution
-    //     const result = Math.random();
-    //     console.log(`Executed task ${id} with result ${result}`);
-    //     return { name: id, result } as TaskResult;
-    //   },
-    //   dependsOn: { name: planTask() },
-    // };
-    //   return executeTask;
-    // };
-
-    // const reviewTask = (taskName: string) => {
-    // const reviewTask: SeedDef<ReviewResult, { e: TaskResult }> = {
-    //   id: `review-${taskName}-${this.generateTaskName()}`,
-    //   description: "Review a task and determine if it's successful",
-    //   dependsOn: { e: executeTask },
-    //   plant: async ({ e }) => {
-    //     // Simulate review with a 15% chance of failure
-    //     const success = Math.random() > 0.15;
-    //     console.log(`Reviewed task ${e.name} with result ${success}`);
-    //     return { target: e.name, success };
-    //   },
-    // };
-    //   return reviewTask;
-    // };
     const subTaskCount = 1 + Math.floor(Math.random() * 10);
     var tasks: string[] = [];
     for (let i = 0; i < subTaskCount; i++) {
@@ -92,20 +43,6 @@ class TaskSimulation {
         return { planId: `plan-${taskName}`, tasks };
       },
     };
-    // const getSubtaskResults: SeedDef<TaskResult[], { planResult: PlanResult }> =
-    //   {
-    //     id: `getSubtaskResults-${this.generateTaskName()}-${plan.id}`,
-    //     description: "Get results of subtasks",
-    //     dependsOn: { planResult: plan },
-    //     plant: async ({ planResult }) => {
-    //       const all = planResult.tasks.map(
-    //         (task) =>
-    //           ({ taskId: task, result: `${Math.random()}` } as TaskResult),
-    //       );
-    //       const ret = await Promise.all(all);
-    //       return ret;
-    //     },
-    //   };
 
     const getSubtaskResult = (of: string) => {
       const getSubtaskResult: SeedDef<TaskResult, { planResult: PlanResult }> =
@@ -142,6 +79,7 @@ class TaskSimulation {
       };
       return reviewSubtask;
     };
+
     const reviewPlan: SeedDef<ReviewResult, { planResult: PlanResult }> = {
       id: `review-${plan.id}`,
       description: "Review a plan and determine if needs cancellation",
