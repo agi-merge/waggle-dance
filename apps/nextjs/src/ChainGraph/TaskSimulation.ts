@@ -89,7 +89,7 @@ class TaskSimulation {
       },
     };
 
-    const seeds: SeedDef<any, any> = tasks.map((task) => {
+    const seeds: SeedDef<any, any>[] = tasks.map((task) => {
       return reviewSubtask(task);
     });
     seeds.unshift(reviewPlan);

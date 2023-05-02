@@ -26,18 +26,17 @@ export type LinkObject = object & {
 export interface ForceGraphProps {
   data: GraphData;
 }
+interface ForceGraphRef {
+  zoomToFit: () => void;
+}
 
 const NoSSRForceGraph: React.FC<ForceGraphProps> = ({ data }) => {
-  // const ForceGraph2D = forwardRef((props: any, ref: any) => (
-  //   <OriginalForceGraph2D ref={ref} {...props} />
-  // ));
-  const fgRef = useRef<typeof OriginalForceGraph2D>();
-
+  const fgRef = useRef<ForceGraphRef | null>(null);
   return (
     <OriginalForceGraph2D
       width={600}
       height={300}
-      ref={fgRef}
+      ref={fgRef as any}
       // dagMode="radial"
       nodeLabel="id"
       nodeAutoColorBy="id"
@@ -58,7 +57,7 @@ const NoSSRForceGraph: React.FC<ForceGraphProps> = ({ data }) => {
       onDagError={(loopNodeIds) => {
         console.error(`DAG error: ${loopNodeIds}`);
       }}
-      onEngineStop={() => fgRef.current.zoomToFit()}
+      onEngineStop={() => fgRef.current?.zoomToFit()}
       enableZoomInteraction={false}
       enablePanInteraction={false}
       // enablePointerInteraction={false}
