@@ -7,23 +7,12 @@ import {
   useDAGSimulation,
 } from "~/hooks/useChainMachine";
 import ForceTree from "./ForceTree";
-import TaskGraph, { Task } from "./TaskGraph";
+import TaskSimulator from "./TaskSimulator";
 
 interface GoalWorkspaceProps {
   goal: string;
   onDelete?: () => void;
 }
-const rootTask: Task = {
-  name: "plan",
-  execute: async () => {
-    // Replace this with your actual root task logic
-    // await new Promise((resolve) =>
-    //   setTimeout(() => resolve("Root task results"), 1000),
-    // );
-    console.log("Root task executed");
-    return "fart";
-  },
-};
 const GoalWorkspace = ({ goal, onDelete }: GoalWorkspaceProps) => {
   // const { dag, graphData, execute } = useDAGSimulation();
 
@@ -38,7 +27,8 @@ const GoalWorkspace = ({ goal, onDelete }: GoalWorkspaceProps) => {
 
   return (
     <Stack>
-      <TaskGraph rootTask={rootTask} />
+      <TaskSimulator />
+      {/* <TaskGraph rootTask={rootTask} /> */}
       {/* <Button onClick={handleSimulationStep}>Simulate next step</Button>
       <div>{JSON.stringify(dagMemo)}</div>
       <ForceTree data={graphData} /> */}
