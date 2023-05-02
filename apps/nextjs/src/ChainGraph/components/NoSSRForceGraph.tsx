@@ -45,7 +45,7 @@ const NoSSRForceGraph: React.FC<ForceGraphProps> = ({ data }) => {
       ref={fgRef}
       // dagMode="radial"
       nodeLabel="id"
-      nodeAutoColorBy={(node) => node.id || null}
+      nodeAutoColorBy="id"
       graphData={data}
       cooldownTicks={100}
       linkWidth={3}
@@ -63,7 +63,7 @@ const NoSSRForceGraph: React.FC<ForceGraphProps> = ({ data }) => {
       onDagError={(loopNodeIds) => {
         console.error(`DAG error: ${loopNodeIds}`);
       }}
-      onEngineStop={() => fgRef.current.zoomToFit(0)}
+      onEngineStop={() => fgRef.current.zoomToFit()}
       enableZoomInteraction={false}
       enablePanInteraction={false}
       // enablePointerInteraction={false}
