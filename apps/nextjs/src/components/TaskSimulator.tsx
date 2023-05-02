@@ -16,7 +16,7 @@ type ReviewResult = {
 class TaskSimulation {
   async runTaskWithReview(
     taskName: string,
-    onReviewFailure: (target: string) => void,
+    onReviewFailure: (target: string, error: Error) => void,
   ) {
     const planTask: SeedDef<string[], void> = {
       id: `plan-${taskName}`,
@@ -58,21 +58,21 @@ class TaskSimulation {
     };
 
     const taskResult = await Balamb.run([
+      { ...planTask, args: {} },
       { ...executeTask, args: { name: taskName } },
     ]);
     if (taskResult instanceof BalambError) {
-      onReviewFailure(taskName);
-      // throw new Error("Task execution failed");
+      console.error(taskResult);
+      onReviewFailure(taskName, taskResult);
     } else {
       const reviewResult = await Balamb.run([
         { ...reviewTask, args: { target: taskResult } },
       ]);
 
       if (reviewResult instanceof BalambError) {
-        const errMessage = `"Task review failed for task ${taskName}`;
-        console.error(errMessage);
-        // throw new Error(errMessage);
-        onReviewFailure(taskName);
+        // const errMessage = `Task review failed for task ${taskName}`;
+        console.error(reviewResult);
+        onReviewFailure(taskName, taskResult);
       } else {
         console.log(
           `Task ${taskName} executed successfully with result ${JSON.stringify(
