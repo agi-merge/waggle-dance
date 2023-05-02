@@ -18,17 +18,28 @@ class TaskSimulation {
     taskName: string,
     onReviewFailure: (target: string) => void,
   ) {
-    const planTask: SeedDef<void, void> = {
+    const planTask: SeedDef<string[], void> = {
       id: `plan-${taskName}`,
       description: "Plan a tasks to achieve goal",
-      plant: async () => {},
+      plant: async () => {
+        const subTaskCount = 1 + Math.floor(Math.random() * 10);
+        var tasks: string[] = [];
+        for (let i = 0; i < subTaskCount; i++) {
+          const newTaskId = `planTask-${this.generateTaskName()}`;
+          tasks.push(newTaskId);
+        }
+        console.log(`Planned ${subTaskCount} new tasks`);
+        return tasks;
+      },
     };
+
     const executeTask: SeedDef<TaskResult, void> = {
       id: `execute-${taskName}`,
       description: "Execute a task and return its result",
       plant: async () => {
         // Simulate task execution
         const result = Math.random();
+        console.log(`Executed task ${taskName} with result ${result}`);
         return { name: `execute-${taskName}`, result };
       },
       dependsOn: { name: planTask },
@@ -41,6 +52,7 @@ class TaskSimulation {
       plant: async ({ e }) => {
         // Simulate review with a 15% chance of failure
         const success = Math.random() > 0.15;
+        console.log(`Reviewed task ${taskName} with result ${success}`);
         return { success };
       },
     };
@@ -49,43 +61,48 @@ class TaskSimulation {
       { ...executeTask, args: { name: taskName } },
     ]);
     if (taskResult instanceof BalambError) {
-      throw new Error("Task execution failed");
+      onReviewFailure(taskName);
+      // throw new Error("Task execution failed");
     } else {
-      console.log(
-        `Task ${taskName} executed successfully with result ${JSON.stringify(
-          taskResult,
-        )}`,
-      );
       const reviewResult = await Balamb.run([
         { ...reviewTask, args: { target: taskResult } },
       ]);
 
       if (reviewResult instanceof BalambError) {
-        throw new Error("Task review failed");
-      } else if (reviewResult.results) {
-        Object.keys(reviewResult.results).forEach((key) => {
-          // const result = reviewResult.results[key]
-          // if (result) {
-          onReviewFailure(key);
-          // }
-        });
+        const errMessage = `"Task review failed for task ${taskName}`;
+        console.error(errMessage);
+        // throw new Error(errMessage);
+        onReviewFailure(taskName);
+      } else {
+        console.log(
+          `Task ${taskName} executed successfully with result ${JSON.stringify(
+            taskResult,
+          )}`,
+        );
       }
     }
   }
 
   generateTaskName(): string {
-    return `task-${Math.floor(Math.random() * 10000)}`;
+    return `${Math.floor(Math.random() * 10000)}`;
   }
 
-  async addTask(onReviewFailure: (target: string) => void) {
-    const taskName = this.generateTaskName();
+  async addTask(taskName: string, onReviewFailure: (target: string) => void) {
     await this.runTaskWithReview(taskName, onReviewFailure);
   }
 
   async runSimulation(steps: number) {
+    var promises: Promise<void>[] = [];
     for (let i = 0; i < steps; i++) {
-      await this.addTask(this.cancelTaskAndChildren); // onReviewFailure
+      const taskName = this.generateTaskName();
+      promises.push(
+        this.addTask(
+          `runSimulationTask-${taskName}`,
+          this.cancelTaskAndChildren,
+        ),
+      ); // onReviewFailure
     }
+    await Promise.all(promises);
   }
 
   cancelTaskAndChildren(target: string) {
@@ -94,11 +111,15 @@ class TaskSimulation {
 }
 
 const TaskSimulator = () => {
-  const [simulation, setSimulation] = useState(new TaskSimulation());
+  const [simulation, setSimulation] = useState(() => {
+    const sim = new TaskSimulation();
+    sim;
+    return sim;
+  });
   const [log, setLog] = useState<string[]>([]);
 
   const handleRunSimulation = async () => {
-    const steps = 1;
+    const steps = 10;
     await simulation.runSimulation(steps);
   };
 

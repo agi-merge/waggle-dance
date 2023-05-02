@@ -1,12 +1,5 @@
-import { useMemo, useState } from "react";
-import { Button, Stack } from "@mui/joy";
+import { Stack } from "@mui/joy";
 
-import {
-  SimulatedChainMachine,
-  useChainMachine,
-  useDAGSimulation,
-} from "~/hooks/useChainMachine";
-import ForceTree from "./ForceTree";
 import TaskSimulator from "./TaskSimulator";
 
 interface GoalWorkspaceProps {
