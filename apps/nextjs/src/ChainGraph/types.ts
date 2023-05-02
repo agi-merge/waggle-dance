@@ -21,7 +21,7 @@ export type ReviewResult = {
 
 export type TaskSimulationCallbacks = {
   onTaskCreated: (newNode: NodeObject, newLink?: LinkObject) => void;
-  onReviewFailure: (target: string) => void;
+  onReviewFailure: (target: string, error: Error) => void;
 };
 
 export type GraphData = {

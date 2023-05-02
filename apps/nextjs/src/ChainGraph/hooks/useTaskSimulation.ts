@@ -21,7 +21,7 @@ const useTaskSimulation = () => {
             : prevGraphData.links,
         }));
       },
-      onReviewFailure: (target: string) => {
+      onReviewFailure: (target: string, error: Error) => {
         setGraphData((prevGraphData) => {
           const newNodes = prevGraphData.nodes.filter(
             (node) => node.id !== target,

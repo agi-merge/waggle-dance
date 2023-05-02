@@ -2,10 +2,9 @@ import React from "react";
 import { Button, Stack, Typography } from "@mui/joy";
 
 import useTaskSimulation from "../hooks/useTaskSimulation";
-import { GraphData } from "../types";
 import ForceGraph from "./ForceGraph";
 
-const ChainGraph = () => {
+const ChainGraphSimulation = () => {
   const { simulation, graphData, runSimulation } = useTaskSimulation();
 
   return (
@@ -17,4 +16,4 @@ const ChainGraph = () => {
   );
 };
 
-export default ChainGraph;
+export default ChainGraphSimulation;

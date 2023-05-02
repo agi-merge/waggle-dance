@@ -1,6 +1,6 @@
 import { Stack } from "@mui/joy";
 
-import ChainGraph from "../ChainGraph/components/ChainGraph";
+import ChainGraphSimulation from "../ChainGraph/components/ChainGraphSimulation";
 
 interface GoalWorkspaceProps {
   goal: string;
@@ -9,7 +9,7 @@ interface GoalWorkspaceProps {
 const GoalWorkspace = ({ goal, onDelete }: GoalWorkspaceProps) => {
   return (
     <Stack>
-      <ChainGraph />
+      <ChainGraphSimulation />
     </Stack>
   );
 };

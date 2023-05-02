@@ -43,26 +43,30 @@ const NoSSRForceGraph: React.FC<ForceGraphProps> = ({ data }) => {
       width={600}
       height={300}
       ref={fgRef}
-      dagMode="radial"
+      // dagMode="radial"
       nodeLabel="id"
       nodeAutoColorBy={(node) => node.id || null}
       graphData={data}
       cooldownTicks={100}
       linkWidth={3}
+      linkLabel="id"
       linkAutoColorBy="id"
-      // dagLevelDistance={5}
-      linkDirectionalParticles={3}
+      dagLevelDistance={50}
+      linkDirectionalParticles={2}
       linkDirectionalParticleSpeed={0.005}
-      linkDirectionalParticleWidth={6}
-      // linkDirectionalArrowLength={10}
-      linkDirectionalArrowRelPos={1}
+      linkDirectionalParticleWidth={4}
+      linkDirectionalArrowLength={8}
+      linkDirectionalArrowRelPos={0.6}
       onEngineTick={() => {
-        fgRef.current.zoomToFit();
+        fgRef.current?.zoomToFit();
       }}
       onDagError={(loopNodeIds) => {
         console.error(`DAG error: ${loopNodeIds}`);
       }}
       onEngineStop={() => fgRef.current.zoomToFit(0)}
+      enableZoomInteraction={false}
+      enablePanInteraction={false}
+      // enablePointerInteraction={false}
     />
   );
 };
