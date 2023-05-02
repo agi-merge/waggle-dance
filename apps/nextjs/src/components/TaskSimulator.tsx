@@ -2,6 +2,8 @@ import React, { useState } from "react";
 import { Button, Stack, Typography } from "@mui/joy";
 import Balamb, { BalambError, SeedDef } from "balamb";
 
+import ForceTree, { GraphData, LinkObject, NodeObject } from "./ForceTree";
+
 type PlanResult = {
   planId: string;
   tasks: string[];
@@ -21,12 +23,17 @@ type ReviewResult = {
   review: Review;
 };
 
+type TaskSimulationCallbacks = {
+  onTaskCreated: (newNode: NodeObject, newLink?: LinkObject) => void;
+  onReviewFailure: (target: string, error: Error) => void;
+};
+
 // Usage example:
 // runSimulation(10);
 class TaskSimulation {
   async runTaskWithReview(
     taskName: string,
-    onReviewFailure: (target: string, error: Error) => void,
+    callbacks: TaskSimulationCallbacks,
   ) {
     const subTaskCount = 1 + Math.floor(Math.random() * 10);
     var tasks: string[] = [];
@@ -40,6 +47,7 @@ class TaskSimulation {
       id: `plan-${taskName}`,
       description: "Plan tasks to achieve goal",
       plant: async () => {
+        callbacks.onTaskCreated({ id: `plan-${taskName}` });
         return { planId: `plan-${taskName}`, tasks };
       },
     };
@@ -51,6 +59,10 @@ class TaskSimulation {
           description: "Get results of subtasks",
           dependsOn: { planResult: plan },
           plant: async ({ planResult }) => {
+            callbacks.onTaskCreated(
+              { id: `getSubtaskResult-${of}` },
+              { source: of, target: plan.id },
+            );
             const result = `${Math.random()}`;
             console.log(`Got result ${result} for ${of}`);
             return { taskId: of, result } as TaskResult;
@@ -68,8 +80,9 @@ class TaskSimulation {
           const review: Review = {
             overall: Math.random(),
           };
-          console.log(
-            `Reviewed plan ${of} ${taskResult} with result ${review.overall}`,
+          callbacks.onTaskCreated(
+            { id: taskResult.taskId /*, label: taskResult.result */ },
+            { source: of, target: plan.id },
           );
           if (review.overall < 0.01) {
             throw new Error(`random review failure of target: ${plan.id}`);
@@ -85,6 +98,10 @@ class TaskSimulation {
       description: "Review a plan and determine if needs cancellation",
       dependsOn: { planResult: plan },
       plant: async ({ planResult }) => {
+        callbacks.onTaskCreated(
+          { id: `review-${plan.id}` },
+          { source: planResult.planId, target: plan.id },
+        );
         const review: Review = {
           overall: Math.random(),
         };
@@ -101,54 +118,29 @@ class TaskSimulation {
       const taskResult = await Balamb.run(seeds);
       if (taskResult instanceof BalambError) {
         console.error(taskResult);
-        onReviewFailure(taskName, taskResult);
+        callbacks.onReviewFailure(taskName, taskResult);
       } else {
         console.log(JSON.stringify(taskResult));
+        return taskResult;
       }
     } catch (error) {
       if (error instanceof Error) {
         console.error(error);
-        onReviewFailure(taskName, error);
+        callbacks.onReviewFailure(taskName, error);
       }
     }
-    //   const reviewResult = await Balamb.run([
-    //     { ...reviewTask(), args: { target: taskResult } },
-    //   ]);
-
-    //   if (reviewResult instanceof BalambError) {
-    //     // const errMessage = `Task review failed for task ${taskName}`;
-    //     console.error(reviewResult);
-    //     onReviewFailure(taskName, reviewResult);
-    //   } else {
-    //     console.log(
-    //       `Task ${taskName} executed successfully with result ${JSON.stringify(
-    //         taskResult,
-    //       )}`,
-    //     );
-    //   }
-    // }
+    throw new Error("Task simulation failed");
   }
 
   generateTaskName(): string {
     return `${Math.floor(Math.random() * 10000)}`;
   }
 
-  async addTask(
-    taskName: string,
-    onReviewFailure: (target: string, error: Error) => void,
-  ) {
-    await this.runTaskWithReview(taskName, onReviewFailure);
-  }
-
-  async runSimulation(steps: number) {
-    await this.runTaskWithReview(
+  async runSimulation(callbacks: TaskSimulationCallbacks) {
+    return await this.runTaskWithReview(
       `GOAL-${this.generateTaskName()}`,
-      this.cancelTaskAndChildren,
+      callbacks,
     );
-  }
-
-  cancelTaskAndChildren(target: string, error: Error) {
-    console.log(`Cancelling task ${target} and its children because: ${error}`);
   }
 }
 
@@ -158,17 +150,57 @@ const TaskSimulator = () => {
     sim;
     return sim;
   });
-  const [log, setLog] = useState<string[]>([]);
+
+  const [graphData, setGraphData] = useState<GraphData>({
+    nodes: [],
+    links: [],
+  });
+
+  const removeSubGraphData = (target: string) => {
+    setGraphData((prevGraphData) => {
+      const nodesToRemove = [target];
+
+      const newNodes = prevGraphData.nodes.filter(
+        (node) => !nodesToRemove.includes(node.id),
+      );
+      const newLinks = prevGraphData.links.filter(
+        (link) =>
+          !nodesToRemove.includes(link.source as string) &&
+          !nodesToRemove.includes(link.target as string),
+      );
+
+      return { nodes: newNodes, links: newLinks };
+    });
+  };
 
   const handleRunSimulation = async () => {
     const steps = 1;
-    await simulation.runSimulation(steps);
+    const result = await simulation.runSimulation({
+      onTaskCreated: (newNode: NodeObject, newLink?: LinkObject) => {
+        console.log(
+          `onTaskCreated ${newNode.id}, newLink: ${newLink?.source}->${newLink?.target}`,
+        );
+        setGraphData((prevGraphData) => ({
+          nodes: [...prevGraphData.nodes, newNode],
+          links: newLink
+            ? [...prevGraphData.links, newLink]
+            : prevGraphData.links,
+        }));
+      },
+      onReviewFailure: (target: string, error: Error) => {
+        // TODO: remove sub-GraphData
+        console.error(`Review of ${target} failed: ${error}`);
+        removeSubGraphData(target);
+      },
+    });
+    console.log(`Simulation result: ${JSON.stringify(result)}`);
   };
 
   return (
     <Stack>
       <Button onClick={handleRunSimulation}>Run Simulation</Button>
       <Typography>{JSON.stringify(simulation)}</Typography>
+      {graphData.links.length > 0 && <ForceTree data={graphData} />}
     </Stack>
   );
 };
