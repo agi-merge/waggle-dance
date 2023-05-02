@@ -1,8 +1,12 @@
 import React, { useEffect, useState } from "react";
+import { Info } from "@mui/icons-material";
 import {
   Button,
   Card,
   FormControl,
+  FormLabel,
+  IconButton,
+  Link,
   Stack,
   Textarea,
   Tooltip,
@@ -38,8 +42,10 @@ interface GoalInputProps {
 export default function GoalInput({ state, callbacks }: GoalInputProps) {
   const [currentPromptIndex, setCurrentPromptIndex] = useState(0);
   const [currentPlaceholderIndex, setCurrentPlaceholderIndex] = useState(0);
-
   const [goalInputValue, setGoalInputValue] = useState("fart");
+  const [tooltipTappedOpen, setTooltipTappedOpen] = useState<
+    boolean | undefined
+  >(undefined);
 
   const handleSubmit = (event: React.FormEvent) => {
     event.preventDefault();
@@ -68,67 +74,79 @@ export default function GoalInput({ state, callbacks }: GoalInputProps) {
   }, []);
 
   return (
-    <Card color="primary" invertedColors>
-      <form onSubmit={handleSubmit} className="flex flex-col space-y-2">
-        <Tooltip
-          title={
-            <div className="max-w-sm">
-              <Typography color="info">
-                Try a complex task or question that you perform in your
-                profession. <Typography color="neutral">e.g.</Typography>
-              </Typography>
-              <Typography level="body1" className="mt-2">
-                {examplePrompts[currentPromptIndex]}
-              </Typography>
-            </div>
-          }
-          variant="outlined"
-          arrow
-          color="info"
-          placement="right"
-        >
-          <FormControl>
-            {/* <FormLabel>Goal:</FormLabel> */}
-            <Textarea
-              id="goalTextarea"
-              name="goalTextarea"
-              placeholder={placeholders[currentPlaceholderIndex]}
-              minRows={2}
-              size="lg"
-              disabled={state !== GoalInputState.start}
-              required
-              variant="outlined"
-              className="py-5"
-              onKeyPress={(event) => {
-                if (event.key === "Enter") {
-                  event.preventDefault();
-                  handleSubmit(event);
-                }
-              }}
-              value={goalInputValue}
-              onChange={handleChange}
-            />
-          </FormControl>
-        </Tooltip>
-        <Stack direction="row-reverse" gap="1rem">
-          <Button
-            className="col-end mt-2"
-            type="submit"
-            disabled={
-              state === GoalInputState.start &&
-              goalInputValue.trim().length === 0
+    <form onSubmit={handleSubmit} className="space-y-2">
+      <FormControl>
+        <Stack direction="row" gap="1em" className="items-center">
+          <Tooltip
+            title={
+              <div className="max-w-sm">
+                <Typography color="info">
+                  Try a complex task or question that you perform in your
+                  profession. <Typography color="neutral">e.g.</Typography>
+                </Typography>
+                <Typography level="body1" className="mt-2">
+                  {examplePrompts[currentPromptIndex]}
+                </Typography>
+              </div>
             }
+            variant="outlined"
+            arrow
+            color="info"
+            open={tooltipTappedOpen}
+            placement="bottom-end"
           >
-            Create
-          </Button>
-          {goalInputValue.trim().length > 0 &&
-            state != GoalInputState.start && (
-              <Button className="col-end mt-2" color="neutral">
-                Refine Goal
-              </Button>
-            )}
+            <IconButton
+              aria-label="Open in new tab"
+              color="neutral"
+              onClick={() => {
+                // if (tooltipTappedOpen) {
+                //   setTooltipTappedOpen(undefined);
+                // } else {
+                setTooltipTappedOpen(true);
+                // }
+              }}
+            >
+              <Info color="info" />
+            </IconButton>
+          </Tooltip>
+          <Textarea
+            id="goalTextarea"
+            name="goalTextarea"
+            placeholder={placeholders[currentPlaceholderIndex]}
+            minRows={2}
+            size="lg"
+            disabled={state !== GoalInputState.start}
+            required
+            variant="outlined"
+            className="py-col flex-grow"
+            onKeyPress={(event) => {
+              if (event.key === "Enter") {
+                event.preventDefault();
+                handleSubmit(event);
+              }
+            }}
+            value={goalInputValue}
+            onChange={handleChange}
+          />
         </Stack>
-      </form>
-    </Card>
+      </FormControl>
+
+      <Stack direction="row-reverse" gap="1rem">
+        <Button
+          className="col-end mt-2"
+          type="submit"
+          disabled={
+            state === GoalInputState.start && goalInputValue.trim().length === 0
+          }
+        >
+          Create
+        </Button>
+        {goalInputValue.trim().length > 0 && state != GoalInputState.start && (
+          <Button className="col-end mt-2" color="neutral">
+            Refine Goal
+          </Button>
+        )}
+      </Stack>
+    </form>
   );
 }

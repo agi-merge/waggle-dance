@@ -67,6 +67,9 @@ importers:
       '@mui/material':
         specifier: ^5.12.3
         version: 5.12.3(@emotion/react@11.10.8)(@emotion/styled@11.10.8)(@types/react@18.2.0)(react-dom@18.2.0)(react@18.2.0)
+      '@react-hook/resize-observer':
+        specifier: ^1.2.6
+        version: 1.2.6(react@18.2.0)
       '@t3-oss/env-nextjs':
         specifier: ^0.2.2
         version: 0.2.2(zod@3.21.4)
@@ -842,6 +845,10 @@ packages:
       '@jridgewell/sourcemap-codec': 1.4.14
     dev: false
 
+  /@juggle/resize-observer@3.4.0:
+    resolution: {integrity: sha512-dfLbk+PwWvFzSxwk3n5ySL0hfBog779o8h68wK/7/APo/7cgyWp5jcXockbxdk5kFRkbeXWm4Fbi9FrdN381sA==}
+    dev: false
+
   /@manypkg/cli@0.20.0:
     resolution: {integrity: sha512-xOAyzHp4cF6+1VxCeVi14k4WJBbKAExuYVA+wXlCHPLoTUv64D2HQrLUOFO8bXtzW9KFhGhdP2xGFq9n9rSDiw==}
     engines: {node: '>=14.18.0'}
@@ -1372,6 +1379,33 @@ packages:
   /@prisma/engines@4.13.0:
     resolution: {integrity: sha512-HrniowHRZXHuGT9XRgoXEaP2gJLXM5RMoItaY2PkjvuZ+iHc0Zjbm/302MB8YsPdWozAPHHn+jpFEcEn71OgPw==}
     requiresBuild: true
+
+  /@react-hook/latest@1.0.3(react@18.2.0):
+    resolution: {integrity: sha512-dy6duzl+JnAZcDbNTfmaP3xHiKtbXYOaz3G51MGVljh548Y8MWzTr+PHLOfvpypEVW9zwvl+VyKjbWKEVbV1Rg==}
+    peerDependencies:
+      react: '>=16.8'
+    dependencies:
+      react: 18.2.0
+    dev: false
+
+  /@react-hook/passive-layout-effect@1.2.1(react@18.2.0):
+    resolution: {integrity: sha512-IwEphTD75liO8g+6taS+4oqz+nnroocNfWVHWz7j+N+ZO2vYrc6PV1q7GQhuahL0IOR7JccFTsFKQ/mb6iZWAg==}
+    peerDependencies:
+      react: '>=16.8'
+    dependencies:
+      react: 18.2.0
+    dev: false
+
+  /@react-hook/resize-observer@1.2.6(react@18.2.0):
+    resolution: {integrity: sha512-DlBXtLSW0DqYYTW3Ft1/GQFZlTdKY5VAFIC4+km6IK5NiPPDFchGbEJm1j6pSgMqPRHbUQgHJX7RaR76ic1LWA==}
+    peerDependencies:
+      react: '>=16.8'
+    dependencies:
+      '@juggle/resize-observer': 3.4.0
+      '@react-hook/latest': 1.0.3(react@18.2.0)
+      '@react-hook/passive-layout-effect': 1.2.1(react@18.2.0)
+      react: 18.2.0
+    dev: false
 
   /@rushstack/eslint-patch@1.2.0:
     resolution: {integrity: sha512-sXo/qW2/pAcmT43VoRKOJbDOfV3cYpq3szSVfIThQXNt+E4DfKj361vaAt3c88U5tPUxzEswam7GW48PJqtKAg==}

@@ -24,6 +24,7 @@
     "@mui/icons-material": "^5.11.16",
     "@mui/joy": "5.0.0-alpha.77",
     "@mui/material": "^5.12.3",
+    "@react-hook/resize-observer": "^1.2.6",
     "@t3-oss/env-nextjs": "^0.2.2",
     "@tanstack/react-query": "^4.29.5",
     "@trpc/client": "^10.23.0",

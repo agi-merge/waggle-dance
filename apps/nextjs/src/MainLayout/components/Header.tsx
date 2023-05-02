@@ -20,7 +20,7 @@ const Header = () => {
     <Sheet>
       <Stack direction="row" className="items-center">
         <Stack className="flex-grow pr-5">
-          <Typography level="display2">
+          <Typography level="h1">
             waggle🐝<Typography>💃dance</Typography>
           </Typography>
           <Typography level="body5" className="pl-2">
@@ -56,8 +56,14 @@ const Header = () => {
         of large language models.
       </Typography>
 
-      <Breadcrumbs separator={<KeyboardArrowRight />} className="-ml-1">
-        <Typography color="primary">Goal</Typography>
+      <Breadcrumbs
+        separator={<KeyboardArrowRight />}
+        className="-ml-1"
+        size="lg"
+      >
+        <Typography color="primary" className="font-bold">
+          Goal
+        </Typography>
         <Typography level="body2" color="neutral">
           Add Docs
         </Typography>{" "}
