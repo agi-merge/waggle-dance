@@ -8,7 +8,7 @@ import {
   TaskSimulationCallbacks,
 } from "./types";
 
-class TaskSimulation {
+class ChainMachine {
   async runTaskWithReview(
     taskName: string,
     callbacks: TaskSimulationCallbacks,
@@ -115,7 +115,7 @@ class TaskSimulation {
     return `${Math.floor(Math.random() * 10000)}`;
   }
 
-  async runSimulation(callbacks: TaskSimulationCallbacks) {
+  async run(callbacks: TaskSimulationCallbacks) {
     return await this.runTaskWithReview(
       `GOAL-${this.generateTaskName()}`,
       callbacks,
@@ -123,4 +123,4 @@ class TaskSimulation {
   }
 }
 
-export default TaskSimulation;
+export default ChainMachine;

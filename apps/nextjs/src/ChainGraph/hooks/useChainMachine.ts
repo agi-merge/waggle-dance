@@ -1,18 +1,21 @@
 import { useState } from "react";
 
-import TaskSimulation from "../TaskSimulation";
+import ChainMachine from "../ChainMachine";
+// import ChainMachineSimulation from "../ChainMachineSimulation";
 import { LinkObject, NodeObject } from "../components/ForceGraph";
 import { GraphData } from "../types";
 
-const useTaskSimulation = () => {
-  const [simulation] = useState(() => new TaskSimulation());
+const useChainMachine = () => {
+  // const [simulation] = useState(() => new ChainMachineSimulation());
+  const [chainMachine] = useState(() => new ChainMachine());
+
   const [graphData, setGraphData] = useState<GraphData>({
     nodes: [],
     links: [],
   });
 
-  const runSimulation = async () => {
-    const result = await simulation.runSimulation({
+  const run = async () => {
+    const result = await chainMachine.run({
       onTaskCreated: (newNode: NodeObject, newLink?: LinkObject) => {
         setGraphData((prevGraphData) => ({
           nodes: [...prevGraphData.nodes, newNode],
@@ -35,7 +38,7 @@ const useTaskSimulation = () => {
     });
   };
 
-  return { simulation, graphData, runSimulation };
+  return { chainMachine, graphData, run };
 };
 
-export default useTaskSimulation;
+export default useChainMachine;

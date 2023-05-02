@@ -1,16 +1,16 @@
 import React from "react";
 import { Button, Stack, Typography } from "@mui/joy";
 
-import useTaskSimulation from "../hooks/useTaskSimulation";
+import useChainMachine from "../hooks/useChainMachine";
 import ForceGraph from "./ForceGraph";
 
 const ChainGraphSimulation = () => {
-  const { simulation, graphData, runSimulation } = useTaskSimulation();
+  const { chainMachine, graphData, run } = useChainMachine();
 
   return (
     <Stack>
-      <Button onClick={runSimulation}>Run Simulation</Button>
-      <Typography>{JSON.stringify(simulation)}</Typography>
+      <Button onClick={run}>Run Simulation</Button>
+      <Typography>{JSON.stringify(chainMachine)}</Typography>
       {graphData.links.length > 0 && <ForceGraph data={graphData} />}
     </Stack>
   );
