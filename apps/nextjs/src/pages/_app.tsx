@@ -11,6 +11,7 @@ import { SessionProvider } from "next-auth/react";
 
 import { api } from "~/utils/api";
 import theme from "~/styles/theme";
+import MainLayout from "~/MainLayout";
 
 const mantineTheme = extendTheme({
   colorSchemes: {
@@ -104,7 +105,9 @@ const MyApp: AppType<{ session: Session | null }> = ({
       {getInitColorSchemeScript()}
       <StateProvider>
         <CssVarsProvider theme={theme}>
-          <Component {...pageProps} />
+          <MainLayout>
+            <Component {...pageProps} />
+          </MainLayout>
         </CssVarsProvider>
       </StateProvider>
     </SessionProvider>

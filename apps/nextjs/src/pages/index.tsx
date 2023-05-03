@@ -27,7 +27,7 @@ const Home: NextPage = () => {
     setGoal(goal);
   };
   return (
-    <MainLayout>
+    <>
       {/* {goalInputState === GoalInputState.start && ( */}
       <GoalInput
         state={goalInputState}
@@ -39,7 +39,7 @@ const Home: NextPage = () => {
         }}
       />
       {/* )} */}
-    </MainLayout>
+    </>
   );
 };
 

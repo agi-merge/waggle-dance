@@ -17,7 +17,7 @@ const WaggleDance: NextPage = (/*{ goal, onDelete }: WaggleDanceProps*/) => {
   const router = useRouter();
   const { goal } = useAppContext();
   return (
-    <MainLayout>
+    <>
       {/* <Card> */}
       <Stack gap="2rem">
         <Typography className="mb-2" level="body1">
@@ -27,7 +27,7 @@ const WaggleDance: NextPage = (/*{ goal, onDelete }: WaggleDanceProps*/) => {
         <ChainGraph goal={goal} />
         {/* </Card> */}
       </Stack>
-    </MainLayout>
+    </>
   );
 };
 

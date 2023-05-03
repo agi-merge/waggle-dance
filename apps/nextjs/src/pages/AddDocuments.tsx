@@ -13,7 +13,7 @@ import { useAppContext } from "./_app";
 const AddDocuments: NextPage = () => {
   const router = useRouter();
   return (
-    <MainLayout>
+    <>
       {/* <Typography>*DEMO CLICK NEXT* Add Documents</Typography> */}
       {/* <FileUpload /> */}
       <DropZone />
@@ -33,7 +33,7 @@ const AddDocuments: NextPage = () => {
       <Typography color="warning" level="body4">
         Demo currently does not support uploading files lol
       </Typography>
-    </MainLayout>
+    </>
   );
 };
 
