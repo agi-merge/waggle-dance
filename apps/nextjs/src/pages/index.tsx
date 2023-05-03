@@ -46,11 +46,17 @@ const Home: NextPage = () => {
               setHeaderExpanded(!headerExpanded);
             }}
           >
-            <Stack>
-              <Typography level="body1" style={{ userSelect: "none" }}>
+            <Stack className="flex flex-grow">
+              <Stack direction="row" className="flex">
+                <Typography
+                  level="body1"
+                  className="flex-grow pr-5"
+                  style={{ userSelect: "none" }}
+                >
+                  State your goal
+                </Typography>
                 {headerExpanded ? <KeyboardArrowUp /> : <KeyboardArrowDown />}
-                State your Goal
-              </Typography>
+              </Stack>
               {headerExpanded && (
                 <>
                   <Typography level="body3" style={{ userSelect: "none" }}>

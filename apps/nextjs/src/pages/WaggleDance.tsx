@@ -34,13 +34,17 @@ const WaggleDance: NextPage = (/*{ goal, onDelete }: WaggleDanceProps*/) => {
               setHeaderExpanded(!headerExpanded);
             }}
           >
-            <Stack>
-              {headerExpanded && (
-                <Typography level="body1" style={{ userSelect: "none" }}>
-                  {headerExpanded ? <KeyboardArrowUp /> : <KeyboardArrowDown />}
+            <Stack className="flex flex-grow">
+              <Stack direction="row" className="flex">
+                <Typography
+                  level="body1"
+                  className="flex-grow pr-5"
+                  style={{ userSelect: "none" }}
+                >
                   Waggle Dance
                 </Typography>
-              )}
+                {headerExpanded ? <KeyboardArrowUp /> : <KeyboardArrowDown />}
+              </Stack>
               {headerExpanded && (
                 <>
                   <Typography level="body3" style={{ userSelect: "none" }}>
@@ -56,7 +60,6 @@ const WaggleDance: NextPage = (/*{ goal, onDelete }: WaggleDanceProps*/) => {
               {goal && (
                 <>
                   <Typography className="mb-2" level="body1">
-                    {!headerExpanded && <KeyboardArrowDown />}
                     Goal: <Typography level="body2">{goal}</Typography>
                   </Typography>
                 </>

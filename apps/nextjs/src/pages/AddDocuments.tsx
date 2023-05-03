@@ -48,11 +48,17 @@ const AddDocuments: NextPage = () => {
               setHeaderExpanded(!headerExpanded);
             }}
           >
-            <Stack>
-              <Typography level="body1" style={{ userSelect: "none" }}>
+            <Stack className="flex flex-grow">
+              <Stack direction="row" className="flex">
+                <Typography
+                  level="body1"
+                  className="flex-grow pr-5"
+                  style={{ userSelect: "none" }}
+                >
+                  Add context to complete goals even faster
+                </Typography>
                 {headerExpanded ? <KeyboardArrowUp /> : <KeyboardArrowDown />}
-                Enrich with context
-              </Typography>
+              </Stack>
               {headerExpanded && (
                 <>
                   <Typography level="body3" style={{ userSelect: "none" }}>
