@@ -1,18 +1,25 @@
 import React, { useEffect, useState } from "react";
 import Head from "next/head";
 import { useRouter } from "next/router";
-import { Close, Warning } from "@mui/icons-material";
+import { Close, GitHub, Warning } from "@mui/icons-material";
 import {
   Alert,
+  Avatar,
   Box,
   Card,
-  Divider,
   IconButton,
+  Link,
+  List,
+  ListDivider,
+  ListItem,
+  ListItemButton,
+  ListItemDecorator,
   Sheet,
   Typography,
   useColorScheme,
 } from "@mui/joy";
 
+import Discord from "~/components/Discord";
 import { app } from "~/constants";
 import { useAppContext } from "~/pages/_app";
 import Header from "./components/Header";
@@ -40,72 +47,135 @@ const MainLayout = ({ children }) => {
   const description = "Core features are broken and are frequently changing.";
   const icon = <Warning />;
   return (
-    <div
-      className={mode === "dark" ? "bg-honeycomb dark" : "light bg-honeycomb"}
-    >
+    <div className={`bg-honeycomb ${mode === "dark" ? " dark" : "light"}`}>
       <div className="h-screen px-0 py-4">
         <Head>
           <title>{app.name}</title>
           <meta name="description" content={app.description} />
-          <meta name="viewport" content="initial-scale=1, width=device-width" />
+          <meta
+            name="viewport"
+            content="initial-scale=1, width=device-width; viewport-fit=cover"
+          />
+          <meta name="mobile-web-app-capable" content="yes" />
+          <meta name="apple-mobile-web-app-capable" content="yes" />
+          <meta
+            name="apple-mobile-web-app-status-bar-style"
+            content="black-translucent"
+          />
           <link rel="icon" href="/favicon.ico" />
         </Head>
-        <Sheet
-          // variant="outlined"
-          className="full w-xl h-[min(full, 100vh)] mx-auto max-w-xl items-center p-5"
-          sx={{
-            borderRadius: "lg",
-            shadowRadius: "xl",
-          }}
-          invertedColors
-        >
-          <Header />
-          <PageLoading />
-          {systemAlertOpen && (
-            <Box
-              className="my-2"
-              sx={{
-                display: "flex",
-                gap: 2,
-                width: "100%",
-                flexDirection: "column",
-              }}
-            >
-              <Alert
-                key={title}
-                sx={{ alignItems: "flex-start" }}
-                startDecorator={React.cloneElement(icon, {
-                  sx: { mt: "2px", mx: "4px" },
-                  fontSize: "xl2",
-                })}
-                variant="soft"
-                color={color}
-                endDecorator={
-                  <IconButton
-                    variant="soft"
-                    size="sm"
-                    color={color}
-                    onClick={() => {
-                      setSystemAlertOpen(false);
-                    }}
-                  >
-                    <Close />
-                  </IconButton>
-                }
+
+        <div className="content-container">
+          <Sheet
+            // variant="outlined"
+            className="full w-xl h-[min(full, 100vh)] mx-auto max-w-xl items-center p-5"
+            sx={{
+              borderRadius: "lg",
+              shadowRadius: "xl",
+            }}
+            invertedColors
+          >
+            <Header />
+            <PageLoading />
+            {systemAlertOpen && (
+              <Box
+                className="my-2"
+                sx={{
+                  display: "flex",
+                  gap: 2,
+                  width: "100%",
+                  flexDirection: "column",
+                }}
               >
-                <div>
-                  <Typography fontWeight="lg" mt={0.25}>
-                    {title}
-                  </Typography>
-                  <Typography fontSize="sm" sx={{ opacity: 0.8 }}>
-                    {description}
-                  </Typography>
-                </div>
-              </Alert>
-            </Box>
-          )}
-          <Card className="w-full">{children}</Card>
-        </Sheet>
+                <Alert
+                  key={title}
+                  sx={{ alignItems: "flex-start" }}
+                  startDecorator={React.cloneElement(icon, {
+                    sx: { mt: "2px", mx: "4px" },
+                    fontSize: "xl2",
+                  })}
+                  variant="soft"
+                  color={color}
+                  endDecorator={
+                    <IconButton
+                      variant="soft"
+                      size="sm"
+                      color={color}
+                      onClick={() => {
+                        setSystemAlertOpen(false);
+                      }}
+                    >
+                      <Close />
+                    </IconButton>
+                  }
+                >
+                  <div>
+                    <Typography fontWeight="lg" mt={0.25}>
+                      {title}
+                    </Typography>
+                    <Typography fontSize="sm" sx={{ opacity: 0.8 }}>
+                      {description}
+                    </Typography>
+                  </div>
+                </Alert>
+              </Box>
+            )}
+            <Card className="w-full">{children}</Card>
+            <footer className="sticky-footer flex w-full pb-2 pt-10">
+              {/* <Sheet className="w-full">
+            <Card> */}
+              <List
+                orientation="horizontal"
+                sx={{
+                  bgcolor: "background.body",
+                  borderRadius: "sm",
+                  boxShadow: "sm",
+                  flexGrow: 0,
+                  mx: "auto",
+                  "--ListItemDecorator-size": "48px",
+                  "--ListItem-paddingY": "1rem",
+                }}
+              >
+                <ListItem>
+                  <ListItemButton>
+                    <Link href="https://discord.gg/Rud2fR3hAX" target="_blank">
+                      <img className="w-5" src={`discord-when-${mode}.svg`} />
+                    </Link>
+                  </ListItemButton>
+                </ListItem>
+                <ListDivider inset="gutter" />
+                <ListItem>
+                  <ListItemButton>
+                    <Link
+                      href="https://github.com/agi-merge/waggle-dance"
+                      target="_blank"
+                    >
+                      <GitHub />
+                    </Link>
+                  </ListItemButton>
+                </ListItem>
+                <ListDivider inset="gutter" />
+                <ListItem>
+                  <ListItemButton>
+                    <Link
+                      href="https://linkedin.com/in/willisjon"
+                      target="_blank"
+                    >
+                      <Avatar size="sm" />
+                    </Link>
+                  </ListItemButton>
+                </ListItem>
+                <ListDivider inset="gutter" />
+                <ListItem>
+                  <Typography level="body4">© 2023 agi-merge, Inc. </Typography>
+                </ListItem>
+              </List>
+              {/* </Card>
+            <Card></Card> */}
+              {/* </Sheet> */}
+            </footer>
+          </Sheet>
+        </div>
       </div>
     </div>
   );
