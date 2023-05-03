@@ -25,6 +25,9 @@ const AddDocuments: NextPage = () => {
       >
         Next
       </Button>
+      <Typography color="warning" level="body5">
+        Demo currently does not support uploading files lol
+      </Typography>
     </MainLayout>
   );
 };

@@ -25,8 +25,24 @@ const ChainGraphSimulation = ({ goal }: ChainGraphSimulationProps) => {
       >
         Run
       </Button>
-      <Typography>Tasks: {}</Typography>
-      {graphData.links.length > 0 && <ForceGraph data={graphData} />}
+      {graphData.links.length > 0 && (
+        <>
+          <ForceGraph data={graphData} />
+          {graphData.links.length > 2 && (
+            <Typography className="text-center" color="warning" level="body5">
+              Demo is currently limited to the first set of tasks
+            </Typography>
+          )}
+        </>
+      )}
+      <Typography>
+        Tasks:{" "}
+        <Typography level="body5">
+          {graphData.nodes.map((n) => (
+            <div>{n.id}</div>
+          ))}
+        </Typography>
+      </Typography>
     </Stack>
   );
 };

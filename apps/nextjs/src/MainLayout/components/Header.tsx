@@ -30,7 +30,7 @@ const Header = () => {
 
   useEffect(() => {
     const updatedRoutes = {
-      "": { label: "Goal", active: slug !== "goal-done" },
+      "/": { label: "Goal", active: slug !== "goal-done" },
       "add-documents": {
         label: "Add Docs",
         active:
