@@ -3,6 +3,7 @@ import { useRouter } from "next/router";
 import { Home, KeyboardArrowRight, Lan, ListAlt } from "@mui/icons-material";
 import {
   Button,
+  CircularProgress,
   List,
   ListItem,
   ListItemButton,
@@ -41,16 +42,14 @@ const ChainGraphSimulation = ({
   };
   return (
     <Stack gap="1rem">
-      <Stack direction="row-reverse" className="mt-2" gap="1rem">
-        {isRunning && graphData.links.length === 0 && (
-          <>
-            <Typography>Planning initial tasks…</Typography>
-            <Typography level="body3">
-              Please be patient, this may take a moment…
-            </Typography>
-          </>
-        )}
-      </Stack>
+      {isRunning && graphData.links.length === 0 && (
+        <Stack className="text-justify">
+          <Typography>Planning initial tasks…</Typography>
+          <Typography level="body3">
+            Please be patient, this may take a moment…
+          </Typography>
+        </Stack>
+      )}
       {graphData.links.length > 2 && (
         <Typography className="text-center" color="warning" level="body4">
           Demo is currently limited to the first set of tasks
@@ -72,7 +71,7 @@ const ChainGraphSimulation = ({
               href="waggle-dance"
               onClick={handleStart}
             >
-              🐝💃!
+              Start
             </Button>
             <Typography className="flex-grow pl-2 text-center">
               <ListAlt />
@@ -102,10 +101,12 @@ const ChainGraphSimulation = ({
           </List>
         </TabPanel>
         <TabPanel value={1}>
-          {graphData.links.length > 0 && (
+          {graphData.links.length > 0 ? (
             <>
               <ForceGraph data={graphData} />
             </>
+          ) : (
+            <CircularProgress />
           )}
         </TabPanel>
       </Tabs>
