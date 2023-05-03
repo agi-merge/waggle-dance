@@ -123,7 +123,7 @@ const MainLayout = ({ children }) => {
               </Alert>
             </Box>
           )}
-          <Card invertedColors variant="outlined" className="-m-2 pt-1">
+          <Card invertedColors variant="outlined" className="-m-2 my-5">
             {children}
           </Card>
           <footer className="sticky-footer flex w-full pb-2 pt-10">
