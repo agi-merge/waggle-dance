@@ -1,4 +1,3 @@
-import { useEffect, useState } from "react";
 import { useRouter } from "next/router";
 import { KeyboardArrowRight } from "@mui/icons-material";
 import {
@@ -21,39 +20,39 @@ const Header = () => {
 
   const { data: session } = useSession();
 
-  const [routes, setRoutes] = useState({
-    "": { label: "Goal", active: true },
-    "add-documents": { label: "Add Docs", active: false },
-    "waggle-dance": { label: "Waggle", active: false },
-    "goal-done": { label: "Goal Done", active: false },
-  });
+  const routes = [
+    { path: "", label: "Goal" },
+    { path: "add-documents", label: "Add Docs" },
+    { path: "waggle-dance", label: "Waggle" },
+    { path: "goal-done", label: "Goal Done" },
+  ];
 
-  useEffect(() => {
-    const updatedRoutes = {
-      "/": { label: "Goal", active: slug !== "goal-done" },
-      "add-documents": {
-        label: "Add Docs",
-        active:
-          slug === "" || slug === "add-documents" || slug === "waggle-dance",
-      },
-      "waggle-dance": {
-        label: "Waggle",
-        active: slug === "add-documents" || slug === "waggle-dance",
-      },
-      "goal-done": { label: "Goal Done", active: slug === "goal-done" },
-    };
-    setRoutes(updatedRoutes);
-  }, [slug]);
+  const isActive = (path) => {
+    if ((path === "" || path == "/") && slug !== "goal-done") return true;
+    if (
+      path === "add-documents" &&
+      (slug === "" || slug === "add-documents" || slug === "waggle-dance")
+    )
+      return true;
+    if (
+      path === "waggle-dance" &&
+      (slug === "add-documents" || slug === "waggle-dance")
+    )
+      return true;
+    if (path === "goal-done" && slug === "goal-done") return true;
+    return false;
+  };
 
-  const renderBreadcrumbLink = (step, label, active) => {
-    if (active) {
+  const renderBreadcrumbLink = (path, label) => {
+    const isHighlighted = slug === path || (slug?.length ?? 0) < 1;
+    if (isActive(path)) {
       return (
-        <Link href={`/${step}`}>
+        <Link href={`/${path}`} key={path}>
           <Typography
             component="a"
             level="body2"
-            color={slug === step ? "primary" : "neutral"}
-            className={slug === step ? "font-bold" : ""}
+            color={isHighlighted ? "primary" : "neutral"}
+            className={isHighlighted ? "font-bold" : ""}
           >
             {label}
           </Typography>
@@ -62,6 +61,7 @@ const Header = () => {
     } else {
       return (
         <Typography
+          key={path}
           level="body2"
           color="neutral"
           className="cursor-default opacity-50"
@@ -117,11 +117,7 @@ const Header = () => {
         className="-ml-1"
         size="lg"
       >
-        {Object.keys(routes).map((key) => (
-          <span key={key}>
-            {renderBreadcrumbLink(key, routes[key].label, routes[key].active)}
-          </span>
-        ))}
+        {routes.map((route) => renderBreadcrumbLink(route.path, route.label))}
       </Breadcrumbs>
     </Sheet>
   );

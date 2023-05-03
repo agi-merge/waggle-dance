@@ -1,5 +1,19 @@
 import React from "react";
-import { Button, Stack, Typography } from "@mui/joy";
+import { Home, KeyboardArrowRight, ListAlt } from "@mui/icons-material";
+import {
+  Button,
+  List,
+  ListItem,
+  ListItemButton,
+  ListItemContent,
+  ListItemDecorator,
+  Stack,
+  Tab,
+  TabList,
+  TabPanel,
+  Tabs,
+  Typography,
+} from "@mui/joy";
 
 import { useAppContext } from "~/pages/_app";
 import useChainMachine from "../hooks/useChainMachine";
@@ -17,7 +31,7 @@ const ChainGraphSimulation = ({ goal }: ChainGraphSimulationProps) => {
     run();
   };
   return (
-    <Stack>
+    <Stack gap="2rem">
       <Button
         disabled={!goal && !goal2}
         loading={isRunning}
@@ -25,24 +39,48 @@ const ChainGraphSimulation = ({ goal }: ChainGraphSimulationProps) => {
       >
         Run
       </Button>
-      {graphData.links.length > 0 && (
-        <>
-          <ForceGraph data={graphData} />
-          {graphData.links.length > 2 && (
-            <Typography className="text-center" color="warning" level="body5">
-              Demo is currently limited to the first set of tasks
-            </Typography>
+      <Tabs defaultValue={1} sx={{ minWidth: 300, borderRadius: "lg" }}>
+        <TabList variant="outlined" color="neutral">
+          <Tab>
+            <ListAlt />
+            <Typography className="pl-2">Log</Typography>
+          </Tab>
+          <Tab>
+            <Typography>Visualizer</Typography>
+          </Tab>
+        </TabList>
+        <TabPanel value={0}>
+          <List className="max-h-screen">
+            {graphData.nodes.map((n) => (
+              <ListItem>
+                <ListItemButton>
+                  <ListItemDecorator>
+                    <Home />
+                  </ListItemDecorator>
+                  <ListItemContent>{n.id}</ListItemContent>
+                  <KeyboardArrowRight />
+                </ListItemButton>
+              </ListItem>
+            ))}
+          </List>
+        </TabPanel>
+        <TabPanel value={1}>
+          {graphData.links.length > 0 && (
+            <>
+              <ForceGraph data={graphData} />
+              {graphData.links.length > 2 && (
+                <Typography
+                  className="text-center"
+                  color="warning"
+                  level="body5"
+                >
+                  Demo is currently limited to the first set of tasks
+                </Typography>
+              )}
+            </>
           )}
-        </>
-      )}
-      <Typography>
-        Tasks:{" "}
-        <Typography level="body5">
-          {graphData.nodes.map((n) => (
-            <div>{n.id}</div>
-          ))}
-        </Typography>
-      </Typography>
+        </TabPanel>
+      </Tabs>
     </Stack>
   );
 };
