@@ -54,11 +54,11 @@ const WaggleDanceGraph = ({
       </Button>
       {graphData.links.length > 2 && (
         <Typography className="text-center" color="warning" level="body4">
-          This demo is currently very limited. Ending soon.
+          Demo will not proceed beyond planning.
         </Typography>
       )}
       {isRunning && graphData.links.length === 0 && (
-        <Stack className="text-justify">
+        <Stack className="text-end">
           <Typography>Planning initial tasks…</Typography>
           <Typography level="body3">
             Please be patient, this may take a moment…

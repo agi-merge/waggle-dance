@@ -50,48 +50,6 @@ const MainLayout = ({ children }) => {
           <meta name="viewport" content="initial-scale=1, width=device-width" />
           <link rel="icon" href="/favicon.ico" />
         </Head>
-        {systemAlertOpen && (
-          <Box
-            sx={{
-              display: "flex",
-              gap: 2,
-              width: "100%",
-              flexDirection: "column",
-            }}
-          >
-            <Alert
-              key={title}
-              sx={{ alignItems: "flex-start" }}
-              startDecorator={React.cloneElement(icon, {
-                sx: { mt: "2px", mx: "4px" },
-                fontSize: "xl2",
-              })}
-              variant="soft"
-              color={color}
-              endDecorator={
-                <IconButton
-                  variant="soft"
-                  size="sm"
-                  color={color}
-                  onClick={() => {
-                    setSystemAlertOpen(false);
-                  }}
-                >
-                  <Close />
-                </IconButton>
-              }
-            >
-              <div>
-                <Typography fontWeight="lg" mt={0.25}>
-                  {title}
-                </Typography>
-                <Typography fontSize="sm" sx={{ opacity: 0.8 }}>
-                  {description}
-                </Typography>
-              </div>
-            </Alert>
-          </Box>
-        )}
         <Sheet
           // variant="outlined"
           className="full w-xl h-[min(full, 100vh)] mx-auto max-w-xl items-center p-5"
@@ -104,6 +62,48 @@ const MainLayout = ({ children }) => {
           <Header />
           <PageLoading />
           <Card className="w-full">{children}</Card>
+          {systemAlertOpen && (
+            <Box
+              sx={{
+                display: "flex",
+                gap: 2,
+                width: "100%",
+                flexDirection: "column",
+              }}
+            >
+              <Alert
+                key={title}
+                sx={{ alignItems: "flex-start" }}
+                startDecorator={React.cloneElement(icon, {
+                  sx: { mt: "2px", mx: "4px" },
+                  fontSize: "xl2",
+                })}
+                variant="soft"
+                color={color}
+                endDecorator={
+                  <IconButton
+                    variant="soft"
+                    size="sm"
+                    color={color}
+                    onClick={() => {
+                      setSystemAlertOpen(false);
+                    }}
+                  >
+                    <Close />
+                  </IconButton>
+                }
+              >
+                <div>
+                  <Typography fontWeight="lg" mt={0.25}>
+                    {title}
+                  </Typography>
+                  <Typography fontSize="sm" sx={{ opacity: 0.8 }}>
+                    {description}
+                  </Typography>
+                </div>
+              </Alert>
+            </Box>
+          )}
         </Sheet>
       </div>
     </div>

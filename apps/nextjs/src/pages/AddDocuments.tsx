@@ -80,7 +80,7 @@ const AddDocuments: NextPage = () => {
                 color="warning"
                 level="body2"
               >
-                This demo is very limited. File upload disabled.
+                File upload disabled.
               </Typography>
             </Stack>
           </ListItemButton>
@@ -109,12 +109,12 @@ const AddDocuments: NextPage = () => {
         />
       ))}
       <FormControl>
-        <FormLabel>Label</FormLabel>
+        <FormLabel>URLs to Ingest</FormLabel>
         <Input
           variant="outlined"
           placeholder="e.g. https://some-important-url.com/data.csv"
         />
-        <FormHelperText>This is a helper text.</FormHelperText>
+        <FormHelperText>Enter URLs to ingest.</FormHelperText>
       </FormControl>
       <DropZone onFileChange={handleFileChange} />
       <Stack direction="row-reverse" className="mt-2" gap="1rem">
