@@ -179,9 +179,12 @@ const MainLayout = ({ children }) => {
               <ListDivider inset="gutter" />
               <ListItem>
                 <Stack className="items-center">
-                  <Typography level="body4">© 2023 a-m</Typography>
-                  <Typography level="body4">
-                    <Link href="/legal">legal</Link>
+                  <Typography level="body5">
+                    © 2023 <Link href="https://agimerge.com">agi-merge</Link>
+                  </Typography>
+                  <Typography level="body5">
+                    <Link href="/privacy">privacy</Link> |{" "}
+                    <Link href="/terms">terms</Link>
                   </Typography>
                 </Stack>
               </ListItem>
