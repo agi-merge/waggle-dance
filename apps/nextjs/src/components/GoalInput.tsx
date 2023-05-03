@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-import { Info, KeyboardArrowRight } from "@mui/icons-material";
+import { KeyboardArrowRight } from "@mui/icons-material";
 import {
   Button,
   Card,
@@ -100,41 +100,26 @@ export default function GoalInput({ state, callbacks }: GoalInputProps) {
           open={tooltipTappedOpen}
           placement="bottom-end"
         >
-          <Stack direction="row" gap="1em" className="items-center">
-            <IconButton
-              aria-label="Open in new tab"
-              color="neutral"
-              onClick={() => {
-                // if (tooltipTappedOpen) {
-                //   setTooltipTappedOpen(undefined);
-                // } else {
-                setTooltipTappedOpen(true);
-                // }
-              }}
-            >
-              <Info color="info" />
-            </IconButton>
-            <Textarea
-              id="goalTextarea"
-              name="goalTextarea"
-              placeholder={placeholders[currentPlaceholderIndex]}
-              minRows={3}
-              maxRows={10}
-              size="lg"
-              disabled={state !== GoalInputState.start}
-              required
-              variant="outlined"
-              className="py-col flex-grow"
-              onKeyPress={(event) => {
-                if (event.key === "Enter") {
-                  event.preventDefault();
-                  handleSubmit(event);
-                }
-              }}
-              value={goalInputValue}
-              onChange={handleChange}
-            />
-          </Stack>
+          <Textarea
+            id="goalTextarea"
+            name="goalTextarea"
+            placeholder={placeholders[currentPlaceholderIndex]}
+            minRows={3}
+            maxRows={10}
+            size="lg"
+            disabled={state !== GoalInputState.start}
+            required
+            variant="outlined"
+            className="py-col flex-grow"
+            onKeyPress={(event) => {
+              if (event.key === "Enter") {
+                event.preventDefault();
+                handleSubmit(event);
+              }
+            }}
+            value={goalInputValue}
+            onChange={handleChange}
+          />
         </Tooltip>
       </FormControl>
 
