@@ -67,6 +67,7 @@ const useChainMachine = ({
         },
       },
     );
+    return result;
   };
 
   return { chainMachine, graphData, run };
