@@ -72,14 +72,6 @@ a {
   background-size: 40px 60px;
 }
 
-.content-container {
-  display: flex;
-  flex-direction: column;
-  min-height: calc(
-    100vh - 80px
-  ); /* Subtract the desired footer height, e.g., 80px */
-}
-
 .sticky-footer {
   display: flex;
   align-items: center;

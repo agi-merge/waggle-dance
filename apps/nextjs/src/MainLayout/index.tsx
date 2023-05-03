@@ -69,134 +69,128 @@ const MainLayout = ({ children }) => {
           />
           <link rel="icon" href="/favicon.ico" />
         </Head>
-
-        <div className="content-container">
-          <Sheet
-            // variant="outlined"
-            className="full w-xl h-[min(full, 100vh)] mx-auto max-w-xl items-center p-5"
-            sx={{
-              borderRadius: "lg",
-              shadowRadius: "xl",
-            }}
-            invertedColors
-          >
-            <Header />
-            <PageLoading />
-            {systemAlertOpen && (
-              <Box
-                className="my-2"
-                sx={{
-                  display: "flex",
-                  gap: 2,
-                  width: "100%",
-                  flexDirection: "column",
-                }}
+        <Sheet
+          // variant="outlined"
+          className="full w-xl h-[min(full, 100vh)] mx-auto max-w-xl items-center p-5"
+          sx={{
+            borderRadius: "lg",
+            shadowRadius: "xl",
+          }}
+          invertedColors
+        >
+          <Header />
+          <PageLoading />
+          {systemAlertOpen && (
+            <Box
+              className="my-2"
+              sx={{
+                display: "flex",
+                gap: 2,
+                width: "100%",
+                flexDirection: "column",
+              }}
+            >
+              <Alert
+                key={title}
+                sx={{ alignItems: "flex-start" }}
+                startDecorator={React.cloneElement(icon, {
+                  sx: { mt: "2px", mx: "4px" },
+                  fontSize: "xl2",
+                })}
+                variant="soft"
+                color={color}
+                endDecorator={
+                  <IconButton
+                    variant="soft"
+                    size="sm"
+                    color={color}
+                    onClick={() => {
+                      setSystemAlertOpen(false);
+                    }}
+                  >
+                    <Close />
+                  </IconButton>
+                }
               >
-                <Alert
-                  key={title}
-                  sx={{ alignItems: "flex-start" }}
-                  startDecorator={React.cloneElement(icon, {
-                    sx: { mt: "2px", mx: "4px" },
-                    fontSize: "xl2",
-                  })}
-                  variant="soft"
-                  color={color}
-                  endDecorator={
-                    <IconButton
-                      variant="soft"
-                      size="sm"
-                      color={color}
-                      onClick={() => {
-                        setSystemAlertOpen(false);
-                      }}
-                    >
-                      <Close />
-                    </IconButton>
-                  }
-                >
-                  <div>
-                    <Typography fontWeight="lg" mt={0.25}>
-                      {title}
-                    </Typography>
-                    <Typography fontSize="sm" sx={{ opacity: 0.8 }}>
-                      {description}
-                    </Typography>
-                  </div>
-                </Alert>
-              </Box>
-            )}
-            <Card className="w-full">{children}</Card>
-            <footer className="sticky-footer flex w-full pb-2 pt-10">
-              {/* <Sheet className="w-full">
+                <div>
+                  <Typography fontWeight="lg" mt={0.25}>
+                    {title}
+                  </Typography>
+                  <Typography fontSize="sm" sx={{ opacity: 0.8 }}>
+                    {description}
+                  </Typography>
+                </div>
+              </Alert>
+            </Box>
+          )}
+          <Card className="w-full">{children}</Card>
+          <footer className="sticky-footer flex w-full pb-2 pt-10">
+            {/* <Sheet className="w-full">
             <Card> */}
-              <List
-                orientation="horizontal"
-                sx={{
-                  bgcolor: "background.body",
-                  borderRadius: "sm",
-                  boxShadow: "sm",
-                  flexGrow: 0,
-                  mx: "auto",
-                  "--ListItemDecorator-size": "48px",
-                  "--ListItem-paddingY": "1rem",
-                }}
-              >
-                <ListItem>
-                  <ListItemButton>
-                    <Link href="https://discord.gg/Rud2fR3hAX" target="_blank">
-                      <img className="w-5" src={`discord-when-${mode}.svg`} />
-                    </Link>
-                  </ListItemButton>
-                </ListItem>
-                <ListDivider inset="gutter" />
-                <ListItem>
-                  <ListItemButton>
-                    <Link
-                      href="https://github.com/agi-merge/waggle-dance"
-                      target="_blank"
-                    >
-                      <GitHub />
-                    </Link>
-                  </ListItemButton>
-                </ListItem>
-                <ListDivider inset="gutter" />
-                <ListItem>
-                  <ListItemButton>
-                    <Link
-                      href="https://linkedin.com/in/willisjon"
-                      target="_blank"
-                    >
-                      <LinkedIn />
-                    </Link>
-                  </ListItemButton>
-                </ListItem>
-                <ListDivider inset="gutter" />
-                <ListItem>
-                  <ListItemButton>
-                    <Link
-                      href="https://www.patreon.com/agimerge"
-                      target="_blank"
-                    >
-                      <img className="w-5" src={`patreon.svg`} />
-                    </Link>
-                  </ListItemButton>
-                </ListItem>
-                <ListDivider inset="gutter" />
-                <ListItem>
-                  <Stack className="items-center">
-                    <Typography level="body4">© 2023 a-m</Typography>
-                    <Typography level="body4">
-                      <Link href="/legal">legal</Link>
-                    </Typography>
-                  </Stack>
-                </ListItem>
-              </List>
-              {/* </Card>
+            <List
+              orientation="horizontal"
+              sx={{
+                bgcolor: "background.body",
+                borderRadius: "sm",
+                boxShadow: "sm",
+                flexGrow: 0,
+                mx: "auto",
+                "--ListItemDecorator-size": "48px",
+                "--ListItem-paddingY": "1rem",
+              }}
+            >
+              <ListItem>
+                <ListItemButton>
+                  <Link href="https://discord.gg/Rud2fR3hAX" target="_blank">
+                    <img className="w-5" src={`discord-when-${mode}.svg`} />
+                  </Link>
+                </ListItemButton>
+              </ListItem>
+              <ListDivider inset="gutter" />
+              <ListItem>
+                <ListItemButton>
+                  <Link
+                    href="https://github.com/agi-merge/waggle-dance"
+                    target="_blank"
+                  >
+                    <GitHub />
+                  </Link>
+                </ListItemButton>
+              </ListItem>
+              <ListDivider inset="gutter" />
+              <ListItem>
+                <ListItemButton>
+                  <Link
+                    href="https://linkedin.com/in/willisjon"
+                    target="_blank"
+                  >
+                    <LinkedIn />
+                  </Link>
+                </ListItemButton>
+              </ListItem>
+              <ListDivider inset="gutter" />
+              <ListItem>
+                <ListItemButton>
+                  <Link href="https://www.patreon.com/agimerge" target="_blank">
+                    <img className="w-5" src={`patreon.svg`} />
+                  </Link>
+                </ListItemButton>
+              </ListItem>
+              <ListDivider inset="gutter" />
+              <ListItem>
+                <Stack className="items-center">
+                  <Typography level="body4">© 2023 a-m</Typography>
+                  <Typography level="body4">
+                    <Link href="/legal">legal</Link>
+                  </Typography>
+                </Stack>
+              </ListItem>
+            </List>
+            {/* </Card>
             <Card></Card> */}
-              {/* </Sheet> */}
-            </footer>
-          </Sheet>
-        </div>
+            {/* </Sheet> */}
+          </footer>
+        </Sheet>
       </div>
     </div>
   );
