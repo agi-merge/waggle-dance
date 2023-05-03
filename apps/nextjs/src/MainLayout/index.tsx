@@ -61,9 +61,9 @@ const MainLayout = ({ children }) => {
         >
           <Header />
           <PageLoading />
-          <Card className="w-full">{children}</Card>
           {systemAlertOpen && (
             <Box
+              className="my-2"
               sx={{
                 display: "flex",
                 gap: 2,
@@ -104,6 +104,7 @@ const MainLayout = ({ children }) => {
               </Alert>
             </Box>
           )}
+          <Card className="w-full">{children}</Card>
         </Sheet>
       </div>
     </div>
