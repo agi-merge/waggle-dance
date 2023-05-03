@@ -43,7 +43,7 @@ const MainLayout = ({ children }) => {
     <div
       className={mode === "dark" ? "bg-honeycomb dark" : "light bg-honeycomb"}
     >
-      <div className="h-screen p-2 ">
+      <div className="h-screen px-0 py-4">
         <Head>
           <title>{app.name}</title>
           <meta name="description" content={app.description} />
