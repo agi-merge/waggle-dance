@@ -19,16 +19,12 @@ const MainLayout = ({ children }) => {
   // because mode is undefined on the server
   useEffect(() => {
     setMounted(true);
-  }, []);
+  }, [goal, router]);
   if (!mounted) {
     return null;
   }
 
-  // useEffect(() => {
-  //   if (!goal && (slug?.length ?? 0) > 1) {
-  //     router.push("/");
-  //   }
-  // }, [goal, router]);
+  // useEffect(() => {}, [goal, router]);
 
   return (
     <div

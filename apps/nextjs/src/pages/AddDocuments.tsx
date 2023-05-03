@@ -13,7 +13,7 @@ const AddDocuments: NextPage = () => {
   const router = useRouter();
   return (
     <MainLayout>
-      <Typography>*DEMO CLICK NEXT* Add Documents</Typography>
+      {/* <Typography>*DEMO CLICK NEXT* Add Documents</Typography> */}
       {/* <FileUpload /> */}
       <DropZone />
       <Button

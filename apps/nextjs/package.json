@@ -43,6 +43,7 @@
     "react-dom": "18.2.0",
     "react-force-graph": "^1.43.0",
     "superjson": "1.9.1",
+    "swr": "^2.1.5",
     "utils": "link:@mui/material/utils",
     "zod": "^3.21.4"
   },

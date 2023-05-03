@@ -13,18 +13,18 @@ export interface Handlers {
 
 const Home: NextPage = () => {
   const router = useRouter();
-  const { goalInputState, setGoalInputState } = useAppContext();
+  const { setGoal, goalInputState, setGoalInputState } = useAppContext();
 
   // Define handleSetGoal function
   const handleSetGoal = (goal: string) => {
-    console.log("Goal set:", goal);
     if (goal.trim().length > 0) {
       router.push("/add-documents");
       setGoalInputState(GoalInputState.refine);
     } else {
       setGoalInputState(GoalInputState.start);
     }
-    // Do something with the goal, e.g., setState or call an API
+
+    setGoal(goal);
   };
   return (
     <MainLayout>

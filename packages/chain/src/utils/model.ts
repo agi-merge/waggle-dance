@@ -5,11 +5,12 @@ import { LLM, type ModelCreationProps } from "./types";
 
 export const createModel = (creationProps: ModelCreationProps): OpenAI => {
   console.log(`createModel: ${JSON.stringify(creationProps)}`);
-  const { maxTokens, verbose, streaming, callbacks } = creationProps;
+  const { temperature, maxTokens, modelName, verbose, streaming, callbacks } =
+    creationProps;
   return new OpenAI(
     {
-      temperature: 0,
-      modelName: LLM.gpt3_5_turbo,
+      temperature,
+      modelName,
       maxTokens,
       verbose,
       streaming,

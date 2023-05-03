@@ -13,6 +13,7 @@ export type ModelCreationProps = {
   // customModelName: string;
   // customTemperature: number;
   // customMaxLoops: number;
+  modelName: string;
   temperature?: number;
   maxTokens?: number;
   streaming?: boolean;

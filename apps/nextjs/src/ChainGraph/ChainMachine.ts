@@ -23,19 +23,12 @@ class ChainMachine implements BaseChainMachine {
     creationProps: ModelCreationProps,
     callbacks: ChainMachineCallbacks,
   ) {
+    const planId = `plan-${goal}`;
     const taskName = goal;
-    callbacks.onTaskCreated({ id: `plan-${taskName}` });
-
-    // const subTaskCount = 1 + Math.floor(Math.random() * 10);
-    // var tasks: string[] = [];
-    // for (let i = 0; i < subTaskCount; i++) {
-    //   const newTaskId = `subTask-${this.generateTaskName()}`;
-    //   tasks.push(newTaskId);
-    // }
-    // console.log(`Planned ${subTaskCount} new tasks for ${taskName}`);
+    // callbacks.onTaskCreated({ id: planId });
 
     const plan: SeedDef<PlanResult, void> = {
-      id: `plan-${taskName}`,
+      id: planId,
       description: "Plan tasks to achieve goal",
       plant: async () => {
         const data = {
@@ -49,11 +42,9 @@ class ChainMachine implements BaseChainMachine {
           },
           body: JSON.stringify(data),
         });
-        console.log("res", JSON.stringify(res.body));
-        // const res = await this.post(`/api/chain/plan`, data);
-        const tasks = res.json().newTasks as string[];
+        const tasks = await res.json();
         // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
-        return { planId: `plan-${taskName}`, tasks: tasks ?? [] };
+        return { planId: `plan-${taskName}`, tasks: (tasks as string[]) ?? [] };
       },
     };
 
@@ -114,10 +105,13 @@ class ChainMachine implements BaseChainMachine {
         return { target: plan.id, review };
       },
     };
-    const tasks = await Balamb.run([plan]);
-    console.log(JSON.stringify(tasks));
-    const seeds: SeedDef<any, any>[] = tasks.map((task) => {
-      return reviewSubtask(task);
+    const planResult = await Balamb.run([reviewPlan]);
+    // [Log] {"info":{"errorCode":"SEED_FAILURES","failures":[{"id":"plan-","error":{}}],"partialResults":{}}}
+    const tasks =
+      planResult.results && (planResult.results[planId].tasks as string[]);
+    if (planResult) console.log(JSON.stringify(planResult));
+    const seeds: SeedDef<any, any>[] = tasks.map((tasks) => {
+      return reviewSubtask(tasks);
     });
     seeds.unshift(reviewPlan);
     try {

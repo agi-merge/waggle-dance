@@ -18,13 +18,12 @@ const WaggleDance: NextPage = (/*{ goal, onDelete }: WaggleDanceProps*/) => {
   const { goal } = useAppContext();
   return (
     <MainLayout>
-      <Typography>Waggle Dance</Typography>
-      <Card>
-        <Typography level="display2">
-          Goal: {goal}, {goal.length}
-        </Typography>
-        <ChainGraph goal={goal} />
-      </Card>
+      {/* <Card> */}
+      <Typography className="mb-2" level="body1">
+        Goal: <Typography level="body2">{goal}</Typography>
+      </Typography>
+      <ChainGraph goal={goal} />
+      {/* </Card> */}
     </MainLayout>
   );
 };

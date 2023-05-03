@@ -19,7 +19,11 @@ const SlugPage: NextPage = () => {
     content = <WaggleDance />;
   } else {
     // Handle unknown slugs or show a 404 error message
-    content = <h1>Page not found</h1>;
+    content = (
+      <MainLayout>
+        <></>
+      </MainLayout>
+    );
   }
 
   return content;
