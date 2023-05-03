@@ -46,6 +46,9 @@ const ChainGraphSimulation = ({ goal }: ChainGraphSimulationProps) => {
           Start Waggling
           <KeyboardArrowRight />
         </Button>
+        {isRunning && graphData.links.length === 0 && (
+          <Typography>Planning initial tasks…</Typography>
+        )}
       </Stack>
       {graphData.links.length > 0 && (
         <Tabs
