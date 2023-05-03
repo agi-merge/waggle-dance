@@ -16,7 +16,7 @@ import {
 import { Handlers } from "~/pages";
 import { GoalInputState } from "~/pages/_app";
 
-const examplePrompts = [
+export const examplePrompts = [
   "What is the most popular event planning trend right now in April 2023?",
   "Who came in fourth place in the latest golf major?",
   "How do fluctuations in mortgage interest rates affect the demand for home loans in the current market?",
@@ -29,10 +29,11 @@ const examplePrompts = [
 
 const placeholders = [
   "What's your goal?",
-  "What do you want to know?",
-  "Is there an abstract concept that you want to understand?",
+  "Is there an un-Googleable topic that you want to explore?",
   "Add a feature to a GitHub repository?",
+  "Do your taxes?",
   "Try something that ChatGPT might be not able to do!",
+  "Achieve global peace and equity for all?",
 ];
 
 interface GoalInputProps {

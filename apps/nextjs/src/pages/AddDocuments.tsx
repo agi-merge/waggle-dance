@@ -19,6 +19,16 @@ const AddDocuments: NextPage = () => {
 
   return (
     <>
+      <Typography level="body1">Enrich with context</Typography>
+      <Typography level="body3">
+        such as PDFs, URLs, Excel Spreadsheets, entire git repos, Google Docs,
+        Databases, your vacation photos, and more!
+      </Typography>
+      <Typography level="body3">
+        The swarm will remember information that you deem important to
+        completing the task.
+      </Typography>
+      <br />
       {uploadedFiles.map((file, index) => (
         <FileUpload
           key={index}

@@ -18,14 +18,22 @@ const WaggleDance: NextPage = (/*{ goal, onDelete }: WaggleDanceProps*/) => {
   const { goal } = useAppContext();
   return (
     <>
-      {/* <Card> */}
+      <Typography level="body1">Waggle Dance</Typography>
+      <Typography level="body3">
+        Waggle dancing is a process that allows large language models like
+        ChatGPT to collaborate with one another, with minimal human input. The
+        AI breaks the steps to achieve the goal down, and self-corrects when it
+        makes mistakes. This goes further, faster than BabyAGI, AgentGPT or
+        Auto-GPT.
+      </Typography>
+      <br />
       <Stack gap="2rem">
-        <Typography className="mb-2" level="body1">
-          Goal: <Typography level="body2">{goal}</Typography>
-        </Typography>
-
+        {goal && (
+          <Typography className="mb-2" level="body1">
+            Goal: <Typography level="body2">{goal}</Typography>
+          </Typography>
+        )}
         <ChainGraph goal={goal} />
-        {/* </Card> */}
       </Stack>
     </>
   );
