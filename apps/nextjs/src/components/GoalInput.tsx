@@ -44,7 +44,8 @@ export default function GoalInput({ state, callbacks }: GoalInputProps) {
   const [currentPromptIndex, setCurrentPromptIndex] = useState(0);
   const [currentPlaceholderIndex, setCurrentPlaceholderIndex] = useState(0);
   const [goalInputValue, setGoalInputValue] = useState(
-    examplePrompts[(Math.random() * examplePrompts.length) | 0],
+    "",
+    //examplePrompts[(Math.random() * examplePrompts.length) | 0],
   );
   const [tooltipTappedOpen, setTooltipTappedOpen] = useState<
     boolean | undefined
@@ -79,25 +80,25 @@ export default function GoalInput({ state, callbacks }: GoalInputProps) {
   return (
     <form onSubmit={handleSubmit} className="space-y-2">
       <FormControl>
-        <Stack direction="row" gap="1em" className="items-center">
-          <Tooltip
-            title={
-              <div className="max-w-sm">
-                <Typography color="info">
-                  Try a complex task or question that you perform in your
-                  profession. <Typography color="neutral">e.g.</Typography>
-                </Typography>
-                <Typography level="body1" className="mt-2">
-                  {examplePrompts[currentPromptIndex]}
-                </Typography>
-              </div>
-            }
-            variant="outlined"
-            arrow
-            color="info"
-            open={tooltipTappedOpen}
-            placement="bottom-end"
-          >
+        <Tooltip
+          title={
+            <div className="max-w-sm">
+              <Typography color="info">
+                Try a complex task or question that you perform in your
+                profession. <Typography color="neutral">e.g.</Typography>
+              </Typography>
+              <Typography level="body1" className="mt-2">
+                {examplePrompts[currentPromptIndex]}
+              </Typography>
+            </div>
+          }
+          variant="outlined"
+          arrow
+          color="info"
+          open={tooltipTappedOpen}
+          placement="bottom-end"
+        >
+          <Stack direction="row" gap="1em" className="items-center">
             <IconButton
               aria-label="Open in new tab"
               color="neutral"
@@ -111,28 +112,28 @@ export default function GoalInput({ state, callbacks }: GoalInputProps) {
             >
               <Info color="info" />
             </IconButton>
-          </Tooltip>
-          <Textarea
-            id="goalTextarea"
-            name="goalTextarea"
-            placeholder={placeholders[currentPlaceholderIndex]}
-            minRows={3}
-            maxRows={10}
-            size="lg"
-            disabled={state !== GoalInputState.start}
-            required
-            variant="outlined"
-            className="py-col flex-grow"
-            onKeyPress={(event) => {
-              if (event.key === "Enter") {
-                event.preventDefault();
-                handleSubmit(event);
-              }
-            }}
-            value={goalInputValue}
-            onChange={handleChange}
-          />
-        </Stack>
+            <Textarea
+              id="goalTextarea"
+              name="goalTextarea"
+              placeholder={placeholders[currentPlaceholderIndex]}
+              minRows={3}
+              maxRows={10}
+              size="lg"
+              disabled={state !== GoalInputState.start}
+              required
+              variant="outlined"
+              className="py-col flex-grow"
+              onKeyPress={(event) => {
+                if (event.key === "Enter") {
+                  event.preventDefault();
+                  handleSubmit(event);
+                }
+              }}
+              value={goalInputValue}
+              onChange={handleChange}
+            />
+          </Stack>
+        </Tooltip>
       </FormControl>
 
       <Stack direction="row-reverse" gap="1rem">
