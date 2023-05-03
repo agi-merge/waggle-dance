@@ -145,7 +145,7 @@ export default function GoalInput({ state, callbacks }: GoalInputProps) {
             state === GoalInputState.start && goalInputValue.trim().length === 0
           }
         >
-          Add Docs
+          Add Data
           <KeyboardArrowRight />
         </Button>
       </Stack>

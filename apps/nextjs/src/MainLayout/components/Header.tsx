@@ -21,10 +21,10 @@ const Header = () => {
   const { data: session } = useSession();
 
   const routes = [
-    { path: "", label: "Goal" },
-    { path: "add-documents", label: "Add Docs" },
-    { path: "waggle-dance", label: "Waggle" },
-    { path: "goal-done", label: "Goal Done" },
+    { path: "", label: "🐝 Start" },
+    { path: "add-documents", label: "🌺 Enrich " },
+    { path: "waggle-dance", label: "💃 Waggle" },
+    { path: "goal-done", label: "🍯 Done" },
   ];
 
   const isActive = (path) => {
