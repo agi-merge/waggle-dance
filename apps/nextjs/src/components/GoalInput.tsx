@@ -92,6 +92,7 @@ export default function GoalInput({ state, callbacks }: GoalInputProps) {
               </Typography>
             </div>
           }
+          enterDelay={1500}
           variant="outlined"
           arrow
           color="info"

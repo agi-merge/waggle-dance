@@ -50,6 +50,11 @@ const ChainGraphSimulation = ({ goal }: ChainGraphSimulationProps) => {
           <Typography>Planning initial tasks…</Typography>
         )}
       </Stack>
+      {graphData.links.length > 2 && (
+        <Typography className="text-center" color="warning" level="body4">
+          Demo is currently limited to the first set of tasks
+        </Typography>
+      )}
       {graphData.links.length > 0 && (
         <Tabs
           variant="solid"
@@ -84,15 +89,6 @@ const ChainGraphSimulation = ({ goal }: ChainGraphSimulationProps) => {
             {graphData.links.length > 0 && (
               <>
                 <ForceGraph data={graphData} />
-                {graphData.links.length > 2 && (
-                  <Typography
-                    className="text-center"
-                    color="warning"
-                    level="body4"
-                  >
-                    Demo is currently limited to the first set of tasks
-                  </Typography>
-                )}
               </>
             )}
           </TabPanel>
