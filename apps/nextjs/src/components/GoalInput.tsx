@@ -13,7 +13,8 @@ import {
   Typography,
 } from "@mui/joy";
 
-import { GoalInputState, Handlers } from "~/pages";
+import { Handlers } from "~/pages";
+import { GoalInputState } from "~/pages/_app";
 
 const examplePrompts = [
   "What is the most popular event planning trend right now in April 2023?",

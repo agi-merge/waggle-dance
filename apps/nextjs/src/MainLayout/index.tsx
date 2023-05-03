@@ -1,21 +1,35 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import Head from "next/head";
+import { useRouter } from "next/router";
 import { Card, Divider, Sheet, useColorScheme } from "@mui/joy";
 
 import { app } from "~/constants";
+import { useAppContext } from "~/pages/_app";
 import Header from "./components/Header";
+import PageLoading from "./components/PageLoading";
 
 const MainLayout = ({ children }) => {
   const { mode } = useColorScheme();
+  const { goal } = useAppContext();
   const [mounted, setMounted] = useState(false);
-  // necessary for server-side rendering
+  const router = useRouter();
+  const { slug } = router.query;
+
+  // necessary for server-side renderingπ
   // because mode is undefined on the server
-  React.useEffect(() => {
+  useEffect(() => {
     setMounted(true);
   }, []);
   if (!mounted) {
     return null;
   }
+
+  // useEffect(() => {
+  //   if (!goal && (slug?.length ?? 0) > 1) {
+  //     router.push("/");
+  //   }
+  // }, [goal, router]);
+
   return (
     <div
       className={mode === "dark" ? "bg-honeycomb dark" : "light bg-honeycomb"}
@@ -38,6 +52,7 @@ const MainLayout = ({ children }) => {
         >
           <Header />
           <Divider />
+          <PageLoading />
           <Card className="mx-auto max-w-lg">{children}</Card>
         </Sheet>
       </div>

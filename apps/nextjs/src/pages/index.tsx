@@ -3,35 +3,24 @@ import type { NextPage } from "next";
 import { useRouter } from "next/router";
 
 import GoalInput from "~/components/GoalInput";
-import GoalWorkspace from "~/components/GoalWorkspace";
 import MainLayout from "~/MainLayout";
+import { GoalInputState, useAppContext } from "./_app";
 
 export interface Handlers {
   setGoal: (goal: string) => void;
   onStop: () => void;
 }
 
-export enum GoalInputState {
-  start,
-  refine,
-  configure,
-  run,
-  done,
-}
-
 const Home: NextPage = () => {
-  const [goalInputState, setGoalInputState] = React.useState(
-    GoalInputState.start,
-  );
-  const [newGoal, setNewGoal] = React.useState("");
   const router = useRouter();
+  const { goalInputState, setGoalInputState } = useAppContext();
+
   // Define handleSetGoal function
   const handleSetGoal = (goal: string) => {
     console.log("Goal set:", goal);
     if (goal.trim().length > 0) {
       router.push("/add-documents");
       setGoalInputState(GoalInputState.refine);
-      setNewGoal(goal);
     } else {
       setGoalInputState(GoalInputState.start);
     }

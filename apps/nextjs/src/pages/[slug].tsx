@@ -9,6 +9,7 @@ import WaggleDance from "./WaggleDance";
 
 const SlugPage: NextPage = () => {
   const router = useRouter();
+  // console.log(JSON.stringify(router));
   const { slug } = router.query;
 
   let content;

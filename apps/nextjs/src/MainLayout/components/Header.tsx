@@ -1,3 +1,4 @@
+import { useEffect, useState } from "react";
 import { useRouter } from "next/router";
 import { KeyboardArrowRight } from "@mui/icons-material";
 import {
@@ -16,11 +17,60 @@ import ThemeToggle from "../../components/ThemeToggle";
 
 const Header = () => {
   const router = useRouter();
-  const isAddDocumentsPage = router.pathname === "/add-documents";
-  const isWaggleDancePage = router.pathname === "/waggle-dance";
-  const isHomePage = !isAddDocumentsPage && !isWaggleDancePage;
+  const { slug } = router.query;
 
   const { data: session } = useSession();
+
+  const [routes, setRoutes] = useState({
+    "": { label: "Goal", active: true },
+    "add-documents": { label: "Add Docs", active: false },
+    "waggle-dance": { label: "Waggle", active: false },
+    "goal-done": { label: "Goal Done", active: false },
+  });
+
+  useEffect(() => {
+    const updatedRoutes = {
+      "": { label: "Goal", active: slug !== "goal-done" },
+      "add-documents": {
+        label: "Add Docs",
+        active:
+          slug === "" || slug === "add-documents" || slug === "waggle-dance",
+      },
+      "waggle-dance": {
+        label: "Waggle",
+        active: slug === "add-documents" || slug === "waggle-dance",
+      },
+      "goal-done": { label: "Goal Done", active: slug === "goal-done" },
+    };
+    setRoutes(updatedRoutes);
+  }, [slug]);
+
+  const renderBreadcrumbLink = (step, label, active) => {
+    if (active) {
+      return (
+        <Link href={`/${step}`}>
+          <Typography
+            component="a"
+            level="body2"
+            color={slug === step ? "primary" : "neutral"}
+            className={slug === step ? "font-bold" : ""}
+          >
+            {label}
+          </Typography>
+        </Link>
+      );
+    } else {
+      return (
+        <Typography
+          level="body2"
+          color="neutral"
+          className="cursor-default opacity-50"
+        >
+          {label}
+        </Typography>
+      );
+    }
+  };
 
   return (
     <Sheet>
@@ -67,29 +117,11 @@ const Header = () => {
         className="-ml-1"
         size="lg"
       >
-        <Typography
-          color={isHomePage ? "primary" : "neutral"}
-          className={isHomePage ? "font-bold" : ""}
-        >
-          Goal
-        </Typography>
-        <Typography
-          level="body2"
-          color={isAddDocumentsPage ? "primary" : "neutral"}
-          className={isAddDocumentsPage ? "font-bold" : ""}
-        >
-          Add Docs
-        </Typography>
-        <Typography
-          level="body2"
-          color={isWaggleDancePage ? "primary" : "neutral"}
-          className={isWaggleDancePage ? "font-bold" : ""}
-        >
-          Waggle
-        </Typography>
-        <Typography level="body2" color="neutral">
-          Goal Done
-        </Typography>
+        {Object.keys(routes).map((key) => (
+          <span key={key}>
+            {renderBreadcrumbLink(key, routes[key].label, routes[key].active)}
+          </span>
+        ))}
       </Breadcrumbs>
     </Sheet>
   );

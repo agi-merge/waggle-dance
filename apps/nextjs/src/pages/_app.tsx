@@ -1,4 +1,5 @@
 import "../styles/globals.css";
+import { createContext, useContext, useEffect, useState } from "react";
 import type { AppType } from "next/app";
 import {
   CssVarsProvider,
@@ -63,6 +64,37 @@ const mantineTheme = extendTheme({
   },
 });
 
+export enum GoalInputState {
+  start,
+  refine,
+  configure,
+  run,
+  done,
+}
+// Really, this is a GoalContext, or something else.
+// We can use it in a more targeted manner once we have multiple flows within the app.
+const AppContext = createContext({
+  goal: "",
+  setGoal: (goal: string) => {},
+  goalInputState: GoalInputState.start,
+  setGoalInputState: (state: GoalInputState) => {},
+});
+
+export const useAppContext = () => useContext(AppContext);
+
+export const StateProvider = ({ children }) => {
+  const [goal, setGoal] = useState("");
+  const [goalInputState, setGoalInputState] = useState(GoalInputState.start);
+
+  return (
+    <AppContext.Provider
+      value={{ goal, setGoal, goalInputState, setGoalInputState }}
+    >
+      {children}
+    </AppContext.Provider>
+  );
+};
+
 const MyApp: AppType<{ session: Session | null }> = ({
   Component,
   pageProps: { session, ...pageProps },
@@ -70,10 +102,11 @@ const MyApp: AppType<{ session: Session | null }> = ({
   return (
     <SessionProvider session={session}>
       {getInitColorSchemeScript()}
-
-      <CssVarsProvider theme={theme}>
-        <Component {...pageProps} />
-      </CssVarsProvider>
+      <StateProvider>
+        <CssVarsProvider theme={theme}>
+          <Component {...pageProps} />
+        </CssVarsProvider>
+      </StateProvider>
     </SessionProvider>
   );
 };
