@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-import { Info } from "@mui/icons-material";
+import { Info, KeyboardArrowRight } from "@mui/icons-material";
 import {
   Button,
   Card,
@@ -116,7 +116,8 @@ export default function GoalInput({ state, callbacks }: GoalInputProps) {
             id="goalTextarea"
             name="goalTextarea"
             placeholder={placeholders[currentPlaceholderIndex]}
-            minRows={2}
+            minRows={3}
+            maxRows={10}
             size="lg"
             disabled={state !== GoalInputState.start}
             required
@@ -142,7 +143,8 @@ export default function GoalInput({ state, callbacks }: GoalInputProps) {
             state === GoalInputState.start && goalInputValue.trim().length === 0
           }
         >
-          Create
+          Add Docs
+          <KeyboardArrowRight />
         </Button>
       </Stack>
     </form>
