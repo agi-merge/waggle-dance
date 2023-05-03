@@ -1,7 +1,17 @@
 import React, { useEffect, useState } from "react";
 import Head from "next/head";
 import { useRouter } from "next/router";
-import { Card, Divider, Sheet, useColorScheme } from "@mui/joy";
+import { Close, Warning } from "@mui/icons-material";
+import {
+  Alert,
+  Box,
+  Card,
+  Divider,
+  IconButton,
+  Sheet,
+  Typography,
+  useColorScheme,
+} from "@mui/joy";
 
 import { app } from "~/constants";
 import { useAppContext } from "~/pages/_app";
@@ -13,7 +23,7 @@ const MainLayout = ({ children }) => {
   const { goal } = useAppContext();
   const [mounted, setMounted] = useState(false);
   const router = useRouter();
-  const { slug } = router.query;
+  const [systemAlertOpen, setSystemAlertOpen] = useState(true);
 
   // necessary for server-side renderingπ
   // because mode is undefined on the server
@@ -25,7 +35,10 @@ const MainLayout = ({ children }) => {
   }
 
   // useEffect(() => {}, [goal, router]);
-
+  const color = "warning";
+  const title = "Limited Demo";
+  const description = "Core features are broken and are frequently changing.";
+  const icon = <Warning />;
   return (
     <div
       className={mode === "dark" ? "bg-honeycomb dark" : "light bg-honeycomb"}
@@ -37,9 +50,51 @@ const MainLayout = ({ children }) => {
           <meta name="viewport" content="initial-scale=1, width=device-width" />
           <link rel="icon" href="/favicon.ico" />
         </Head>
+        {systemAlertOpen && (
+          <Box
+            sx={{
+              display: "flex",
+              gap: 2,
+              width: "100%",
+              flexDirection: "column",
+            }}
+          >
+            <Alert
+              key={title}
+              sx={{ alignItems: "flex-start" }}
+              startDecorator={React.cloneElement(icon, {
+                sx: { mt: "2px", mx: "4px" },
+                fontSize: "xl2",
+              })}
+              variant="soft"
+              color={color}
+              endDecorator={
+                <IconButton
+                  variant="soft"
+                  size="sm"
+                  color={color}
+                  onClick={() => {
+                    setSystemAlertOpen(false);
+                  }}
+                >
+                  <Close />
+                </IconButton>
+              }
+            >
+              <div>
+                <Typography fontWeight="lg" mt={0.25}>
+                  {title}
+                </Typography>
+                <Typography fontSize="sm" sx={{ opacity: 0.8 }}>
+                  {description}
+                </Typography>
+              </div>
+            </Alert>
+          </Box>
+        )}
         <Sheet
           // variant="outlined"
-          className="full w-xl mx-auto max-w-xl items-center p-5"
+          className="full w-xl h-[min(full, 100vh)] mx-auto max-w-xl items-center p-5"
           sx={{
             borderRadius: "lg",
             shadowRadius: "xl",

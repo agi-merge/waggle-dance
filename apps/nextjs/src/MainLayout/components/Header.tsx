@@ -4,6 +4,7 @@ import {
   Avatar,
   Breadcrumbs,
   Card,
+  Chip,
   Divider,
   Link,
   Sheet,
@@ -111,10 +112,10 @@ const Header = () => {
               className="font-bold"
               target="_blank"
             >
-              wagglin' 🐝 swarms{" "}
+              wagglin' swarms{" "}
             </a>
           </Tooltip>
-          of large language models.
+          of instances of GPT.
         </Typography>
       )}
 

@@ -81,7 +81,6 @@ const Home: NextPage = () => {
           </ListItemButton>
         </ListItem>
       </List>
-      <br />
       <GoalInput
         state={goalInputState}
         callbacks={{

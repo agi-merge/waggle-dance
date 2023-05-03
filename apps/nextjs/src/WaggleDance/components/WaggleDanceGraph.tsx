@@ -41,72 +41,72 @@ const WaggleDanceGraph = ({
     }, 45000);
   };
   return (
-    <Stack gap="1rem">
+    <Stack gap="1rem" className="items-end">
+      <Button
+        disabled={!goal}
+        className="col-end w-40 p-2"
+        color="primary"
+        loading={isRunning}
+        href="waggle-dance"
+        onClick={handleStart}
+      >
+        Start
+      </Button>
       {graphData.links.length > 2 && (
         <Typography className="text-center" color="warning" level="body4">
-          Demo is currently limited to the first set of tasks. Ending now.
+          This demo is currently very limited. Ending soon.
         </Typography>
       )}
-      {/* {graphData.links.length > 0 && ( */}
-      <Tabs defaultValue={0} sx={{ minWidth: 300, borderRadius: "lg" }}>
-        <TabList>
-          <Tab>
-            <Button
-              disabled={!goal}
-              className="col-end p-2"
-              color="primary"
-              loading={isRunning}
-              href="waggle-dance"
-              onClick={handleStart}
-            >
-              Start
-            </Button>
-            <Typography className="flex-grow pl-2 text-center">
-              <ListAlt />
-              Log
-            </Typography>
-          </Tab>
-          <Tab>
-            <Typography className="flex-grow pl-2 text-center">
-              <Lan />
-              Visualizer
-            </Typography>
-          </Tab>
-        </TabList>
-        <TabPanel value={0} className="20vh relative p-4">
-          {isRunning && graphData.links.length === 0 && (
-            <Stack className="text-justify">
-              <Typography>Planning initial tasks…</Typography>
-              <Typography level="body3">
-                Please be patient, this may take a moment…
+      {isRunning && graphData.links.length === 0 && (
+        <Stack className="text-justify">
+          <Typography>Planning initial tasks…</Typography>
+          <Typography level="body3">
+            Please be patient, this may take a moment…
+          </Typography>
+        </Stack>
+      )}
+      {graphData.links.length > 0 && (
+        <Tabs defaultValue={0} sx={{ minWidth: 300, borderRadius: "lg" }}>
+          <TabList>
+            <Tab>
+              <Typography className="flex-grow pl-2 text-center">
+                <ListAlt />
+                Log
               </Typography>
-            </Stack>
-          )}
-          <List className="absolute left-0 top-0 mt-3 w-full overflow-y-scroll p-2">
-            {graphData.nodes.map((n) => (
-              <ListItem>
-                <ListItemButton>
-                  <ListItemDecorator>
-                    <Home />
-                  </ListItemDecorator>
-                  <ListItemContent>{n.id}</ListItemContent>
-                  <KeyboardArrowRight />
-                </ListItemButton>
-              </ListItem>
-            ))}
-          </List>
-        </TabPanel>
-        <TabPanel value={1}>
-          {graphData.links.length > 0 ? (
-            <>
-              <ForceGraph data={graphData} />
-            </>
-          ) : (
-            <CircularProgress />
-          )}
-        </TabPanel>
-      </Tabs>
-      {/* )} */}
+            </Tab>
+            <Tab>
+              <Typography className="flex-grow pl-2 text-center">
+                <Lan />
+                Visualizer
+              </Typography>
+            </Tab>
+          </TabList>
+          <TabPanel value={0} className="20vh relative p-4">
+            <List className="absolute left-0 top-0 mt-3 w-full overflow-y-scroll p-2">
+              {graphData.nodes.map((n) => (
+                <ListItem>
+                  <ListItemButton>
+                    <ListItemDecorator>
+                      <Home />
+                    </ListItemDecorator>
+                    <ListItemContent>{n.id}</ListItemContent>
+                    <KeyboardArrowRight />
+                  </ListItemButton>
+                </ListItem>
+              ))}
+            </List>
+          </TabPanel>
+          <TabPanel value={1} className="items-center">
+            {graphData.links.length > 0 ? (
+              <>
+                <ForceGraph data={graphData} />
+              </>
+            ) : (
+              isRunning && <CircularProgress />
+            )}
+          </TabPanel>
+        </Tabs>
+      )}
     </Stack>
   );
 };

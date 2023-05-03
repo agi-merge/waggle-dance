@@ -83,7 +83,7 @@ export default function GoalInput({ state, callbacks }: GoalInputProps) {
       <FormControl>
         <Tooltip
           title={
-            <div className="max-w-sm">
+            <div>
               <Typography color="info">
                 Try a complex task or question that you perform in your
                 profession. <Typography color="neutral">e.g.</Typography>

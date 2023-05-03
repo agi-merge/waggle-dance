@@ -9,6 +9,9 @@ import {
 } from "@mui/icons-material";
 import {
   Button,
+  FormControl,
+  FormHelperText,
+  FormLabel,
   Input,
   List,
   ListItem,
@@ -39,7 +42,7 @@ const AddDocuments: NextPage = () => {
   }, [goal, router]);
 
   return (
-    <>
+    <Stack gap="1rem">
       <List className="m-0 p-0">
         <ListItem>
           <ListItemButton
@@ -71,11 +74,18 @@ const AddDocuments: NextPage = () => {
                   </Typography>
                 </>
               )}
+              <Typography
+                variant="soft"
+                className="text-center"
+                color="warning"
+                level="body2"
+              >
+                This demo is very limited. File upload disabled.
+              </Typography>
             </Stack>
           </ListItemButton>
         </ListItem>
       </List>
-      <br />
       {uploadedFiles.map((file, index) => (
         <FileUpload
           key={index}
@@ -98,10 +108,14 @@ const AddDocuments: NextPage = () => {
           }
         />
       ))}
-      <Input
-        variant="outlined"
-        placeholder="https://some-important-url.com/data.csv"
-      />
+      <FormControl>
+        <FormLabel>Label</FormLabel>
+        <Input
+          variant="outlined"
+          placeholder="e.g. https://some-important-url.com/data.csv"
+        />
+        <FormHelperText>This is a helper text.</FormHelperText>
+      </FormControl>
       <DropZone onFileChange={handleFileChange} />
       <Stack direction="row-reverse" className="mt-2" gap="1rem">
         <Button
@@ -116,10 +130,7 @@ const AddDocuments: NextPage = () => {
           <KeyboardArrowRight />
         </Button>
       </Stack>
-      <Typography color="warning" level="body4">
-        Demo currently does not support uploading files lol
-      </Typography>
-    </>
+    </Stack>
   );
 };
 
