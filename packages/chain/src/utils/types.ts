@@ -10,13 +10,14 @@ export enum LLM {
 
 export type ModelCreationProps = {
   // customApiKey: string;
-  customModelName: string;
-  customTemperature: number;
+  // customModelName: string;
+  // customTemperature: number;
   // customMaxLoops: number;
-  maxTokens: number;
-  streaming: boolean;
+  temperature?: number;
+  maxTokens?: number;
+  streaming?: boolean;
   callbacks?: CallbackManager;
-  verbose: boolean;
+  verbose?: boolean;
 };
 
 export const packetParser = z.object({

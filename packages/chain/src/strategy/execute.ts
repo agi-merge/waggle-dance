@@ -11,11 +11,11 @@ import { createModel } from "../utils/model";
 import { ModelCreationProps } from "../utils/types";
 
 export async function executeChain({
-  modelSettings,
+  creationProps,
   goal,
   task,
 }: {
-  modelSettings: ModelCreationProps;
+  creationProps: ModelCreationProps;
   goal: string;
   task: string;
 }): Promise<string> {

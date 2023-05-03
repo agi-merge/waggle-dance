@@ -5,7 +5,10 @@ import useChainMachine from "../hooks/useChainMachine";
 import ForceGraph from "./ForceGraph";
 
 const ChainGraphSimulation = () => {
-  const { chainMachine, graphData, run } = useChainMachine(true);
+  const { chainMachine, graphData, run } = useChainMachine({
+    goal: "some simulated goal",
+    isSimulated: true,
+  });
 
   return (
     <Stack>

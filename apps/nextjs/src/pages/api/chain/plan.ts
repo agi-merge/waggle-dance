@@ -17,10 +17,10 @@ export const config = {
 const handler = async (req: NextRequest, res: NextApiResponse) => {
   const isNode = config.runtime == "nodejs";
   try {
-    const { modelSettings, goal } = isNode
+    const { creationProps, goal } = isNode
       ? (JSON.parse(JSON.stringify(req.body)) as StrategyRequestBody)
       : ((await req.json()) as StrategyRequestBody);
-    const newTasks = await planChain(modelSettings, goal);
+    const newTasks = await planChain(creationProps, goal);
     if (isNode) {
       res.status(200).json({ newTasks });
     } else {

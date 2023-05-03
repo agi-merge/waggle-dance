@@ -1,7 +1,7 @@
 import { ModelCreationProps } from "@acme/chain";
 
 export interface StrategyRequestBody {
-  modelSettings: ModelCreationProps;
+  creationProps: ModelCreationProps;
   goal: string;
   task?: string;
   tasks?: string[];

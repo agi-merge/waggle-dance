@@ -3,8 +3,9 @@ import { OpenAI } from "langchain/llms/openai";
 
 import { LLM, type ModelCreationProps } from "./types";
 
-export const createModel = (settings: ModelCreationProps): OpenAI => {
-  const { maxTokens, verbose, streaming, callbacks } = settings;
+export const createModel = (creationProps: ModelCreationProps): OpenAI => {
+  console.log(`createModel: ${JSON.stringify(creationProps)}`);
+  const { maxTokens, verbose, streaming, callbacks } = creationProps;
   return new OpenAI(
     {
       temperature: 0,

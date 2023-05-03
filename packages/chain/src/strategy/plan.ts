@@ -7,10 +7,10 @@ import { extractTasks } from "../utils/serialization";
 import { ModelCreationProps } from "../utils/types";
 
 export async function planChain(
-  modelSettings: ModelCreationProps,
+  creationProps: ModelCreationProps,
   goal: string,
 ) {
-  const llm = createModel(modelSettings);
+  const llm = createModel(creationProps);
   const memory = await createMemory(goal); // loads previous state from Motörhead 🤘
   const prompt = createPrompt("plan");
 

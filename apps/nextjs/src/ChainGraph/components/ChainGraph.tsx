@@ -8,11 +8,17 @@ interface ChainGraphSimulationProps {
   goal: string;
 }
 const ChainGraphSimulation = ({ goal }: ChainGraphSimulationProps) => {
-  const { chainMachine, graphData, run } = useChainMachine();
-
+  const { graphData, run } = useChainMachine({ goal });
+  const [isRunning, setIsRunning] = React.useState(false);
+  const handleStart = () => {
+    setIsRunning(true);
+    run();
+  };
   return (
     <Stack>
-      <Button onClick={run}>Run</Button>
+      <Button loading={isRunning} onClick={handleStart}>
+        Run
+      </Button>
       {graphData.links.length > 0 && <ForceGraph data={graphData} />}
     </Stack>
   );

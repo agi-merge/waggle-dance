@@ -1,5 +1,7 @@
 import Balamb, { BalambError, BalambResult, SeedDef } from "balamb";
 
+import { ModelCreationProps } from "@acme/chain";
+
 import {
   TaskSimulationCallbacks as ChainMachineCallbacks,
   PlanResult,
@@ -9,25 +11,49 @@ import {
 } from "./types";
 
 interface BaseChainMachine {
-  run(callbacks: ChainMachineCallbacks): Promise<BalambResult>;
+  run(
+    goal: string,
+    creationProps: ModelCreationProps,
+    callbacks: ChainMachineCallbacks,
+  ): Promise<BalambResult>;
 }
 class ChainMachine implements BaseChainMachine {
-  async runTaskWithReview(taskName: string, callbacks: ChainMachineCallbacks) {
-    const subTaskCount = 1 + Math.floor(Math.random() * 10);
-    var tasks: string[] = [];
-    for (let i = 0; i < subTaskCount; i++) {
-      const newTaskId = `subTask-${this.generateTaskName()}`;
-      tasks.push(newTaskId);
-    }
-    console.log(`Planned ${subTaskCount} new tasks for ${taskName}`);
+  async run(
+    goal: string,
+    creationProps: ModelCreationProps,
+    callbacks: ChainMachineCallbacks,
+  ) {
+    const taskName = goal;
+    callbacks.onTaskCreated({ id: `plan-${taskName}` });
+
+    // const subTaskCount = 1 + Math.floor(Math.random() * 10);
+    // var tasks: string[] = [];
+    // for (let i = 0; i < subTaskCount; i++) {
+    //   const newTaskId = `subTask-${this.generateTaskName()}`;
+    //   tasks.push(newTaskId);
+    // }
+    // console.log(`Planned ${subTaskCount} new tasks for ${taskName}`);
 
     const plan: SeedDef<PlanResult, void> = {
       id: `plan-${taskName}`,
       description: "Plan tasks to achieve goal",
       plant: async () => {
-        callbacks.onTaskCreated({ id: `plan-${taskName}` });
-
-        return { planId: `plan-${taskName}`, tasks };
+        const data = {
+          creationProps,
+          goal,
+        };
+        const res = await fetch("/api/chain/plan", {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify(data),
+        });
+        console.log("res", JSON.stringify(res.body));
+        // const res = await this.post(`/api/chain/plan`, data);
+        const tasks = res.json().newTasks as string[];
+        // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
+        return { planId: `plan-${taskName}`, tasks: tasks ?? [] };
       },
     };
 
@@ -88,7 +114,8 @@ class ChainMachine implements BaseChainMachine {
         return { target: plan.id, review };
       },
     };
-
+    const tasks = await Balamb.run([plan]);
+    console.log(JSON.stringify(tasks));
     const seeds: SeedDef<any, any>[] = tasks.map((task) => {
       return reviewSubtask(task);
     });
@@ -115,12 +142,12 @@ class ChainMachine implements BaseChainMachine {
     return `${Math.floor(Math.random() * 10000)}`;
   }
 
-  async run(callbacks: ChainMachineCallbacks) {
-    return await this.runTaskWithReview(
-      `GOAL-${this.generateTaskName()}`,
-      callbacks,
-    );
-  }
+  // async run(callbacks: ChainMachineCallbacks) {
+  //   return await this.runTaskWithReview(
+  //     `GOAL-${this.generateTaskName()}`,
+  //     callbacks,
+  //   );
+  // }
 }
 
 export default ChainMachine;

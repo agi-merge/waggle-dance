@@ -12,14 +12,14 @@ import { extractTasks } from "../utils/serialization";
 import { ModelCreationProps } from "../utils/types";
 
 export async function reviewChain(
-  modelSettings: ModelCreationProps,
+  creationProps: ModelCreationProps,
   goal: string,
   tasks: string[],
   lastTask: string,
   result: string,
   completedTasks: string[] | undefined,
 ) {
-  const llm = createModel(modelSettings);
+  const llm = createModel(creationProps);
   const memory = await createMemory(goal, "task");
   const history =
     (memory instanceof MotorheadMemory && memory?.context) ||
