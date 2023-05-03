@@ -66,23 +66,22 @@ const WaggleDanceGraph = ({
         </Stack>
       )}
       {graphData.links.length > 0 && (
-        <Tabs defaultValue={0} sx={{ minWidth: 300, borderRadius: "lg" }}>
+        <Tabs className="w-full" defaultValue={0} sx={{ borderRadius: "lg" }}>
           <TabList>
             <Tab>
-              <Typography className="flex-grow pl-2 text-center">
-                <ListAlt />
-                Log
-              </Typography>
+              <ListAlt />
+              <Typography>Log</Typography>
             </Tab>
             <Tab>
-              <Typography className="flex-grow pl-2 text-center">
-                <Lan />
-                Visualizer
-              </Typography>
+              <Lan />
+              <Typography>Visualizer</Typography>
             </Tab>
           </TabList>
-          <TabPanel value={0} className="20vh relative p-4">
-            <List className="absolute left-0 top-0 mt-3 w-full overflow-y-scroll p-2">
+          <TabPanel
+            value={0}
+            className="relative max-h-80 w-full overflow-y-scroll p-4"
+          >
+            <List className="absolute left-0 top-0 mt-3 w-full  p-2">
               {graphData.nodes.map((n) => (
                 <ListItem>
                   <ListItemButton>
