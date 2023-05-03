@@ -1,11 +1,11 @@
 import React from "react";
 import { Button, Stack, Typography } from "@mui/joy";
 
-import useChainMachine from "../hooks/useChainMachine";
+import useWaggleDanceMachine from "../hooks/useWaggleDanceMachine";
 import ForceGraph from "./ForceGraph";
 
 const ChainGraphSimulation = () => {
-  const { chainMachine, graphData, run } = useChainMachine({
+  const { chainMachine, graphData, run } = useWaggleDanceMachine({
     goal: "some simulated goal",
     isSimulated: true,
   });

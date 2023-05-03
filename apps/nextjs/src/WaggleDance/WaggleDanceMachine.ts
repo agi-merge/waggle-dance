@@ -10,14 +10,18 @@ import {
   TaskResult,
 } from "./types";
 
-interface BaseChainMachine {
+interface BaseWaggleDanceMachine {
   run(
     goal: string,
     creationProps: ModelCreationProps,
     callbacks: ChainMachineCallbacks,
   ): Promise<BalambResult>;
 }
-class ChainMachine implements BaseChainMachine {
+
+/// Talk about mixing metaphors!
+/// This implementation uses Balamb to plant seeds, aka, use a DAG to execute dependent tasks.
+/// It queries the backend API for results from the underlying AI.
+class WaggleDanceMachine implements BaseWaggleDanceMachine {
   async run(
     goal: string,
     creationProps: ModelCreationProps,
@@ -144,4 +148,4 @@ class ChainMachine implements BaseChainMachine {
   // }
 }
 
-export default ChainMachine;
+export default WaggleDanceMachine;

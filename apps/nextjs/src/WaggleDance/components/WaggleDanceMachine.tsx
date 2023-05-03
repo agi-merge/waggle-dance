@@ -18,17 +18,17 @@ import {
 } from "@mui/joy";
 
 import { useAppContext } from "~/pages/_app";
-import useChainMachine from "../hooks/useChainMachine";
+import useChainMachine from "../hooks/useWaggleDanceMachine";
 import ForceGraph from "./ForceGraph";
 
-interface ChainGraphSimulationProps {
+interface WaggleDanceGraphProps {
   goal: string;
   setHeaderExpanded: (expanded: boolean) => void;
 }
-const ChainGraphSimulation = ({
+const WaggleDanceGraph = ({
   goal,
   setHeaderExpanded,
-}: ChainGraphSimulationProps) => {
+}: WaggleDanceGraphProps) => {
   const { goal: goal2, isRunning, setIsRunning } = useAppContext();
   const router = useRouter();
   const { graphData, run } = useChainMachine({ goal });
@@ -115,4 +115,4 @@ const ChainGraphSimulation = ({
   );
 };
 
-export default ChainGraphSimulation;
+export default WaggleDanceGraph;

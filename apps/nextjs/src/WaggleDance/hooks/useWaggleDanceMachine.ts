@@ -1,10 +1,8 @@
 import { useState } from "react";
-import { CallbackManager } from "langchain/callbacks";
 
 import { LLM } from "@acme/chain";
 
-import { useAppContext } from "~/pages/_app";
-import ChainMachine from "../ChainMachine";
+import WaggleDanceMachine from "../WaggleDanceMachine";
 // import ChainMachineSimulation from "../ChainMachineSimulation";
 import { LinkObject, NodeObject } from "../components/ForceGraph";
 import { GraphData } from "../types";
@@ -20,7 +18,7 @@ const useChainMachine = ({
   // const [chainMachine] = useState(() =>
   //   isSimulated ? new ChainMachineSimulation() : new ChainMachine(),
   // );
-  const [chainMachine] = useState(() => new ChainMachine());
+  const [waggleDanceMachine] = useState(() => new WaggleDanceMachine());
 
   const [graphData, setGraphData] = useState<GraphData>({
     nodes: [],
@@ -33,7 +31,7 @@ const useChainMachine = ({
       gd.nodes = [{ id: `plan-${goal}` }];
       setGraphData(gd);
     }
-    const result = await chainMachine.run(
+    const result = await waggleDanceMachine.run(
       goal,
       {
         // customApiKey: string;
@@ -70,7 +68,7 @@ const useChainMachine = ({
     return result;
   };
 
-  return { chainMachine, graphData, run };
+  return { chainMachine: waggleDanceMachine, graphData, run };
 };
 
 export default useChainMachine;
