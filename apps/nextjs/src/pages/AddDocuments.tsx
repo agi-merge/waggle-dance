@@ -1,33 +1,74 @@
 // AddDocuments.tsx
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import type { NextPage } from "next";
 import { useRouter } from "next/router";
-import { KeyboardArrowRight } from "@mui/icons-material";
-import { Button, Stack, Typography } from "@mui/joy";
+import {
+  KeyboardArrowDown,
+  KeyboardArrowRight,
+  KeyboardArrowUp,
+} from "@mui/icons-material";
+import {
+  Button,
+  Input,
+  List,
+  ListItem,
+  ListItemButton,
+  Stack,
+  Typography,
+} from "@mui/joy";
 
 import DropZone from "~/components/DropZone";
 import FileUpload from "~/components/FileUpload";
+import { useAppContext } from "./_app";
 
 const AddDocuments: NextPage = () => {
   const router = useRouter();
   const [uploadedFiles, setUploadedFiles] = useState([]);
+  const [headerExpanded, setHeaderExpanded] = useState(true);
+  const { goal } = useAppContext();
 
   const handleFileChange = (files) => {
     debugger;
     setUploadedFiles(files);
   };
+  useEffect(() => {
+    // Redirect if the goal is undefined or empty
+    if (!goal) {
+      router.push("/");
+    }
+  }, [goal, router]);
 
   return (
     <>
-      <Typography level="body1">Enrich with context</Typography>
-      <Typography level="body3">
-        such as PDFs, URLs, Excel Spreadsheets, entire git repos, Google Docs,
-        Databases, your vacation photos, and more!
-      </Typography>
-      <Typography level="body3">
-        The swarm will remember information that you deem important to
-        completing the task.
-      </Typography>
+      <List className="m-0 p-0">
+        <ListItem>
+          <ListItemButton
+            onClick={(e) => {
+              e.preventDefault();
+              setHeaderExpanded(!headerExpanded);
+            }}
+          >
+            <Stack>
+              <Typography level="body1" style={{ userSelect: "none" }}>
+                {headerExpanded ? <KeyboardArrowUp /> : <KeyboardArrowDown />}
+                Enrich with context
+              </Typography>
+              {headerExpanded && (
+                <>
+                  <Typography level="body3" style={{ userSelect: "none" }}>
+                    such as PDFs, URLs, Excel Spreadsheets, entire git repos,
+                    Google Docs, Databases, your vacation photos, and more!
+                  </Typography>
+                  <Typography level="body3" style={{ userSelect: "none" }}>
+                    The swarm will remember information that you deem important
+                    to completing the task.
+                  </Typography>
+                </>
+              )}
+            </Stack>
+          </ListItemButton>
+        </ListItem>
+      </List>
       <br />
       {uploadedFiles.map((file, index) => (
         <FileUpload
@@ -51,6 +92,10 @@ const AddDocuments: NextPage = () => {
           }
         />
       ))}
+      <Input
+        variant="outlined"
+        placeholder="https://some-important-url.com/data.csv"
+      />
       <DropZone onFileChange={handleFileChange} />
       <Stack direction="row-reverse" className="mt-2" gap="1rem">
         <Button

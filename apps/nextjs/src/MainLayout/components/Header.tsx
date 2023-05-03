@@ -50,7 +50,7 @@ const Header = () => {
         <Link href={`/${path}`} key={path}>
           <Typography
             component="a"
-            level="body2"
+            level="body3"
             color={isHighlighted ? "primary" : "neutral"}
             className={isHighlighted ? "font-bold" : ""}
           >
@@ -62,7 +62,7 @@ const Header = () => {
       return (
         <Typography
           key={path}
-          level="body2"
+          level="body3"
           color="neutral"
           className="cursor-default opacity-50"
         >
@@ -112,11 +112,7 @@ const Header = () => {
         of large language models.
       </Typography>
 
-      <Breadcrumbs
-        separator={<KeyboardArrowRight />}
-        className="-ml-1"
-        size="lg"
-      >
+      <Breadcrumbs separator={<KeyboardArrowRight />} className="" size="sm">
         {routes.map((route) => renderBreadcrumbLink(route.path, route.label))}
       </Breadcrumbs>
     </Sheet>

@@ -79,6 +79,8 @@ const AppContext = createContext({
   setGoal: (goal: string) => {},
   goalInputState: GoalInputState.start,
   setGoalInputState: (state: GoalInputState) => {},
+  isRunning: false,
+  setIsRunning: (isRunning: boolean) => {},
 });
 
 export const useAppContext = () => useContext(AppContext);
@@ -86,10 +88,18 @@ export const useAppContext = () => useContext(AppContext);
 export const StateProvider = ({ children }) => {
   const [goal, setGoal] = useState("");
   const [goalInputState, setGoalInputState] = useState(GoalInputState.start);
+  const [isRunning, setIsRunning] = useState(false);
 
   return (
     <AppContext.Provider
-      value={{ goal, setGoal, goalInputState, setGoalInputState }}
+      value={{
+        goal,
+        setGoal,
+        goalInputState,
+        setGoalInputState,
+        isRunning,
+        setIsRunning,
+      }}
     >
       {children}
     </AppContext.Provider>
