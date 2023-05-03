@@ -1,8 +1,15 @@
 import React from "react";
 import { useRouter } from "next/router";
-import { Home, KeyboardArrowRight, Lan, ListAlt } from "@mui/icons-material";
+import {
+  Home,
+  KeyboardArrowRight,
+  Lan,
+  ListAlt,
+  Science,
+} from "@mui/icons-material";
 import {
   Button,
+  Card,
   CircularProgress,
   List,
   ListItem,
@@ -76,34 +83,40 @@ const WaggleDanceGraph = ({
               <Lan />
               <Typography>Visualizer</Typography>
             </Tab>
+            <Tab>
+              <Science />
+              <Typography>Results</Typography>
+            </Tab>
           </TabList>
-          <TabPanel
-            value={0}
-            className="relative max-h-80 w-full overflow-y-scroll p-4"
-          >
-            <List className="absolute left-0 top-0 mt-3 w-full  p-2">
-              {graphData.nodes.map((n) => (
-                <ListItem>
-                  <ListItemButton>
-                    <ListItemDecorator>
-                      <Home />
-                    </ListItemDecorator>
-                    <ListItemContent>{n.id}</ListItemContent>
-                    <KeyboardArrowRight />
-                  </ListItemButton>
-                </ListItem>
-              ))}
-            </List>
-          </TabPanel>
-          <TabPanel value={1} className="items-center">
-            {graphData.links.length > 0 ? (
-              <>
-                <ForceGraph data={graphData} />
-              </>
-            ) : (
-              isRunning && <CircularProgress />
-            )}
-          </TabPanel>
+          <Card>
+            <TabPanel
+              value={0}
+              className="relative max-h-80 w-full overflow-y-scroll p-4"
+            >
+              <List className="absolute left-0 top-0 mt-3 w-full  p-2">
+                {graphData.nodes.map((n) => (
+                  <ListItem>
+                    <ListItemButton>
+                      <ListItemDecorator>
+                        <Home />
+                      </ListItemDecorator>
+                      <ListItemContent>{n.id}</ListItemContent>
+                      <KeyboardArrowRight />
+                    </ListItemButton>
+                  </ListItem>
+                ))}
+              </List>
+            </TabPanel>
+            <TabPanel value={1} className="items-center">
+              {graphData.links.length > 0 ? (
+                <>
+                  <ForceGraph data={graphData} />
+                </>
+              ) : (
+                isRunning && <CircularProgress />
+              )}
+            </TabPanel>
+          </Card>
         </Tabs>
       )}
     </Stack>
