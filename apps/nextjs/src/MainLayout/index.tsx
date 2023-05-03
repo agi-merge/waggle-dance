@@ -53,7 +53,7 @@ const MainLayout = ({ children }) => {
   const icon = <Warning />;
   return (
     <div className={`bg-honeycomb ${mode === "dark" ? " dark" : "light"}`}>
-      <div className="h-screen px-0 py-4">
+      <div className="h-screen px-0 pb-4">
         <Head>
           <title>{app.name}</title>
           <meta name="description" content={app.description} />
@@ -71,12 +71,12 @@ const MainLayout = ({ children }) => {
         </Head>
         <Sheet
           // variant="outlined"
-          className="full w-xl h-[min(full, 100vh)] mx-auto max-w-xl items-center p-5"
+          className="mx-auto sm:w-full md:max-w-2xl"
           sx={{
             borderRadius: "lg",
             shadowRadius: "xl",
           }}
-          invertedColors
+          variant="soft"
         >
           <Header />
           <PageLoading />
@@ -123,7 +123,9 @@ const MainLayout = ({ children }) => {
               </Alert>
             </Box>
           )}
-          <Card className="w-full">{children}</Card>
+          <Card invertedColors variant="outlined" className="-m-2 pt-1">
+            {children}
+          </Card>
           <footer className="sticky-footer flex w-full pb-2 pt-10">
             {/* <Sheet className="w-full">
             <Card> */}
@@ -189,9 +191,6 @@ const MainLayout = ({ children }) => {
                 </Stack>
               </ListItem>
             </List>
-            {/* </Card>
-            <Card></Card> */}
-            {/* </Sheet> */}
           </footer>
         </Sheet>
       </div>

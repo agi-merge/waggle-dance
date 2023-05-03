@@ -78,53 +78,54 @@ const Header = () => {
   const isHomeSlug = (slug?.length ?? 0) === 0;
 
   return (
-    <header>
-      <Sheet className="w-xl m-0 w-full max-w-xl p-1 ">
-        <Stack direction="row" className="items-center">
-          <Stack className="flex-grow pr-5">
-            <Typography level={isHomeSlug ? "h3" : "h4"}>
-              waggle🐝<Typography>💃dance</Typography>
-              <Typography level="body5" className="pl-2">
-                {app.version}
-              </Typography>
+    <header className="z-10 mx-auto w-full px-5 pt-5">
+      <Stack direction="row" className="items-center">
+        <Stack className="flex-grow pl-2 pr-5">
+          <Typography level={isHomeSlug ? "h3" : "h4"}>
+            waggle🐝<Typography>💃dance</Typography>
+            <Typography level="body5" className="pl-2">
+              {app.version}
             </Typography>
-          </Stack>
-          <Stack direction="row" spacing="10">
-            {session?.user && (
-              <Tooltip title={`${session.user.name} has 100 credits`}>
-                <Link>
-                  <Avatar
-                    className="mr-3"
-                    src={session.user.image || undefined}
-                    alt={session.user.name || undefined}
-                  />
-                </Link>
-              </Tooltip>
-            )}
-            <ThemeToggle />
-          </Stack>
-        </Stack>
-        {isHomeSlug && (
-          <Typography className="pl-2 pt-3" level="body2" color="neutral">
-            Automate complex tasks with{" "}
-            <Tooltip title="I swear it is a thing" color="info">
-              <a
-                href="https://wikipedia.org/wiki/Waggle_dance"
-                className="font-bold"
-                target="_blank"
-              >
-                wagglin' swarms{" "}
-              </a>
-            </Tooltip>
-            of instances of GPT.
           </Typography>
-        )}
+        </Stack>
+        <Stack direction="row" spacing="10">
+          {session?.user && (
+            <Tooltip title={`${session.user.name} has 100 credits`}>
+              <Link>
+                <Avatar
+                  className="mr-3"
+                  src={session.user.image || undefined}
+                  alt={session.user.name || undefined}
+                />
+              </Link>
+            </Tooltip>
+          )}
+          <ThemeToggle />
+        </Stack>
+      </Stack>
+      {isHomeSlug && (
+        <Typography className="pl-2 pt-3" level="body2" color="neutral">
+          Automate complex tasks with{" "}
+          <Tooltip title="I swear it is a thing" color="info">
+            <a
+              href="https://wikipedia.org/wiki/Waggle_dance"
+              className="font-bold"
+              target="_blank"
+            >
+              wagglin' swarms{" "}
+            </a>
+          </Tooltip>
+          of instances of GPT.
+        </Typography>
+      )}
 
-        <Breadcrumbs separator={<KeyboardArrowRight />} className="" size="sm">
-          {routes.map((route) => renderBreadcrumbLink(route.path, route.label))}
-        </Breadcrumbs>
-        <Divider />
-      </Sheet>
+      <Breadcrumbs
+        separator={<KeyboardArrowRight />}
+        className="mb-2"
+        size="sm"
+      >
+        {routes.map((route) => renderBreadcrumbLink(route.path, route.label))}
+      </Breadcrumbs>
     </header>
   );
 };
