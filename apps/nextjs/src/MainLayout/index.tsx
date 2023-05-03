@@ -53,7 +53,7 @@ const MainLayout = ({ children }) => {
   const icon = <Warning />;
   return (
     <div className={`bg-honeycomb ${mode === "dark" ? " dark" : "light"}`}>
-      <div className="h-screen px-0 pb-4">
+      <div className="h-screen px-2 pb-4">
         <Head>
           <title>{app.name}</title>
           <meta name="description" content={app.description} />
