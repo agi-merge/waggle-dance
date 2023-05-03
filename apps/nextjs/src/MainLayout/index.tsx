@@ -1,10 +1,9 @@
 import React, { useEffect, useState } from "react";
 import Head from "next/head";
 import { useRouter } from "next/router";
-import { Close, GitHub, Warning } from "@mui/icons-material";
+import { Close, GitHub, LinkedIn, Warning } from "@mui/icons-material";
 import {
   Alert,
-  Avatar,
   Box,
   Card,
   IconButton,
@@ -13,13 +12,11 @@ import {
   ListDivider,
   ListItem,
   ListItemButton,
-  ListItemDecorator,
   Sheet,
   Typography,
   useColorScheme,
 } from "@mui/joy";
 
-import Discord from "~/components/Discord";
 import { app } from "~/constants";
 import { useAppContext } from "~/pages/_app";
 import Header from "./components/Header";
@@ -161,7 +158,7 @@ const MainLayout = ({ children }) => {
                       href="https://linkedin.com/in/willisjon"
                       target="_blank"
                     >
-                      <Avatar size="sm" />
+                      <LinkedIn />
                     </Link>
                   </ListItemButton>
                 </ListItem>
