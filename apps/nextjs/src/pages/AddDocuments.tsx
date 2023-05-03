@@ -1,5 +1,5 @@
 // AddDocuments.tsx
-import React, { useEffect } from "react";
+import React, { useState } from "react";
 import type { NextPage } from "next";
 import { useRouter } from "next/router";
 import { KeyboardArrowRight } from "@mui/icons-material";
@@ -7,16 +7,41 @@ import { Button, Stack, Typography } from "@mui/joy";
 
 import DropZone from "~/components/DropZone";
 import FileUpload from "~/components/FileUpload";
-import MainLayout from "~/MainLayout";
-import { useAppContext } from "./_app";
 
 const AddDocuments: NextPage = () => {
   const router = useRouter();
+  const [uploadedFiles, setUploadedFiles] = useState([]);
+
+  const handleFileChange = (files) => {
+    debugger;
+    setUploadedFiles(files);
+  };
+
   return (
     <>
-      {/* <Typography>*DEMO CLICK NEXT* Add Documents</Typography> */}
-      {/* <FileUpload /> */}
-      <DropZone />
+      {uploadedFiles.map((file, index) => (
+        <FileUpload
+          key={index}
+          fileName={file.name}
+          fileSize={`${Math.round(file.size / 1000)} KB`}
+          progress={file.progress}
+          icon={
+            file.type.startsWith("image/") ? (
+              <img
+                src={file.content}
+                alt={file.name}
+                style={{
+                  width: "16px",
+                  height: "16px",
+                  objectFit: "cover",
+                  borderRadius: "50%",
+                }}
+              />
+            ) : null
+          }
+        />
+      ))}
+      <DropZone onFileChange={handleFileChange} />
       <Stack direction="row-reverse" className="mt-2" gap="1rem">
         <Button
           className="col-end mt-2"
