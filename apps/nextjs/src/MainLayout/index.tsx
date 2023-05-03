@@ -1,7 +1,14 @@
 import React, { useEffect, useState } from "react";
 import Head from "next/head";
 import { useRouter } from "next/router";
-import { Close, GitHub, LinkedIn, Warning } from "@mui/icons-material";
+import {
+  Close,
+  GitHub,
+  LinkedIn,
+  Money,
+  MoneyTwoTone,
+  Warning,
+} from "@mui/icons-material";
 import {
   Alert,
   Box,
@@ -13,6 +20,7 @@ import {
   ListItem,
   ListItemButton,
   Sheet,
+  Stack,
   Typography,
   useColorScheme,
 } from "@mui/joy";
@@ -164,7 +172,23 @@ const MainLayout = ({ children }) => {
                 </ListItem>
                 <ListDivider inset="gutter" />
                 <ListItem>
-                  <Typography level="body4">© 2023 agi-merge, Inc. </Typography>
+                  <ListItemButton>
+                    <Link
+                      href="https://www.patreon.com/agimerge"
+                      target="_blank"
+                    >
+                      <img className="w-5" src={`patreon.svg`} />
+                    </Link>
+                  </ListItemButton>
+                </ListItem>
+                <ListDivider inset="gutter" />
+                <ListItem>
+                  <Stack className="items-center">
+                    <Typography level="body4">© 2023 a-m</Typography>
+                    <Typography level="body4">
+                      <Link href="/legal">legal</Link>
+                    </Typography>
+                  </Stack>
                 </ListItem>
               </List>
               {/* </Card>
