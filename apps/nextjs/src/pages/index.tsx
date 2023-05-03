@@ -40,45 +40,44 @@ const Home: NextPage = () => {
     <>
       <List className="m-0 p-0">
         <ListItem>
-          <ListItemButton
+          <Stack
+            className="flex flex-grow"
             onClick={(e) => {
               e.preventDefault();
               setHeaderExpanded(!headerExpanded);
             }}
           >
-            <Stack className="flex flex-grow">
-              <Stack direction="row" className="flex">
-                <Typography
-                  level="body1"
-                  className="flex-grow pr-5"
-                  style={{ userSelect: "none" }}
-                >
-                  State your goal
-                </Typography>
-                {headerExpanded ? <KeyboardArrowUp /> : <KeyboardArrowDown />}
-              </Stack>
-              {headerExpanded && (
-                <>
-                  <Typography level="body3" style={{ userSelect: "none" }}>
-                    Don't be afraid of being ambitious. We will refine it later.{" "}
-                  </Typography>
-                  <Typography level="body3" style={{ userSelect: "none" }}>
-                    <Tooltip
-                      title={
-                        <ul>
-                          {examplePrompts.map((p) => (
-                            <li>{p}</li>
-                          ))}
-                        </ul>
-                      }
-                    >
-                      <Link href="#">Need inspiration?</Link>
-                    </Tooltip>
-                  </Typography>
-                </>
-              )}
+            <Stack direction="row" className="flex">
+              <Typography
+                level="body1"
+                className="flex-grow pr-5"
+                style={{ userSelect: "none" }}
+              >
+                State your goal
+              </Typography>
+              {headerExpanded ? <KeyboardArrowUp /> : <KeyboardArrowDown />}
             </Stack>
-          </ListItemButton>
+            {headerExpanded && (
+              <>
+                <Typography level="body3" style={{ userSelect: "none" }}>
+                  Don't be afraid of being ambitious. We will refine it later.{" "}
+                </Typography>
+                <Typography level="body3" style={{ userSelect: "none" }}>
+                  <Tooltip
+                    title={
+                      <ul>
+                        {examplePrompts.map((p) => (
+                          <li>{p}</li>
+                        ))}
+                      </ul>
+                    }
+                  >
+                    <Link href="#">Need inspiration?</Link>
+                  </Tooltip>
+                </Typography>
+              </>
+            )}
+          </Stack>
         </ListItem>
       </List>
       <GoalInput
