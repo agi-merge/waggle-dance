@@ -35,10 +35,10 @@ const useChainMachine = ({
       goal,
       {
         // customApiKey: string;
-        modelName: LLM.gpt4,
+        modelName: LLM.gpt3_5_turbo,
         temperature: 0,
         // customMaxLoops: number;
-        maxTokens: 1024,
+        maxTokens: 400,
         streaming: true,
         // callbacks?: CallbackManager;
         verbose: true,
