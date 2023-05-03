@@ -30,7 +30,7 @@ const MainLayout = ({ children }) => {
     <div
       className={mode === "dark" ? "bg-honeycomb dark" : "light bg-honeycomb"}
     >
-      <div className="h-screen">
+      <div className="h-screen p-2 ">
         <Head>
           <title>{app.name}</title>
           <meta name="description" content={app.description} />
@@ -38,7 +38,7 @@ const MainLayout = ({ children }) => {
           <link rel="icon" href="/favicon.ico" />
         </Head>
         <Sheet
-          variant="outlined"
+          // variant="outlined"
           className="full w-xl mx-auto max-w-xl items-center p-5"
           sx={{
             borderRadius: "lg",
@@ -47,9 +47,8 @@ const MainLayout = ({ children }) => {
           invertedColors
         >
           <Header />
-          <Divider />
           <PageLoading />
-          <Card className="mx-auto max-w-lg">{children}</Card>
+          <Card className="w-full">{children}</Card>
         </Sheet>
       </div>
     </div>

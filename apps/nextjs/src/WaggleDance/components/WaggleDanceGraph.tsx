@@ -52,15 +52,11 @@ const WaggleDanceGraph = ({
       )}
       {graphData.links.length > 2 && (
         <Typography className="text-center" color="warning" level="body4">
-          Demo is currently limited to the first set of tasks
+          Demo is currently limited to the first set of tasks. Ending now.
         </Typography>
       )}
       {/* {graphData.links.length > 0 && ( */}
-      <Tabs
-        variant="solid"
-        defaultValue={0}
-        sx={{ minWidth: 300, borderRadius: "lg" }}
-      >
+      <Tabs defaultValue={0} sx={{ minWidth: 300, borderRadius: "lg" }}>
         <TabList>
           <Tab>
             <Button

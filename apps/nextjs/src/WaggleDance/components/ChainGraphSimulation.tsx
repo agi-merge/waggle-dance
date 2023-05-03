@@ -4,8 +4,8 @@ import { Button, Stack, Typography } from "@mui/joy";
 import useWaggleDanceMachine from "../hooks/useWaggleDanceMachine";
 import ForceGraph from "./ForceGraph";
 
-const ChainGraphSimulation = () => {
-  const { chainMachine, graphData, run } = useWaggleDanceMachine({
+const WaggleDanceSimulation = () => {
+  const { waggleDanceMachine, graphData, run } = useWaggleDanceMachine({
     goal: "some simulated goal",
     isSimulated: true,
   });
@@ -18,4 +18,4 @@ const ChainGraphSimulation = () => {
   );
 };
 
-export default ChainGraphSimulation;
+export default WaggleDanceSimulation;

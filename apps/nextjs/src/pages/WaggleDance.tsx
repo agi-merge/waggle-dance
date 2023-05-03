@@ -3,19 +3,9 @@ import React, { useEffect, useState } from "react";
 import type { NextPage } from "next";
 import { useRouter } from "next/router";
 import { KeyboardArrowDown, KeyboardArrowUp } from "@mui/icons-material";
-import {
-  Link,
-  List,
-  ListItem,
-  ListItemButton,
-  Stack,
-  Tooltip,
-  Typography,
-} from "@mui/joy";
+import { List, ListItem, ListItemButton, Stack, Typography } from "@mui/joy";
 
-import { examplePrompts } from "~/components/GoalInput";
-import ChainGraph from "~/ChainGraph/components/ChainGraph";
-import MainLayout from "~/MainLayout";
+import WaggleDanceGraph from "~/WaggleDance/components/WaggleDanceGraph";
 import { useAppContext } from "./_app";
 
 // interface WaggleDanceProps {
@@ -36,7 +26,7 @@ const WaggleDance: NextPage = (/*{ goal, onDelete }: WaggleDanceProps*/) => {
   }, [goal, router]);
   return (
     <>
-      <List className="m-0 p-0">
+      <List className="m-0 p-0" color="primary">
         <ListItem>
           <ListItemButton
             onClick={(e) => {
@@ -75,7 +65,7 @@ const WaggleDance: NextPage = (/*{ goal, onDelete }: WaggleDanceProps*/) => {
           </ListItemButton>
         </ListItem>
       </List>
-      <ChainGraph goal={goal} setHeaderExpanded={setHeaderExpanded} />
+      <WaggleDanceGraph goal={goal} setHeaderExpanded={setHeaderExpanded} />
     </>
   );
 };

@@ -3,6 +3,8 @@ import { KeyboardArrowRight } from "@mui/icons-material";
 import {
   Avatar,
   Breadcrumbs,
+  Card,
+  Divider,
   Link,
   Sheet,
   Stack,
@@ -72,15 +74,17 @@ const Header = () => {
     }
   };
 
+  const isHomeSlug = (slug?.length ?? 0) === 0;
+
   return (
-    <Sheet>
+    <Sheet className="w-xl m-0 w-full max-w-xl p-1 ">
       <Stack direction="row" className="items-center">
         <Stack className="flex-grow pr-5">
-          <Typography level="h1">
+          <Typography level={isHomeSlug ? "h3" : "h4"}>
             waggle🐝<Typography>💃dance</Typography>
-          </Typography>
-          <Typography level="body5" className="pl-2">
-            {app.version}
+            <Typography level="body5" className="pl-2">
+              {app.version}
+            </Typography>
           </Typography>
         </Stack>
         <Stack direction="row" spacing="10">
@@ -98,23 +102,26 @@ const Header = () => {
           <ThemeToggle />
         </Stack>
       </Stack>
-      <Typography className="pl-2 pt-3" level="body2" color="neutral">
-        Automate complex tasks with{" "}
-        <Tooltip title="I swear it is a thing" color="info">
-          <a
-            href="https://wikipedia.org/wiki/Waggle_dance"
-            className="font-bold"
-            target="_blank"
-          >
-            wagglin' 🐝 swarms{" "}
-          </a>
-        </Tooltip>
-        of large language models.
-      </Typography>
+      {isHomeSlug && (
+        <Typography className="pl-2 pt-3" level="body2" color="neutral">
+          Automate complex tasks with{" "}
+          <Tooltip title="I swear it is a thing" color="info">
+            <a
+              href="https://wikipedia.org/wiki/Waggle_dance"
+              className="font-bold"
+              target="_blank"
+            >
+              wagglin' 🐝 swarms{" "}
+            </a>
+          </Tooltip>
+          of large language models.
+        </Typography>
+      )}
 
       <Breadcrumbs separator={<KeyboardArrowRight />} className="" size="sm">
         {routes.map((route) => renderBreadcrumbLink(route.path, route.label))}
       </Breadcrumbs>
+      <Divider />
     </Sheet>
   );
 };
