@@ -5,7 +5,7 @@ import { useRouter } from "next/router";
 import { KeyboardArrowDown, KeyboardArrowUp } from "@mui/icons-material";
 import { List, ListItem, Stack, Tooltip, Typography } from "@mui/joy";
 
-import GoalInput from "~/components/GoalInput";
+import GoalInput, { examplePrompts } from "~/components/GoalInput";
 import { GoalInputState, useAppContext } from "./_app";
 
 export interface Handlers {
