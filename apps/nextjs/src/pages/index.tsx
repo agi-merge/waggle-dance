@@ -41,7 +41,7 @@ const Home: NextPage = () => {
       <List className="m-0 p-0">
         <ListItem>
           <Stack
-            className="flex flex-grow"
+            className="flex flex-grow cursor-pointer"
             onClick={(e) => {
               e.preventDefault();
               setHeaderExpanded(!headerExpanded);

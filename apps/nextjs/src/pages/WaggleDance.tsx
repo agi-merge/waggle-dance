@@ -3,7 +3,7 @@ import React, { useEffect, useState } from "react";
 import type { NextPage } from "next";
 import { useRouter } from "next/router";
 import { KeyboardArrowDown, KeyboardArrowUp } from "@mui/icons-material";
-import { List, ListItem, ListItemButton, Stack, Typography } from "@mui/joy";
+import { List, ListItem, Stack, Typography } from "@mui/joy";
 
 import WaggleDanceGraph from "~/WaggleDance/components/WaggleDanceGraph";
 import { useAppContext } from "./_app";
@@ -29,7 +29,7 @@ const WaggleDance: NextPage = (/*{ goal, onDelete }: WaggleDanceProps*/) => {
       <List className="m-0 p-0" color="primary">
         <ListItem>
           <Stack
-            className="flex flex-grow"
+            className="flex flex-grow cursor-pointer"
             onClick={(e) => {
               e.preventDefault();
               setHeaderExpanded(!headerExpanded);
