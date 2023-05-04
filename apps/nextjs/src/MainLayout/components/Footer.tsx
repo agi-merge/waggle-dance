@@ -1,4 +1,5 @@
 import Link from "next/link";
+import { useTheme } from "@emotion/react";
 import { GitHub, LinkedIn } from "@mui/icons-material";
 import {
   List,
@@ -7,10 +8,13 @@ import {
   ListItemButton,
   Stack,
   Typography,
+  useColorScheme,
 } from "@mui/joy";
-import { mode } from "crypto-js";
 
 const Footer = () => {
+  const { mode } = useColorScheme();
+
+  const color = mode === "dark" ? "text-white" : "text-black";
   return (
     <footer className="sticky-footer flex w-full pb-2 pt-10">
       {/* <Sheet className="w-full">
@@ -30,7 +34,7 @@ const Footer = () => {
         <ListItem>
           <ListItemButton color="neutral">
             <Link href="https://discord.gg/Rud2fR3hAX" target="_blank">
-              <img className="w-5" src={`discord-when-${mode}.svg`} />
+              <img className="w-5" src={`./discord-when-${mode}.svg`} />
             </Link>
           </ListItemButton>
         </ListItem>
@@ -40,7 +44,7 @@ const Footer = () => {
             <Link
               href="https://github.com/agi-merge/waggle-dance"
               target="_blank"
-              color="neutral"
+              className={color}
             >
               <GitHub />
             </Link>
@@ -48,11 +52,11 @@ const Footer = () => {
         </ListItem>
         <ListDivider inset="gutter" />
         <ListItem>
-          <ListItemButton color="neutral">
+          <ListItemButton>
             <Link
               href="https://linkedin.com/in/willisjon"
               target="_blank"
-              color="neutral"
+              className={color}
             >
               <LinkedIn />
             </Link>
@@ -60,11 +64,11 @@ const Footer = () => {
         </ListItem>
         <ListDivider inset="gutter" />
         <ListItem>
-          <ListItemButton color="neutral">
+          <ListItemButton>
             <Link
               href="https://www.patreon.com/agimerge"
               target="_blank"
-              color="neutral"
+              className={color}
             >
               <img className="w-5" src={`patreon.svg`} />
             </Link>

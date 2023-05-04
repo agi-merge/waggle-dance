@@ -1,15 +1,14 @@
-import { title } from "process";
 import React, { useState } from "react";
 import { Close, Warning } from "@mui/icons-material";
 import { Alert, Box, IconButton, Typography } from "@mui/joy";
-import { color } from "d3";
 
 const Alerts = () => {
   const [systemAlertOpen, setSystemAlertOpen] = useState(true);
 
   const color = "warning";
   const title = "Limited Demo";
-  const description = "Core features are broken and are frequently changing.";
+  const description =
+    "Core features may be missing and things are frequently changing.";
   const icon = <Warning />;
   return (
     <>
