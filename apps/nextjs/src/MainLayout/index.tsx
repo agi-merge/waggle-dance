@@ -32,7 +32,7 @@ const MainLayout = ({ children }) => {
           <meta name="description" content={app.description} />
           <meta
             name="viewport"
-            content="initial-scale=1, width=device-width; viewport-fit=cover"
+            content="initial-scale=1, width=device-width, viewport-fit=cover"
           />
           <meta name="mobile-web-app-capable" content="yes" />
           <meta name="apple-mobile-web-app-capable" content="yes" />
