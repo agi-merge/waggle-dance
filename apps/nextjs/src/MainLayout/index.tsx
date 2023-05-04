@@ -26,7 +26,7 @@ const MainLayout = ({ children }) => {
   }
   return (
     <div className={`bg-honeycomb ${mode === "dark" ? " dark" : "light"}`}>
-      <div className="h-screen px-2 pb-4">
+      <div className="min-h-screen px-2 pb-4">
         <Head>
           <title>{app.name}</title>
           <meta name="description" content={app.description} />
