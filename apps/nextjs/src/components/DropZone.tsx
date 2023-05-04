@@ -168,6 +168,7 @@ export default function DropZone({
   ...props
 }: DropZoneProps) {
   const fileInput = React.useRef(null);
+  const shadowFormRef = React.useRef(null);
   const [files, setFiles] = React.useState([]);
 
   const handleClick = () => {
@@ -195,6 +196,8 @@ export default function DropZone({
           if (onFileChange) {
             onFileChange(updatedFiles);
           }
+          shadowFormRef.current?.submit();
+          debugger;
           return updatedFiles;
         });
       };
@@ -238,17 +241,27 @@ export default function DropZone({
           </Box>
         </Box>
         <Typography level="body2" textAlign="center">
-          <input
-            type="file"
-            accept="accept"
-            multiple
-            onChange={handleUpload}
-            style={{ display: "none" }}
-            ref={fileInput}
-          />
           <Link component="button" overlay onClick={handleClick}>
             Click to upload
           </Link>{" "}
+          <form
+            // hidden
+            action="/api/docs/upload"
+            method="post"
+            encType="multipart/form-data"
+            ref={shadowFormRef}
+            // onSubmit={handleSubmit}
+          >
+            <input
+              type="file"
+              name="files"
+              accept={".ris,.pdf,.txt,.scn,.ics"}
+              multiple
+              onChange={handleUpload}
+              style={{ display: "none" }}
+              ref={fileInput}
+            />
+          </form>
           or drag and drop
           <br />{" "}
           <Tooltip title={accept}>
