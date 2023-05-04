@@ -58,7 +58,9 @@ const AddDocuments: NextPage = () => {
                 className="flex-grow select-none pr-5 text-white"
                 style={{ userSelect: "none" }}
               >
-                Add context to complete goals even faster
+                <Typography level="h4">
+                  Add data to automate even faster
+                </Typography>
               </Link>
               {headerExpanded ? <KeyboardArrowUp /> : <KeyboardArrowDown />}
             </Stack>
@@ -125,7 +127,7 @@ const AddDocuments: NextPage = () => {
             router.push("/waggle-dance");
           }}
         >
-          Start
+          Next
           <KeyboardArrowRight />
         </Button>
       </Stack>

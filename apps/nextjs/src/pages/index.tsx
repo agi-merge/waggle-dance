@@ -53,7 +53,7 @@ const Home: NextPage = () => {
                 className="flex-grow select-none pr-5 text-white"
                 style={{ userSelect: "none" }}
               >
-                State your goal
+                <Typography level="h4">Your goal</Typography>
               </Link>
               {headerExpanded ? <KeyboardArrowUp /> : <KeyboardArrowDown />}
             </Stack>

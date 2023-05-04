@@ -42,7 +42,7 @@ const WaggleDance: NextPage = (/*{ goal, onDelete }: WaggleDanceProps*/) => {
                 className="flex-grow select-none pr-5 text-white"
                 style={{ userSelect: "none" }}
               >
-                Waggle Dance
+                <Typography level="h4">Waggle Dance</Typography>
               </Link>
               {headerExpanded ? <KeyboardArrowUp /> : <KeyboardArrowDown />}
             </Stack>
