@@ -1,56 +1,29 @@
 import React, { useEffect, useState } from "react";
 import Head from "next/head";
 import { useRouter } from "next/router";
-import {
-  Close,
-  GitHub,
-  LinkedIn,
-  Money,
-  MoneyTwoTone,
-  Warning,
-} from "@mui/icons-material";
-import {
-  Alert,
-  Box,
-  Card,
-  IconButton,
-  Link,
-  List,
-  ListDivider,
-  ListItem,
-  ListItemButton,
-  Sheet,
-  Stack,
-  Typography,
-  useColorScheme,
-} from "@mui/joy";
+import { Card, Sheet, useColorScheme } from "@mui/joy";
 
 import { app } from "~/constants";
 import { useAppContext } from "~/pages/_app";
+import Alerts from "./components/Alerts";
+import Footer from "./components/Footer";
 import Header from "./components/Header";
-import PageLoading from "./components/PageLoading";
 
 const MainLayout = ({ children }) => {
   const { mode } = useColorScheme();
   const { goal } = useAppContext();
   const [mounted, setMounted] = useState(false);
   const router = useRouter();
-  const [systemAlertOpen, setSystemAlertOpen] = useState(true);
 
   // necessary for server-side renderingπ
   // because mode is undefined on the server
   useEffect(() => {
     setMounted(true);
-  }, [goal, router]);
+  }, [router]);
+
   if (!mounted) {
     return null;
   }
-
-  // useEffect(() => {}, [goal, router]);
-  const color = "warning";
-  const title = "Limited Demo";
-  const description = "Core features are broken and are frequently changing.";
-  const icon = <Warning />;
   return (
     <div className={`bg-honeycomb ${mode === "dark" ? " dark" : "light"}`}>
       <div className="h-screen px-2 pb-4">
@@ -79,119 +52,11 @@ const MainLayout = ({ children }) => {
           variant="soft"
         >
           <Header />
-          <PageLoading />
-          {systemAlertOpen && (
-            <Box
-              className="my-2"
-              sx={{
-                display: "flex",
-                gap: 2,
-                width: "100%",
-                flexDirection: "column",
-              }}
-            >
-              <Alert
-                key={title}
-                sx={{ alignItems: "flex-start" }}
-                startDecorator={React.cloneElement(icon, {
-                  sx: { mt: "2px", mx: "4px" },
-                  fontSize: "xl2",
-                })}
-                variant="soft"
-                color={color}
-                endDecorator={
-                  <IconButton
-                    variant="soft"
-                    size="sm"
-                    color={color}
-                    onClick={() => {
-                      setSystemAlertOpen(false);
-                    }}
-                  >
-                    <Close />
-                  </IconButton>
-                }
-              >
-                <div>
-                  <Typography fontWeight="lg" mt={0.25}>
-                    {title}
-                  </Typography>
-                  <Typography fontSize="sm" sx={{ opacity: 0.8 }}>
-                    {description}
-                  </Typography>
-                </div>
-              </Alert>
-            </Box>
-          )}
           <Card invertedColors variant="outlined" className="-m-2 my-5">
             {children}
           </Card>
-          <footer className="sticky-footer flex w-full pb-2 pt-10">
-            {/* <Sheet className="w-full">
-            <Card> */}
-            <List
-              orientation="horizontal"
-              sx={{
-                bgcolor: "background.body",
-                borderRadius: "sm",
-                boxShadow: "sm",
-                flexGrow: 0,
-                mx: "auto",
-                "--ListItemDecorator-size": "48px",
-                "--ListItem-paddingY": "1rem",
-              }}
-            >
-              <ListItem>
-                <ListItemButton>
-                  <Link href="https://discord.gg/Rud2fR3hAX" target="_blank">
-                    <img className="w-5" src={`discord-when-${mode}.svg`} />
-                  </Link>
-                </ListItemButton>
-              </ListItem>
-              <ListDivider inset="gutter" />
-              <ListItem>
-                <ListItemButton>
-                  <Link
-                    href="https://github.com/agi-merge/waggle-dance"
-                    target="_blank"
-                  >
-                    <GitHub />
-                  </Link>
-                </ListItemButton>
-              </ListItem>
-              <ListDivider inset="gutter" />
-              <ListItem>
-                <ListItemButton>
-                  <Link
-                    href="https://linkedin.com/in/willisjon"
-                    target="_blank"
-                  >
-                    <LinkedIn />
-                  </Link>
-                </ListItemButton>
-              </ListItem>
-              <ListDivider inset="gutter" />
-              <ListItem>
-                <ListItemButton>
-                  <Link href="https://www.patreon.com/agimerge" target="_blank">
-                    <img className="w-5" src={`patreon.svg`} />
-                  </Link>
-                </ListItemButton>
-              </ListItem>
-              <ListDivider inset="gutter" />
-              <ListItem>
-                <Stack className="items-center">
-                  <Typography level="body5">
-                    © 2023 <Link href="https://agimerge.com">agi-merge</Link>
-                  </Typography>
-                  <Typography level="body5">
-                    <Link href="/privacy">privacy</Link> |{" "}
-                    <Link href="/terms">terms</Link>
-                  </Typography>
-                </Stack>
-              </ListItem>
-            </List>
-          </footer>
+          <Alerts />
+          <Footer />
         </Sheet>
       </div>
     </div>

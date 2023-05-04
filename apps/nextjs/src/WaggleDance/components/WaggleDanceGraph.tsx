@@ -78,7 +78,7 @@ const WaggleDanceGraph = ({
           sx={{ borderRadius: "lg" }}
           color="info"
           variant="outlined"
-          className="w-full"
+          className="max-h-96 w-full"
         >
           <TabList>
             <Tab>
@@ -96,7 +96,7 @@ const WaggleDanceGraph = ({
           </TabList>
           <TabPanel
             value={0}
-            className="relative max-h-80 w-full overflow-y-scroll p-4"
+            className="relative h-96 w-full overflow-y-scroll p-4"
           >
             <List className="absolute left-0 top-0 mt-3 w-full  p-2">
               {graphData.nodes.map((n) => (
@@ -123,6 +123,9 @@ const WaggleDanceGraph = ({
             ) : (
               isRunning && <CircularProgress />
             )}
+          </TabPanel>
+          <TabPanel value={2} className="text-center">
+            <Typography>Coming soon</Typography>
           </TabPanel>
         </Tabs>
       )}
