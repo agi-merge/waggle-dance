@@ -1,6 +1,7 @@
 // AddDocuments.tsx
 import React, { useEffect, useState } from "react";
 import type { NextPage } from "next";
+import Link from "next/link";
 import { useRouter } from "next/router";
 import {
   KeyboardArrowDown,
@@ -15,7 +16,6 @@ import {
   Input,
   List,
   ListItem,
-  ListItemButton,
   Stack,
   Typography,
 } from "@mui/joy";
@@ -53,13 +53,13 @@ const AddDocuments: NextPage = () => {
             }}
           >
             <Stack direction="row" className="flex">
-              <Typography
-                level="body1"
-                className="flex-grow pr-5"
+              <Link
+                href="#"
+                className="flex-grow select-none pr-5 text-white"
                 style={{ userSelect: "none" }}
               >
                 Add context to complete goals even faster
-              </Typography>
+              </Link>
               {headerExpanded ? <KeyboardArrowUp /> : <KeyboardArrowDown />}
             </Stack>
             {headerExpanded && (

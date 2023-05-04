@@ -1,9 +1,9 @@
 import React, { useState } from "react";
 import type { NextPage } from "next";
+import Link from "next/link";
 import { useRouter } from "next/router";
 import { KeyboardArrowDown, KeyboardArrowUp } from "@mui/icons-material";
 import {
-  Link,
   List,
   ListItem,
   ListItemButton,
@@ -47,14 +47,14 @@ const Home: NextPage = () => {
               setHeaderExpanded(!headerExpanded);
             }}
           >
-            <Stack direction="row" className="flex">
-              <Typography
-                level="body1"
-                className="flex-grow pr-5"
+            <Stack direction="row" className="flex text-white">
+              <Link
+                href="#"
+                className="flex-grow select-none pr-5 text-white"
                 style={{ userSelect: "none" }}
               >
                 State your goal
-              </Typography>
+              </Link>
               {headerExpanded ? <KeyboardArrowUp /> : <KeyboardArrowDown />}
             </Stack>
             {headerExpanded && (
