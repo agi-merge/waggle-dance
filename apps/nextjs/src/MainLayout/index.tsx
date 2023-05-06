@@ -9,7 +9,11 @@ import Alerts from "./components/Alerts";
 import Footer from "./components/Footer";
 import Header from "./components/Header";
 
-const MainLayout = ({ children }) => {
+type Props = {
+  children: React.ReactNode;
+};
+
+const MainLayout = ({ children }: Props) => {
   const { mode } = useColorScheme();
   const { goal } = useAppContext();
   const [mounted, setMounted] = useState(false);

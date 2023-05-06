@@ -26,7 +26,7 @@ const Header = () => {
     { path: "goal-done", label: "🍯 Done" },
   ];
 
-  const isActive = (path) => {
+  const isActive = (path: string) => {
     if ((path === "" || path == "/") && slug !== "goal-done") return true;
     if (
       path === "add-documents" &&
@@ -42,13 +42,13 @@ const Header = () => {
     return false;
   };
 
-  const renderBreadcrumbLink = (path, label) => {
+  const renderBreadcrumbLink = (path: string, label: string) => {
     const isHighlighted = slug === path || (slug?.length ?? 0) < 1;
     if (isActive(path)) {
       return (
         <Link href={`/${path}`} key={path}>
           <Typography
-            component="a"
+            component="span"
             level="body3"
             color={isHighlighted ? "primary" : "neutral"}
             className={isHighlighted ? "font-bold" : ""}
