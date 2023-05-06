@@ -59,8 +59,8 @@ const Home: NextPage = () => {
                   <Tooltip
                     title={
                       <ul>
-                        {examplePrompts.map((p) => (
-                          <li>{p}</li>
+                        {examplePrompts.map((p,idx) => (
+                          <li key={idx}>{p}</li>
                         ))}
                       </ul>
                     }
