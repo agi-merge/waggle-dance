@@ -16,13 +16,13 @@ export const createModel = (creationProps: ModelCreationProps): OpenAI => {
       streaming,
       callbacks,
       maxConcurrency: 8,
-      maxRetries: maxTokens === 3 ? 0 : 5,
     },
     {
-      basePath: "https://oai.hconeai.com/v1",
+      basePath: "https://oai.hconeai.com/v1", // TODO: move this to .env
       baseOptions: {
         headers: {
           "Helicone-Cache-Enabled": "true",
+          // TODO: migrate to bearer token if helicone is used
         },
       },
     },
