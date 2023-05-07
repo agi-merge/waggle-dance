@@ -10,7 +10,7 @@ export enum LLM {
 
 export type ModelCreationProps = {
   // customApiKey: string;
-  // customModelName: string;
+  customModelName?: string;
   // customTemperature: number;
   // customMaxLoops: number;
   modelName: string;
