@@ -23,15 +23,7 @@ export interface ModelCreationProps
 }
 
 export const packetParser = z.object({
-  type: z.enum([
-    "goal",
-    "plan",
-    "task",
-    "execute",
-    "result",
-    "system",
-    "review",
-  ]),
+  type: z.enum(["plan", "execute", "review", "human"]),
   value: z.string(),
   message: z.string().optional(),
 });
