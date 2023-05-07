@@ -1,6 +1,12 @@
+import { ServerResponse } from "http";
 import { Writable } from "stream";
+import { NextRequest } from "next/server";
 import Busboy from "busboy";
-import { AnalyzeDocumentChain, loadSummarizationChain } from "langchain/chains";
+import {
+  AnalyzeDocumentChain,
+  BaseChain,
+  loadSummarizationChain,
+} from "langchain/chains";
 
 import { LLM, createModel } from "@acme/chain";
 
@@ -11,7 +17,11 @@ export const config = {
   runtime: "nodejs",
 };
 
-const processChunk = async (combineDocsChain, chunk) => {
+const processChunk = async (
+  combineDocsChain: BaseChain,
+  chunk: any,
+  encoding: BufferEncoding,
+) => {
   // Process each chunk using the AnalyzeDocumentChain
   const text = chunk.toString("utf8");
   const chain = new AnalyzeDocumentChain({
@@ -24,7 +34,7 @@ const processChunk = async (combineDocsChain, chunk) => {
   return analysisResult;
 };
 
-const handler = async (req, res) => {
+const handler = async (req: NextRequest, res: ServerResponse) => {
   if (req.method === "POST") {
     try {
       const busboy = Busboy({ headers: req.headers });
@@ -48,6 +58,7 @@ const handler = async (req, res) => {
               const analysisResult = await processChunk(
                 combineDocsChain,
                 chunk,
+                encoding,
               );
 
               // Combine the analysis results
@@ -67,46 +78,57 @@ const handler = async (req, res) => {
         // Handle stream errors
         file.on("error", (error) => {
           console.error("Error in file stream:", error.message);
-          res.status(500).json({
-            success: false,
-            message: "File stream error",
-            error: error.message,
-          });
+          res.writeHead(500);
+          res.write(JSON.stringify(error));
+          return res.end();
         });
       });
 
       busboy.on("finish", () => {
         // Send the result to the client
-        res.status(200).json({
+        const response = {
           success: true,
           message: result,
           data: result,
-        });
+        };
+
+        res.writeHead(200);
+        res.write(JSON.stringify(response));
+        return res.end();
       });
 
       // Handle busboy errors
       busboy.on("error", (error) => {
         console.error("Error in busboy:", error.message);
-        res.status(500).json({
+        const errorJson = {
           success: false,
           message: "Busboy error",
           error: error.message,
-        });
+        };
+
+        res.writeHead(500);
+        res.write(JSON.stringify(errorJson));
+        return res.end();
       });
 
       // Pipe the request to busboy
       req.pipe(busboy);
     } catch (error) {
       console.error("Error in file analysis:", error.message);
-      res.status(500).json({
+      const errorJson = {
         success: false,
         message: "File analysis failed",
         error: error.message,
-      });
+      };
+
+      res.writeHead(500);
+      res.write(JSON.stringify(errorJson));
+      return res.end();
     }
   } else {
     res.setHeader("Allow", "POST");
-    res.status(405).end("Method Not Allowed");
+    res.writeHead(405);
+    res.end();
   }
 };
 
