@@ -15,7 +15,7 @@ interface BaseWaggleDanceMachine {
     goal: string,
     creationProps: ModelCreationProps,
     callbacks: ChainMachineCallbacks,
-  ): Promise<BalambResult>;
+  ): Promise<BalambResult | BalambError>;
 }
 
 /// Talk about mixing metaphors!
@@ -110,9 +110,20 @@ class WaggleDanceMachine implements BaseWaggleDanceMachine {
       },
     };
     const planResult = await Balamb.run([reviewPlan]);
+
+    // If planResult is of type BalambError, then we need to bail out
+    // and return the error to the caller.
+    if (planResult instanceof BalambError) {
+      console.error(planResult);
+      callbacks.onReviewFailure(taskName, planResult);
+      return planResult;
+    }
+
     // [Log] {"info":{"errorCode":"SEED_FAILURES","failures":[{"id":"plan-","error":{}}],"partialResults":{}}}
     const tasks =
-      planResult.results && (planResult.results[planId].tasks as string[]);
+      (planResult.results &&
+        (planResult?.results?.[planId] as { tasks: string[] })?.tasks) ||
+      [];
     if (planResult) console.log(JSON.stringify(planResult));
     const seeds: SeedDef<any, any>[] = tasks.map((tasks) => {
       return reviewSubtask(tasks);
