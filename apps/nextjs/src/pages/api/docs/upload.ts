@@ -11,7 +11,7 @@ export const config = {
   runtime: "nodejs",
 };
 
-const processChunk = async (model, combineDocsChain, chunk) => {
+const processChunk = async (combineDocsChain, chunk) => {
   // Process each chunk using the AnalyzeDocumentChain
   const text = chunk.toString("utf8");
   const chain = new AnalyzeDocumentChain({
@@ -34,7 +34,11 @@ const handler = async (req, res) => {
       const model = createModel({ temperature: 0, modelName: LLM.gpt4 });
       const combineDocsChain = loadSummarizationChain(model);
       busboy.on("file", async (fieldname, file, filename) => {
-        console.log(`File [${fieldname}] filename: ${filename}`);
+        console.log(
+          `File [${JSON.stringify(fieldname)}] filename: ${JSON.stringify(
+            filename,
+          )}`,
+        );
 
         // Create a writable stream to process the chunks
         const writableStream = new Writable({
@@ -42,7 +46,6 @@ const handler = async (req, res) => {
             try {
               // Process the chunk with the AnalyzeDocumentChain
               const analysisResult = await processChunk(
-                model,
                 combineDocsChain,
                 chunk,
               );
