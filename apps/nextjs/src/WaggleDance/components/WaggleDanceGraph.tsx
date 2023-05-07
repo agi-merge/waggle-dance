@@ -99,8 +99,8 @@ const WaggleDanceGraph = ({
             className="relative h-96 w-full overflow-y-scroll p-4"
           >
             <List className="absolute left-0 top-0 mt-3 w-full  p-2">
-              {graphData.nodes.map((n) => (
-                <ListItem>
+              {graphData.nodes.map((n, idx) => (
+                <ListItem key={`${idx}-${n.id}`}>
                   <ListItemButton>
                     <ListItemDecorator>
                       <Home />

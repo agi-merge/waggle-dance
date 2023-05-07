@@ -24,8 +24,8 @@ export type LinkObject = object & {
 };
 
 export interface ForceGraphProps {
-  width: number;
-  height: number;
+  width?: number;
+  height?: number;
   data: GraphData;
 }
 interface ForceGraphRef {
