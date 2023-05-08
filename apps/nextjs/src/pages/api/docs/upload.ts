@@ -17,11 +17,7 @@ export const config = {
   runtime: "nodejs",
 };
 
-const processChunk = async (
-  combineDocsChain: BaseChain,
-  chunk: any,
-  encoding: BufferEncoding,
-) => {
+const processChunk = async (combineDocsChain: BaseChain, chunk: any) => {
   // Process each chunk using the AnalyzeDocumentChain
   const text = chunk.toString("utf8");
   const chain = new AnalyzeDocumentChain({
@@ -58,7 +54,6 @@ const handler = async (req: NextRequest, res: ServerResponse) => {
               const analysisResult = await processChunk(
                 combineDocsChain,
                 chunk,
-                encoding,
               );
 
               // Combine the analysis results
