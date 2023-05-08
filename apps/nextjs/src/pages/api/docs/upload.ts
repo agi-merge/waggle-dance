@@ -1,7 +1,7 @@
-import { ServerResponse } from "http";
+import { createReadStream } from "fs";
+import { IncomingMessage, ServerResponse } from "http";
 import { Writable } from "stream";
-import { NextRequest } from "next/server";
-import Busboy from "busboy";
+import formidable from "formidable";
 import {
   AnalyzeDocumentChain,
   BaseChain,
@@ -29,101 +29,86 @@ const processChunk = async (combineDocsChain: BaseChain, chunk: any) => {
 
   return analysisResult;
 };
-
-const handler = async (req: NextRequest, res: ServerResponse) => {
+const handler = async (req: IncomingMessage, res: ServerResponse) => {
   if (req.method === "POST") {
     try {
-      const busboy = Busboy({ headers: req.headers });
-      console.log(JSON.stringify(req.body));
-      let result = "";
+      // parse a file upload
+      // FIXME: profile memory in production, then use limiting options to prevent DoS / abuse
+      // FIXME: add a rate limiter
+      const form = formidable({ multiples: true });
 
-      const model = createModel({ temperature: 0, modelName: LLM.gpt4 });
-      const combineDocsChain = loadSummarizationChain(model);
-      busboy.on("file", async (fieldname, file, filename) => {
-        console.log(
-          `File [${JSON.stringify(fieldname)}] filename: ${JSON.stringify(
-            filename,
-          )}`,
-        );
+      form.parse(req, async (err, fields, files: formidable.Files) => {
+        if (err) {
+          res.writeHead(err.httpCode || 400, {
+            "Content-Type": "application/json",
+          });
+          res.end(JSON.stringify(err));
+          return;
+        }
 
-        // Create a writable stream to process the chunks
-        const writableStream = new Writable({
-          async write(chunk, encoding, callback) {
-            try {
-              // Process the chunk with the AnalyzeDocumentChain
-              const analysisResult = await processChunk(
-                combineDocsChain,
-                chunk,
-              );
-
-              // Combine the analysis results
-              result += analysisResult.text + "\n";
-
-              // Signal that the chunk has been processed
-              callback();
-            } catch (error) {
-              callback(error);
+        const model = createModel({
+          temperature: 0,
+          modelName: LLM.gpt3_5_turbo,
+        });
+        const combineDocsChain = loadSummarizationChain(model);
+        const flattenFiles = (files: formidable.Files): formidable.File[] => {
+          const fileList: formidable.File[] = [];
+          for (const key in files) {
+            if (Array.isArray(files[key])) {
+              fileList.push(...files[key]);
+            } else {
+              fileList.push(files[key]);
             }
-          },
-        });
-
-        // Pipe the file stream to the writable stream
-        file.pipe(writableStream);
-
-        // Handle stream errors
-        file.on("error", (error) => {
-          console.error("Error in file stream:", error.message);
-          res.writeHead(500);
-          res.write(JSON.stringify(error));
-          return res.end();
-        });
-      });
-
-      busboy.on("finish", () => {
-        // Send the result to the client
-        const response = {
-          success: true,
-          message: result,
-          data: result,
+          }
+          return fileList;
         };
 
-        res.writeHead(200);
-        res.write(JSON.stringify(response));
-        return res.end();
+        const flattenedFiles = flattenFiles(files);
+
+        try {
+          const analysisResults = await Promise.all(
+            flattenedFiles.map(async (file: formidable.File) => {
+              let result = "";
+
+              const writableStream = new Writable({
+                async write(chunk, encoding, callback) {
+                  try {
+                    const analysisResult = await processChunk(
+                      combineDocsChain,
+                      chunk,
+                    );
+
+                    result += analysisResult.text + "\n";
+
+                    callback();
+                  } catch (error) {
+                    callback(error);
+                  }
+                },
+              });
+
+              await new Promise((resolve, reject) => {
+                createReadStream(file.filepath)
+                  .pipe(writableStream)
+                  .on("error", reject)
+                  .on("finish", () => resolve(result));
+              });
+
+              return result;
+            }),
+          );
+
+          res.writeHead(200, { "Content-Type": "application/json" });
+          res.end(JSON.stringify({ fields, files, analysisResults }));
+        } catch (error) {
+          res.writeHead(500, { "Content-Type": "application/json" });
+          res.end(JSON.stringify({ error: error.message }));
+        }
       });
-
-      // Handle busboy errors
-      busboy.on("error", (error) => {
-        console.error("Error in busboy:", error.message);
-        const errorJson = {
-          success: false,
-          message: "Busboy error",
-          error: error.message,
-        };
-
-        res.writeHead(500);
-        res.write(JSON.stringify(errorJson));
-        return res.end();
-      });
-
-      // Pipe the request to busboy
-      req.pipe(busboy);
     } catch (error) {
-      console.error("Error in file analysis:", error.message);
-      const errorJson = {
-        success: false,
-        message: "File analysis failed",
-        error: error.message,
-      };
-
-      res.writeHead(500);
-      res.write(JSON.stringify(errorJson));
-      return res.end();
+      res.writeHead(500, { "Content-Type": "application/json" });
+      res.end(JSON.stringify({ error: error.message }));
     }
-  } else {
-    res.setHeader("Allow", "POST");
-    res.writeHead(405);
-    res.end();
   }
 };
 
