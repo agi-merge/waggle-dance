@@ -7,6 +7,8 @@ import Card, { type CardProps } from "@mui/joy/Card";
 import Link from "@mui/joy/Link";
 import Typography from "@mui/joy/Typography";
 
+import { UploadResponse } from "../pages/api/docs/upload";
+
 const accept = [
   "application/msword",
   "application/pdf",
@@ -170,6 +172,24 @@ export default function DropZone({
   const fileInput = React.useRef(null);
   const shadowFormRef = React.useRef(null);
   const [files, setFiles] = React.useState([]);
+  const [analysisResults, setAnalysisResults] = React.useState([""]);
+  const handleSubmit = async (event) => {
+    event.preventDefault();
+    const formData = new FormData(shadowFormRef.current);
+    const response = await fetch("/api/docs/upload", {
+      method: "POST",
+      body: formData,
+    });
+
+    if (response.status === 200) {
+      const uploadResponse: UploadResponse = await response.json();
+      setAnalysisResults(uploadResponse.analysisResults);
+      console.log(uploadResponse.analysisResults);
+    } else {
+      console.error(response);
+      // error toast
+    }
+  };
 
   const handleClick = () => {
     if (fileInput.current) {
@@ -197,7 +217,6 @@ export default function DropZone({
             onFileChange(updatedFiles);
           }
           shadowFormRef.current?.submit();
-          debugger;
           return updatedFiles;
         });
       };
@@ -209,6 +228,19 @@ export default function DropZone({
         handleUpload({ target: { files: [...files] } });
       }}
     >
+      {analysisResults.length > 0 &&
+        analysisResults.map((result) => {
+          return (
+            <Typography
+              variant="soft"
+              className="text-center"
+              color="warning"
+              level="body2"
+            >
+              {result}
+            </Typography>
+          );
+        })}
       <Card
         variant="outlined"
         {...props}
@@ -240,34 +272,25 @@ export default function DropZone({
             <i data-feather="upload-cloud" />
           </Box>
         </Box>
-        <Typography level="body2" textAlign="center">
-          <Link component="button" overlay onClick={handleClick}>
-            Click to upload
-          </Link>{" "}
-          <form
-            // hidden
-            action="/api/docs/upload"
-            method="post"
-            encType="multipart/form-data"
-            ref={shadowFormRef}
-            // onSubmit={handleSubmit}
-          >
-            <input
-              type="file"
-              name="files"
-              accept={".ris,.pdf,.txt,.scn,.ics"}
-              multiple
-              onChange={handleUpload}
-              style={{ display: "none" }}
-              ref={fileInput}
-            />
-          </form>
-          or drag and drop
-          <br />{" "}
-          <Tooltip title={accept}>
-            <Link href="">File types and limits</Link>
-          </Tooltip>
-        </Typography>
+        <Link component="button" overlay onClick={handleClick} type="button">
+          Click to upload
+        </Link>{" "}
+        <form onSubmit={handleSubmit} ref={shadowFormRef}>
+          <input
+            type="file"
+            name="files"
+            accept={".ris,.pdf,.txt,.scn,.ics"}
+            multiple
+            onChange={handleUpload}
+            style={{ display: "none" }}
+            ref={fileInput}
+          />
+        </form>
+        or drag and drop
+        <br />{" "}
+        <Tooltip title={accept}>
+          <Link href="">File types and limits</Link>
+        </Tooltip>
       </Card>
     </DropZoneContainer>
   );

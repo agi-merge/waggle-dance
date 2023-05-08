@@ -17,6 +17,12 @@ export const config = {
   runtime: "nodejs",
 };
 
+export interface UploadResponse {
+  fields: formidable.Fields;
+  files: formidable.Files;
+  analysisResults: string[];
+}
+
 const processChunk = async (combineDocsChain: BaseChain, chunk: any) => {
   // Process each chunk using the AnalyzeDocumentChain
   const text = chunk.toString("utf8");
@@ -99,7 +105,14 @@ const handler = async (req: IncomingMessage, res: ServerResponse) => {
           );
 
           res.writeHead(200, { "Content-Type": "application/json" });
-          res.end(JSON.stringify({ fields, files, analysisResults }));
+          const uploadResponse: UploadResponse = {
+            fields,
+            files,
+            analysisResults,
+          };
+          const json = JSON.stringify(uploadResponse);
+          console.log(json);
+          res.end(json);
         } catch (error) {
           res.writeHead(500, { "Content-Type": "application/json" });
           res.end(JSON.stringify({ error: error.message }));
