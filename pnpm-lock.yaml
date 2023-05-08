@@ -147,6 +147,9 @@ importers:
       '@acme/eslint-config':
         specifier: ^0.1.0
         version: link:../../packages/config/eslint
+      '@types/busboy':
+        specifier: ^1.5.0
+        version: 1.5.0
       '@types/d3':
         specifier: ^7.4.0
         version: 7.4.0
@@ -1587,6 +1590,12 @@ packages:
   /@tweenjs/tween.js@20.0.3:
     resolution: {integrity: sha512-SYUe1UgY5HM05EB4+0B4arq2IPjvyzKXoklXKxSYrc2IFxGm1cBrqg5XbiB5uwbs0xY5j+rj986NAJMM0KZaUw==}
     dev: false
+
+  /@types/busboy@1.5.0:
+    resolution: {integrity: sha512-ncOOhwmyFDW76c/Tuvv9MA9VGYUCn8blzyWmzYELcNGDb0WXWLSmFi7hJq25YdRBYJrmMBB5jZZwUjlJe9HCjQ==}
+    dependencies:
+      '@types/node': 18.16.3
+    dev: true
 
   /@types/crypto-js@4.1.1:
     resolution: {integrity: sha512-BG7fQKZ689HIoc5h+6D2Dgq1fABRa0RbBWKBd9SP/MVRVXROflpm5fhwyATX5duFmbStzyzyycPB8qUYKDH3NA==}
