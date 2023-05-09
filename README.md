@@ -7,7 +7,7 @@ Waggle Dance is a Large Language Model (LLM) Agent swarm AGI problem solver that
 ## Use Case Milestones
 
 -[] TBD
--[] Converting [x simple library] from [y language] to [z language] 
+-[] Converting [x simple library] from [y language] to [z language]
 -[] TBD
 
 ## 📂 Core Files/Folders
@@ -68,12 +68,12 @@ Some resources to help you get oriented to the concepts used in the solution.
 - [Balamb Docs - See Why It's Useful Section](https://www.npmjs.com/package/balamb)
 - [LangChain Docs - This lib is the main wrapper around Open AI for this app](https://js.langchain.com/docs/)
 - [Constitional AI in RLHF](https://astralcodexten.substack.com/p/constitutional-ai-rlhf-on-steroids)
-
+- [Understand different types of memory and vector database techniques](https://www.pinecone.io/learn/hnsw/)
 
 ## Citations
 
-- 
+-
 
 ## Special Thanks
 
-- 
+-
