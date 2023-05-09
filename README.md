@@ -61,6 +61,8 @@ TODO: Add CICD/Build instructions.
 
 Some resources to help you get oriented to the concepts used in the solution.
 
+- [Jerry Liu (LLama Index) on state & history of Agentic AI, context management](https://podcasts.apple.com/us/podcast/the-twiml-ai-podcast-formerly-this-week-in-machine/id1116303051?i=1000612216800)
+- [Join the discord](https://discord.gg/Rud2fR3hAX)
 - [Using AI Agents to Solve Complex Problems](https://haystack.deepset.ai/blog/introducing-haystack-agents)
 - [Examples of Prompt Based Apps](https://chatgpt-prompt-apps.com/)
 - [Another Example of a Prompt Based App](https://github.com/Significant-Gravitas/Auto-GPT)
