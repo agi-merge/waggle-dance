@@ -1,4 +1,3 @@
- 
 import * as React from "react";
 import { useState } from "react";
 import { Tooltip } from "@mui/joy";
@@ -120,7 +119,7 @@ export default function DropZone({
           if (onFileChange) {
             onFileChange(updatedFiles);
           }
-          shadowFormRef.current?.submit();
+          handleSubmit(event);
           return updatedFiles;
         });
       };
