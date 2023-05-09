@@ -13,7 +13,7 @@ import {
   Typography,
 } from "@mui/joy";
 
-import { Handlers } from "~/pages";
+import { type Handlers } from "~/pages";
 import { GoalInputState } from "~/pages/_app";
 
 export const examplePrompts = [

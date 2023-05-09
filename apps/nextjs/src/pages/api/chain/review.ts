@@ -1,12 +1,12 @@
-/* eslint-disable @typescript-eslint/no-unsafe-call */
-/* eslint-disable @typescript-eslint/no-unsafe-assignment */
-/* eslint-disable @typescript-eslint/no-unsafe-member-access */
+ 
+ 
+ 
 
 import axios from "axios";
 
 import { reviewChain } from "@acme/chain";
 
-import { StrategyRequestBody } from "./types";
+import { type StrategyRequestBody } from "./types";
 
 export const config = {
   runtime: "edge",
@@ -37,7 +37,7 @@ const handler = async (
     const { modelSettings, goal, tasks, lastTask, result, completedTasks } =
       config.runtime == "nodejs"
         ? (JSON.parse(JSON.stringify(req.body)) as StrategyRequestBody)
-        : ((await req.json()) as StrategyRequestBody);
+        : ((await req.json()));
 
     if (tasks === undefined || lastTask === undefined || result === undefined) {
       return;
@@ -73,7 +73,7 @@ const handler = async (
 
     const all = { stack, message, status };
     console.log(all);
-    // eslint-disable-next-line @typescript-eslint/no-unsafe-return
+     
     return res.status(status).json(all);
   }
 };

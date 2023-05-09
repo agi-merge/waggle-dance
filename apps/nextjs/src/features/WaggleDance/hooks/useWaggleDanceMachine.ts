@@ -4,8 +4,8 @@ import { LLM } from "@acme/chain";
 
 import WaggleDanceMachine from "../WaggleDanceMachine";
 // import ChainMachineSimulation from "../ChainMachineSimulation";
-import { LinkObject, NodeObject } from "../components/ForceGraph";
-import { GraphData } from "../types";
+import { type LinkObject, type NodeObject } from "../components/ForceGraph";
+import { type GraphData } from "../types";
 
 interface UseChainMachineProps {
   goal: string;
@@ -27,7 +27,7 @@ const useChainMachine = ({
 
   const run = async () => {
     if (graphData.nodes.length === 0) {
-      var gd = graphData;
+      const gd = graphData;
       gd.nodes = [{ id: `plan-${goal}` }];
       setGraphData(gd);
     }

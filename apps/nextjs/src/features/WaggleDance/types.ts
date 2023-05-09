@@ -1,4 +1,4 @@
-import { LinkObject, NodeObject } from "./components/ForceGraph";
+import { type LinkObject, type NodeObject } from "./components/ForceGraph";
 
 export type PlanResult = {
   planId: string;

@@ -1,13 +1,13 @@
-import Balamb, { BalambError, BalambResult, SeedDef } from "balamb";
+import Balamb, { BalambError, type BalambResult, type SeedDef } from "balamb";
 
-import { ModelCreationProps } from "@acme/chain";
+import { type ModelCreationProps } from "@acme/chain";
 
 import {
-  TaskSimulationCallbacks as ChainMachineCallbacks,
-  PlanResult,
-  Review,
-  ReviewResult,
-  TaskResult,
+  type TaskSimulationCallbacks as ChainMachineCallbacks,
+  type PlanResult,
+  type Review,
+  type ReviewResult,
+  type TaskResult,
 } from "./types";
 
 interface BaseWaggleDanceMachine {
@@ -47,7 +47,7 @@ class WaggleDanceMachine implements BaseWaggleDanceMachine {
           body: JSON.stringify(data),
         });
         const tasks = await res.json();
-        // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
+         
         return { planId: `plan-${taskName}`, tasks: (tasks as string[]) ?? [] };
       },
     };

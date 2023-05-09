@@ -1,4 +1,4 @@
-import { ModelCreationProps } from "@acme/chain";
+import { type ModelCreationProps } from "@acme/chain";
 
 export interface StrategyRequestBody {
   creationProps: ModelCreationProps;

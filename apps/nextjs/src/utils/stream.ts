@@ -1,8 +1,8 @@
 import { createParser } from "eventsource-parser";
 
-import { ChainPacket } from "@acme/chain";
+import { type ChainPacket } from "@acme/chain";
 
-import { StrategyRequestBody } from "~/pages/api/chain/types";
+import { type StrategyRequestBody } from "~/pages/api/chain/types";
 
 export default async function stream(
   url: string,
