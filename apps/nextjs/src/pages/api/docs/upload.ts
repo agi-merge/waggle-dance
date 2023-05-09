@@ -70,12 +70,12 @@ const handler = async (req: IncomingMessage, res: ServerResponse) => {
         };
 
         const flattenedFiles = flattenFiles(files);
-
+        console.log(`Processing ${JSON.stringify(flattenedFiles)} files`);
         try {
           const analysisResults = await Promise.all(
             flattenedFiles.map(async (file: formidable.File) => {
               let result = "";
-
+              console.log(`Processing ${file.filepath}`);
               const writableStream = new Writable({
                 async write(chunk, encoding, callback) {
                   try {
@@ -83,7 +83,7 @@ const handler = async (req: IncomingMessage, res: ServerResponse) => {
                       combineDocsChain,
                       chunk,
                     );
-
+                    console.log(`Analysis result: ${analysisResult.text}`);
                     result += analysisResult.text + "\n";
 
                     callback();
