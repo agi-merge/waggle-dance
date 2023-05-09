@@ -11,7 +11,7 @@ import { SessionProvider } from "next-auth/react";
 
 import { api } from "~/utils/api";
 import theme from "~/styles/theme";
-import MainLayout from "~/MainLayout";
+import MainLayout from "~/features/MainLayout";
 
 const mantineTheme = extendTheme({
   colorSchemes: {

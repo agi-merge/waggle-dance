@@ -3,7 +3,7 @@ import React from "react";
 import type { NextPage } from "next";
 import { useRouter } from "next/router";
 
-import MainLayout from "~/MainLayout";
+import MainLayout from "~/features/MainLayout";
 import AddDocuments from "./AddDocuments";
 import WaggleDance from "./WaggleDance";
 

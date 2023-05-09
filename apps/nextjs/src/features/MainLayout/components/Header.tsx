@@ -11,7 +11,7 @@ import {
 import { useSession } from "next-auth/react";
 
 import { app } from "~/constants";
-import ThemeToggle from "../../components/ThemeToggle";
+import ThemeToggle from "../../../components/ThemeToggle";
 
 const Header = () => {
   const router = useRouter();
