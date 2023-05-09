@@ -6,9 +6,9 @@ Waggle Dance is a Large Language Model (LLM) Agent swarm AGI problem solver that
 
 ## Use Case Milestones
 
--[] TBD
--[] Converting [x simple library] from [y language] to [z language]
--[] TBD
+- TBD
+- Converting [x simple library] from [y language] to [z language]
+- From my mom lol: "I asked the question: Using viennapres.org website, create an Android app to function as the website does. Got a detailed step by step description of what needed to be done (this definitely eliminates a huge part of business analysts jobs). But I can't do most of what needs to be done!"
 
 ## 📂 Core Files/Folders
 
@@ -34,9 +34,11 @@ pnpm i
 
 - Copy `.env.example` to `.env` and configure the environment variables.
 
-### 🐘 Database
+### 🐘 Primary Database
 
-Prisma adds a layer of abstraction of a database. The database is used as the source-of-truth of the state of an app deployment. E.g. sessions, accounts, any saved chains/results, etc.
+Prisma adds a layer of abstraction over a database. The database is used as the source-of-truth of the state of an app deployment. E.g. sessions, accounts, any saved chains/results, etc.
+
+Note that this is different than the user's uploaded documents, however it may store metadata about the documents.
 
 ```bash
 pnpm db:generate
@@ -49,7 +51,7 @@ pnpm db:push
 
 ### Run Development
 
-This is a t3 stack. [You can check the boilerplate documentation](/docs/)
+This is a t3 stack. [You can check the boilerplate documentation](/docs/create-t3-boilerplate.md)
 ```bash
 pnpm dev
 ```
