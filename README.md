@@ -63,6 +63,7 @@ TODO: Add CICD/Build instructions.
 ## 📝 Notes
 
 ### Helpful Docs
+- [See all markdown included in the project for more specifics!](https://github.com/search?q=repo%3Aagi-merge%2Fwaggle-dance+path%3A*.md&type=code)
 
 Some resources to help you get oriented to the concepts used in the solution.
 
