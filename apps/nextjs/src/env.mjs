@@ -23,6 +23,7 @@ export const env = createEnv({
     // Add `.min(1) on ID and SECRET if you want to make sure they're not empty
     DISCORD_ID: z.string(),
     DISCORD_SECRET: z.string(),
+    NEXT_PUBLIC_DISCORD_INVITE_URL: z.string().url().optional(),
   },
   /**
    * Specify your client-side environment variables schema here.

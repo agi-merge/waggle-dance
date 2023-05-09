@@ -1,5 +1,4 @@
 import Link from "next/link";
-import { useTheme } from "@emotion/react";
 import { GitHub, LinkedIn } from "@mui/icons-material";
 import {
   List,
@@ -10,6 +9,8 @@ import {
   Typography,
   useColorScheme,
 } from "@mui/joy";
+
+import { env } from "~/env.mjs";
 
 const Footer = () => {
   const { mode } = useColorScheme();
@@ -33,9 +34,11 @@ const Footer = () => {
       >
         <ListItem>
           <ListItemButton color="neutral">
-            <Link href="https://discord.gg/Rud2fR3hAX" target="_blank">
-              <img className="w-5" src={`./discord-when-${mode}.svg`} />
-            </Link>
+            {env.NEXT_PUBLIC_DISCORD_INVITE_URL && (
+              <Link href={env.NEXT_PUBLIC_DISCORD_INVITE_URL} target="_blank">
+                <img className="w-5" src={`./discord-when-${mode}.svg`} />
+              </Link>
+            )}
           </ListItemButton>
         </ListItem>
         <ListDivider inset="gutter" />
