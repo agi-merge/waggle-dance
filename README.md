@@ -30,11 +30,13 @@ Waggle Dance is a Large Language Model (LLM) Agent swarm AGI problem solver that
 pnpm i
 ```
 
-### Configure
+### ⚙️ Environment
 
 - Copy `.env.example` to `.env` and configure the environment variables.
 
-### Database
+### 🐘 Database
+
+Prisma adds a layer of abstraction of a database. The database is used as the source-of-truth of the state of an app deployment. E.g. sessions, accounts, any saved chains/results, etc.
 
 ```bash
 pnpm db:generate
@@ -47,6 +49,7 @@ pnpm db:push
 
 ### Run Development
 
+This is a t3 stack. [You can check the boilerplate documentation](/docs/)
 ```bash
 pnpm dev
 ```
