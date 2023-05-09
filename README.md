@@ -1,8 +1,14 @@
-# 🐝 💃 Waggle Dance
+# Waggle🐝💃Dance
 
 ## 📖 Overview
 
-Waggle Dance is a GPT-4 agent swarm AGI problem solver that uses a directed acyclic graph concurrent execution model so it can run up to 64 instances of GPT-4 all coordinating to solve a complex problem.
+Waggle Dance is a Large Language Model (LLM) Agent swarm AGI problem solver that uses a directed acyclic graph concurrent execution model so it can run many LLMs at once, all coordinating to solve a potentially complex problem.
+
+## Use Case Milestones
+
+-[] TBD
+-[] Converting [x simple library] from [y language] to [z language] 
+-[] TBD
 
 ## 📂 Core Files/Folders
 
@@ -62,17 +68,10 @@ Some resources to help you get oriented to the concepts used in the solution.
 - [Balamb Docs - See Why It's Useful Section](https://www.npmjs.com/package/balamb)
 - [LangChain Docs - This lib is the main wrapper around Open AI for this app](https://js.langchain.com/docs/)
 
-### CM Thoughts
+## Citations
 
-- Maybe move WaggleDanceMachine into a `features` folder
-- Create a centralized `models` folder with shared types - can have centralized for whole app as well as those specific to a feature (like WaggleDanceMachine)
+- 
 
-```
-src
-├── components
-├── models
-├── features
-│   ├── waggle-dance-machine
-│   │   ├── components
-│   │   ├── models
-```
+## Special Thanks
+
+- 
