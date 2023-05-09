@@ -4,7 +4,7 @@
 
 Waggle Dance is a Large Language Model (LLM) Agent swarm AGI problem solver that uses a directed acyclic graph concurrent execution model so it can run many LLMs at once, all coordinating to solve a potentially complex problem.
 
-## Use Case Milestones
+## 🪦 Use Case Milestones
 
 - TBD
 - Converting [x simple library] from [y language] to [z language]
@@ -12,7 +12,7 @@ Waggle Dance is a Large Language Model (LLM) Agent swarm AGI problem solver that
 
 ## 📂 Core Files/Folders
 
-- `./packages/db/prisma`: Database schema and migrations.
+- `./packages/db/prisma`: [Database](#database) schema and migrations.
 - `./apps/nextjs/src`: Next.js app source code.
 - `./apps/nextjs/pages/api`: Next.js API routes.
 - `./packages/chain/src`: Model chain business logic and backend services.
@@ -64,7 +64,6 @@ TODO: Add CICD/Build instructions.
 
 ### Helpful Docs
 - [See all markdown included in the project for more specifics!](https://github.com/search?q=repo%3Aagi-merge%2Fwaggle-dance+path%3A*.md&type=code)
-
 Some resources to help you get oriented to the concepts used in the solution.
 
 - [Jerry Liu (LLama Index) on state & history of Agentic AI, context management](https://podcasts.apple.com/us/podcast/the-twiml-ai-podcast-formerly-this-week-in-machine/id1116303051?i=1000612216800)
