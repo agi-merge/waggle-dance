@@ -7,107 +7,11 @@ import Card, { type CardProps } from "@mui/joy/Card";
 import Link from "@mui/joy/Link";
 import Typography from "@mui/joy/Typography";
 
+import {
+  acceptExtensions,
+  getAllExtensions,
+} from "~/features/Datastore/mimeTypes";
 import { UploadResponse } from "../pages/api/docs/upload";
-
-const accept = [
-  "application/msword",
-  "application/pdf",
-  "application/postscript",
-  "application/rtf",
-  "application/vnd.ms-excel",
-  "application/vnd.ms-powerpoint",
-  "application/xml",
-  "application/zip",
-  "audio/mpeg",
-  "audio/x-wav",
-  "image/bmp",
-  "image/gif",
-  "image/jpeg",
-  "image/png",
-  "image/svg+xml",
-  "image/tiff",
-  "image/vnd.adobe.photoshop",
-  "image/webp",
-  "text/css",
-  "text/csv",
-  "text/html",
-  "text/plain",
-  "text/richtext",
-  "text/tab-separated-values",
-  "text/x-chdr",
-  "text/x-csrc",
-  "text/x-diff",
-  "text/x-java",
-  "text/x-perl",
-  "text/x-python",
-  "text/x-ruby",
-  "text/x-shellscript",
-  "text/x-sql",
-  "video/mp4",
-  "video/mpeg",
-  "video/quicktime",
-  "video/webm",
-  "video/x-ms-wmv",
-  "video/x-msvideo",
-  "application/atom+xml",
-  "application/javascript",
-  "application/json",
-  "application/octet-stream",
-  "application/ogg",
-  "application/sql",
-  "application/x-font-ttf",
-  "application/x-javascript",
-  "application/x-pkcs12",
-  "application/x-shockwave-flash",
-  "application/x-www-form-urlencoded",
-  "application/xhtml+xml",
-  "application/xslt+xml",
-  "application/vnd.openxmlformats-officedocument.presentationml.presentation",
-  "application/vnd.openxmlformats-officedocument.wordprocessingml.document",
-  "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
-  "application/vnd.ms-html+xml",
-  "application/vnd.mozilla.xul+xml",
-  "application/vnd.ms-xpsdocument",
-  "application/x-7z-compressed",
-  "application/x-bzip",
-  "application/x-font-otf",
-  "application/x-gzip",
-  "application/x-httpd-php",
-  "application/x-lzh",
-  "application/x-lzx",
-  "application/x-rar-compressed",
-  "application/x-stuffit",
-  "application/x-tar",
-  "audio/aac",
-  "audio/basic",
-  "audio/flac",
-  "audio/midi",
-  "audio/mp3",
-  "audio/ogg",
-  "audio/vorbis",
-  "audio/x-aiff",
-  "audio/x-au",
-  "audio/x-ms-wma",
-  "audio/x-ms-wax",
-  "image/x-icon",
-  "image/x-ms-bmp",
-  "image/x-xpixmap",
-  "image/x-xwindowdump",
-  "message/rfc822",
-  "multipart/form-data",
-  "multipart/mixed",
-  "multipart/related",
-  "text/calendar",
-  "text/x-chdr",
-  "text/xml",
-  "video/3gpp",
-  "video/3gpp2",
-  "video/h261",
-  "video/h263",
-  "video/h264",
-  "video/jpeg",
-  "application/x-font-woff",
-].join(", ");
 
 const DropZoneContainer = (props) => {
   const [isHovering, setIsHovering] = useState(false);
@@ -279,7 +183,7 @@ export default function DropZone({
           <input
             type="file"
             name="files"
-            accept={".ris,.pdf,.txt,.scn,.ics"}
+            accept={acceptExtensions}
             multiple
             onChange={handleUpload}
             style={{ display: "none" }}
@@ -288,7 +192,7 @@ export default function DropZone({
         </form>
         or drag and drop
         <br />{" "}
-        <Tooltip title={accept}>
+        <Tooltip title={acceptExtensions}>
           <Link href="">File types and limits</Link>
         </Tooltip>
       </Card>
