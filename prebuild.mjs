@@ -20,4 +20,4 @@ try {
 
 // Add more prebuild scripts here...
 
-console.log(BLUE + "🏁 Done!" + RESET);
+console.log(BLUE + "🏁 Done with prebuild steps!" + RESET);

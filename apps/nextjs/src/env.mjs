@@ -23,6 +23,12 @@ export const env = createEnv({
     // Add `.min(1) on ID and SECRET if you want to make sure they're not empty
     DISCORD_ID: z.string(),
     DISCORD_SECRET: z.string(),
+    MEMORY_TYPE: z.enum(["buffer", "motorhead", "conversation"]),
+    GITHUB_ID: z.string(),
+    GITHUB_SECRET: z.string(),
+    OPENAI_API_KEY: z.string(),
+    SERPAPI_API_KEY: z.string(),
+    NEXT_PUBLIC_APP_VERSION: z.string(),
   },
   /**
    * Specify your client-side environment variables schema here.
@@ -42,5 +48,11 @@ export const env = createEnv({
     DISCORD_ID: process.env.DISCORD_ID,
     DISCORD_SECRET: process.env.DISCORD_SECRET,
     NEXT_PUBLIC_DISCORD_INVITE_URL: process.env.NEXT_PUBLIC_DISCORD_INVITE_URL,
+    MEMORY_TYPE: process.env.MEMORY_TYPE,
+    GITHUB_ID: process.env.GITHUB_ID,
+    GITHUB_SECRET: process.env.GITHUB_SECRET,
+    OPENAI_API_KEY: process.env.OPENAI_API_KEY,
+    SERPAPI_API_KEY: process.env.SERPAPI_API_KEY,
+    NEXT_PUBLIC_APP_VERSION: process.env.NEXT_PUBLIC_APP_VERSION,
   },
 });
