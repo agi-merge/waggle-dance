@@ -52,19 +52,27 @@ pnpm db:push
 ### Run Development
 
 This is a t3 stack. [You can check the boilerplate documentation](/docs/create-t3-boilerplate.md)
+
 ```bash
 pnpm dev
 ```
 
 ## 🏗️ CICD
 
-TODO: Add CICD/Build instructions.
+Commits/PRs to the `main` branch will trigger Vercel deploys.
+
+TODO: If desired, figure out a scheme to provide access to vercel builds (not sure if they have a curated/low-access way to do that) and add a helpful link here. Else, keep the keys ot the castle and remove this note.
+
+## Contribute
+
+Contributions are always welcome! Please read the [contribution guidelines](./CONTRIBUTING.md) first.
 
 ## 📝 Notes
 
 ### Helpful Docs
+
 - [See all markdown included in the project for more specifics!](https://github.com/search?q=repo%3Aagi-merge%2Fwaggle-dance+path%3A*.md&type=code)
-Some resources to help you get oriented to the concepts used in the solution.
+  Some resources to help you get oriented to the concepts used in the solution.
 
 - [Jerry Liu (LLama Index) on state & history of Agentic AI, context management](https://podcasts.apple.com/us/podcast/the-twiml-ai-podcast-formerly-this-week-in-machine/id1116303051?i=1000612216800)
 - [Join the discord](https://discord.gg/Rud2fR3hAX)
