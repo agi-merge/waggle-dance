@@ -10,7 +10,7 @@ import {
   acceptExtensions,
   getAllExtensions,
 } from "~/features/Datastore/mimeTypes";
-import { UploadResponse } from "../pages/api/docs/upload";
+import { type UploadResponse } from "../pages/api/docs/upload";
 
 const DropZoneContainer = (props) => {
   const [isHovering, setIsHovering] = useState(false);

@@ -1,11 +1,11 @@
 import { createReadStream } from "fs";
-import { IncomingMessage, ServerResponse } from "http";
+import { type IncomingMessage, type ServerResponse } from "http";
 import { Writable } from "stream";
 import formidable from "formidable";
 import {
   AnalyzeDocumentChain,
-  BaseChain,
   loadSummarizationChain,
+  type BaseChain,
 } from "langchain/chains";
 
 import { LLM, createModel } from "@acme/chain";
@@ -60,67 +60,66 @@ const handler = async (req: IncomingMessage, res: ServerResponse) => {
         modelName: LLM.gpt3_5_turbo,
       });
       const combineDocsChain = loadSummarizationChain(model);
-        const flattenFiles = (files: formidable.Files): formidable.File[] => {
-          const fileList: formidable.File[] = [];
-          for (const key in files) {
-            if (Array.isArray(files[key])) {
-              fileList.push(...files[key]);
-            } else {
-              fileList.push(files[key]);
-            }
+      const flattenFiles = (files: formidable.Files): formidable.File[] => {
+        const fileList: formidable.File[] = [];
+        for (const key in files) {
+          if (Array.isArray(files[key])) {
+            fileList.push(...files[key]);
+          } else {
+            fileList.push(files[key]);
           }
-          return fileList;
-        };
-
-        const flattenedFiles = flattenFiles(files);
-        console.log(`Processing ${JSON.stringify(flattenedFiles)} files`);
-        try {
-          const analysisResults = await Promise.all(
-            flattenedFiles.map(async (file: formidable.File) => {
-              let result = "";
-              console.log(`Processing ${file.filepath}`);
-              const writableStream = new Writable({
-                async write(chunk, encoding, callback) {
-                  try {
-                    const analysisResult = await processChunk(
-                      combineDocsChain,
-                      chunk,
-                    );
-                    console.log(`Analysis result: ${analysisResult.text}`);
-                    result += analysisResult.text + "\n";
-
-                    callback();
-                  } catch (error) {
-                    callback(error);
-                  }
-                },
-              });
-
-              await new Promise((resolve, reject) => {
-                createReadStream(file.filepath)
-                  .pipe(writableStream)
-                  .on("error", reject)
-                  .on("finish", () => resolve(result));
-              });
-
-              return result;
-            }),
-          );
-
-          res.writeHead(200, { "Content-Type": "application/json" });
-          const uploadResponse: UploadResponse = {
-            fields,
-            files,
-            analysisResults,
-          };
-          const json = JSON.stringify(uploadResponse);
-          console.log(json);
-          res.end(json);
-        } catch (error) {
-          res.writeHead(500, { "Content-Type": "application/json" });
-          res.end(JSON.stringify({ error: error.message }));
         }
-      });
+        return fileList;
+      };
+
+      const flattenedFiles = flattenFiles(files);
+      console.log(`Processing ${JSON.stringify(flattenedFiles)} files`);
+      try {
+        const analysisResults = await Promise.all(
+          flattenedFiles.map(async (file: formidable.File) => {
+            let result = "";
+            console.log(`Processing ${file.filepath}`);
+            const writableStream = new Writable({
+              async write(chunk, encoding, callback) {
+                try {
+                  const analysisResult = await processChunk(
+                    combineDocsChain,
+                    chunk,
+                  );
+                  console.log(`Analysis result: ${analysisResult.text}`);
+                  result += analysisResult.text + "\n";
+
+                  callback();
+                } catch (error) {
+                  callback(error);
+                }
+              },
+            });
+
+            await new Promise((resolve, reject) => {
+              createReadStream(file.filepath)
+                .pipe(writableStream)
+                .on("error", reject)
+                .on("finish", () => resolve(result));
+            });
+
+            return result;
+          }),
+        );
+
+        res.writeHead(200, { "Content-Type": "application/json" });
+        const uploadResponse: UploadResponse = {
+          fields,
+          files,
+          analysisResults,
+        };
+        const json = JSON.stringify(uploadResponse);
+        console.log(json);
+        res.end(json);
+      } catch (error) {
+        res.writeHead(500, { "Content-Type": "application/json" });
+        res.end(JSON.stringify({ error: error.message }));
+      }
     } catch (error) {
       res.writeHead(500, { "Content-Type": "application/json" });
       res.end(JSON.stringify({ error: error.message }));
