@@ -1,4 +1,3 @@
- 
 import * as React from "react";
 import { useState } from "react";
 import { Tooltip } from "@mui/joy";
@@ -7,105 +6,11 @@ import Card, { type CardProps } from "@mui/joy/Card";
 import Link from "@mui/joy/Link";
 import Typography from "@mui/joy/Typography";
 
-const accept = [
-  "application/msword",
-  "application/pdf",
-  "application/postscript",
-  "application/rtf",
-  "application/vnd.ms-excel",
-  "application/vnd.ms-powerpoint",
-  "application/xml",
-  "application/zip",
-  "audio/mpeg",
-  "audio/x-wav",
-  "image/bmp",
-  "image/gif",
-  "image/jpeg",
-  "image/png",
-  "image/svg+xml",
-  "image/tiff",
-  "image/vnd.adobe.photoshop",
-  "image/webp",
-  "text/css",
-  "text/csv",
-  "text/html",
-  "text/plain",
-  "text/richtext",
-  "text/tab-separated-values",
-  "text/x-chdr",
-  "text/x-csrc",
-  "text/x-diff",
-  "text/x-java",
-  "text/x-perl",
-  "text/x-python",
-  "text/x-ruby",
-  "text/x-shellscript",
-  "text/x-sql",
-  "video/mp4",
-  "video/mpeg",
-  "video/quicktime",
-  "video/webm",
-  "video/x-ms-wmv",
-  "video/x-msvideo",
-  "application/atom+xml",
-  "application/javascript",
-  "application/json",
-  "application/octet-stream",
-  "application/ogg",
-  "application/sql",
-  "application/x-font-ttf",
-  "application/x-javascript",
-  "application/x-pkcs12",
-  "application/x-shockwave-flash",
-  "application/x-www-form-urlencoded",
-  "application/xhtml+xml",
-  "application/xslt+xml",
-  "application/vnd.openxmlformats-officedocument.presentationml.presentation",
-  "application/vnd.openxmlformats-officedocument.wordprocessingml.document",
-  "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
-  "application/vnd.ms-html+xml",
-  "application/vnd.mozilla.xul+xml",
-  "application/vnd.ms-xpsdocument",
-  "application/x-7z-compressed",
-  "application/x-bzip",
-  "application/x-font-otf",
-  "application/x-gzip",
-  "application/x-httpd-php",
-  "application/x-lzh",
-  "application/x-lzx",
-  "application/x-rar-compressed",
-  "application/x-stuffit",
-  "application/x-tar",
-  "audio/aac",
-  "audio/basic",
-  "audio/flac",
-  "audio/midi",
-  "audio/mp3",
-  "audio/ogg",
-  "audio/vorbis",
-  "audio/x-aiff",
-  "audio/x-au",
-  "audio/x-ms-wma",
-  "audio/x-ms-wax",
-  "image/x-icon",
-  "image/x-ms-bmp",
-  "image/x-xpixmap",
-  "image/x-xwindowdump",
-  "message/rfc822",
-  "multipart/form-data",
-  "multipart/mixed",
-  "multipart/related",
-  "text/calendar",
-  "text/x-chdr",
-  "text/xml",
-  "video/3gpp",
-  "video/3gpp2",
-  "video/h261",
-  "video/h263",
-  "video/h264",
-  "video/jpeg",
-  "application/x-font-woff",
-].join(", ");
+import {
+  acceptExtensions,
+  getAllExtensions,
+} from "~/features/Datastore/mimeTypes";
+import { UploadResponse } from "../pages/api/docs/upload";
 
 const DropZoneContainer = (props) => {
   const [isHovering, setIsHovering] = useState(false);
@@ -168,7 +73,26 @@ export default function DropZone({
   ...props
 }: DropZoneProps) {
   const fileInput = React.useRef(null);
+  const shadowFormRef = React.useRef(null);
   const [files, setFiles] = React.useState([]);
+  const [analysisResults, setAnalysisResults] = React.useState([""]);
+  const handleSubmit = async (event) => {
+    event.preventDefault();
+    const formData = new FormData(shadowFormRef.current);
+    const response = await fetch("/api/docs/upload", {
+      method: "POST",
+      body: formData,
+    });
+
+    if (response.status === 200) {
+      const uploadResponse: UploadResponse = await response.json();
+      setAnalysisResults(uploadResponse.analysisResults);
+      console.log(uploadResponse.analysisResults);
+    } else {
+      console.error(response);
+      // error toast
+    }
+  };
 
   const handleClick = () => {
     if (fileInput.current) {
@@ -195,6 +119,7 @@ export default function DropZone({
           if (onFileChange) {
             onFileChange(updatedFiles);
           }
+          handleSubmit(event);
           return updatedFiles;
         });
       };
@@ -206,6 +131,19 @@ export default function DropZone({
         handleUpload({ target: { files: [...files] } });
       }}
     >
+      {analysisResults.length > 0 &&
+        analysisResults.map((result) => {
+          return (
+            <Typography
+              variant="soft"
+              className="text-center"
+              color="warning"
+              level="body2"
+            >
+              {result}
+            </Typography>
+          );
+        })}
       <Card
         variant="outlined"
         {...props}
@@ -237,24 +175,25 @@ export default function DropZone({
             <i data-feather="upload-cloud" />
           </Box>
         </Box>
-        <Typography level="body2" textAlign="center">
+        <Link component="button" overlay onClick={handleClick} type="button">
+          Click to upload
+        </Link>{" "}
+        <form onSubmit={handleSubmit} ref={shadowFormRef}>
           <input
             type="file"
-            accept="accept"
+            name="files"
+            accept={acceptExtensions}
             multiple
             onChange={handleUpload}
             style={{ display: "none" }}
             ref={fileInput}
           />
-          <Link component="button" overlay onClick={handleClick}>
-            Click to upload
-          </Link>{" "}
-          or drag and drop
-          <br />{" "}
-          <Tooltip title={accept}>
-            <Link href="">File types and limits</Link>
-          </Tooltip>
-        </Typography>
+        </form>
+        or drag and drop
+        <br />{" "}
+        <Tooltip title={acceptExtensions}>
+          <Link href="">File types and limits</Link>
+        </Tooltip>
       </Card>
     </DropZoneContainer>
   );

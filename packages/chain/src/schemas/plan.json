@@ -1,0 +1,5 @@
+{
+  "tasks": "task[]",
+  "confidence": "0.5",
+  "context": "history, documents, urls, important information to aid in task"
+}

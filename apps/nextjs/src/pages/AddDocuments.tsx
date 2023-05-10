@@ -76,14 +76,6 @@ const AddDocuments: NextPage = () => {
                 </Typography>
               </>
             )}
-            <Typography
-              variant="soft"
-              className="text-center"
-              color="warning"
-              level="body2"
-            >
-              File upload disabled.
-            </Typography>
           </Stack>
         </ListItem>
       </List>

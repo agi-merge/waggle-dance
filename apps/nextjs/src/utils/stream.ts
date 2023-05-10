@@ -21,7 +21,7 @@ export default async function stream(
 
     if (!response.ok) {
       if (response.status === 429) {
-        sendErrorMessage("Rate limit exceeded. Please slow down. 😅");
+        sendErrorMessage("Rate limit exceeded. Please try again later.");
       }
       throw new Error(`Fetch error: ${response.statusText}`);
     }
