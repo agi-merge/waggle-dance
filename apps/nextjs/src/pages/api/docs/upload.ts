@@ -35,28 +35,31 @@ const processChunk = async (combineDocsChain: BaseChain, chunk: any) => {
 
   return analysisResult;
 };
+
+const promisifiedParse = (req, form) => {
+  return new Promise((resolve, reject) => {
+    form.parse(req, (err, fields, files) => {
+      if (err) {
+        reject(err);
+      } else {
+        resolve({ fields, files });
+      }
+    });
+  });
+};
+
 const handler = async (req: IncomingMessage, res: ServerResponse) => {
   if (req.method === "POST") {
     try {
-      // parse a file upload
-      // FIXME: profile memory in production, then use limiting options to prevent DoS / abuse
-      // FIXME: add a rate limiter
       const form = formidable({ multiples: true });
 
-      form.parse(req, async (err, fields, files: formidable.Files) => {
-        if (err) {
-          res.writeHead(err.httpCode || 400, {
-            "Content-Type": "application/json",
-          });
-          res.end(JSON.stringify(err));
-          return;
-        }
+      const { fields, files } = await promisifiedParse(req, form);
 
-        const model = createModel({
-          temperature: 0,
-          modelName: LLM.gpt3_5_turbo,
-        });
-        const combineDocsChain = loadSummarizationChain(model);
+      const model = createModel({
+        temperature: 0,
+        modelName: LLM.gpt3_5_turbo,
+      });
+      const combineDocsChain = loadSummarizationChain(model);
         const flattenFiles = (files: formidable.Files): formidable.File[] => {
           const fileList: formidable.File[] = [];
           for (const key in files) {
