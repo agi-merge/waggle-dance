@@ -9,6 +9,7 @@ Waggle Dance is a Large Language Model (LLM) Agent swarm AGI problem solver that
 - TBD
 - Converting [x simple library] from [y language] to [z language]
 - From my mom lol: "I asked the question: Using viennapres.org website, create an Android app to function as the website does. Got a detailed step by step description of what needed to be done (this definitely eliminates a huge part of business analysts jobs). But I can't do most of what needs to be done!"
+- Podcast transcription. Give it the name of the podcast and optionally episode and it just... does it.
 
 ## 📂 Core Files/Folders
 
@@ -16,6 +17,18 @@ Waggle Dance is a Large Language Model (LLM) Agent swarm AGI problem solver that
 - `./apps/nextjs/src`: Next.js app source code.
 - `./apps/nextjs/pages/api`: Next.js API routes.
 - `./packages/chain/src`: Model chain business logic and backend services.
+Contribute and help
+
+To help the project you can:
+
+Upvote the Reddit post about LocalAI.
+
+Hacker news post - help us out by voting if you like this project.
+
+If you have technological skills and want to contribute to development, have a look at the open issues. If you are new you can have a look at the good-first-issue and help-wanted labels.
+
+If you don't have technological skills you can still help improving documentation or add examples or share your user-stories with our community, any help and contribution is welcome!
+
 
 ## 🏃 How to Run
 
