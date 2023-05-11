@@ -57,7 +57,7 @@ const handler = async (req: IncomingMessage, res: ServerResponse) => {
 
       const model = createModel({
         temperature: 0,
-        modelName: LLM.gpt3_5_turbo,
+        modelName: LLM.smart,
       });
       const combineDocsChain = loadSummarizationChain(model);
       const flattenFiles = (files: formidable.Files): formidable.File[] => {

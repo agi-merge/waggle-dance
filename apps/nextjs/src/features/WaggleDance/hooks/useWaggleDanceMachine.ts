@@ -34,10 +34,8 @@ const useChainMachine = ({
     const result = await waggleDanceMachine.run(
       goal,
       {
-        // customApiKey: string;
-        modelName: LLM.gpt3_5_turbo,
+        modelName: LLM.smartLarge,
         temperature: 0,
-        // customMaxLoops: number;
         maxTokens: 400,
         streaming: true,
         // callbacks?: CallbackManager;

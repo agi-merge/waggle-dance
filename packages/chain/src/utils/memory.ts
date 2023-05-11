@@ -34,7 +34,7 @@ export async function createMemory(
     case "conversation":
       return new ConversationSummaryMemory({
         inputKey,
-        llm: new OpenAI({ modelName: LLM.gpt3_5_turbo, temperature: 0 }),
+        llm: new OpenAI({ modelName: LLM.smartLarge, temperature: 0 }),
       });
   }
 }

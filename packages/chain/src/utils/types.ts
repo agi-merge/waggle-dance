@@ -5,9 +5,11 @@ import { z } from "zod";
 
 const GPT_35_TURBO = "gpt-3.5-turbo";
 const GPT_4 = "gpt-4";
+const GPT_4_32k = "gpt-4-32k";
 export enum LLM {
-  gpt3_5_turbo = GPT_35_TURBO,
-  gpt4 = GPT_4,
+  fast = GPT_35_TURBO,
+  smart = GPT_35_TURBO, //GPT_4,
+  smartLarge = GPT_35_TURBO, //GPT_4_32k,
 }
 
 type OpenAIKeyProvider = {
