@@ -24,7 +24,7 @@ export const env = createEnv({
     DISCORD_ID: z.string().min(19).max(19),
     DISCORD_SECRET: z.string().min(32).max(32),
     MEMORY_TYPE: z.enum(["buffer", "motorhead", "conversation"]),
-    GITHUB_ID: z.string().min(20).max(20),
+    GITHUB_ID: z.string().min(20).max(21),
     GITHUB_SECRET: z.string().min(40).max(40),
     OPENAI_API_KEY: z.string().min(51).max(51),
     SERPAPI_API_KEY: z.string().min(64).max(64),
