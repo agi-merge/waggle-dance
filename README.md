@@ -17,17 +17,13 @@ Waggle Dance is a Large Language Model (LLM) Agent swarm AGI problem solver that
 - `./apps/nextjs/src`: Next.js app source code.
 - `./apps/nextjs/pages/api`: Next.js API routes.
 - `./packages/chain/src`: Model chain business logic and backend services.
-Contribute and help
+
+## Contribute and help
 
 To help the project you can:
-
-Upvote the Reddit post about LocalAI.
-
-Hacker news post - help us out by voting if you like this project.
-
-If you have technological skills and want to contribute to development, have a look at the open issues. If you are new you can have a look at the good-first-issue and help-wanted labels.
-
-If you don't have technological skills you can still help improving documentation or add examples or share your user-stories with our community, any help and contribution is welcome!
+- [insert HN, indiehackers, twitter, gh, discord, sponsor].
+- If you have technological skills and want to contribute to development, have a look at the open issues. If you are new you can have a look at the good-first-issue and help-wanted labels.
+- If you don't have technological skills you can still help improving documentation or add examples or share your user-stories with our community, any help and contribution is welcome!
 
 
 ## 🏃 How to Run
