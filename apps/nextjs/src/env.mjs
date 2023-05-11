@@ -21,20 +21,20 @@ export const env = createEnv({
       process.env.VERCEL ? z.string() : z.string().url(),
     ),
     // Add `.min(1) on ID and SECRET if you want to make sure they're not empty
-    DISCORD_ID: z.string().min(19).max(19),
-    DISCORD_SECRET: z.string().min(32).max(32),
-    MEMORY_TYPE: z.enum(["buffer", "motorhead", "conversation"]),
-    GITHUB_ID: z.string().min(20).max(21),
-    GITHUB_SECRET: z.string().min(40).max(40),
+    DISCORD_ID: z.string().min(19).max(19).optional(),
+    DISCORD_SECRET: z.string().min(32).max(32).optional(),
+    MEMORY_TYPE: z.enum(["buffer", "motorhead", "conversation"]).optional(),
+    GITHUB_ID: z.string().min(20).max(21).optional(),
+    GITHUB_SECRET: z.string().min(40).max(40).optional(),
     OPENAI_API_KEY: z.string().min(51).max(51),
-    SERPAPI_API_KEY: z.string().min(64).max(64),
-    NEXT_PUBLIC_APP_VERSION: z.string(),
+    SERPAPI_API_KEY: z.string().min(64).max(64).optional(),
   },
   /**
    * Specify your client-side environment variables schema here.
    * For them to be exposed to the client, prefix them with `NEXT_PUBLIC_`.
    */
   client: {
+    NEXT_PUBLIC_APP_VERSION: z.string().optional(),
     NEXT_PUBLIC_DISCORD_INVITE_URL: z.string().url().optional(),
   },
   /**
@@ -47,12 +47,12 @@ export const env = createEnv({
     NEXTAUTH_URL: process.env.NEXTAUTH_URL,
     DISCORD_ID: process.env.DISCORD_ID,
     DISCORD_SECRET: process.env.DISCORD_SECRET,
-    NEXT_PUBLIC_DISCORD_INVITE_URL: process.env.NEXT_PUBLIC_DISCORD_INVITE_URL,
     MEMORY_TYPE: process.env.MEMORY_TYPE,
     GITHUB_ID: process.env.GITHUB_ID,
     GITHUB_SECRET: process.env.GITHUB_SECRET,
     OPENAI_API_KEY: process.env.OPENAI_API_KEY,
     SERPAPI_API_KEY: process.env.SERPAPI_API_KEY,
     NEXT_PUBLIC_APP_VERSION: process.env.NEXT_PUBLIC_APP_VERSION,
+    NEXT_PUBLIC_DISCORD_INVITE_URL: process.env.NEXT_PUBLIC_DISCORD_INVITE_URL,
   },
 });
