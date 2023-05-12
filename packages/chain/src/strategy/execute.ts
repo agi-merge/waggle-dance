@@ -8,7 +8,7 @@ import { WebBrowser } from "langchain/tools/webbrowser";
 
 import { createMemory } from "../utils/memory";
 import { createModel } from "../utils/model";
-import { ModelCreationProps } from "../utils/types";
+import { type ModelCreationProps } from "../utils/types";
 
 export async function executeChain({
   creationProps,
@@ -26,7 +26,7 @@ export async function executeChain({
   // const history = memory?.context ?? await memory.loadMemoryVariables({})
   // const skipHistory = history.length === 0;
 
-  var tools: Tool[] = [new WebBrowser({ model, embeddings })];
+  const tools: Tool[] = [new WebBrowser({ model, embeddings })];
   if (process.env.SERPAPI_API_KEY?.length) {
     tools.push(
       new SerpAPI(process.env.SERPAPI_API_KEY, {

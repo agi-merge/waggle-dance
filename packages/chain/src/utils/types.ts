@@ -1,6 +1,6 @@
-import { CallbackManager } from "langchain/callbacks";
-import { BaseLLMParams } from "langchain/llms/base";
-import { OpenAIInput } from "langchain/llms/openai";
+import { type CallbackManager } from "langchain/callbacks";
+import { type BaseLLMParams } from "langchain/llms/base";
+import { type OpenAIInput } from "langchain/llms/openai";
 import { z } from "zod";
 
 const GPT_35_TURBO = "gpt-3.5-turbo";

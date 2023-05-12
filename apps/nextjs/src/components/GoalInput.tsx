@@ -2,11 +2,7 @@ import React, { useEffect, useState } from "react";
 import { KeyboardArrowRight } from "@mui/icons-material";
 import {
   Button,
-  Card,
   FormControl,
-  FormLabel,
-  IconButton,
-  Link,
   Stack,
   Textarea,
   Tooltip,
@@ -48,7 +44,7 @@ export default function GoalInput({ state, callbacks }: GoalInputProps) {
     "",
     //examplePrompts[(Math.random() * examplePrompts.length) | 0],
   );
-  const [tooltipTappedOpen, setTooltipTappedOpen] = useState<
+  const [tooltipTappedOpen] = useState<
     boolean | undefined
   >(undefined);
 

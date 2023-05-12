@@ -2,7 +2,7 @@ import { type ServerResponse } from "http";
 import { BaseCallbackHandler } from "langchain/callbacks";
 import { type AgentAction } from "langchain/dist/schema";
 
-import { ChainPacket } from "./types";
+import { type ChainPacket } from "./types";
 
 export default class StreamingCallbackHandler extends BaseCallbackHandler {
   name = "streaming_handler";

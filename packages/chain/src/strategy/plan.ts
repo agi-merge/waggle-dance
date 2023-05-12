@@ -4,7 +4,7 @@ import { createMemory } from "../utils/memory";
 import { createModel } from "../utils/model";
 import { createPrompt } from "../utils/prompts";
 import { extractTasks } from "../utils/serialization";
-import { ModelCreationProps } from "../utils/types";
+import { type ModelCreationProps } from "../utils/types";
 
 export async function planChain(
   creationProps: ModelCreationProps,

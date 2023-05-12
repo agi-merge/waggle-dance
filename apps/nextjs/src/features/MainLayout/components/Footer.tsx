@@ -1,3 +1,4 @@
+import Image from "next/image";
 import Link from "next/link";
 import { GitHub, LinkedIn } from "@mui/icons-material";
 import {
@@ -36,7 +37,7 @@ const Footer = () => {
           <ListItemButton color="neutral">
             {env.NEXT_PUBLIC_DISCORD_INVITE_URL && (
               <Link href={env.NEXT_PUBLIC_DISCORD_INVITE_URL} target="_blank">
-                <img className="w-5" src={`./discord-when-${mode}.svg`} />
+                <Image alt="Discord Invite Icon" fill className="w-5" src={`./discord-when-${mode}.svg`} />
               </Link>
             )}
           </ListItemButton>
@@ -73,7 +74,7 @@ const Footer = () => {
               target="_blank"
               className={color}
             >
-              <img className="w-5" src={`patreon.svg`} />
+              <Image alt="Patreon Icon" fill className="w-5" src={`patreon.svg`} />
             </Link>
           </ListItemButton>
         </ListItem>

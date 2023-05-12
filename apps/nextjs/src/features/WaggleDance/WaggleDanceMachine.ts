@@ -18,6 +18,14 @@ interface BaseWaggleDanceMachine {
   ): Promise<BalambResult | BalambError>;
 }
 
+type TaskResultContainer = {
+  taskResult: TaskResult;
+}
+
+type PlanResultContainer = {
+  planResult: PlanResult;
+}
+
 /// Talk about mixing metaphors!
 /// This implementation uses Balamb to plant seeds, aka, use a DAG to execute dependent tasks.
 /// It queries the backend API for results from the underlying AI.
@@ -46,9 +54,9 @@ class WaggleDanceMachine implements BaseWaggleDanceMachine {
           },
           body: JSON.stringify(data),
         });
-        const tasks = await res.json();
+        const tasks = await res.json() as string[];
          
-        return { planId: `plan-${taskName}`, tasks: (tasks as string[]) ?? [] };
+        return { planId: `plan-${taskName}`, tasks: tasks ?? [] };
       },
     };
 
@@ -63,7 +71,11 @@ class WaggleDanceMachine implements BaseWaggleDanceMachine {
               { id: `${of}` },
               { target: planResult.planId, source: `${of}` },
             );
+
             const result = `${Math.random()}`;
+            // TODO: temp hack to appease Balamb Types.  I believe we will have an actual async call here someday.
+            await new Promise((resolve) => setTimeout(resolve, 1));
+
             console.log(`Got result ${result} for ${of}`);
             return { taskId: `${of}`, result } as TaskResult;
           },
@@ -72,7 +84,7 @@ class WaggleDanceMachine implements BaseWaggleDanceMachine {
     };
 
     const reviewSubtask = (of: string) => {
-      const reviewSubtask: SeedDef<ReviewResult, { taskResult: TaskResult }> = {
+      const reviewSubtask: SeedDef<ReviewResult, TaskResultContainer> = {
         id: `review-${of}`,
         description: "Review a plan and determine if needs cancellation",
         dependsOn: { taskResult: getSubtaskResult(of) },
@@ -80,10 +92,14 @@ class WaggleDanceMachine implements BaseWaggleDanceMachine {
           const review: Review = {
             overall: Math.random(),
           };
+          // TODO: temp hack to appease Balamb Types.  I believe we will have an actual async call here someday.
+          await new Promise((resolve) => setTimeout(resolve, 1));
+
           callbacks.onTaskCreated(
             { id: `review-${of}` /*, label: taskResult.result */ },
             { target: `review-${of}`, source: taskResult.taskId },
           );
+
           if (review.overall < 0.01) {
             throw new Error(`random review failure of target: ${plan.id}`);
           }
@@ -93,18 +109,24 @@ class WaggleDanceMachine implements BaseWaggleDanceMachine {
       return reviewSubtask;
     };
 
-    const reviewPlan: SeedDef<ReviewResult, { planResult: PlanResult }> = {
+    const reviewPlan: SeedDef<ReviewResult, PlanResultContainer> = {
       id: `review-${plan.id}`,
       description: "Review a plan and determine if needs cancellation",
       dependsOn: { planResult: plan },
       plant: async ({ planResult }) => {
+        console.log(`Reviewing plan ${planResult}`);
+
         callbacks.onTaskCreated(
           { id: `review-${plan.id}` },
           { target: `review-${plan.id}`, source: plan.id },
         );
+
         const review: Review = {
           overall: Math.random(),
         };
+        // TODO: temp hack to appease Balamb Types.  I believe we will have an actual async call here someday.
+        await new Promise((resolve) => setTimeout(resolve, 1));
+
         console.log(`Reviewed plan ${plan.id} with result ${review.overall}`);
         return { target: plan.id, review };
       },
@@ -125,7 +147,8 @@ class WaggleDanceMachine implements BaseWaggleDanceMachine {
         (planResult?.results?.[planId] as { tasks: string[] })?.tasks) ||
       [];
     if (planResult) console.log(JSON.stringify(planResult));
-    const seeds: SeedDef<any, any>[] = tasks.map((tasks) => {
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    const seeds: SeedDef<any, any>[] = tasks.map((tasks) => { // TODO: debugging these balamb types is 🤮
       return reviewSubtask(tasks);
     });
     seeds.unshift(reviewPlan);
