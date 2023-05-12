@@ -1,5 +1,4 @@
 import React from "react";
-import { useRouter } from "next/router";
 import {
   Home,
   KeyboardArrowRight,
@@ -9,7 +8,6 @@ import {
 } from "@mui/icons-material";
 import {
   Button,
-  Card,
   CircularProgress,
   List,
   ListItem,
@@ -36,13 +34,15 @@ const WaggleDanceGraph = ({
   goal,
   setHeaderExpanded,
 }: WaggleDanceGraphProps) => {
-  const { goal: goal2, isRunning, setIsRunning } = useAppContext();
-  const router = useRouter();
+  // TODO: I think this could be a bug - was fixing types here and noticed that the goal destructure was not being used
+  // The goal prop was being used.  Set it the an unused _contextGoal for now.  Not sure this is
+  // doing what we expect though.  Need to test.
+  const { goal: _contextGoal, isRunning, setIsRunning } = useAppContext();
   const { graphData, run } = useChainMachine({ goal });
   const handleStart = () => {
     setIsRunning(true);
     setHeaderExpanded(false);
-    run();
+    void run();
     setTimeout(() => {
       setIsRunning(false);
     }, 45000);

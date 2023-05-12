@@ -13,7 +13,7 @@ interface UseChainMachineProps {
 }
 const useChainMachine = ({
   goal,
-  isSimulated: boolean = false,
+  // _isSimulated = false,
 }: UseChainMachineProps) => {
   // const [chainMachine] = useState(() =>
   //   isSimulated ? new ChainMachineSimulation() : new ChainMachine(),
@@ -50,7 +50,7 @@ const useChainMachine = ({
               : prevGraphData.links,
           }));
         },
-        onReviewFailure: (target: string, error: Error) => {
+        onReviewFailure: (target: string, _error: Error) => {
           setGraphData((prevGraphData) => {
             const newNodes = prevGraphData.nodes.filter(
               (node) => node.id !== target,

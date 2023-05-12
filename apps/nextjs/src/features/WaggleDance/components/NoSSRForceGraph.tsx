@@ -51,7 +51,7 @@ const NoSSRForceGraph: React.FC<ForceGraphProps> = ({ data }) => {
       <OriginalForceGraph2D
         width={containerWidth}
         height={containerWidth * 0.5}
-        ref={fgRef as any}
+        ref={fgRef}
         // dagMode="radial"
         nodeLabel="id"
         nodeAutoColorBy="id"

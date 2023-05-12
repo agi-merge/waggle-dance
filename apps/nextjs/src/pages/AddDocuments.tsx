@@ -1,6 +1,7 @@
 // AddDocuments.tsx
 import React, { useEffect, useState } from "react";
 import type { NextPage } from "next";
+import Image from "next/image";
 import Link from "next/link";
 import { useRouter } from "next/router";
 import {
@@ -24,20 +25,28 @@ import DropZone from "~/components/DropZone";
 import FileUpload from "~/components/FileUpload";
 import { useAppContext } from "./_app";
 
+type FileContainer = {
+  name: string;
+  size: number;
+  type: string;
+  content: string;
+  progress?: number;
+};
+
 const AddDocuments: NextPage = () => {
   const router = useRouter();
-  const [uploadedFiles, setUploadedFiles] = useState([]);
+  const [uploadedFiles, setUploadedFiles] = useState<FileContainer[]>([]);
   const [headerExpanded, setHeaderExpanded] = useState(true);
   const { goal } = useAppContext();
 
-  const handleFileChange = (files) => {
+  const handleFileChange = (files: FileContainer[]) => {
     debugger;
     setUploadedFiles(files);
   };
   useEffect(() => {
     // Redirect if the goal is undefined or empty
     if (!goal) {
-      router.push("/");
+      void router.push("/");
     }
   }, [goal, router]);
 
@@ -79,25 +88,27 @@ const AddDocuments: NextPage = () => {
           </Stack>
         </ListItem>
       </List>
-      {uploadedFiles.map((file, index) => (
+      {uploadedFiles.map((file: FileContainer, index: number) => (
         <FileUpload
           key={index}
           fileName={file.name}
           fileSize={`${Math.round(file.size / 1000)} KB`}
-          progress={file.progress}
+          progress={file.progress ?? 0}
           icon={
             file.type.startsWith("image/") ? (
-              <img
+              <Image
                 src={file.content}
                 alt={file.name}
+                width={16}
+                height={16}
                 style={{
-                  width: "16px",
-                  height: "16px",
                   objectFit: "cover",
                   borderRadius: "50%",
                 }}
               />
-            ) : null
+            ) : (
+              <></>
+            )
           }
         />
       ))}
@@ -109,14 +120,14 @@ const AddDocuments: NextPage = () => {
         />
         <FormHelperText>Enter URLs to ingest.</FormHelperText>
       </FormControl>
-      <DropZone onFileChange={handleFileChange} />
+      <DropZone onFileChange={(event) => void handleFileChange(event)} />
       <Stack direction="row-reverse" className="mt-2" gap="1rem">
         <Button
           className="col-end mt-2"
           color="primary"
           href="waggle-dance"
           onClick={() => {
-            router.push("/waggle-dance");
+            void router.push("/waggle-dance");
           }}
         >
           Next
