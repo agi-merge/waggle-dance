@@ -108,7 +108,7 @@ const Header = () => {
               className="font-bold"
               target="_blank"
             >
-              wagglin' swarms{" "}
+              wagglin&apos; swarms{" "}
             </a>
           </Tooltip>
           of instances of GPT.

@@ -37,7 +37,7 @@ const Footer = () => {
           <ListItemButton color="neutral">
             {env.NEXT_PUBLIC_DISCORD_INVITE_URL && (
               <Link href={env.NEXT_PUBLIC_DISCORD_INVITE_URL} target="_blank">
-                <Image alt="Discord Invite Icon" className="w-5" src={`./discord-when-${mode}.svg`} />
+                <Image alt="Discord Invite Icon" fill className="w-5" src={`./discord-when-${mode}.svg`} />
               </Link>
             )}
           </ListItemButton>
@@ -74,7 +74,7 @@ const Footer = () => {
               target="_blank"
               className={color}
             >
-              <Image alt="Patreon Icon" className="w-5" src={`patreon.svg`} />
+              <Image alt="Patreon Icon" fill className="w-5" src={`patreon.svg`} />
             </Link>
           </ListItemButton>
         </ListItem>
