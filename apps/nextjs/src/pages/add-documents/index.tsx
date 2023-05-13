@@ -43,6 +43,7 @@ const UploadedFilesContext = createContext<{
   setUploadedFiles: React.Dispatch<React.SetStateAction<UploadedFiles>>;
 }>({
   uploadedFiles: {},
+  // eslint-disable-next-line @typescript-eslint/no-empty-function
   setUploadedFiles: () => {},
 });
 
@@ -138,7 +139,7 @@ const AddDocuments: NextPage = () => {
             color="primary"
             href="waggle-dance"
             onClick={() => {
-              router.push("/waggle-dance");
+              void router.push("/waggle-dance");
             }}
           >
             Next

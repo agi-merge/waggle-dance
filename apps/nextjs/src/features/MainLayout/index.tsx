@@ -4,7 +4,6 @@ import { useRouter } from "next/router";
 import { Card, Sheet, useColorScheme } from "@mui/joy";
 
 import { app } from "~/constants";
-import { useAppContext } from "~/pages/_app";
 import Alerts from "./components/Alerts";
 import Footer from "./components/Footer";
 import Header from "./components/Header";

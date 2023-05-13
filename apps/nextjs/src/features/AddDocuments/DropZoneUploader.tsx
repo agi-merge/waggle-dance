@@ -12,10 +12,13 @@ import Card, { type CardProps } from "@mui/joy/Card";
 import Link from "@mui/joy/Link";
 
 import { acceptExtensions } from "~/features/AddDocuments/mimeTypes";
-import { UploadFileDescriptor, useUploadedFiles } from "~/pages/add-documents";
+import {
+  useUploadedFiles,
+  type UploadFileDescriptor,
+} from "~/pages/add-documents";
 import { type UploadResponse } from "../../pages/api/docs/upload";
 
-interface DropZoneProps extends CardProps {}
+type DropZoneProps = CardProps;
 interface ContainerProps {
   onDrop: (files: FileList) => void;
   children: React.ReactNode;
@@ -80,15 +83,13 @@ export default function DropZoneUploader({ sx, ...props }: DropZoneProps) {
   const fileInput = React.useRef<HTMLInputElement>(null);
   const shadowFormRef = React.useRef<HTMLFormElement>(null);
   const router = useRouter();
-  const [_files, setFiles] = React.useState([]);
-  const [analysisResults, setAnalysisResults] = React.useState([""]);
 
   const handleSubmit = async (
     event: ProgressEvent<FileReader>,
   ): Promise<string[] | undefined> => {
     event.preventDefault();
     if (!shadowFormRef.current) return;
-    const formData = new FormData(shadowFormRef.current!);
+    const formData = new FormData(shadowFormRef.current);
     const response = await fetch("/api/docs/upload", {
       method: "POST",
       body: formData,
@@ -99,7 +100,7 @@ export default function DropZoneUploader({ sx, ...props }: DropZoneProps) {
       return uploadResponse.analysisResults;
     } else {
       console.error(response);
-      router.push("/auth/signin");
+      void router.push("/auth/signin");
       throw new Error(response.statusText);
     }
   };
@@ -109,13 +110,23 @@ export default function DropZoneUploader({ sx, ...props }: DropZoneProps) {
     fileInput.current.click();
   };
 
-  const handleUpload = async (event: React.ChangeEvent<HTMLInputElement>) => {
+  const handleUpload = (event: React.ChangeEvent<HTMLInputElement>) => {
     if (event.target.files === null) return;
     const uploadedFiles = event.target.files;
     for (const file of uploadedFiles) {
       const fileReader = new FileReader();
       fileReader.readAsDataURL(file);
-      fileReader.onerror = () => {};
+      fileReader.onerror = (event) => {
+        const initialFile: UploadFileDescriptor = {
+          file,
+          content: "",
+          uploadState: {
+            status: "error",
+            message: event.target?.error?.message ?? "Unknown error",
+          },
+        };
+        handleFileChange(initialFile);
+      };
       fileReader.onload = async (event) => {
         const content = fileReader.result as string;
         const initialFile: UploadFileDescriptor = {
