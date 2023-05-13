@@ -11,7 +11,7 @@ import { DocxLoader } from "langchain/document_loaders/fs/docx";
 import { JSONLoader } from "langchain/document_loaders/fs/json";
 import { PDFLoader } from "langchain/document_loaders/fs/pdf";
 import { TextLoader } from "langchain/document_loaders/fs/text";
-import { OpenAIEmbeddings } from "langchain/embeddings/openai";
+import { RecursiveCharacterTextSplitter } from "langchain/text_splitter";
 import { PineconeStore } from "langchain/vectorstores/pinecone";
 
 import { getServerSession } from "@acme/auth";
@@ -24,7 +24,7 @@ export const config = {
   api: {
     bodyParser: false,
   },
-  // runtime: "nodejs",
+  runtime: "nodejs",
 };
 
 export interface UploadResponse {
@@ -141,12 +141,20 @@ const handler = async (req: IncomingMessage, res: ServerResponse) => {
                         `No document loader found for mimetype: ${file.mimetype}`,
                       );
                     }
-                    const docs = await loader.load();
+                    const splitter = new RecursiveCharacterTextSplitter({
+                      chunkSize: 4000,
+                      chunkOverlap: 200,
+                    });
+                    const docs = await loader.loadAndSplit(splitter);
+
+                    console.log(`Loaded ${docs.length} documents`);
+
                     await PineconeStore.fromDocuments(
                       docs,
                       createEmbeddings({ modelName: LLM.embeddings }),
                       {
                         pineconeIndex,
+                        namespace: userId, // TODO: goal-username
                       },
                     );
                     callback();
