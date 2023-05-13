@@ -44,7 +44,7 @@ const processChunk = async (
   chunk: HasToString,
 ) => {
   // Process each chunk using the AnalyzeDocumentChain
-  const text = chunk;
+  const text = chunk.toString();
   const chain = new AnalyzeDocumentChain({
     combineDocumentsChain: combineDocsChain,
   });
