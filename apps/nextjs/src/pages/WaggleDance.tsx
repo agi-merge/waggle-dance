@@ -22,7 +22,7 @@ const WaggleDance: NextPage = (/*{ goal, onDelete }: WaggleDanceProps*/) => {
   useEffect(() => {
     // Redirect if the goal is undefined or empty
     if (!goal) {
-      router.push("/");
+      void router.push("/");
     }
   }, [goal, router]);
   return (
