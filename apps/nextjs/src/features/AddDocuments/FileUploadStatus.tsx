@@ -70,13 +70,14 @@ export default function FileUploadStatus({
         )}
         <Typography fontSize="sm">{name}</Typography>
         <Typography level="body3">{formatBytes(size)}</Typography>
-        {uploadState.status === "uploading" ||
-          (uploadState.status === "processing" && (
-            <Box sx={{ display: "flex", alignItems: "center", gap: 1 }}>
-              <Typography fontSize="xs">
-                {/* {uploadState.type === "uploading" && uploadState.progress}% */}
-                {uploadState.status}
-              </Typography>
+
+        <Box sx={{ display: "flex", alignItems: "center", gap: 1 }}>
+          <Typography fontSize="xs">
+            {uploadState.status}{" "}
+            {uploadState.status === "error" && uploadState.message}
+          </Typography>
+          {uploadState.status === "uploading" ||
+            (uploadState.status === "processing" && (
               <LinearProgress
                 // value={
                 //   uploadState.type === "uploading" ? uploadState.progress : 100
@@ -85,8 +86,9 @@ export default function FileUploadStatus({
                 variant="plain"
                 sx={{ bgcolor: "neutral.softBg" }}
               />
-            </Box>
-          ))}
+              /* {uploadState.type === "uploading" && uploadState.progress}% */
+            ))}
+        </Box>
       </CardContent>
       {uploadState.status === "complete" ? (
         <AspectRatio
