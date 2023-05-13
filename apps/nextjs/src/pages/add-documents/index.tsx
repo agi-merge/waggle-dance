@@ -28,7 +28,7 @@ type UploadState =
   | { status: "idle" }
   | { status: "uploading"; progress: number }
   | { status: "processing" }
-  | { status: "complete"; analysisResult: string }
+  | { status: "complete" }
   | { status: "error"; message: string };
 export interface UploadFileDescriptor {
   file: File;

@@ -55,19 +55,6 @@ export default function FileUploadStatus({
         <div>{icon ?? <i data-feather="file" />}</div>
       </AspectRatio>
       <CardContent>
-        {uploadState.status === "complete" && (
-          <>
-            <Typography level="body1">Summarization:</Typography>
-            <Typography
-              variant="soft"
-              className="text-center"
-              color="warning"
-              level="body3"
-            >
-              {uploadState.analysisResult}
-            </Typography>
-          </>
-        )}
         <Typography fontSize="sm">{name}</Typography>
         <Typography level="body3">{formatBytes(size)}</Typography>
 

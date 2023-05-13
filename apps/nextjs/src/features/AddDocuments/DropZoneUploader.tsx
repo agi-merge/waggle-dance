@@ -86,7 +86,7 @@ export default function DropZoneUploader({ sx, ...props }: DropZoneProps) {
 
   const handleSubmit = async (
     event: ProgressEvent<FileReader>,
-  ): Promise<string[] | undefined> => {
+  ): Promise<UploadResponse | undefined> => {
     event.preventDefault();
     if (!shadowFormRef.current) return;
     const formData = new FormData(shadowFormRef.current);
@@ -97,7 +97,7 @@ export default function DropZoneUploader({ sx, ...props }: DropZoneProps) {
 
     if (response.status === 200) {
       const uploadResponse = (await response.json()) as UploadResponse;
-      return uploadResponse.analysisResults;
+      return uploadResponse;
     } else {
       console.error(response);
       void router.push("/auth/signin");
@@ -139,14 +139,13 @@ export default function DropZoneUploader({ sx, ...props }: DropZoneProps) {
         };
         handleFileChange(initialFile);
         try {
-          const analysisResults = (await handleSubmit(event)) ?? [];
+          const _uploadResults = (await handleSubmit(event)) ?? [];
           console.log("success");
           const analyzedFile: UploadFileDescriptor = {
             file,
             content,
             uploadState: {
               status: "complete",
-              analysisResult: analysisResults.join("\n"),
             },
           };
           handleFileChange(analyzedFile);
