@@ -14,21 +14,21 @@ export const config = {
 
 const handler = async (
   req: {
-    body: any;
+    body: unknown;
     json: () => StrategyRequestBody | PromiseLike<StrategyRequestBody>;
   },
   res: {
     status: (arg0: number) => {
-      (): any;
-      new (): any;
+      (): unknown;
+      new (): unknown;
       json: {
         (arg0: {
-          newTasks?: any;
+          newTasks?: unknown;
           stack?: string | undefined;
           message?: string;
           status?: number;
         }): void;
-        new (): any;
+        new (): unknown;
       };
     };
   },
