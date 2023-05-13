@@ -51,6 +51,9 @@ const NoSSRForceGraph: React.FC<ForceGraphProps> = ({ data }) => {
       <OriginalForceGraph2D
         width={containerWidth}
         height={containerWidth * 0.5}
+        // TODO: gotta come back to this one
+        // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+        // @ts-ignore
         ref={fgRef}
         // dagMode="radial"
         nodeLabel="id"
