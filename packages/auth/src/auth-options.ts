@@ -1,6 +1,5 @@
 import { PrismaAdapter } from "@next-auth/prisma-adapter";
 import { type DefaultSession, type NextAuthOptions } from "next-auth";
-import CredentialsProvider from "next-auth/providers/credentials";
 import DiscordProvider from "next-auth/providers/discord";
 import GithubProvider from "next-auth/providers/github";
 
