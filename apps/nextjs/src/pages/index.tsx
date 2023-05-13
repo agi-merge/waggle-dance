@@ -21,7 +21,7 @@ const Home: NextPage = () => {
   // Define handleSetGoal function
   const handleSetGoal = (goal: string) => {
     if (goal.trim().length > 0) {
-      router.push("/add-documents");
+      void router.push("/add-documents");
       setGoalInputState(GoalInputState.refine);
     } else {
       setGoalInputState(GoalInputState.start);
@@ -53,7 +53,7 @@ const Home: NextPage = () => {
             {headerExpanded && (
               <>
                 <Typography level="body3" style={{ userSelect: "none" }}>
-                  Don't be afraid of being ambitious. We will refine it later.{" "}
+                  Don&apos;t be afraid of being ambitious. We will refine it later.{" "}
                 </Typography>
                 <Typography level="body3" style={{ userSelect: "none" }}>
                   <Tooltip
