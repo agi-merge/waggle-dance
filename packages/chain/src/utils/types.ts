@@ -4,8 +4,8 @@ import { type OpenAIInput } from "langchain/llms/openai";
 import { z } from "zod";
 
 const GPT_35_TURBO = "gpt-3.5-turbo";
-const GPT_4 = "gpt-4";
-const GPT_4_32k = "gpt-4-32k";
+const _GPT_4 = "gpt-4";
+const _GPT_4_32k = "gpt-4-32k";
 export enum LLM {
   fast = GPT_35_TURBO,
   smart = GPT_35_TURBO, //GPT_4,
