@@ -1,7 +1,3 @@
- 
-/* eslint-disable @typescript-eslint/no-unsafe-assignment */
- 
-
 import { type ServerResponse } from "http";
 import { type NextRequest } from "next/server";
 import axios from "axios";

@@ -33,6 +33,7 @@ export default function FileUpload({
             borderColor: "primary.500",
           }),
         },
+        // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
         ...(Array.isArray(sx) ? sx : [sx]),
       ]}
     >
