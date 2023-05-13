@@ -16,7 +16,7 @@ import {
   useUploadedFiles,
   type UploadFileDescriptor,
 } from "~/pages/add-documents";
-import { type UploadResponse } from "../../pages/api/docs/upload";
+import { type UploadResponse } from "../../pages/api/docs/ingest";
 
 type DropZoneProps = CardProps;
 interface ContainerProps {
@@ -90,7 +90,7 @@ export default function DropZoneUploader({ sx, ...props }: DropZoneProps) {
     event.preventDefault();
     if (!shadowFormRef.current) return;
     const formData = new FormData(shadowFormRef.current);
-    const response = await fetch("/api/docs/upload", {
+    const response = await fetch("/api/docs/ingest", {
       method: "POST",
       body: formData,
     });
