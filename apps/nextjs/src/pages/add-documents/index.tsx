@@ -1,5 +1,11 @@
 // AddDocuments.tsx
-import React, { createContext, useContext, useEffect, useState } from "react";
+import React, {
+  createContext,
+  useContext,
+  useEffect,
+  useMemo,
+  useState,
+} from "react";
 import type { NextPage } from "next";
 import Link from "next/link";
 import { useRouter } from "next/router";
@@ -63,7 +69,11 @@ const AddDocuments: NextPage = () => {
       void router.push("/");
     }
   }, [goal, router]);
-
+  const isAnyFileUploading = useMemo(() => {
+    return Object.values(uploadedFiles).some(
+      (x) => x.uploadState.status === "uploading",
+    );
+  }, [uploadedFiles]);
   return (
     <UploadedFilesContext.Provider value={{ uploadedFiles, setUploadedFiles }}>
       <Stack gap="1rem">
@@ -135,6 +145,7 @@ const AddDocuments: NextPage = () => {
         <DropZoneUploader />
         <Stack direction="row-reverse" className="mt-2" gap="1rem">
           <Button
+            disabled={isAnyFileUploading}
             className="col-end mt-2"
             color="primary"
             href="waggle-dance"
