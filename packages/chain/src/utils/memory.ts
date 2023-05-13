@@ -22,7 +22,6 @@ export async function createMemory(
     case "motorhead":
       const memory: MotorheadMemory = new MotorheadMemory({
         sessionId: sha256(goal),
-        // eslint-disable-next-line turbo/no-undeclared-env-vars
         motorheadURL: process.env.MEMORY_URL ?? "http://localhost:8080",
         inputKey,
       });
