@@ -11,6 +11,8 @@
   ],
   "typescript.tsdk": "node_modules/typescript/lib",
   "typescript.enablePromptUseWorkspaceTsdk": true,
+  "typescript.tsserver.maxTsServerMemory": 6144,
+  "typescript.tsserver.experimental.enableProjectDiagnostics": true,
   "tailwindCSS.experimental.configFile": "./packages/config/tailwind/index.ts",
   "eslint.validate": [
     "javascript",

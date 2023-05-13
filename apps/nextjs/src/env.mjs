@@ -29,6 +29,8 @@ export const env = createEnv({
     GITHUB_SECRET: z.string().min(40).max(40).optional(),
     OPENAI_API_KEY: z.string().min(51).max(51),
     SERPAPI_API_KEY: z.string().min(64).max(64).optional(),
+    DIGITALOCEAN_SPACES_KEY: z.string().min(20).max(20),
+    DIGITALOCEAN_SPACES_SECRET: z.string().min(43).max(43),
   },
   /**
    * Specify your client-side environment variables schema here.
@@ -54,6 +56,8 @@ export const env = createEnv({
     GITHUB_SECRET: process.env.GITHUB_SECRET,
     OPENAI_API_KEY: process.env.OPENAI_API_KEY,
     SERPAPI_API_KEY: process.env.SERPAPI_API_KEY,
+    DIGITALOCEAN_SPACES_KEY: process.env.DIGITALOCEAN_SPACES_KEY,
+    DIGITALOCEAN_SPACES_SECRET: process.env.DIGITALOCEAN_SPACES_SECRET,
     NEXT_PUBLIC_APP_VERSION: process.env.NEXT_PUBLIC_APP_VERSION,
     NEXT_PUBLIC_DISCORD_INVITE_URL: process.env.NEXT_PUBLIC_DISCORD_INVITE_URL,
   },
