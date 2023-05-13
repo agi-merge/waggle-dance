@@ -21,7 +21,8 @@ export async function createMemory(
   switch (process.env.MEMORY_TYPE) {
     case "motorhead":
       const memory: MotorheadMemory = new MotorheadMemory({
-        sessionId: await sha256(goal),
+        sessionId: sha256(goal),
+        // eslint-disable-next-line turbo/no-undeclared-env-vars
         motorheadURL: process.env.MEMORY_URL ?? "http://localhost:8080",
         inputKey,
       });
