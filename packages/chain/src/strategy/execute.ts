@@ -19,8 +19,8 @@ export async function executeChain({
   goal: string;
   task: string;
 }): Promise<string> {
-  const { callbacks } = modelSettings;
-  const model = createModel(modelSettings);
+  const { callbacks } = creationProps;
+  const model = createModel(creationProps);
   const embeddings = new OpenAIEmbeddings();
   const memory = await createMemory(goal);
   // const history = memory?.context ?? await memory.loadMemoryVariables({})

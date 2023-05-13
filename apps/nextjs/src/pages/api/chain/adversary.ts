@@ -14,27 +14,27 @@ export const config = {
 
 const handler = async (
   req: {
-    body: any;
+    body: unknown;
     json: () => StrategyRequestBody | PromiseLike<StrategyRequestBody>;
   },
   res: {
     status: (arg0: number) => {
-      (): any;
-      new (): any;
+      (): unknown;
+      new (): unknown;
       json: {
         (arg0: {
-          newTasks?: any;
+          newTasks?: unknown;
           stack?: string | undefined;
           message?: string;
           status?: number;
         }): void;
-        new (): any;
+        new (): unknown;
       };
     };
   },
 ) => {
   try {
-    const { modelSettings, goal, tasks, lastTask, result, completedTasks } =
+    const { creationProps, goal, tasks, lastTask, result, completedTasks } =
       config.runtime == "nodejs"
         ? (JSON.parse(JSON.stringify(req.body)) as StrategyRequestBody)
         : ((await req.json()));
@@ -44,7 +44,7 @@ const handler = async (
     }
 
     const newTasks = await reviewChain(
-      modelSettings,
+      creationProps,
       goal,
       tasks,
       lastTask,

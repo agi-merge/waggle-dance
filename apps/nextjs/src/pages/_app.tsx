@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-empty-function */
 import "../styles/globals.css";
 import { createContext, useContext, useEffect, useState } from "react";
 import type { AppType } from "next/app";
@@ -14,7 +15,7 @@ import { api } from "~/utils/api";
 import theme from "~/styles/theme";
 import MainLayout from "~/features/MainLayout";
 
-const mantineTheme = extendTheme({
+const _mantineTheme = extendTheme({
   colorSchemes: {
     light: {
       palette: {
@@ -77,18 +78,22 @@ export enum GoalInputState {
 // We can use it in a more targeted manner once we have multiple flows within the app.
 const AppContext = createContext({
   goal: "",
-  setGoal: (goal: string) => {},
+  setGoal: (_goal: string) => {},
   goalInputState: GoalInputState.start,
-  setGoalInputState: (state: GoalInputState) => {},
+  setGoalInputState: (_state: GoalInputState) => {},
   isRunning: false,
-  setIsRunning: (isRunning: boolean) => {},
+  setIsRunning: (_isRunning: boolean) => {},
   isPageLoading: false,
-  setIsPageLoading: (isPageLoading: boolean) => {},
+  setIsPageLoading: (_isPageLoading: boolean) => {},
 });
 
 export const useAppContext = () => useContext(AppContext);
 
-export const StateProvider = ({ children }) => {
+type StateProviderProps = {
+  children: React.ReactNode;
+};
+
+export const StateProvider = ({ children }: StateProviderProps) => {
   const [goal, setGoal] = useState("");
   const [goalInputState, setGoalInputState] = useState(GoalInputState.start);
   const [isRunning, setIsRunning] = useState(false);
@@ -97,7 +102,7 @@ export const StateProvider = ({ children }) => {
   const router = useRouter();
 
   useEffect(() => {
-    const handleStart = (url: string) => {
+    const handleStart = (_url: string) => {
       setIsPageLoading(true);
     };
 

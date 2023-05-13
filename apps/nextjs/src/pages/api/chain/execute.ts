@@ -1,7 +1,3 @@
- 
-/* eslint-disable @typescript-eslint/no-unsafe-assignment */
- 
-
 import { type ServerResponse } from "http";
 import { type NextRequest } from "next/server";
 import axios from "axios";
@@ -20,15 +16,15 @@ const handler = async (req: NextRequest, res: ServerResponse) => {
     res.setHeader("Content-Type", "text/plain");
     res.setHeader("Transfer-Encoding", "chunked");
     res.flushHeaders();
-    const { modelSettings, goal, task } =
+    const { creationProps, goal, task } =
       config.runtime == "nodejs"
         ? (JSON.parse(JSON.stringify(req.body)) as StrategyRequestBody)
         : ((await req.json()) as StrategyRequestBody);
-    Object.assign(modelSettings, {
+    Object.assign(creationProps, {
       callbacks: new StreamingCallbackHandler(res),
     });
     const result = await executeChain({
-      modelSettings,
+      creationProps,
       goal,
       task: task ? task : "",
     });

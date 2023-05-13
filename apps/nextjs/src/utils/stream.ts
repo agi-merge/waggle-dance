@@ -1,4 +1,4 @@
-import { createParser } from "eventsource-parser";
+import { type ParseEvent, createParser } from "eventsource-parser";
 
 import { type ChainPacket } from "@acme/chain";
 
@@ -28,13 +28,13 @@ export default async function stream(
 
     const decoder = new TextDecoder();
 
-    async function onParse(event: any) {
+    function onParse(event: ParseEvent) {
       if (event.type === "event") {
         const data = event.data;
 
         if (data.trim() !== "") {
           try {
-            const parsed = JSON.parse(data);
+            const parsed: unknown = JSON.parse(data);
             parsed && renderMessage(parsed as ChainPacket);
           } catch (e) {
             sendErrorMessage(`ERROR parsing message: ${e}`);
@@ -47,14 +47,16 @@ export default async function stream(
 
     const stream = new ReadableStream({
       async start(controller) {
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
         for await (const chunk of response.body as any) {
+          // eslint-disable-next-line @typescript-eslint/no-unsafe-argument
           parser.feed(decoder.decode(chunk));
         }
         controller.close();
       },
     });
 
-    await new Response(stream);
+    new Response(stream);
   } catch (e) {
     console.error(e);
     throw e;

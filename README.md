@@ -21,10 +21,10 @@ Waggle Dance is a Large Language Model (LLM) Agent swarm AGI problem solver that
 ## Contribute and help
 
 To help the project you can:
+
 - [insert HN, indiehackers, twitter, gh, discord, sponsor].
 - If you have technological skills and want to contribute to development, have a look at the open issues. If you are new you can have a look at the good-first-issue and help-wanted labels.
 - If you don't have technological skills you can still help improving documentation or add examples or share your user-stories with our community, any help and contribution is welcome!
-
 
 ## 🏃 How to Run
 
@@ -64,6 +64,54 @@ This is a t3 stack. [You can check the boilerplate documentation](/docs/create-t
 
 ```bash
 pnpm dev
+```
+
+## 🦑 Linting
+
+Make sure you install the recommended extensions in the solution, particularly `es-lint`.
+
+Linting is run on each build and can fail builds.
+
+To get a full list of linting errors run:
+
+```bash
+pnpm lint
+```
+
+Some of these may be able to be auto-fixed with:
+
+```bash
+pnpm lint:fix
+```
+
+for the rest, you will need to open the associated file and fix the errors yourself. Limit `ts-ignore` for extreme cases.
+
+As a best practice, run `pnpm lint` before starting a feature and after finishing a feature and fix any errors before sending a `PR`.
+
+### Side Note
+
+#### Memory Usage
+
+You might find that your `VS Code` editor is running slow and potentially missing linting errors and or saving files slowly. This is likely an indicator that you need to increase the max allowable memory for the `VS Code TS Server`.
+
+Update your workspace settings with something like:
+
+```
+"typescript.tsserver.maxTsServerMemory": 6144
+```
+
+For example. The default value is 3072.
+
+[Thanks Andre](https://www.youtube.com/watch?v=xgcLDX7sdV0&ab_channel=Andr%C3%A9Casal).
+
+Some [context](https://github.com/t3-oss/create-t3-turbo/issues/277).
+
+#### Project Wide Problems
+
+Enable the following in `.vscode/settings.json` in order to get project wide problem analytics outside of running `pnpm lint`:
+
+```
+"typescript.tsserver.experimental.enableProjectDiagnostics": true
 ```
 
 ## 🏗️ CICD

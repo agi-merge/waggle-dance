@@ -9,6 +9,7 @@ import {
 } from "langchain/chains";
 
 import { LLM, createModel } from "@acme/chain";
+import type IncomingForm from "formidable/Formidable";
 
 export const config = {
   api: {
@@ -20,10 +21,22 @@ export const config = {
 export interface UploadResponse {
   fields: formidable.Fields;
   files: formidable.Files;
-  analysisResults: string[];
+  analysisResults?: string[];
 }
 
-const processChunk = async (combineDocsChain: BaseChain, chunk: any) => {
+interface HasToString {
+  toString: (encoding?: string) => string;
+}
+
+interface HasMessage {
+  message: string;
+}
+
+export type UploadError = {
+  error: string;
+}
+
+const processChunk = async (combineDocsChain: BaseChain, chunk: HasToString) => {
   // Process each chunk using the AnalyzeDocumentChain
   const text = chunk.toString("utf8");
   const chain = new AnalyzeDocumentChain({
@@ -36,7 +49,7 @@ const processChunk = async (combineDocsChain: BaseChain, chunk: any) => {
   return analysisResult;
 };
 
-const promisifiedParse = (req, form) => {
+const promisifiedParse = (req: IncomingMessage, form: IncomingForm): Promise<UploadResponse> => {
   return new Promise((resolve, reject) => {
     form.parse(req, (err, fields, files) => {
       if (err) {
@@ -64,9 +77,9 @@ const handler = async (req: IncomingMessage, res: ServerResponse) => {
         const fileList: formidable.File[] = [];
         for (const key in files) {
           if (Array.isArray(files[key])) {
-            fileList.push(...files[key]);
+            fileList.push(...files[key] as formidable.File[]);
           } else {
-            fileList.push(files[key]);
+            fileList.push(files[key] as formidable.File);
           }
         }
         return fileList;
@@ -80,18 +93,18 @@ const handler = async (req: IncomingMessage, res: ServerResponse) => {
             let result = "";
             console.log(`Processing ${file.filepath}`);
             const writableStream = new Writable({
-              async write(chunk, encoding, callback) {
+              async write(chunk: HasToString, _encoding, callback) {
                 try {
                   const analysisResult = await processChunk(
                     combineDocsChain,
                     chunk,
                   );
                   console.log(`Analysis result: ${analysisResult.text}`);
-                  result += analysisResult.text + "\n";
+                  result += analysisResult.text as string + "\n";
 
                   callback();
                 } catch (error) {
-                  callback(error);
+                  callback(error as Error);
                 }
               },
             });
@@ -118,11 +131,11 @@ const handler = async (req: IncomingMessage, res: ServerResponse) => {
         res.end(json);
       } catch (error) {
         res.writeHead(500, { "Content-Type": "application/json" });
-        res.end(JSON.stringify({ error: error.message }));
+        res.end(JSON.stringify({ error: (error as HasMessage).message }));
       }
     } catch (error) {
       res.writeHead(500, { "Content-Type": "application/json" });
-      res.end(JSON.stringify({ error: error.message }));
+      res.end(JSON.stringify({ error: (error as HasMessage).message }));
     }
   }
 };
