@@ -1,9 +1,10 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useMemo, useState } from "react";
 import Head from "next/head";
 import { useRouter } from "next/router";
-import { Card, Sheet, useColorScheme } from "@mui/joy";
+import { Card, LinearProgress, Sheet, useColorScheme } from "@mui/joy";
 
 import { app } from "~/constants";
+import { useAppContext } from "~/pages/_app";
 import Alerts from "./components/Alerts";
 import Footer from "./components/Footer";
 import Header from "./components/Header";
@@ -14,6 +15,7 @@ type Props = {
 
 const MainLayout = ({ children }: Props) => {
   const { mode } = useColorScheme();
+  const { isPageLoading } = useAppContext();
   const [mounted, setMounted] = useState(false);
   const router = useRouter();
 
@@ -22,6 +24,9 @@ const MainLayout = ({ children }: Props) => {
   useEffect(() => {
     setMounted(true);
   }, [router]);
+  const progressOpacity = useMemo(() => {
+    return isPageLoading ? 100 : 0;
+  }, [isPageLoading]);
 
   if (!mounted) {
     return null;
@@ -55,7 +60,13 @@ const MainLayout = ({ children }: Props) => {
           variant="soft"
         >
           <Header />
-          <Card invertedColors variant="outlined" className="-m-2 my-5 p-2">
+          <LinearProgress thickness={2} sx={{ opacity: progressOpacity }} />
+          <Card
+            invertedColors
+            color="primary"
+            variant="outlined"
+            className="-m-2 my-5 p-2"
+          >
             {children}
           </Card>
           <Alerts />
