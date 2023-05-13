@@ -1,7 +1,6 @@
-import { type CallbackManager } from "langchain/callbacks";
 import { OpenAI } from "langchain/llms/openai";
 
-import { LLM, type ModelCreationProps } from "./types";
+import { type ModelCreationProps } from "./types";
 
 export const createModel = (creationProps: ModelCreationProps): OpenAI => {
   console.log(`createModel: ${JSON.stringify(creationProps)}`);
