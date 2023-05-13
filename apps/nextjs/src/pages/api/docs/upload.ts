@@ -2,6 +2,7 @@ import { createReadStream } from "fs";
 import { type IncomingMessage, type ServerResponse } from "http";
 import { Writable } from "stream";
 import { type NextApiRequest, type NextApiResponse } from "next";
+import { PineconeClient } from "@pinecone-database/pinecone";
 import formidable from "formidable";
 import type IncomingForm from "formidable/Formidable";
 import {
@@ -9,10 +10,18 @@ import {
   loadSummarizationChain,
   type BaseChain,
 } from "langchain/chains";
+import { type BaseDocumentLoader } from "langchain/dist/document_loaders/base";
+import { CSVLoader } from "langchain/document_loaders/fs/csv";
+import { DocxLoader } from "langchain/document_loaders/fs/docx";
+import { PDFLoader } from "langchain/document_loaders/fs/pdf";
+import { TextLoader } from "langchain/document_loaders/fs/text";
+import { OpenAIEmbeddings } from "langchain/embeddings/openai";
+import { PineconeStore } from "langchain/vectorstores/pinecone";
 
 import { getServerSession } from "@acme/auth";
 import { LLM, createModel } from "@acme/chain";
 
+import { env } from "~/env.mjs";
 import { uploadObject } from "./store";
 
 export const config = {
@@ -111,25 +120,67 @@ const handler = async (req: IncomingMessage, res: ServerResponse) => {
         const userId = session.user.id;
         if (!userId) throw new Error("No user id found");
 
+        if (env.PINECONE_API_KEY === undefined)
+          throw new Error("No pinecone api key found");
+        if (env.PINECONE_ENVIRONMENT === undefined)
+          throw new Error("No pinecone environment found");
+        if (env.PINECONE_INDEX === undefined)
+          throw new Error("No pinecone index found");
+
+        const client = new PineconeClient();
+        await client.init({
+          apiKey: env.PINECONE_API_KEY,
+          environment: env.PINECONE_ENVIRONMENT,
+        });
+        const pineconeIndex = client.Index(env.PINECONE_INDEX);
+
         const analysisResults = await Promise.all(
           flattenedFiles
             .filter((file): file is formidable.File => file !== undefined)
             .map(async (file: formidable.File) => {
               // Upload the file to the store
               await uploadObject(userId, file);
-              let result = "";
+              const result = "";
               console.log(`Processing ${file.filepath}`);
               const writableStream = new Writable({
                 async write(chunk: HasToString, _encoding, callback) {
-                  console.log(`chunk ${typeof chunk} ${chunk}`);
                   try {
-                    const analysisResult = await processChunk(
-                      combineDocsChain,
-                      chunk,
-                    );
-                    result += `${analysisResult.text as string} \n`;
+                    let loader: BaseDocumentLoader | undefined;
+                    switch (file.mimetype) {
+                      case "application/pdf":
+                        loader = new PDFLoader(file.filepath);
+                      case "text/csv":
+                        loader = new CSVLoader(file.filepath);
+                      case "application/text": // TODO: match a bunch of plain text formats
+                        loader = new TextLoader(file.filepath);
+                      case "docx":
+                        loader = new DocxLoader(file.filepath);
+                    }
 
+                    if (!loader)
+                      throw new Error(
+                        `No document loader found for mimetype: ${file.mimetype}`,
+                      );
+                    const docs = await loader.load();
+                    await PineconeStore.fromDocuments(
+                      docs,
+                      new OpenAIEmbeddings(),
+                      {
+                        pineconeIndex,
+                      },
+                    );
                     callback();
+                    // if (file.mimetype === "application/pdf") {
+                    // } else {
+                    //   // default analysis
+                    //   const analysisResult = await processChunk(
+                    //     combineDocsChain,
+                    //     chunk,
+                    //   );
+                    //   result += `${analysisResult.text as string} \n`;
+
+                    //   callback();
+                    // }
                   } catch (error) {
                     callback(error as Error);
                   }
