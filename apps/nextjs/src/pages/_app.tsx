@@ -1,6 +1,7 @@
 import "../styles/globals.css";
 import { createContext, useContext, useEffect, useState } from "react";
 import type { AppType } from "next/app";
+import { useRouter } from "next/router";
 import {
   CssVarsProvider,
   extendTheme,
@@ -81,6 +82,8 @@ const AppContext = createContext({
   setGoalInputState: (state: GoalInputState) => {},
   isRunning: false,
   setIsRunning: (isRunning: boolean) => {},
+  isPageLoading: false,
+  setIsPageLoading: (isPageLoading: boolean) => {},
 });
 
 export const useAppContext = () => useContext(AppContext);
@@ -89,6 +92,29 @@ export const StateProvider = ({ children }) => {
   const [goal, setGoal] = useState("");
   const [goalInputState, setGoalInputState] = useState(GoalInputState.start);
   const [isRunning, setIsRunning] = useState(false);
+  const [isPageLoading, setIsPageLoading] = useState(false);
+
+  const router = useRouter();
+
+  useEffect(() => {
+    const handleStart = (url: string) => {
+      setIsPageLoading(true);
+    };
+
+    const handleStop = () => {
+      setIsPageLoading(false);
+    };
+
+    router.events.on("routeChangeStart", handleStart);
+    router.events.on("routeChangeComplete", handleStop);
+    router.events.on("routeChangeError", handleStop);
+
+    return () => {
+      router.events.off("routeChangeStart", handleStart);
+      router.events.off("routeChangeComplete", handleStop);
+      router.events.off("routeChangeError", handleStop);
+    };
+  }, [router]);
 
   return (
     <AppContext.Provider
@@ -99,6 +125,8 @@ export const StateProvider = ({ children }) => {
         setGoalInputState,
         isRunning,
         setIsRunning,
+        isPageLoading,
+        setIsPageLoading,
       }}
     >
       {children}
