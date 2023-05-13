@@ -3,14 +3,16 @@ import {
   S3Client,
   type PutObjectCommandInput,
 } from "@aws-sdk/client-s3";
+import Hex from "crypto-js/enc-hex";
+import sha256 from "crypto-js/sha256";
 import type formidable from "formidable";
 
 import { env } from "~/env.mjs";
 
 function saltAndSha256(str: string): string {
   const salt = "sd';kt34[]][`[[`-04"; // FIXME: move to env
-  const hash = CryptoJS.SHA256(str + salt);
-  return hash.toString(CryptoJS.enc.Hex);
+  const hash = sha256(str + salt);
+  return hash.toString(Hex);
 }
 
 export const uploadObject = async (userId: string, file: formidable.File) => {
