@@ -1,11 +1,4 @@
- 
- 
- 
-
-import { IncomingMessage, ServerResponse } from "http";
-import { NextApiRequest, NextApiResponse } from "next";
-import { type NextRequest, NextResponse } from "next/server";
-import axios from "axios";
+import { type NextRequest } from "next/server";
 
 import { planChain } from "@acme/chain";
 
@@ -16,7 +9,6 @@ export const config = {
 };
 
 const handler = async (req: NextRequest) => {
-  // try {
   const { creationProps, goal } = (await req.json()) as StrategyRequestBody;
   const newTasks = await planChain(creationProps, goal);
   return new Response(JSON.stringify(newTasks), {
