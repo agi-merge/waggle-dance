@@ -34,7 +34,7 @@ const handler = async (
   },
 ) => {
   try {
-    const { modelSettings, goal, tasks, lastTask, result, completedTasks } =
+    const { creationProps, goal, tasks, lastTask, result, completedTasks } =
       config.runtime == "nodejs"
         ? (JSON.parse(JSON.stringify(req.body)) as StrategyRequestBody)
         : ((await req.json()));
@@ -44,7 +44,7 @@ const handler = async (
     }
 
     const newTasks = await reviewChain(
-      modelSettings,
+      creationProps,
       goal,
       tasks,
       lastTask,
