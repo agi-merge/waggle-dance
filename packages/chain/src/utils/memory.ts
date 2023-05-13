@@ -1,4 +1,3 @@
-import * as CryptoJS from "crypto-js";
 import Hex from "crypto-js/enc-hex";
 import sha256 from "crypto-js/sha256";
 import { OpenAI } from "langchain/llms/openai";
