@@ -80,8 +80,10 @@ export default function DropZone({
   const shadowFormRef = React.useRef<HTMLFormElement>(null);
   const [_files, setFiles] = React.useState([]);
   const [analysisResults, setAnalysisResults] = React.useState([""]);
-  
-  const handleSubmit = async (event: React.FormEvent<HTMLFormElement>): Promise<void> => {
+
+  const handleSubmit = async (
+    event: React.FormEvent<HTMLFormElement>,
+  ): Promise<void> => {
     event.preventDefault();
     if (!shadowFormRef.current) return;
 
@@ -92,8 +94,8 @@ export default function DropZone({
     });
 
     if (response.status === 200) {
-      const uploadResponse = await response.json() as UploadResponse;
-      setAnalysisResults(uploadResponse.analysisResults);
+      const uploadResponse = (await response.json()) as UploadResponse;
+      setAnalysisResults(uploadResponse.analysisResults || []);
       console.log(uploadResponse.analysisResults);
     } else {
       console.error(response);
@@ -191,7 +193,10 @@ export default function DropZone({
         <Link component="button" overlay onClick={handleClick} type="button">
           Click to upload
         </Link>{" "}
-        <form onSubmit={(event) => void handleSubmit(event)} ref={shadowFormRef}>
+        <form
+          onSubmit={(event) => void handleSubmit(event)}
+          ref={shadowFormRef}
+        >
           <input
             type="file"
             name="files"
