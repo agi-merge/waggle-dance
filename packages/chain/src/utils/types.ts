@@ -17,15 +17,16 @@ type OpenAIKeyProvider = {
 };
 export interface ModelCreationProps
   extends Partial<OpenAIInput>,
-    BaseLLMParams,
-    OpenAIKeyProvider {
+  BaseLLMParams,
+  OpenAIKeyProvider {
   verbose?: boolean;
   callbacks?: CallbackManager;
   modelName: LLM;
+  customModelName?: string;
 }
 
 export const packetParser = z.object({
-  type: z.enum(["plan", "execute", "review", "human"]),
+  type: z.enum(["plan", "execute", "review", "human", "system"]),
   value: z.string(),
   message: z.string().optional(),
 });

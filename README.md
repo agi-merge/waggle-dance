@@ -90,6 +90,8 @@ As a best practice, run `pnpm lint` before starting a feature and after finishin
 
 ### Side Note
 
+#### Memory Usage
+
 You might find that your `VS Code` editor is running slow and potentially missing linting errors and or saving files slowly. This is likely an indicator that you need to increase the max allowable memory for the `VS Code TS Server`.
 
 Update your workspace settings with something like:
@@ -103,6 +105,14 @@ For example. The default value is 3072.
 [Thanks Andre](https://www.youtube.com/watch?v=xgcLDX7sdV0&ab_channel=Andr%C3%A9Casal).
 
 Some [context](https://github.com/t3-oss/create-t3-turbo/issues/277).
+
+#### Project Wide Problems
+
+Enable the following in `.vscode/settings.json` in order to get project wide problem analytics outside of running `pnpm lint`:
+
+```
+"typescript.tsserver.experimental.enableProjectDiagnostics": true
+```
 
 ## 🏗️ CICD
 
