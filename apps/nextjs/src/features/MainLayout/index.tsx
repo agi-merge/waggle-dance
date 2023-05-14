@@ -51,10 +51,11 @@ const MainLayout = ({ children }: Props) => {
             borderRadius: "lg",
             shadowRadius: "xl",
           }}
+          invertedColors
           variant="soft"
         >
           <Header />
-          <Card invertedColors variant="outlined" className="-m-2 my-5">
+          <Card invertedColors variant="outlined" className="-m-2 my-5 p-2">
             {children}
           </Card>
           <Alerts />
