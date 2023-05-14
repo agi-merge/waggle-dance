@@ -13,10 +13,13 @@ import { useSession } from "next-auth/react";
 import { app } from "~/constants";
 import ThemeToggle from "../../../components/ThemeToggle";
 
+function removeFirstCharIfMatching(str: string, targetChar: string): string {
+  return str && str.length > 0 && str[0] === targetChar ? str.slice(1) : str;
+}
+
 const Header = () => {
   const router = useRouter();
-  const { slug } = router.query;
-
+  const slug = removeFirstCharIfMatching(router.pathname, "/");
   const { data: session } = useSession();
 
   const routes = [
@@ -27,19 +30,7 @@ const Header = () => {
   ];
 
   const isActive = (path: string) => {
-    if ((path === "" || path == "/") && slug !== "goal-done") return true;
-    if (
-      path === "add-documents" &&
-      (slug === "" || slug === "add-documents" || slug === "waggle-dance")
-    )
-      return true;
-    if (
-      path === "waggle-dance" &&
-      (slug === "add-documents" || slug === "waggle-dance")
-    )
-      return true;
-    if (path === "goal-done" && slug === "goal-done") return true;
-    return false;
+    return path === slug;
   };
 
   const renderBreadcrumbLink = (path: string, label: string) => {
