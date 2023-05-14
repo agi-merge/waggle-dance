@@ -12,10 +12,7 @@ import Card, { type CardProps } from "@mui/joy/Card";
 import Link from "@mui/joy/Link";
 
 import { acceptExtensions } from "~/features/AddDocuments/mimeTypes";
-import {
-  useUploadedFiles,
-  type UploadFileDescriptor,
-} from "~/pages/add-documents";
+import { useIngest, type IngestFile } from "~/pages/add-documents";
 import { type UploadResponse } from "../../pages/api/docs/ingest";
 
 type DropZoneProps = CardProps;
@@ -70,8 +67,9 @@ const DropZoneContainer = (props: ContainerProps) => {
 };
 
 export default function DropZoneUploader({ sx, ...props }: DropZoneProps) {
-  const { uploadedFiles, setUploadedFiles } = useUploadedFiles();
-  const handleFileChange = (file: UploadFileDescriptor) => {
+  const { ingestFiles: uploadedFiles, setIngestFiles: setUploadedFiles } =
+    useIngest();
+  const handleFileChange = (file: IngestFile) => {
     // Create a new object with the updated data
     const updatedFiles = {
       ...uploadedFiles,
@@ -117,7 +115,7 @@ export default function DropZoneUploader({ sx, ...props }: DropZoneProps) {
       const fileReader = new FileReader();
       fileReader.readAsDataURL(file);
       fileReader.onerror = (event) => {
-        const initialFile: UploadFileDescriptor = {
+        const initialFile: IngestFile = {
           file,
           content: "",
           uploadState: {
@@ -129,7 +127,7 @@ export default function DropZoneUploader({ sx, ...props }: DropZoneProps) {
       };
       fileReader.onload = async (event) => {
         const content = fileReader.result as string;
-        const initialFile: UploadFileDescriptor = {
+        const initialFile: IngestFile = {
           file,
           content,
           uploadState: {
@@ -141,7 +139,7 @@ export default function DropZoneUploader({ sx, ...props }: DropZoneProps) {
         try {
           const _uploadResults = (await handleSubmit(event)) ?? [];
           console.log("success");
-          const analyzedFile: UploadFileDescriptor = {
+          const analyzedFile: IngestFile = {
             file,
             content,
             uploadState: {
@@ -153,7 +151,7 @@ export default function DropZoneUploader({ sx, ...props }: DropZoneProps) {
           const message = (error as Error).message;
           console.error(message);
           if (error as Error) {
-            const analyzedFile: UploadFileDescriptor = {
+            const analyzedFile: IngestFile = {
               file,
               content,
               uploadState: {

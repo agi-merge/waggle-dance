@@ -14,7 +14,6 @@ export const createModel = (creationProps: ModelCreationProps): OpenAI => {
       baseOptions: {
         headers: {
           "Helicone-Cache-Enabled": "true",
-          // TODO: migrate to bearer token if helicone is used
         },
       },
     },

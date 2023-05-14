@@ -10,15 +10,15 @@ import LinearProgress from "@mui/joy/LinearProgress";
 import Typography from "@mui/joy/Typography";
 
 import formatBytes from "~/utils/formatBytes";
-import { type UploadFileDescriptor } from "~/pages/add-documents";
+import { type IngestFile } from "~/pages/add-documents";
 
 export interface FileUploadProps extends CardProps {
-  uploadFile: UploadFileDescriptor;
+  ingestFile: IngestFile;
   icon?: React.ReactElement;
 }
 
 export default function FileUploadStatus({
-  uploadFile,
+  ingestFile: uploadFile,
   icon,
   sx,
   ...props
