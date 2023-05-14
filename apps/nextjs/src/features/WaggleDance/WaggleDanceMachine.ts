@@ -20,11 +20,11 @@ interface BaseWaggleDanceMachine {
 
 type TaskResultContainer = {
   taskResult: TaskResult;
-}
+};
 
 type PlanResultContainer = {
   planResult: PlanResult;
-}
+};
 
 /// Talk about mixing metaphors!
 /// This implementation uses Balamb to plant seeds, aka, use a DAG to execute dependent tasks.
@@ -54,8 +54,8 @@ class WaggleDanceMachine implements BaseWaggleDanceMachine {
           },
           body: JSON.stringify(data),
         });
-        const tasks = await res.json() as string[];
-         
+        const tasks = (await res.json()) as string[];
+
         return { planId: `plan-${taskName}`, tasks: tasks ?? [] };
       },
     };
@@ -148,7 +148,8 @@ class WaggleDanceMachine implements BaseWaggleDanceMachine {
       [];
     if (planResult) console.log(JSON.stringify(planResult));
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    const seeds: SeedDef<any, any>[] = tasks.map((tasks) => { // TODO: debugging these balamb types is 🤮
+    const seeds: SeedDef<any, any>[] = tasks.map((tasks) => {
+      // TODO: debugging these balamb types is 🤮
       return reviewSubtask(tasks);
     });
     seeds.unshift(reviewPlan);
