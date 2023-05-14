@@ -1,5 +1,26 @@
 {
-  "tasks": "task[]",
-  "confidence": "0.5",
-  "context": "history, documents, urls, important information to aid in task"
+  "domain": "large_language_model",
+  "types": {
+    "question": "object",
+    "answer": "object",
+    "task": "object"
+  },
+  "predicates": {
+    "generated": ["task"],
+    "completed": ["task"],
+    "has_answer": ["question", "answer"],
+    "understands": ["large_language_model", "question"]
+  },
+  "actions": {
+    "generate_response": {
+      "parameters": ["large_language_model", "question", "answer"],
+      "precondition": ["understands", "has_answer", "!generated", "!completed"],
+      "effect": ["generated"]
+    },
+    "complete_task": {
+      "parameters": ["task"],
+      "precondition": ["generated", "!completed"],
+      "effect": ["completed"]
+    }
+  }
 }

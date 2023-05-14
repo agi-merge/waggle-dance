@@ -8,6 +8,7 @@ import type { ModelCreationProps } from "./types";
 
 export const createPrompt = (
   type:
+    | "domain"
     | "plan"
     | "execute"
     | "review"
@@ -18,14 +19,37 @@ export const createPrompt = (
 ): ChatPromptTemplate => {
   // TODO: https://js.langchain.com/docs/modules/chains/prompt_selectors/
   const basePromptMessages = {
+    domain: [
+      `As a large language model responsible for generating an accurate domain.
+      You are eficiently trying to achieve a Goal designed by a human:
+      {goal}.
+      You have the ability to recall context with a vector database, browse the web, write files -- anything a solo white-collar founder might have.
+      To speed up the process, independent actions and calculations must be sent to LLM agents concurrently, and the domain should represent this.
+      Additionally, to ensure that the goal is being solved efficiently and correctly, adversarial agents will review the output of the LLM agents and the domain should represent this.
+      ONLY RETURN a valid representation in PDDL3.1 of the Goal's domain. The output only needs to be understandable by another LLM agent.
+      start from: (define (domain [goal-title]
+      `,
+    ],
     plan: [
-      `As a chain-of-thought autonomous taskmaster AI agent "${
+      `As a chain-of-thought agent swarm taskmaster "${
         modelSettings?.modelName ?? "Agent"
       }"
-      Objective: {goal}.
-      Plan necessary tasks an AI agent with access to ChatGPT-4 and the internet would need to execute to achieve the goal.
+      Goal: {goal}.
+      Plan necessary tasks that an AI agent MUST complete to achieve the goal.
       Only tasks that cannot be confidently answered by ChatGPT-4 should be planned.
-      ONLY RETURN tasks as valid (escaped, named, etc) JSON in schema: {schema}.`,
+      ONLY RETURN valid JSON representing PDDL state of the tasks.
+      The PDDL must represent the fact that results are to be reviewed by an adversarial agent, and canceled if they fail review.
+      It must deserialize into these TypeScript types (with braces removed):
+      interface PDDL
+        domain: string
+        types: Record<string, string>
+        predicates: Record<string, string[]>
+        actions: Record<string, Action>
+      type Action
+        parameters: string[]
+        precondition: string[]
+        effect: string[]
+      `,
     ],
 
     execute: [

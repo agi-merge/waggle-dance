@@ -9,6 +9,9 @@ import {
   type ReviewResult,
   type TaskResult,
 } from "./types";
+import convertPDDLJSONtoBalambSeeds, {
+  type PDDLJSON,
+} from "./utils/convertPDDLJSONToBalamb";
 
 interface BaseWaggleDanceMachine {
   run(
@@ -54,9 +57,9 @@ class WaggleDanceMachine implements BaseWaggleDanceMachine {
           },
           body: JSON.stringify(data),
         });
-        const tasks = (await res.json()) as string[];
+        const pddl = (await res.json()) as PDDLJSON;
 
-        return { planId: `plan-${taskName}`, tasks: tasks ?? [] };
+        return { planId: `plan-${taskName}`, pddl };
       },
     };
 
@@ -131,7 +134,7 @@ class WaggleDanceMachine implements BaseWaggleDanceMachine {
         return { target: plan.id, review };
       },
     };
-    const planResult = await Balamb.run([reviewPlan]);
+    const planResult = await Balamb.run([plan]);
 
     // If planResult is of type BalambError, then we need to bail out
     // and return the error to the caller.
@@ -142,17 +145,22 @@ class WaggleDanceMachine implements BaseWaggleDanceMachine {
     }
 
     // [Log] {"info":{"errorCode":"SEED_FAILURES","failures":[{"id":"plan-","error":{}}],"partialResults":{}}}
-    const tasks =
-      (planResult.results &&
-        (planResult?.results?.[planId] as { tasks: string[] })?.tasks) ||
-      [];
-    if (planResult) console.log(JSON.stringify(planResult));
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    const seeds: SeedDef<any, any>[] = tasks.map((tasks) => {
-      // TODO: debugging these balamb types is 🤮
-      return reviewSubtask(tasks);
-    });
+    // const tasks =
+    //   (planResult.results &&
+    //     (planResult?.results?.[planId] as { tasks: string[] })?.tasks) ||
+    //   [];
+    // if (planResult) console.log(JSON.stringify(planResult));
+    // // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    // const seeds: SeedDef<any, any>[] = tasks.map((tasks) => {
+    //   // TODO: debugging these balamb types is 🤮
+    //   return reviewSubtask(tasks);
+    // });
+    const pddl =
+      (planResult.results && (planResult?.results?.[planId] as PDDLJSON)) || {};
+    console.log(`pddl: ${JSON.stringify(pddl)}`);
+    const seeds = convertPDDLJSONtoBalambSeeds(pddl);
     seeds.unshift(reviewPlan);
+
     try {
       const taskResult = await Balamb.run(seeds);
       if (taskResult instanceof BalambError) {

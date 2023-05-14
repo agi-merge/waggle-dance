@@ -1,8 +1,9 @@
 import { type LinkObject, type NodeObject } from "./components/ForceGraph";
+import { type PDDLJSON } from "./utils/convertPDDLJSONToBalamb";
 
 export type PlanResult = {
   planId: string;
-  tasks: string[];
+  pddl: PDDLJSON;
 };
 
 export type TaskResult = {
