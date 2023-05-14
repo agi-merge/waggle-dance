@@ -53,7 +53,8 @@
     "superjson": "1.9.1",
     "swr": "^2.1.5",
     "utils": "link:@mui/material/utils",
-    "zod": "^3.21.4"
+    "zod": "^3.21.4",
+    "zustand": "^4.3.8"
   },
   "devDependencies": {
     "@acme/eslint-config": "^0.1.0",
