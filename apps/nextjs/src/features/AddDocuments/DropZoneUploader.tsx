@@ -1,16 +1,21 @@
 /* eslint-disable @typescript-eslint/no-unsafe-assignment */
 /* eslint-disable @typescript-eslint/ban-ts-comment */
+
+// DropZone.tsx
+
 import * as React from "react";
 import { useState } from "react";
+import { useRouter } from "next/router";
 import { Tooltip } from "@mui/joy";
 import Box from "@mui/joy/Box";
 import Card, { type CardProps } from "@mui/joy/Card";
 import Link from "@mui/joy/Link";
-import Typography from "@mui/joy/Typography";
 
-import { acceptExtensions } from "~/features/Datastore/mimeTypes";
-import { type UploadResponse } from "../pages/api/docs/upload";
+import { acceptExtensions } from "~/features/AddDocuments/mimeTypes";
+import { useIngest, type IngestFile } from "~/pages/add-documents";
+import { type UploadResponse } from "../../pages/api/docs/ingest";
 
+type DropZoneProps = CardProps;
 interface ContainerProps {
   onDrop: (files: FileList) => void;
   children: React.ReactNode;
@@ -19,24 +24,24 @@ interface ContainerProps {
 const DropZoneContainer = (props: ContainerProps) => {
   const [isHovering, setIsHovering] = useState(false);
 
-  const handleDragEnter: React.DragEventHandler<HTMLDivElement> = (e) => {
+  const handleDragEnter = (e: React.DragEvent<HTMLDivElement>) => {
     e.preventDefault();
     e.stopPropagation();
     setIsHovering(true);
   };
 
-  const handleDragOver: React.DragEventHandler<HTMLDivElement> = (e) => {
+  const handleDragOver = (e: React.DragEvent<HTMLDivElement>) => {
     e.preventDefault();
     e.stopPropagation();
   };
 
-  const handleDragLeave: React.DragEventHandler<HTMLDivElement> = (e) => {
+  const handleDragLeave = (e: React.DragEvent<HTMLDivElement>) => {
     e.preventDefault();
     e.stopPropagation();
     setIsHovering(false);
   };
 
-  const handleDrop: React.DragEventHandler<HTMLDivElement> = (e) => {
+  const handleDrop = (e: React.DragEvent<HTMLDivElement>) => {
     e.preventDefault();
     e.stopPropagation();
     setIsHovering(false);
@@ -61,45 +66,40 @@ const DropZoneContainer = (props: ContainerProps) => {
   );
 };
 
-interface DropZoneProps extends CardProps {
-  onFileChange?: (
-    files: {
-      name: string;
-      size: number;
-      type: string;
-      content: string;
-    }[],
-  ) => void;
-}
-export default function DropZone({
-  sx,
-  onFileChange,
-  ...props
-}: DropZoneProps) {
+export default function DropZoneUploader({ sx, ...props }: DropZoneProps) {
+  const { ingestFiles: uploadedFiles, setIngestFiles: setUploadedFiles } =
+    useIngest();
+  const handleFileChange = (file: IngestFile) => {
+    // Create a new object with the updated data
+    const updatedFiles = {
+      ...uploadedFiles,
+      [file.file.name]: file,
+    };
+
+    setUploadedFiles(updatedFiles);
+  };
   const fileInput = React.useRef<HTMLInputElement>(null);
   const shadowFormRef = React.useRef<HTMLFormElement>(null);
-  const [_files, setFiles] = React.useState([]);
-  const [analysisResults, setAnalysisResults] = React.useState([""]);
+  const router = useRouter();
 
   const handleSubmit = async (
-    event: React.FormEvent<HTMLFormElement>,
-  ): Promise<void> => {
+    event: ProgressEvent<FileReader>,
+  ): Promise<UploadResponse | undefined> => {
     event.preventDefault();
     if (!shadowFormRef.current) return;
-
     const formData = new FormData(shadowFormRef.current);
-    const response = await fetch("/api/docs/upload", {
+    const response = await fetch("/api/docs/ingest", {
       method: "POST",
       body: formData,
     });
 
     if (response.status === 200) {
       const uploadResponse = (await response.json()) as UploadResponse;
-      setAnalysisResults(uploadResponse.analysisResults || []);
-      console.log(uploadResponse.analysisResults);
+      return uploadResponse;
     } else {
       console.error(response);
-      // error toast
+      void router.push("/auth/signin");
+      throw new Error(response.statusText);
     }
   };
 
@@ -109,56 +109,70 @@ export default function DropZone({
   };
 
   const handleUpload = (event: React.ChangeEvent<HTMLInputElement>) => {
-    const uploadedFiles = Array.from(event?.target?.files || []);
+    if (event.target.files === null) return;
+    const uploadedFiles = event.target.files;
     for (const file of uploadedFiles) {
       const fileReader = new FileReader();
       fileReader.readAsDataURL(file);
-      fileReader.onerror = () => {
-        console.error("Error reading file");
-      };
-      fileReader.onload = () => {
-        const newFile = {
-          name: file.name,
-          size: file.size,
-          type: file.type,
-          content: fileReader.result,
+      fileReader.onerror = (event) => {
+        const initialFile: IngestFile = {
+          file,
+          content: "",
+          uploadState: {
+            status: "error",
+            message: event.target?.error?.message ?? "Unknown error",
+          },
         };
-
-        // @ts-ignore TODO: gotta come back to this one, its tricky
-        setFiles(async (prevFiles) => {
-          const updatedFiles = [...prevFiles, newFile];
-          if (onFileChange) {
-            // @ts-ignore TODO: gotta come back to this one, its tricky
-            onFileChange(updatedFiles);
+        handleFileChange(initialFile);
+      };
+      fileReader.onload = async (event) => {
+        const content = fileReader.result as string;
+        const initialFile: IngestFile = {
+          file,
+          content,
+          uploadState: {
+            status: "uploading",
+            progress: 0,
+          },
+        };
+        handleFileChange(initialFile);
+        try {
+          const _uploadResults = (await handleSubmit(event)) ?? [];
+          console.log("success");
+          const analyzedFile: IngestFile = {
+            file,
+            content,
+            uploadState: {
+              status: "complete",
+            },
+          };
+          handleFileChange(analyzedFile);
+        } catch (error) {
+          const message = (error as Error).message;
+          console.error(message);
+          if (error as Error) {
+            const analyzedFile: IngestFile = {
+              file,
+              content,
+              uploadState: {
+                status: "error",
+                message,
+              },
+            };
+            handleFileChange(analyzedFile);
           }
-          // @ts-ignore TODO: gotta come back to this one, its tricky
-          await handleSubmit(event);
-          return updatedFiles;
-        });
+        }
       };
     }
   };
+
   return (
     <DropZoneContainer
       onDrop={(files: FileList) => {
         // @ts-ignore TODO: gotta come back to this one, its tricky
-        handleUpload({ target: { files: [...files] } });
+        handleUpload({ target: { files } });
       }}
     >
-      {analysisResults.length > 0 &&
-        analysisResults.map((result, idx) => {
-          return (
-            <Typography
-              key={idx}
-              variant="soft"
-              className="text-center"
-              color="warning"
-              level="body2"
-            >
-              {result}
-            </Typography>
-          );
-        })}
       <Card
         variant="outlined"
         {...props}
@@ -194,7 +208,8 @@ export default function DropZone({
           Click to upload
         </Link>{" "}
         <form
-          onSubmit={(event) => void handleSubmit(event)}
+          // onSubmit={(event) => void handleSubmit(event)}
+          // onProgress={(event) => void handleSubmit(event)}
           ref={shadowFormRef}
         >
           <input

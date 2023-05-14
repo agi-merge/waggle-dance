@@ -36,7 +36,7 @@ const useChainMachine = ({
       {
         modelName: LLM.smartLarge,
         temperature: 0,
-        maxTokens: 400,
+        maxTokens: 1000,
         streaming: true,
         // callbacks?: CallbackManager;
         verbose: true,

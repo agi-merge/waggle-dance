@@ -20,7 +20,7 @@ export const createPrompt = (
   const basePromptMessages = {
     plan: [
       `As a chain-of-thought autonomous taskmaster AI agent "${
-        modelSettings?.customModelName ?? "Agent"
+        modelSettings?.modelName ?? "Agent"
       }"
       Objective: {goal}.
       Plan necessary tasks an AI agent with access to ChatGPT-4 and the internet would need to execute to achieve the goal.

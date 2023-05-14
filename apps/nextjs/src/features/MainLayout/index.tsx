@@ -1,10 +1,9 @@
 import React, { useEffect, useState } from "react";
 import Head from "next/head";
 import { useRouter } from "next/router";
-import { Card, LinearProgress, Sheet, useColorScheme } from "@mui/joy";
+import { Card, Sheet, useColorScheme } from "@mui/joy";
 
 import { app } from "~/constants";
-import { useAppContext } from "~/pages/_app";
 import Alerts from "./components/Alerts";
 import Footer from "./components/Footer";
 import Header from "./components/Header";
@@ -15,7 +14,6 @@ type Props = {
 
 const MainLayout = ({ children }: Props) => {
   const { mode } = useColorScheme();
-  const { isPageLoading } = useAppContext();
   const [mounted, setMounted] = useState(false);
   const router = useRouter();
 
@@ -56,7 +54,6 @@ const MainLayout = ({ children }: Props) => {
           variant="soft"
         >
           <Header />
-          {isPageLoading && <LinearProgress />}
           <Card invertedColors variant="outlined" className="-m-2 my-5">
             {children}
           </Card>

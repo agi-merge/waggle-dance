@@ -1,3 +1,5 @@
+// FileUpload.tsx
+
 import * as React from "react";
 import AspectRatio from "@mui/joy/AspectRatio";
 import Box from "@mui/joy/Box";
@@ -7,19 +9,22 @@ import IconButton from "@mui/joy/IconButton";
 import LinearProgress from "@mui/joy/LinearProgress";
 import Typography from "@mui/joy/Typography";
 
-export default function FileUpload({
+import formatBytes from "~/utils/formatBytes";
+import { type IngestFile } from "~/pages/add-documents";
+
+export interface FileUploadProps extends CardProps {
+  ingestFile: IngestFile;
+  icon?: React.ReactElement;
+}
+
+export default function FileUploadStatus({
+  ingestFile: uploadFile,
   icon,
-  fileName,
-  fileSize,
-  progress,
   sx,
   ...props
-}: CardProps & {
-  icon?: React.ReactElement;
-  fileName: string;
-  fileSize: string;
-  progress: number;
-}) {
+}: FileUploadProps) {
+  const { file, uploadState } = uploadFile;
+  const { name, size } = file;
   return (
     <Card
       variant="outlined"
@@ -29,7 +34,7 @@ export default function FileUpload({
         {
           gap: 1.5,
           alignItems: "flex-start",
-          ...(progress >= 100 && {
+          ...(uploadState.status === "complete" && {
             borderColor: "primary.500",
           }),
         },
@@ -50,19 +55,29 @@ export default function FileUpload({
         <div>{icon ?? <i data-feather="file" />}</div>
       </AspectRatio>
       <CardContent>
-        <Typography fontSize="sm">{fileName}</Typography>
-        <Typography level="body3">{fileSize}</Typography>
+        <Typography fontSize="sm">{name}</Typography>
+        <Typography level="body3">{formatBytes(size)}</Typography>
+
         <Box sx={{ display: "flex", alignItems: "center", gap: 1 }}>
-          <LinearProgress
-            value={progress}
-            determinate
-            variant="plain"
-            sx={{ bgcolor: "neutral.softBg" }}
-          />
-          <Typography fontSize="xs">{progress}%</Typography>
+          <Typography fontSize="xs">
+            {uploadState.status}{" "}
+            {uploadState.status === "error" && uploadState.message}
+          </Typography>
+          {uploadState.status === "uploading" ||
+            (uploadState.status === "processing" && (
+              <LinearProgress
+                // value={
+                //   uploadState.type === "uploading" ? uploadState.progress : 100
+                // }
+                // determinate
+                variant="plain"
+                sx={{ bgcolor: "neutral.softBg" }}
+              />
+              /* {uploadState.type === "uploading" && uploadState.progress}% */
+            ))}
         </Box>
       </CardContent>
-      {progress >= 100 ? (
+      {uploadState.status === "complete" ? (
         <AspectRatio
           ratio="1"
           variant="solid"

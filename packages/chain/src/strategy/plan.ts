@@ -21,7 +21,10 @@ export async function planChain(
   });
   const [/*otherAgentPrompt, */ call] = await Promise.all([
     // prompt.format({ goal, schema: "string[]" }),
-    chain.call({ goal, schema: "string[]" }),
+    chain.call({
+      goal,
+      schema: "Planning Domain Definition Language (PDDL)[]",
+    }),
   ]);
   const completion = call?.response ? (call.response as string) : "";
   console.log(`planAgent: ${completion}`);

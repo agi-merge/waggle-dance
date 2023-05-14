@@ -7,7 +7,7 @@ import { KeyboardArrowDown, KeyboardArrowUp } from "@mui/icons-material";
 import { List, ListItem, Stack, Typography } from "@mui/joy";
 
 import WaggleDanceGraph from "~/features/WaggleDance/components/WaggleDanceGraph";
-import { useAppContext } from "./_app";
+import { useAppContext } from "../_app";
 
 // interface WaggleDanceProps {
 //   goal: string;

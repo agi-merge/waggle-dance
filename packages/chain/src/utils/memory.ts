@@ -1,4 +1,5 @@
-import * as CryptoJS from "crypto-js";
+import Hex from "crypto-js/enc-hex";
+import sha256 from "crypto-js/sha256";
 import { OpenAI } from "langchain/llms/openai";
 import {
   BufferMemory,
@@ -9,9 +10,9 @@ import {
 
 import { LLM } from "./types";
 
-function sha256(str: string): string {
-  const hash = CryptoJS.SHA256(str);
-  return hash.toString(CryptoJS.enc.Hex);
+function hash(str: string): string {
+  const hash = sha256(str);
+  return hash.toString(Hex);
 }
 
 export async function createMemory(
@@ -21,7 +22,7 @@ export async function createMemory(
   switch (process.env.MEMORY_TYPE) {
     case "motorhead":
       const memory: MotorheadMemory = new MotorheadMemory({
-        sessionId: sha256(goal),
+        sessionId: hash(goal),
         motorheadURL: process.env.MEMORY_URL ?? "http://localhost:8080",
         inputKey,
       });
