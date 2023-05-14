@@ -1,15 +1,19 @@
 // AddDocuments.tsx
 import React, {
   createContext,
+  useCallback,
   useContext,
   useEffect,
   useMemo,
+  useRef,
   useState,
+  type KeyboardEvent,
 } from "react";
 import type { NextPage } from "next";
 import Link from "next/link";
 import { useRouter } from "next/router";
 import {
+  CheckCircle,
   KeyboardArrowDown,
   KeyboardArrowRight,
   KeyboardArrowUp,
@@ -19,9 +23,11 @@ import {
   FormControl,
   FormHelperText,
   FormLabel,
+  IconButton,
   Input,
   List,
   ListItem,
+  Sheet,
   Stack,
   Typography,
 } from "@mui/joy";
@@ -57,6 +63,15 @@ export function useUploadedFiles() {
   return useContext(UploadedFilesContext);
 }
 
+function isValidUrl(url: string) {
+  try {
+    new URL(url);
+    return true;
+  } catch (e) {
+    return false;
+  }
+}
+
 const AddDocuments: NextPage = () => {
   const router = useRouter();
   const [uploadedFiles, setUploadedFiles] = useState<UploadedFiles>({});
@@ -74,6 +89,35 @@ const AddDocuments: NextPage = () => {
       (x) => x.uploadState.status === "uploading",
     );
   }, [uploadedFiles]);
+  const [urlInput, setUrlInput] = useState(
+    "https://github.com/agi-merge/waggle-dance",
+  );
+  const urlInputRef = useRef<HTMLInputElement>(null);
+  const handleUrlSubmit = useCallback(async () => {
+    if (isValidUrl(urlInput)) {
+      const response = await fetch("/api/docs/urls/ingest", {
+        method: "POST",
+        body: JSON.stringify({ url: urlInput }),
+        headers: {
+          "Content-Type": "application/json",
+        },
+      });
+      console.log(response);
+      setUrlInput("https://github.com/agi-merge/waggle-dance");
+    } else {
+      console.error("Invalid URL:", urlInput);
+    }
+  }, [urlInput]);
+
+  const handleKeyPress = useCallback(
+    (event: KeyboardEvent<HTMLInputElement>) => {
+      if (event.key === "Enter") {
+        void handleUrlSubmit();
+      }
+    },
+    [handleUrlSubmit],
+  );
+
   return (
     <UploadedFilesContext.Provider value={{ uploadedFiles, setUploadedFiles }}>
       <Stack gap="1rem">
@@ -134,12 +178,27 @@ const AddDocuments: NextPage = () => {
             }
           />
         ))}
+
         <FormControl>
           <FormLabel>URLs to Ingest</FormLabel>
-          <Input
-            variant="outlined"
-            placeholder="e.g. https://some-important-url.com/data.csv"
-          />
+          <Sheet className="flex">
+            <Input
+              className="flex-grow"
+              ref={urlInputRef}
+              value={urlInput}
+              onChange={(e) => setUrlInput(e.target.value)}
+              onKeyPress={handleKeyPress}
+              variant="outlined"
+              placeholder="e.g. https://github.com/agi-merge/waggle-dance"
+            />
+            <IconButton
+              disabled={!isValidUrl(urlInput)}
+              // edge="end"
+              onClick={void handleUrlSubmit}
+            >
+              <CheckCircle />
+            </IconButton>
+          </Sheet>
           <FormHelperText>Enter URLs to ingest.</FormHelperText>
         </FormControl>
         <DropZoneUploader />
