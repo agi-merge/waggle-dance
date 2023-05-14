@@ -123,7 +123,7 @@ importers:
         version: 2.1.1
       langchain:
         specifier: ^0.0.64
-        version: 0.0.64(@aws-sdk/client-s3@3.332.0)(@pinecone-database/pinecone@0.1.5)(d3-dsv@2.0.0)(mammoth@1.5.1)(pdf-parse@1.1.1)
+        version: 0.0.64(@aws-sdk/client-s3@3.332.0)(@pinecone-database/pinecone@0.1.5)(d3-dsv@2.0.0)(mammoth@1.5.1)(pdf-parse@1.1.1)(playwright@1.33.0)
       mammoth:
         specifier: ^1.5.1
         version: 1.5.1
@@ -136,6 +136,9 @@ importers:
       pdf-parse:
         specifier: ^1.1.1
         version: 1.1.1
+      playwright:
+        specifier: ^1.33.0
+        version: 1.33.0
       react:
         specifier: 18.2.0
         version: 18.2.0
@@ -5177,7 +5180,7 @@ packages:
       json-buffer: 3.0.0
     dev: false
 
-  /langchain@0.0.64(@aws-sdk/client-s3@3.332.0)(@pinecone-database/pinecone@0.1.5)(d3-dsv@2.0.0)(mammoth@1.5.1)(pdf-parse@1.1.1):
+  /langchain@0.0.64(@aws-sdk/client-s3@3.332.0)(@pinecone-database/pinecone@0.1.5)(d3-dsv@2.0.0)(mammoth@1.5.1)(pdf-parse@1.1.1)(playwright@1.33.0):
     resolution: {integrity: sha512-EPR5igtuSemtPAesQ8oa8SF/xjTA+bYJW00JNJ/8PYkPNiU+uc+cifOEH3H/DFam+oDY9XhR7WV+GhBEskVNNA==}
     engines: {node: '>=18'}
     peerDependencies:
@@ -5278,6 +5281,7 @@ packages:
       p-queue: 6.6.2
       p-retry: 4.6.2
       pdf-parse: 1.1.1
+      playwright: 1.33.0
       uuid: 9.0.0
       yaml: 2.2.2
       zod: 3.21.4
@@ -6020,6 +6024,21 @@ packages:
     resolution: {integrity: sha512-8V9+HQPupnaXMA23c5hvl69zXvTwTzyAYasnkb0Tts4XvO4CliqONMOnvlq26rkhLC3nWDFBJf73LU1e1VZLaQ==}
     engines: {node: '>= 6'}
     dev: true
+
+  /playwright-core@1.33.0:
+    resolution: {integrity: sha512-aizyPE1Cj62vAECdph1iaMILpT0WUDCq3E6rW6I+dleSbBoGbktvJtzS6VHkZ4DKNEOG9qJpiom/ZxO+S15LAw==}
+    engines: {node: '>=14'}
+    hasBin: true
+    dev: false
+
+  /playwright@1.33.0:
+    resolution: {integrity: sha512-+zzU3V2TslRX2ETBRgQKsKytYBkJeLZ2xzUj4JohnZnxQnivoUvOvNbRBYWSYykQTO0Y4zb8NwZTYFUO+EpPBQ==}
+    engines: {node: '>=14'}
+    hasBin: true
+    requiresBuild: true
+    dependencies:
+      playwright-core: 1.33.0
+    dev: false
 
   /polished@4.2.2:
     resolution: {integrity: sha512-Sz2Lkdxz6F2Pgnpi9U5Ng/WdWAUZxmHrNPoVlm3aAemxoy2Qy7LGjQg4uf8qKelDAUW94F4np3iH2YPf2qefcQ==}
