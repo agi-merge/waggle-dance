@@ -3,7 +3,7 @@ import { Close, Warning } from "@mui/icons-material";
 import { Alert, Box, IconButton, Typography } from "@mui/joy";
 
 const Alerts = () => {
-  const [systemAlertOpen, setSystemAlertOpen] = useState(true);
+  const [systemAlertOpen, setSystemAlertOpen] = useState(false);
 
   const color = "warning";
   const title = "Limited Demo";
