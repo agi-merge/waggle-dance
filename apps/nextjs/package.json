@@ -45,6 +45,7 @@
     "next": "^13.4.2",
     "next-auth": "^4.22.1",
     "pdf-parse": "^1.1.1",
+    "playwright": "^1.33.0",
     "react": "18.2.0",
     "react-dom": "18.2.0",
     "react-force-graph": "^1.43.0",
