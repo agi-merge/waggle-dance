@@ -50,14 +50,16 @@ const Header = () => {
       );
     } else {
       return (
-        <Typography
-          key={path}
-          level="body3"
-          color="neutral"
-          className="cursor-default opacity-50"
-        >
-          {label}
-        </Typography>
+        <Link href={`/${path}`} key={path}>
+          <Typography
+            key={path}
+            level="body3"
+            color="neutral"
+            className="cursor-default opacity-50"
+          >
+            {label}
+          </Typography>
+        </Link>
       );
     }
   };

@@ -11,17 +11,25 @@ import React, {
 } from "react";
 import type { NextPage } from "next";
 import { useRouter } from "next/router";
-import { CheckCircle, KeyboardArrowRight } from "@mui/icons-material";
+import {
+  CheckCircle,
+  KeyboardArrowDown,
+  KeyboardArrowRight,
+  KeyboardArrowUp,
+} from "@mui/icons-material";
 import {
   Button,
+  Card,
   FormControl,
   FormHelperText,
   FormLabel,
   IconButton,
   Input,
   LinearProgress,
+  Link,
   Sheet,
   Stack,
+  Typography,
 } from "@mui/joy";
 import Table from "@mui/joy/Table";
 
@@ -79,6 +87,7 @@ function isValidUrl(url: string) {
 
 const AddDocuments: NextPage = () => {
   const router = useRouter();
+  const [headerExpanded, setHeaderExpanded] = useState(true);
   const [ingestFiles, setIngestFiles] = useState<IngestFiles>({});
   const [ingestUrls, setIngestUrls] = useState<IngestUrls>({});
   const { goal } = useAppContext();
@@ -94,9 +103,7 @@ const AddDocuments: NextPage = () => {
       (x) => x.uploadState.status === "uploading",
     );
   }, [ingestFiles]);
-  const [urlInput, setUrlInput] = useState(
-    "https://github.com/agi-merge/waggle-dance",
-  );
+  const [urlInput, setUrlInput] = useState("");
   const urlInputRef = useRef<HTMLInputElement>(null);
   const handleUrlSubmit = useCallback(async () => {
     setIngestUrls((prev) => ({
@@ -158,9 +165,41 @@ const AddDocuments: NextPage = () => {
         setIngestUrls: setIngestUrls,
       }}
     >
+      <Card variant="soft" className="mb-3">
+        <Stack
+          className="flex flex-grow cursor-pointer"
+          onClick={(e) => {
+            e.preventDefault();
+            setHeaderExpanded(!headerExpanded);
+          }}
+        >
+          <Stack direction="row" className="flex">
+            <Link
+              href="#"
+              className="flex-grow select-none pr-5 text-white"
+              style={{ userSelect: "none" }}
+            >
+              <Typography level="h4">Achieve goals faster</Typography>
+            </Link>
+            {headerExpanded ? <KeyboardArrowUp /> : <KeyboardArrowDown />}
+          </Stack>
+          {headerExpanded && (
+            <>
+              <Typography level="body3" style={{ userSelect: "none" }}>
+                In order to achieve your goal, you may need to add any relevant
+                data. GPT-4 has no knowledge of anything since September 2021,
+                so anything newer than that would be a good target. You can also
+                shortcut research steps by providing relevant data. For example,
+                if I was working on a GitHub code project, it would be helpful
+                to input the GitHub URL.
+              </Typography>
+            </>
+          )}
+        </Stack>
+      </Card>
       <Table
         variant="outlined"
-        className="mb-3 p-3"
+        className="m-2 p-3"
         hidden={
           Object.entries(ingestFiles).length === 0 &&
           Object.entries(ingestUrls).length === 0
@@ -204,10 +243,9 @@ const AddDocuments: NextPage = () => {
           ))}
         </tbody>
       </Table>
-
       <FormControl>
         <FormLabel>URLs to Ingest</FormLabel>
-        <Sheet className="flex">
+        <Sheet className="flex p-3">
           <Input
             className="flex-grow"
             ref={urlInputRef}
