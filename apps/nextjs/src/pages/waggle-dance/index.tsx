@@ -4,7 +4,7 @@ import type { NextPage } from "next";
 import Link from "next/link";
 import { useRouter } from "next/router";
 import { KeyboardArrowDown, KeyboardArrowUp } from "@mui/icons-material";
-import { Card, List, ListItem, Stack, Typography } from "@mui/joy";
+import { Card, Stack, Typography } from "@mui/joy";
 
 import WaggleDanceGraph from "~/features/WaggleDance/components/WaggleDanceGraph";
 import { useAppContext } from "../_app";
@@ -25,49 +25,48 @@ const WaggleDance: NextPage = (/*{ goal, onDelete }: WaggleDanceProps*/) => {
       void router.push("/");
     }
   }, [goal, router]);
-  return (
-    <>
-      <Card variant="soft" className="mb-3">
-        <Stack
-          className="flex flex-grow cursor-pointer"
-          onClick={(e) => {
-            e.preventDefault();
-            setHeaderExpanded(!headerExpanded);
-          }}
-        >
-          <Stack direction="row" className="flex">
-            <Link
-              href="#"
-              className="flex-grow select-none pr-5 text-white"
-              style={{ userSelect: "none" }}
-            >
-              <Typography level="h4">Waggle Dance</Typography>
-            </Link>
-            {headerExpanded ? <KeyboardArrowUp /> : <KeyboardArrowDown />}
-          </Stack>
-          {headerExpanded && (
-            <>
-              <Typography level="body3" style={{ userSelect: "none" }}>
-                Waggle dancing is a process that allows large language models
-                like ChatGPT to collaborate with one another, with minimal human
-                input. The AI breaks the steps to achieve the goal down, and
-                self-corrects when it makes mistakes. This goes further, faster
-                than BabyAGI, AgentGPT or Auto-GPT.
-              </Typography>
-            </>
-          )}
 
-          {goal && (
-            <>
-              <Typography className="mb-2" level="body1">
-                Goal: <Typography level="body2">{goal}</Typography>
-              </Typography>
-            </>
-          )}
+  return (
+    <Card variant="soft" className="mb-3">
+      <Stack
+        className="flex flex-grow cursor-pointer"
+        onClick={(e) => {
+          e.preventDefault();
+          setHeaderExpanded(!headerExpanded);
+        }}
+      >
+        <Stack direction="row" className="flex">
+          <Link
+            href="#"
+            className="flex-grow select-none pr-5 text-white"
+            style={{ userSelect: "none" }}
+          >
+            <Typography level="h4">Waggle Dance</Typography>
+          </Link>
+          {headerExpanded ? <KeyboardArrowUp /> : <KeyboardArrowDown />}
         </Stack>
-      </Card>
+        {headerExpanded && (
+          <>
+            <Typography level="body3" style={{ userSelect: "none" }}>
+              Waggle dancing is a process that allows large language models like
+              ChatGPT to collaborate with one another, with minimal human input.
+              The AI breaks the steps to achieve the goal down, and
+              self-corrects when it makes mistakes. This goes further, faster
+              than BabyAGI, AgentGPT or Auto-GPT.
+            </Typography>
+          </>
+        )}
+
+        {goal && (
+          <>
+            <Typography className="mb-2" level="body1">
+              Goal: <Typography level="body2">{goal}</Typography>
+            </Typography>
+          </>
+        )}
+      </Stack>
       <WaggleDanceGraph goal={goal} setHeaderExpanded={setHeaderExpanded} />
-    </>
+    </Card>
   );
 };
 

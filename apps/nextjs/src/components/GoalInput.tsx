@@ -8,6 +8,7 @@ import {
   Tooltip,
   Typography,
 } from "@mui/joy";
+import Card, { type CardProps } from "@mui/joy/Card";
 
 import { type Handlers } from "~/pages";
 import { GoalInputState } from "~/pages/_app";
@@ -32,7 +33,7 @@ const placeholders = [
   "Achieve global peace and equity for all?",
 ];
 
-interface GoalInputProps {
+interface GoalInputProps extends CardProps {
   state?: GoalInputState;
   callbacks: Handlers; // Update the type of callbacks
 }
@@ -44,9 +45,7 @@ export default function GoalInput({ state, callbacks }: GoalInputProps) {
     "",
     //examplePrompts[(Math.random() * examplePrompts.length) | 0],
   );
-  const [tooltipTappedOpen] = useState<
-    boolean | undefined
-  >(undefined);
+  const [tooltipTappedOpen] = useState<boolean | undefined>(undefined);
 
   const handleSubmit = (event: React.FormEvent) => {
     event.preventDefault();
@@ -75,7 +74,7 @@ export default function GoalInput({ state, callbacks }: GoalInputProps) {
   }, []);
 
   return (
-    <form onSubmit={handleSubmit} className="space-y-2">
+    <form onSubmit={handleSubmit} className="mt-6 space-y-2">
       <FormControl>
         <Tooltip
           title={

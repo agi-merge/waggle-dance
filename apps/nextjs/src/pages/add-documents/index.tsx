@@ -21,7 +21,6 @@ import {
   Button,
   Card,
   FormControl,
-  FormHelperText,
   FormLabel,
   IconButton,
   Input,
@@ -98,6 +97,7 @@ const AddDocuments: NextPage = () => {
       void router.push("/");
     }
   }, [goal, router]);
+
   const isAnyFileUploading = useMemo(() => {
     return Object.values(ingestFiles).some(
       (x) => x.uploadState.status === "uploading",
@@ -157,130 +157,129 @@ const AddDocuments: NextPage = () => {
   );
 
   return (
-    <IngestContext.Provider
-      value={{
-        ingestFiles: ingestFiles,
-        setIngestFiles: setIngestFiles,
-        ingestUrls: ingestUrls,
-        setIngestUrls: setIngestUrls,
-      }}
-    >
-      <Card variant="soft" className="mb-3">
-        <Stack
-          className="flex flex-grow cursor-pointer"
-          onClick={(e) => {
-            e.preventDefault();
-            setHeaderExpanded(!headerExpanded);
-          }}
-        >
-          <Stack direction="row" className="flex">
-            <Link
-              href="#"
-              className="flex-grow select-none pr-5 text-white"
-              style={{ userSelect: "none" }}
-            >
-              <Typography level="h4">Achieve goals faster</Typography>
-            </Link>
-            {headerExpanded ? <KeyboardArrowUp /> : <KeyboardArrowDown />}
-          </Stack>
-          {headerExpanded && (
-            <>
-              <Typography level="body3" style={{ userSelect: "none" }}>
-                In order to achieve your goal, you may need to add any relevant
-                data. GPT-4 has no knowledge of anything since September 2021,
-                so anything newer than that would be a good target. You can also
-                shortcut research steps by providing relevant data. For example,
-                if I was working on a GitHub code project, it would be helpful
-                to input the GitHub URL.
-              </Typography>
-            </>
-          )}
-        </Stack>
-      </Card>
-      <Table
-        variant="outlined"
-        className="m-2 p-3"
-        hidden={
-          Object.entries(ingestFiles).length === 0 &&
-          Object.entries(ingestUrls).length === 0
-        }
+    <Card variant="soft" className="mb-3">
+      <Stack
+        className="flex flex-grow cursor-pointer"
+        onClick={(e) => {
+          e.preventDefault();
+          setHeaderExpanded(!headerExpanded);
+        }}
       >
-        <thead>
-          <tr>
-            <th>Name</th>
-            <th>Type</th>
-            <th>Status</th>
-          </tr>
-        </thead>
-        <tbody>
-          {Object.entries(ingestFiles).map((ingestFile) => (
-            <tr key={ingestFile[0]}>
-              <td>{ingestFile[1].file.name}</td>
-              <td>{ingestFile[1].file.type}</td>
-              <td>
-                <div>
-                  {ingestFile[1].uploadState.status === "uploading" ||
-                    (ingestFile[1].uploadState.status === "processing" && (
-                      <LinearProgress
-                        variant="plain"
-                        sx={{ bgcolor: "neutral.softBg" }}
-                      />
-                    ))}
-                  {ingestFile[1].uploadState.status}{" "}
-                  {ingestFile[1].uploadState.status === "error" &&
-                    ingestFile[1].uploadState.message}
-                </div>
-              </td>
-            </tr>
-            // <FileUploadStatus key={ingestFile[0]} ingestFile={ingestFile[1]} />
-          ))}
-          {Object.entries(ingestUrls).map((ingestUrl) => (
-            <tr key={ingestUrl[0]}>
-              <td>{ingestUrl[1].url}</td>
-              <td>URL</td>
-              <td>{ingestUrl[1].uploadState.status}</td>
-            </tr>
-          ))}
-        </tbody>
-      </Table>
-      <FormControl>
-        <FormLabel>URLs to Ingest</FormLabel>
-        <Sheet className="flex p-3">
-          <Input
-            className="flex-grow"
-            ref={urlInputRef}
-            value={urlInput}
-            onChange={(e) => setUrlInput(e.target.value)}
-            onKeyPress={handleKeyPress}
-            variant="outlined"
-            placeholder="e.g. https://github.com/agi-merge/waggle-dance"
-          />
-          <IconButton
-            disabled={!isValidUrl(urlInput)}
-            // edge="end"
-            onClick={void handleUrlSubmit}
+        <Stack direction="row" className="flex">
+          <Link
+            href="#"
+            className="flex-grow select-none pr-5 text-white"
+            style={{ userSelect: "none" }}
           >
-            <CheckCircle />
-          </IconButton>
-        </Sheet>
-        <FormHelperText>Enter URLs to ingest.</FormHelperText>
-      </FormControl>
-      <DropZoneUploader />
-      <Stack direction="row-reverse" className="mt-2" gap="1rem">
-        <Button
-          disabled={isAnyFileUploading}
-          className="col-end mt-2"
-          color="primary"
-          href="waggle-dance"
-          onClick={() => {
-            void router.push("/waggle-dance");
+            <Typography level="h4">Achieve goals faster</Typography>
+          </Link>
+          {headerExpanded ? <KeyboardArrowUp /> : <KeyboardArrowDown />}
+        </Stack>
+        {headerExpanded && (
+          <>
+            <Typography level="body3" style={{ userSelect: "none" }}>
+              In order to achieve your goal, you may need to add any relevant
+              data. GPT-4 has no knowledge of anything since September 2021, so
+              anything newer than that would be a good target. You can also
+              shortcut research steps by providing relevant data. For example,
+              if I was working on a GitHub code project, it would be helpful to
+              input the GitHub URL.
+            </Typography>
+          </>
+        )}
+
+        <IngestContext.Provider
+          value={{
+            ingestFiles: ingestFiles,
+            setIngestFiles: setIngestFiles,
+            ingestUrls: ingestUrls,
+            setIngestUrls: setIngestUrls,
           }}
         >
-          Next
-          <KeyboardArrowRight />
-        </Button>
+          <Table
+            className="mt-6"
+            hidden={
+              Object.entries(ingestFiles).length === 0 &&
+              Object.entries(ingestUrls).length === 0
+            }
+          >
+            <thead>
+              <tr>
+                <th>Name</th>
+                <th>Type</th>
+                <th>Status</th>
+              </tr>
+            </thead>
+            <tbody>
+              {Object.entries(ingestFiles).map((ingestFile) => (
+                <tr key={ingestFile[0]}>
+                  <td>{ingestFile[1].file.name}</td>
+                  <td>{ingestFile[1].file.type}</td>
+                  <td>
+                    <div>
+                      {ingestFile[1].uploadState.status === "uploading" ||
+                        (ingestFile[1].uploadState.status === "processing" && (
+                          <LinearProgress
+                            variant="plain"
+                            sx={{ bgcolor: "neutral.softBg" }}
+                          />
+                        ))}
+                      {ingestFile[1].uploadState.status}{" "}
+                      {ingestFile[1].uploadState.status === "error" &&
+                        ingestFile[1].uploadState.message}
+                    </div>
+                  </td>
+                </tr>
+                // <FileUploadStatus key={ingestFile[0]} ingestFile={ingestFile[1]} />
+              ))}
+              {Object.entries(ingestUrls).map((ingestUrl) => (
+                <tr key={ingestUrl[0]}>
+                  <td>{ingestUrl[1].url}</td>
+                  <td>URL</td>
+                  <td>{ingestUrl[1].uploadState.status}</td>
+                </tr>
+              ))}
+            </tbody>
+          </Table>
+        </IngestContext.Provider>
+        <FormControl className="mt-6">
+          <FormLabel>URLs to Ingest</FormLabel>
+          <Sheet className="flex p-3">
+            <Input
+              className="flex-grow"
+              ref={urlInputRef}
+              value={urlInput}
+              onChange={(e) => setUrlInput(e.target.value)}
+              onKeyPress={handleKeyPress}
+              variant="outlined"
+              placeholder="e.g. https://github.com/agi-merge/waggle-dance"
+            />
+            <IconButton
+              disabled={!isValidUrl(urlInput)}
+              // edge="end"
+              onClick={void handleUrlSubmit}
+            >
+              <CheckCircle />
+            </IconButton>
+          </Sheet>
+        </FormControl>
+        <DropZoneUploader />
+        <Stack direction="row-reverse" className="mt-2" gap="1rem">
+          <Button
+            disabled={isAnyFileUploading}
+            className="col-end mt-2"
+            color="primary"
+            href="waggle-dance"
+            onClick={() => {
+              void router.push("/waggle-dance");
+            }}
+          >
+            Next
+            <KeyboardArrowRight />
+          </Button>
+        </Stack>
       </Stack>
-    </IngestContext.Provider>
+    </Card>
   );
 };
 
