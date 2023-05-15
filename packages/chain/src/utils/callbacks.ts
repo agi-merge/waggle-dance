@@ -21,7 +21,7 @@ export default class StreamingCallbackHandler extends BaseCallbackHandler {
     console.debug("handleLLMStart", { llm });
     const packet: ChainPacket = {
       type: "system",
-      value: JSON.stringify({ llm }),
+      value: JSON.stringify({ name: llm.name }),
     };
     this.res?.write(JSON.stringify(packet) + "\n");
   }
@@ -31,7 +31,7 @@ export default class StreamingCallbackHandler extends BaseCallbackHandler {
     this.res?.write("handleChainStart");
     const packet: ChainPacket = {
       type: "system",
-      value: JSON.stringify({ chain }),
+      value: JSON.stringify({ name: chain.name }),
     };
     this.res?.write(JSON.stringify(packet) + "\n");
   }
@@ -49,7 +49,7 @@ export default class StreamingCallbackHandler extends BaseCallbackHandler {
     console.debug("handleToolStart", { tool });
     const packet: ChainPacket = {
       type: "system",
-      value: JSON.stringify({ tool }),
+      value: JSON.stringify({ name: tool.name }),
     };
     this.res?.write(JSON.stringify(packet) + "\n");
   }

@@ -66,7 +66,7 @@ UseChainMachineProps) => {
         },
       },
     );
-    console.log("result", JSON.stringify(result));
+    console.log("result", result);
     // const graphData = dagToGraphData((result as WaggleDanceResult).results[0]);
     // setGraphData((prevGraphData) => {
     //   graphData;

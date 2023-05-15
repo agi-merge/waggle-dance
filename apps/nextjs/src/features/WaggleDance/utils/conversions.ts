@@ -15,7 +15,6 @@ export function planAndDomainToDAG(
   domain: PDDLDomain,
   problem: PDDLProblem,
 ): DAG {
-  debugger;
   const nodes: DAGNode[] = problem.objects.map(
     (obj) => new DAGNodeClass(obj.name, obj.type, {}),
   );

@@ -2,12 +2,11 @@ import { AgentExecutor, ZeroShotAgent } from "langchain/agents";
 import type { CallbackManager } from "langchain/callbacks";
 import { LLMChain } from "langchain/chains";
 import { type Tool } from "langchain/dist/tools/base";
-import { OpenAIEmbeddings } from "langchain/embeddings/openai";
 import { SerpAPI } from "langchain/tools";
 import { WebBrowser } from "langchain/tools/webbrowser";
 
 import { createMemory } from "../utils/memory";
-import { createModel } from "../utils/model";
+import { createEmbeddings, createModel } from "../utils/model";
 import { type ModelCreationProps } from "../utils/types";
 
 export async function executeChain({
@@ -21,7 +20,7 @@ export async function executeChain({
 }): Promise<string> {
   const { callbacks } = creationProps;
   const model = createModel(creationProps);
-  const embeddings = new OpenAIEmbeddings();
+  const embeddings = createEmbeddings(creationProps);
   const memory = await createMemory(goal);
   // const history = memory?.context ?? await memory.loadMemoryVariables({})
   // const skipHistory = history.length === 0;
@@ -43,7 +42,7 @@ export async function executeChain({
     memory,
     prompt,
     llm: model,
-    callbacks: callbacks as unknown as CallbackManager,
+    // callbacks: callbacks as unknown as CallbackManager,
   });
   const agent = new ZeroShotAgent({
     llmChain,
@@ -64,11 +63,11 @@ export async function executeChain({
   const executor = AgentExecutor.fromAgentAndTools(executorConfig);
   console.debug(`about to call execute chain`);
   const call = await executor.call({ input: instructions });
-  console.debug(`called chain: ${JSON.stringify(call)}`);
+  // console.debug(`called chain: ${JSON.stringify(call)}`);
   const completion =
     (call?.output ? (call.output as string | undefined) : undefined) ??
     "<failed>";
-  console.debug(`executeChain: ${JSON.stringify(completion)}`);
+  // console.debug(`executeChain: ${JSON.stringify(completion)}`);
   // const lastTasks = await memory.loadMemoryVariables({})
   return completion;
 }

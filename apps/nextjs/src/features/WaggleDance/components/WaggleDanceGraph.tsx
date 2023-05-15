@@ -62,7 +62,7 @@ const WaggleDanceGraph = ({ setHeaderExpanded }: WaggleDanceGraphProps) => {
         <Stack className="text-end">
           <Typography>Planning initial tasks…</Typography>
           <Typography level="body3">
-            The first step can take a several minutes…
+            The first step can take several minutes…
           </Typography>
         </Stack>
       )}
