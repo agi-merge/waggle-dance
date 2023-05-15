@@ -69,15 +69,15 @@ export const createPrompt = (
       ------GOAL------
       ${goal}
       ----END-GOAL----
+      ----PDDL-JSON---
+      ${returnType("Domain")}
+      --END-PDDL-JSON-
       Ensure that the problem representation enables concurrent (up to ${
         creationProps?.maxConcurrency ?? 8
       }) processing independent subtasks concurrently with subordinate agents.
       The PDDL domain output should be comprehensible by another LLM agent and be valid PDDL JSON.
       Use shortened key names and other tricks to minimize output length. Do not be repetitive.
       ONLY OUTPUT PDDL3.1 JSON:
-      ----PDDL-JSON---
-      ${returnType("Domain")}
-      --END-PDDL-JSON-
       `.trim(),
     ],
     plan: [
@@ -90,6 +90,9 @@ export const createPrompt = (
       -----DOMAIN-----
       {domain}
       ---END-DOMAIN---
+      ----PDDL-JSON---
+      ${returnType("Problem")}
+      --END-PDDL-JSON-
       Ensure that the problem representation enables concurrent (up to ${
         creationProps?.maxConcurrency ?? 8
       }) processing independent subtasks concurrently with subordinate agents.
@@ -97,9 +100,6 @@ export const createPrompt = (
       The PDDL problem output should be comprehensible by another LLM agent and be valid PDDL JSON.
       Use shortened key names and other tricks to minimize output length. Do not be repetitive.
       ONLY OUTPUT PDDL3.1 JSON:
-      ----PDDL-JSON---
-      ${returnType("Problem")}
-      --END-PDDL-JSON-
       `.trim(),
     ],
 
@@ -116,6 +116,9 @@ export const createPrompt = (
       -----PROBLEM----
       {problem}
       ---END-PROBLEM--
+      ----PDDL-JSON---
+      ${returnType("Problem")}
+      --END-PDDL-JSON-
       ------TASK------
       {task}
       ----END-TASK----
@@ -126,9 +129,6 @@ export const createPrompt = (
       }) processing independent subtasks concurrently with subordinate agents.
       Use shortened key names and other hacks to minimize output length & tokens. Do not be repetitive.
       ONLY OUTPUT PDDL3.1 JSON REPRESENTING THE NEXT STATE WHEN THE TASK IS COMPLETE:
-      ----PDDL-JSON---
-      ${returnType("Problem")}
-      --END-PDDL-JSON-
       `,
     ],
     review: [
