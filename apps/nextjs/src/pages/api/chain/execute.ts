@@ -3,7 +3,7 @@ import { type IncomingMessage, type ServerResponse } from "http";
 import { executeChain } from "@acme/chain";
 import StreamingCallbackHandler from "@acme/chain/src/utils/callbacks";
 
-import { type StrategyRequestBody } from "./types";
+import { type ExecuteRequestBody } from "./types";
 
 export const config = {
   api: {
@@ -14,10 +14,10 @@ export const config = {
 
 const handler = async (req: IncomingMessage, res: ServerResponse) => {
   try {
-    res.setHeader("Content-Type", "text/plain");
-    res.setHeader("Transfer-Encoding", "chunked");
-    res.writeHead(200);
-    res.flushHeaders();
+    res.writeHead(200, {
+      "Content-Type": "application/octet-stream",
+      "Transfer-Encoding": "chunked",
+    });
 
     const bodyChunks = [];
     for await (const chunk of req) {
@@ -25,22 +25,29 @@ const handler = async (req: IncomingMessage, res: ServerResponse) => {
     }
     const body = Buffer.concat(bodyChunks).toString();
     console.log(body);
-    const { creationProps, goal, task } = JSON.parse(
-      body,
-    ) as StrategyRequestBody;
+    const {
+      creationProps,
+      goal,
+      tasks,
+      completedTasks: _completedTasks,
+    } = JSON.parse(body) as ExecuteRequestBody;
 
     // Uncomment the following line to use StreamingCallbackHandler if needed
     const callbacks = [new StreamingCallbackHandler(res)];
     creationProps.callbacks = callbacks;
-    const result = await executeChain({
-      creationProps,
-      goal,
-      task: task ? task : "",
+    console.log("about to execute plan");
+    const executionPromises = tasks.map(async (task) => {
+      return await executeChain({
+        creationProps,
+        goal,
+        task: task.id,
+      });
     });
+    const executionResults = Promise.all(executionPromises);
 
-    console.debug("executePlan result", result);
+    console.debug("executePlan results", executionResults);
 
-    res.write(result);
+    res.write(executionPromises);
     res.end();
   } catch (e) {
     let message;

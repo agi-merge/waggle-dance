@@ -1,7 +1,6 @@
 // WaggleDance/types.ts
 
-import { type ModelCreationProps } from "@acme/chain";
-
+import { type BaseRequestBody } from "~/pages/api/chain/types";
 import { type LinkObject, type NodeObject } from "./components/ForceGraph";
 
 export type PlanResult = {
@@ -76,8 +75,7 @@ export interface WaggleDanceResult {
 
 export interface BaseWaggleDanceMachine {
   run(
-    goal: string,
-    creationProps: ModelCreationProps,
+    request: BaseRequestBody,
     callbacks: ChainMachineCallbacks,
   ): Promise<WaggleDanceResult | Error>;
 }

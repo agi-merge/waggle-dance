@@ -14,7 +14,7 @@ export default class StreamingCallbackHandler extends BaseCallbackHandler {
   }
 
   handleLLMNewToken(token: string) {
-    console.log("token", { token });
+    // console.log("token", { token });
   }
 
   handleLLMStart(llm: { name: string }, _prompts: string[]) {

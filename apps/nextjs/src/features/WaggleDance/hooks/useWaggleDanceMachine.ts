@@ -5,8 +5,7 @@ import { LLM } from "@acme/chain";
 import WaggleDanceMachine from "../WaggleDanceMachine";
 // import ChainMachineSimulation from "../ChainMachineSimulation";
 import { type LinkObject, type NodeObject } from "../components/ForceGraph";
-import { WaggleDanceResult, type GraphData } from "../types";
-import { dagToGraphData } from "../utils/conversions";
+import { type GraphData } from "../types";
 
 interface UseChainMachineProps {
   goal: string;
@@ -33,14 +32,16 @@ UseChainMachineProps) => {
       setGraphData(gd);
     }
     const result = await waggleDanceMachine.run(
-      goal,
       {
-        modelName: LLM.smartLarge,
-        temperature: 0,
-        maxTokens: 1000, // TODO: make this === available tokens after prompt
-        streaming: true,
-        // callbacks?: CallbackManager;
-        verbose: true,
+        goal,
+        creationProps: {
+          modelName: LLM.smartLarge,
+          temperature: 0,
+          maxTokens: 1000, // TODO: make this === available tokens after prompt
+          streaming: true,
+          // callbacks?: CallbackManager;
+          verbose: true,
+        },
       },
       {
         onTaskCreated: (newNode: NodeObject, newLink?: LinkObject) => {

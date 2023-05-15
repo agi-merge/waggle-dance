@@ -1,12 +1,12 @@
-import { type ParseEvent, createParser } from "eventsource-parser";
+import { createParser, type ParseEvent } from "eventsource-parser";
 
 import { type ChainPacket } from "@acme/chain";
 
-import { type StrategyRequestBody } from "~/pages/api/chain/types";
+import { BaseRequestBody } from "~/pages/api/chain/types";
 
 export default async function stream(
   url: string,
-  data: StrategyRequestBody,
+  data: BaseRequestBody,
   renderMessage: (message: ChainPacket) => void,
   sendErrorMessage: (error: string) => void,
 ) {
@@ -56,7 +56,7 @@ export default async function stream(
       },
     });
 
-    new Response(stream);
+    return new Response(stream);
   } catch (e) {
     console.error(e);
     throw e;

@@ -3,6 +3,11 @@ import { jsonrepair } from "jsonrepair";
 import { type ModelCreationProps } from "@acme/chain";
 
 import stream from "~/utils/stream";
+import {
+  type BaseRequestBody,
+  type ExecuteRequestBody,
+  type StrategyRequestBody,
+} from "~/pages/api/chain/types";
 import type DAG from "./DAG";
 import { type DAGNode, type GoalCond } from "./DAG";
 import {
@@ -21,39 +26,22 @@ function isGoalReached(goal: GoalCond[], completedTasks: Set<string>): boolean {
   return goal.every((g) => completedTasks.has(g.predicate));
 }
 
-async function executeTasks(
-  goal: string,
-  creationProps: ModelCreationProps,
-  tasks: DAGNode[],
-  completedTasks: Set<string>,
-  taskResults: Record<string, BaseResultType>,
-): Promise<void> {
+async function executeTasks(request: ExecuteRequestBody): Promise<void> {
+  const { tasks, taskResults, completedTasks } = request;
   const promises = tasks.map(async (task) => {
-    // const result = await fetch("/api/chain/execute", {
-    //   method: "POST",
-    //   headers: {
-    //     "Content-Type": "application/json",
-    //   },
-    //   body: JSON.stringify(task),
-    // });
     await stream(
       "/api/chain/execute",
-      { creationProps, goal, task: JSON.stringify(task) },
+      request,
       (message) => {
         if (message.type === "execute") {
-          const json = JSON.parse(message.value);
-          taskResults[task.id] = json as BaseResultType;
-          completedTasks.add(task.id);
+          taskResults[task.id] = JSON.parse(message.value) as BaseResultType;
+          completedTasks.push(task.id);
         }
       },
-      (error) => {},
+      (error) => {
+        console.error(error);
+      },
     );
-
-    // if (!result.ok) {
-    //   throw new Error(
-    //     "Error in execution of task: ${res.status} ${res.statusText}",
-    //   );
-    // }
   });
 
   await Promise.all(promises);
@@ -107,11 +95,10 @@ function getNextTask(
 
 export default class WaggleDanceMachine implements BaseWaggleDanceMachine {
   async run(
-    goal: string,
-    creationProps: ModelCreationProps,
+    request: BaseRequestBody,
     _callbacks: ChainMachineCallbacks,
   ): Promise<WaggleDanceResult | Error> {
-    const dag = await plan(goal, creationProps);
+    const dag = await plan(request.goal, request.creationProps);
     console.log(`DAG: ${JSON.stringify(dag)}`);
     const executionQueue: DAGNode[] = dag
       .getNodes()
@@ -125,13 +112,13 @@ export default class WaggleDanceMachine implements BaseWaggleDanceMachine {
     console.log("executionQueue", executionQueue);
     console.log("completedTasks", completedTasks);
     console.log("taskResults", taskResults);
-    await executeTasks(
-      goal,
-      creationProps,
-      executionQueue,
-      completedTasks,
+    const executeRequest = {
+      ...request,
+      tasks: executionQueue,
+      completedTasks: [...completedTasks],
       taskResults,
-    );
+    } as ExecuteRequestBody;
+    await executeTasks(executeRequest);
 
     while (!isGoalReached(dag.getGoalConditions(), completedTasks)) {
       const pendingTasks = dag
@@ -145,14 +132,16 @@ export default class WaggleDanceMachine implements BaseWaggleDanceMachine {
       if (!nextTask) {
         throw new Error("No task to execute, goal is unreachable");
       }
-
-      await executeTasks(
+      const { goal, creationProps } = request;
+      const executionRequest = {
         goal,
         creationProps,
-        [nextTask],
-        completedTasks,
+        tasks: [nextTask],
+        completedTasks: [...completedTasks],
         taskResults,
-      );
+      } as ExecuteRequestBody;
+
+      await executeTasks(executionRequest);
     }
 
     return { results: taskResults };

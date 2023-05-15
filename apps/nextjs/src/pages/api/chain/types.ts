@@ -1,11 +1,16 @@
 import { type ModelCreationProps } from "@acme/chain";
 
-export interface StrategyRequestBody {
+import { DAGNode } from "~/features/WaggleDance/DAG";
+import { type BaseResultType } from "~/features/WaggleDance/types";
+
+export interface BaseRequestBody {
   creationProps: ModelCreationProps;
   goal: string;
-  task?: string;
-  tasks?: string[];
-  lastTask?: string;
-  result?: string;
-  completedTasks?: string[];
+}
+
+export type StrategyRequestBody = BaseRequestBody;
+export interface ExecuteRequestBody extends BaseRequestBody {
+  tasks: DAGNode[];
+  completedTasks: string[];
+  taskResults: Record<string, BaseResultType>;
 }
