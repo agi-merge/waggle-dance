@@ -20,13 +20,14 @@ import {
   TabPanel,
   Tabs,
   Typography,
+  type StackProps,
 } from "@mui/joy";
 
 import { useAppContext } from "~/pages/_app";
 import useChainMachine from "../hooks/useWaggleDanceMachine";
 import ForceGraph from "./ForceGraph";
 
-interface WaggleDanceGraphProps {
+interface WaggleDanceGraphProps extends StackProps {
   goal: string;
   setHeaderExpanded: (expanded: boolean) => void;
 }
@@ -48,7 +49,7 @@ const WaggleDanceGraph = ({
     }, 45000);
   };
   return (
-    <Stack gap="1rem" className="items-end">
+    <Stack gap="1rem" className="mt-6 items-end">
       <Button
         disabled={!goal}
         className="col-end w-40 p-2"
