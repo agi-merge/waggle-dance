@@ -121,6 +121,9 @@ importers:
       formidable:
         specifier: ^2.1.1
         version: 2.1.1
+      jsonrepair:
+        specifier: ^3.1.0
+        version: 3.1.0
       langchain:
         specifier: ^0.0.64
         version: 0.0.64(@aws-sdk/client-s3@3.332.0)(@pinecone-database/pinecone@0.1.5)(d3-dsv@2.0.0)(mammoth@1.5.1)(pdf-parse@1.1.1)(playwright@1.33.0)
@@ -5148,6 +5151,11 @@ packages:
   /jsonpointer@5.0.1:
     resolution: {integrity: sha512-p/nXbhSEcu3pZRdkW1OfJhpsVtW1gd4Wa1fnQc9YLiTfAjn0312eMKimbdIQzuZl9aa9xUGaRlP9T/CJE/ditQ==}
     engines: {node: '>=0.10.0'}
+    dev: false
+
+  /jsonrepair@3.1.0:
+    resolution: {integrity: sha512-idqReg23J0PVRAADmZMc5xQM3xeOX5bTB6OTyMnzq33IXJXmn9iJuWIEvGmrN80rQf4d7uLTMEDwpzujNcI0Rg==}
+    hasBin: true
     dev: false
 
   /jsx-ast-utils@3.3.3:

@@ -1,3 +1,5 @@
+import { jsonrepair } from "jsonrepair";
+
 import { type ModelCreationProps } from "@acme/chain";
 
 import type DAG from "./DAG";
@@ -63,8 +65,8 @@ async function plan(
   const { domain, problem } = (await res.json()) as PlanResult;
   console.log("planResult domain", domain, "problem", problem);
   const processed = {
-    domain: JSON.parse(domain) as PDDLDomain,
-    problem: JSON.parse(problem) as PDDLProblem,
+    domain: JSON.parse(jsonrepair(domain)) as PDDLDomain,
+    problem: JSON.parse(jsonrepair(problem)) as PDDLProblem,
   } as ProcessedPlanResult;
   console.log("processed", processed);
   const dag = planAndDomainToDAG(processed.domain, processed.problem);
