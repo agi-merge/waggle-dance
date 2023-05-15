@@ -11,7 +11,7 @@ import {
 import { type CardProps } from "@mui/joy/Card";
 
 import { type Handlers } from "~/pages";
-import { GoalInputState } from "~/pages/_app";
+import { GoalInputState } from "~/stores/goalStore";
 
 export const examplePrompts = [
   "What is the most popular event planning trend right now in April 2023?",
