@@ -13,7 +13,6 @@ import { type DAGNode, type GoalCond } from "./DAG";
 import {
   type BaseResultType,
   type BaseWaggleDanceMachine,
-  type TaskSimulationCallbacks as ChainMachineCallbacks,
   type PDDLDomain,
   type PDDLProblem,
   type PlanResult,

@@ -27,13 +27,6 @@ export type ReviewResult = {
   review: Review;
 };
 
-export type TaskSimulationCallbacks = {
-  onTaskCreated: (newNode: NodeObject, newLink?: LinkObject) => void;
-  onReviewFailure: (target: string, error: Error) => void;
-};
-
-type ChainMachineCallbacks = TaskSimulationCallbacks;
-
 export type GraphData = {
   nodes: NodeObject[];
   links: LinkObject[];
@@ -74,10 +67,7 @@ export interface WaggleDanceResult {
 }
 
 export interface BaseWaggleDanceMachine {
-  run(
-    request: BaseRequestBody,
-    callbacks: ChainMachineCallbacks,
-  ): Promise<WaggleDanceResult | Error>;
+  run(request: BaseRequestBody): Promise<WaggleDanceResult | Error>;
 }
 
 export type JsonValue =
