@@ -124,7 +124,11 @@ TODO: If desired, figure out a scheme to provide access to vercel builds (not su
 
 Contributions are always welcome! Please read the [contribution guidelines](./CONTRIBUTING.md) first.
 
-## 📝 Notes
+## 📝 Benchmarks
+
+We believe in the importance of observability, and transparency in performance of AI systems.
+
+- Coming soon
 
 ### Helpful Docs
 
