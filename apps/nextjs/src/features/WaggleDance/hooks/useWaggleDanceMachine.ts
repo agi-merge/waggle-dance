@@ -13,8 +13,8 @@ interface UseChainMachineProps {
 }
 const useChainMachine = ({
   goal,
-  // _isSimulated = false,
-}: UseChainMachineProps) => {
+}: // _isSimulated = false,
+UseChainMachineProps) => {
   // const [chainMachine] = useState(() =>
   //   isSimulated ? new ChainMachineSimulation() : new ChainMachine(),
   // );

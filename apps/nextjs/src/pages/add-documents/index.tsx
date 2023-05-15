@@ -21,9 +21,6 @@ import {
   Box,
   Button,
   Card,
-  Divider,
-  FormControl,
-  FormLabel,
   IconButton,
   Input,
   LinearProgress,
@@ -270,6 +267,18 @@ const AddDocuments: NextPage = () => {
           Files to Ingest
         </Typography>
         <DropZoneUploader />
+        <Typography className="mt-6" color="primary">
+          Service Connectors
+        </Typography>
+        <Sheet className="m-2 p-2">
+          <Typography className="mt-6" level="body3">
+            <Typography level="body2" color="info">
+              Coming soon:
+            </Typography>{" "}
+            Use waggledance.ai to automatically automate your life w/ Zapier,
+            IFTTT, Email, Discord, and more!
+          </Typography>
+        </Sheet>
         <Stack direction="row-reverse" className="mt-2" gap="1rem">
           <Button
             disabled={isAnyFileUploading}

@@ -1,7 +1,6 @@
-import type PddlDomain from "@acme/chain/src/pddl/domain";
+import { type ModelCreationProps } from "@acme/chain";
 
 import { type LinkObject, type NodeObject } from "./components/ForceGraph";
-import { type PDDLJSON } from "./utils/convertPDDLJSONToBalamb";
 
 export type PlanResult = {
   planId: string;
@@ -28,7 +27,59 @@ export type TaskSimulationCallbacks = {
   onReviewFailure: (target: string, error: Error) => void;
 };
 
+type ChainMachineCallbacks = TaskSimulationCallbacks;
+
 export type GraphData = {
   nodes: NodeObject[];
   links: LinkObject[];
 };
+
+export interface PDDLObject {
+  type: string;
+  name: string;
+}
+
+export interface PDDLAction {
+  name: string;
+  parameters: PDDLObject[];
+  duration?: string;
+  condition?: string;
+  effect?: string;
+}
+
+export interface PDDLDomain {
+  name: string;
+  requirements: string[];
+  types: PDDLObject[];
+  predicates: string[];
+  functions: string[];
+  actions: PDDLAction[];
+}
+
+export interface PDDLProblem {
+  name: string;
+  domain: string;
+  objects: PDDLObject[];
+  init: string[];
+  goal: string;
+}
+export type BaseResultType = JsonValue | void;
+export interface WaggleDanceResult {
+  readonly results: Record<string, BaseResultType>;
+}
+
+export interface BaseWaggleDanceMachine {
+  run(
+    goal: string,
+    creationProps: ModelCreationProps,
+    callbacks: ChainMachineCallbacks,
+  ): Promise<WaggleDanceResult | Error>;
+}
+
+export type JsonValue =
+  | string
+  | number
+  | boolean
+  | null
+  | object
+  | Array<JsonValue>;
