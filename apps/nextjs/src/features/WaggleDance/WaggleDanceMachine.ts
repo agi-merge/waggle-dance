@@ -1,19 +1,25 @@
 import { type ModelCreationProps } from "@acme/chain";
 
-import DAG, { type DAGJson, type GoalCond, type Node } from "./DAG";
+import type DAG from "./DAG";
+import { type DAGNode, type GoalCond } from "./DAG";
 import {
   type BaseResultType,
   type BaseWaggleDanceMachine,
   type TaskSimulationCallbacks as ChainMachineCallbacks,
+  type PDDLDomain,
+  type PDDLProblem,
+  type PlanResult,
+  type ProcessedPlanResult,
   type WaggleDanceResult,
 } from "./types";
+import { planAndDomainToDAG } from "./utils/conversions";
 
 function isGoalReached(goal: GoalCond[], completedTasks: Set<string>): boolean {
   return goal.every((g) => completedTasks.has(g.predicate));
 }
 
 async function executeTasks(
-  tasks: Node[],
+  tasks: DAGNode[],
   completedTasks: Set<string>,
   taskResults: Record<string, BaseResultType>,
 ): Promise<void> {
@@ -54,16 +60,23 @@ async function plan(
     throw new Error(`Error fetching plan: ${res.status} ${res.statusText}`);
   }
 
-  const dagJson: DAGJson = (await res.json()) as DAGJson;
-  const dag = new DAG(dagJson);
+  const { domain, problem } = (await res.json()) as PlanResult;
+  console.log("planResult domain", domain, "problem", problem);
+  const processed = {
+    domain: JSON.parse(domain) as PDDLDomain,
+    problem: JSON.parse(problem) as PDDLProblem,
+  } as ProcessedPlanResult;
+  console.log("processed", processed);
+  const dag = planAndDomainToDAG(processed.domain, processed.problem);
+  console.log("dag", dag);
   return dag;
 }
 
 function getNextTask(
-  pendingTasks: Node[],
+  pendingTasks: DAGNode[],
   completedTasks: Set<string>,
   dag: DAG,
-): Node | null {
+): DAGNode | null {
   for (const task of pendingTasks) {
     const dependencies = dag
       .getEdges()
@@ -85,7 +98,8 @@ export default class WaggleDanceMachine implements BaseWaggleDanceMachine {
     _callbacks: ChainMachineCallbacks,
   ): Promise<WaggleDanceResult | Error> {
     const dag = await plan(goal, creationProps);
-    const executionQueue: Node[] = dag
+    console.log(`DAG: ${JSON.stringify(dag)}`);
+    const executionQueue: DAGNode[] = dag
       .getNodes()
       .filter((node) =>
         dag.getEdges().every((edge) => edge.target !== node.id),
@@ -94,6 +108,9 @@ export default class WaggleDanceMachine implements BaseWaggleDanceMachine {
     const completedTasks: Set<string> = new Set();
     const taskResults: Record<string, BaseResultType> = {};
 
+    console.log("executionQueue", JSON.stringify(executionQueue));
+    console.log("completedTasks", JSON.stringify(completedTasks));
+    console.log("taskResults", JSON.stringify(taskResults));
     await executeTasks(executionQueue, completedTasks, taskResults);
 
     while (!isGoalReached(dag.getGoalConditions(), completedTasks)) {

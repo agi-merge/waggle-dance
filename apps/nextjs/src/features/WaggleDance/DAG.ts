@@ -1,34 +1,93 @@
-export type Params = { [key: string]: string };
-export type InitCond = { predicate: string; params: Params };
-export type GoalCond = { predicate: string; params: Params };
-export type Node = { id: string; type: string; params: Params };
-export type Edge = { source: string; target: string };
-
-export interface DAGJson {
-  nodes: Node[];
-  edges: Edge[];
-  init: InitCond[];
-  goal: GoalCond[];
+// DAG.ts
+export interface Params {
+  [key: string]: string;
+}
+export interface InitCond {
+  predicate: string;
+  params: Params;
 }
 
-export default class DAG {
-  private nodes: Node[];
-  private edges: Edge[];
-  private init: InitCond[];
-  private goal: GoalCond[];
+export interface GoalCond {
+  predicate: string;
+  params: Params;
+}
 
-  constructor(dagJson: DAGJson) {
-    this.nodes = dagJson.nodes;
-    this.edges = dagJson.edges;
-    this.init = dagJson.init;
-    this.goal = dagJson.goal;
+export interface DAGNode {
+  id: string;
+  type: string;
+  params: Params;
+}
+
+export interface DAGEdge {
+  source: string;
+  target: string;
+}
+export class DAGNodeClass implements DAGNode {
+  id: string;
+  type: string;
+  params: Params;
+
+  constructor(id: string, type: string, params: Params) {
+    this.id = id;
+    this.type = type;
+    this.params = params;
+  }
+}
+
+export class InitCondClass implements InitCond {
+  predicate: string;
+  params: Params;
+
+  constructor(predicate: string, params: Params) {
+    this.predicate = predicate;
+    this.params = params;
+  }
+}
+
+export class GoalCondClass implements GoalCond {
+  predicate: string;
+  params: Params;
+
+  constructor(predicate: string, params: Params) {
+    this.predicate = predicate;
+    this.params = params;
+  }
+}
+
+export class DAGEdgeClass implements DAGEdge {
+  source: string;
+  target: string;
+  action: string; // add the 'action' property
+
+  constructor(source: string, target: string, action: string) {
+    this.source = source;
+    this.target = target;
+    this.action = action;
+  }
+}
+export default class DAG {
+  readonly nodes: DAGNode[];
+  readonly edges: DAGEdge[];
+  readonly init: InitCond[];
+  readonly goal: GoalCond[];
+
+  constructor(
+    nodes: DAGNode[],
+    edges: DAGEdge[],
+    init: InitCond[],
+    goal: GoalCond[],
+  ) {
+    this.nodes = nodes;
+    this.edges = edges;
+    this.init = init;
+    this.goal = goal;
   }
 
-  getNodes(): Node[] {
+  getNodes(): DAGNode[] {
     return this.nodes;
   }
 
-  getEdges(): Edge[] {
+  getEdges(): DAGEdge[] {
     return this.edges;
   }
 

@@ -1,11 +1,17 @@
+// WaggleDance/types.ts
+
 import { type ModelCreationProps } from "@acme/chain";
 
 import { type LinkObject, type NodeObject } from "./components/ForceGraph";
 
 export type PlanResult = {
-  planId: string;
   domain: string;
   problem: string;
+};
+
+export type ProcessedPlanResult = {
+  domain: PDDLDomain;
+  problem: PDDLProblem;
 };
 
 export type TaskResult = {

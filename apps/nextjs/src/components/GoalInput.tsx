@@ -8,7 +8,7 @@ import {
   Tooltip,
   Typography,
 } from "@mui/joy";
-import Card, { type CardProps } from "@mui/joy/Card";
+import { type CardProps } from "@mui/joy/Card";
 
 import { type Handlers } from "~/pages";
 import { GoalInputState } from "~/pages/_app";

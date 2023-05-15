@@ -28,25 +28,18 @@ import useChainMachine from "../hooks/useWaggleDanceMachine";
 import ForceGraph from "./ForceGraph";
 
 interface WaggleDanceGraphProps extends StackProps {
-  goal: string;
   setHeaderExpanded: (expanded: boolean) => void;
 }
-const WaggleDanceGraph = ({
-  goal,
-  setHeaderExpanded,
-}: WaggleDanceGraphProps) => {
+const WaggleDanceGraph = ({ setHeaderExpanded }: WaggleDanceGraphProps) => {
   // TODO: I think this could be a bug - was fixing types here and noticed that the goal destructure was not being used
   // The goal prop was being used.  Set it the an unused _contextGoal for now.  Not sure this is
   // doing what we expect though.  Need to test.
-  const { goal: _contextGoal, isRunning, setIsRunning } = useAppContext();
+  const { goal, isRunning, setIsRunning } = useAppContext();
   const { graphData, run } = useChainMachine({ goal });
   const handleStart = () => {
     setIsRunning(true);
     setHeaderExpanded(false);
     void run();
-    setTimeout(() => {
-      setIsRunning(false);
-    }, 45000);
   };
   return (
     <Stack gap="1rem" className="mt-6 items-end">
@@ -69,7 +62,7 @@ const WaggleDanceGraph = ({
         <Stack className="text-end">
           <Typography>Planning initial tasks…</Typography>
           <Typography level="body3">
-            Please be patient, this may take a moment…
+            The first step can take a several minutes…
           </Typography>
         </Stack>
       )}

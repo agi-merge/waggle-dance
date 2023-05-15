@@ -5,7 +5,8 @@ import { LLM } from "@acme/chain";
 import WaggleDanceMachine from "../WaggleDanceMachine";
 // import ChainMachineSimulation from "../ChainMachineSimulation";
 import { type LinkObject, type NodeObject } from "../components/ForceGraph";
-import { type GraphData } from "../types";
+import { WaggleDanceResult, type GraphData } from "../types";
+import { dagToGraphData } from "../utils/conversions";
 
 interface UseChainMachineProps {
   goal: string;
@@ -36,13 +37,14 @@ UseChainMachineProps) => {
       {
         modelName: LLM.smartLarge,
         temperature: 0,
-        maxTokens: 1000,
+        maxTokens: 1000, // TODO: make this === available tokens after prompt
         streaming: true,
         // callbacks?: CallbackManager;
         verbose: true,
       },
       {
         onTaskCreated: (newNode: NodeObject, newLink?: LinkObject) => {
+          // console.log("onTaskCreated", newNode, newLink);
           setGraphData((prevGraphData) => ({
             nodes: [...prevGraphData.nodes, newNode],
             links: newLink
@@ -51,6 +53,7 @@ UseChainMachineProps) => {
           }));
         },
         onReviewFailure: (target: string, _error: Error) => {
+          console.log("onReviewFailure", target);
           setGraphData((prevGraphData) => {
             const newNodes = prevGraphData.nodes.filter(
               (node) => node.id !== target,
@@ -63,6 +66,11 @@ UseChainMachineProps) => {
         },
       },
     );
+    console.log("result", JSON.stringify(result));
+    // const graphData = dagToGraphData((result as WaggleDanceResult).results[0]);
+    // setGraphData((prevGraphData) => {
+    //   graphData;
+    // });
     return result;
   };
 

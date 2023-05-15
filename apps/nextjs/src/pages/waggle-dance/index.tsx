@@ -68,7 +68,7 @@ const WaggleDance: NextPage = (/*{ goal, onDelete }: WaggleDanceProps*/) => {
           </>
         )}
       </Stack>
-      <WaggleDanceGraph goal={goal} setHeaderExpanded={setHeaderExpanded} />
+      <WaggleDanceGraph setHeaderExpanded={setHeaderExpanded} />
     </Card>
   );
 };
