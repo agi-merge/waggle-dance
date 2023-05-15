@@ -10,9 +10,9 @@ const _GPT_4 = "gpt-4";
 const _GPT_4_32k = "gpt-4-32k";
 export enum LLM {
   embeddings = TEXT_EMBEDDING_ADA,
-  fast = _GPT_4,
-  smart = _GPT_4, //GPT_4,
-  smartLarge = _GPT_4, //GPT_4_32k,
+  fast = GPT_35_TURBO,
+  smart = GPT_35_TURBO, //GPT_4,
+  smartLarge = GPT_35_TURBO, //GPT_4_32k,
 }
 
 interface OpenAIConfigurationParameters {

@@ -49,7 +49,7 @@ const WaggleDance: NextPage = (/*{ goal, onDelete }: WaggleDanceProps*/) => {
           <>
             <Typography level="body3" style={{ userSelect: "none" }}>
               Waggle dancing is a process that allows large language models like
-              ChatGPT to collaborate with one another, with minimal human input.
+              GPT-4 to collaborate with one another, with minimal human input.
               The AI breaks the steps to achieve the goal down, and
               self-corrects when it makes mistakes. This goes further, faster
               than BabyAGI, AgentGPT or Auto-GPT.
@@ -60,7 +60,10 @@ const WaggleDance: NextPage = (/*{ goal, onDelete }: WaggleDanceProps*/) => {
         {goal && (
           <>
             <Typography className="mb-2" level="body1">
-              Goal: <Typography level="body2">{goal}</Typography>
+              Goal:{" "}
+              <Typography level="body2" color="primary">
+                {goal}
+              </Typography>
             </Typography>
           </>
         )}

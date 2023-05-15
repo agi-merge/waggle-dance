@@ -1,5 +1,7 @@
 import { ConversationChain } from "langchain/chains";
 
+import PddlParser from "../pddl/parser";
+import domain from "../schemas/domain.pddl";
 import { createMemory } from "../utils/memory";
 import { createModel } from "../utils/model";
 import { createPrompt } from "../utils/prompts";
@@ -23,8 +25,9 @@ export async function planChain(
   goal: string,
 ) {
   const llm = createModel(creationProps);
-  const memory = await createMemory(goal); // loads previous state from Motörhead 🤘
+  const memory = await createMemory(goal);
   const prompt = createPrompt("domain");
+  const planPrompt = createPrompt("plan");
 
   const chain = new ConversationChain({
     memory,
@@ -35,11 +38,27 @@ export async function planChain(
     // prompt.format({ goal, schema: "string[]" }),
     chain.call({
       goal,
-      schema: "",
     }),
   ]);
-  const completion = call?.response ? (call.response as string) : "";
-  console.log(`planAgent: ${completion}`);
-  const pddl = JSON.parse(completion) as PDDL;
-  return pddl;
+  const domain = call?.response ? (call.response as string) : "";
+  console.log("domainAgent", domain);
+  // const parser = new PddlParser(completion);
+  // const domain = parser.parse();
+
+  const planChain = new ConversationChain({
+    memory,
+    prompt: planPrompt,
+    llm,
+  });
+  const [/*otherAgentPrompt, */ planCall] = await Promise.all([
+    // prompt.format({ goal, schema: "string[]" }),
+    planChain.call({
+      goal,
+      domain,
+    }),
+  ]);
+  const problem = planCall?.response ? (planCall.response as string) : "";
+  console.log("problemAgent", problem);
+
+  return { domain, problem };
 }

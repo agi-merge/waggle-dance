@@ -20,35 +20,34 @@ export const createPrompt = (
   // TODO: https://js.langchain.com/docs/modules/chains/prompt_selectors/
   const basePromptMessages = {
     domain: [
-      `As a large language model responsible for generating an accurate domain.
-      You are eficiently trying to achieve a Goal designed by a human:
-      {goal}.
-      You have the ability to recall context with a vector database, browse the web, write files -- anything a solo white-collar founder might have.
-      To speed up the process, independent actions and calculations must be sent to LLM agents concurrently, and the domain should represent this.
-      Additionally, to ensure that the goal is being solved efficiently and correctly, adversarial agents will review the output of the LLM agents and the domain should represent this.
-      ONLY RETURN a valid representation in PDDL3.1 of the Goal's domain. The output only needs to be understandable by another LLM agent.
-      start from: (define (domain [goal-title]
+      `
+      Compose a domain representation in PDDL3.1 format for a large language model (LLM) designed to achieve a specific goal.
+      ------GOAL------
+      {goal}
+      ----END-GOAL----
+      The LLM agent's capabilities include recalling context from a vector database, browsing the web, writing files, and efficiency in balancing accuracy, speed, and avoiding redundant actions.
+      Ensure that the domain representation enables concurrent (embarassingly parallel) processing by delegating sub-tasks to multiple LLM agents.
+      Incorporate the possibility of adversarial agents to validate the accuracy and efficiency of the main LLM agent's outputs.
+      The PDDL domain output should be comprehensible by another LLM agent.
+      Minimize output length & tokens.
+      ONLY OUTPUT PDDL beginning with: (define (domain [appropriate-and-descriptive-domain-title]...
       `,
     ],
     plan: [
-      `As a chain-of-thought agent swarm taskmaster "${
-        modelSettings?.modelName ?? "Agent"
-      }"
-      Goal: {goal}.
-      Plan necessary tasks that an AI agent MUST complete to achieve the goal.
-      Only tasks that cannot be confidently answered by ChatGPT-4 should be planned.
-      ONLY RETURN valid JSON representing PDDL state of the tasks.
-      The PDDL must represent the fact that results are to be reviewed by an adversarial agent, and canceled if they fail review.
-      It must deserialize into these TypeScript types (with braces removed):
-      interface PDDL
-        domain: string
-        types: Record<string, string>
-        predicates: Record<string, string[]>
-        actions: Record<string, Action>
-      type Action
-        parameters: string[]
-        precondition: string[]
-        effect: string[]
+      `
+      Compose a problem representation in PDDL3.1 format for a large language model (LLM) designed to achieve a specific goal, given a domain representation.
+      ------GOAL------
+      {goal}
+      ----END-GOAL----
+      -----DOMAIN-----
+      {domain}
+      ---END-DOMAIN---
+      The LLM agent's capabilities include recalling context from a vector database, browsing the web, writing files, and efficiency in balancing accuracy, speed, and avoiding redundant actions.
+      Ensure that the domain representation enables concurrent (embarassingly parallel) processing by delegating sub-tasks to multiple LLM agents.
+      Incorporate the possibility of adversarial agents to validate the accuracy and efficiency of the main LLM agent's outputs.
+      The PDDL domain output should be comprehensible by another LLM agent.
+      Minimize output length & tokens.
+      ONLY OUTPUT PDDL beginning with: (define (problem [appropriate-and-descriptive-problem-title]...
       `,
     ],
 

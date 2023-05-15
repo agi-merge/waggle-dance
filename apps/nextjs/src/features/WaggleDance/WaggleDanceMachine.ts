@@ -1,6 +1,7 @@
 import Balamb, { BalambError, type BalambResult, type SeedDef } from "balamb";
 
 import { type ModelCreationProps } from "@acme/chain";
+import PddlParser from "@acme/chain/src/pddl/parser";
 
 import {
   type TaskSimulationCallbacks as ChainMachineCallbacks,
@@ -57,9 +58,16 @@ class WaggleDanceMachine implements BaseWaggleDanceMachine {
           },
           body: JSON.stringify(data),
         });
-        const pddl = (await res.json()) as PDDLJSON;
+        const { domain, problem } = (await res.json()) as {
+          domain: string;
+          problem: string;
+        };
+        const domainParser = new PddlParser(domain);
+        const problemParser = new PddlParser(problem);
+        const domainPddl = domainParser.parse();
+        const problemPddl = problemParser.parse();
 
-        return { planId: `plan-${taskName}`, pddl };
+        return { planId: `plan-${taskName}`, domainPddl, problemPddl };
       },
     };
 

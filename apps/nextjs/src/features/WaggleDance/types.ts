@@ -1,9 +1,12 @@
+import type PddlDomain from "@acme/chain/src/pddl/domain";
+
 import { type LinkObject, type NodeObject } from "./components/ForceGraph";
 import { type PDDLJSON } from "./utils/convertPDDLJSONToBalamb";
 
 export type PlanResult = {
   planId: string;
-  pddl: PDDLJSON;
+  domain: string;
+  problem: string;
 };
 
 export type TaskResult = {
