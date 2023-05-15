@@ -7,7 +7,7 @@ import { KeyboardArrowDown, KeyboardArrowUp } from "@mui/icons-material";
 import { Card, Stack, Typography } from "@mui/joy";
 
 import WaggleDanceGraph from "~/features/WaggleDance/components/WaggleDanceGraph";
-import { useAppContext } from "../_app";
+import useGoal from "~/stores/goalStore";
 
 // interface WaggleDanceProps {
 //   goal: string;
@@ -16,7 +16,7 @@ import { useAppContext } from "../_app";
 // AKA goal solver
 const WaggleDance: NextPage = (/*{ goal, onDelete }: WaggleDanceProps*/) => {
   const router = useRouter();
-  const { goal } = useAppContext();
+  const { goal } = useGoal();
   const [headerExpanded, setHeaderExpanded] = useState(true);
 
   useEffect(() => {
