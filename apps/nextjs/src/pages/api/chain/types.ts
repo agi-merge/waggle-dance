@@ -1,3 +1,5 @@
+// api/chain/types.ts
+
 import { type ModelCreationProps } from "@acme/chain";
 
 import { type DAGNode } from "~/features/WaggleDance/DAG";

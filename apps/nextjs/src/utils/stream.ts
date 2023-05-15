@@ -1,3 +1,5 @@
+// stream.ts
+
 import { createParser, type ParseEvent } from "eventsource-parser";
 
 import { type ChainPacket } from "@acme/chain";
@@ -9,7 +11,7 @@ export default async function stream(
   data: BaseRequestBody,
   renderMessage: (message: ChainPacket) => void,
   sendErrorMessage: (error: string) => void,
-) {
+): Promise<Response> {
   try {
     const response = await fetch(url, {
       method: "POST",

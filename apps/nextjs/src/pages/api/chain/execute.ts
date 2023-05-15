@@ -1,3 +1,5 @@
+// chain/execute.ts
+
 import { type IncomingMessage, type ServerResponse } from "http";
 import { type AgentAction } from "langchain/dist/schema";
 
@@ -13,6 +15,9 @@ export const config = {
 };
 
 const handler = async (req: IncomingMessage, res: ServerResponse) => {
+  const writePacket = (packet: ChainPacket) => {
+    res.write(JSON.stringify(packet) + "\n");
+  };
   try {
     res.writeHead(200, {
       "Content-Type": "application/octet-stream",
@@ -31,9 +36,6 @@ const handler = async (req: IncomingMessage, res: ServerResponse) => {
       completedTasks: _completedTasks,
     } = JSON.parse(body) as ExecuteRequestBody;
 
-    const idk = (packet: ChainPacket) => {
-      res.write(JSON.stringify(packet) + "\n");
-    };
     const inlineCallback = {
       handleLLMStart: (llm: { name: string }, _prompts: string[]) => {
         console.debug("handleLLMStart", { llm });
@@ -41,7 +43,7 @@ const handler = async (req: IncomingMessage, res: ServerResponse) => {
           type: "system",
           value: JSON.stringify({ name: llm.name }),
         };
-        idk(packet);
+        writePacket(packet);
       },
       handleChainStart: (chain: { name: string }) => {
         console.debug("handleChainStart", { chain });
@@ -49,7 +51,7 @@ const handler = async (req: IncomingMessage, res: ServerResponse) => {
           type: "system",
           value: JSON.stringify({ name: chain.name }),
         };
-        idk(packet);
+        writePacket(packet);
       },
       handleAgentAction: (action: AgentAction) => {
         console.debug("handleAgentAction", action);
@@ -57,7 +59,7 @@ const handler = async (req: IncomingMessage, res: ServerResponse) => {
           type: "system",
           value: JSON.stringify({ action }),
         };
-        idk(packet);
+        writePacket(packet);
       },
       handleToolStart: (tool: { name: string }) => {
         console.debug("handleToolStart", { tool });
@@ -65,25 +67,24 @@ const handler = async (req: IncomingMessage, res: ServerResponse) => {
           type: "system",
           value: JSON.stringify({ name: tool.name }),
         };
-        idk(packet);
+        writePacket(packet);
       },
     };
 
     const callbacks = [inlineCallback];
     creationProps.callbacks = callbacks;
     console.log("about to execute plan");
-    const executionPromises = tasks.map(async (task) => {
-      return await executeChain({
+    const executionPromises = tasks.map((task) => {
+      return executeChain({
         creationProps,
         goal,
         task: task.id,
       });
     });
-    const executionResults = Promise.all(executionPromises);
+    const executionResults = await Promise.all(executionPromises);
 
     console.debug("executePlan results", executionResults);
-
-    res.write(executionPromises);
+    res.write(JSON.stringify({ results: executionResults }));
     res.end();
   } catch (e) {
     let message;
@@ -100,9 +101,8 @@ const handler = async (req: IncomingMessage, res: ServerResponse) => {
     }
 
     const all = { stack, message, status };
-
-    res.writeHead(status, { "Content-Type": "application/json" });
-    res.write(JSON.stringify(all));
+    console.error(all);
+    writePacket({ type: "error", value: JSON.stringify(all) });
     res.end();
   }
 };

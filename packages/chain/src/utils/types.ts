@@ -1,3 +1,5 @@
+// chain/utils/types.ts
+
 import { type OpenAIEmbeddingsParams } from "langchain/embeddings/openai";
 import { type BaseLLMParams } from "langchain/llms/base";
 import { type OpenAIInput } from "langchain/llms/openai";
@@ -5,14 +7,25 @@ import { z } from "zod";
 
 const TEXT_EMBEDDING_ADA = "text-embedding-ada-002";
 const GPT_35_TURBO = "gpt-3.5-turbo";
-const _GPT_4 = "gpt-4";
-const _GPT_4_32k = "gpt-4-32k";
+const GPT_4 = "gpt-4";
+// const _GPT_4_32k = "gpt-4-32k";
 export enum LLM {
   embeddings = TEXT_EMBEDDING_ADA,
   fast = GPT_35_TURBO,
   smart = GPT_35_TURBO, //GPT_4,
   smartLarge = GPT_35_TURBO, //GPT_4_32k,
 }
+
+export const LLMTokenLimit = (llm: string) => {
+  switch (llm) {
+    case TEXT_EMBEDDING_ADA:
+      return 256;
+    case GPT_35_TURBO:
+      return 2048;
+    case GPT_4:
+      return 4096;
+  }
+};
 
 interface OpenAIConfigurationParameters {
   apiKey?:
@@ -52,7 +65,7 @@ export interface EmbeddingsCreationProps
 }
 
 export const packetParser = z.object({
-  type: z.enum(["plan", "execute", "review", "human", "system"]),
+  type: z.enum(["plan", "execute", "review", "human", "system", "error"]),
   value: z.string(),
   message: z.string().optional(),
 });

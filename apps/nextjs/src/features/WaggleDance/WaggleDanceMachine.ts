@@ -1,8 +1,10 @@
+// WaggleDanceMachine.ts
+
 import { jsonrepair } from "jsonrepair";
 
-import { type ModelCreationProps } from "@acme/chain";
+import { type ChainPacket, type ModelCreationProps } from "@acme/chain";
 
-import stream from "~/utils/stream";
+import readJSONL from "~/utils/jsonl";
 import {
   type BaseRequestBody,
   type ExecuteRequestBody,
@@ -24,25 +26,51 @@ function isGoalReached(goal: GoalCond[], completedTasks: Set<string>): boolean {
   return goal.every((g) => completedTasks.has(g.predicate));
 }
 
-async function executeTasks(request: ExecuteRequestBody): Promise<void> {
-  const { tasks, taskResults, completedTasks } = request;
+async function executeTasks(request: ExecuteRequestBody): Promise<{
+  completedTasks: string[];
+  taskResults: Record<string, BaseResultType>;
+}> {
+  const { tasks, completedTasks } = request;
+  const completedTasksSet = new Set(completedTasks);
+  const taskResults: Record<string, BaseResultType> = {};
   const promises = tasks.map(async (task) => {
-    await stream(
-      "/api/chain/execute",
-      request,
-      (message) => {
-        if (message.type === "execute") {
-          taskResults[task.id] = JSON.parse(message.value) as BaseResultType;
-          completedTasks.push(task.id);
+    const response = await fetch("/api/chain/execute", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify(request),
+    });
+    const stream = response.body;
+    if (!stream) {
+      throw new Error(`No stream: ${response.statusText}`);
+    }
+    const reader = stream.getReader();
+
+    try {
+      while (true) {
+        const { done, value } = await reader.read();
+        if (done) {
+          break;
         }
-      },
-      (error) => {
-        console.error(error);
-      },
-    );
+        const jsonLines = new TextDecoder().decode(value);
+        const packets: ChainPacket[] = await readJSONL(jsonLines);
+
+        completedTasksSet.add(task.id);
+        taskResults[task.id] = packets; // Assume packets is the result for the task, change based on actual structure
+        return packets;
+      }
+    } catch (error) {
+      console.error(error);
+    } finally {
+      reader.releaseLock();
+    }
   });
 
   await Promise.all(promises);
+  request.completedTasks = Array.from(completedTasksSet);
+
+  return { completedTasks: request.completedTasks, taskResults };
 }
 
 async function plan(
@@ -102,7 +130,7 @@ export default class WaggleDanceMachine implements BaseWaggleDanceMachine {
       );
 
     const completedTasks: Set<string> = new Set();
-    const taskResults: Record<string, BaseResultType> = {};
+    let taskResults: Record<string, BaseResultType> = {};
 
     console.log("executionQueue", executionQueue);
     console.log("completedTasks", completedTasks);
@@ -113,7 +141,9 @@ export default class WaggleDanceMachine implements BaseWaggleDanceMachine {
       completedTasks: [...completedTasks],
       taskResults,
     } as ExecuteRequestBody;
-    await executeTasks(executeRequest);
+
+    const executionResponse = await executeTasks(executeRequest);
+    taskResults = { ...taskResults, ...executionResponse.taskResults };
 
     while (!isGoalReached(dag.getGoalConditions(), completedTasks)) {
       const pendingTasks = dag

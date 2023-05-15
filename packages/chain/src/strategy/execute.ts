@@ -1,5 +1,10 @@
-import { AgentExecutor, ZeroShotAgent } from "langchain/agents";
-import type { CallbackManager } from "langchain/callbacks";
+// strategy/execute.ts
+
+import {
+  AgentExecutor,
+  ZeroShotAgent,
+  type AgentExecutorInput,
+} from "langchain/agents";
 import { LLMChain } from "langchain/chains";
 import { type Tool } from "langchain/dist/tools/base";
 import { SerpAPI } from "langchain/tools";
@@ -58,8 +63,8 @@ export async function executeChain({
     memory,
     streaming: true,
     returnIntermediateSteps: false,
-    callbackManager: callbacks as unknown as CallbackManager,
-  };
+    callbacks,
+  } as AgentExecutorInput;
   const executor = AgentExecutor.fromAgentAndTools(executorConfig);
   console.debug(`about to call execute chain`);
   const call = await executor.call({ input: instructions });

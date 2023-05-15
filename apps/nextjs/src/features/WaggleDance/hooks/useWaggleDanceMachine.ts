@@ -1,19 +1,19 @@
-import { useState } from "react";
+import { useCallback, useState } from "react";
 
-import { LLM } from "@acme/chain";
+import { LLM, LLMTokenLimit } from "@acme/chain";
 
 import WaggleDanceMachine from "../WaggleDanceMachine";
-// import ChainMachineSimulation from "../ChainMachineSimulation";
 import { type GraphData } from "../types";
+import { dagToGraphData } from "../utils/conversions";
 
-interface UseChainMachineProps {
+interface UseWaggleDanceMachineProps {
   goal: string;
   isSimulated?: boolean;
 }
-const useChainMachine = ({
+const useWaggleDanceMachine = ({
   goal,
 }: // _isSimulated = false,
-UseChainMachineProps) => {
+UseWaggleDanceMachineProps) => {
   // const [chainMachine] = useState(() =>
   //   isSimulated ? new ChainMachineSimulation() : new ChainMachine(),
   // );
@@ -24,9 +24,9 @@ UseChainMachineProps) => {
     links: [],
   });
 
-  const run = async () => {
+  const run = useCallback(async () => {
     if (graphData.nodes.length === 0) {
-      const gd = graphData;
+      const gd = { ...graphData };
       gd.nodes = [{ id: `plan-${goal}` }];
       setGraphData(gd);
     }
@@ -35,21 +35,30 @@ UseChainMachineProps) => {
       creationProps: {
         modelName: LLM.smartLarge,
         temperature: 0,
-        maxTokens: 1000, // TODO: make this === available tokens after prompt
+        maxTokens: LLMTokenLimit(LLM.smartLarge), // TODO: make this === available tokens after prompt
         maxConcurrency: 6,
         streaming: true,
         verbose: true,
       },
     });
-    console.log("result", result);
-    // const graphData = dagToGraphData((result as WaggleDanceResult).results[0]);
+
+    if (result instanceof Error) {
+      console.error("Error in WaggleDanceMachine's run:", result);
+      return;
+    }
+
+    // result.results;
+
+    // const computedGraphData = dagToGraphData(result);
     // setGraphData((prevGraphData) => {
-    //   graphData;
+    //   return { ...prevGraphData, ...computedGraphData };
     // });
+
+    console.log("result", result);
     return result;
-  };
+  }, [goal, graphData, setGraphData, waggleDanceMachine]);
 
   return { chainMachine: waggleDanceMachine, graphData, run };
 };
 
-export default useChainMachine;
+export default useWaggleDanceMachine;
