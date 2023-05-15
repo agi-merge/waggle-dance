@@ -1,4 +1,3 @@
-import { type BaseCallbackHandler } from "langchain/callbacks";
 import { type OpenAIEmbeddingsParams } from "langchain/embeddings/openai";
 import { type BaseLLMParams } from "langchain/llms/base";
 import { type OpenAIInput } from "langchain/llms/openai";

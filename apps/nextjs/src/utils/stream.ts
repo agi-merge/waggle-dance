@@ -2,7 +2,7 @@ import { createParser, type ParseEvent } from "eventsource-parser";
 
 import { type ChainPacket } from "@acme/chain";
 
-import { BaseRequestBody } from "~/pages/api/chain/types";
+import { type BaseRequestBody } from "~/pages/api/chain/types";
 
 export default async function stream(
   url: string,

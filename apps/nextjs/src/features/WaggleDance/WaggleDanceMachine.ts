@@ -6,7 +6,6 @@ import stream from "~/utils/stream";
 import {
   type BaseRequestBody,
   type ExecuteRequestBody,
-  type StrategyRequestBody,
 } from "~/pages/api/chain/types";
 import type DAG from "./DAG";
 import { type DAGNode, type GoalCond } from "./DAG";

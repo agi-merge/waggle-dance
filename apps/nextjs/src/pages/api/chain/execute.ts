@@ -1,7 +1,7 @@
-import { IncomingMessage, ServerResponse } from "http";
+import { type IncomingMessage, type ServerResponse } from "http";
+import { type AgentAction } from "langchain/dist/schema";
 
-import { ChainPacket, executeChain } from "@acme/chain";
-import StreamingCallbackHandler from "@acme/chain/src/utils/callbacks";
+import { executeChain, type ChainPacket } from "@acme/chain";
 
 import { type ExecuteRequestBody } from "./types";
 
@@ -30,10 +30,46 @@ const handler = async (req: IncomingMessage, res: ServerResponse) => {
       tasks,
       completedTasks: _completedTasks,
     } = JSON.parse(body) as ExecuteRequestBody;
+
     const idk = (packet: ChainPacket) => {
       res.write(JSON.stringify(packet) + "\n");
     };
-    const callbacks = [new StreamingCallbackHandler(() => idk)];
+    const inlineCallback = {
+      handleLLMStart: (llm: { name: string }, _prompts: string[]) => {
+        console.debug("handleLLMStart", { llm });
+        const packet: ChainPacket = {
+          type: "system",
+          value: JSON.stringify({ name: llm.name }),
+        };
+        idk(packet);
+      },
+      handleChainStart: (chain: { name: string }) => {
+        console.debug("handleChainStart", { chain });
+        const packet: ChainPacket = {
+          type: "system",
+          value: JSON.stringify({ name: chain.name }),
+        };
+        idk(packet);
+      },
+      handleAgentAction: (action: AgentAction) => {
+        console.debug("handleAgentAction", action);
+        const packet: ChainPacket = {
+          type: "system",
+          value: JSON.stringify({ action }),
+        };
+        idk(packet);
+      },
+      handleToolStart: (tool: { name: string }) => {
+        console.debug("handleToolStart", { tool });
+        const packet: ChainPacket = {
+          type: "system",
+          value: JSON.stringify({ name: tool.name }),
+        };
+        idk(packet);
+      },
+    };
+
+    const callbacks = [inlineCallback];
     creationProps.callbacks = callbacks;
     console.log("about to execute plan");
     const executionPromises = tasks.map(async (task) => {

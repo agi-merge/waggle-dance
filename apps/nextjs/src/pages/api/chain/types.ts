@@ -1,6 +1,6 @@
 import { type ModelCreationProps } from "@acme/chain";
 
-import { DAGNode } from "~/features/WaggleDance/DAG";
+import { type DAGNode } from "~/features/WaggleDance/DAG";
 import { type BaseResultType } from "~/features/WaggleDance/types";
 
 export interface BaseRequestBody {

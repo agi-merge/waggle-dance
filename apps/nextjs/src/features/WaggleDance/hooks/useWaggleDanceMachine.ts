@@ -4,7 +4,6 @@ import { LLM } from "@acme/chain";
 
 import WaggleDanceMachine from "../WaggleDanceMachine";
 // import ChainMachineSimulation from "../ChainMachineSimulation";
-import { type LinkObject, type NodeObject } from "../components/ForceGraph";
 import { type GraphData } from "../types";
 
 interface UseChainMachineProps {
