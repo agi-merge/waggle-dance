@@ -24,15 +24,14 @@ export async function planChain(
 ) {
   const llm = createModel(creationProps);
   const memory = await createMemory(goal);
-  const prompt = createPrompt("domain");
   const planPrompt = createPrompt("plan");
-
+  const prompt = createPrompt("domain", creationProps, goal);
   const chain = new ConversationChain({
     memory,
     prompt,
     llm,
   });
-  const [/*otherAgentPrompt, */ call] = await Promise.all([
+  const [call] = await Promise.all([
     // prompt.format({ goal, schema: "string[]" }),
     chain.call({
       goal,
@@ -40,16 +39,12 @@ export async function planChain(
   ]);
   const domain = call?.response ? (call.response as string) : "";
   console.log("domainAgent", domain);
-  // const parser = new PddlParser(completion);
-  // const domain = parser.parse();
-
   const planChain = new ConversationChain({
     memory,
     prompt: planPrompt,
     llm,
   });
-  const [/*otherAgentPrompt, */ planCall] = await Promise.all([
-    // prompt.format({ goal, schema: "string[]" }),
+  const [planCall] = await Promise.all([
     planChain.call({
       goal,
       domain,

@@ -1,7 +1,3 @@
- 
- 
- 
-
 import axios from "axios";
 
 import { reviewChain } from "@acme/chain";
@@ -37,7 +33,7 @@ const handler = async (
     const { creationProps, goal, tasks, lastTask, result, completedTasks } =
       config.runtime == "nodejs"
         ? (JSON.parse(JSON.stringify(req.body)) as StrategyRequestBody)
-        : ((await req.json()));
+        : await req.json();
 
     if (tasks === undefined || lastTask === undefined || result === undefined) {
       return;
@@ -73,7 +69,7 @@ const handler = async (
 
     const all = { stack, message, status };
     console.log(all);
-     
+
     return res.status(status).json(all);
   }
 };

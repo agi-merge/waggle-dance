@@ -9,7 +9,7 @@ import {
 import type { ModelCreationProps } from "./types";
 
 // JON: this is so dumb it might just work.
-const promptInjectionKey = () => {
+const antiPromptInjectionKey = () => {
   function saltAndSha256(str: string): string {
     const salt = "s-=3d';kt34sklngld[]][`[[`-39al`04"; // FIXME: move to env
     const hash = sha256(str + salt);
@@ -31,26 +31,27 @@ export const createPrompt = (
     | "brutalAdversary"
     | "selfTerminateIfNeeded",
   _creationProps?: ModelCreationProps,
+  goal?: string,
 ): ChatPromptTemplate => {
   // TODO: https://js.langchain.com/docs/modules/chains/prompt_selectors/
   const basePromptMessages = {
     domain: [
       `
-      ${promptInjectionKey}
+      ${antiPromptInjectionKey()}
       Compose a domain representation in PDDL3.1 for a large language model agent tasked with a specific goal.
       ------GOAL------
-      {goal}
+      ${goal}
       ----END-GOAL----
       Ensure that the domain representation enables concurrent (embarassingly parallel) processing by delegating sub-tasks to multiple LLM agents.
       Incorporate the possibility of adversarial agents to validate the accuracy and efficiency of the main LLM agent's outputs.
       The PDDL domain output should be comprehensible by another LLM agent and be valid PDDL.
-      Minimize output length & tokens.
+      Use short var names and other hacks to minimize output length & tokens.
       ONLY OUTPUT PDDL beginning with: (define (domain [appropriate-and-descriptive-domain-title]...
       `.trim(),
     ],
     plan: [
       `
-      ${promptInjectionKey}
+      ${antiPromptInjectionKey()}
       Compose a problem representation in PDDL3.1 for a large language model agent tasked with a specific goal, and given a domain representation (below).
       ------GOAL------
       {goal}
@@ -61,14 +62,14 @@ export const createPrompt = (
       Ensure that the domain representation enables concurrent (embarassingly parallel) processing by delegating sub-tasks to multiple LLM agents.
       Incorporate the possibility of adversarial agents to validate the accuracy and efficiency of the main LLM agent's outputs.
       The PDDL domain output should be comprehensible by another LLM agent.
-      Minimize output length & tokens.
+      Use short var names and other hacks to minimize output length & tokens.
       ONLY OUTPUT PDDL beginning with: (define (problem [appropriate-and-descriptive-problem-title]...
       `.trim(),
     ],
 
     execute: [
       `
-      ${promptInjectionKey}
+      ${antiPromptInjectionKey()}
       Execute PDDL3.1 for a large language model agent tasked with a specific goal, and given a domain representation (below).
       ------GOAL------
       {goal}
@@ -83,13 +84,13 @@ export const createPrompt = (
       {task}
       ----END-TASK----
       Execute the PDDL problem representation, and return the results in the same format.
-      Minimize output length & tokens.
+      Use short var names and other hacks to minimize output length & tokens.
       ONLY OUTPUT PDDL beginning with: (define (problem [appropriate-and-descriptive-execution-title]...`,
     ],
 
     review: [
       `
-      ${promptInjectionKey}
+      ${antiPromptInjectionKey()}
       As an AI task reviewer, you must judge the progress of an AI agent.
       Objective: {goal}.
       Incomplete tasks: {tasks}
@@ -100,7 +101,7 @@ export const createPrompt = (
 
     brutalAdversary: [
       `
-      ${promptInjectionKey}
+      ${antiPromptInjectionKey()}
       You are Agent B, brutally criticizing Agent A's chain-of-thought.
       A's Goal: {otherAgentGoal}
       A's Prompt: {otherAgentPrompt}
@@ -128,7 +129,7 @@ export const createPrompt = (
 
     constructiveAdversary: [
       `
-      ${promptInjectionKey}
+      ${antiPromptInjectionKey()}
       You are Agent B, offering constructive criticism to Agent A's chain-of-thought:
 
       A's Goal: {otherAgentGoal}
@@ -155,7 +156,7 @@ export const createPrompt = (
     ],
     selfTerminateIfNeeded: [
       `
-      ${promptInjectionKey}
+      ${antiPromptInjectionKey()}
       Given Feedback
       Brutal: {brutal}
       Constructive: {constructive}

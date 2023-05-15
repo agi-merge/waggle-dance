@@ -27,7 +27,9 @@ async function executeTasks(
     });
 
     if (!result.ok) {
-      throw new Error("Error in execution of task");
+      throw new Error(
+        "Error in execution of task: ${res.status} ${res.statusText}",
+      );
     }
 
     taskResults[task.id] = (await result.json()) as BaseResultType;
@@ -41,7 +43,7 @@ async function plan(
   goal: string,
   creationProps: ModelCreationProps,
 ): Promise<DAG> {
-  const data = { creationProps, goal };
+  const data = { goal, creationProps };
   const res = await fetch("/api/chain/plan", {
     method: "POST",
     headers: { "Content-Type": "application/json" },
@@ -49,7 +51,7 @@ async function plan(
   });
 
   if (!res.ok) {
-    throw new Error("Error fetching plan");
+    throw new Error(`Error fetching plan: ${res.status} ${res.statusText}`);
   }
 
   const dagJson: DAGJson = (await res.json()) as DAGJson;
