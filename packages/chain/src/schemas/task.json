@@ -1,5 +1,0 @@
-{
-  "type": "plan|task|review|human",
-  "context": "history, documents, urls, important information to aid in task",
-  "goal": "do something"
-}
