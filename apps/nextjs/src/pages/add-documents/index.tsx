@@ -18,8 +18,10 @@ import {
   KeyboardArrowUp,
 } from "@mui/icons-material";
 import {
+  Box,
   Button,
   Card,
+  Divider,
   FormControl,
   FormLabel,
   IconButton,
@@ -171,7 +173,7 @@ const AddDocuments: NextPage = () => {
             className="flex-grow select-none pr-5 text-white"
             style={{ userSelect: "none" }}
           >
-            <Typography level="h4">Achieve goals faster</Typography>
+            <Typography level="h4">Accelerate goal</Typography>
           </Link>
           {headerExpanded ? <KeyboardArrowUp /> : <KeyboardArrowDown />}
         </Stack>
@@ -182,12 +184,13 @@ const AddDocuments: NextPage = () => {
               data. GPT-4 has no knowledge of anything since September 2021, so
               anything newer than that would be a good target. You can also
               shortcut research steps by providing relevant data. For example,
-              if I was working on a GitHub code project, it would be helpful to
-              input the GitHub URL.
+              if you are working on a GitHub code project, it would save time to
+              provide the GitHub URL.
             </Typography>
           </>
         )}
-
+      </Stack>
+      <Stack gap="1rem" className="mt-6">
         <IngestContext.Provider
           value={{
             ingestFiles: ingestFiles,
@@ -242,27 +245,30 @@ const AddDocuments: NextPage = () => {
             </tbody>
           </Table>
         </IngestContext.Provider>
-        <FormControl className="mt-6">
-          <FormLabel>URLs to Ingest</FormLabel>
-          <Sheet className="flex p-3">
-            <Input
-              className="flex-grow"
-              ref={urlInputRef}
-              value={urlInput}
-              onChange={(e) => setUrlInput(e.target.value)}
-              onKeyPress={handleKeyPress}
-              variant="outlined"
-              placeholder="e.g. https://github.com/agi-merge/waggle-dance"
-            />
-            <IconButton
-              disabled={!isValidUrl(urlInput)}
-              // edge="end"
-              onClick={void handleUrlSubmit}
-            >
-              <CheckCircle />
-            </IconButton>
-          </Sheet>
-        </FormControl>
+        <Typography className="mt-6" color="primary">
+          URLs to Ingest
+        </Typography>
+        <Box className="flex pr-3">
+          <Input
+            className="flex-grow"
+            ref={urlInputRef}
+            value={urlInput}
+            onChange={(e) => setUrlInput(e.target.value)}
+            onKeyPress={handleKeyPress}
+            variant="outlined"
+            placeholder="e.g. https://github.com/agi-merge/waggle-dance"
+          />
+          <IconButton
+            disabled={!isValidUrl(urlInput)}
+            // edge="end"
+            onClick={void handleUrlSubmit}
+          >
+            <CheckCircle />
+          </IconButton>
+        </Box>
+        <Typography className="mt-2" color="primary">
+          Files to Ingest
+        </Typography>
         <DropZoneUploader />
         <Stack direction="row-reverse" className="mt-2" gap="1rem">
           <Button

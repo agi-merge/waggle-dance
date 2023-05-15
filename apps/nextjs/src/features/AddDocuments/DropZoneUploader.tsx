@@ -6,6 +6,7 @@
 import * as React from "react";
 import { useState } from "react";
 import { useRouter } from "next/router";
+import { UploadFile } from "@mui/icons-material";
 import { Tooltip } from "@mui/joy";
 import Box from "@mui/joy/Box";
 import Card, { type CardProps } from "@mui/joy/Card";
@@ -201,7 +202,7 @@ export default function DropZoneUploader({ sx, ...props }: DropZoneProps) {
               justifyContent: "center",
             }}
           >
-            <i data-feather="upload-cloud" />
+            <UploadFile className="m-2" />
           </Box>
         </Box>
         <Link component="button" overlay onClick={handleClick} type="button">
