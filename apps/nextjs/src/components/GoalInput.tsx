@@ -36,9 +36,14 @@ const placeholders = [
 interface GoalInputProps extends CardProps {
   state?: GoalInputState;
   callbacks: Handlers; // Update the type of callbacks
+  startingValue?: string;
 }
 
-export default function GoalInput({ state, callbacks }: GoalInputProps) {
+export default function GoalInput({
+  state,
+  callbacks,
+  startingValue,
+}: GoalInputProps) {
   const [currentPromptIndex, setCurrentPromptIndex] = useState(0);
   const [currentPlaceholderIndex, setCurrentPlaceholderIndex] = useState(0);
   const [goalInputValue, setGoalInputValue] = useState(
@@ -46,6 +51,12 @@ export default function GoalInput({ state, callbacks }: GoalInputProps) {
     //examplePrompts[(Math.random() * examplePrompts.length) | 0],
   );
   const [tooltipTappedOpen] = useState<boolean | undefined>(undefined);
+
+  useEffect(() => {
+    if (startingValue) {
+      setGoalInputValue(startingValue);
+    }
+  }, [startingValue]);
 
   const handleSubmit = (event: React.FormEvent) => {
     event.preventDefault();

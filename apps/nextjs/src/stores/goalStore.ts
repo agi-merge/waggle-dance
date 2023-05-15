@@ -1,4 +1,6 @@
 import { create } from "zustand";
+import { persist, createJSONStorage } from "zustand/middleware";
+import { app } from "~/constants";
 
 export enum GoalInputState {
   start,
@@ -15,11 +17,19 @@ export interface GoalState {
   setGoalInputState: (newState: GoalInputState) => void;
 }
 
-const useGoal = create<GoalState>((set) => ({
-  goal: "",
-  setGoal: (newState) => set({ goal: newState }),
-  goalInputState: GoalInputState.start,
-  setGoalInputState: (newState) => set({ goalInputState: newState }),
-}))
+const useGoal = create(
+  persist(
+    (set, _get) => ({
+      goal: "",
+      setGoal: (newState: string) => set({ goal: newState }),
+      goalInputState: GoalInputState.start,
+      setGoalInputState: (newState: GoalInputState) => set({ goalInputState: newState }),
+    }),
+    {
+      name: app.localStorageKeys.goal,
+      storage: createJSONStorage(() => localStorage),
+    }
+  )
+)
 
 export default useGoal;

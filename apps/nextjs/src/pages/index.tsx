@@ -15,7 +15,7 @@ export interface Handlers {
 
 const Home: NextPage = () => {
   const router = useRouter();
-  const { setGoal, goalInputState, setGoalInputState } = useGoal();
+  const { goal, setGoal, goalInputState, setGoalInputState } = useGoal();
   const [headerExpanded, setHeaderExpanded] = useState(true);
 
   // Define handleSetGoal function
@@ -72,6 +72,7 @@ const Home: NextPage = () => {
       </Stack>
       <GoalInput
         state={goalInputState}
+        startingValue={goal}
         callbacks={{
           setGoal: handleSetGoal,
           onStop: () => {
