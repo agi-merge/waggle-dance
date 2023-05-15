@@ -94,10 +94,7 @@ function getNextTask(
 }
 
 export default class WaggleDanceMachine implements BaseWaggleDanceMachine {
-  async run(
-    request: BaseRequestBody,
-    _callbacks: ChainMachineCallbacks,
-  ): Promise<WaggleDanceResult | Error> {
+  async run(request: BaseRequestBody): Promise<WaggleDanceResult | Error> {
     const dag = await plan(request.goal, request.creationProps);
     console.log(`DAG: ${JSON.stringify(dag)}`);
     const executionQueue: DAGNode[] = dag

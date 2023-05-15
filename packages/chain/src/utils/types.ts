@@ -42,7 +42,6 @@ export interface ModelCreationProps
     BaseLLMParams,
     OpenAIKeyProvider {
   verbose?: boolean;
-  callbacks?: BaseCallbackHandler[];
   modelName: LLM;
 }
 

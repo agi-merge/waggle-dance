@@ -6,11 +6,15 @@ import { type ChainPacket } from "./types";
 
 export default class StreamingCallbackHandler extends BaseCallbackHandler {
   name = "streaming_handler";
-  res?: ServerResponse;
+  writePacket: (packet: ChainPacket) => void;
 
-  constructor(res?: ServerResponse) {
+  constructor(writePacket: (packet: ChainPacket) => void) {
     super();
-    this.res = res;
+    this.writePacket = writePacket;
+    this.handleLLMStart = this.handleLLMStart.bind(this);
+    this.handleChainStart = this.handleChainStart.bind(this);
+    this.handleAgentAction = this.handleAgentAction.bind(this);
+    this.handleToolStart = this.handleToolStart.bind(this);
   }
 
   handleLLMNewToken(token: string) {
@@ -23,17 +27,16 @@ export default class StreamingCallbackHandler extends BaseCallbackHandler {
       type: "system",
       value: JSON.stringify({ name: llm.name }),
     };
-    this.res?.write(JSON.stringify(packet) + "\n");
+    this.writePacket(packet);
   }
 
   handleChainStart(chain: { name: string }) {
     console.debug("handleChainStart", { chain });
-    this.res?.write("handleChainStart");
     const packet: ChainPacket = {
       type: "system",
       value: JSON.stringify({ name: chain.name }),
     };
-    this.res?.write(JSON.stringify(packet) + "\n");
+    this.writePacket(packet);
   }
 
   handleAgentAction(action: AgentAction) {
@@ -42,7 +45,7 @@ export default class StreamingCallbackHandler extends BaseCallbackHandler {
       type: "system",
       value: JSON.stringify({ action }),
     };
-    this.res?.write(JSON.stringify(packet) + "\n");
+    this.writePacket(packet);
   }
 
   handleToolStart(tool: { name: string }) {
@@ -51,6 +54,6 @@ export default class StreamingCallbackHandler extends BaseCallbackHandler {
       type: "system",
       value: JSON.stringify({ name: tool.name }),
     };
-    this.res?.write(JSON.stringify(packet) + "\n");
+    this.writePacket(packet);
   }
 }

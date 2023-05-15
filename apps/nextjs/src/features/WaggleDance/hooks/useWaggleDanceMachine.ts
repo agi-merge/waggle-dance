@@ -31,42 +31,17 @@ UseChainMachineProps) => {
       gd.nodes = [{ id: `plan-${goal}` }];
       setGraphData(gd);
     }
-    const result = await waggleDanceMachine.run(
-      {
-        goal,
-        creationProps: {
-          modelName: LLM.smartLarge,
-          temperature: 0,
-          maxTokens: 1000, // TODO: make this === available tokens after prompt
-          streaming: true,
-          // callbacks?: CallbackManager;
-          verbose: true,
-        },
+    const result = await waggleDanceMachine.run({
+      goal,
+      creationProps: {
+        modelName: LLM.smartLarge,
+        temperature: 0,
+        maxTokens: 1000, // TODO: make this === available tokens after prompt
+        maxConcurrency: 6,
+        streaming: true,
+        verbose: true,
       },
-      {
-        onTaskCreated: (newNode: NodeObject, newLink?: LinkObject) => {
-          // console.log("onTaskCreated", newNode, newLink);
-          setGraphData((prevGraphData) => ({
-            nodes: [...prevGraphData.nodes, newNode],
-            links: newLink
-              ? [...prevGraphData.links, newLink]
-              : prevGraphData.links,
-          }));
-        },
-        onReviewFailure: (target: string, _error: Error) => {
-          console.log("onReviewFailure", target);
-          setGraphData((prevGraphData) => {
-            const newNodes = prevGraphData.nodes.filter(
-              (node) => node.id !== target,
-            );
-            const newLinks = prevGraphData.links.filter(
-              (link) => link.source !== target && link.target !== target,
-            );
-            return { nodes: newNodes, links: newLinks };
-          });
-        },
-      },
-    );
+    });
     console.log("result", result);
     // const graphData = dagToGraphData((result as WaggleDanceResult).results[0]);
     // setGraphData((prevGraphData) => {

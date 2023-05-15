@@ -1,6 +1,6 @@
-import { type IncomingMessage, type ServerResponse } from "http";
+import { IncomingMessage, ServerResponse } from "http";
 
-import { executeChain } from "@acme/chain";
+import { ChainPacket, executeChain } from "@acme/chain";
 import StreamingCallbackHandler from "@acme/chain/src/utils/callbacks";
 
 import { type ExecuteRequestBody } from "./types";
@@ -24,16 +24,16 @@ const handler = async (req: IncomingMessage, res: ServerResponse) => {
       bodyChunks.push(chunk);
     }
     const body = Buffer.concat(bodyChunks).toString();
-    console.log(body);
     const {
       creationProps,
       goal,
       tasks,
       completedTasks: _completedTasks,
     } = JSON.parse(body) as ExecuteRequestBody;
-
-    // Uncomment the following line to use StreamingCallbackHandler if needed
-    const callbacks = [new StreamingCallbackHandler(res)];
+    const idk = (packet: ChainPacket) => {
+      res.write(JSON.stringify(packet) + "\n");
+    };
+    const callbacks = [new StreamingCallbackHandler(() => idk)];
     creationProps.callbacks = callbacks;
     console.log("about to execute plan");
     const executionPromises = tasks.map(async (task) => {
