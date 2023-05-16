@@ -19,6 +19,7 @@ export class CondClass {
 
 export interface DAGNode {
   id: string;
+  name: string;
   action: string;
   params: Params;
 }
@@ -28,11 +29,13 @@ export interface DAGEdge {
 }
 export class DAGNodeClass implements DAGNode {
   id: string;
+  name: string;
   action: string;
   params: Params;
 
-  constructor(id: string, action: string, params: Params) {
+  constructor(id: string, name: string, action: string, params: Params) {
     this.id = id;
+    this.name = name;
     this.action = action;
     this.params = params;
   }
@@ -51,20 +54,12 @@ export default class DAG {
   readonly nodes: DAGNode[];
   readonly edges: DAGEdge[];
   readonly init: Cond[];
-  readonly current: Cond[];
   readonly goal: Cond[];
 
-  constructor(
-    nodes: DAGNode[],
-    edges: DAGEdge[],
-    init: Cond[],
-    current: Cond[],
-    goal: Cond[],
-  ) {
+  constructor(nodes: DAGNode[], edges: DAGEdge[], init: Cond[], goal: Cond[]) {
     this.nodes = nodes;
     this.edges = edges;
     this.init = init;
-    this.current = current;
     this.goal = goal;
   }
 }

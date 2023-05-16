@@ -35,9 +35,12 @@ import {
 
 export function dagToGraphData(dag: DAG): GraphData {
   const nodes = dag.nodes.map((node) => {
-    console.log("node.id", node.id);
+    console.log("node.id", node.name);
     return {
       id: node.id,
+      name: node.name,
+      action: node.action,
+      params: node.params,
     };
   });
 

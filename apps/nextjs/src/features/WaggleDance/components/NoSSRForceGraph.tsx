@@ -55,8 +55,8 @@ const NoSSRForceGraph: React.FC<ForceGraphProps> = ({ data }) => {
         // eslint-disable-next-line @typescript-eslint/ban-ts-comment
         // @ts-ignore
         ref={fgRef}
-        // dagMode="radial"
-        nodeLabel="id"
+        dagMode="td"
+        nodeLabel="name"
         nodeAutoColorBy="id"
         graphData={data}
         cooldownTicks={100}

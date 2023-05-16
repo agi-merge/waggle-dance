@@ -4,7 +4,6 @@ import { type Dispatch, type SetStateAction } from "react";
 
 import { type BaseRequestBody } from "~/pages/api/chain/types";
 import type DAG from "./DAG";
-import { type GraphData } from "./components/ForceGraph";
 
 export type PlanResult = DAG;
 
@@ -27,7 +26,7 @@ export interface WaggleDanceResult {
   results: Record<string, BaseResultType>;
 }
 
-export type GraphDataState = [GraphData, Dispatch<SetStateAction<GraphData>>];
+export type GraphDataState = [DAG, Dispatch<SetStateAction<DAG>>];
 export interface BaseWaggleDanceMachine {
   run(
     request: BaseRequestBody,

@@ -82,7 +82,7 @@ const handler = async (req: IncomingMessage, res: ServerResponse) => {
         goal,
         domain,
         problem,
-        task: task.id,
+        task: task.name,
       });
     });
     const executionResults = await Promise.all(executionPromises);

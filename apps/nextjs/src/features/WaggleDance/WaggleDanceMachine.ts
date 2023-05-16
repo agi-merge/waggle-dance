@@ -15,8 +15,7 @@ import {
   type BaseRequestBody,
   type ExecuteRequestBody,
 } from "~/pages/api/chain/types";
-import type DAG from "./DAG";
-import { type Cond, type DAGNode } from "./DAG";
+import DAG, { DAGNodeClass, type Cond, type DAGNode } from "./DAG";
 import {
   type BaseResultType,
   type BaseWaggleDanceMachine,
@@ -24,7 +23,6 @@ import {
   type PlanResult,
   type WaggleDanceResult,
 } from "./types";
-import { dagToGraphData } from "./utils/conversions";
 
 function isGoalReached(goal: Cond[], completedTasks: Set<string>): boolean {
   return goal.every((g) => completedTasks.has(g.predicate));
@@ -74,16 +72,16 @@ async function executeTasks(
 
     if (selectedTask) {
       const executeTaskPromises = Array.from(tasksInProgress).map((task) => {
-        console.log("about to schedule task", task);
+        console.log(`about to schedule task ${task.id}-${task.name}`);
         return (async () => {
           const edge = dag.edges.find((e) => e.targetId === task.id);
 
           if (!edge) {
-            console.error(`No edge found for task ${JSON.stringify(task)}`);
+            console.error(`No edge found for task ${task.id}-${task.name}`);
             return;
           }
 
-          console.log(`About to execute task ${task.id}...`);
+          console.log(`About to execute task ${task.id}-${task.name}...`);
           const data = { ...request, task };
           const response = await fetch("/api/chain/execute", {
             method: "POST",
@@ -176,18 +174,33 @@ async function plan(
 export default class WaggleDanceMachine implements BaseWaggleDanceMachine {
   async run(
     request: BaseRequestBody,
-    [_graphData, setGraphData]: GraphDataState,
+    [initDAG, setDAG]: GraphDataState,
   ): Promise<WaggleDanceResult | Error> {
-    setGraphData({ nodes: [{ id: "planner" }], links: [] });
+    if (initDAG.nodes.length === 0) {
+      setDAG(
+        new DAG(
+          [
+            new DAGNodeClass(
+              "0",
+              "PlanBee",
+              "analyze your goal and come up with a plan to achieve it",
+              {},
+            ),
+          ],
+          [],
+          [],
+          [],
+        ),
+      );
+    }
     const dag = await plan(request.goal, request.creationProps);
     console.log("dag", dag);
-    setGraphData(dagToGraphData(dag));
+    setDAG(dag);
     const completedTasks: Set<string> = new Set();
     let taskResults: Record<string, BaseResultType> = {};
     const maxConcurrency = request.creationProps.maxConcurrency ?? 8;
 
     while (!isGoalReached(dag.goal, completedTasks)) {
-      debugger;
       const pendingTasks = dag.nodes.filter(
         (node) => !completedTasks.has(node.id),
       );

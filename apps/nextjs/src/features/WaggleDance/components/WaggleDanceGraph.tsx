@@ -35,34 +35,44 @@ const WaggleDanceGraph = ({ setHeaderExpanded }: WaggleDanceGraphProps) => {
   // The goal prop was being used.  Set it the an unused _contextGoal for now.  Not sure this is
   // doing what we expect though.  Need to test.
   const { goal, isRunning, setIsRunning } = useAppContext();
-  const { graphData, run } = useWaggleDanceMachine({ goal });
+  const { graphData, dag, run } = useWaggleDanceMachine({ goal });
   const handleStart = () => {
     setIsRunning(true);
     setHeaderExpanded(false);
     void run();
   };
-  return (
+  const handleStop = () => {
+    setIsRunning(false);
+  };
+  const button = (
     <Stack gap="1rem" className="mt-6 items-end">
       <Button
-        disabled={!goal}
+        // disabled={!goal}
         className="col-end w-40 p-2"
         color="primary"
-        loading={isRunning}
         href="waggle-dance"
-        onClick={handleStart}
+        onClick={isRunning ? handleStop : handleStart}
       >
-        Start
+        {isRunning ? "Stop" : "Start"}
       </Button>
-      {graphData.links.length > 2 && (
+    </Stack>
+  );
+  return (
+    <Stack gap="1rem" className="mt-6">
+      {!isRunning && button}
+      {dag.edges.length > 2 && (
         <Typography className="text-center" color="warning" level="body4">
           Demo will not proceed beyond planning.
         </Typography>
       )}
-      {isRunning && graphData.links.length === 0 && (
-        <Stack className="text-end">
+      {isRunning && dag.edges.length === 0 && (
+        <Stack className="text-center">
           <Typography>Planning initial tasks…</Typography>
           <Typography level="body3">
-            The first step can take several minutes…
+            This important first step can take several minutes…
+          </Typography>
+          <Typography level="body4" color="primary">
+            Please 🐝 patient
           </Typography>
         </Stack>
       )}
@@ -88,37 +98,46 @@ const WaggleDanceGraph = ({ setHeaderExpanded }: WaggleDanceGraphProps) => {
               <Typography>Results</Typography>
             </Tab>
           </TabList>
-          {isRunning && <LinearProgress />}
-
-          <TabPanel
-            value={0}
-            className="relative h-96 w-full overflow-y-scroll p-4"
-          >
-            <List className="absolute left-0 top-0 mt-3 w-full  p-2">
-              {graphData.nodes.map((n, idx) => (
-                <ListItem key={`${idx}-${n.id}`}>
-                  <ListItemButton>
-                    <ListItemDecorator>
-                      <Home />
-                    </ListItemDecorator>
-                    <ListItemContent>{n.id}</ListItemContent>
-                    <KeyboardArrowRight />
-                  </ListItemButton>
-                </ListItem>
-              ))}
-            </List>
-          </TabPanel>
-          <TabPanel
-            value={1}
-            className="max-h-80 w-full items-center overflow-y-scroll p-4"
-          >
-            <ForceGraph data={graphData} />
-          </TabPanel>
-          <TabPanel value={2} className="text-center">
-            <Typography>Coming soon</Typography>
-          </TabPanel>
+          {isRunning && (
+            <>
+              <LinearProgress />
+              <TabPanel
+                value={0}
+                className="relative h-96 w-full overflow-y-scroll p-4"
+              >
+                <List className="absolute left-0 top-0 mt-3 w-full  p-2">
+                  {dag.nodes.map((n) => (
+                    <ListItem key={n.id}>
+                      <ListItemButton>
+                        <ListItemDecorator>
+                          <Typography color="primary" level="body2">
+                            {n.id}
+                          </Typography>
+                        </ListItemDecorator>
+                        <ListItemContent>
+                          <Typography>{n.name}</Typography>
+                          <Typography level="body3">{n.action}</Typography>
+                        </ListItemContent>
+                        <KeyboardArrowRight />
+                      </ListItemButton>
+                    </ListItem>
+                  ))}
+                </List>
+              </TabPanel>
+              <TabPanel
+                value={1}
+                className="max-h-80 w-full items-center overflow-y-scroll p-4"
+              >
+                <ForceGraph data={graphData} />
+              </TabPanel>
+              <TabPanel value={2} className="text-center">
+                <Typography>Coming soon</Typography>
+              </TabPanel>
+            </>
+          )}
         </Tabs>
       }
+      {isRunning && button}
     </Stack>
   );
 };
