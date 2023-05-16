@@ -27,7 +27,7 @@ const useGoal = create(
     }),
     {
       name: app.localStorageKeys.goal,
-      storage: createJSONStorage(() => localStorage),
+      storage: createJSONStorage(() => sessionStorage), // alternatively use: localStorage
     }
   )
 )
