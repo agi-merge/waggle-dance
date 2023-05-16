@@ -77,7 +77,7 @@ export const createPrompt = (
       }) processing independent subtasks concurrently with subordinate agents.
       The PDDL domain output should be comprehensible by another LLM agent and be valid PDDL JSON.
       Use shortened key names and other tricks to minimize output length. Do not be repetitive.
-      ONLY OUTPUT PDDL3.1 JSON:
+      ONLY OUTPUT PDDL3.1 JSON REPRESENTING DOMAIN:
       `.trim(),
     ],
     plan: [
@@ -99,7 +99,7 @@ export const createPrompt = (
       Ensure the return value maximizes these qualities: [Coherence, Creativity, Efficiency, Directness, Resourcefulness, Accuracy, Ethics]
       The PDDL problem output should be comprehensible by another LLM agent and be valid PDDL JSON.
       Use shortened key names and other tricks to minimize output length. Do not be repetitive.
-      ONLY OUTPUT PDDL3.1 JSON:
+      ONLY OUTPUT PDDL3.1 JSON REPRESENTING PROBLEM:
       `.trim(),
     ],
 
