@@ -5,7 +5,7 @@ import {
   type GraphData,
   type LinkObject,
   type NodeObject,
-} from "../components/NoSSRForceGraph";
+} from "../components/ForceGraph";
 
 // export function planResultToDAG({ domain, problem }: PlanResult): DAG {
 //   const nodes: DAGNode[] = [];

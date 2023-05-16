@@ -5,7 +5,7 @@ import { useCallback, useState } from "react";
 import { LLM, LLMTokenLimit } from "@acme/chain";
 
 import WaggleDanceMachine from "../WaggleDanceMachine";
-import { type GraphData } from "../components/NoSSRForceGraph";
+import { type GraphData } from "../components/ForceGraph";
 
 interface UseWaggleDanceMachineProps {
   goal: string;

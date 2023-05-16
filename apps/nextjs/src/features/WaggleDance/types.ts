@@ -4,7 +4,7 @@ import { type Dispatch, type SetStateAction } from "react";
 
 import { type BaseRequestBody } from "~/pages/api/chain/types";
 import type DAG from "./DAG";
-import { type GraphData } from "./components/NoSSRForceGraph";
+import { type GraphData } from "./components/ForceGraph";
 
 export type PlanResult = DAG;
 
