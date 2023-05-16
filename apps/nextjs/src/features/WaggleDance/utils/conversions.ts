@@ -2,10 +2,10 @@
 
 import type DAG from "../DAG";
 import {
+  type GraphData,
   type LinkObject,
   type NodeObject,
 } from "../components/NoSSRForceGraph";
-import { type GraphData } from "../types";
 
 // export function planResultToDAG({ domain, problem }: PlanResult): DAG {
 //   const nodes: DAGNode[] = [];
@@ -34,13 +34,27 @@ import { type GraphData } from "../types";
 // }
 
 export function dagToGraphData(dag: DAG): GraphData {
-  const nodes: NodeObject[] = dag.nodes.map((node) => ({
-    id: node.id,
-  }));
+  const nodes = dag.nodes.map((node) => {
+    console.log("node.id", node.id);
+    return {
+      id: node.id,
+    };
+  });
+
+  // Create a lookup object for finding NodeObject by id
+  const nodeLookup: { [id: string]: NodeObject } = nodes.reduce(
+    (lookup: { [id: string]: NodeObject }, node) => {
+      if (node.id !== undefined) {
+        lookup[node.id] = node;
+      }
+      return lookup;
+    },
+    {},
+  );
 
   const links: LinkObject[] = dag.edges.map((edge) => ({
-    source: edge.source,
-    target: edge.target,
+    source: nodeLookup[edge.sourceId],
+    target: nodeLookup[edge.targetId],
   }));
 
   return { nodes, links };

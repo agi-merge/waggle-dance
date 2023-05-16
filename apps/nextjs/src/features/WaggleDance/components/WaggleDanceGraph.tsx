@@ -8,7 +8,7 @@ import {
 } from "@mui/icons-material";
 import {
   Button,
-  CircularProgress,
+  LinearProgress,
   List,
   ListItem,
   ListItemButton,
@@ -66,9 +66,9 @@ const WaggleDanceGraph = ({ setHeaderExpanded }: WaggleDanceGraphProps) => {
           </Typography>
         </Stack>
       )}
-      {graphData.links.length > 0 && (
+      {
         <Tabs
-          defaultValue={0}
+          defaultValue={1}
           sx={{ borderRadius: "lg" }}
           color="info"
           variant="outlined"
@@ -77,17 +77,19 @@ const WaggleDanceGraph = ({ setHeaderExpanded }: WaggleDanceGraphProps) => {
           <TabList>
             <Tab>
               <ListAlt />
-              <Typography>Log</Typography>
+              <Typography>Active Agents</Typography>
             </Tab>
             <Tab>
               <Lan />
-              <Typography>Visualizer</Typography>
+              <Typography>Problem Graph</Typography>
             </Tab>
             <Tab>
               <Science />
               <Typography>Results</Typography>
             </Tab>
           </TabList>
+          {isRunning && <LinearProgress />}
+
           <TabPanel
             value={0}
             className="relative h-96 w-full overflow-y-scroll p-4"
@@ -110,19 +112,13 @@ const WaggleDanceGraph = ({ setHeaderExpanded }: WaggleDanceGraphProps) => {
             value={1}
             className="max-h-80 w-full items-center overflow-y-scroll p-4"
           >
-            {graphData.links.length > 0 ? (
-              <>
-                <ForceGraph data={graphData} />
-              </>
-            ) : (
-              isRunning && <CircularProgress />
-            )}
+            <ForceGraph data={graphData} />
           </TabPanel>
           <TabPanel value={2} className="text-center">
             <Typography>Coming soon</Typography>
           </TabPanel>
         </Tabs>
-      )}
+      }
     </Stack>
   );
 };

@@ -23,8 +23,8 @@ export interface DAGNode {
   params: Params;
 }
 export interface DAGEdge {
-  source: string;
-  target: string;
+  sourceId: string;
+  targetId: string;
 }
 export class DAGNodeClass implements DAGNode {
   id: string;
@@ -39,12 +39,12 @@ export class DAGNodeClass implements DAGNode {
 }
 
 export class DAGEdgeClass implements DAGEdge {
-  source: string;
-  target: string;
+  sourceId: string;
+  targetId: string;
 
-  constructor(source: string, target: string) {
-    this.source = source;
-    this.target = target;
+  constructor(sourceId: string, targetId: string) {
+    this.sourceId = sourceId;
+    this.targetId = targetId;
   }
 }
 export default class DAG {
