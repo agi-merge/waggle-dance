@@ -23,7 +23,9 @@ import {
   type StackProps,
 } from "@mui/joy";
 
-import { useAppContext } from "~/pages/_app";
+import useApp from "~/stores/appStore";
+import useGoal from "~/stores/goalStore";
+// import { useAppContext } from "~/pages/_app";
 import useChainMachine from "../hooks/useWaggleDanceMachine";
 import ForceGraph from "./ForceGraph";
 
@@ -34,7 +36,9 @@ const WaggleDanceGraph = ({ setHeaderExpanded }: WaggleDanceGraphProps) => {
   // TODO: I think this could be a bug - was fixing types here and noticed that the goal destructure was not being used
   // The goal prop was being used.  Set it the an unused _contextGoal for now.  Not sure this is
   // doing what we expect though.  Need to test.
-  const { goal, isRunning, setIsRunning } = useAppContext();
+  // const { goal: _contextGoal, isRunning, setIsRunning } = useAppContext();
+  const { isRunning, setIsRunning } = useApp();
+  const { goal: _contextGoal } = useGoal();
   const { graphData, run } = useChainMachine({ goal });
   const handleStart = () => {
     setIsRunning(true);

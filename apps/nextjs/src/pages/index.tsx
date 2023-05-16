@@ -6,7 +6,7 @@ import { KeyboardArrowDown, KeyboardArrowUp } from "@mui/icons-material";
 import { Card, Stack, Tooltip, Typography } from "@mui/joy";
 
 import GoalInput, { examplePrompts } from "~/components/GoalInput";
-import { GoalInputState, useAppContext } from "./_app";
+import useGoal, { GoalInputState } from "~/stores/goalStore";
 
 export interface Handlers {
   setGoal: (goal: string) => void;
@@ -15,7 +15,7 @@ export interface Handlers {
 
 const Home: NextPage = () => {
   const router = useRouter();
-  const { setGoal, goalInputState, setGoalInputState } = useAppContext();
+  const { setGoal, goalInputState, setGoalInputState } = useGoal();
   const [headerExpanded, setHeaderExpanded] = useState(true);
 
   // Define handleSetGoal function
@@ -29,6 +29,7 @@ const Home: NextPage = () => {
 
     setGoal(goal);
   };
+
   return (
     <Card variant="soft" className="mb-3">
       <Stack
