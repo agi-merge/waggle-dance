@@ -33,41 +33,53 @@ async function executeTasks(request: ExecuteRequestBody): Promise<{
   const { tasks, completedTasks } = request;
   const completedTasksSet = new Set(completedTasks);
   const taskResults: Record<string, BaseResultType> = {};
-  const promises = tasks.map(async (task) => {
-    const response = await fetch("/api/chain/execute", {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify(request),
-    });
-    const stream = response.body;
-    if (!stream) {
-      throw new Error(`No stream: ${response.statusText}`);
-    }
-    const reader = stream.getReader();
+  const taskQueue = [...tasks];
+  const taskPromises: Promise<ChainPacket[]>[] = [];
+  const maxConcurrency = request.creationProps.maxConcurrency ?? 8;
 
-    try {
-      while (true) {
-        const { done, value } = await reader.read();
-        if (done) {
-          break;
-        }
-        const jsonLines = new TextDecoder().decode(value);
-        const packets: ChainPacket[] = await readJSONL(jsonLines);
+  while (taskQueue.length > 0 && taskPromises.length < maxConcurrency) {
+    const task = taskQueue.shift();
+    if (!task) continue;
 
-        completedTasksSet.add(task.id);
-        taskResults[task.id] = packets; // Assume packets is the result for the task, change based on actual structure
-        return packets;
+    const promise = (async () => {
+      const response = await fetch("/api/chain/execute", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify(request),
+      });
+      const stream = response.body;
+      if (!stream) {
+        throw new Error(`No stream: ${response.statusText}`);
       }
-    } catch (error) {
-      console.error(error);
-    } finally {
-      reader.releaseLock();
-    }
-  });
+      const reader = stream.getReader();
 
-  await Promise.all(promises);
+      try {
+        while (true) {
+          const { done, value } = await reader.read();
+          if (done) {
+            break;
+          }
+          const jsonLines = new TextDecoder().decode(value);
+          const packets: ChainPacket[] = await readJSONL(jsonLines);
+
+          completedTasksSet.add(task.id);
+          taskResults[task.id] = packets; // Assume packets is the result for the task, change based on actual structure
+          return packets;
+        }
+      } catch (error) {
+        console.error(error);
+      } finally {
+        reader.releaseLock();
+      }
+      return [];
+    })();
+
+    taskPromises.push(promise);
+  }
+
+  await Promise.all(taskPromises);
   request.completedTasks = Array.from(completedTasksSet);
 
   return { completedTasks: request.completedTasks, taskResults };
@@ -118,32 +130,14 @@ function getNextTask(
 
   return null;
 }
-
 export default class WaggleDanceMachine implements BaseWaggleDanceMachine {
   async run(request: BaseRequestBody): Promise<WaggleDanceResult | Error> {
     const dag = await plan(request.goal, request.creationProps);
-    console.log(`DAG: ${JSON.stringify(dag)}`);
-    const executionQueue: DAGNode[] = dag
-      .getNodes()
-      .filter((node) =>
-        dag.getEdges().every((edge) => edge.target !== node.id),
-      );
 
+    const executionQueue: DAGNode[] = [];
     const completedTasks: Set<string> = new Set();
     let taskResults: Record<string, BaseResultType> = {};
-
-    console.log("executionQueue", executionQueue);
-    console.log("completedTasks", completedTasks);
-    console.log("taskResults", taskResults);
-    const executeRequest = {
-      ...request,
-      tasks: executionQueue,
-      completedTasks: [...completedTasks],
-      taskResults,
-    } as ExecuteRequestBody;
-
-    const executionResponse = await executeTasks(executeRequest);
-    taskResults = { ...taskResults, ...executionResponse.taskResults };
+    const maxConcurrency = request.creationProps.maxConcurrency ?? 8;
 
     while (!isGoalReached(dag.getGoalConditions(), completedTasks)) {
       const pendingTasks = dag
@@ -153,20 +147,34 @@ export default class WaggleDanceMachine implements BaseWaggleDanceMachine {
         break;
       }
 
-      const nextTask = getNextTask(pendingTasks, completedTasks, dag);
-      if (!nextTask) {
-        throw new Error("No task to execute, goal is unreachable");
+      while (
+        executionQueue.length < maxConcurrency &&
+        pendingTasks.length > 0
+      ) {
+        const nextTask = getNextTask(pendingTasks, completedTasks, dag);
+        if (!nextTask) {
+          throw new Error("No task to execute, goal is unreachable");
+        }
+        executionQueue.push(nextTask);
+        // Remove the selected task from the pendingTasks list
+        pendingTasks.splice(pendingTasks.indexOf(nextTask), 1);
       }
-      const { goal, creationProps } = request;
-      const executionRequest = {
-        goal,
-        creationProps,
-        tasks: [nextTask],
+
+      const executeRequest = {
+        ...request,
+        tasks: [...executionQueue],
         completedTasks: [...completedTasks],
         taskResults,
       } as ExecuteRequestBody;
 
-      await executeTasks(executionRequest);
+      const executionResponse = await executeTasks(executeRequest);
+      taskResults = { ...taskResults, ...executionResponse.taskResults };
+      completedTasks.clear();
+      for (const taskId of executionResponse.completedTasks) {
+        completedTasks.add(taskId);
+      }
+
+      executionQueue.splice(0);
     }
 
     return { results: taskResults };

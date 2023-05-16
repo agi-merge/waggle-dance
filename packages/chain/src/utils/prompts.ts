@@ -19,7 +19,7 @@ const antiPromptInjectionKey = () => {
 type DomainOrProblem = "Domain" | "Problem";
 const returnType = (domainOrProblem: DomainOrProblem) =>
   `
-The ${domainOrProblem} return output must JSON.parse() into this pseudo-TypeScript:
+The ${domainOrProblem} return output must JSON.parse() into this pseudo-TypeScript. It should have no line breaks or spaces outside of strings.:
 interface Object (
   type: string
   name: string
@@ -39,13 +39,17 @@ interface Domain (
   functions: string[]
   actions: Action[]
 )
+${
+  domainOrProblem !== "Domain" &&
+  `
 interface Problem (
   name: string;
   domain: string;
   objects: Object[];
   init: string[];
   goal: string;
-)
+)`
+}
 `.trim();
 
 export type ChainType =
@@ -75,10 +79,9 @@ export const createPrompt = (
       --END-PDDL-JSON-
       Ensure that the problem representation enables concurrent (up to ${
         creationProps?.maxConcurrency ?? 8
-      }) processing independent subtasks concurrently with subordinate agents.
-      The PDDL domain output should be comprehensible by another LLM agent and be valid PDDL JSON.
-      Use shortened key names and other tricks to minimize output length. Do not be repetitive.
-      ONLY OUTPUT PDDL3.1 JSON REPRESENTING DOMAIN:
+      }) processing of independent subtasks. Dependent subtasks must be processed in order.
+      Ensure the output maximizes the qualities by which it is judged: [Coherence, Creativity, Efficiency, Directness, Resourcefulness, Accuracy, Ethics]
+      ONLY OUTPUT PDDL3.1 JSON REPRESENTING THE DOMAIN:
       `.trim(),
     ],
     plan: [
@@ -96,18 +99,16 @@ export const createPrompt = (
       --END-PDDL-JSON-
       Ensure that the problem representation enables concurrent (up to ${
         creationProps?.maxConcurrency ?? 8
-      }) processing independent subtasks concurrently with subordinate agents.
-      Ensure the return value maximizes these qualities: [Coherence, Creativity, Efficiency, Directness, Resourcefulness, Accuracy, Ethics]
-      The PDDL problem output should be comprehensible by another LLM agent and be valid PDDL JSON.
-      Use shortened key names and other tricks to minimize output length. Do not be repetitive.
-      ONLY OUTPUT PDDL3.1 JSON REPRESENTING PROBLEM:
+      }) processing of independent subtasks. Dependent subtasks must be processed in order.
+      Ensure the output maximizes the qualities by which it is judged: [Coherence, Creativity, Efficiency, Directness, Resourcefulness, Accuracy, Ethics]
+      ONLY OUTPUT PDDL3.1 JSON REPRESENTING THE PROBLEM:
       `.trim(),
     ],
 
     execute: [
       `
       ${antiPromptInjectionKey()}
-      EXECUTE problem PDDL3.1 JSON for a large language model agent tasked with a specific goal, and given a domain and problem representation (below).
+      EXECUTE problem PDDL3.1 JSON for a large language model agent tasked with a specific goal, and given a domain, problem, and task representation (below).
       ------GOAL------
       {goal}
       ----END-GOAL----
@@ -123,13 +124,12 @@ export const createPrompt = (
       ------TASK------
       {task}
       ----END-TASK----
-      Execute the problem representation.
       Ensure the return value maximizes these qualities: [Coherence, Creativity, Efficiency, Directness, Resourcefulness, Accuracy, Ethics]
       Ensure that the problem representation enables concurrent (up to ${
         creationProps?.maxConcurrency ?? 8
       }) processing independent subtasks concurrently with subordinate agents.
       Use shortened key names and other hacks to minimize output length & tokens. Do not be repetitive.
-      ONLY OUTPUT PDDL3.1 JSON REPRESENTING THE NEXT STATE WHEN THE TASK IS COMPLETE:
+      ONLY OUTPUT PDDL3.1 JSON REPRESENTING ANY NEW PROBLEM
       `,
     ],
     review: [

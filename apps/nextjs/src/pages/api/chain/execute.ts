@@ -32,26 +32,28 @@ const handler = async (req: IncomingMessage, res: ServerResponse) => {
     const {
       creationProps,
       goal,
+      domain,
+      problem,
       tasks,
       completedTasks: _completedTasks,
     } = JSON.parse(body) as ExecuteRequestBody;
 
     const inlineCallback = {
       handleLLMStart: (llm: { name: string }, _prompts: string[]) => {
-        console.debug("handleLLMStart", { llm });
-        const packet: ChainPacket = {
-          type: "system",
-          value: JSON.stringify({ name: llm.name }),
-        };
-        writePacket(packet);
+        // console.debug("handleLLMStart", { llm });
+        // const packet: ChainPacket = {
+        //   type: "system",
+        //   value: JSON.stringify({ name: llm.name }),
+        // };
+        // writePacket(packet);
       },
       handleChainStart: (chain: { name: string }) => {
-        console.debug("handleChainStart", { chain });
-        const packet: ChainPacket = {
-          type: "system",
-          value: JSON.stringify({ name: chain.name }),
-        };
-        writePacket(packet);
+        // console.debug("handleChainStart", { chain });
+        // const packet: ChainPacket = {
+        //   type: "system",
+        //   value: JSON.stringify({ name: chain.name }),
+        // };
+        // writePacket(packet);
       },
       handleAgentAction: (action: AgentAction) => {
         console.debug("handleAgentAction", action);
@@ -62,12 +64,12 @@ const handler = async (req: IncomingMessage, res: ServerResponse) => {
         writePacket(packet);
       },
       handleToolStart: (tool: { name: string }) => {
-        console.debug("handleToolStart", { tool });
-        const packet: ChainPacket = {
-          type: "system",
-          value: JSON.stringify({ name: tool.name }),
-        };
-        writePacket(packet);
+        // console.debug("handleToolStart", { tool });
+        // const packet: ChainPacket = {
+        //   type: "system",
+        //   value: JSON.stringify({ name: tool.name }),
+        // };
+        // writePacket(packet);
       },
     };
 
@@ -78,6 +80,8 @@ const handler = async (req: IncomingMessage, res: ServerResponse) => {
       return executeChain({
         creationProps,
         goal,
+        domain,
+        problem,
         task: task.id,
       });
     });

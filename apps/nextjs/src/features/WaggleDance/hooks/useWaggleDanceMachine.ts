@@ -4,7 +4,6 @@ import { LLM, LLMTokenLimit } from "@acme/chain";
 
 import WaggleDanceMachine from "../WaggleDanceMachine";
 import { type GraphData } from "../types";
-import { dagToGraphData } from "../utils/conversions";
 
 interface UseWaggleDanceMachineProps {
   goal: string;
