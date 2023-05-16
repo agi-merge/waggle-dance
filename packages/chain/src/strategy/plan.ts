@@ -24,10 +24,7 @@ export async function planChain(
       goal,
     }),
   ]);
-  const responseString = call?.response ? (call.response as string) : "";
-  const { dag } = JSON.parse(responseString) as {
-    dag: string;
-  };
+  const dag = call?.response ? (call.response as string) : "";
 
-  return { dag };
+  return dag;
 }

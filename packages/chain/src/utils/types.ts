@@ -27,6 +27,17 @@ export const LLMTokenLimit = (llm: string) => {
   }
 };
 
+export const LLMKnowledgeCutoff = (llm: string) => {
+  switch (llm) {
+    case TEXT_EMBEDDING_ADA:
+      return "N/A";
+    case GPT_35_TURBO:
+      return "Sept. 2021";
+    case GPT_4:
+      return "Sept. 2021";
+  }
+};
+
 interface OpenAIConfigurationParameters {
   apiKey?:
     | string

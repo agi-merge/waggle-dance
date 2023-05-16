@@ -4,6 +4,7 @@
 // The machine should then start executing actions from the PDDL, and update the DAG accordingly.
 // If tasks are not dependent, that state can be parallelized. The aim is to complete the goal as quickly as possible.
 // Starts by generating PDDL of the domain and problem, parses it, and updates an execution DAG.
+// WaggleDanceMachine.ts
 
 import { TextDecoder } from "util";
 
@@ -15,7 +16,7 @@ import {
   type ExecuteRequestBody,
 } from "~/pages/api/chain/types";
 import type DAG from "./DAG";
-import { type DAGNode, type GoalCond } from "./DAG";
+import { type Cond, type DAGNode } from "./DAG";
 import {
   type BaseResultType,
   type BaseWaggleDanceMachine,
@@ -23,9 +24,7 @@ import {
   type WaggleDanceResult,
 } from "./types";
 
-// import { planResultToDAG } from "./utils/conversions";
-
-function isGoalReached(goal: GoalCond[], completedTasks: Set<string>): boolean {
+function isGoalReached(goal: Cond[], completedTasks: Set<string>): boolean {
   return goal.every((g) => completedTasks.has(g.predicate));
 }
 
@@ -76,8 +75,9 @@ async function executeTasks(
         console.log("about to schedule task", task);
         return (async () => {
           const edge = dag.edges.find((e) => e.target === task.id);
+
           if (!edge) {
-            console.error(`No edge found for task ${task}`);
+            console.error(`No edge found for task ${JSON.stringify(task)}`);
             return;
           }
 
@@ -136,7 +136,7 @@ function getNextTask(
 ): DAGNode | null {
   for (const task of taskQueue) {
     const dependencies = dag.edges
-      .filter((edge) => edge.target === task.id)
+      .filter((edge) => edge.target === task.name)
       .map((edge) => edge.source);
 
     if (
@@ -166,21 +166,23 @@ async function plan(
     throw new Error(`Error fetching plan: ${res.status} ${res.statusText}`);
   }
   console.log("here");
-  const planResult = (await res.json()) as PlanResult;
-  console.log("planResult", planResult);
-  // const dag = planResultToDAG(planResult);
-  // console.log("dag", dag);
-  return planResult.dag;
+  const planResult = (await res.json()) as string;
+  const json = JSON.parse(planResult) as PlanResult;
+  debugger;
+  console.log("planResult", planResult, "json", json);
+
+  return json;
 }
 
 export default class WaggleDanceMachine implements BaseWaggleDanceMachine {
   async run(request: BaseRequestBody): Promise<WaggleDanceResult | Error> {
     const dag = await plan(request.goal, request.creationProps);
-
+    console.log("dag", dag);
     const completedTasks: Set<string> = new Set();
     let taskResults: Record<string, BaseResultType> = {};
     const maxConcurrency = request.creationProps.maxConcurrency ?? 8;
 
+    debugger;
     while (!isGoalReached(dag.goal, completedTasks)) {
       const pendingTasks = dag.nodes.filter(
         (node) => !completedTasks.has(node.id),

@@ -147,7 +147,7 @@ We believe in the importance of observability, and transparency in performance o
 
 ## Citations
 
--
+- https://github.com/AGI-Edgerunners/Plan-and-Solve-Prompting
 
 ## Special Thanks
 

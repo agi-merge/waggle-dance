@@ -6,7 +6,7 @@ import {
   SystemMessagePromptTemplate,
 } from "langchain/prompts";
 
-import type { ModelCreationProps } from "./types";
+import { LLMKnowledgeCutoff, type ModelCreationProps } from "./types";
 
 // JON: this is so dumb it might just work.
 const antiPromptInjectionKey = () => {
@@ -18,30 +18,29 @@ const antiPromptInjectionKey = () => {
 
 const returnType = () =>
   `
-The return outputs must JSON.parse() into this pseudo-TypeScript DAG. It should have no line breaks or spaces outside of strings.:
+The return outputs must JSON.parse() into this pseudo-TypeScript DAG.
+Minimize tokens - no line breaks or spaces outside of strings.
+Follow a consistent naming convention for params.
+Use more descriptive names for the nodes to better represent the tasks they're performing.
 DAG (
-  nodes: DAGNode[]
-  edges: DAGEdge[]
-  init: InitCond[]
-  goal: GoalCond[]
+  nodes: Node[]
+  edges: Edge[]
+  init: Cond[]
+  goal: Cond[]
 )
-Params ( // PDDL and other prudent metadata
+Params (
   [key: string]: string
 )
-InitCond (
+Cond (
   predicate: string
   params: Params
 )
-GoalCond (
-  predicate: string
-  params: Params
-)
-DAGNode (
-  id: string; // e.g. research-task-3
+Node (
+  name: string;
   action: string
   params: Params
 )
-DAGEdge (
+Edge (
   source: string
   target: string
 )
@@ -57,24 +56,37 @@ export const createPrompt = (
   const basePromptMessages = {
     domain: [
       `
-<yourTask>
-As a planning agent, you are doing your best to capture a realistic PDDL domain and problem as an execution DAG to supply to other agents to efficiently and expertly solve a goal.
-The result should aim to accurately describe the state of the domain as the problem aimed to help solve the goal, as executed by a large language model agent DAG.
-Ensure that the problem representation enables concurrent (up to ${
-        creationProps?.maxConcurrency ?? 8
-      }) processing of independent subtasks. Dependent subtasks must be processed in order.
-Do not use durative actions, as actions are async and return from LLMs.
-</yourTask>
-<goal>>
+<ThoughtProcess>
+First understand the problem, extract relevant variables and their corresponding numerals, and devise a plan.
+Then, carry out the plan, calculate intermediate variables (pay attention to correct numeral calculation, logic, and commonsense),
+solve the problem step by step, and return the result.
+</ThoughtProcess
+<Persona>
+Genius AI Taskmaster
+</Persona>
+<YourTask>
+Produce a PDDL domain and problem (solver) represented as an optimal execution DAG.
+</YourTask>
+<Constraints>
+You only include steps that would not likely be known by the agent (LLM: ${
+        creationProps?.modelName ?? "GPT-3"
+      }) with knowledge cutoff date ${LLMKnowledgeCutoff(
+        creationProps?.modelName ?? "GPT-3",
+      )}. Today is ${new Date().toLocaleDateString()}
+The DAG will be supplied to other AI agents to collaborate in solving their goal.
+The result should aim to accurately describe the state of the domain and problem aimed to help solve the goal.
+To speed up execution, independent subtasks can be run concurrently. Dependent subtasks must be processed in order. The DAG represents these dependencies.
+</Constraints>
+<UserGoal>>
 ${goal}
-</goal>
-<security>
+</UserGoal>
+<Security>
 ${antiPromptInjectionKey()}
-</security>
-<returnSchema>
+</Security>
+<ReturnSchema>
 ${returnType()}
-</returnSchema>
-OUTPUT ONLY THE returnSchema that achieves <yourTask>:
+</ReturnSchema>
+RETURN ONLY VALID UNESCAPED <ReturnSchema> that achieves <YourTask> given <Constraints> etc:
 `.trim(),
     ],
     execute: [
@@ -101,7 +113,7 @@ Ensure that the problem representation enables concurrent (up to ${
         creationProps?.maxConcurrency ?? 8
       }) processing independent subtasks concurrently with subordinate agents.
 Use shortened key names and other hacks to minimize output length & tokens. Do not be repetitive.
-ONLY OUTPUT PDDL3.1 JSON REPRESENTING ANY NEW PROBLEM
+ONLY OUTPUT VALID UNESCAPED PDDL3.1 JSON REPRESENTING SUBSTATE OF THEN DAG:
       `,
     ],
   };
