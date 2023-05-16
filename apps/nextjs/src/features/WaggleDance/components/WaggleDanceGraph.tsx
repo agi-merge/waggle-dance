@@ -1,11 +1,5 @@
 import React from "react";
-import {
-  Home,
-  KeyboardArrowRight,
-  Lan,
-  ListAlt,
-  Science,
-} from "@mui/icons-material";
+import { KeyboardArrowRight, Lan, ListAlt, Science } from "@mui/icons-material";
 import {
   Button,
   LinearProgress,
