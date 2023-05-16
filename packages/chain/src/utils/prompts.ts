@@ -48,15 +48,16 @@ interface Problem (
 )
 `.trim();
 
+export type ChainType =
+  | "domain"
+  | "plan"
+  | "execute"
+  | "review"
+  | "constructiveAdversary"
+  | "brutalAdversary"
+  | "selfTerminateIfNeeded";
 export const createPrompt = (
-  type:
-    | "domain"
-    | "plan"
-    | "execute"
-    | "review"
-    | "constructiveAdversary"
-    | "brutalAdversary"
-    | "selfTerminateIfNeeded",
+  type: ChainType,
   creationProps?: ModelCreationProps,
   goal?: string,
 ): ChatPromptTemplate => {
