@@ -4,11 +4,7 @@ import { type BaseRequestBody } from "~/pages/api/chain/types";
 import type DAG from "./DAG";
 import { type LinkObject, type NodeObject } from "./components/ForceGraph";
 
-export type PlanResult = {
-  domain: PDDLDomain;
-  problem: PDDLProblem;
-  dag: DAG;
-};
+export type PlanResult = DAG;
 
 export type TaskResult = {
   taskId: string;

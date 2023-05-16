@@ -24,7 +24,6 @@ export interface GoalCond {
 
 export interface DAGNode {
   id: string;
-  type: string;
   action: string;
   params: Params;
 }
@@ -32,17 +31,14 @@ export interface DAGNode {
 export interface DAGEdge {
   source: string;
   target: string;
-  type: string;
 }
 export class DAGNodeClass implements DAGNode {
   id: string;
-  type: string;
   action: string;
   params: Params;
 
-  constructor(id: string, type: string, action: string, params: Params) {
+  constructor(id: string, action: string, params: Params) {
     this.id = id;
-    this.type = type;
     this.action = action;
     this.params = params;
   }
@@ -61,12 +57,10 @@ export class InitCondClass implements InitCond {
 export class DAGEdgeClass implements DAGEdge {
   source: string;
   target: string;
-  type: string; // add the 'action' property
 
-  constructor(source: string, target: string, type: string) {
+  constructor(source: string, target: string) {
     this.source = source;
     this.target = target;
-    this.type = type;
   }
 }
 export default class DAG {
@@ -85,22 +79,6 @@ export default class DAG {
     this.edges = edges;
     this.init = init;
     this.goal = goal;
-  }
-
-  getNodes(): DAGNode[] {
-    return this.nodes;
-  }
-
-  getEdges(): DAGEdge[] {
-    return this.edges;
-  }
-
-  getInitConditions(): InitCond[] {
-    return this.init;
-  }
-
-  getGoalConditions(): GoalCond[] {
-    return this.goal;
   }
 
   // Additional methods for handling the DAG can be implemented here.

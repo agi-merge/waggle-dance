@@ -50,6 +50,7 @@ async function executeTasks(
   while (taskQueue.length > 0 || tasksInProgress.size > 0) {
     console.log(`while (taskQueue.length > 0 || tasksInProgress.size > 0)`);
     const isNotFull = () => tasksInProgress.size < maxConcurrency;
+    let selectedTask = false;
     while (isNotFull()) {
       console.log("Selecting next task...");
       const task = getNextTask(
@@ -63,13 +64,14 @@ async function executeTasks(
         console.log("Selected task:", task);
         tasksInProgress.add(task);
         taskQueue.splice(taskQueue.indexOf(task), 1);
+        selectedTask = true;
       } else {
         console.log("No task selected");
         break;
       }
     }
 
-    if (isNotFull()) {
+    if (selectedTask) {
       const executeTaskPromises = Array.from(tasksInProgress).map((task) => {
         console.log("about to schedule task", task);
         return (async () => {
@@ -133,8 +135,7 @@ function getNextTask(
   dag: DAG,
 ): DAGNode | null {
   for (const task of taskQueue) {
-    const dependencies = dag
-      .getEdges()
+    const dependencies = dag.edges
       .filter((edge) => edge.target === task.id)
       .map((edge) => edge.source);
 
@@ -180,18 +181,17 @@ export default class WaggleDanceMachine implements BaseWaggleDanceMachine {
     let taskResults: Record<string, BaseResultType> = {};
     const maxConcurrency = request.creationProps.maxConcurrency ?? 8;
 
-    while (!isGoalReached(dag.getGoalConditions(), completedTasks)) {
-      const pendingTasks = dag
-        .getNodes()
-        .filter((node) => !completedTasks.has(node.id));
+    while (!isGoalReached(dag.goal, completedTasks)) {
+      const pendingTasks = dag.nodes.filter(
+        (node) => !completedTasks.has(node.id),
+      );
 
       if (pendingTasks.length === 0) {
         break;
       }
 
       const relevantPendingTasks = pendingTasks.filter((task) =>
-        dag
-          .getEdges()
+        dag.edges
           .filter((edge) => edge.target === task.id)
           .every((edge) => completedTasks.has(edge.source)),
       );

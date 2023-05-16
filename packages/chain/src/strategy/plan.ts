@@ -5,19 +5,6 @@ import { createModel } from "../utils/model";
 import { createPrompt } from "../utils/prompts";
 import { type ModelCreationProps } from "../utils/types";
 
-export interface PDDL {
-  domain: string;
-  types: Record<string, string>;
-  predicates: Record<string, string[]>;
-  actions: Record<string, Action>;
-}
-
-export type Action = {
-  parameters: string[];
-  precondition: string[];
-  effect: string[];
-};
-
 export async function planChain(
   creationProps: ModelCreationProps,
   goal: string,
@@ -38,11 +25,9 @@ export async function planChain(
     }),
   ]);
   const responseString = call?.response ? (call.response as string) : "";
-  const { domain, problem, dag } = JSON.parse(responseString) as {
-    domain: string;
-    problem: string;
+  const { dag } = JSON.parse(responseString) as {
     dag: string;
   };
 
-  return { domain, problem, dag };
+  return { dag };
 }
