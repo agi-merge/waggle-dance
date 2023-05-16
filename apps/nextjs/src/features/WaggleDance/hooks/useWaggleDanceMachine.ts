@@ -43,6 +43,8 @@ UseWaggleDanceMachineProps) => {
       },
     });
 
+    console.log("waggleDanceMachine.run result", result);
+
     if (result instanceof Error) {
       console.error("Error in WaggleDanceMachine's run:", result);
       return;

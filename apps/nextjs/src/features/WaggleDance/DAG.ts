@@ -7,6 +7,16 @@ export interface InitCond {
   params: Params;
 }
 
+export class GoalCondClass implements GoalCond {
+  predicate: string;
+  params: Params;
+
+  constructor(predicate: string, params: Params) {
+    this.predicate = predicate;
+    this.params = params;
+  }
+}
+
 export interface GoalCond {
   predicate: string;
   params: Params;
@@ -15,21 +25,25 @@ export interface GoalCond {
 export interface DAGNode {
   id: string;
   type: string;
+  action: string;
   params: Params;
 }
 
 export interface DAGEdge {
   source: string;
   target: string;
+  type: string;
 }
 export class DAGNodeClass implements DAGNode {
   id: string;
   type: string;
+  action: string;
   params: Params;
 
-  constructor(id: string, type: string, params: Params) {
+  constructor(id: string, type: string, action: string, params: Params) {
     this.id = id;
     this.type = type;
+    this.action = action;
     this.params = params;
   }
 }
@@ -44,25 +58,15 @@ export class InitCondClass implements InitCond {
   }
 }
 
-export class GoalCondClass implements GoalCond {
-  predicate: string;
-  params: Params;
-
-  constructor(predicate: string, params: Params) {
-    this.predicate = predicate;
-    this.params = params;
-  }
-}
-
 export class DAGEdgeClass implements DAGEdge {
   source: string;
   target: string;
-  action: string; // add the 'action' property
+  type: string; // add the 'action' property
 
-  constructor(source: string, target: string, action: string) {
+  constructor(source: string, target: string, type: string) {
     this.source = source;
     this.target = target;
-    this.action = action;
+    this.type = type;
   }
 }
 export default class DAG {

@@ -1,16 +1,13 @@
 // WaggleDance/types.ts
 
 import { type BaseRequestBody } from "~/pages/api/chain/types";
+import type DAG from "./DAG";
 import { type LinkObject, type NodeObject } from "./components/ForceGraph";
 
 export type PlanResult = {
-  domain: string;
-  problem: string;
-};
-
-export type ProcessedPlanResult = {
   domain: PDDLDomain;
   problem: PDDLProblem;
+  dag: DAG;
 };
 
 export type TaskResult = {

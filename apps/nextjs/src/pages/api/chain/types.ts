@@ -15,6 +15,7 @@ export interface ExecuteRequestBody extends BaseRequestBody {
   domain: string;
   problem: string;
   tasks: DAGNode[];
+  action: string;
   completedTasks: string[];
   taskResults: Record<string, BaseResultType>;
 }
