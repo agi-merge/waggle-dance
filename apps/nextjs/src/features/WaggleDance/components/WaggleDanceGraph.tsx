@@ -116,7 +116,12 @@ const WaggleDanceGraph = ({ setHeaderExpanded }: WaggleDanceGraphProps) => {
                         </ListItemDecorator>
                         <ListItemContent>
                           <Typography>{n.name}</Typography>
-                          <Typography level="body3">{n.action}</Typography>
+                          <Typography level="body3">
+                            {n.action}{" "}
+                            <Typography level="body5">
+                              {JSON.stringify(n.params)}
+                            </Typography>
+                          </Typography>
                         </ListItemContent>
                         <KeyboardArrowRight />
                       </ListItemButton>
@@ -128,6 +133,10 @@ const WaggleDanceGraph = ({ setHeaderExpanded }: WaggleDanceGraphProps) => {
                 value={1}
                 className="max-h-80 w-full items-center overflow-y-scroll p-4"
               >
+                <Typography level="body4">
+                  Each tier executes concurrently | top down | subject to
+                  automatic and human review
+                </Typography>
                 <ForceGraph data={graphData} />
               </TabPanel>
               <TabPanel value={2} className="text-center">
