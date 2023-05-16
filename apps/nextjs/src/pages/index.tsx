@@ -11,6 +11,7 @@ import useGoal, { GoalInputState } from "~/stores/goalStore";
 export interface Handlers {
   setGoal: (goal: string) => void;
   onStop: () => void;
+  onChange: (goal: string) => void;
 }
 
 const Home: NextPage = () => {
@@ -27,6 +28,10 @@ const Home: NextPage = () => {
       setGoalInputState(GoalInputState.start);
     }
 
+    setGoal(goal);
+  };
+
+  const handleInputChange = (goal: string) => {
     setGoal(goal);
   };
 
@@ -75,6 +80,7 @@ const Home: NextPage = () => {
         startingValue={goal}
         callbacks={{
           setGoal: handleSetGoal,
+          onChange: handleInputChange,
           onStop: () => {
             setGoalInputState(GoalInputState.start);
           },

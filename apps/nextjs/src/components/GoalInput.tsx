@@ -69,6 +69,7 @@ export default function GoalInput({
 
   const handleChange = (event: React.ChangeEvent<HTMLTextAreaElement>) => {
     setGoalInputValue(event.target.value);
+    callbacks.onChange(event.target.value);
   };
 
   useEffect(() => {
