@@ -2,12 +2,12 @@
 export interface Params {
   [key: string]: string;
 }
-export interface InitCond {
+export interface Cond {
   predicate: string;
   params: Params;
 }
 
-export class GoalCondClass implements GoalCond {
+export class CondClass {
   predicate: string;
   params: Params;
 
@@ -17,17 +17,11 @@ export class GoalCondClass implements GoalCond {
   }
 }
 
-export interface GoalCond {
-  predicate: string;
-  params: Params;
-}
-
 export interface DAGNode {
   id: string;
   action: string;
   params: Params;
 }
-
 export interface DAGEdge {
   source: string;
   target: string;
@@ -44,16 +38,6 @@ export class DAGNodeClass implements DAGNode {
   }
 }
 
-export class InitCondClass implements InitCond {
-  predicate: string;
-  params: Params;
-
-  constructor(predicate: string, params: Params) {
-    this.predicate = predicate;
-    this.params = params;
-  }
-}
-
 export class DAGEdgeClass implements DAGEdge {
   source: string;
   target: string;
@@ -66,20 +50,21 @@ export class DAGEdgeClass implements DAGEdge {
 export default class DAG {
   readonly nodes: DAGNode[];
   readonly edges: DAGEdge[];
-  readonly init: InitCond[];
-  readonly goal: GoalCond[];
+  readonly init: Cond[];
+  readonly current: Cond[];
+  readonly goal: Cond[];
 
   constructor(
     nodes: DAGNode[],
     edges: DAGEdge[],
-    init: InitCond[],
-    goal: GoalCond[],
+    init: Cond[],
+    current: Cond[],
+    goal: Cond[],
   ) {
     this.nodes = nodes;
     this.edges = edges;
     this.init = init;
+    this.current = current;
     this.goal = goal;
   }
-
-  // Additional methods for handling the DAG can be implemented here.
 }
