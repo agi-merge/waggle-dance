@@ -1,4 +1,3 @@
-/* eslint-disable @typescript-eslint/no-empty-function */
 import "../styles/globals.css";
 import { useCallback, useEffect } from "react";
 import type { AppType } from "next/app";
@@ -13,8 +12,10 @@ import { SessionProvider } from "next-auth/react";
 
 import { api } from "~/utils/api";
 import theme from "~/styles/theme";
+import { app } from "~/constants";
 import MainLayout from "~/features/MainLayout";
 import useApp from "~/stores/appStore";
+import useGoal, { GoalInputState } from "~/stores/goalStore";
 
 const _mantineTheme = extendTheme({
   colorSchemes: {
@@ -74,6 +75,7 @@ type RouteControllerProps = {
 
 export const RouteControllerProvider = ({ children }: RouteControllerProps) => {
   const { setIsPageLoading } = useApp();
+  const { goalInputState } = useGoal();
   const router = useRouter();
 
   const handleStart = useCallback(() => {
@@ -83,6 +85,10 @@ export const RouteControllerProvider = ({ children }: RouteControllerProps) => {
   const handleStop = useCallback(() => {
     setIsPageLoading(false);
   }, [setIsPageLoading]);
+
+  const handleRouteChange = (routeName: string): void => {
+    if (router.pathname !== routeName) void router.push(routeName);
+  };
 
   useEffect(() => {
     router.events.on("routeChangeStart", handleStart);
@@ -95,6 +101,27 @@ export const RouteControllerProvider = ({ children }: RouteControllerProps) => {
       router.events.off("routeChangeError", handleStop);
     };
   }, [handleStart, handleStop, router]);
+
+  // On first page load check goalInputState and route based on it
+  // Note that we are potentially changing getting the goal state from local storage
+  useEffect(() => {
+    switch (goalInputState) {
+      case GoalInputState.start:
+        handleRouteChange(app.routes.home);
+        break;
+      case GoalInputState.refine:
+        handleRouteChange(app.routes.refine);
+        break;
+      case GoalInputState.configure:
+        handleRouteChange(app.routes.configure);
+        break;
+      case GoalInputState.done:
+        handleRouteChange(app.routes.done);
+        break;
+      default:
+        break;
+    }
+  }, []);
 
   return <>{children}</>;
 };
