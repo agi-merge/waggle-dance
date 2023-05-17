@@ -18,7 +18,7 @@ export interface GoalState {
 }
 
 const useGoal = create(
-  persist(
+  persist<GoalState>(
     (set, _get) => ({
       goal: "",
       setGoal: (newState: string) => set({ goal: newState }),
