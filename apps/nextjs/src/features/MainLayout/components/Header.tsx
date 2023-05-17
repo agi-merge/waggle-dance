@@ -20,6 +20,7 @@ function removeFirstCharIfMatching(str: string, targetChar: string): string {
 
 const Header = () => {
   const router = useRouter();
+  const { setGoalInputState } = useGoal();
   const slug = removeFirstCharIfMatching(router.pathname, "/");
   const { data: session } = useSession();
 
@@ -47,7 +48,6 @@ const Header = () => {
     label: string,
     goalState?: GoalInputState,
   ) => {
-    const { setGoalInputState } = useGoal();
     const isHighlighted = slug === path || (slug?.length ?? 0) < 1;
 
     const handleStateChange = () => {

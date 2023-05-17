@@ -38,7 +38,7 @@ const WaggleDanceGraph = ({ setHeaderExpanded }: WaggleDanceGraphProps) => {
   // doing what we expect though.  Need to test.
   // const { goal: _contextGoal, isRunning, setIsRunning } = useAppContext();
   const { isRunning, setIsRunning } = useApp();
-  const { goal: _contextGoal } = useGoal();
+  const { goal } = useGoal();
   const { graphData, run } = useChainMachine({ goal });
   const handleStart = () => {
     setIsRunning(true);
