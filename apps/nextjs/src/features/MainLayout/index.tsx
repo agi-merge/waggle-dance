@@ -59,8 +59,12 @@ const MainLayout = ({ children }: Props) => {
           invertedColors
           variant="soft"
         >
+          <LinearProgress
+            thickness={3}
+            sx={{ opacity: progressOpacity }}
+            color="primary"
+          />
           <Header />
-          <LinearProgress thickness={2} sx={{ opacity: progressOpacity }} />
           <Card
             invertedColors
             color="primary"
