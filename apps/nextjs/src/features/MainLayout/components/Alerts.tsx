@@ -8,8 +8,7 @@ const Alerts = () => {
   const { isDemoAlertOpen, setIsDemoAlertOpen } = useApp();
   const color = "warning";
   const title = "Limited Demo";
-  const description =
-    "Core features may be missing and things are frequently changing.";
+  const description = "Expect frequent changes.";
   const icon = <Warning />;
   return (
     <>
@@ -47,11 +46,22 @@ const Alerts = () => {
           >
             <div>
               <Typography fontWeight="lg" mt={0.25}>
-                {title}
+                {title} •••{" "}
+                <Typography fontSize="sm" sx={{ opacity: 0.8 }}>
+                  {description}
+                </Typography>{" "}
+                •••
               </Typography>
-              <Typography fontSize="sm" sx={{ opacity: 0.8 }}>
-                {description}
-              </Typography>
+
+              <Box>
+                Known issues:{" "}
+                <Typography level="body4">
+                  - url upload works but file does not.
+                  <br /> - the swarm doesnt use data yet
+                  <br /> - planning takes a long time
+                  <br /> - Stops after planning
+                </Typography>
+              </Box>
             </div>
           </Alert>
         </Box>
