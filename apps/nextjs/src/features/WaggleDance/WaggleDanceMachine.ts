@@ -3,7 +3,9 @@
 // Every `fetch` API method calls a large language model with different capabilities, tasks, and roles.
 // The machine should then start executing actions from the PDDL, and update the DAG accordingly.
 // If tasks are not dependent, that state can be parallelized. The aim is to complete the goal as quickly as possible.
-// Starts by generating PDDL of the domain and problem, parses it, and updates an execution DAG.
+// Starts by generating an execution DAG.
+// Then, executes the DAG, as concurrently as possible.
+// When a task completes, a new dependent review task should be added to the DAG to ensure quality results.
 // WaggleDanceMachine.ts
 
 import { TextDecoder } from "util";
