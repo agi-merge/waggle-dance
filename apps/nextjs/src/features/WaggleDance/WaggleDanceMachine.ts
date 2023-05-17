@@ -18,7 +18,12 @@ import {
   type BaseRequestBody,
   type ExecuteRequestBody,
 } from "~/pages/api/chain/types";
-import DAG, { DAGNodeClass, type Cond, type DAGNode } from "./DAG";
+import DAG, {
+  DAGEdgeClass,
+  DAGNodeClass,
+  type Cond,
+  type DAGNode,
+} from "./DAG";
 import {
   type BaseResultType,
   type BaseWaggleDanceMachine,
@@ -47,83 +52,59 @@ async function executeTasks(
   const taskResults: Record<string, BaseResultType> = {};
   const taskQueue = [...tasks];
   const tasksInProgress = new Set<DAGNode>();
-  const maxConcurrency = request.creationProps.maxConcurrency ?? 8;
 
   while (taskQueue.length > 0 || tasksInProgress.size > 0) {
-    console.log(`while (taskQueue.length > 0 || tasksInProgress.size > 0)`);
-    const isNotFull = () => tasksInProgress.size < maxConcurrency;
-    let selectedTask = false;
-    while (isNotFull()) {
-      console.log("Selecting next task...");
-      const task = getNextTask(
-        taskQueue,
-        completedTasksSet,
-        tasksInProgress,
-        dag,
-      );
-
-      if (task) {
-        console.log("Selected task:", task);
-        tasksInProgress.add(task);
-        taskQueue.splice(taskQueue.indexOf(task), 1);
-        selectedTask = true;
-      } else {
-        console.log("No task selected");
-        break;
-      }
-    }
-
-    if (selectedTask) {
-      const executeTaskPromises = Array.from(tasksInProgress).map((task) => {
+    const executeTaskPromises = Array.from(tasksInProgress).map(
+      async (task) => {
         console.log(`about to schedule task ${task.id}-${task.name}`);
-        return (async () => {
-          const edge = dag.edges.find((e) => e.targetId === task.id);
+        const edge = dag.edges.find((e) => e.targetId === task.id);
 
-          if (!edge) {
-            console.error(`No edge found for task ${task.id}-${task.name}`);
-            return;
-          }
+        if (!edge) {
+          console.error(`No edge found for task ${task.id}-${task.name}`);
+          return;
+        }
 
-          console.log(`About to execute task ${task.id}-${task.name}...`);
-          const data = { ...request, task };
-          const response = await fetch("/api/chain/execute", {
-            method: "POST",
-            headers: {
-              "Content-Type": "application/json",
-            },
-            body: JSON.stringify(data),
-          });
-          const stream = response.body;
-          if (!stream) {
-            throw new Error(`No stream: ${response.statusText}`);
-          }
-          const reader = stream.getReader();
+        console.log(`About to execute task ${task.id}-${task.name}...`);
+        const data = { ...request, task };
+        const response = await fetch("/api/chain/execute", {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify(data),
+        });
+        const stream = response.body;
+        if (!stream) {
+          throw new Error(`No stream: ${response.statusText}`);
+        }
+        const reader = stream.getReader();
 
-          try {
-            while (true) {
-              console.log(`while (true)`);
-              const { done, value } = await reader.read();
-              if (done) {
-                break;
-              }
-              const jsonLines = new TextDecoder().decode(value);
-              const packets: ChainPacket[] = await readJSONL(jsonLines);
-
-              completedTasksSet.add(task.id);
-              taskResults[task.id] = packets; // Assume packets is the result for the task, change based on actual structure
-              tasksInProgress.delete(task);
-              return packets;
+        try {
+          while (true) {
+            console.log(`while (true)`);
+            const { done, value } = await reader.read();
+            if (done) {
+              break;
             }
-          } catch (error) {
-            console.error(error);
-          } finally {
-            reader.releaseLock();
+            const jsonLines = new TextDecoder().decode(value);
+            const packets: ChainPacket[] = await readJSONL(jsonLines);
+
+            completedTasksSet.add(task.id);
+            taskResults[task.id] = packets; // Assume packets is the result for the task, change based on actual structure
+            tasksInProgress.delete(task);
+            return packets;
           }
-          return [];
-        })();
-      });
-      await Promise.all(executeTaskPromises);
-    }
+        } catch (error) {
+          console.error(error);
+        } finally {
+          reader.releaseLock();
+        }
+      },
+    );
+
+    console.log(`executeTaskPromises: ${executeTaskPromises.length}`);
+
+    await Promise.all(executeTaskPromises);
 
     await sleep(1000);
   }

@@ -66,7 +66,9 @@ export const createPrompt = (
 Efficient and Insightful LLM (${llmName}) Planning Agent
 </Persona>
 <YourTask>
-Imagine a PDDL domain and problem representation for the goal. Then produce an optimal execution DAG to supply to other AI agents to collaborate in solving their goal.
+First understand the goal, paying attention to correct numeral calculation, logic, and commonsense.
+Then, construct a mental model of the PDDL domain and problem representation for the goal.
+Finally produce an optimal execution DAG to supply to other AI agents to collaborate in solving their goal.
 </YourTask>
 <Constraints>
 You only include steps that would not likely be known by the agent (LLM: ${llmName}) with knowledge cutoff date ${LLMKnowledgeCutoff(
