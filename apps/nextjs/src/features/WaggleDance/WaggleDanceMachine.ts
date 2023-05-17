@@ -87,7 +87,7 @@ async function executeTasks(
 
       // Get the response body as a stream
       const stream = response.body;
-      if (!stream) {
+      if (!response.ok || !stream) {
         debugger;
         throw new Error(`No stream: ${response.statusText} `);
       } else {
