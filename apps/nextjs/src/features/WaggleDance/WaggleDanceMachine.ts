@@ -1,15 +1,9 @@
 // WaggleDanceMachine.ts
 
 // INTENDED BEHAVIOR:
-// Every `fetch` API method calls a large language model (LLM) with different capabilities, tasks, and roles.
-// The machine should plan actions, receiving an goal-solving execution DAG, then start executing actions, and update the DAG accordingly.
-// If tasks are not dependent, that state can be parallelized. The aim is to complete the goal as quickly as possible.
-// Starts by generating an execution DAG.
-// Then, executes the DAG, as concurrently as possible.
+// This machine is intended to plan and execute tasks concurrently, ensuring goal completion as quickly as possible.
+// It starts by generating an execution DAG and then executes the tasks concurrently.
 // When a task completes, a new dependent review task should be added to the DAG to ensure quality results.
-// WaggleDanceMachine.ts
-
-import { TextDecoder } from "util";
 
 import { type ChainPacket, type ModelCreationProps } from "@acme/chain";
 
@@ -18,7 +12,7 @@ import {
   type BaseRequestBody,
   type ExecuteRequestBody,
 } from "~/pages/api/chain/types";
-import DAG, { DAGNodeClass, DAGEdgeClass, type Cond, type DAGNode } from "./DAG";
+import DAG, { DAGNodeClass, DAGEdgeClass, type Cond } from "./DAG";
 import {
   type BaseResultType,
   type BaseWaggleDanceMachine,
@@ -31,10 +25,21 @@ function isGoalReached(goal: Cond, completedTasks: Set<string>): boolean {
   return completedTasks.has(goal.predicate);
 }
 
+// A utility function to wait for a specified amount of time (ms)
 function sleep(ms: number): Promise<void> {
   return new Promise((resolve) => setTimeout(resolve, ms));
 }
 
+function decodeText(data: Uint8Array) {
+  if (typeof TextDecoder !== "undefined") {
+    return new TextDecoder().decode(data);
+  } else {
+    return String.fromCharCode.apply(null, Array.from(data));
+  }
+}
+
+// The executeTasks function takes in a request and a DAG, then runs tasks concurrently,
+// and updates the completed tasks and task results accordingly.
 async function executeTasks(
   request: ExecuteRequestBody,
   dag: DAG,
@@ -42,71 +47,89 @@ async function executeTasks(
   completedTasks: string[];
   taskResults: Record<string, BaseResultType>;
 }> {
+  // Destructure tasks and completedTasks from the request object
   const { tasks, completedTasks } = request;
+
+  // Create a Set of completed tasks
   const completedTasksSet = new Set(completedTasks);
+
+  // Initialize an object to store task results
   const taskResults: Record<string, BaseResultType> = {};
+
+  // Create a task queue to store the tasks
   const taskQueue = [...tasks];
-  const tasksInProgress = new Set<DAGNode>();
 
-  while (taskQueue.length > 0 || tasksInProgress.size > 0) {
-    const executeTaskPromises = Array.from(tasksInProgress).map(
-      async (task) => {
-        console.log(`about to schedule task ${task.id}-${task.name}`);
-        const edge = dag.edges.find((e) => e.targetId === task.id);
-
-        if (!edge) {
-          console.error(`No edge found for task ${task.id}-${task.name}`);
-          return;
-        }
-
-        console.log(`About to execute task ${task.id}-${task.name}...`);
-        const data = { ...request, task };
-        const response = await fetch("/api/chain/execute", {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-          },
-          body: JSON.stringify(data),
-        });
-        const stream = response.body;
-        if (!stream) {
-          throw new Error(`No stream: ${response.statusText}`);
-        }
-        const reader = stream.getReader();
-
-        try {
-          while (true) {
-            console.log(`while (true)`);
-            const { done, value } = await reader.read();
-            if (done) {
-              break;
-            }
-            const jsonLines = new TextDecoder().decode(value);
-            const packets: ChainPacket[] = await readJSONL(jsonLines);
-
-            completedTasksSet.add(task.id);
-            taskResults[task.id] = packets; // Assume packets is the result for the task, change based on actual structure
-            tasksInProgress.delete(task);
-            return packets;
-          }
-        } catch (error) {
-          console.error(error);
-        } finally {
-          reader.releaseLock();
-        }
-      },
+  // Keep looping while there are tasks in the task queue
+  while (taskQueue.length > 0) {
+    // Filter the valid tasks from the task queue based on the completed tasks and the DAG edges
+    const validTasks = taskQueue.filter((task) =>
+      dag.edges
+        .filter((edge) => edge.targetId === task.id)
+        .every((edge) => completedTasksSet.has(edge.sourceId)),
     );
 
-    console.log(`executeTaskPromises: ${executeTaskPromises.length}`);
+    // Execute the valid tasks concurrently, storing the executed tasks in executeTaskPromises array
+    const executeTaskPromises = validTasks.map(async (task) => {
+      console.log(`About to schedule task ${task.id} -${task.name} `);
+      taskQueue.splice(taskQueue.indexOf(task), 1);
 
-    await Promise.all(executeTaskPromises);
+      console.log(`About to execute task ${task.id} -${task.name}...`);
 
+      // Execute each task by making an API request
+      const data = { ...request, task };
+      const response = await fetch("/api/chain/execute", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify(data),
+      });
+
+      // Get the response body as a stream
+      const stream = response.body;
+      if (!stream) {
+        debugger;
+        throw new Error(`No stream: ${response.statusText} `);
+      } else {
+        console.log(`Task ${task.id} -${task.name} executed!`);
+      }
+
+      // Read the stream data and process based on response
+      const reader = stream.getReader();
+      try {
+        while (true) {
+          const { done, value } = await reader.read();
+          if (done) {
+            break;
+          }
+
+          // Decode response data
+          const jsonLines = decodeText(value);
+
+          // Process response data and store packets in completedTasksSet and taskResults
+          const packets: ChainPacket[] = await readJSONL(jsonLines);
+          completedTasksSet.add(task.id);
+          taskResults[task.id] = packets;
+          return packets;
+        }
+      } catch (error) {
+        console.error(error);
+        debugger;
+      } finally {
+        reader.releaseLock();
+      }
+    });
+
+    // Wait for all task promises to settle and sleep for 1 second before looping again
+    await Promise.allSettled(executeTaskPromises);
     await sleep(1000);
   }
 
+  // Return completed tasks and task results
   return { completedTasks: Array.from(completedTasksSet), taskResults };
 }
 
+// Request the execution plan (DAG) from the API
 async function plan(
   goal: string,
   creationProps: ModelCreationProps,
@@ -128,6 +151,7 @@ async function plan(
   return json;
 }
 
+// The main class for the WaggleDanceMachine that coordinates the planning and execution of tasks
 export default class WaggleDanceMachine implements BaseWaggleDanceMachine {
   async run(
     request: BaseRequestBody,
@@ -159,6 +183,7 @@ export default class WaggleDanceMachine implements BaseWaggleDanceMachine {
     let taskResults: Record<string, BaseResultType> = {};
     const maxConcurrency = request.creationProps.maxConcurrency ?? 8;
 
+    // Continue executing tasks and updating DAG until the goal is reached
     while (!isGoalReached(dag.goal, completedTasks)) {
       const pendingTasks = dag.nodes.filter(
         (node) => !completedTasks.has(node.id),
@@ -192,5 +217,3 @@ export default class WaggleDanceMachine implements BaseWaggleDanceMachine {
     return { results: taskResults };
   }
 }
-
-// RETURN: Add or amend comments describing each major chunk of code. After writing the comment, if the previous code seems wrong, re-write it to achieve  INTENDED BEHAVIOR:
