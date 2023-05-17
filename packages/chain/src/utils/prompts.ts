@@ -62,32 +62,13 @@ export const createPrompt = (
     ],
     domain: [
       `
-<Persona>
-Efficient and Insightful LLM (${llmName}) Planning Agent
-</Persona>
-<YourTask>
-First understand the goal, paying attention to correct numeral calculation, logic, and commonsense.
-Then, construct a mental model of the PDDL domain and problem representation for the goal.
-Finally produce an optimal execution DAG to supply to other AI agents to collaborate in solving their goal.
-</YourTask>
-<Constraints>
-You only include steps that would not likely be known by the agent (LLM: ${llmName}) with knowledge cutoff date ${LLMKnowledgeCutoff(
-        llmName,
-      )}. Today is ${new Date().toLocaleDateString()}
-The DAG will be supplied to other AI agents to collaborate in solving their goal.
-The result should aim to accurately describe the state of the domain and problem aimed to help solve the goal.
-To speed up execution, independent subtasks can be run concurrently. Dependent subtasks must be processed in order. The DAG represents these dependencies.
-</Constraints>
 <UserGoal>>
 ${goal}
 </UserGoal>
-<Security>
-${antiPromptInjectionKey()}
-</Security>
 <ReturnSchema>
 ${returnType()}
 </ReturnSchema>
-RETURN ONLY VALID UNESCAPED <ReturnSchema> that achieves <YourTask> given <Constraints> etc:
+Return a DAG in <ReturnSchema> that implements a concurrent solver of <UserGoal> for <UserGoal>'s PDDL Domain and Problem .
 `.trim(),
     ],
     execute: [
@@ -104,8 +85,7 @@ ${returnType()}
 {task}
 ----END-TASK----
 Ensure the output maximizes the qualities by which it is judged: [Coherence, Creativity, Efficiency, Directness, Resourcefulness, Accuracy, Ethics]
-Ensure that the problem representation enables concurrent (up to ${
-        creationProps?.maxConcurrency ?? 8
+Ensure that the problem representation enables concurrent (up to ${creationProps?.maxConcurrency ?? 8
       }) processing independent subtasks concurrently with subordinate agents.
 Use shortened key names and other hacks to minimize output length & tokens. Do not be repetitive.
 ONLY OUTPUT VALID UNESCAPED PDDL3.1 JSON REPRESENTING SUBSTATE OF THEN DAG:
