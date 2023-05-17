@@ -74,18 +74,17 @@ const WaggleDanceGraph = ({ setHeaderExpanded }: WaggleDanceGraphProps) => {
         <Tabs
           defaultValue={1}
           sx={{ borderRadius: "lg" }}
-          color="info"
-          variant="outlined"
+          variant="soft"
           className="max-h-96 w-full"
         >
           <TabList>
             <Tab>
               <ListAlt />
-              <Typography>Active Agents</Typography>
+              <Typography>Agents</Typography>
             </Tab>
             <Tab>
               <Lan />
-              <Typography>Problem Graph</Typography>
+              <Typography>Graph</Typography>
             </Tab>
             <Tab>
               <Science />
