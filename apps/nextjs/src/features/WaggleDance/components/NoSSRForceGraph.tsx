@@ -60,13 +60,13 @@ const NoSSRForceGraph: React.FC<ForceGraphProps> = ({ data }) => {
         nodeAutoColorBy="id"
         graphData={data}
         cooldownTicks={100}
-        linkWidth={3}
+        linkWidth={4}
         linkLabel="id"
         linkAutoColorBy="id"
-        dagLevelDistance={50}
+        dagLevelDistance={15}
         linkDirectionalParticles={2}
         linkDirectionalParticleSpeed={0.005}
-        linkDirectionalParticleWidth={4}
+        linkDirectionalParticleWidth={5}
         linkDirectionalArrowLength={8}
         linkDirectionalArrowRelPos={0.6}
         onEngineTick={() => {
