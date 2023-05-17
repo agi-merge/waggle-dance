@@ -6,7 +6,7 @@ import {
   SystemMessagePromptTemplate,
 } from "langchain/prompts";
 
-import { LLMKnowledgeCutoff, type ModelCreationProps } from "./types";
+import { type ModelCreationProps } from "./types";
 
 // JON: this is so dumb it might just work.
 const antiPromptInjectionKey = () => {

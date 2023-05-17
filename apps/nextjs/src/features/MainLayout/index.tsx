@@ -67,9 +67,9 @@ const MainLayout = ({ children }: Props) => {
             variant="outlined"
             className="-m-2 my-5 p-2"
           >
+            <Alerts />
             {children}
           </Card>
-          <Alerts />
           <Footer />
         </Sheet>
       </div>

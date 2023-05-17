@@ -5,6 +5,8 @@ export interface AppState {
   setIsRunning: (newState: boolean) => void;
   isPageLoading: boolean;
   setIsPageLoading: (newState: boolean) => void;
+  isDemoAlertOpen: boolean,
+  setIsDemoAlertOpen: (newState: boolean) => void;
 }
 
 const useApp = create<AppState>((set) => ({
@@ -12,6 +14,8 @@ const useApp = create<AppState>((set) => ({
   setIsRunning: (newState) => set({ isRunning: newState }),
   isPageLoading: false,
   setIsPageLoading: (newState) => set({ isPageLoading: newState }),
+  isDemoAlertOpen: true,
+  setIsDemoAlertOpen: (newState) => set({ isDemoAlertOpen: newState }),
 }))
 
 export default useApp;

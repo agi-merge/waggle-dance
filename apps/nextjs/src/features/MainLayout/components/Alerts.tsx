@@ -1,10 +1,11 @@
-import React, { useState } from "react";
+import React from "react";
 import { Close, Warning } from "@mui/icons-material";
 import { Alert, Box, IconButton, Typography } from "@mui/joy";
 
-const Alerts = () => {
-  const [systemAlertOpen, setSystemAlertOpen] = useState(false);
+import useApp from "~/stores/appStore";
 
+const Alerts = () => {
+  const { isDemoAlertOpen, setIsDemoAlertOpen } = useApp();
   const color = "warning";
   const title = "Limited Demo";
   const description =
@@ -12,7 +13,7 @@ const Alerts = () => {
   const icon = <Warning />;
   return (
     <>
-      {systemAlertOpen && (
+      {isDemoAlertOpen && (
         <Box
           className="my-2"
           sx={{
@@ -37,7 +38,7 @@ const Alerts = () => {
                 size="sm"
                 color={color}
                 onClick={() => {
-                  setSystemAlertOpen(false);
+                  setIsDemoAlertOpen(false);
                 }}
               >
                 <Close />
