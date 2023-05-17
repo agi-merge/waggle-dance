@@ -59,7 +59,7 @@ const Alerts = () => {
                   - url upload works but file does not.
                   <br /> - the swarm doesnt use data yet
                   <br /> - planning takes a long time
-                  <br /> - Stops after planning
+                  <br /> - stops after planning
                 </Typography>
               </Box>
             </div>
