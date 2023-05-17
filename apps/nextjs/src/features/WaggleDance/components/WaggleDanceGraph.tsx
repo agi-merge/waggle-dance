@@ -77,15 +77,9 @@ const WaggleDanceGraph = ({ setHeaderExpanded }: WaggleDanceGraphProps) => {
           <Tabs
             aria-label="Waggle Dance Status and Results"
             defaultValue={1}
-            variant="outlined"
-            className="max-h-max w-full"
             color="neutral"
           >
-            <TabList
-              sx={{
-                borderRadius: "0",
-              }}
-            >
+            <TabList>
               <Tab>
                 <ListAlt />
                 <Typography>Agents</Typography>
@@ -103,7 +97,7 @@ const WaggleDanceGraph = ({ setHeaderExpanded }: WaggleDanceGraphProps) => {
             </TabList>
             {dag.nodes.length > 0 && (
               <>
-                {isRunning && <LinearProgress />}
+                {isRunning && <LinearProgress thickness={3} />}
                 <TabPanel
                   value={0}
                   className="relative h-96 w-full overflow-y-scroll p-4"
