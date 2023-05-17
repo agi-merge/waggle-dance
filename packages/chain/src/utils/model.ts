@@ -4,7 +4,7 @@ import { OpenAI } from "langchain/llms/openai";
 import { type EmbeddingsCreationProps, type ModelCreationProps } from "./types";
 
 export const createModel = (creationProps: ModelCreationProps): OpenAI => {
-  // console.log(`createModel: ${JSON.stringify(creationProps)}`);
+  console.log(`createModel: ${JSON.stringify(creationProps)}`);
   return new OpenAI(
     {
       ...creationProps,

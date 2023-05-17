@@ -12,9 +12,10 @@ const GPT_4 = "gpt-4";
 export enum LLM {
   embeddings = TEXT_EMBEDDING_ADA,
   fast = GPT_35_TURBO,
-  smart = GPT_4, //GPT_4,
+  smart = GPT_35_TURBO,
 }
 
+// Currently, this uses 256 arbitrarily for embeddings, and 50/50 for prompt/response with OpenAI LLMs.
 export const LLMTokenLimit = (llm: string) => {
   switch (llm) {
     case TEXT_EMBEDDING_ADA:
@@ -39,18 +40,18 @@ export const LLMKnowledgeCutoff = (llm: string) => {
 
 interface OpenAIConfigurationParameters {
   apiKey?:
-    | string
-    | Promise<string>
-    | ((name: string) => string)
-    | ((name: string) => Promise<string>);
+  | string
+  | Promise<string>
+  | ((name: string) => string)
+  | ((name: string) => Promise<string>);
   organization?: string;
   username?: string;
   password?: string;
   accessToken?:
-    | string
-    | Promise<string>
-    | ((name?: string, scopes?: string[]) => string)
-    | ((name?: string, scopes?: string[]) => Promise<string>);
+  | string
+  | Promise<string>
+  | ((name?: string, scopes?: string[]) => string)
+  | ((name?: string, scopes?: string[]) => Promise<string>);
   basePath?: string;
   baseOptions?: unknown;
   formDataCtor?: new () => unknown;
@@ -61,16 +62,16 @@ type OpenAIKeyProvider = {
 };
 export interface ModelCreationProps
   extends Partial<OpenAIInput>,
-    BaseLLMParams,
-    OpenAIKeyProvider {
+  BaseLLMParams,
+  OpenAIKeyProvider {
   verbose?: boolean;
   modelName: LLM;
 }
 
 export interface EmbeddingsCreationProps
   extends Partial<OpenAIEmbeddingsParams>,
-    OpenAIKeyProvider,
-    OpenAIConfigurationParameters {
+  OpenAIKeyProvider,
+  OpenAIConfigurationParameters {
   verbose?: boolean;
 }
 
