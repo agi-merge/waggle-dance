@@ -38,9 +38,9 @@ UseWaggleDanceMachineProps) => {
       {
         goal,
         creationProps: {
-          modelName: LLM.smartLarge,
+          modelName: LLM.smart,
           temperature: 0,
-          maxTokens: LLMTokenLimit(LLM.smartLarge), // TODO: make this === available tokens after prompt
+          maxTokens: LLMTokenLimit(LLM.smart), // TODO: make this === available tokens after prompt
           maxConcurrency: 6,
           streaming: true,
           verbose: true,

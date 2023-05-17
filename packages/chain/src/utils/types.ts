@@ -11,9 +11,8 @@ const GPT_4 = "gpt-4";
 // const _GPT_4_32k = "gpt-4-32k";
 export enum LLM {
   embeddings = TEXT_EMBEDDING_ADA,
-  fast = GPT_4,
+  fast = GPT_35_TURBO,
   smart = GPT_4, //GPT_4,
-  smartLarge = GPT_4, //GPT_4_32k,
 }
 
 export const LLMTokenLimit = (llm: string) => {
