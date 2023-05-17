@@ -124,7 +124,11 @@ TODO: If desired, figure out a scheme to provide access to vercel builds (not su
 
 Contributions are always welcome! Please read the [contribution guidelines](./CONTRIBUTING.md) first.
 
-## 📝 Notes
+## 📝 Benchmarks
+
+We believe in the importance of observability, and transparency in performance of AI systems.
+
+- Coming soon
 
 ### Helpful Docs
 
@@ -137,14 +141,13 @@ Contributions are always welcome! Please read the [contribution guidelines](./CO
 - [Examples of Prompt Based Apps](https://chatgpt-prompt-apps.com/)
 - [Another Example of a Prompt Based App](https://github.com/Significant-Gravitas/Auto-GPT)
 - [Python Notebook/Cookbook for Tinkering/Exploring](https://github.com/openai/openai-cookbook/blob/main/apps/chatbot-kickstarter/powering_your_products_with_chatgpt_and_your_data.ipynb)
-- [Balamb Docs - See Why It's Useful Section](https://www.npmjs.com/package/balamb)
 - [LangChain Docs - This lib is the main wrapper around Open AI for this app](https://js.langchain.com/docs/)
 - [Constitional AI in RLHF](https://astralcodexten.substack.com/p/constitutional-ai-rlhf-on-steroids)
 - [Understand different types of memory and vector database techniques](https://www.pinecone.io/learn/hnsw/)
 
 ## Citations
 
--
+- https://github.com/AGI-Edgerunners/Plan-and-Solve-Prompting
 
 ## Special Thanks
 

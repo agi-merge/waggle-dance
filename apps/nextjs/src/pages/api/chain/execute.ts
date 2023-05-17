@@ -1,9 +1,11 @@
+// chain/execute.ts
+
 import { type IncomingMessage, type ServerResponse } from "http";
+import { type AgentAction } from "langchain/dist/schema";
 
-import { executeChain } from "@acme/chain";
-import StreamingCallbackHandler from "@acme/chain/src/utils/callbacks";
+import { executeChain, type ChainPacket } from "@acme/chain";
 
-import { type StrategyRequestBody } from "./types";
+import { type ExecuteRequestBody } from "./types";
 
 export const config = {
   api: {
@@ -13,34 +15,76 @@ export const config = {
 };
 
 const handler = async (req: IncomingMessage, res: ServerResponse) => {
+  const writePacket = (packet: ChainPacket) => {
+    res.write(JSON.stringify(packet) + "\n");
+  };
   try {
-    res.setHeader("Content-Type", "text/plain");
-    res.setHeader("Transfer-Encoding", "chunked");
-    res.writeHead(200);
-    res.flushHeaders();
+    res.writeHead(200, {
+      "Content-Type": "application/octet-stream",
+      "Transfer-Encoding": "chunked",
+    });
 
     const bodyChunks = [];
     for await (const chunk of req) {
       bodyChunks.push(chunk);
     }
     const body = Buffer.concat(bodyChunks).toString();
-    console.log(body);
-    const { creationProps, goal, task } = JSON.parse(
-      body,
-    ) as StrategyRequestBody;
-
-    // Uncomment the following line to use StreamingCallbackHandler if needed
-    const callbacks = [new StreamingCallbackHandler(res)];
-    creationProps.callbacks = callbacks;
-    const result = await executeChain({
+    const {
       creationProps,
       goal,
-      task: task ? task : "",
+      tasks,
+      completedTasks: _completedTasks,
+    } = JSON.parse(body) as ExecuteRequestBody;
+
+    const inlineCallback = {
+      handleLLMStart: (llm: { name: string }, _prompts: string[]) => {
+        console.debug("handleLLMStart", { llm });
+        const packet: ChainPacket = {
+          type: "system",
+          value: JSON.stringify({ name: llm.name }),
+        };
+        writePacket(packet);
+      },
+      handleChainStart: (chain: { name: string }) => {
+        console.debug("handleChainStart", { chain });
+        const packet: ChainPacket = {
+          type: "system",
+          value: JSON.stringify({ name: chain.name }),
+        };
+        writePacket(packet);
+      },
+      handleAgentAction: (action: AgentAction) => {
+        console.debug("handleAgentAction", action);
+        const packet: ChainPacket = {
+          type: "system",
+          value: JSON.stringify({ action }),
+        };
+        writePacket(packet);
+      },
+      handleToolStart: (tool: { name: string }) => {
+        console.debug("handleToolStart", { tool });
+        const packet: ChainPacket = {
+          type: "system",
+          value: JSON.stringify({ name: tool.name }),
+        };
+        writePacket(packet);
+      },
+    };
+
+    const callbacks = [inlineCallback];
+    creationProps.callbacks = callbacks;
+    console.log("about to execute plan");
+    const executionPromises = tasks.map((task) => {
+      return executeChain({
+        creationProps,
+        goal,
+        task: task.name,
+      });
     });
+    const executionResults = await Promise.all(executionPromises);
 
-    console.debug("executePlan result", result);
-
-    res.write(result);
+    console.debug("executePlan results", executionResults);
+    res.write(JSON.stringify({ results: executionResults }));
     res.end();
   } catch (e) {
     let message;
@@ -57,9 +101,8 @@ const handler = async (req: IncomingMessage, res: ServerResponse) => {
     }
 
     const all = { stack, message, status };
-
-    res.writeHead(status, { "Content-Type": "application/json" });
-    res.write(JSON.stringify(all));
+    console.error(all);
+    writePacket({ type: "error", value: JSON.stringify(all) });
     res.end();
   }
 };

@@ -32,7 +32,7 @@ import {
 import Table from "@mui/joy/Table";
 
 import DropZoneUploader from "~/features/AddDocuments/DropZoneUploader";
-import useGoal from "~/stores/goalStore";
+import { useAppContext } from "../_app";
 
 type UploadState =
   | { status: "idle" }
@@ -88,7 +88,7 @@ const AddDocuments: NextPage = () => {
   const [headerExpanded, setHeaderExpanded] = useState(true);
   const [ingestFiles, setIngestFiles] = useState<IngestFiles>({});
   const [ingestUrls, setIngestUrls] = useState<IngestUrls>({});
-  const { goal } = useGoal();
+  const { goal } = useAppContext();
 
   useEffect(() => {
     // Redirect if the goal is undefined or empty
@@ -170,19 +170,19 @@ const AddDocuments: NextPage = () => {
             className="flex-grow select-none pr-5 text-white"
             style={{ userSelect: "none" }}
           >
-            <Typography level="h4">Accelerate goal</Typography>
+            <Typography level="h4">Supercharge with data</Typography>
           </Link>
           {headerExpanded ? <KeyboardArrowUp /> : <KeyboardArrowDown />}
         </Stack>
         {headerExpanded && (
           <>
             <Typography level="body3" style={{ userSelect: "none" }}>
-              In order to achieve your goal, you may need to add any relevant
-              data. GPT-4 has no knowledge of anything since September 2021, so
-              anything newer than that would be a good target. You can also
-              shortcut research steps by providing relevant data. For example,
-              if you are working on a GitHub code project, it would save time to
-              provide the GitHub URL.
+              In order to achieve your goal efficiently and accurate, you may
+              need to add any relevant data. GPT-4 has no knowledge of anything
+              since September 2021, so anything newer than that would be a good
+              target. You can also shortcut research steps by providing relevant
+              data. For example, if you are working on a GitHub code project, it
+              would save time to provide the GitHub URL.
             </Typography>
           </>
         )}

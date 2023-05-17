@@ -1,80 +1,66 @@
-import { useState } from "react";
+// useWaggleDanceMachine.ts
 
-import { LLM } from "@acme/chain";
+import { useCallback, useEffect, useState } from "react";
 
+import { LLM, LLMTokenLimit } from "@acme/chain";
+
+import DAG from "../DAG";
 import WaggleDanceMachine from "../WaggleDanceMachine";
-// import ChainMachineSimulation from "../ChainMachineSimulation";
-import { type LinkObject, type NodeObject } from "../components/ForceGraph";
-import { WaggleDanceResult, type GraphData } from "../types";
+import { type GraphData } from "../components/ForceGraph";
 import { dagToGraphData } from "../utils/conversions";
 
-interface UseChainMachineProps {
+interface UseWaggleDanceMachineProps {
   goal: string;
   isSimulated?: boolean;
 }
-const useChainMachine = ({
+const useWaggleDanceMachine = ({
   goal,
 }: // _isSimulated = false,
-UseChainMachineProps) => {
+UseWaggleDanceMachineProps) => {
   // const [chainMachine] = useState(() =>
   //   isSimulated ? new ChainMachineSimulation() : new ChainMachine(),
   // );
   const [waggleDanceMachine] = useState(() => new WaggleDanceMachine());
+
+  const [dag, setDAG] = useState<DAG>(new DAG([], [], [], []));
 
   const [graphData, setGraphData] = useState<GraphData>({
     nodes: [],
     links: [],
   });
 
-  const run = async () => {
-    if (graphData.nodes.length === 0) {
-      const gd = graphData;
-      gd.nodes = [{ id: `plan-${goal}` }];
-      setGraphData(gd);
-    }
-    const result = await waggleDanceMachine.run(
-      goal,
-      {
-        modelName: LLM.smartLarge,
-        temperature: 0,
-        maxTokens: 1000, // TODO: make this === available tokens after prompt
-        streaming: true,
-        // callbacks?: CallbackManager;
-        verbose: true,
-      },
-      {
-        onTaskCreated: (newNode: NodeObject, newLink?: LinkObject) => {
-          // console.log("onTaskCreated", newNode, newLink);
-          setGraphData((prevGraphData) => ({
-            nodes: [...prevGraphData.nodes, newNode],
-            links: newLink
-              ? [...prevGraphData.links, newLink]
-              : prevGraphData.links,
-          }));
-        },
-        onReviewFailure: (target: string, _error: Error) => {
-          console.log("onReviewFailure", target);
-          setGraphData((prevGraphData) => {
-            const newNodes = prevGraphData.nodes.filter(
-              (node) => node.id !== target,
-            );
-            const newLinks = prevGraphData.links.filter(
-              (link) => link.source !== target && link.target !== target,
-            );
-            return { nodes: newNodes, links: newLinks };
-          });
-        },
-      },
-    );
-    console.log("result", result);
-    // const graphData = dagToGraphData((result as WaggleDanceResult).results[0]);
-    // setGraphData((prevGraphData) => {
-    //   graphData;
-    // });
-    return result;
-  };
+  useEffect(() => {
+    setGraphData(dagToGraphData(dag));
+  }, [dag]);
 
-  return { chainMachine: waggleDanceMachine, graphData, run };
+  const run = useCallback(async () => {
+    const result = await waggleDanceMachine.run(
+      {
+        goal,
+        creationProps: {
+          modelName: LLM.smart,
+          temperature: 0,
+          maxTokens: LLMTokenLimit(LLM.smart), // TODO: make this === available tokens after prompt
+          maxConcurrency: 6,
+          streaming: true,
+          verbose: true,
+        },
+      },
+      [dag, setDAG],
+    );
+
+    console.log("waggleDanceMachine.run result", result);
+
+    if (result instanceof Error) {
+      console.error("Error in WaggleDanceMachine's run:", result);
+      return;
+    }
+
+    console.log("result", result);
+    return result;
+  }, [goal, dag, setDAG, waggleDanceMachine]);
+
+  return { chainMachine: waggleDanceMachine, dag, graphData, run };
 };
 
-export default useChainMachine;
+export default useWaggleDanceMachine;

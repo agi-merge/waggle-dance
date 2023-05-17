@@ -1,5 +1,6 @@
+/* eslint-disable @typescript-eslint/no-empty-function */
 import "../styles/globals.css";
-import { useCallback, useEffect } from "react";
+import { createContext, useContext, useEffect, useState } from "react";
 import type { AppType } from "next/app";
 import { useRouter } from "next/router";
 import {
@@ -12,10 +13,7 @@ import { SessionProvider } from "next-auth/react";
 
 import { api } from "~/utils/api";
 import theme from "~/styles/theme";
-import { app } from "~/constants";
 import MainLayout from "~/features/MainLayout";
-import useApp from "~/stores/appStore";
-import useGoal, { GoalInputState } from "~/stores/goalStore";
 
 const _mantineTheme = extendTheme({
   colorSchemes: {
@@ -69,28 +67,49 @@ const _mantineTheme = extendTheme({
   },
 });
 
-type RouteControllerProps = {
+export enum GoalInputState {
+  start,
+  refine,
+  configure,
+  run,
+  done,
+}
+// Really, this is a GoalContext, or something else.
+// We can use it in a more targeted manner once we have multiple flows within the app.
+const AppContext = createContext({
+  goal: "",
+  setGoal: (_goal: string) => {},
+  goalInputState: GoalInputState.start,
+  setGoalInputState: (_state: GoalInputState) => {},
+  isRunning: false,
+  setIsRunning: (_isRunning: boolean) => {},
+  isPageLoading: false,
+  setIsPageLoading: (_isPageLoading: boolean) => {},
+});
+
+export const useAppContext = () => useContext(AppContext);
+
+type StateProviderProps = {
   children: React.ReactNode;
 };
 
-export const RouteControllerProvider = ({ children }: RouteControllerProps) => {
-  const { setIsPageLoading } = useApp();
-  const { goalInputState } = useGoal();
+export const StateProvider = ({ children }: StateProviderProps) => {
+  const [goal, setGoal] = useState("");
+  const [goalInputState, setGoalInputState] = useState(GoalInputState.start);
+  const [isRunning, setIsRunning] = useState(false);
+  const [isPageLoading, setIsPageLoading] = useState(false);
+
   const router = useRouter();
 
-  const handleStart = useCallback(() => {
-    setIsPageLoading(true);
-  }, [setIsPageLoading]);
-
-  const handleStop = useCallback(() => {
-    setIsPageLoading(false);
-  }, [setIsPageLoading]);
-
-  const handleRouteChange = (routeName: string): void => {
-    if (router.pathname !== routeName) void router.push(routeName);
-  };
-
   useEffect(() => {
+    const handleStart = (_url: string) => {
+      setIsPageLoading(true);
+    };
+
+    const handleStop = () => {
+      setIsPageLoading(false);
+    };
+
     router.events.on("routeChangeStart", handleStart);
     router.events.on("routeChangeComplete", handleStop);
     router.events.on("routeChangeError", handleStop);
@@ -100,31 +119,24 @@ export const RouteControllerProvider = ({ children }: RouteControllerProps) => {
       router.events.off("routeChangeComplete", handleStop);
       router.events.off("routeChangeError", handleStop);
     };
-  }, [handleStart, handleStop, router]);
+  }, [router]);
 
-  // On first page load check goalInputState and route based on it
-  // Note that we are potentially changing getting the goal state from local storage
-  useEffect(() => {
-    switch (goalInputState) {
-      case GoalInputState.start:
-        handleRouteChange(app.routes.home);
-        break;
-      case GoalInputState.refine:
-        handleRouteChange(app.routes.refine);
-        break;
-      case GoalInputState.configure:
-        handleRouteChange(app.routes.waggle);
-        break;
-      case GoalInputState.done:
-        handleRouteChange(app.routes.done);
-        break;
-      default:
-        break;
-    }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
-
-  return <>{children}</>;
+  return (
+    <AppContext.Provider
+      value={{
+        goal,
+        setGoal,
+        goalInputState,
+        setGoalInputState,
+        isRunning,
+        setIsRunning,
+        isPageLoading,
+        setIsPageLoading,
+      }}
+    >
+      {children}
+    </AppContext.Provider>
+  );
 };
 
 const MyApp: AppType<{ session: Session | null }> = ({
@@ -134,13 +146,13 @@ const MyApp: AppType<{ session: Session | null }> = ({
   return (
     <SessionProvider session={session}>
       {getInitColorSchemeScript()}
-      <RouteControllerProvider>
+      <StateProvider>
         <CssVarsProvider theme={theme}>
           <MainLayout>
             <Component {...pageProps} />
           </MainLayout>
         </CssVarsProvider>
-      </RouteControllerProvider>
+      </StateProvider>
     </SessionProvider>
   );
 };
