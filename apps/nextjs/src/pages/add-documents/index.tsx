@@ -21,6 +21,7 @@ import {
   Box,
   Button,
   Card,
+  Divider,
   IconButton,
   Input,
   LinearProgress,
@@ -170,22 +171,24 @@ const AddDocuments: NextPage = () => {
             className="flex-grow select-none pr-5 text-white"
             style={{ userSelect: "none" }}
           >
-            <Typography level="h4">Supercharge with data</Typography>
+            <Typography level="h4">🌺 Pollinate with data</Typography>
           </Link>
           {headerExpanded ? <KeyboardArrowUp /> : <KeyboardArrowDown />}
         </Stack>
         {headerExpanded && (
           <>
             <Typography level="body3" style={{ userSelect: "none" }}>
-              In order to achieve your goal efficiently and accurate, you may
-              need to add any relevant data. GPT-4 has no knowledge of anything
-              since September 2021, so anything newer than that would be a good
-              target. You can also shortcut research steps by providing relevant
-              data. For example, if you are working on a GitHub code project, it
-              would save time to provide the GitHub URL.
+              Providing up to date and relevant information upfront will ensure
+              better planning and execution by the waggling swarm of bees. You
+              can keep adding documents later as well.
             </Typography>
           </>
         )}
+        <Divider inset="context">
+          <Typography className="w-52 text-center" level="body3">
+            ~
+          </Typography>
+        </Divider>
       </Stack>
       <Stack gap="1rem" className="mt-6">
         <IngestContext.Provider

@@ -4,7 +4,7 @@ import type { NextPage } from "next";
 import Link from "next/link";
 import { useRouter } from "next/router";
 import { KeyboardArrowDown, KeyboardArrowUp } from "@mui/icons-material";
-import { Card, Stack, Typography } from "@mui/joy";
+import { Card, Divider, Stack, Typography } from "@mui/joy";
 
 import WaggleDanceGraph from "~/features/WaggleDance/components/WaggleDanceGraph";
 import useGoal from "~/stores/goalStore";
@@ -41,7 +41,7 @@ const WaggleDance: NextPage = (/*{ goal, onDelete }: WaggleDanceProps*/) => {
             className="flex-grow select-none pr-5 text-white"
             style={{ userSelect: "none" }}
           >
-            <Typography level="h4">Waggle Dance</Typography>
+            <Typography level="h4">💃 Waggle Dance</Typography>
           </Link>
           {headerExpanded ? <KeyboardArrowUp /> : <KeyboardArrowDown />}
         </Stack>
@@ -56,17 +56,11 @@ const WaggleDance: NextPage = (/*{ goal, onDelete }: WaggleDanceProps*/) => {
             </Typography>
           </>
         )}
-
-        {goal && (
-          <>
-            <Typography className="mb-2" level="body1">
-              Goal:{" "}
-              <Typography level="body2" color="primary">
-                {goal}
-              </Typography>
-            </Typography>
-          </>
-        )}
+        <Divider inset="context">
+          <Typography className="w-52 text-center" level="body3">
+            ~
+          </Typography>
+        </Divider>
       </Stack>
       <WaggleDanceGraph setHeaderExpanded={setHeaderExpanded} />
     </Card>

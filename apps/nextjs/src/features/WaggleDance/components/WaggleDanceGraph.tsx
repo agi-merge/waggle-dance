@@ -101,9 +101,9 @@ const WaggleDanceGraph = ({ setHeaderExpanded }: WaggleDanceGraphProps) => {
                 </Tab>
               )}
             </TabList>
-            {isRunning && (
+            {dag.nodes.length > 0 && (
               <>
-                <LinearProgress />
+                {isRunning && <LinearProgress />}
                 <TabPanel
                   value={0}
                   className="relative h-96 w-full overflow-y-scroll p-4"
@@ -143,12 +143,13 @@ const WaggleDanceGraph = ({ setHeaderExpanded }: WaggleDanceGraphProps) => {
                   <ForceGraph data={graphData} />
                 </TabPanel>
                 <TabPanel value={2} className="text-center">
+                  Work in progres…
                   {dag.init.predicate && (
                     <Sheet>
                       <Table aria-label="Results table">
                         <thead>
                           <tr>
-                            <th>Which</th>
+                            <th>State</th>
                             <th>Predicate</th>
                             <th>Parameters</th>
                           </tr>

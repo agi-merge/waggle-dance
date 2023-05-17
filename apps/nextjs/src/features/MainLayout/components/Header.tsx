@@ -4,6 +4,7 @@ import {
   Avatar,
   Breadcrumbs,
   Link,
+  Sheet,
   Stack,
   Tooltip,
   Typography,
@@ -20,7 +21,7 @@ function removeFirstCharIfMatching(str: string, targetChar: string): string {
 
 const Header = () => {
   const router = useRouter();
-  const { setGoalInputState } = useGoal();
+  const { goal, setGoalInputState } = useGoal();
   const slug = removeFirstCharIfMatching(router.pathname, "/");
   const { data: session } = useSession();
 
@@ -136,6 +137,15 @@ const Header = () => {
           renderBreadcrumbLink(route.path, route.label, route.goalState),
         )}
       </Breadcrumbs>
+
+      {goal && (
+        <Sheet className="mb-2 mt-4 p-3">
+          <Stack direction="row" gap="1rem" alignItems="center">
+            <Typography level="h5">Goal: </Typography>
+            <Typography level="body3">{goal}</Typography>
+          </Stack>
+        </Sheet>
+      )}
     </header>
   );
 };

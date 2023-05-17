@@ -3,7 +3,7 @@ import type { NextPage } from "next";
 import Link from "next/link";
 import { useRouter } from "next/router";
 import { KeyboardArrowDown, KeyboardArrowUp } from "@mui/icons-material";
-import { Card, Stack, Tooltip, Typography } from "@mui/joy";
+import { Card, Divider, Stack, Tooltip, Typography } from "@mui/joy";
 
 import GoalInput, { examplePrompts } from "~/components/GoalInput";
 import useGoal, { GoalInputState } from "~/stores/goalStore";
@@ -50,7 +50,7 @@ const Home: NextPage = () => {
             className="flex-grow select-none pr-5 text-white"
             style={{ userSelect: "none" }}
           >
-            <Typography level="h4">Your goal</Typography>
+            <Typography level="h4">🐝 Your goal</Typography>
           </Link>
           {headerExpanded ? <KeyboardArrowUp /> : <KeyboardArrowDown />}
         </Stack>
@@ -74,6 +74,11 @@ const Home: NextPage = () => {
             </Typography>
           </>
         )}
+        <Divider inset="context">
+          <Typography className="w-52 text-center" level="body3">
+            ~
+          </Typography>
+        </Divider>
       </Stack>
       <GoalInput
         state={goalInputState}
