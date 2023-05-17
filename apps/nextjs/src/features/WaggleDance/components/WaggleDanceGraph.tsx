@@ -123,11 +123,11 @@ const WaggleDanceGraph = ({ setHeaderExpanded }: WaggleDanceGraphProps) => {
               </TabPanel>
               <TabPanel
                 value={1}
-                className="max-h-80 w-full items-center overflow-y-scroll p-4"
+                className="min-h-90 w-full items-center overflow-y-scroll p-4"
               >
-                <Typography level="body4">
-                  Each tier executes concurrently | top down | subject to
-                  automatic and human review
+                <Typography level="body4" className="p-3 text-center">
+                  Each tier executes concurrently | top down | subject to both
+                  your review and AI review
                 </Typography>
                 <ForceGraph data={graphData} />
               </TabPanel>
