@@ -32,8 +32,6 @@ const handler = async (req: IncomingMessage, res: ServerResponse) => {
     const {
       creationProps,
       goal,
-      domain,
-      problem,
       tasks,
       completedTasks: _completedTasks,
     } = JSON.parse(body) as ExecuteRequestBody;
@@ -80,8 +78,6 @@ const handler = async (req: IncomingMessage, res: ServerResponse) => {
       return executeChain({
         creationProps,
         goal,
-        domain,
-        problem,
         task: task.name,
       });
     });

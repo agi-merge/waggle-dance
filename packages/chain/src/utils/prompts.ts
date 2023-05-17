@@ -95,12 +95,6 @@ EXECUTE problem PDDL3.1 JSON for a large language model agent tasked with a spec
 ------GOAL------
 {goal}
 ----END-GOAL----
------DOMAIN-----
-{domain}
----END-DOMAIN---
------PROBLEM----
-{problem}
----END-PROBLEM--
 ----PDDL-JSON---
 ${returnType()}
 --END-PDDL-JSON-

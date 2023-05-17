@@ -51,14 +51,10 @@ You may extract and combine relevant data from your previous steps when respondi
 export async function executeChain({
   creationProps,
   goal,
-  domain,
-  problem,
   task,
 }: {
   creationProps: ModelCreationProps;
   goal: string;
-  domain: string;
-  problem: string;
   task: string;
 }): Promise<string> {
   const model = createModel(creationProps);
@@ -80,7 +76,7 @@ export async function executeChain({
 
   // const instructions = `Given your goal "${goal}", and the task "${task}", execute the task.`;
   const exe = createPrompt("execute", creationProps, goal);
-  const text = await exe.format({ goal, domain, problem, task });
+  const text = await exe.format({ goal, task });
   // const prompt = ZeroShotAgent.createPrompt(tools);
   // const llmChain = new LLMChain({
   //   memory,
