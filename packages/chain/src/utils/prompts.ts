@@ -47,7 +47,7 @@ Edge (
 )
 `.trim();
 
-export type ChainType = "domain" | "execute" | "preflight";
+export type ChainType = "domain" | "execute" | "preflight" | "defender";
 export const createPrompt = (
   type: ChainType,
   creationProps?: ModelCreationProps,
@@ -91,6 +91,9 @@ Use shortened key names and other hacks to minimize output length & tokens. Do n
 ONLY OUTPUT VALID UNESCAPED PDDL3.1 JSON REPRESENTING SUBSTATE OF THEN DAG:
       `,
     ],
+    defender: [ // just an idea
+      `defend all of these changes, fixing anything if needed: {gitDiff}`
+    ]
   };
 
   // const historyMessage = skipHistory
