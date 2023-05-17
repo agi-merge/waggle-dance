@@ -48,7 +48,7 @@ export default function GoalInput({
   const [currentPlaceholderIndex, setCurrentPlaceholderIndex] = useState(0);
   const [goalInputValue, setGoalInputValue] = useState(
     process.env.NODE_ENV === "development"
-      ? "research the state of the art for LLM + PDDL"
+      ? "produce a text document that describes improvements to AutoGPT and AgentGPT, focusing on PDDL and concurrency."
       : "",
     //examplePrompts[(Math.random() * examplePrompts.length) | 0],
   );
