@@ -27,8 +27,8 @@ import {
   type WaggleDanceResult,
 } from "./types";
 
-function isGoalReached(goal: Cond[], completedTasks: Set<string>): boolean {
-  return goal.every((g) => completedTasks.has(g.predicate));
+function isGoalReached(goal: Cond, completedTasks: Set<string>): boolean {
+  return completedTasks.has(goal.predicate);
 }
 
 function sleep(ms: number): Promise<void> {
@@ -146,11 +146,12 @@ export default class WaggleDanceMachine implements BaseWaggleDanceMachine {
             ),
           ],
           [new DAGEdgeClass("1", "2")],
-          [],
-          [],
+          { predicate: "", params: {} },
+          { predicate: "", params: {} },
         ),
       );
     }
+
     const dag = await plan(request.goal, request.creationProps);
     console.log("dag", dag);
     setDAG(dag);

@@ -16,13 +16,13 @@ interface UseWaggleDanceMachineProps {
 const useWaggleDanceMachine = ({
   goal,
 }: // _isSimulated = false,
-UseWaggleDanceMachineProps) => {
+  UseWaggleDanceMachineProps) => {
   // const [chainMachine] = useState(() =>
   //   isSimulated ? new ChainMachineSimulation() : new ChainMachine(),
   // );
   const [waggleDanceMachine] = useState(() => new WaggleDanceMachine());
 
-  const [dag, setDAG] = useState<DAG>(new DAG([], [], [], []));
+  const [dag, setDAG] = useState<DAG>(new DAG([], [], { predicate: "", params: {} }, { predicate: "", params: {} }));
 
   const [graphData, setGraphData] = useState<GraphData>({
     nodes: [],
