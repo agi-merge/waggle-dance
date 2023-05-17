@@ -8,8 +8,8 @@ import {
 
 import { type ModelCreationProps } from "./types";
 
-// JON: this is so dumb it might just work.
-const antiPromptInjectionKey = () => {
+// JON: something like this - it is so dumb it might just work. TODO: try again before production
+const _antiPromptInjectionKey = () => {
   const hash = sha256(Math.random().toString());
   const key = hash.toString(Hex).substring(0, 16);
 
@@ -58,40 +58,38 @@ export const createPrompt = (
   // TODO: https://js.langchain.com/docs/modules/chains/prompt_selectors/
   const basePromptMessages = {
     preflight: [
-      `Returning a probability from 0-1, what is the probability that the following goal can be answered in zero or few-shot by an LLM (${llmName})?}
+      `Returning a probability from 0-1, what is the probability that the following goal can be answered in zero or few-shot by an LLM (${llmName})?
       GOAL: ${goal}`,
     ],
+
     domain: [
       `
-<UserGoal>>
+<UserGoal>
 ${goal}
 </UserGoal>
 <ReturnSchema>
 ${returnType(llmName)}
 </ReturnSchema>
-Return a DAG in <ReturnSchema> that implements a concurrent solver of <UserGoal> for <UserGoal>'s PDDL Domain and Problem .
+Return a DAG in <ReturnSchema> that implements an expert/optimal concurrent solver of <UserGoal> for <UserGoal>'s PDDL Domain and Problem.
 `.trim(),
     ],
+
     execute: [
       `
-${antiPromptInjectionKey()}
-EXECUTE problem PDDL3.1 JSON for a large language model agent tasked with a specific goal, and given a domain, problem, and task representation (below).
-------GOAL------
+<UserGoal>
 {goal}
-----END-GOAL----
-----PDDL-JSON---
+</UserGoal>
+<ReturnSchema>
 ${returnType(llmName)}
---END-PDDL-JSON-
-------TASK------
+</ReturnSchema>
+<Task>
 {task}
-----END-TASK----
-Ensure the output maximizes the qualities by which it is judged: [Coherence, Creativity, Efficiency, Directness, Resourcefulness, Accuracy, Ethics]
-Ensure that the problem representation enables concurrent (up to ${creationProps?.maxConcurrency ?? 8
-      }) processing independent subtasks concurrently with subordinate agents.
-Use shortened key names and other hacks to minimize output length & tokens. Do not be repetitive.
-ONLY OUTPUT VALID UNESCAPED PDDL3.1 JSON REPRESENTING SUBSTATE OF THEN DAG:
+</Task>
+Return a DAG in <ReturnSchema> that reflects the state of the PDDL Domain and Problem after <Task> has been executed.
+
       `,
     ],
+
     defender: [ // just an idea
       `defend all of these changes, fixing anything if needed: {gitDiff}`
     ]
