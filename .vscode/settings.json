@@ -4,10 +4,21 @@
   },
   "editor.defaultFormatter": "esbenp.prettier-vscode",
   "editor.formatOnSave": true,
-  "eslint.rules.customizations": [{ "rule": "*", "severity": "warn" }],
+  "eslint.rules.customizations": [
+    {
+      "rule": "*",
+      "severity": "warn"
+    }
+  ],
   "eslint.workingDirectories": [
     { "pattern": "apps/**/*" },
-    { "pattern": "packages/**/*" }
+    { "pattern": "packages/**/*" },
+    {
+      "pattern": "apps/*/"
+    },
+    {
+      "pattern": "packages/*/"
+    }
   ],
   "eslint.options": {},
   "typescript.tsdk": "node_modules/typescript/lib",
@@ -25,5 +36,8 @@
     "warn": 4000,
     "error": 8000
   },
-  "eslint.packageManager": "pnpm"
+  "eslint.packageManager": "pnpm",
+  "[typescript]": {
+    "editor.defaultFormatter": "vscode.typescript-language-features"
+  }
 }

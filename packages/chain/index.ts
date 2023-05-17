@@ -6,5 +6,3 @@ export * from "./src/utils/types";
 
 export * from "./src/strategy/execute";
 export * from "./src/strategy/plan";
-export * from "./src/strategy/review";
-export * from "./src/strategy/adversary";

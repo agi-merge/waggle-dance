@@ -4,7 +4,7 @@ import { useRouter } from "next/router";
 import { Card, LinearProgress, Sheet, useColorScheme } from "@mui/joy";
 
 import { app } from "~/constants";
-import { useAppContext } from "~/pages/_app";
+import useApp from "~/stores/appStore";
 import Alerts from "./components/Alerts";
 import Footer from "./components/Footer";
 import Header from "./components/Header";
@@ -15,7 +15,7 @@ type Props = {
 
 const MainLayout = ({ children }: Props) => {
   const { mode } = useColorScheme();
-  const { isPageLoading } = useAppContext();
+  const { isPageLoading } = useApp();
   const [mounted, setMounted] = useState(false);
   const router = useRouter();
 

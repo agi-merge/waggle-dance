@@ -32,7 +32,7 @@ import {
 import Table from "@mui/joy/Table";
 
 import DropZoneUploader from "~/features/AddDocuments/DropZoneUploader";
-import { useAppContext } from "../_app";
+import useGoal from "~/stores/goalStore";
 
 type UploadState =
   | { status: "idle" }
@@ -88,7 +88,7 @@ const AddDocuments: NextPage = () => {
   const [headerExpanded, setHeaderExpanded] = useState(true);
   const [ingestFiles, setIngestFiles] = useState<IngestFiles>({});
   const [ingestUrls, setIngestUrls] = useState<IngestUrls>({});
-  const { goal } = useAppContext();
+  const { goal } = useGoal();
 
   useEffect(() => {
     // Redirect if the goal is undefined or empty
