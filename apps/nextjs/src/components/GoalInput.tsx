@@ -47,7 +47,9 @@ export default function GoalInput({
   const [currentPromptIndex, setCurrentPromptIndex] = useState(0);
   const [currentPlaceholderIndex, setCurrentPlaceholderIndex] = useState(0);
   const [goalInputValue, setGoalInputValue] = useState(
-    "research the state of the art for LLM + PDDL",
+    process.env.NODE_ENV === "development"
+      ? "research the state of the art for LLM + PDDL"
+      : "",
     //examplePrompts[(Math.random() * examplePrompts.length) | 0],
   );
   const [tooltipTappedOpen] = useState<boolean | undefined>(undefined);
