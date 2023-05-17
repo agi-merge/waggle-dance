@@ -80,7 +80,7 @@ export default function GoalInput({
       setCurrentPlaceholderIndex((prevIndex) =>
         prevIndex + 1 >= placeholders.length ? 0 : prevIndex + 1,
       );
-    }, 5000); // The tooltip title will change every 3 seconds.
+    }, 5000); // The tooltip title will change every 5 seconds.
 
     return () => clearInterval(timer);
   }, []);

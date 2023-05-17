@@ -10,8 +10,9 @@ export const config = {
 
 const handler = async (req: NextRequest) => {
   const { creationProps, goal } = (await req.json()) as StrategyRequestBody;
-  const newTasks = await planChain(creationProps, goal);
-  return new Response(JSON.stringify(newTasks), {
+  const planResult = await planChain(creationProps, goal);
+  const json = JSON.stringify(planResult);
+  return new Response(json, {
     status: 200,
     headers: {
       "content-type": "application/json",

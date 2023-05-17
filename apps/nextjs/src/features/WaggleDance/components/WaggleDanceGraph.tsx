@@ -1,14 +1,8 @@
 import React from "react";
-import {
-  Home,
-  KeyboardArrowRight,
-  Lan,
-  ListAlt,
-  Science,
-} from "@mui/icons-material";
+import { KeyboardArrowRight, Lan, ListAlt, Science } from "@mui/icons-material";
 import {
   Button,
-  CircularProgress,
+  LinearProgress,
   List,
   ListItem,
   ListItemButton,
@@ -25,7 +19,6 @@ import {
 
 import useApp from "~/stores/appStore";
 import useGoal from "~/stores/goalStore";
-// import { useAppContext } from "~/pages/_app";
 import useChainMachine from "../hooks/useWaggleDanceMachine";
 import ForceGraph from "./ForceGraph";
 
@@ -33,100 +26,119 @@ interface WaggleDanceGraphProps extends StackProps {
   setHeaderExpanded: (expanded: boolean) => void;
 }
 const WaggleDanceGraph = ({ setHeaderExpanded }: WaggleDanceGraphProps) => {
-  // TODO: I think this could be a bug - was fixing types here and noticed that the goal destructure was not being used
-  // The goal prop was being used.  Set it the an unused _contextGoal for now.  Not sure this is
-  // doing what we expect though.  Need to test.
-  // const { goal: _contextGoal, isRunning, setIsRunning } = useAppContext();
   const { isRunning, setIsRunning } = useApp();
   const { goal } = useGoal();
-  const { graphData, run } = useChainMachine({ goal });
+  const { graphData, dag, run } = useChainMachine({ goal });
   const handleStart = () => {
     setIsRunning(true);
     setHeaderExpanded(false);
     void run();
   };
-  return (
+  const handleStop = () => {
+    setIsRunning(false);
+  };
+  const button = (
     <Stack gap="1rem" className="mt-6 items-end">
       <Button
-        disabled={!goal}
+        // disabled={!goal}
         className="col-end w-40 p-2"
         color="primary"
-        loading={isRunning}
         href="waggle-dance"
-        onClick={handleStart}
+        onClick={isRunning ? handleStop : handleStart}
       >
-        Start
+        {isRunning ? "Stop" : "Start"}
       </Button>
-      {graphData.links.length > 2 && (
+    </Stack>
+  );
+  return (
+    <Stack gap="1rem" className="mt-6">
+      {!isRunning && button}
+      {dag.edges.length > 2 && (
         <Typography className="text-center" color="warning" level="body4">
           Demo will not proceed beyond planning.
         </Typography>
       )}
-      {isRunning && graphData.links.length === 0 && (
-        <Stack className="text-end">
+      {isRunning && dag.edges.length === 0 && (
+        <Stack className="text-center">
           <Typography>Planning initial tasks…</Typography>
           <Typography level="body3">
-            The first step can take several minutes…
+            This important first step can take several minutes…
+          </Typography>
+          <Typography level="body4" color="primary">
+            Please 🐝 patient
           </Typography>
         </Stack>
       )}
-      {graphData.links.length > 0 && (
+      {
         <Tabs
-          defaultValue={0}
+          defaultValue={1}
           sx={{ borderRadius: "lg" }}
-          color="info"
-          variant="outlined"
+          variant="soft"
           className="max-h-96 w-full"
         >
           <TabList>
             <Tab>
               <ListAlt />
-              <Typography>Log</Typography>
+              <Typography>Agents</Typography>
             </Tab>
             <Tab>
               <Lan />
-              <Typography>Visualizer</Typography>
+              <Typography>Graph</Typography>
             </Tab>
             <Tab>
               <Science />
               <Typography>Results</Typography>
             </Tab>
           </TabList>
-          <TabPanel
-            value={0}
-            className="relative h-96 w-full overflow-y-scroll p-4"
-          >
-            <List className="absolute left-0 top-0 mt-3 w-full  p-2">
-              {graphData.nodes.map((n, idx) => (
-                <ListItem key={`${idx}-${n.id}`}>
-                  <ListItemButton>
-                    <ListItemDecorator>
-                      <Home />
-                    </ListItemDecorator>
-                    <ListItemContent>{n.id}</ListItemContent>
-                    <KeyboardArrowRight />
-                  </ListItemButton>
-                </ListItem>
-              ))}
-            </List>
-          </TabPanel>
-          <TabPanel
-            value={1}
-            className="max-h-80 w-full items-center overflow-y-scroll p-4"
-          >
-            {graphData.links.length > 0 ? (
-              <>
+          {isRunning && (
+            <>
+              <LinearProgress />
+              <TabPanel
+                value={0}
+                className="relative h-96 w-full overflow-y-scroll p-4"
+              >
+                <List className="absolute left-0 top-0 mt-3 w-full  p-2">
+                  {dag.nodes.map((n) => (
+                    <ListItem key={n.id}>
+                      <ListItemButton>
+                        <ListItemDecorator>
+                          <Typography color="primary" level="body2">
+                            {n.id}
+                          </Typography>
+                        </ListItemDecorator>
+                        <ListItemContent>
+                          <Typography>{n.name}</Typography>
+                          <Typography level="body3">
+                            {n.action}{" "}
+                            <Typography level="body5">
+                              {JSON.stringify(n.params)}
+                            </Typography>
+                          </Typography>
+                        </ListItemContent>
+                        <KeyboardArrowRight />
+                      </ListItemButton>
+                    </ListItem>
+                  ))}
+                </List>
+              </TabPanel>
+              <TabPanel
+                value={1}
+                className="max-h-80 w-full items-center overflow-y-scroll p-4"
+              >
+                <Typography level="body4">
+                  Each tier executes concurrently | top down | subject to
+                  automatic and human review
+                </Typography>
                 <ForceGraph data={graphData} />
-              </>
-            ) : (
-              isRunning && <CircularProgress />
-            )}
-          </TabPanel>
-          <TabPanel value={2} className="text-center">
-            <Typography>Coming soon</Typography>
-          </TabPanel>
+              </TabPanel>
+              <TabPanel value={2} className="text-center">
+                <Typography>Coming soon</Typography>
+              </TabPanel>
+            </>
+          )}
         </Tabs>
-      )}
+      }
+      {isRunning && button}
     </Stack>
   );
 };

@@ -3,12 +3,12 @@ import React, { useEffect, useRef, useState } from "react";
 import useResizeObserver from "@react-hook/resize-observer";
 import { ForceGraph2D as OriginalForceGraph2D } from "react-force-graph";
 
-export interface GraphData {
+interface GraphData {
   nodes: NodeObject[];
   links: LinkObject[];
 }
 
-export type NodeObject = object & {
+type NodeObject = object & {
   id?: string | number;
   x?: number;
   y?: number;
@@ -18,12 +18,12 @@ export type NodeObject = object & {
   fy?: number;
 };
 
-export type LinkObject = object & {
+type LinkObject = object & {
   source?: string | number | NodeObject;
   target?: string | number | NodeObject;
 };
 
-export interface ForceGraphProps {
+interface ForceGraphProps {
   width?: number;
   height?: number;
   data: GraphData;
@@ -55,8 +55,8 @@ const NoSSRForceGraph: React.FC<ForceGraphProps> = ({ data }) => {
         // eslint-disable-next-line @typescript-eslint/ban-ts-comment
         // @ts-ignore
         ref={fgRef}
-        // dagMode="radial"
-        nodeLabel="id"
+        dagMode="td"
+        nodeLabel="name"
         nodeAutoColorBy="id"
         graphData={data}
         cooldownTicks={100}
