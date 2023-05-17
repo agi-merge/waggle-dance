@@ -121,6 +121,7 @@ export const RouteControllerProvider = ({ children }: RouteControllerProps) => {
       default:
         break;
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   return <>{children}</>;

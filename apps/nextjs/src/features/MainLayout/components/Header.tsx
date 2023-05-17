@@ -10,8 +10,9 @@ import {
 } from "@mui/joy";
 import { useSession } from "next-auth/react";
 
+import ThemeToggle from "~/components/ThemeToggle";
 import { app } from "~/constants";
-import ThemeToggle from "../../../components/ThemeToggle";
+import useGoal, { GoalInputState } from "~/stores/goalStore";
 
 function removeFirstCharIfMatching(str: string, targetChar: string): string {
   return str && str.length > 0 && str[0] === targetChar ? str.slice(1) : str;
@@ -23,21 +24,39 @@ const Header = () => {
   const { data: session } = useSession();
 
   const routes = [
-    { path: "", label: "🐝 Start" },
-    { path: "add-documents", label: "🌺 Enrich " },
-    { path: "waggle-dance", label: "💃 Waggle" },
-    { path: "goal-done", label: "🍯 Done" },
+    { path: "", label: "🐝 Start", goalState: GoalInputState.start },
+    {
+      path: "add-documents",
+      label: "🌺 Enrich ",
+      goalState: GoalInputState.refine,
+    },
+    {
+      path: "waggle-dance",
+      label: "💃 Waggle",
+      goalState: GoalInputState.configure,
+    },
+    { path: "goal-done", label: "🍯 Done", goalState: GoalInputState.done },
   ];
 
   const isActive = (path: string) => {
     return path === slug;
   };
 
-  const renderBreadcrumbLink = (path: string, label: string) => {
+  const renderBreadcrumbLink = (
+    path: string,
+    label: string,
+    goalState?: GoalInputState,
+  ) => {
+    const { setGoalInputState } = useGoal();
     const isHighlighted = slug === path || (slug?.length ?? 0) < 1;
+
+    const handleStateChange = () => {
+      setGoalInputState(goalState ?? GoalInputState.start);
+    };
+
     if (isActive(path)) {
       return (
-        <Link href={`/${path}`} key={path}>
+        <Link href={`/${path}`} key={path} onClick={handleStateChange}>
           <Typography
             component="span"
             level="body3"
@@ -50,7 +69,7 @@ const Header = () => {
       );
     } else {
       return (
-        <Link href={`/${path}`} key={path}>
+        <Link href={`/${path}`} key={path} onClick={handleStateChange}>
           <Typography
             key={path}
             level="body3"
@@ -113,7 +132,9 @@ const Header = () => {
         className="mb-2"
         size="sm"
       >
-        {routes.map((route) => renderBreadcrumbLink(route.path, route.label))}
+        {routes.map((route) =>
+          renderBreadcrumbLink(route.path, route.label, route.goalState),
+        )}
       </Breadcrumbs>
     </header>
   );
