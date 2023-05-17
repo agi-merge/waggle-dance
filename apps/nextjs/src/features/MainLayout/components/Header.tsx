@@ -29,7 +29,7 @@ const Header = () => {
     { path: "", label: "🐝 Start", goalState: GoalInputState.start },
     {
       path: "add-documents",
-      label: "🌺 Enrich ",
+      label: "🌺 Pollinate ",
       goalState: GoalInputState.refine,
     },
     {
@@ -114,7 +114,7 @@ const Header = () => {
       </Stack>
       {isHomeSlug && (
         <Typography className="pl-2 pt-3" level="body2" color="neutral">
-          Automate complex tasks with{" "}
+          Automate your boring, complex tasks with the help of{" "}
           <Tooltip title="I swear it is a thing" color="info">
             <a
               href="https://wikipedia.org/wiki/Waggle_dance"
@@ -124,7 +124,7 @@ const Header = () => {
               wagglin&apos; swarms{" "}
             </a>
           </Tooltip>
-          of instances of GPT.
+          of AIs
         </Typography>
       )}
 
@@ -139,10 +139,25 @@ const Header = () => {
       </Breadcrumbs>
 
       {goal && (
-        <Sheet className="mb-2 mt-4 p-3">
-          <Stack direction="row" gap="1rem" alignItems="center">
+        <Sheet
+          invertedColors
+          className="mx-2 mt-2 p-2"
+          variant="outlined"
+          sx={{ borderRadius: "sm" }}
+        >
+          <Stack
+            alignItems="center"
+            direction={{ xs: "column", sm: "row" }}
+            spacing={{ xs: 1, sm: 2, md: 4 }}
+          >
             <Typography level="h5">Goal: </Typography>
-            <Typography level="body3">{goal}</Typography>
+            <Typography level="body4">
+              {goal}
+              <br />
+              <Tooltip title="Coming soon" color="info">
+                <Link href="#"> Improve your prompt</Link>
+              </Tooltip>
+            </Typography>
           </Stack>
         </Sheet>
       )}
