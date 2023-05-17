@@ -58,7 +58,7 @@ const WaggleDanceGraph = ({ setHeaderExpanded }: WaggleDanceGraphProps) => {
           Demo will not proceed beyond planning.
         </Typography>
       )}
-      {isRunning && dag.edges.length === 0 && (
+      {isRunning && dag.edges.length <= 1 && (
         <Stack className="text-center">
           <Typography>Planning initial tasks…</Typography>
           <Typography level="body3">
