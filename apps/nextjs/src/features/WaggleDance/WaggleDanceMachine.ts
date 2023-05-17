@@ -180,14 +180,15 @@ export default class WaggleDanceMachine implements BaseWaggleDanceMachine {
       setDAG(
         new DAG(
           [
+            new DAGNodeClass("0", "Your Goal", request.goal, {}),
             new DAGNodeClass(
-              "0",
-              "PlanBee",
-              "analyze your goal and come up with a plan to achieve it",
-              {},
+              "1",
+              `PlanBee-${request.creationProps.modelName}`,
+              `coming up with an initial plan to divide-and-conquer`,
+              { goal: request.goal },
             ),
           ],
-          [],
+          [new DAGEdgeClass("0", "1")],
           [],
           [],
         ),
