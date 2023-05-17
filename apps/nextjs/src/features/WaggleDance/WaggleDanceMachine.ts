@@ -1,7 +1,8 @@
 // WaggleDanceMachine.ts
 
-// Every `fetch` API method calls a large language model with different capabilities, tasks, and roles.
-// The machine should then start executing actions from the PDDL, and update the DAG accordingly.
+// INTENDED BEHAVIOR:
+// Every `fetch` API method calls a large language model (LLM) with different capabilities, tasks, and roles.
+// The machine should plan actions, receiving an goal-solving execution DAG, then start executing actions, and update the DAG accordingly.
 // If tasks are not dependent, that state can be parallelized. The aim is to complete the goal as quickly as possible.
 // Starts by generating an execution DAG.
 // Then, executes the DAG, as concurrently as possible.
@@ -214,3 +215,5 @@ export default class WaggleDanceMachine implements BaseWaggleDanceMachine {
     return { results: taskResults };
   }
 }
+
+// RETURN: Add or amend comments describing each major chunk of code. After writing the comment, if the previous code seems wrong, re-write it to achieve  INTENDED BEHAVIOR:
