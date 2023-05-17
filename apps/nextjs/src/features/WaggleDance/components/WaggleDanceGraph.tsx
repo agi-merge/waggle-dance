@@ -115,7 +115,7 @@ const WaggleDanceGraph = ({ setHeaderExpanded }: WaggleDanceGraphProps) => {
                             <Typography>{n.name}</Typography>
                             <Typography level="body3">
                               {n.action}{" "}
-                              <Typography level="body5">
+                              <Typography level="body5" color="info">
                                 {JSON.stringify(n.params)}
                               </Typography>
                             </Typography>

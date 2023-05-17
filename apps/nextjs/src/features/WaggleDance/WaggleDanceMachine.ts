@@ -161,7 +161,7 @@ export default class WaggleDanceMachine implements BaseWaggleDanceMachine {
       setDAG(
         new DAG(
           [
-            new DAGNodeClass("1", "Human", request.goal, {}),
+            new DAGNodeClass("1", "Human", `Set Goal`, { goal: request.goal }),
             new DAGNodeClass(
               "2",
               `PlanBee-${request.creationProps.modelName}`,
