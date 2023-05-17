@@ -60,12 +60,12 @@ const WaggleDanceGraph = ({ setHeaderExpanded }: WaggleDanceGraphProps) => {
       )}
       {isRunning && dag.edges.length <= 1 && (
         <Stack className="text-center">
-          <Typography>Planning initial tasks…</Typography>
+          <Typography level="h5" color="primary">
+            Please 🐝 patient,{" "}
+            <Typography color="neutral">planning initial tasks…</Typography>
+          </Typography>
           <Typography level="body3">
             This important first step can take several minutes…
-          </Typography>
-          <Typography level="body4" color="primary">
-            Please 🐝 patient
           </Typography>
         </Stack>
       )}

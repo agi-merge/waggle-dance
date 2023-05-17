@@ -2,10 +2,10 @@ import React from "react";
 import { Close, Warning } from "@mui/icons-material";
 import { Alert, Box, IconButton, Typography } from "@mui/joy";
 
-import useApp from "~/stores/appStore";
+import usePreferences from "~/stores/preferencesStore";
 
 const Alerts = () => {
-  const { isDemoAlertOpen, setIsDemoAlertOpen } = useApp();
+  const { isDemoAlertOpen, setIsDemoAlertOpen } = usePreferences();
   const color = "warning";
   const title = "Limited Demo";
   const description = "Expect frequent changes.";
