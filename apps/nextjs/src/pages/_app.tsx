@@ -113,7 +113,7 @@ export const RouteControllerProvider = ({ children }: RouteControllerProps) => {
         handleRouteChange(app.routes.refine);
         break;
       case GoalInputState.configure:
-        handleRouteChange(app.routes.configure);
+        handleRouteChange(app.routes.waggle);
         break;
       case GoalInputState.done:
         handleRouteChange(app.routes.done);

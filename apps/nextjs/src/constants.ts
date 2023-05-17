@@ -8,7 +8,7 @@ export const app = {
   routes: {
     home: "/",
     refine: "/add-documents",
-    configure: "/waggle-dance",
-    done: "/waggle-dance", // TODO: think this needs its own route to go with its breadcrumb
+    waggle: "/waggle-dance",
+    done: "/results",
   }
 };
