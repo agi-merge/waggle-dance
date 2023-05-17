@@ -47,7 +47,7 @@ Edge (
 )
 `.trim();
 
-export type ChainType = "domain" | "execute";
+export type ChainType = "domain" | "execute" | "preflight";
 export const createPrompt = (
   type: ChainType,
   creationProps?: ModelCreationProps,
@@ -56,13 +56,12 @@ export const createPrompt = (
   const llmName = creationProps?.modelName ?? "unknown";
   // TODO: https://js.langchain.com/docs/modules/chains/prompt_selectors/
   const basePromptMessages = {
+    preflight: [
+      `Returning a probability from 0-1, what is the probability that the following goal can be answered in zero or few-shot by an LLM (${llmName})?}
+      GOAL: ${goal}`,
+    ],
     domain: [
       `
-<ThoughtProcess>
-First understand the problem, extract relevant variables and their corresponding numerals, and devise a plan.
-Then, carry out the plan, calculate intermediate variables (pay attention to correct numeral calculation, logic, and commonsense),
-solve the problem step by step, and return the result.
-</ThoughtProcess
 <Persona>
 Efficient and Insightful LLM (${llmName}) Planning Agent
 </Persona>
