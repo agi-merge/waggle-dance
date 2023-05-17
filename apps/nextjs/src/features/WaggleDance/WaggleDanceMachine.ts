@@ -130,28 +130,6 @@ async function executeTasks(
   return { completedTasks: Array.from(completedTasksSet), taskResults };
 }
 
-function getNextTask(
-  taskQueue: DAGNode[],
-  completedTasks: Set<string>,
-  tasksInProgress: Set<DAGNode>,
-  dag: DAG,
-): DAGNode | null {
-  for (const task of taskQueue) {
-    const dependencies = dag.edges
-      .filter((edge) => edge.targetId === task.id)
-      .map((edge) => edge.sourceId);
-
-    if (
-      dependencies.every((dep) => completedTasks.has(dep)) &&
-      !tasksInProgress.has(task)
-    ) {
-      return task;
-    }
-  }
-
-  return null;
-}
-
 async function plan(
   goal: string,
   creationProps: ModelCreationProps,
