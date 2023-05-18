@@ -135,7 +135,7 @@ const MyApp: AppType<{ session: Session | null }> = ({
     <SessionProvider session={session}>
       {getInitColorSchemeScript()}
       <RouteControllerProvider>
-        <CssVarsProvider theme={theme}>
+        <CssVarsProvider theme={theme} defaultMode="dark">
           <MainLayout>
             <Component {...pageProps} />
           </MainLayout>
