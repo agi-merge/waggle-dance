@@ -2,7 +2,7 @@
 
 import { useCallback, useEffect, useState } from "react";
 
-import { LLM, LLMTokenLimit } from "@acme/chain";
+import { LLM, llmResponseTokenLimit } from "@acme/chain";
 
 import DAG from "../DAG";
 import WaggleDanceMachine from "../WaggleDanceMachine";
@@ -34,14 +34,15 @@ const useWaggleDanceMachine = ({
   }, [dag]);
 
   const run = useCallback(async () => {
+    const maxTokens = llmResponseTokenLimit(LLM.smart)
     const result = await waggleDanceMachine.run(
       {
         goal,
         creationProps: {
           modelName: LLM.smart,
           temperature: 0,
-          maxTokens: LLMTokenLimit(LLM.smart), // TODO: make this === available tokens after prompt
           maxConcurrency: 6,
+          maxTokens,
           streaming: true,
           verbose: true,
         },
