@@ -60,11 +60,8 @@ ${goal}
 <ReturnSchema>
 ${returnType(llmName)}
 </ReturnSchema>
-<Constitution>
-Ensure the DAG maximizes the qualities by which it is judged: [Coherence, Creativity, Efficiency, Directness, Resourcefulness, Accuracy, Ethics]
-</Constitution>
+Return the first level of a DAG in <ReturnSchema> that represents an expertly planned, embarassingly concurrent (consider dependencies!) solver of<UserGoal> for <UserGoal>'s PDDL Domain and Problem.
 `.trim(),
-Return the first level of a DAG in <ReturnSchema>that represents an expertly planned, embarassingly concurrent (consider dependencies!) solver of<UserGoal> for <UserGoal>'s PDDL Domain and Problem.
     ],
 
     execute: [
