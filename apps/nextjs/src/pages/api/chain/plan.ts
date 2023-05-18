@@ -1,41 +1,91 @@
-import { type NextRequest } from "next/server";
-import { planChain } from "@acme/chain";
+// api/chain/plan.ts
+
+import { type ChainPacket, planChain } from "@acme/chain";
 import { type StrategyRequestBody } from "./types";
+import { type IncomingMessage, type ServerResponse } from "http";
+import { type AgentAction } from "langchain/schema";
+import { type NextRequest } from "next/server";
 
 export const config = {
-  runtime: "edge",
+  api: {
+    bodyParser: false,
+  },
+  runtime: "nodejs",
 };
 
-const handler = async (req: NextRequest) => {
-  const { creationProps, goal } = (await req.json()) as StrategyRequestBody;
+const handler = async (req: IncomingMessage, res: ServerResponse) => {
+  const nodeId = "👑"; //goal.slice(0, 5)
+  const writePacket = (packet: ChainPacket) => {
+    res.write(JSON.stringify(packet) + "\n");
+  };
+  try {
+    const bodyChunks = [];
+    for await (const chunk of req) {
+      bodyChunks.push(chunk);
+    }
+    // const reqBody = (req.read() as Buffer).toString();
+    const reqBody = Buffer.concat(bodyChunks).toString();
+    // const reqBody = (req as NextRequest).body
+    console.log("body", reqBody);
+    const {
+      creationProps,
+      goal,
+    } = JSON.parse(reqBody) as StrategyRequestBody;
+    const inlineCallback = {
+      handleLLMNewToken(token: string) {
+        console.debug("handleLLMNewToken", { token });
+        writePacket({ type: "handleLLMNewToken", nodeId, token })
+      },
+      handleLLMStart: (llm: { name: string }, _prompts: string[]) => {
+        console.debug("handleLLMStart", { llm });
+        writePacket({ type: "handleLLMStart", nodeId, llm });
+      },
+      handleChainStart: (chain: { name: string }) => {
+        console.debug("handleChainStart", { chain });
+        writePacket({ type: "handleChainStart", nodeId, chain });
+      },
+      handleAgentAction: (action: AgentAction) => {
+        console.debug("handleAgentAction", action);
+        writePacket({ type: "handleAgentAction", nodeId, action });
+      },
+      handleToolStart: (tool: { name: string }) => {
+        console.debug("handleToolStart", { tool });
+        writePacket({ type: "handleToolStart", nodeId, tool });
+      },
+    };
 
-  const encoder = new TextEncoder();
-  // TODO: make this a signal/reactive so we can stream data without first awaiting the entire chain...
-  // Edge functions must return a response within 30 seconds, and this times us out.
-  const planResult = await planChain(creationProps, goal);
+    const callbacks = [inlineCallback];
+    creationProps.callbacks = callbacks;
+    console.log("about to planChain");
+    res.writeHead(200, {
+      "Content-Type": "application/octet-stream",
+      "Transfer-Encoding": "chunked",
+    });
+    const planResult = await planChain(creationProps, goal);
+    console.debug("planChain", planResult);
+    writePacket({ type: "return", nodeId, value: planResult })
+  } catch (e) {
 
-  const readableStream = new ReadableStream({
-    start(controller) {
+    let message;
+    let status: number;
+    let stack;
+    if (e instanceof Error) {
+      message = e.message;
+      status = 500;
+      stack = e.stack;
+    } else {
+      message = String(e);
+      status = 500;
+      stack = "";
+    }
 
-      const json = JSON.stringify(planResult);
-      const chunks = json.match(/.{1,1024}/g); // Split the JSON string into chunks of 1024 characters
-
-      if (chunks) {
-        for (const chunk of chunks) {
-          controller.enqueue(encoder.encode(chunk));
-        }
-      }
-
-      controller.close();
-    },
-  });
-
-  return new Response(readableStream/*.pipeThrough(transformStream)*/, {
-    status: 200,
-    headers: {
-      "content-type": "application/json",
-    },
-  });
+    const all = { stack, message, status };
+    console.error(all);
+    writePacket({ type: "error", nodeId, severity: "fatal", message: JSON.stringify(all) });
+    res.end();
+  } finally {
+    res.end();
+  }
 };
 
 export default handler;

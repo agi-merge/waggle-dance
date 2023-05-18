@@ -8,32 +8,32 @@ import { type ModelCreationProps } from "./types";
 
 const returnType = (_llmName: string) =>
   `
-The return outputs must JSON.parse() into this pseudo-code DAG.
-Minimize tokens; no line breaks or spaces outside of strings.
+The return output will need to successfully MessagePack msgpack.decode() into this MessagePack definition of the DAG.
 Maximize the width of the DAG when possible, minimize the depth.
 Provide consistent and descriptive names for properties of nodes, actions, Conds, Params, etc.
 Provide enough context in Conds and Params to represent the Cond or complete the subtask.
-The JSON should represent the DAG as the root object.
-DAG (
+Refrain from adding any other prose other than the MessagePack output.
+The MessagePack (NOT JSON) !!REMEBER MESSAGEPACK!! should represent the DAG as the root object.
+interface DAG (
   nodes: Node[]
   edges: Edge[]
   init: Cond
   goal: Cond
 )
-Params (
+interface Params (
   [key: string]: string
 )
-Cond (
+interface Cond (
   predicate: string
   params: Params
 )
-Node (
+interface Node (
   id: string;
   name: string;
   action: string
   params: Params
 )
-Edge (
+interface Edge (
   sourceId: string
   targetId: string
 )
@@ -73,14 +73,12 @@ Return the first level of the DAG's Edges in <ReturnSchema>.edges that represent
       `
     ],
     domain: [
-      `
-<UserGoal>
-${goal}
-</UserGoal>
-<ReturnSchema>
-${returnType(llmName)}
-</ReturnSchema>
-<Task>As a project manager, construct a DAG that will serve as a concurrent execution graph for your team to solve <UserGoal />. RETURN ONLY <ReturnSchema /></Task>
+      `<UserGoal>${goal}</UserGoal>
+      <Schema>${returnType(llmName)}</Schema>
+      <Task>
+        As a project manager employed by the User to solve <UserGoal />, construct a DAG that could serve as a concurrent execution graph for your large and experienced team for <UserGoal />.
+      </Task>
+      <Return>ONLY the DAG as described in <Schema /> to be MessagePack (msgpack) decoded.</Return>
 `.trim(),
     ],
     execute: [

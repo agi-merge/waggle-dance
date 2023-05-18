@@ -1,6 +1,6 @@
-// strategy/plan.ts
+// chain/strategy/plan.ts
 
-import { ConversationChain } from "langchain/chains";
+import { LLMChain } from "langchain/chains";
 
 import { createMemory } from "../utils/memory";
 import { createModel } from "../utils/model";
@@ -15,7 +15,7 @@ export async function planChain(
   const memory = await createMemory(goal);
   // const planPrompt = createPrompt("plan");
   const prompt = createPrompt("domain", creationProps, goal);
-  const chain = new ConversationChain({
+  const chain = new LLMChain({
     memory,
     prompt,
     llm,
@@ -24,6 +24,7 @@ export async function planChain(
     // prompt.format({ goal, schema: "string[]" }),
     chain.call({
       goal,
+      callbacks: creationProps.callbacks,
     }),
   ]);
   const dag = call?.response ? (call.response as string) : "";
