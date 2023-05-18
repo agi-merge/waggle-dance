@@ -5,23 +5,20 @@ import { useCallback, useEffect, useState } from "react";
 import { LLM, llmResponseTokenLimit } from "@acme/chain";
 
 import DAG from "../DAG";
-import WaggleDanceMachine from "../WaggleDanceMachine";
+import WaggleDanceMachine, { initialEdges, initialNodes } from "../WaggleDanceMachine";
 import { type GraphData } from "../components/ForceGraph";
 import { dagToGraphData } from "../utils/conversions";
+import useApp from "~/stores/appStore";
 
 interface UseWaggleDanceMachineProps {
   goal: string;
-  isSimulated?: boolean;
 }
 const useWaggleDanceMachine = ({
   goal,
-}: // _isSimulated = false,
+}:
   UseWaggleDanceMachineProps) => {
-  // const [chainMachine] = useState(() =>
-  //   isSimulated ? new ChainMachineSimulation() : new ChainMachine(),
-  // );
   const [waggleDanceMachine] = useState(() => new WaggleDanceMachine());
-
+  const { isRunning } = useApp();
   const [dag, setDAG] = useState<DAG>(new DAG([], [], { predicate: "", params: {} }, { predicate: "", params: {} }));
 
   const [graphData, setGraphData] = useState<GraphData>({
@@ -35,6 +32,9 @@ const useWaggleDanceMachine = ({
 
   const run = useCallback(async () => {
     const maxTokens = llmResponseTokenLimit(LLM.smart)
+
+    setDAG(new DAG(initialNodes(goal, LLM.smart), initialEdges(), { predicate: "", params: {} }, { predicate: "", params: {} }));
+
     const result = await waggleDanceMachine.run(
       {
         goal,
@@ -48,6 +48,7 @@ const useWaggleDanceMachine = ({
         },
       },
       [dag, setDAG],
+      isRunning,
     );
 
     console.log("waggleDanceMachine.run result", result);
@@ -59,7 +60,7 @@ const useWaggleDanceMachine = ({
 
     console.log("result", result);
     return result;
-  }, [goal, dag, setDAG, waggleDanceMachine]);
+  }, [goal, dag, setDAG, waggleDanceMachine, isRunning]);
 
   return { chainMachine: waggleDanceMachine, dag, graphData, run };
 };

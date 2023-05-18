@@ -33,6 +33,7 @@ export interface BaseWaggleDanceMachine {
   run(
     request: BaseRequestBody,
     graphDataState: GraphDataState,
+    isRunning: boolean
   ): Promise<WaggleDanceResult | Error>;
 }
 

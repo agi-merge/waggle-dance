@@ -39,11 +39,43 @@ function decodeText(data: Uint8Array) {
   }
 }
 
+const yourId = "You"
+const planId = "👑"
+export const initialNodes = (goal: string, modelName: string) => [
+  new DAGNodeClass(yourId, "Human (You)", `Set Goal`, { goal }),
+  new DAGNodeClass(
+    planId,
+    `PlanBee-${modelName}`,
+    `coming up with an initial plan to divide-and-conquer`,
+    { goal },
+  ),
+]
+export const initialEdges = () => [new DAGEdgeClass(yourId, planId)]
+
+function findNodesWithNoIncomingEdges(dag: DAG): DAGNode[] {
+  const nodesWithIncomingEdges = new Set<string>();
+
+  for (const edge of dag.edges) {
+    nodesWithIncomingEdges.add(edge.targetId);
+  }
+
+  const nodesWithNoIncomingEdges: DAGNode[] = [];
+
+  for (const node of dag.nodes) {
+    if (!nodesWithIncomingEdges.has(node.id)) {
+      nodesWithNoIncomingEdges.push(node);
+    }
+  }
+
+  return nodesWithNoIncomingEdges;
+}
+
 // The executeTasks function takes in a request and a DAG, then runs tasks concurrently,
 // and updates the completed tasks and task results accordingly.
 async function executeTasks(
   request: ExecuteRequestBody,
-  maxConcurrency: number
+  maxConcurrency: number,
+  isRunning: boolean
 ): Promise<{
   completedTasks: string[];
   taskResults: Record<string, BaseResultType>;
@@ -57,7 +89,7 @@ async function executeTasks(
   const taskQueue: ScheduledTask[] = tasks.map((t) => ({ ...t, isScheduled: false }));
 
   // Keep looping while there are tasks in the task queue
-  while (taskQueue.length > 0) {
+  while (isRunning && taskQueue.length > 0) {
     // Gather the valid pairs of {task, dag} c from the task queue based on the completed tasks and the DAG edges
     const validPairs = taskQueue.reduce((acc: Array<{ task: DAGNode; dag: DAG }>, task, idx) => {
       const dag = dags[idx];
@@ -108,7 +140,7 @@ async function executeTasks(
       // Read the stream data and process based on response
       const reader = stream.getReader();
       try {
-        while (true) {
+        while (isRunning && true) {
           console.log("about to read:")
           const { done, value } = await reader.read();
           if (done) {
@@ -176,36 +208,25 @@ async function plan(
 export default class WaggleDanceMachine implements BaseWaggleDanceMachine {
   async run(
     request: BaseRequestBody,
-    [initDAG, setDAG]: GraphDataState,
+    [_initDAG, setDAG]: GraphDataState,
+    isRunning: boolean,
   ): Promise<WaggleDanceResult | Error> {
-    if (initDAG.nodes.length === 0) {
-      setDAG(
-        new DAG(
-          [
-            new DAGNodeClass("1", "Human", `Set Goal`, { goal: request.goal }),
-            new DAGNodeClass(
-              "2",
-              `PlanBee-${request.creationProps.modelName}`,
-              `coming up with an initial plan to divide-and-conquer`,
-              { goal: request.goal },
-            ),
-          ],
-          [new DAGEdgeClass("1", "2")],
-          { predicate: "", params: {} },
-          { predicate: "", params: {} },
-        ),
-      );
-    }
-
     const dag = await plan(request.goal, request.creationProps);
     console.log("dag", dag);
-    setDAG(dag);
+    // prepend our initial nodes to the DAG
+    setDAG(new DAG(
+      [...initialNodes(request.goal, request.creationProps.modelName), ...dag.nodes],
+      // connect our initial nodes to the DAG: gotta find them and create edges
+      [...initialEdges(), ...dag.edges, ...findNodesWithNoIncomingEdges(dag).map((node) => new DAGEdgeClass(planId, node.id))],
+      dag.init,
+      dag.goal,
+    ));
     const completedTasks: Set<string> = new Set();
     let taskResults: Record<string, BaseResultType> = {};
     const maxConcurrency = request.creationProps.maxConcurrency ?? 8;
 
     // Continue executing tasks and updating DAG until the goal is reached
-    while (!isGoalReached(dag.goal, completedTasks)) {
+    while (isRunning && !isGoalReached(dag.goal, completedTasks)) {
       const pendingTasks = dag.nodes.filter(
         (node) => !completedTasks.has(node.id),
       );
@@ -228,7 +249,7 @@ export default class WaggleDanceMachine implements BaseWaggleDanceMachine {
         taskResults,
       } as ExecuteRequestBody;
 
-      const executionResponse = await executeTasks(executeRequest, maxConcurrency);
+      const executionResponse = await executeTasks(executeRequest, maxConcurrency, isRunning);
       taskResults = { ...taskResults, ...executionResponse.taskResults };
       completedTasks.clear();
       for (const taskId of executionResponse.completedTasks) {

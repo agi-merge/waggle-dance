@@ -101,7 +101,7 @@ const WaggleDanceGraph = ({ setHeaderExpanded }: WaggleDanceGraphProps) => {
           </Typography>
         </Stack>
       )}
-      {dag.nodes.length > 0 && (
+      {dag.nodes.length > 0 && dag.edges.length > 0 && (
         <Card variant="outlined">
           <Tabs
             aria-label="Waggle Dance Status and Results"
