@@ -73,7 +73,7 @@ const WaggleDanceGraph = ({ setHeaderExpanded }: WaggleDanceGraphProps) => {
         </Stack>
       )}
       {dag.nodes.length > 0 && (
-        <Card variant="outlined" color="info">
+        <Card variant="outlined">
           <Tabs
             aria-label="Waggle Dance Status and Results"
             defaultValue={1}
