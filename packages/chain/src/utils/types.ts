@@ -12,7 +12,7 @@ const GPT_4 = "gpt-4";
 export enum LLM {
   embeddings = TEXT_EMBEDDING_ADA,
   fast = GPT_35_TURBO,
-  smart = GPT_35_TURBO,
+  smart = GPT_4,
 }
 
 // Currently, this uses 256 arbitrarily for embeddings, and 50/50 for prompt/response with OpenAI LLMs.
