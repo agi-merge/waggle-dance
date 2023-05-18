@@ -8,11 +8,15 @@ export const config = {
 
 const handler = async (req: NextRequest) => {
   const { creationProps, goal } = (await req.json()) as StrategyRequestBody;
-  const planResult = await planChain(creationProps, goal);
 
   const encoder = new TextEncoder();
+  // TODO: make this a signal/reactive so we can stream data without first awaiting the entire chain...
+  // Edge functions must return a response within 30 seconds, and this times us out.
+  const planResult = await planChain(creationProps, goal);
+
   const readableStream = new ReadableStream({
     start(controller) {
+
       const json = JSON.stringify(planResult);
       const chunks = json.match(/.{1,1024}/g); // Split the JSON string into chunks of 1024 characters
 
@@ -25,15 +29,6 @@ const handler = async (req: NextRequest) => {
       controller.close();
     },
   });
-
-  // const transformStream = new TransformStream({
-  //   transform(chunk, controller) {
-  //     encoder
-  //     const data = encoder.decode(chunk);
-  //     // Process the data as needed
-  //     controller.enqueue(encoder.encode(data));
-  //   },
-  // });
 
   return new Response(readableStream/*.pipeThrough(transformStream)*/, {
     status: 200,
