@@ -1,14 +1,13 @@
 // strategy/execute.ts
+// strategy/execute.ts
 
-import { AgentExecutor, ChatAgent } from "langchain/agents";
+import {
+  AgentExecutor,
+  ZeroShotAgent,
+  type AgentExecutorInput,
+} from "langchain/agents";
 import { LLMChain } from "langchain/chains";
 import { type Tool } from "langchain/dist/tools/base";
-import {
-  ChainStepExecutor,
-  LLMPlanner,
-  PlanAndExecuteAgentExecutor,
-  PlanOutputParser,
-} from "langchain/experimental/plan_and_execute";
 import {
   ChatPromptTemplate,
   HumanMessagePromptTemplate,
@@ -77,51 +76,33 @@ export async function executeChain({
   }
 
   // const instructions = `Given your goal "${goal}", and the task "${task}", execute the task.`;
-  const exe = createPrompt("execute", creationProps, goal);
-  const text = await exe.format({ goal, task, dag });
-  console.log("text", text)
+  const prompt = createPrompt("execute", creationProps, goal);
+  // const input = await prompt.format();
+  // console.log("input prompt", input);
   // const prompt = ZeroShotAgent.createPrompt(tools);
-  // const llmChain = new LLMChain({
-  //   memory,
-  //   prompt,
-  //   llm: model,
-  //   // callbacks: callbacks as unknown as CallbackManager,
-  // });
-  // const agent = new ZeroShotAgent({
-  //   llmChain,
-  //   allowedTools: tools.map((tool) => tool.name),
-  // });
+  const llmChain = new LLMChain({
+    memory,
+    prompt,
+    llm: model,
+    // callbacks: callbacks as unknown as CallbackManager,
+  });
+  const agent = new ZeroShotAgent({
+    llmChain,
+    allowedTools: tools.map((tool) => tool.name),
+    // outputParser: new ZeroShotAgentOutputParser({}),
+  });
 
   // const singleAgent = new LLMSingleActionAgent({ llmChain, tools })
 
-  // const executorConfig = {
-  //   agent,
-  //   tools,
-  //   memory,
-  //   streaming: true,
-  //   returnIntermediateSteps: false,
-  //   callbacks,
-  // } as AgentExecutorInput;
-  const plannerLlmChain = new LLMChain({
-    llm: model,
+  const executorConfig = {
+    agent,
+    tools,
     memory,
-    prompt: PLANNER_CHAT_PROMPT,
-  });
-  const planner = new LLMPlanner(plannerLlmChain, new PlanOutputParser());
-  const agent = ChatAgent.fromLLMAndTools(model, tools, {
-    humanMessageTemplate: text,
-  });
-  const stepExecutor = new ChainStepExecutor(
-    AgentExecutor.fromAgentAndTools({
-      agent,
-      memory,
-      tools,
-    }),
-  );
-  const executor = new PlanAndExecuteAgentExecutor({
-    planner,
-    stepExecutor,
-  });
+    streaming: true,
+    returnIntermediateSteps: false,
+    callbacks: creationProps.callbacks,
+  } as AgentExecutorInput;
+  const executor = AgentExecutor.fromAgentAndTools(executorConfig);
   // const executorConfig = {
   //   llm: model,
   //   tools,
@@ -129,7 +110,7 @@ export async function executeChain({
   // };
   // const executor = PlanAndExecuteAgentExecutor.fromLLMAndTools(executorConfig);
   console.debug(`about to call execute chain`);
-  const call = await executor.call({ text });
+  const call = await executor.call({ goal, task, dag });
   console.debug(`called chain: ${JSON.stringify(call)}`);
   const completion =
     (call?.output ? (call.output as string | undefined) : undefined) ??

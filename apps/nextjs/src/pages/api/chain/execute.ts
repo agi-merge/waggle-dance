@@ -40,7 +40,7 @@ const handler = async (req: IncomingMessage, res: ServerResponse) => {
       handleLLMStart: (llm: { name: string }, _prompts: string[]) => {
         console.debug("handleLLMStart", { llm });
         const packet: ChainPacket = {
-          type: "system",
+          type: "info",
           value: JSON.stringify({ name: llm.name }),
         };
         writePacket(packet);
@@ -48,7 +48,7 @@ const handler = async (req: IncomingMessage, res: ServerResponse) => {
       handleChainStart: (chain: { name: string }) => {
         console.debug("handleChainStart", { chain });
         const packet: ChainPacket = {
-          type: "system",
+          type: "info",
           value: JSON.stringify({ name: chain.name }),
         };
         writePacket(packet);
@@ -56,7 +56,7 @@ const handler = async (req: IncomingMessage, res: ServerResponse) => {
       handleAgentAction: (action: AgentAction) => {
         console.debug("handleAgentAction", action);
         const packet: ChainPacket = {
-          type: "system",
+          type: "info",
           value: JSON.stringify({ action }),
         };
         writePacket(packet);
@@ -64,7 +64,7 @@ const handler = async (req: IncomingMessage, res: ServerResponse) => {
       handleToolStart: (tool: { name: string }) => {
         console.debug("handleToolStart", { tool });
         const packet: ChainPacket = {
-          type: "system",
+          type: "info",
           value: JSON.stringify({ name: tool.name }),
         };
         writePacket(packet);

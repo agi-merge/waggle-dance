@@ -76,7 +76,7 @@ export interface EmbeddingsCreationProps
 }
 
 export const packetParser = z.object({
-  type: z.enum(["plan", "execute", "review", "human", "system", "error"]),
+  type: z.enum(["plan", "execute", "review", "human", "info", "error"]),
   value: z.string(),
   message: z.string().optional(),
 });
