@@ -36,10 +36,10 @@ export const PLANNER_SYSTEM_PROMPT_MESSAGE_TEMPLATE = [
 export const PLANNER_CHAT_PROMPT =
   /* #__PURE__ */ ChatPromptTemplate.fromPromptMessages([
     /* #__PURE__ */ SystemMessagePromptTemplate.fromTemplate(
-      PLANNER_SYSTEM_PROMPT_MESSAGE_TEMPLATE,
-    ),
+  PLANNER_SYSTEM_PROMPT_MESSAGE_TEMPLATE,
+),
     /* #__PURE__ */ HumanMessagePromptTemplate.fromTemplate(`{input}`),
-  ]);
+]);
 export const DEFAULT_STEP_EXECUTOR_HUMAN_CHAT_MESSAGE_TEMPLATE = `Previous steps: {previous_steps}
 
 Current objective: {current_step}
@@ -52,10 +52,12 @@ export async function executeChain({
   creationProps,
   goal,
   task,
+  dag,
 }: {
   creationProps: ModelCreationProps;
   goal: string;
-  task: string;
+  task: Record<string, any>;
+  dag: Record<string, any> | undefined;
 }): Promise<string> {
   const model = createModel(creationProps);
   const embeddings = createEmbeddings(creationProps);
@@ -76,7 +78,7 @@ export async function executeChain({
 
   // const instructions = `Given your goal "${goal}", and the task "${task}", execute the task.`;
   const exe = createPrompt("execute", creationProps, goal);
-  const text = await exe.format({ goal, task });
+  const text = await exe.format({ goal, task, dag });
   // const prompt = ZeroShotAgent.createPrompt(tools);
   // const llmChain = new LLMChain({
   //   memory,
@@ -126,7 +128,7 @@ export async function executeChain({
   // };
   // const executor = PlanAndExecuteAgentExecutor.fromLLMAndTools(executorConfig);
   console.debug(`about to call execute chain`);
-  const call = await executor.call({ text });
+  const call = await executor.call({ input: text });
   console.debug(`called chain: ${JSON.stringify(call)}`);
   const completion =
     (call?.output ? (call.output as string | undefined) : undefined) ??

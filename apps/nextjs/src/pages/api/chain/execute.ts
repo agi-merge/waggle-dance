@@ -33,7 +33,7 @@ const handler = async (req: IncomingMessage, res: ServerResponse) => {
       creationProps,
       goal,
       tasks,
-      completedTasks: _completedTasks,
+      dags,
     } = JSON.parse(body) as ExecuteRequestBody;
 
     const inlineCallback = {
@@ -74,11 +74,13 @@ const handler = async (req: IncomingMessage, res: ServerResponse) => {
     const callbacks = [inlineCallback];
     creationProps.callbacks = callbacks;
     console.log("about to execute plan");
-    const executionPromises = tasks.map((task) => {
+    const executionPromises = tasks.map((task, idx) => {
+      const dag = dags[idx];
       return executeChain({
         creationProps,
         goal,
-        task: task.name,
+        task,
+        dag,
       });
     });
     const executionResults = await Promise.all(executionPromises);

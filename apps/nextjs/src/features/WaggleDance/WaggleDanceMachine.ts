@@ -12,7 +12,7 @@ import {
   type BaseRequestBody,
   type ExecuteRequestBody,
 } from "~/pages/api/chain/types";
-import DAG, { DAGNodeClass, DAGEdgeClass, type Cond } from "./DAG";
+import DAG, { DAGNodeClass, DAGEdgeClass, type Cond, type DAGNode } from "./DAG";
 import {
   type BaseResultType,
   type BaseWaggleDanceMachine,
@@ -42,41 +42,46 @@ function decodeText(data: Uint8Array) {
 // and updates the completed tasks and task results accordingly.
 async function executeTasks(
   request: ExecuteRequestBody,
-  dag: DAG,
 ): Promise<{
   completedTasks: string[];
   taskResults: Record<string, BaseResultType>;
 }> {
   // Destructure tasks and completedTasks from the request object
-  const { tasks, completedTasks } = request;
+  const { dags, tasks, completedTasks, taskResults } = request;
 
   // Create a Set of completed tasks
   const completedTasksSet = new Set(completedTasks);
-
-  // Initialize an object to store task results
-  const taskResults: Record<string, BaseResultType> = {};
-
   // Create a task queue to store the tasks
   const taskQueue = [...tasks];
 
   // Keep looping while there are tasks in the task queue
   while (taskQueue.length > 0) {
-    // Filter the valid tasks from the task queue based on the completed tasks and the DAG edges
-    const validTasks = taskQueue.filter((task) =>
-      dag.edges
-        .filter((edge) => edge.targetId === task.id)
-        .every((edge) => completedTasksSet.has(edge.sourceId)),
-    );
+    // Gather the valid pairs of {task, dag} c from the task queue based on the completed tasks and the DAG edges
+    const validPairs = taskQueue.reduce((acc: Array<{ task: DAGNode; dag: DAG }>, task, idx) => {
+      const dag = dags[idx];
+      if (!dag) {
+        return acc;
+      }
 
-    // Execute the valid tasks concurrently, storing the executed tasks in executeTaskPromises array
-    const executeTaskPromises = validTasks.map(async (task) => {
+      const isValid = dag.edges.filter((edge) => edge.targetId === task.id)
+        .every((edge) => completedTasksSet.has(edge.sourceId));
+
+      if (isValid) {
+        acc.push({ task, dag });
+      }
+
+      return acc;
+    }, []);
+
+    // Execute the valid pairs of {task, dag} concurrently, storing the execution request promises in executeTaskPromises array
+    const executeTaskPromises = validPairs.map(async ({ task, dag }) => {
       console.log(`About to schedule task ${task.id} -${task.name} `);
       taskQueue.splice(taskQueue.indexOf(task), 1);
 
       console.log(`About to execute task ${task.id} -${task.name}...`);
 
       // Execute each task by making an API request
-      const data = { ...request, task };
+      const data = { ...request, task, dag };
       const response = await fetch("/api/chain/execute", {
         method: "POST",
         headers: {
@@ -206,7 +211,7 @@ export default class WaggleDanceMachine implements BaseWaggleDanceMachine {
         taskResults,
       } as ExecuteRequestBody;
 
-      const executionResponse = await executeTasks(executeRequest, dag);
+      const executionResponse = await executeTasks(executeRequest);
       taskResults = { ...taskResults, ...executionResponse.taskResults };
       completedTasks.clear();
       for (const taskId of executionResponse.completedTasks) {
