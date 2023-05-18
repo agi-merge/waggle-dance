@@ -83,7 +83,7 @@ const handler = async (req: IncomingMessage, res: ServerResponse) => {
         dag,
       });
     });
-    const executionResults = await Promise.all(executionPromises);
+    const executionResults = await Promise.allSettled(executionPromises);
 
     console.debug("executePlan results", executionResults);
     res.write(JSON.stringify({ results: executionResults }));

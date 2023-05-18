@@ -14,6 +14,7 @@ import {
 } from "~/pages/api/chain/types";
 import DAG, { DAGNodeClass, DAGEdgeClass, type Cond, type DAGNode } from "./DAG";
 import {
+  type ScheduledTask,
   type BaseResultType,
   type BaseWaggleDanceMachine,
   type GraphDataState,
@@ -42,6 +43,7 @@ function decodeText(data: Uint8Array) {
 // and updates the completed tasks and task results accordingly.
 async function executeTasks(
   request: ExecuteRequestBody,
+  maxConcurrency: number
 ): Promise<{
   completedTasks: string[];
   taskResults: Record<string, BaseResultType>;
@@ -52,14 +54,14 @@ async function executeTasks(
   // Create a Set of completed tasks
   const completedTasksSet = new Set(completedTasks);
   // Create a task queue to store the tasks
-  const taskQueue = [...tasks];
+  const taskQueue: ScheduledTask[] = tasks.map((t) => ({ ...t, isScheduled: false }));
 
   // Keep looping while there are tasks in the task queue
   while (taskQueue.length > 0) {
     // Gather the valid pairs of {task, dag} c from the task queue based on the completed tasks and the DAG edges
     const validPairs = taskQueue.reduce((acc: Array<{ task: DAGNode; dag: DAG }>, task, idx) => {
       const dag = dags[idx];
-      if (!dag) {
+      if (!dag || task.isScheduled) {
         return acc;
       }
 
@@ -67,16 +69,20 @@ async function executeTasks(
         .every((edge) => completedTasksSet.has(edge.sourceId));
 
       if (isValid) {
+        task.isScheduled = true
         acc.push({ task, dag });
       }
 
       return acc;
     }, []);
+    if (validPairs.length >= maxConcurrency) {
+      break;
+    }
 
     // Execute the valid pairs of {task, dag} concurrently, storing the execution request promises in executeTaskPromises array
     const executeTaskPromises = validPairs.map(async ({ task, dag }) => {
       console.log(`About to schedule task ${task.id} -${task.name} `);
-      taskQueue.splice(taskQueue.indexOf(task), 1);
+      taskQueue.splice(taskQueue.findIndex((scheduledTask) => { scheduledTask.id == task.id }), 1)
 
       console.log(`About to execute task ${task.id} -${task.name}...`);
 
@@ -103,13 +109,18 @@ async function executeTasks(
       const reader = stream.getReader();
       try {
         while (true) {
+          console.log("about to read:")
           const { done, value } = await reader.read();
           if (done) {
+            console.log("Stream complete");
             break;
           }
 
           // Decode response data
+
+          console.log(`About to decode response data for task ${task.id} -${task.name}:`);
           const jsonLines = decodeText(value);
+          console.log(`Decoded response data for task ${task.id} -${task.name}:`, jsonLines);
 
           // Process response data and store packets in completedTasksSet and taskResults
           const packets: ChainPacket[] = await readJSONL(jsonLines);
@@ -118,7 +129,13 @@ async function executeTasks(
           return packets;
         }
       } catch (error) {
-        console.error(error);
+        let errMessage: string
+        if (error instanceof Error) {
+          errMessage = error.message
+        } else {
+          errMessage = JSON.stringify(error)
+        }
+        console.error(`Error while reading the stream or processing the response data for task ${task.id} -${task.name}: ${errMessage}`);
         debugger;
       } finally {
         reader.releaseLock();
@@ -207,11 +224,12 @@ export default class WaggleDanceMachine implements BaseWaggleDanceMachine {
       const executeRequest = {
         ...request,
         tasks: relevantPendingTasks.slice(0, maxConcurrency),
+        dags: relevantPendingTasks.map(() => dag), // copy current dag to each subtask
         completedTasks: Array.from(completedTasks),
         taskResults,
       } as ExecuteRequestBody;
 
-      const executionResponse = await executeTasks(executeRequest);
+      const executionResponse = await executeTasks(executeRequest, maxConcurrency);
       taskResults = { ...taskResults, ...executionResponse.taskResults };
       completedTasks.clear();
       for (const taskId of executionResponse.completedTasks) {

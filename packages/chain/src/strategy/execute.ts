@@ -79,6 +79,7 @@ export async function executeChain({
   // const instructions = `Given your goal "${goal}", and the task "${task}", execute the task.`;
   const exe = createPrompt("execute", creationProps, goal);
   const text = await exe.format({ goal, task, dag });
+  console.log("text", text)
   // const prompt = ZeroShotAgent.createPrompt(tools);
   // const llmChain = new LLMChain({
   //   memory,
@@ -128,7 +129,7 @@ export async function executeChain({
   // };
   // const executor = PlanAndExecuteAgentExecutor.fromLLMAndTools(executorConfig);
   console.debug(`about to call execute chain`);
-  const call = await executor.call({ input: text });
+  const call = await executor.call({ text });
   console.debug(`called chain: ${JSON.stringify(call)}`);
   const completion =
     (call?.output ? (call.output as string | undefined) : undefined) ??
