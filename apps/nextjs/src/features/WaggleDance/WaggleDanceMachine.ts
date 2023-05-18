@@ -169,7 +169,6 @@ async function plan(
   }
   const planResult = (await res.json()) as string;
   const json = JSON.parse(planResult) as PlanResult;
-  console.log("planResult", planResult, "json", json);
   return json;
 }
 

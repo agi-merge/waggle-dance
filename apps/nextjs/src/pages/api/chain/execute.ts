@@ -73,7 +73,7 @@ const handler = async (req: IncomingMessage, res: ServerResponse) => {
 
     const callbacks = [inlineCallback];
     creationProps.callbacks = callbacks;
-    console.log("about to execute plan");
+    console.log("about to execute tasks");
     const executionPromises = tasks.map((task, idx) => {
       const dag = dags[idx];
       return executeChain({
