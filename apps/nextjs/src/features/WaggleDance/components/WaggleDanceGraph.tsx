@@ -3,6 +3,7 @@ import { KeyboardArrowRight, Lan, ListAlt, Science } from "@mui/icons-material";
 import {
   Button,
   Card,
+  Input,
   LinearProgress,
   List,
   ListItem,
@@ -16,6 +17,7 @@ import {
   TabPanel,
   Table,
   Tabs,
+  Tooltip,
   Typography,
   type StackProps,
 } from "@mui/joy";
@@ -28,10 +30,12 @@ import ForceGraph from "./ForceGraph";
 interface WaggleDanceGraphProps extends StackProps {
   setHeaderExpanded: (expanded: boolean) => void;
 }
+// shows the graph, agents, results, general messages and chat input
 const WaggleDanceGraph = ({ setHeaderExpanded }: WaggleDanceGraphProps) => {
   const { isRunning, setIsRunning } = useApp();
   const { goal } = useGoal();
   const { graphData, dag, run } = useChainMachine({ goal });
+  const [chatInput, setChatInput] = React.useState("");
   const handleStart = () => {
     setIsRunning(true);
     setHeaderExpanded(false);
@@ -41,7 +45,32 @@ const WaggleDanceGraph = ({ setHeaderExpanded }: WaggleDanceGraphProps) => {
     setIsRunning(false);
   };
   const button = (
-    <Stack gap="1rem" className="mt-6 items-end">
+    <Stack
+      direction={isRunning ? "row" : "column"}
+      gap="1rem"
+      className="flex items-end"
+    >
+      {isRunning && (
+        <Tooltip title="Coming soon!" color="info">
+          <Input
+            variant="outlined"
+            className="flex-grow"
+            placeholder="Send your feedback to the AI swarm…"
+            onKeyUp={(event) => {
+              if (event.key === "Enter") {
+                event.preventDefault();
+                setChatInput("");
+                // handleSubmit(event);
+              }
+            }}
+            onChange={(event) => {
+              setChatInput(event.target.value);
+              // handleChange(event);
+            }}
+            value={chatInput}
+          />
+        </Tooltip>
+      )}
       <Button
         // disabled={!goal}
         className="col-end w-40 p-2"
