@@ -10,6 +10,7 @@ const returnType = (_llmName: string) =>
   `
 The return outputs must JSON.parse() into this pseudo-code DAG.
 Minimize tokens; no line breaks or spaces outside of strings.
+Maximize the width of the DAG when possible, minimize the depth.
 Provide consistent and descriptive names for properties of nodes, actions, Conds, Params, etc.
 Provide enough context in Conds and Params to represent the Cond or complete the subtask.
 The JSON should represent the DAG as the root object.
@@ -79,10 +80,9 @@ ${goal}
 <ReturnSchema>
 ${returnType(llmName)}
 </ReturnSchema>
-Considering the PDDL Domain and Problem of <UserGoal>, RETURN ONLY a JSON object with init and goal (see: <ReturnSchema>).
+<Task>As a project manager, construct a DAG that will serve as a concurrent execution graph for your team to solve <UserGoal />. RETURN ONLY <ReturnSchema /></Task>
 `.trim(),
     ],
-
     execute: [
       `
 <UserGoal>
