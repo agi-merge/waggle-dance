@@ -1,6 +1,6 @@
-import { NextRequest } from "next/server";
+import { type NextRequest } from "next/server";
 import { planChain } from "@acme/chain";
-import { StrategyRequestBody } from "./types";
+import { type StrategyRequestBody } from "./types";
 
 export const config = {
   runtime: "edge",

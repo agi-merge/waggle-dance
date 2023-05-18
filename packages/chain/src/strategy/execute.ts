@@ -55,8 +55,8 @@ export async function executeChain({
 }: {
   creationProps: ModelCreationProps;
   goal: string;
-  task: Record<string, any>;
-  dag: Record<string, any> | undefined;
+  task: Record<string, unknown>;
+  dag: Record<string, unknown> | undefined;
 }): Promise<string> {
   const model = createModel(creationProps);
   const embeddings = createEmbeddings(creationProps);
