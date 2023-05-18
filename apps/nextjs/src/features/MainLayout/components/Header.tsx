@@ -1,8 +1,9 @@
 import { useRouter } from "next/router";
-import { KeyboardArrowRight } from "@mui/icons-material";
+import { Close, KeyboardArrowRight } from "@mui/icons-material";
 import {
   Avatar,
   Breadcrumbs,
+  IconButton,
   Link,
   Sheet,
   Stack,
@@ -21,10 +22,9 @@ function removeFirstCharIfMatching(str: string, targetChar: string): string {
 
 const Header = () => {
   const router = useRouter();
-  const { goal, setGoalInputState } = useGoal();
+  const { goal, setGoalInputState, setGoal } = useGoal();
   const slug = removeFirstCharIfMatching(router.pathname, "/");
   const { data: session } = useSession();
-
   const routes = [
     { path: "", label: "🐝 Start", goalState: GoalInputState.start },
     {
@@ -158,6 +158,16 @@ const Header = () => {
                 <Link href="#"> Improve your prompt</Link>
               </Tooltip>
             </Typography>
+            <IconButton
+              variant="soft"
+              color="neutral"
+              onClick={() => {
+                setGoal("");
+                setGoalInputState(GoalInputState.start);
+              }}
+            >
+              <Close />
+            </IconButton>
           </Stack>
         </Sheet>
       )}
