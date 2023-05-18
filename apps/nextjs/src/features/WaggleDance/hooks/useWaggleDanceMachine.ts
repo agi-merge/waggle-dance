@@ -41,8 +41,8 @@ const useWaggleDanceMachine = ({
         creationProps: {
           modelName: LLM.smart,
           temperature: 0,
-          maxConcurrency: 6,
           maxTokens,
+          maxConcurrency: 3,
           streaming: true,
           verbose: true,
         },
