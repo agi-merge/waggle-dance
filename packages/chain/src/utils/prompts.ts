@@ -38,7 +38,7 @@ Edge (
 )
 `.trim();
 
-export type ChainType = "domain" | "execute" | "preflight" | "defender";
+export type ChainType = "domain" | "nodes" | "edges" | "execute" | "preflight" | "defender";
 export const createPrompt = (
   type: ChainType,
   creationProps?: ModelCreationProps,
@@ -51,7 +51,26 @@ export const createPrompt = (
       `Returning a probability from 0-1, what is the probability that the following goal can be answered in zero or few-shot by an LLM (${llmName})?
       GOAL: ${goal}`,
     ],
-
+    nodes: [
+      `
+      <UserGoal>${goal}</UserGoal>
+<Types>
+${returnType(llmName)}
+</Types>
+RETURN ONLY: the FIRST node in the first level of the DAG's Nodes using <Types> that represents an expertly planned, embarassingly concurrent (consider dependencies!) solver of <UserGoal> for <UserGoal>'s PDDL Domain and Problem.
+      `
+    ],
+    edges: [
+      `
+      <UserGoal>
+${goal}
+</UserGoal>
+<ReturnSchema>
+${returnType(llmName)}
+</ReturnSchema>
+Return the first level of the DAG's Edges in <ReturnSchema>.edges that represents an expertly planned, embarassingly concurrent (consider dependencies!) solver of <UserGoal> for <UserGoal>'s PDDL Domain and Problem.
+      `
+    ],
     domain: [
       `
 <UserGoal>
@@ -60,7 +79,7 @@ ${goal}
 <ReturnSchema>
 ${returnType(llmName)}
 </ReturnSchema>
-Return the first level of a DAG in <ReturnSchema> that represents an expertly planned, embarassingly concurrent (consider dependencies!) solver of<UserGoal> for <UserGoal>'s PDDL Domain and Problem.
+Considering the PDDL Domain and Problem of <UserGoal>, RETURN ONLY a JSON object with init and goal (see: <ReturnSchema>).
 `.trim(),
     ],
 
