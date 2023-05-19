@@ -44,7 +44,7 @@ const handler = async (req: IncomingMessage, res: ServerResponse) => {
       const nodeId = task.id
       const inlineCallback = {
         handleLLMNewToken(token: string) {
-          console.debug("handleLLMNewToken", { token });
+          // console.debug("handleLLMNewToken", { token });
           res.write(token);
         },
         // handleLLMStart: (llm: { name: string }, _prompts: string[]) => {
@@ -76,7 +76,7 @@ const handler = async (req: IncomingMessage, res: ServerResponse) => {
     });
     const executionResults = await Promise.allSettled(executionPromises);
 
-    console.debug("executePlan results", executionResults);
+    // console.debug("executePlan results", executionResults);
     res.write(JSON.stringify({ results: executionResults }));
   } catch (e) {
     let message;

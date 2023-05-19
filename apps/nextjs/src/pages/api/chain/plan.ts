@@ -60,7 +60,7 @@ const handler = async (req: IncomingMessage, res: ServerResponse) => {
       "Transfer-Encoding": "chunked",
     });
     const planResult = await planChain(creationProps, goal);
-    console.debug("planChain", planResult);
+    // console.debug("planChain", planResult);
     // writePacket({ type: "return", nodeId, value: planResult })
   } catch (e) {
 
