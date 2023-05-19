@@ -34,7 +34,9 @@ interface WaggleDanceGraphProps extends StackProps {
 const WaggleDanceGraph = ({ setHeaderExpanded }: WaggleDanceGraphProps) => {
   const { isRunning, setIsRunning } = useApp();
   const { goal } = useGoal();
-  const { graphData, dag, run } = useWaggleDanceMachine({ goal });
+  const { graphData, dag, run, isDonePlanning } = useWaggleDanceMachine({
+    goal,
+  });
   const [chatInput, setChatInput] = React.useState("");
 
   const handleStart = () => {
@@ -86,22 +88,27 @@ const WaggleDanceGraph = ({ setHeaderExpanded }: WaggleDanceGraphProps) => {
   return (
     <Stack gap="1rem" className="mt-6">
       {!isRunning && button}
-      {dag.edges.length > 2 && (
-        <Typography className="text-center" color="warning" level="body4">
-          Demo will not proceed beyond planning.
-        </Typography>
+      {isRunning && (
+        <>
+          {isDonePlanning && (
+            <Typography className="text-center" color="warning" level="body4">
+              This demo will currently not proceed beyond initial planning.
+            </Typography>
+          )}
+          {!isDonePlanning && (
+            <Stack className="text-center">
+              <Typography level="h5" color="primary">
+                Please 🐝 patient,{" "}
+                <Typography color="neutral">planning initial tasks…</Typography>
+              </Typography>
+              <Typography level="body3">
+                This important first step can take several minutes…
+              </Typography>
+            </Stack>
+          )}
+        </>
       )}
-      {isRunning && dag.edges.length <= 1 && (
-        <Stack className="text-center">
-          <Typography level="h5" color="primary">
-            Please 🐝 patient,{" "}
-            <Typography color="neutral">planning initial tasks…</Typography>
-          </Typography>
-          <Typography level="body3">
-            This important first step can take several minutes…
-          </Typography>
-        </Stack>
-      )}
+
       {dag.nodes.length > 0 && dag.edges.length > 0 && (
         <Card variant="outlined">
           <Tabs

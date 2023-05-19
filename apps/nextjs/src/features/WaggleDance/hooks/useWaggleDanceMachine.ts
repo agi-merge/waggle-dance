@@ -49,7 +49,7 @@ const useWaggleDanceMachine = ({
         },
       },
       [dag, setDAG],
-      [isDonePlanning, setIsDonePlanning],
+      [false, setIsDonePlanning],
       isRunning,
     );
 
@@ -62,9 +62,9 @@ const useWaggleDanceMachine = ({
 
     console.log("result", result);
     return result;
-  }, [goal, dag, setDAG, waggleDanceMachine, isRunning]);
+  }, [goal, dag, setDAG, waggleDanceMachine, isRunning, setIsDonePlanning]);
 
-  return { chainMachine: waggleDanceMachine, dag, graphData, run };
+  return { waggleDanceMachine, dag, graphData, run, setIsDonePlanning, isDonePlanning };
 };
 
 export default useWaggleDanceMachine;

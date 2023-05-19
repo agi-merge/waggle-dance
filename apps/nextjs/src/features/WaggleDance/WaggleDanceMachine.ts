@@ -20,6 +20,7 @@ import {
   type BaseWaggleDanceMachine,
   type GraphDataState,
   type WaggleDanceResult,
+  type IsDonePlanningState,
 } from "./types";
 
 function isGoalReached(goal: Cond, completedTasks: Set<string>): boolean {
@@ -270,9 +271,12 @@ export default class WaggleDanceMachine implements BaseWaggleDanceMachine {
   async run(
     request: BaseRequestBody,
     [initDAG, setDAG]: GraphDataState,
+    [_isDonePlanning, setIsDonePlanning]: IsDonePlanningState,
     isRunning: boolean,
   ): Promise<WaggleDanceResult | Error> {
+    setIsDonePlanning(false);
     const dag = await plan(request.goal, request.creationProps, initDAG, setDAG);
+    setIsDonePlanning(true);
     console.log("dag", dag);
     // prepend our initial nodes to the DAG
     setDAG(new DAG(
