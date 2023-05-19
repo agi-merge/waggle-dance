@@ -9,6 +9,7 @@ import WaggleDanceMachine, { initialCond, initialEdges, initialNodes } from "../
 import { type GraphData } from "../components/ForceGraph";
 import { dagToGraphData } from "../utils/conversions";
 import useApp from "~/stores/appStore";
+import { env } from "~/env.mjs";
 
 interface UseWaggleDanceMachineProps {
   goal: string;
@@ -42,9 +43,9 @@ const useWaggleDanceMachine = ({
           modelName: LLM.smart,
           temperature: 0,
           maxTokens,
-          maxConcurrency: 3,
+          maxConcurrency: 16,
           streaming: true,
-          verbose: true,
+          verbose: env.NODE_ENV === "development",
         },
       },
       [dag, setDAG],
