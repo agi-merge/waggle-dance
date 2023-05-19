@@ -1,6 +1,8 @@
+import React from "react";
 import { useRouter } from "next/router";
 import { Close, KeyboardArrowRight } from "@mui/icons-material";
 import {
+  Alert,
   Avatar,
   Breadcrumbs,
   IconButton,
@@ -139,36 +141,41 @@ const Header = () => {
       </Breadcrumbs>
 
       {goal && (
-        <Sheet
-          invertedColors
-          className="mx-2 mt-2 p-2"
-          variant="outlined"
-          sx={{ borderRadius: "sm" }}
-        >
-          <Stack
-            alignItems="center"
-            direction={{ xs: "column", sm: "row" }}
-            spacing={{ xs: 1, sm: 2, md: 4 }}
+        <Sheet variant="plain" sx={{ borderRadius: "sm" }}>
+          <Alert
+            className="mx-2 mt-2 p-2"
+            key="goal"
+            sx={{ alignItems: "flex-start" }}
+            variant="soft"
+            color="neutral"
+            endDecorator={
+              <IconButton
+                variant="plain"
+                size="sm"
+                onClick={() => {
+                  setGoal("");
+                  setGoalInputState(GoalInputState.start);
+                }}
+              >
+                <Close />
+              </IconButton>
+            }
           >
-            <Typography level="h5">Goal: </Typography>
-            <Typography level="body4">
-              {goal}
-              <br />
-              <Tooltip title="Coming soon" color="info">
-                <Link href="#"> Improve your prompt</Link>
-              </Tooltip>
-            </Typography>
-            <IconButton
-              variant="soft"
-              color="neutral"
-              onClick={() => {
-                setGoal("");
-                setGoalInputState(GoalInputState.start);
-              }}
+            <Stack
+              alignItems="center"
+              direction="row"
+              spacing={{ xs: 2, sm: 3, md: 4 }}
             >
-              <Close />
-            </IconButton>
-          </Stack>
+              <Typography level="h5">Goal: </Typography>
+              <Typography level="body4">
+                {goal}
+                <br />
+                <Tooltip title="Coming soon" color="info">
+                  <Link href="#"> Improve your prompt</Link>
+                </Tooltip>
+              </Typography>
+            </Stack>
+          </Alert>
         </Sheet>
       )}
     </header>
