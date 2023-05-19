@@ -12,7 +12,7 @@ export function dagToGraphData(dag: DAG): GraphData {
     return {
       id: node.id,
       name: node.name,
-      action: node.action,
+      act: node.act,
       params: node.params,
     };
   });
@@ -29,8 +29,9 @@ export function dagToGraphData(dag: DAG): GraphData {
   );
 
   const links: LinkObject[] = dag.edges.map((edge) => ({
-    source: nodeLookup[edge.sourceId],
-    target: nodeLookup[edge.targetId],
+    source: nodeLookup[edge.sId],
+    target: nodeLookup[edge.tId],
+    sId: nodeLookup[edge.sId]
   }));
 
   return { nodes, links };

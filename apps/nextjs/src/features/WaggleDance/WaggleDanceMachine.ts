@@ -57,7 +57,7 @@ function findNodesWithNoIncomingEdges(dag: DAG | OptionalDAG): DAGNode[] {
   const nodesWithIncomingEdges = new Set<string>();
 
   for (const edge of dag.edges ?? []) {
-    nodesWithIncomingEdges.add(edge.targetId);
+    nodesWithIncomingEdges.add(edge.sId);
   }
 
   const nodesWithNoIncomingEdges: DAGNode[] = [];
@@ -98,8 +98,8 @@ async function executeTasks(
         return acc;
       }
 
-      const isValid = dag.edges.filter((edge) => edge.targetId === task.id)
-        .every((edge) => completedTasksSet.has(edge.sourceId));
+      const isValid = dag.edges.filter((edge) => edge.tId === task.id)
+        .every((edge) => completedTasksSet.has(edge.sId));
 
       if (isValid) {
         task.isScheduled = true
@@ -222,8 +222,8 @@ async function plan(
         const yaml = parse(chunks) as unknown;
         if (yaml && yaml as OptionalDAG) {
           const optDag = yaml as OptionalDAG
-          const validNodes = optDag.nodes?.filter((n) => n.name.length > 0 && n.action.length > 0 && n.id.length > 0 && n.params);
-          const validEdges = optDag.edges?.filter((n) => n.sourceId.length > 0 && n.targetId.length > 0);
+          const validNodes = optDag.nodes?.filter((n) => n.name.length > 0 && n.act.length > 0 && n.id.length > 0 && n.params);
+          const validEdges = optDag.edges?.filter((n) => n.sId.length > 0 && n.tId.length > 0);
           if (validNodes) {
             const hookupEdges = findNodesWithNoIncomingEdges(optDag).map((node) => new DAGEdgeClass(planId, node.id))
             const partialDAG = new DAG(
@@ -298,8 +298,8 @@ export default class WaggleDanceMachine implements BaseWaggleDanceMachine {
 
       const relevantPendingTasks = pendingTasks.filter((task) =>
         dag.edges
-          .filter((edge) => edge.targetId === task.id)
-          .every((edge) => completedTasks.has(edge.sourceId)),
+          .filter((edge) => edge.tId === task.id)
+          .every((edge) => completedTasks.has(edge.sId)),
       );
 
       const executeRequest = {

@@ -20,34 +20,34 @@ export class CondClass {
 export interface DAGNode {
   id: string;
   name: string;
-  action: string;
+  act: string;
   params: Params;
 }
 export interface DAGEdge {
-  sourceId: string;
-  targetId: string;
+  sId: string;
+  tId: string;
 }
 export class DAGNodeClass implements DAGNode {
   id: string;
   name: string;
-  action: string;
+  act: string;
   params: Params;
 
-  constructor(id: string, name: string, action: string, params: Params) {
+  constructor(id: string, name: string, act: string, params: Params) {
     this.id = id;
     this.name = name;
-    this.action = action;
+    this.act = act;
     this.params = params;
   }
 }
 
 export class DAGEdgeClass implements DAGEdge {
-  sourceId: string;
-  targetId: string;
+  sId: string;
+  tId: string;
 
-  constructor(sourceId: string, targetId: string) {
-    this.sourceId = sourceId;
-    this.targetId = targetId;
+  constructor(sId: string, tId: string) {
+    this.sId = sId;
+    this.tId = tId;
   }
 }
 

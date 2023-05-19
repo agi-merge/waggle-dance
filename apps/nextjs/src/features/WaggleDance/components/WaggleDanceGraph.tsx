@@ -24,7 +24,7 @@ import {
 
 import useApp from "~/stores/appStore";
 import useGoal from "~/stores/goalStore";
-import useChainMachine from "../hooks/useWaggleDanceMachine";
+import useWaggleDanceMachine from "../hooks/useWaggleDanceMachine";
 import ForceGraph from "./ForceGraph";
 
 interface WaggleDanceGraphProps extends StackProps {
@@ -34,8 +34,9 @@ interface WaggleDanceGraphProps extends StackProps {
 const WaggleDanceGraph = ({ setHeaderExpanded }: WaggleDanceGraphProps) => {
   const { isRunning, setIsRunning } = useApp();
   const { goal } = useGoal();
-  const { graphData, dag, run } = useChainMachine({ goal });
+  const { graphData, dag, run } = useWaggleDanceMachine({ goal });
   const [chatInput, setChatInput] = React.useState("");
+
   const handleStart = () => {
     setIsRunning(true);
     setHeaderExpanded(false);
@@ -143,7 +144,7 @@ const WaggleDanceGraph = ({ setHeaderExpanded }: WaggleDanceGraphProps) => {
                           <ListItemContent>
                             <Typography>{n.name}</Typography>
                             <Typography level="body3">
-                              {n.action}{" "}
+                              {n.act}{" "}
                               <Typography level="body5" color="info">
                                 {JSON.stringify(n.params)}
                               </Typography>

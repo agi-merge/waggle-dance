@@ -22,13 +22,13 @@ Cond (
 )
 Node (
   name: string;
-  action: string
+  act: string
   params: Params
   id: string;
 )
 Edge (
-  sourceId: string
-  targetId: string
+  sId: string
+  tId: string
 )
 
 Maximize the width of the DAG when possible, minimize the depth.
