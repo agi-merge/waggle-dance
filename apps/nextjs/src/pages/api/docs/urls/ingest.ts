@@ -8,6 +8,7 @@ import { getServerSession } from "@acme/auth";
 import { LLM, createEmbeddings } from "@acme/chain";
 
 import { env } from "~/env.mjs";
+import { type IncomingMessage } from "http";
 
 export const config = {
   runtime: "nodejs",
@@ -29,9 +30,9 @@ export type UploadError = {
   error: string;
 };
 
-const handler = async (req: NextApiRequest, res: NextApiResponse) => {
+const handler = async (req: IncomingMessage, res: NextApiResponse) => {
   const session = await getServerSession({
-    req,
+    req: req as NextApiRequest,
     res,
   });
 
@@ -43,8 +44,9 @@ const handler = async (req: NextApiRequest, res: NextApiResponse) => {
   }
 
   if (req.method === "POST") {
+    res.writeHead(200, { "Content-Type": "application/json" });
     console.log(`POST /api/docs/urls/ingest`);
-    const body = req.body as URLIngestRequestBody;
+    const body = (req as NextApiRequest).body as URLIngestRequestBody;
     try {
       const userId = session.user.id;
       if (!userId) throw new Error("No user id found");
@@ -95,7 +97,6 @@ const handler = async (req: NextApiRequest, res: NextApiResponse) => {
         },
       );
 
-      res.writeHead(200, { "Content-Type": "application/json" });
 
       const uploadResponse: URLIngestResponse = {
         count: docs.length,
@@ -105,7 +106,9 @@ const handler = async (req: NextApiRequest, res: NextApiResponse) => {
       res.end(json);
     } catch (error) {
       console.error(error);
-      res.writeHead(500, { "Content-Type": "application/json" });
+      if (res.headersSent) {
+        res.writeHead(500, { "Content-Type": "application/json" });
+      }
       res.end(JSON.stringify({ error: (error as HasMessage).message }));
     }
   }
