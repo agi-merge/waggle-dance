@@ -1,7 +1,5 @@
-import type { BaseMessagePromptTemplate } from "langchain/dist/prompts/chat";
 import {
   PromptTemplate,
-  SystemMessagePromptTemplate,
 } from "langchain/prompts";
 
 import { type ModelCreationProps } from "./types";

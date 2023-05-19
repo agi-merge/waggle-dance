@@ -3,7 +3,6 @@
 import { type ChainPacket, planChain } from "@acme/chain";
 import { type StrategyRequestBody } from "./types";
 import { type IncomingMessage, type ServerResponse } from "http";
-import { type AgentAction } from "langchain/schema";
 import { stringify } from "yaml"
 export const config = {
   api: {
@@ -59,7 +58,7 @@ const handler = async (req: IncomingMessage, res: ServerResponse) => {
       "Content-Type": "application/octet-stream",
       "Transfer-Encoding": "chunked",
     });
-    const planResult = await planChain(creationProps, goal);
+    const _planResult = await planChain(creationProps, goal);
     // console.debug("planChain", planResult);
     // writePacket({ type: "return", nodeId, value: planResult })
   } catch (e) {

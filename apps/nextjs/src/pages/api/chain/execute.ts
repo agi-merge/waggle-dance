@@ -1,7 +1,6 @@
 // chain/execute.ts
 
 import { type IncomingMessage, type ServerResponse } from "http";
-import { type AgentAction } from "langchain/dist/schema";
 
 import { executeChain, type ChainPacket } from "@acme/chain";
 
@@ -41,7 +40,7 @@ const handler = async (req: IncomingMessage, res: ServerResponse) => {
     // TODO: send all to one chain? fixes concurrency issue but may reduce overall perf due to waiting for all instead of maybe proceeding to next DAG level
     const executionPromises = tasks.map((task, idx) => {
       const dag = dags[idx];
-      const nodeId = task.id
+      // const nodeId = task.id
       const inlineCallback = {
         handleLLMNewToken(token: string) {
           // console.debug("handleLLMNewToken", { token });
