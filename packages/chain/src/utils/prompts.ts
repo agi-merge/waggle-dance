@@ -23,10 +23,10 @@ Cond (
   params: Params
 )
 Node (
-  id: string;
   name: string;
   action: string
   params: Params
+  id: string;
 )
 Edge (
   sourceId: string

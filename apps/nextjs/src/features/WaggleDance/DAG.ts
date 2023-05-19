@@ -50,6 +50,20 @@ export class DAGEdgeClass implements DAGEdge {
     this.targetId = targetId;
   }
 }
+
+export class OptionalDAG {
+  readonly nodes?: DAGNode[];
+  readonly edges?: DAGEdge[];
+  readonly init?: Cond;
+  readonly goal?: Cond;
+
+  constructor(nodes?: DAGNode[], edges?: DAGEdge[], init?: Cond, goal?: Cond) {
+    this.nodes = nodes;
+    this.edges = edges;
+    this.init = init;
+    this.goal = goal;
+  }
+}
 export default class DAG {
   readonly nodes: DAGNode[];
   readonly edges: DAGEdge[];

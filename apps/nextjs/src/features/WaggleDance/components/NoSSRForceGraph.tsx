@@ -2,6 +2,7 @@
 import React, { useEffect, useRef, useState } from "react";
 import useResizeObserver from "@react-hook/resize-observer";
 import { ForceGraph2D as OriginalForceGraph2D } from "react-force-graph";
+import { useDebounce } from "use-debounce";
 
 interface GraphData {
   nodes: NodeObject[];
@@ -46,6 +47,23 @@ const NoSSRForceGraph: React.FC<ForceGraphProps> = ({ data }) => {
       setContainerWidth(containerRef.current.clientWidth);
     }
   }, []);
+
+  const [debouncedData, _state] = useDebounce(data, 1000);
+
+  // const handleClick = useCallback(
+  //   (node: NodeObject) => {
+  //     // Aim at node from outside it
+  //     const distance = 40;
+  //     const distRatio = 1 + distance / Math.hypot(node?.x ?? 0, node?.y ?? 0);
+
+  //     fgRef.current?.cameraPosition(
+  //       { x: node?.x ?? 0 * distRatio, y: node?.y ?? 0 * distRatio }, // new position
+  //       node, // lookAt ({ x, y, z })
+  //       200, // ms transition duration
+  //     );
+  //   },
+  //   [fgRef],
+  // );
   return (
     <div ref={containerRef} style={{ width: "100%", position: "relative" }}>
       <OriginalForceGraph2D
@@ -58,7 +76,7 @@ const NoSSRForceGraph: React.FC<ForceGraphProps> = ({ data }) => {
         dagMode="td"
         nodeLabel="name"
         nodeAutoColorBy="id"
-        graphData={data}
+        graphData={debouncedData}
         cooldownTicks={100}
         linkWidth={4}
         linkLabel="id"
@@ -75,9 +93,10 @@ const NoSSRForceGraph: React.FC<ForceGraphProps> = ({ data }) => {
         onDagError={(loopNodeIds) => {
           console.error(`DAG error: ${loopNodeIds}`);
         }}
-        onEngineStop={() => fgRef.current?.zoomToFit()}
+        // onEngineStop={() => fgRef.current?.zoomToFit()}
         enableZoomInteraction={false}
         enablePanInteraction={false}
+        // onNodeClick={handleClick}
         // enablePointerInteraction={false}
       />
     </div>

@@ -51,6 +51,7 @@
     "react-force-graph": "^1.43.0",
     "superjson": "1.9.1",
     "swr": "^2.1.5",
+    "use-debounce": "^9.0.4",
     "utils": "link:@mui/material/utils",
     "yaml": "^2.2.2",
     "zod": "^3.21.4",

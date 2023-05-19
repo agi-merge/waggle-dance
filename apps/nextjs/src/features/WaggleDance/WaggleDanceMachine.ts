@@ -13,7 +13,7 @@ import {
   type BaseRequestBody,
   type ExecuteRequestBody,
 } from "~/pages/api/chain/types";
-import DAG, { DAGNodeClass, DAGEdgeClass, type Cond, type DAGNode } from "./DAG";
+import DAG, { DAGNodeClass, DAGEdgeClass, type Cond, type DAGNode, type OptionalDAG } from "./DAG";
 import {
   type ScheduledTask,
   type BaseResultType,
@@ -41,6 +41,7 @@ function decodeText(data: Uint8Array) {
 
 const yourId = "You"
 const planId = "👑"
+export const initialCond = { predicate: "", params: {} }
 export const initialNodes = (goal: string, modelName: string) => [
   new DAGNodeClass(yourId, "Human (You)", `Set Goal`, { goal }),
   new DAGNodeClass(
@@ -52,16 +53,16 @@ export const initialNodes = (goal: string, modelName: string) => [
 ]
 export const initialEdges = () => [new DAGEdgeClass(yourId, planId)]
 
-function findNodesWithNoIncomingEdges(dag: DAG): DAGNode[] {
+function findNodesWithNoIncomingEdges(dag: DAG | OptionalDAG): DAGNode[] {
   const nodesWithIncomingEdges = new Set<string>();
 
-  for (const edge of dag.edges) {
+  for (const edge of dag.edges ?? []) {
     nodesWithIncomingEdges.add(edge.targetId);
   }
 
   const nodesWithNoIncomingEdges: DAGNode[] = [];
 
-  for (const node of dag.nodes) {
+  for (const node of dag.nodes ?? []) {
     if (!nodesWithIncomingEdges.has(node.id)) {
       nodesWithNoIncomingEdges.push(node);
     }
@@ -187,6 +188,8 @@ async function executeTasks(
 async function plan(
   goal: string,
   creationProps: ModelCreationProps,
+  dag: DAG,
+  setDAG: (dag: DAG) => void
 ): Promise<DAG> {
   const data = { goal, creationProps };
   const res = await fetch("/api/chain/plan", {
@@ -208,16 +211,39 @@ async function plan(
     console.log(`Planned!`);
   }
   async function streamToString(stream: ReadableStream<Uint8Array>): Promise<string> {
-    const chunks = [];
+    let chunks = "" as string;
     const reader = stream.getReader();
 
     let result;
     while ((result = await reader.read()) && !result.done) {
       const chunk = new TextDecoder().decode(result.value);
-      chunks.push(chunk);
+      chunks += chunk;
+      try {
+        const yaml = parse(chunks) as unknown;
+        if (yaml && yaml as OptionalDAG) {
+          const optDag = yaml as OptionalDAG
+          const validNodes = optDag.nodes?.filter((n) => n.name.length > 0 && n.action.length > 0 && n.id.length > 0 && n.params);
+          const validEdges = optDag.edges?.filter((n) => n.sourceId.length > 0 && n.targetId.length > 0);
+          if (validNodes) {
+            const hookupEdges = findNodesWithNoIncomingEdges(optDag).map((node) => new DAGEdgeClass(planId, node.id))
+            const partialDAG = new DAG(
+              [...initialNodes(goal, creationProps.modelName), ...validNodes],
+              // connect our initial nodes to the DAG: gotta find them and create edges
+              [...initialEdges(), ...validEdges ?? [], ...hookupEdges],
+              optDag?.init ?? initialCond,
+              optDag?.goal ?? initialCond,
+            );
+            if (partialDAG.nodes.length > partialDAG.nodes.length || partialDAG.edges.length > dag.edges.length) {
+              setDAG(partialDAG)
+            }
+          }
+        }
+      } catch {
+        // normal, do nothing
+      }
     }
 
-    return chunks.join('');
+    return chunks;
   }
 
   // Convert the ReadableStream<Uint8Array> to a string
@@ -243,10 +269,10 @@ async function plan(
 export default class WaggleDanceMachine implements BaseWaggleDanceMachine {
   async run(
     request: BaseRequestBody,
-    [_initDAG, setDAG]: GraphDataState,
+    [initDAG, setDAG]: GraphDataState,
     isRunning: boolean,
   ): Promise<WaggleDanceResult | Error> {
-    const dag = await plan(request.goal, request.creationProps);
+    const dag = await plan(request.goal, request.creationProps, initDAG, setDAG);
     console.log("dag", dag);
     // prepend our initial nodes to the DAG
     setDAG(new DAG(
