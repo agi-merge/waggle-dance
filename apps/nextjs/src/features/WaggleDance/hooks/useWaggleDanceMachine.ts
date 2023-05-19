@@ -20,6 +20,7 @@ const useWaggleDanceMachine = ({
   const [waggleDanceMachine] = useState(() => new WaggleDanceMachine());
   const { isRunning } = useApp();
   const [dag, setDAG] = useState<DAG>(new DAG([], [], initialCond, initialCond));
+  const [isDonePlanning, setIsDonePlanning] = useState(false);
 
   const [graphData, setGraphData] = useState<GraphData>({
     nodes: [],
@@ -48,6 +49,7 @@ const useWaggleDanceMachine = ({
         },
       },
       [dag, setDAG],
+      [isDonePlanning, setIsDonePlanning],
       isRunning,
     );
 

@@ -73,20 +73,20 @@ const NoSSRForceGraph: React.FC<ForceGraphProps> = ({ data }) => {
         // eslint-disable-next-line @typescript-eslint/ban-ts-comment
         // @ts-ignore
         ref={fgRef}
-        dagMode="td"
+        dagMode={debouncedData.links.length > 1 ? "radialin" : undefined}
+        dagLevelDistance={25}
         nodeLabel="name"
-        nodeAutoColorBy="id"
+        nodeAutoColorBy="name"
         graphData={debouncedData}
-        cooldownTicks={100}
+        cooldownTicks={300}
         linkWidth={4}
-        linkLabel="id"
-        linkAutoColorBy="id"
-        dagLevelDistance={15}
+        linkAutoColorBy="sId"
         linkDirectionalParticles={2}
         linkDirectionalParticleSpeed={0.005}
         linkDirectionalParticleWidth={5}
-        linkDirectionalArrowLength={8}
-        linkDirectionalArrowRelPos={0.6}
+        linkDirectionalArrowLength={5}
+        linkDirectionalArrowRelPos={1.2}
+        linkCurvature={0.1}
         onEngineTick={() => {
           fgRef.current?.zoomToFit();
         }}

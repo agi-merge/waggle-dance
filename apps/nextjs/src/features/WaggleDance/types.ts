@@ -29,10 +29,13 @@ export interface WaggleDanceResult {
 }
 
 export type GraphDataState = [DAG, Dispatch<SetStateAction<DAG>>];
+export type IsDonePlanningState = [boolean, Dispatch<SetStateAction<boolean>>];
+
 export interface BaseWaggleDanceMachine {
   run(
     request: BaseRequestBody,
     graphDataState: GraphDataState,
+    isDonePlanningState: IsDonePlanningState,
     isRunning: boolean
   ): Promise<WaggleDanceResult | Error>;
 }
