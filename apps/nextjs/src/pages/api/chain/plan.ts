@@ -30,7 +30,7 @@ const handler = async (req: IncomingMessage, res: ServerResponse) => {
     } = JSON.parse(reqBody) as StrategyRequestBody;
     const inlineCallback = {
       handleLLMNewToken(token: string) {
-        console.debug("handleLLMNewToken", token);
+        // console.debug("handleLLMNewToken", token);
         res.write(token);
         // writePacket({ type: "handleLLMNewToken", nodeId, token })
       },
