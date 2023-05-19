@@ -45,24 +45,24 @@ const handler = async (req: IncomingMessage, res: ServerResponse) => {
       const inlineCallback = {
         handleLLMNewToken(token: string) {
           console.debug("handleLLMNewToken", { token });
-          writePacket({ type: "handleLLMNewToken", nodeId, token })
+          res.write(token);
         },
-        handleLLMStart: (llm: { name: string }, _prompts: string[]) => {
-          console.debug("handleLLMStart", { llm });
-          writePacket({ type: "handleLLMStart", nodeId, llm });
-        },
-        handleChainStart: (chain: { name: string }) => {
-          console.debug("handleChainStart", { chain });
-          writePacket({ type: "handleChainStart", nodeId, chain });
-        },
-        handleAgentAction: (action: AgentAction) => {
-          console.debug("handleAgentAction", action);
-          writePacket({ type: "handleAgentAction", nodeId, action });
-        },
-        handleToolStart: (tool: { name: string }) => {
-          console.debug("handleToolStart", { tool });
-          writePacket({ type: "handleToolStart", nodeId, tool });
-        },
+        // handleLLMStart: (llm: { name: string }, _prompts: string[]) => {
+        //   console.debug("handleLLMStart", { llm });
+        //   writePacket({ type: "handleLLMStart", nodeId, llm });
+        // },
+        // handleChainStart: (chain: { name: string }) => {
+        //   console.debug("handleChainStart", { chain });
+        //   writePacket({ type: "handleChainStart", nodeId, chain });
+        // },
+        // handleAgentAction: (action: AgentAction) => {
+        //   console.debug("handleAgentAction", action);
+        //   writePacket({ type: "handleAgentAction", nodeId, action });
+        // },
+        // handleToolStart: (tool: { name: string }) => {
+        //   console.debug("handleToolStart", { tool });
+        //   writePacket({ type: "handleToolStart", nodeId, tool });
+        // },
       };
       creationProps.callbacks = [inlineCallback];
       return executeChain({

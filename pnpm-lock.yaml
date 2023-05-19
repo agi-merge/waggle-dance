@@ -157,6 +157,9 @@ importers:
       utils:
         specifier: link:@mui/material/utils
         version: link:@mui/material/utils
+      yaml:
+        specifier: ^2.2.2
+        version: 2.2.2
       zod:
         specifier: ^3.21.4
         version: 3.21.4

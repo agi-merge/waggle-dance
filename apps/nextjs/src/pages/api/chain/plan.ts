@@ -4,8 +4,7 @@ import { type ChainPacket, planChain } from "@acme/chain";
 import { type StrategyRequestBody } from "./types";
 import { type IncomingMessage, type ServerResponse } from "http";
 import { type AgentAction } from "langchain/schema";
-import { type NextRequest } from "next/server";
-
+import { stringify } from "yaml"
 export const config = {
   api: {
     bodyParser: false,
@@ -14,18 +13,16 @@ export const config = {
 };
 
 const handler = async (req: IncomingMessage, res: ServerResponse) => {
-  const nodeId = "👑"; //goal.slice(0, 5)
+  const nodeId = "👑"; // maybe goal.slice(0, 5)
   const writePacket = (packet: ChainPacket) => {
-    res.write(JSON.stringify(packet) + "\n");
+    res.write(`${stringify(packet)}\n`);
   };
   try {
     const bodyChunks = [];
     for await (const chunk of req) {
       bodyChunks.push(chunk);
-    }
-    // const reqBody = (req.read() as Buffer).toString();
+    };
     const reqBody = Buffer.concat(bodyChunks).toString();
-    // const reqBody = (req as NextRequest).body
     console.log("body", reqBody);
     const {
       creationProps,
@@ -33,25 +30,26 @@ const handler = async (req: IncomingMessage, res: ServerResponse) => {
     } = JSON.parse(reqBody) as StrategyRequestBody;
     const inlineCallback = {
       handleLLMNewToken(token: string) {
-        console.debug("handleLLMNewToken", { token });
-        writePacket({ type: "handleLLMNewToken", nodeId, token })
+        console.debug("handleLLMNewToken", token);
+        res.write(token);
+        // writePacket({ type: "handleLLMNewToken", nodeId, token })
       },
-      handleLLMStart: (llm: { name: string }, _prompts: string[]) => {
-        console.debug("handleLLMStart", { llm });
-        writePacket({ type: "handleLLMStart", nodeId, llm });
-      },
-      handleChainStart: (chain: { name: string }) => {
-        console.debug("handleChainStart", { chain });
-        writePacket({ type: "handleChainStart", nodeId, chain });
-      },
-      handleAgentAction: (action: AgentAction) => {
-        console.debug("handleAgentAction", action);
-        writePacket({ type: "handleAgentAction", nodeId, action });
-      },
-      handleToolStart: (tool: { name: string }) => {
-        console.debug("handleToolStart", { tool });
-        writePacket({ type: "handleToolStart", nodeId, tool });
-      },
+      // handleLLMStart: (llm: { name: string }, _prompts: string[]) => {
+      //   console.debug("handleLLMStart", { llm });
+      //   writePacket({ type: "handleLLMStart", nodeId, llm });
+      // },
+      // handleChainStart: (chain: { name: string }) => {
+      //   console.debug("handleChainStart", { chain });
+      //   writePacket({ type: "handleChainStart", nodeId, chain });
+      // },
+      // handleAgentAction: (action: AgentAction) => {
+      //   console.debug("handleAgentAction", action);
+      //   writePacket({ type: "handleAgentAction", nodeId, action });
+      // },
+      // handleToolStart: (tool: { name: string }) => {
+      //   console.debug("handleToolStart", { tool });
+      //   writePacket({ type: "handleToolStart", nodeId, tool });
+      // },
     };
 
     const callbacks = [inlineCallback];
@@ -63,7 +61,7 @@ const handler = async (req: IncomingMessage, res: ServerResponse) => {
     });
     const planResult = await planChain(creationProps, goal);
     console.debug("planChain", planResult);
-    writePacket({ type: "return", nodeId, value: planResult })
+    // writePacket({ type: "return", nodeId, value: planResult })
   } catch (e) {
 
     let message;

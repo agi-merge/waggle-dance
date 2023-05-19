@@ -14,7 +14,7 @@ export async function planChain(
   const llm = createModel(creationProps);
   const memory = await createMemory(goal);
   // const planPrompt = createPrompt("plan");
-  const prompt = createPrompt("domain", creationProps, goal);
+  const prompt = createPrompt("plan", creationProps, goal);
   const chain = new LLMChain({
     memory,
     prompt,
@@ -23,8 +23,6 @@ export async function planChain(
   const [call] = await Promise.all([
     // prompt.format({ goal, schema: "string[]" }),
     chain.call({
-      goal,
-      callbacks: creationProps.callbacks,
     }),
   ]);
   const dag = call?.response ? (call.response as string) : "";

@@ -4,6 +4,7 @@
 // This machine is intended to plan and execute tasks concurrently, ensuring goal completion as quickly as possible.
 // It starts by generating an execution DAG and then executes the tasks concurrently.
 // When a task completes, a new dependent review task should be added to the DAG to ensure quality results.
+import { parse } from 'yaml';
 
 import { type ChainPacket, type ModelCreationProps } from "@acme/chain";
 
@@ -18,7 +19,6 @@ import {
   type BaseResultType,
   type BaseWaggleDanceMachine,
   type GraphDataState,
-  type PlanResult,
   type WaggleDanceResult,
 } from "./types";
 
@@ -199,9 +199,44 @@ async function plan(
     console.error(`Error fetching plan: ${res.status} ${res.statusText}`);
     throw new Error(`Error fetching plan: ${res.status} ${res.statusText}`);
   }
-  const planResult = (await res.json()) as string;
-  const json = JSON.parse(planResult) as PlanResult;
-  return json;
+  // Get the response body as a stream
+  const stream = res.body;
+  if (!stream) {
+    debugger;
+    throw new Error(`No stream: ${res.statusText} `);
+  } else {
+    console.log(`Planned!`);
+  }
+  async function streamToString(stream: ReadableStream<Uint8Array>): Promise<string> {
+    const chunks = [];
+    const reader = stream.getReader();
+
+    let result;
+    while ((result = await reader.read()) && !result.done) {
+      const chunk = new TextDecoder().decode(result.value);
+      chunks.push(chunk);
+    }
+
+    return chunks.join('');
+  }
+
+  // Convert the ReadableStream<Uint8Array> to a string
+  const dagYamlString = await streamToString(stream);
+
+  console.log("dagYamlString", dagYamlString);
+  try {
+    const dag = parse(dagYamlString) as unknown;
+    console.log("dag", JSON.stringify(dag))
+    // TODO: if this fails, spin up a ConstitutionChain w/ return type reinforcement
+    return dag as DAG;
+  } catch (error) {
+    console.error(error);
+    throw new Error(`Error parsing DAG: ${error}`);
+  }
+  // }
+  // const planResult = (await res.json()) as string;
+  // const json = JSON.parse(planResult) as PlanResult;
+  // return json;
 }
 
 // The main class for the WaggleDanceMachine that coordinates the planning and execution of tasks
