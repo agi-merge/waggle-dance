@@ -93,7 +93,11 @@ const NoSSRForceGraph: React.FC<ForceGraphProps> = ({ data }) => {
         onDagError={(loopNodeIds) => {
           console.error(`DAG error: ${loopNodeIds}`);
         }}
-        // onEngineStop={() => fgRef.current?.zoomToFit()}
+        onNodeDragEnd={(node) => {
+          node.fx = node.x;
+          node.fy = node.y;
+        }}
+        onEngineStop={() => fgRef.current?.zoomToFit()}
         enableZoomInteraction={false}
         enablePanInteraction={false}
         // onNodeClick={handleClick}
