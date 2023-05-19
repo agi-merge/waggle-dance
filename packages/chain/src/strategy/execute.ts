@@ -109,13 +109,13 @@ export async function executeChain({
   //   humanMessageTemplate: text,
   // };
   // const executor = PlanAndExecuteAgentExecutor.fromLLMAndTools(executorConfig);
-  console.debug(`about to call execute chain`);
+  // console.debug(`about to call execute chain`);
   const call = await executor.call({ goal, task, dag });
-  console.debug(`called chain: ${JSON.stringify(call)}`);
+  // console.debug(`called chain: ${JSON.stringify(call)}`);
   const completion =
     (call?.output ? (call.output as string | undefined) : undefined) ??
     "<failed>";
-  console.debug(`executeChain: ${JSON.stringify(completion)}`);
+  // console.debug(`executeChain: ${JSON.stringify(completion)}`);
   // const lastTasks = await memory.loadMemoryVariables({})
   return completion;
 }
