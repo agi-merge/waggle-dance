@@ -139,45 +139,6 @@ const Header = () => {
           renderBreadcrumbLink(route.path, route.label, route.goalState),
         )}
       </Breadcrumbs>
-
-      {goal && (
-        <Sheet variant="plain" sx={{ borderRadius: "sm" }}>
-          <Alert
-            className="mx-2 mt-2 p-2"
-            key="goal"
-            sx={{ alignItems: "flex-start" }}
-            variant="soft"
-            color="neutral"
-            endDecorator={
-              <IconButton
-                variant="plain"
-                size="sm"
-                onClick={() => {
-                  setGoal("");
-                  setGoalInputState(GoalInputState.start);
-                }}
-              >
-                <Close />
-              </IconButton>
-            }
-          >
-            <Stack
-              alignItems="center"
-              direction="row"
-              spacing={{ xs: 2, sm: 3, md: 4 }}
-            >
-              <Typography level="h5">Goal: </Typography>
-              <Typography level="body4">
-                {goal}
-                <br />
-                <Tooltip title="Coming soon" color="info">
-                  <Link href="#"> Improve your prompt</Link>
-                </Tooltip>
-              </Typography>
-            </Stack>
-          </Alert>
-        </Sheet>
-      )}
     </header>
   );
 };

@@ -10,15 +10,9 @@ Psuedo-Typescript schema for ${format} output:
 DAG (
   nodes: Node[]
   edges: Edge[]
-  init: Cond
-  goal: Cond
 )
 Params (
   [key: string]: string
-)
-Cond (
-  predicate: string
-  params: Params
 )
 Node (
   name: string;
@@ -30,12 +24,13 @@ Edge (
   sId: string
   tId: string
 )
-
-Maximize the width of the DAG when possible, minimize the depth.
-Provide consistent and descriptive names for properties of nodes, actions, Conds, Params, etc.
-Provide enough context in Conds and Params to represent the Cond or complete the subtask.
+MAXIMIZE the width of the DAG when possible, and minimize the depth. This helps improve execution speed.
+MINIMIZE the output character count (e.g. remove whitespace, use short synonyms, etc.)
+MINIMIZE the number of nodes and edges (i.e. keep the solution as simple as possible)
+Provide consistent and descriptive names for properties of nodes, edges, Params, etc.
 Refrain from outputting any prose other than the output.
-AGAIN, THE ONLY THING YOU MUST OUTPUT IS ${format} that represents the DAG as the root object (e.g. ( nodes, edges, init, goal )).
+The ONLY last tier node should be the achieved goal node.
+AGAIN, THE ONLY THING YOU MUST OUTPUT IS ${format} that represents the DAG as the root object (e.g. ( nodes, edges )).
 `.trim();
 
 export type ChainType = "plan" | "execute"
@@ -48,11 +43,11 @@ export const createPrompt = (
   const returnType = "YAML" as string;
   const basePromptMessages = {
     plan:
-      `You pay special attention to single capitalized WORDS as variable, and longer phrases as VERY IMPORTANT.
+      `YOU: As ${type}-${llmName}, you pay special attention to single capitalized WORDS as variable, and longer phrases as VERY IMPORTANT.
       GOAL: ${goal}
       SCHEMA: ${schema(returnType, llmName)}
       TASK: As a consultancy senior project manager employed by the User to solve the User's GOAL, construct a DAG that could serve as a concurrent execution graph for your large and experienced team for GOAL.
-      RETURN: ONLY the DAG as described in SCHEMA, ${returnType === "JSON" ? "" : "Do NOT return JSON:"}`.trim(),
+      RETURN: ONLY the DAG as described in SCHEMA${returnType === "JSON" ? ":" : ". Do NOT return JSON:"}`.trim(),
     execute:
       `GOAL: ${goal}
       SCHEMA: ${schema(returnType, llmName)}

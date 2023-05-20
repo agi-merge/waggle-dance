@@ -13,7 +13,7 @@ import {
   type BaseRequestBody,
   type ExecuteRequestBody,
 } from "~/pages/api/chain/types";
-import DAG, { DAGNodeClass, DAGEdgeClass, type Cond, type DAGNode, type OptionalDAG } from "./DAG";
+import DAG, { DAGNodeClass, DAGEdgeClass, type DAGNode, type OptionalDAG, type DAGEdge } from "./DAG";
 import {
   type ScheduledTask,
   type BaseResultType,
@@ -23,8 +23,8 @@ import {
   type IsDonePlanningState,
 } from "./types";
 
-function isGoalReached(goal: Cond, completedTasks: Set<string>): boolean {
-  return completedTasks.has(goal.predicate);
+function isGoalReached(_goal: string, _completedTasks: Set<string>): boolean {
+  return false;
 }
 
 // A utility function to wait for a specified amount of time (ms)
@@ -56,9 +56,8 @@ export const initialEdges = () => [new DAGEdgeClass(yourId, planId)]
 
 function findNodesWithNoIncomingEdges(dag: DAG | OptionalDAG): DAGNode[] {
   const nodesWithIncomingEdges = new Set<string>();
-
   for (const edge of dag.edges ?? []) {
-    nodesWithIncomingEdges.add(edge.sId);
+    nodesWithIncomingEdges.add(edge.tId);
   }
 
   const nodesWithNoIncomingEdges: DAGNode[] = [];
@@ -231,8 +230,8 @@ async function plan(
               [...initialNodes(goal, creationProps.modelName), ...validNodes],
               // connect our initial nodes to the DAG: gotta find them and create edges
               [...initialEdges(), ...validEdges ?? [], ...hookupEdges],
-              optDag?.init ?? initialCond,
-              optDag?.goal ?? initialCond,
+              // optDag?.init ?? initialCond,
+              // optDag?.goal ?? initialCond,
             );
             if (partialDAG.nodes.length > partialDAG.nodes.length || partialDAG.edges.length > dag.edges.length) {
               setDAG(partialDAG)
@@ -283,15 +282,13 @@ export default class WaggleDanceMachine implements BaseWaggleDanceMachine {
       [...initialNodes(request.goal, request.creationProps.modelName), ...dag.nodes],
       // connect our initial nodes to the DAG: gotta find them and create edges
       [...initialEdges(), ...dag.edges, ...findNodesWithNoIncomingEdges(dag).map((node) => new DAGEdgeClass(planId, node.id))],
-      dag.init,
-      dag.goal,
     ));
     const completedTasks: Set<string> = new Set();
     let taskResults: Record<string, BaseResultType> = {};
     const maxConcurrency = request.creationProps.maxConcurrency ?? 8;
 
     // Continue executing tasks and updating DAG until the goal is reached
-    while (isRunning && !isGoalReached(dag.goal, completedTasks)) {
+    while (isRunning && !isGoalReached(request.goal, completedTasks)) {
       const pendingTasks = dag.nodes.filter(
         (node) => !completedTasks.has(node.id),
       );

@@ -1,5 +1,5 @@
 import React from "react";
-import { KeyboardArrowRight, Lan, ListAlt, Science } from "@mui/icons-material";
+import { KeyboardArrowRight, Lan, ListAlt } from "@mui/icons-material";
 import {
   Button,
   Card,
@@ -10,12 +10,10 @@ import {
   ListItemButton,
   ListItemContent,
   ListItemDecorator,
-  Sheet,
   Stack,
   Tab,
   TabList,
   TabPanel,
-  Table,
   Tabs,
   Tooltip,
   Typography,
@@ -119,18 +117,18 @@ const WaggleDanceGraph = ({ setHeaderExpanded }: WaggleDanceGraphProps) => {
             <TabList>
               <Tab>
                 <ListAlt />
-                <Typography>Agents</Typography>
+                <Typography>Tasks</Typography>
               </Tab>
               <Tab>
                 <Lan />
                 <Typography>Graph</Typography>
               </Tab>
-              {dag.init.predicate && (
+              {/* {dag.init.predicate && (
                 <Tab>
                   <Science />
                   <Typography>Results</Typography>
                 </Tab>
-              )}
+              )} */}
             </TabList>
             {dag.nodes.length > 0 && (
               <>
@@ -167,15 +165,11 @@ const WaggleDanceGraph = ({ setHeaderExpanded }: WaggleDanceGraphProps) => {
                   value={1}
                   className="min-h-90 w-full items-center overflow-y-scroll p-4"
                 >
-                  <Typography level="body4" className="p-3 text-center">
-                    Each tier executes concurrently | top down | subject to both
-                    your review and AI review
-                  </Typography>
                   <ForceGraph data={graphData} />
                 </TabPanel>
                 <TabPanel value={2} className="text-center">
                   Work in progres…
-                  {dag.init.predicate && (
+                  {/* {dag.init.predicate && (
                     <Sheet>
                       <Table aria-label="Results table">
                         <thead>
@@ -198,16 +192,6 @@ const WaggleDanceGraph = ({ setHeaderExpanded }: WaggleDanceGraphProps) => {
                             </td>
                           </tr>
                           <tr>
-                            {/* <td>Current</td>
-                          <td>{dag.goal.predicate}</td>
-                          <td>
-                            <pre>
-                              <code>
-                                {JSON.stringify(dag.goal.params, null, 2)}
-                              </code>
-                            </pre>
-                          </td>
-                        </tr> */}
                             <td>Goal</td>
                             <td>{dag.goal.predicate}</td>
                             <td>
@@ -221,7 +205,7 @@ const WaggleDanceGraph = ({ setHeaderExpanded }: WaggleDanceGraphProps) => {
                         </tbody>
                       </Table>
                     </Sheet>
-                  )}
+                  )} */}
                 </TabPanel>
               </>
             )}

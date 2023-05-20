@@ -33,7 +33,7 @@ const MainLayout = ({ children }: Props) => {
   }
   return (
     <div className={`bg-honeycomb ${mode === "dark" ? " dark" : "light"}`}>
-      <div className="min-h-screen px-2 pb-4">
+      <div className="min-h-screen px-2 pb-2">
         <Head>
           <title>{app.name}</title>
           <meta name="description" content={app.description} />
@@ -69,7 +69,7 @@ const MainLayout = ({ children }: Props) => {
             invertedColors
             color="primary"
             variant="outlined"
-            className="-m-2 my-5 p-2"
+            className="-m-2 p-2"
           >
             <Alerts />
             {children}

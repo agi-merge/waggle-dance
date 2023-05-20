@@ -58,7 +58,6 @@ const Alerts = () => {
                 <Typography level="body4">
                   - url upload works but file does not.
                   <br /> - the swarm doesnt use data yet
-                  <br /> - planning takes a long time
                   <br /> - stops after planning
                 </Typography>
               </Box>

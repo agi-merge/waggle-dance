@@ -33,6 +33,7 @@ import {
 import Table from "@mui/joy/Table";
 
 import DropZoneUploader from "~/features/AddDocuments/DropZoneUploader";
+import GoalMenu from "~/features/GoalMenu";
 import useGoal from "~/stores/goalStore";
 
 type UploadState =
@@ -165,25 +166,22 @@ const AddDocuments: NextPage = () => {
           setHeaderExpanded(!headerExpanded);
         }}
       >
-        <Stack direction="row" className="flex">
-          <Link
-            href="#"
-            className="flex-grow select-none pr-5 text-white"
-            style={{ userSelect: "none" }}
-          >
+        <Stack direction={{ xs: "column", sm: "row" }} className="flex">
+          <Stack direction="column">
             <Typography level="h4">🌺 Pollinate with data</Typography>
-          </Link>
-          {headerExpanded ? <KeyboardArrowUp /> : <KeyboardArrowDown />}
+            {headerExpanded && (
+              <>
+                <Typography level="body3" style={{ userSelect: "none" }}>
+                  Providing up to date and relevant information upfront will
+                  ensure better planning and execution by the waggling swarm of
+                  bees. You can keep adding documents later as well.
+                </Typography>
+              </>
+            )}
+          </Stack>
+          <GoalMenu />
         </Stack>
-        {headerExpanded && (
-          <>
-            <Typography level="body3" style={{ userSelect: "none" }}>
-              Providing up to date and relevant information upfront will ensure
-              better planning and execution by the waggling swarm of bees. You
-              can keep adding documents later as well.
-            </Typography>
-          </>
-        )}
+
         <Divider inset="context">
           <Typography className="w-52 text-center" level="body3">
             ~
