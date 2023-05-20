@@ -11,21 +11,14 @@ import React, {
 } from "react";
 import type { NextPage } from "next";
 import { useRouter } from "next/router";
-import {
-  CheckCircle,
-  KeyboardArrowDown,
-  KeyboardArrowRight,
-  KeyboardArrowUp,
-} from "@mui/icons-material";
+import { CheckCircle, KeyboardArrowRight } from "@mui/icons-material";
 import {
   Box,
   Button,
   Card,
-  Divider,
   IconButton,
   Input,
   LinearProgress,
-  Link,
   Sheet,
   Stack,
   Typography,
@@ -33,7 +26,7 @@ import {
 import Table from "@mui/joy/Table";
 
 import DropZoneUploader from "~/features/AddDocuments/DropZoneUploader";
-import GoalMenu from "~/features/GoalMenu";
+import Title from "~/features/MainLayout/components/PageTitle";
 import useGoal from "~/stores/goalStore";
 
 type UploadState =
@@ -87,7 +80,6 @@ function isValidUrl(url: string) {
 
 const AddDocuments: NextPage = () => {
   const router = useRouter();
-  const [headerExpanded, setHeaderExpanded] = useState(true);
   const [ingestFiles, setIngestFiles] = useState<IngestFiles>({});
   const [ingestUrls, setIngestUrls] = useState<IngestUrls>({});
   const { goal } = useGoal();
@@ -159,35 +151,13 @@ const AddDocuments: NextPage = () => {
 
   return (
     <Card variant="soft" className="mb-3">
-      <Stack
-        className="flex flex-grow cursor-pointer"
-        onClick={(e) => {
-          e.preventDefault();
-          setHeaderExpanded(!headerExpanded);
-        }}
-      >
-        <Stack direction={{ xs: "column", sm: "row" }} className="flex">
-          <Stack direction="column">
-            <Typography level="h4">🌺 Pollinate with data</Typography>
-            {headerExpanded && (
-              <>
-                <Typography level="body3" style={{ userSelect: "none" }}>
-                  Providing up to date and relevant information upfront will
-                  ensure better planning and execution by the waggling swarm of
-                  bees. You can keep adding documents later as well.
-                </Typography>
-              </>
-            )}
-          </Stack>
-          <GoalMenu />
-        </Stack>
-
-        <Divider inset="context">
-          <Typography className="w-52 text-center" level="body3">
-            ~
-          </Typography>
-        </Divider>
-      </Stack>
+      <Title
+        title="🌺 Get better results"
+        description="
+                Providing up to date and relevant information upfront will
+                ensure better planning and execution by the waggling swarm of
+                bees. You can keep adding documents later as well."
+      />
       <Stack gap="1rem" className="mt-6">
         <IngestContext.Provider
           value={{

@@ -13,7 +13,7 @@ import {
   type BaseRequestBody,
   type ExecuteRequestBody,
 } from "~/pages/api/chain/types";
-import DAG, { DAGNodeClass, DAGEdgeClass, type DAGNode, type OptionalDAG, type DAGEdge } from "./DAG";
+import DAG, { DAGNodeClass, DAGEdgeClass, type DAGNode, type OptionalDAG } from "./DAG";
 import {
   type ScheduledTask,
   type BaseResultType,

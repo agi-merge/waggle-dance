@@ -49,6 +49,7 @@ const MainLayout = ({ children }: Props) => {
           />
           <link rel="icon" href="/favicon.ico" />
         </Head>
+        <div className="mx" />
         <Sheet
           // variant="outlined"
           className="mx-auto sm:w-full md:max-w-2xl"

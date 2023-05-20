@@ -2,7 +2,6 @@ import React from "react";
 import { KeyboardArrowRight, Lan, ListAlt } from "@mui/icons-material";
 import {
   Button,
-  Card,
   Input,
   LinearProgress,
   List,
@@ -25,11 +24,9 @@ import useGoal from "~/stores/goalStore";
 import useWaggleDanceMachine from "../hooks/useWaggleDanceMachine";
 import ForceGraph from "./ForceGraph";
 
-interface WaggleDanceGraphProps extends StackProps {
-  setHeaderExpanded: (expanded: boolean) => void;
-}
+type WaggleDanceGraphProps = StackProps;
 // shows the graph, agents, results, general messages and chat input
-const WaggleDanceGraph = ({ setHeaderExpanded }: WaggleDanceGraphProps) => {
+const WaggleDanceGraph = ({}: WaggleDanceGraphProps) => {
   const { isRunning, setIsRunning } = useApp();
   const { goal } = useGoal();
   const { graphData, dag, run, isDonePlanning } = useWaggleDanceMachine({
@@ -39,7 +36,7 @@ const WaggleDanceGraph = ({ setHeaderExpanded }: WaggleDanceGraphProps) => {
 
   const handleStart = () => {
     setIsRunning(true);
-    setHeaderExpanded(false);
+    // setHeaderExpanded(false);
     void run();
   };
   const handleStop = () => {
@@ -108,68 +105,70 @@ const WaggleDanceGraph = ({ setHeaderExpanded }: WaggleDanceGraphProps) => {
       )}
 
       {dag.nodes.length > 0 && dag.edges.length > 0 && (
-        <Card variant="outlined">
-          <Tabs
-            aria-label="Waggle Dance Status and Results"
-            defaultValue={1}
-            color="neutral"
-          >
-            <TabList>
-              <Tab>
-                <ListAlt />
-                <Typography>Tasks</Typography>
-              </Tab>
-              <Tab>
-                <Lan />
-                <Typography>Graph</Typography>
-              </Tab>
-              {/* {dag.init.predicate && (
+        <Tabs
+          aria-label="Waggle Dance Status and Results"
+          defaultValue={0}
+          variant="soft"
+          sx={{ borderRadius: "lg" }}
+        >
+          <TabList variant="outlined" color="primary">
+            <Tab>
+              <ListAlt />
+              <Typography>Tasks</Typography>
+            </Tab>
+            <Tab>
+              <Lan />
+              <Typography>Graph</Typography>
+            </Tab>
+            {/* {dag.init.predicate && (
                 <Tab>
                   <Science />
                   <Typography>Results</Typography>
                 </Tab>
               )} */}
-            </TabList>
-            {dag.nodes.length > 0 && (
-              <>
-                {isRunning && <LinearProgress thickness={3} />}
-                <TabPanel
-                  value={0}
-                  className="relative h-96 w-full overflow-y-scroll p-4"
-                >
-                  <List className="absolute left-0 top-0 mt-3 w-full  p-2">
-                    {dag.nodes.map((n) => (
-                      <ListItem key={n.id}>
-                        <ListItemButton>
-                          <ListItemDecorator>
-                            <Typography color="primary" level="body2">
-                              {n.id}
+          </TabList>
+          {dag.nodes.length > 0 && (
+            <>
+              {isRunning && (
+                <LinearProgress thickness={1} className="mx-2 -mt-0.5" />
+              )}
+              <TabPanel
+                value={0}
+                className="relative h-96 w-full overflow-y-scroll p-4"
+              >
+                <List className="absolute left-0 top-0 mt-3 w-full  p-2">
+                  {dag.nodes.map((n) => (
+                    <ListItem key={n.id}>
+                      <ListItemButton>
+                        <ListItemDecorator>
+                          <Typography color="primary" level="body2">
+                            {n.id}
+                          </Typography>
+                        </ListItemDecorator>
+                        <ListItemContent>
+                          <Typography>{n.name}</Typography>
+                          <Typography level="body3">
+                            {n.act}{" "}
+                            <Typography level="body5" color="info">
+                              {JSON.stringify(n.params)}
                             </Typography>
-                          </ListItemDecorator>
-                          <ListItemContent>
-                            <Typography>{n.name}</Typography>
-                            <Typography level="body3">
-                              {n.act}{" "}
-                              <Typography level="body5" color="info">
-                                {JSON.stringify(n.params)}
-                              </Typography>
-                            </Typography>
-                          </ListItemContent>
-                          <KeyboardArrowRight />
-                        </ListItemButton>
-                      </ListItem>
-                    ))}
-                  </List>
-                </TabPanel>
-                <TabPanel
-                  value={1}
-                  className="min-h-90 w-full items-center overflow-y-scroll p-4"
-                >
-                  <ForceGraph data={graphData} />
-                </TabPanel>
-                <TabPanel value={2} className="text-center">
-                  Work in progres…
-                  {/* {dag.init.predicate && (
+                          </Typography>
+                        </ListItemContent>
+                        <KeyboardArrowRight />
+                      </ListItemButton>
+                    </ListItem>
+                  ))}
+                </List>
+              </TabPanel>
+              <TabPanel
+                value={1}
+                className="min-h-90 w-full items-center overflow-y-scroll p-4"
+              >
+                <ForceGraph data={graphData} />
+              </TabPanel>
+              <TabPanel value={2} className="text-center">
+                Work in progres…
+                {/* {dag.init.predicate && (
                     <Sheet>
                       <Table aria-label="Results table">
                         <thead>
@@ -206,11 +205,10 @@ const WaggleDanceGraph = ({ setHeaderExpanded }: WaggleDanceGraphProps) => {
                       </Table>
                     </Sheet>
                   )} */}
-                </TabPanel>
-              </>
-            )}
-          </Tabs>
-        </Card>
+              </TabPanel>
+            </>
+          )}
+        </Tabs>
       )}
       {isRunning && button}
     </Stack>

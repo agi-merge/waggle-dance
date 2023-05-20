@@ -1,11 +1,11 @@
 // NoSSRForceGraph.tsx
-import React, { use, useEffect, useRef, useState } from "react";
+import React, { useEffect, useRef, useState } from "react";
 import useResizeObserver from "@react-hook/resize-observer";
 import { forceCollide, forceLink, forceManyBody } from "d3-force";
 import { ForceGraph2D as OriginalForceGraph2D } from "react-force-graph";
 import { useDebounce } from "use-debounce";
 
-import { isColorDark, stringToColor } from "../utils/colors";
+import { isColorDark } from "../utils/colors";
 
 interface GraphData {
   nodes: NodeObject[];
@@ -107,7 +107,7 @@ const renderNodeCanvasObject = (
   globalScale: number,
 ) => {
   const label = separateWords((node as { name: string }).name);
-  const fontSize = 16 / globalScale;
+  const fontSize = 12 / globalScale;
   ctx.font = `${fontSize}px Monospace`;
 
   // Set the maximum width for text wrapping
@@ -190,7 +190,7 @@ const NoSSRForceGraph: React.FC<ForceGraphProps> = ({ data }) => {
   const fgRef = useRef<ForceGraphRef | null>(null);
   const containerRef = useRef<HTMLDivElement | null>(null);
   const [containerWidth, setContainerWidth] = useState(0);
-  const [dagMode, setDAGMode] = useState<"td" | "bu" | "lr" | "rl">("td");
+
   useResizeObserver(containerRef, (entry) => {
     setContainerWidth(entry.contentRect.width);
   });
@@ -203,24 +203,6 @@ const NoSSRForceGraph: React.FC<ForceGraphProps> = ({ data }) => {
 
   const [debouncedData, _state] = useDebounce(data, 1000);
 
-  useEffect(() => {
-    setDAGMode("lr");
-    setDAGMode("td");
-  }, [debouncedData]);
-  // const handleClick = useCallback(
-  //   (node: NodeObject) => {
-  //     // Aim at node from outside it
-  //     const distance = 40;
-  //     const distRatio = 1 + distance / Math.hypot(node?.x ?? 0, node?.y ?? 0);
-
-  //     fgRef.current?.cameraPosition(
-  //       { x: node?.x ?? 0 * distRatio, y: node?.y ?? 0 * distRatio }, // new position
-  //       node, // lookAt ({ x, y, z })
-  //       200, // ms transition duration
-  //     );
-  //   },
-  //   [fgRef],
-  // );
   return (
     <div ref={containerRef} style={{ width: "100%", position: "relative" }}>
       <OriginalForceGraph2D
@@ -230,8 +212,8 @@ const NoSSRForceGraph: React.FC<ForceGraphProps> = ({ data }) => {
         // eslint-disable-next-line @typescript-eslint/ban-ts-comment
         // @ts-ignore
         ref={fgRef}
-        dagMode={dagMode}
-        dagLevelDistance={20}
+        dagMode="td"
+        dagLevelDistance={10}
         nodeLabel="name"
         nodeAutoColorBy="id"
         graphData={debouncedData}

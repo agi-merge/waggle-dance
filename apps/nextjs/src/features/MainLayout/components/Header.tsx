@@ -1,13 +1,10 @@
 import React from "react";
 import { useRouter } from "next/router";
-import { Close, KeyboardArrowRight } from "@mui/icons-material";
+import { KeyboardArrowRight } from "@mui/icons-material";
 import {
-  Alert,
   Avatar,
   Breadcrumbs,
-  IconButton,
   Link,
-  Sheet,
   Stack,
   Tooltip,
   Typography,
@@ -24,14 +21,14 @@ function removeFirstCharIfMatching(str: string, targetChar: string): string {
 
 const Header = () => {
   const router = useRouter();
-  const { goal, setGoalInputState, setGoal } = useGoal();
+  const { setGoalInputState } = useGoal();
   const slug = removeFirstCharIfMatching(router.pathname, "/");
   const { data: session } = useSession();
   const routes = [
     { path: "", label: "🐝 Start", goalState: GoalInputState.start },
     {
       path: "add-documents",
-      label: "🌺 Pollinate ",
+      label: "🌺 Data ",
       goalState: GoalInputState.refine,
     },
     {

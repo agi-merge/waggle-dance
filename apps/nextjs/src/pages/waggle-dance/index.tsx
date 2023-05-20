@@ -1,11 +1,10 @@
 // WaggleDance.tsx
-import React, { useEffect, useState } from "react";
+import React, { useEffect } from "react";
 import type { NextPage } from "next";
-import Link from "next/link";
 import { useRouter } from "next/router";
-import { KeyboardArrowDown, KeyboardArrowUp } from "@mui/icons-material";
-import { Card, Divider, Stack, Typography } from "@mui/joy";
+import { Card } from "@mui/joy";
 
+import PageTitle from "~/features/MainLayout/components/PageTitle";
 import WaggleDanceGraph from "~/features/WaggleDance/components/WaggleDanceGraph";
 import useGoal from "~/stores/goalStore";
 
@@ -17,7 +16,6 @@ import useGoal from "~/stores/goalStore";
 const WaggleDance: NextPage = (/*{ goal, onDelete }: WaggleDanceProps*/) => {
   const router = useRouter();
   const { goal } = useGoal();
-  const [headerExpanded, setHeaderExpanded] = useState(true);
 
   useEffect(() => {
     // Redirect if the goal is undefined or empty
@@ -28,41 +26,15 @@ const WaggleDance: NextPage = (/*{ goal, onDelete }: WaggleDanceProps*/) => {
 
   return (
     <Card variant="soft" className="mb-3">
-      <Stack
-        className="flex flex-grow cursor-pointer"
-        onClick={(e) => {
-          e.preventDefault();
-          setHeaderExpanded(!headerExpanded);
-        }}
-      >
-        <Stack direction="row" className="flex">
-          <Link
-            href="#"
-            className="flex-grow select-none pr-5 text-white"
-            style={{ userSelect: "none" }}
-          >
-            <Typography level="h4">💃 Waggle Dance</Typography>
-          </Link>
-          {headerExpanded ? <KeyboardArrowUp /> : <KeyboardArrowDown />}
-        </Stack>
-        {headerExpanded && (
-          <>
-            <Typography level="body3" style={{ userSelect: "none" }}>
-              Waggle dancing is a process that allows large language models like
+      <PageTitle
+        title="💃 Waggle Dance"
+        description="Waggle dancing is a process that allows large language models like
               GPT-4 to collaborate with one another, with minimal human input.
               The AI breaks the steps to achieve the goal down, and
               self-corrects when it makes mistakes. This goes further, faster
-              than BabyAGI, AgentGPT or Auto-GPT.
-            </Typography>
-          </>
-        )}
-        <Divider inset="context">
-          <Typography className="w-52 text-center" level="body3">
-            ~
-          </Typography>
-        </Divider>
-      </Stack>
-      <WaggleDanceGraph setHeaderExpanded={setHeaderExpanded} />
+              than BabyAGI, AgentGPT or Auto-GPT."
+      />
+      <WaggleDanceGraph />
     </Card>
   );
 };
