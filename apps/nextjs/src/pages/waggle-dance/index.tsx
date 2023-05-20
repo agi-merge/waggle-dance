@@ -28,11 +28,7 @@ const WaggleDance: NextPage = (/*{ goal, onDelete }: WaggleDanceProps*/) => {
     <Card variant="soft" className="mb-3">
       <PageTitle
         title="💃 Waggle Dance"
-        description="Waggle dancing is a process that allows large language models like
-              GPT-4 to collaborate with one another, with minimal human input.
-              The AI breaks the steps to achieve the goal down, and
-              self-corrects when it makes mistakes. This goes further, faster
-              than BabyAGI, AgentGPT or Auto-GPT."
+        description="Waggle dancing puts a swarm of GPT-4 AIs to work to achieve your goals. The AI splits goals into steps, and tries to fix mistakes on its own."
       />
       <WaggleDanceGraph />
     </Card>
