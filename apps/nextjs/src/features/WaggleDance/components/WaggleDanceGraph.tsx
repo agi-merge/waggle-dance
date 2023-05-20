@@ -1,8 +1,9 @@
-import React, { useCallback, useEffect, useRef } from "react";
+import React, { useCallback, useEffect, useMemo, useRef } from "react";
 import {
   KeyboardArrowRight,
   Lan,
   ListAlt,
+  Send,
   Start,
   Stop,
 } from "@mui/icons-material";
@@ -66,6 +67,10 @@ const WaggleDanceGraph = ({}: WaggleDanceGraphProps) => {
     }, 333);
   });
 
+  const isAttachingRealEdges = useMemo(() => {
+    return dag.edges.filter((e) => e.sId !== "👑").length > 0;
+  }, [dag.edges]);
+
   const button = (
     <Stack direction="row" gap="1rem" className="flex items-end">
       <Box className="flex-grow">
@@ -74,9 +79,21 @@ const WaggleDanceGraph = ({}: WaggleDanceGraphProps) => {
             <Stack direction="row">
               <TaskChainSelectMenu dag={dag} />
               <Input
+                endDecorator={
+                  <Button
+                    variant="plain"
+                    color="neutral"
+                    onClick={(event) => {
+                      event.preventDefault();
+                      setChatInput("");
+                    }}
+                  >
+                    <Send />
+                  </Button>
+                }
                 variant="outlined"
                 className="flex-grow"
-                placeholder="Send feedback → AI"
+                placeholder="Chat → AIs"
                 onKeyUp={(event) => {
                   if (event.key === "Enter") {
                     event.preventDefault();
@@ -105,7 +122,7 @@ const WaggleDanceGraph = ({}: WaggleDanceGraphProps) => {
             </>
           ) : (
             <>
-              Start <Start />
+              {dag.nodes.length > 0 ? "Restart" : "Start"} <Start />
             </>
           )}
         </Button>
@@ -125,10 +142,15 @@ const WaggleDanceGraph = ({}: WaggleDanceGraphProps) => {
           )}
           {!isDonePlanning && (
             <Stack className="text-center">
-              <Typography level="h5" color="primary">
-                Please 🐝 patient,{" "}
-                <Typography color="neutral">
-                  {dag.edges.length == 0
+              <Typography
+                level="h5"
+                color={isAttachingRealEdges ? "neutral" : "primary"}
+              >
+                {isAttachingRealEdges ? "Almost done! " : "Please 🐝 patient, "}
+                <Typography
+                  color={isAttachingRealEdges ? "primary" : "neutral"}
+                >
+                  {!isAttachingRealEdges
                     ? "planning initial tasks…"
                     : "scheduling tasks…"}
                 </Typography>

@@ -45,7 +45,7 @@ export const initialCond = { predicate: "", params: {} }
 export const initialNodes = (goal: string, modelName: string) => [
   new DAGNodeClass(
     planId,
-    `PlanBee-${modelName}`,
+    `👑🐝-${modelName}`,
     `coming up with an initial plan to divide-and-conquer`,
     { goal },
   ),
