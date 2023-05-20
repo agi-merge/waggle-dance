@@ -7,23 +7,19 @@ import { type ModelCreationProps } from "./types";
 const schema = (format: string, _llmName: string) =>
   `
 Psuedo-Typescript schema for ${format} output:
-DAG (
+DAG
   nodes: Node[]
   edges: Edge[]
-)
-Params (
+Params
   [key: string]: string
-)
-Node (
-  name: string;
+Node
+  name: string
   act: string
   params: Params
   id: string;
-)
-Edge (
+Edge
   sId: string
   tId: string
-)
 MAXIMIZE the width of the DAG when possible, and minimize the depth. This helps improve execution speed.
 MINIMIZE the output character count (e.g. remove whitespace, use short synonyms, etc.)
 MINIMIZE the number of nodes and edges (i.e. keep the solution as simple as possible)
