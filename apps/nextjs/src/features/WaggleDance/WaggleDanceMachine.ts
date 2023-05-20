@@ -40,11 +40,9 @@ function decodeText(data: Uint8Array) {
   }
 }
 
-const yourId = "You"
 const planId = "👑"
 export const initialCond = { predicate: "", params: {} }
 export const initialNodes = (goal: string, modelName: string) => [
-  new DAGNodeClass(yourId, "Human (You)", `Set Goal`, { goal }),
   new DAGNodeClass(
     planId,
     `PlanBee-${modelName}`,
@@ -52,7 +50,7 @@ export const initialNodes = (goal: string, modelName: string) => [
     { goal },
   ),
 ]
-export const initialEdges = () => [new DAGEdgeClass(yourId, planId)]
+export const initialEdges = () => []
 
 function findNodesWithNoIncomingEdges(dag: DAG | OptionalDAG): DAGNode[] {
   const nodesWithIncomingEdges = new Set<string>();

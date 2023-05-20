@@ -1,6 +1,6 @@
 import React from "react";
-import { Close, Warning } from "@mui/icons-material";
-import { Alert, Box, Button, IconButton, Typography } from "@mui/joy";
+import { Warning } from "@mui/icons-material";
+import { Alert, Box, Button, Typography } from "@mui/joy";
 
 import usePreferences from "~/stores/preferencesStore";
 

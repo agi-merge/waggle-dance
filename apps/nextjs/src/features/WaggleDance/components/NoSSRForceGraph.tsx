@@ -111,7 +111,7 @@ const renderNodeCanvasObject = (
   ctx.font = `${fontSize}px Monospace`;
 
   // Set the maximum width for text wrapping
-  const maxWidth = 100 / globalScale;
+  const maxWidth = 70;
   const lines = wrapText(String(label), maxWidth, ctx) || [];
 
   // Calculate the width and height of the wrapped text
@@ -212,8 +212,8 @@ const NoSSRForceGraph: React.FC<ForceGraphProps> = ({ data }) => {
         // eslint-disable-next-line @typescript-eslint/ban-ts-comment
         // @ts-ignore
         ref={fgRef}
-        dagMode="td"
-        dagLevelDistance={10}
+        // dagMode="td"
+        // dagLevelDistance={10}
         nodeLabel="name"
         nodeAutoColorBy="id"
         graphData={debouncedData}
@@ -235,7 +235,7 @@ const NoSSRForceGraph: React.FC<ForceGraphProps> = ({ data }) => {
             forceLink()
               .id((d) => (d as { id: string }).id)
               .distance(20) // Increase the distance between linked nodes
-              .strength(0.1) // Reduce the strength of the link force
+              .strength(0) // Reduce the strength of the link force
         }
         d3Force={(forceName: string, forceFn: unknown) => {
           if (forceName === "collide") {

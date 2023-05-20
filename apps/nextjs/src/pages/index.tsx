@@ -22,7 +22,7 @@ const Home: NextPage = () => {
   const handleSetGoal = (goal: string) => {
     if (goal.trim().length > 0) {
       void router.push(app.routes.waggle);
-      setGoalInputState(GoalInputState.refine);
+      setGoalInputState(GoalInputState.run);
     } else {
       setGoalInputState(GoalInputState.start);
     }

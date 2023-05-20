@@ -39,7 +39,7 @@ export default function SelectedMenu({ dag }: Props) {
         color="info"
         onClick={handleClick}
       >
-        Task
+        Select AI
       </Button>
       <Menu
         id="selected-demo-menu"

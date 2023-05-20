@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useCallback, useEffect, useRef } from "react";
 import {
   KeyboardArrowRight,
   Lan,
@@ -42,62 +42,77 @@ const WaggleDanceGraph = ({}: WaggleDanceGraphProps) => {
   });
   const [chatInput, setChatInput] = React.useState("");
 
-  const handleStart = () => {
-    setIsRunning(true);
-    // setHeaderExpanded(false);
-    void run();
-  };
+  const handleStart = useCallback(() => {
+    if (!isRunning) {
+      setIsRunning(true);
+      void run();
+    } else {
+      setIsRunning(true);
+    }
+  }, [run, setIsRunning, isRunning]);
+
   const handleStop = () => {
     setIsRunning(false);
   };
+
+  const hasMountedRef = useRef(false);
+
+  useEffect(() => {
+    setTimeout(() => {
+      if (!hasMountedRef.current) {
+        hasMountedRef.current = true;
+        handleStart();
+      }
+    }, 333);
+  });
+
   const button = (
-    <Stack direction="column" gap="1rem" className="flex items-end">
-      {isRunning && dag.nodes.length > 2 ? (
-        <Tooltip title="Coming soon!" color="info">
-          <Stack direction="row">
-            <Input
-              variant="outlined"
-              className="flex-grow"
-              placeholder="Send feedback → AI"
-              onKeyUp={(event) => {
-                if (event.key === "Enter") {
-                  event.preventDefault();
-                  setChatInput("");
-                  // handleSubmit(event);
-                }
-              }}
-              onChange={(event) => {
-                setChatInput(event.target.value);
-                // handleChange(event);
-              }}
-              value={chatInput}
-            />
-            <TaskChainSelectMenu dag={dag} />
-          </Stack>
-        </Tooltip>
-      ) : (
-        <Box className="flex-grow">
-          <Button
-            // disabled={!goal}
-            className="col-end p-2"
-            color="primary"
-            href="waggle-dance"
-            onClick={isRunning ? handleStop : handleStart}
-          >
-            {isRunning ? (
-              <>
-                Stop <Stop />
-              </>
-            ) : (
-              <>
-                Start <Start />
-              </>
-            )}
-          </Button>
-        </Box>
-      )}
+    <Stack direction="row" gap="1rem" className="flex items-end">
+      <Box className="flex-grow">
+        {isRunning && dag.nodes.length > 2 ? (
+          <Tooltip title="Coming soon!" color="info">
+            <Stack direction="row">
+              <TaskChainSelectMenu dag={dag} />
+              <Input
+                variant="outlined"
+                className="flex-grow"
+                placeholder="Send feedback → AI"
+                onKeyUp={(event) => {
+                  if (event.key === "Enter") {
+                    event.preventDefault();
+                    setChatInput("");
+                  }
+                }}
+                onChange={(event) => {
+                  setChatInput(event.target.value);
+                }}
+                value={chatInput}
+              />
+            </Stack>
+          </Tooltip>
+        ) : null}
+      </Box>
+      <Box>
+        <Button
+          className="col-end p-2"
+          color="primary"
+          href="waggle-dance"
+          onClick={isRunning ? handleStop : handleStart}
+        >
+          {isRunning ? (
+            <>
+              Stop <Stop />
+            </>
+          ) : (
+            <>
+              Start <Start />
+            </>
+          )}
+        </Button>
+      </Box>
     </Stack>
   );
+
   return (
     <Stack gap="1rem" className="mt-6">
       {!isRunning && button}
@@ -112,7 +127,11 @@ const WaggleDanceGraph = ({}: WaggleDanceGraphProps) => {
             <Stack className="text-center">
               <Typography level="h5" color="primary">
                 Please 🐝 patient,{" "}
-                <Typography color="neutral">planning initial tasks…</Typography>
+                <Typography color="neutral">
+                  {dag.edges.length == 0
+                    ? "planning initial tasks…"
+                    : "scheduling tasks…"}
+                </Typography>
               </Typography>
               <Typography level="body3">
                 This important first step can take several minutes…
@@ -122,7 +141,7 @@ const WaggleDanceGraph = ({}: WaggleDanceGraphProps) => {
         </>
       )}
 
-      {dag.nodes.length > 0 && dag.edges.length > 0 && (
+      {dag.nodes.length > 0 && (
         <Tabs
           aria-label="Waggle Dance Status and Results"
           defaultValue={0}
