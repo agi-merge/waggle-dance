@@ -26,11 +26,11 @@ const Header = () => {
   const { data: session } = useSession();
   const routes = [
     { path: "", label: "🐝 Start", goalState: GoalInputState.start },
-    {
-      path: "add-documents",
-      label: "🌺 Data ",
-      goalState: GoalInputState.refine,
-    },
+    // {
+    //   path: "add-documents",
+    //   label: "🌺 Data ",
+    //   goalState: GoalInputState.refine,
+    // },
     {
       path: "waggle-dance",
       label: "💃 Waggle",

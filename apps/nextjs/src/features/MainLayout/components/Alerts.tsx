@@ -1,14 +1,14 @@
 import React from "react";
 import { Close, Warning } from "@mui/icons-material";
-import { Alert, Box, IconButton, Typography } from "@mui/joy";
+import { Alert, Box, Button, IconButton, Typography } from "@mui/joy";
 
 import usePreferences from "~/stores/preferencesStore";
 
 const Alerts = () => {
   const { isDemoAlertOpen, setIsDemoAlertOpen } = usePreferences();
-  const color = "warning";
+  const color = "info";
   const title = "Limited Demo";
-  const description = "Expect frequent changes.";
+  const description = "Expect frequent changes and bugs";
   const icon = <Warning />;
   return (
     <>
@@ -24,7 +24,7 @@ const Alerts = () => {
         >
           <Alert
             key={title}
-            sx={{ alignItems: "flex-start" }}
+            sx={{ alignItems: "flex-start text-center" }}
             startDecorator={React.cloneElement(icon, {
               sx: { mt: "2px", mx: "4px" },
               fontSize: "xl2",
@@ -32,35 +32,26 @@ const Alerts = () => {
             variant="soft"
             color={color}
             endDecorator={
-              <IconButton
-                variant="soft"
+              <Button
+                variant="outlined"
                 size="sm"
+                className=""
                 color={color}
                 onClick={() => {
                   setIsDemoAlertOpen(false);
                 }}
               >
-                <Close />
-              </IconButton>
+                I understand
+              </Button>
             }
           >
             <div>
               <Typography fontWeight="lg" mt={0.25}>
-                {title} •••{" "}
-                <Typography fontSize="sm" sx={{ opacity: 0.8 }}>
-                  {description}
-                </Typography>{" "}
-                •••
+                {title}
               </Typography>
-
-              <Box>
-                Known issues:{" "}
-                <Typography level="body4">
-                  - url upload works but file does not.
-                  <br /> - the swarm doesnt use data yet
-                  <br /> - stops after planning
-                </Typography>
-              </Box>
+              <Typography fontSize="sm" sx={{ opacity: 0.8 }}>
+                ••• {description} •••
+              </Typography>
             </div>
           </Alert>
         </Box>

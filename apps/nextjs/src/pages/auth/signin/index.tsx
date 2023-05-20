@@ -7,6 +7,8 @@ import { getProviders, signIn } from "next-auth/react";
 
 import { authOptions } from "@acme/auth";
 
+import { app } from "~/constants";
+
 export default function SignIn({
   providers,
 }: InferGetServerSidePropsType<typeof getServerSideProps>) {
@@ -30,7 +32,7 @@ export async function getServerSideProps(context: GetServerSidePropsContext) {
   // Note: Make sure not to redirect to the same page
   // To avoid an infinite loop!
   if (session) {
-    return { redirect: { destination: "/add-documents" } };
+    return { redirect: { destination: app.routes.waggle } };
   }
 
   const providers = await getProviders();

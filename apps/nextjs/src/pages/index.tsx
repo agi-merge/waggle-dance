@@ -4,6 +4,7 @@ import { useRouter } from "next/router";
 import { Card } from "@mui/joy";
 
 import GoalInput from "~/components/GoalInput";
+import { app } from "~/constants";
 import Title from "~/features/MainLayout/components/PageTitle";
 import useGoal, { GoalInputState } from "~/stores/goalStore";
 
@@ -20,7 +21,7 @@ const Home: NextPage = () => {
   // Define handleSetGoal function
   const handleSetGoal = (goal: string) => {
     if (goal.trim().length > 0) {
-      void router.push("/add-documents");
+      void router.push(app.routes.waggle);
       setGoalInputState(GoalInputState.refine);
     } else {
       setGoalInputState(GoalInputState.start);
