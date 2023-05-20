@@ -149,12 +149,10 @@ const WaggleDanceGraph = ({}: WaggleDanceGraphProps) => {
             <Stack className="text-center">
               <Typography
                 level="h5"
-                color={isAttachingRealEdges ? "neutral" : "primary"}
+                color={isAttachingRealEdges ? "success" : "primary"}
               >
                 {isAttachingRealEdges ? "Almost done! " : "Please 🐝 patient, "}
-                <Typography
-                  color={isAttachingRealEdges ? "primary" : "neutral"}
-                >
+                <Typography color="neutral">
                   {!isAttachingRealEdges
                     ? "planning initial tasks…"
                     : "scheduling tasks…"}
@@ -193,7 +191,7 @@ const WaggleDanceGraph = ({}: WaggleDanceGraphProps) => {
           </TabList>
           {dag.nodes.length > 0 && (
             <>
-              {isRunning && (
+              {isRunning && !isDonePlanning && (
                 <LinearProgress thickness={1} className="mx-2 -mt-0.5" />
               )}
               <TabPanel

@@ -111,7 +111,7 @@ const renderNodeCanvasObject = (
   ctx.font = `${fontSize}px Monospace`;
 
   // Set the maximum width for text wrapping
-  const maxWidth = 70;
+  const maxWidth = 30;
   const lines = wrapText(String(label), maxWidth, ctx) || [];
 
   // Calculate the width and height of the wrapped text
