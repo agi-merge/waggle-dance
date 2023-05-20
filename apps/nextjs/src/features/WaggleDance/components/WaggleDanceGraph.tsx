@@ -1,6 +1,13 @@
 import React from "react";
-import { KeyboardArrowRight, Lan, ListAlt } from "@mui/icons-material";
 import {
+  KeyboardArrowRight,
+  Lan,
+  ListAlt,
+  Start,
+  Stop,
+} from "@mui/icons-material";
+import {
+  Box,
   Button,
   Input,
   LinearProgress,
@@ -23,6 +30,7 @@ import useApp from "~/stores/appStore";
 import useGoal from "~/stores/goalStore";
 import useWaggleDanceMachine from "../hooks/useWaggleDanceMachine";
 import ForceGraph from "./ForceGraph";
+import TaskChainSelectMenu from "./TaskChainSelectMenu";
 
 type WaggleDanceGraphProps = StackProps;
 // shows the graph, agents, results, general messages and chat input
@@ -43,41 +51,51 @@ const WaggleDanceGraph = ({}: WaggleDanceGraphProps) => {
     setIsRunning(false);
   };
   const button = (
-    <Stack
-      direction={isRunning ? "row" : "column"}
-      gap="1rem"
-      className="flex items-end"
-    >
-      {isRunning && (
+    <Stack direction="column" gap="1rem" className="flex items-end">
+      {isRunning && dag.nodes.length > 2 ? (
         <Tooltip title="Coming soon!" color="info">
-          <Input
-            variant="outlined"
-            className="flex-grow"
-            placeholder="Send your feedback to the AI swarm…"
-            onKeyUp={(event) => {
-              if (event.key === "Enter") {
-                event.preventDefault();
-                setChatInput("");
-                // handleSubmit(event);
-              }
-            }}
-            onChange={(event) => {
-              setChatInput(event.target.value);
-              // handleChange(event);
-            }}
-            value={chatInput}
-          />
+          <Stack direction="row">
+            <Input
+              variant="outlined"
+              className="flex-grow"
+              placeholder="Send feedback → AI"
+              onKeyUp={(event) => {
+                if (event.key === "Enter") {
+                  event.preventDefault();
+                  setChatInput("");
+                  // handleSubmit(event);
+                }
+              }}
+              onChange={(event) => {
+                setChatInput(event.target.value);
+                // handleChange(event);
+              }}
+              value={chatInput}
+            />
+            <TaskChainSelectMenu dag={dag} />
+          </Stack>
         </Tooltip>
+      ) : (
+        <Box className="flex-grow">
+          <Button
+            // disabled={!goal}
+            className="col-end p-2"
+            color="primary"
+            href="waggle-dance"
+            onClick={isRunning ? handleStop : handleStart}
+          >
+            {isRunning ? (
+              <>
+                Stop <Stop />
+              </>
+            ) : (
+              <>
+                Start <Start />
+              </>
+            )}
+          </Button>
+        </Box>
       )}
-      <Button
-        // disabled={!goal}
-        className="col-end w-40 p-2"
-        color="primary"
-        href="waggle-dance"
-        onClick={isRunning ? handleStop : handleStart}
-      >
-        {isRunning ? "Stop" : "Start"}
-      </Button>
     </Stack>
   );
   return (

@@ -40,7 +40,7 @@ interface ForceGraphProps {
 }
 
 interface ForceGraphRef {
-  zoomToFit: () => void;
+  zoomToFit: (durationMs?: number, padding?: number) => void;
   d3ReheatSimulation: () => void;
 }
 
@@ -248,7 +248,7 @@ const NoSSRForceGraph: React.FC<ForceGraphProps> = ({ data }) => {
           return forceFn;
         }}
         onEngineTick={() => {
-          fgRef.current?.zoomToFit();
+          fgRef.current?.zoomToFit(10);
           fgRef.current?.d3ReheatSimulation();
         }}
         onDagError={(loopNodeIds) => {
@@ -258,7 +258,7 @@ const NoSSRForceGraph: React.FC<ForceGraphProps> = ({ data }) => {
           node.fx = node.x;
           node.fy = node.y;
         }}
-        onEngineStop={() => fgRef.current?.zoomToFit()}
+        onEngineStop={() => fgRef.current?.zoomToFit(10)}
         enableZoomInteraction={false}
         enablePanInteraction={false}
         // onNodeClick={handleClick}
