@@ -115,13 +115,30 @@ export default function GoalInput({
             placeholder={placeholders[currentPlaceholderIndex]}
             minRows={3}
             maxRows={10}
+            endDecorator={
+              <Stack direction="row" gap="0.5rem">
+                <Button
+                  size="sm"
+                  variant="outlined"
+                  className="flex-end"
+                  onClick={() => {
+                    setGoalInputValue("");
+                  }}
+                >
+                  Clear
+                </Button>
+                <Button variant="outlined" color="info">
+                  Browse Templates
+                </Button>
+              </Stack>
+            }
             size="lg"
             disabled={state !== GoalInputState.start}
             required
             variant="outlined"
             className="py-col flex-grow"
             onKeyPress={(event) => {
-              if (event.key === "Enter") {
+              if (event.key === "Enter" && !event.shiftKey) {
                 event.preventDefault();
                 handleSubmit(event);
               }

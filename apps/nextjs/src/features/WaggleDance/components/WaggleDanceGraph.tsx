@@ -36,7 +36,8 @@ import TaskChainSelectMenu from "./TaskChainSelectMenu";
 type WaggleDanceGraphProps = StackProps;
 // shows the graph, agents, results, general messages and chat input
 const WaggleDanceGraph = ({}: WaggleDanceGraphProps) => {
-  const { isRunning, setIsRunning } = useApp();
+  const { isRunning, setIsRunning, isAutoStartEnabled, setIsAutoStartEnabled } =
+    useApp();
   const { goal } = useGoal();
   const { graphData, dag, run, isDonePlanning } = useWaggleDanceMachine({
     goal,
@@ -58,13 +59,17 @@ const WaggleDanceGraph = ({}: WaggleDanceGraphProps) => {
 
   const hasMountedRef = useRef(false);
 
+  // auto-start
   useEffect(() => {
-    setTimeout(() => {
+    if (isAutoStartEnabled) {
+      setIsAutoStartEnabled(false);
+      // setTimeout(() => {
       if (!hasMountedRef.current) {
         hasMountedRef.current = true;
         handleStart();
       }
-    }, 333);
+      // }, 333);
+    }
   });
 
   const isAttachingRealEdges = useMemo(() => {

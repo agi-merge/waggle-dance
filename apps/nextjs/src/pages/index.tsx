@@ -6,6 +6,7 @@ import { Card } from "@mui/joy";
 import GoalInput from "~/components/GoalInput";
 import { app } from "~/constants";
 import Title from "~/features/MainLayout/components/PageTitle";
+import useApp from "~/stores/appStore";
 import useGoal, { GoalInputState } from "~/stores/goalStore";
 
 export interface Handlers {
@@ -15,12 +16,14 @@ export interface Handlers {
 }
 
 const Home: NextPage = () => {
+  const { setIsAutoStartEnabled } = useApp();
   const router = useRouter();
   const { goal, setGoal, goalInputState, setGoalInputState } = useGoal();
 
   // Define handleSetGoal function
   const handleSetGoal = (goal: string) => {
     if (goal.trim().length > 0) {
+      setIsAutoStartEnabled(true);
       void router.push(app.routes.waggle);
       setGoalInputState(GoalInputState.run);
     } else {
