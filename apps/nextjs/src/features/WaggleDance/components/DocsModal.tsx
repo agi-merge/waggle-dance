@@ -1,10 +1,7 @@
 import * as React from "react";
-import { Box, Card, Link } from "@mui/joy";
-import Button from "@mui/joy/Button";
+import { Card, Link } from "@mui/joy";
 import Modal from "@mui/joy/Modal";
 import ModalClose from "@mui/joy/ModalClose";
-import Sheet from "@mui/joy/Sheet";
-import Typography from "@mui/joy/Typography";
 
 type Props = {
   children: React.ReactNode;

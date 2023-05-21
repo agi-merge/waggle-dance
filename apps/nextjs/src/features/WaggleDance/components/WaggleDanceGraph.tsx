@@ -17,8 +17,6 @@ import {
   ListItemButton,
   ListItemContent,
   ListItemDecorator,
-  Modal,
-  ModalDialog,
   Stack,
   Tab,
   TabList,
@@ -47,7 +45,6 @@ const WaggleDanceGraph = ({}: WaggleDanceGraphProps) => {
     goal,
   });
   const [chatInput, setChatInput] = React.useState("");
-  const [open, setOpen] = React.useState<boolean>(false);
 
   const handleStart = useCallback(() => {
     if (!isRunning) {

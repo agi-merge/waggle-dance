@@ -9,7 +9,6 @@ import React, {
   useState,
   type KeyboardEvent,
 } from "react";
-import type { NextPage, NextPageContext } from "next";
 import { useRouter } from "next/router";
 import { CheckCircle, KeyboardArrowRight } from "@mui/icons-material";
 import {
@@ -19,7 +18,6 @@ import {
   IconButton,
   Input,
   LinearProgress,
-  Sheet,
   Stack,
   Typography,
 } from "@mui/joy";
@@ -274,8 +272,13 @@ const AddDocuments = ({ hideTitleGoal, onClose }: Props) => {
               }
             }}
           >
-            {onClose ? "Next" : "Done"}
-            <KeyboardArrowRight />
+            {onClose ? (
+              <>
+                Next <KeyboardArrowRight />
+              </>
+            ) : (
+              "Done"
+            )}
           </Button>
         </Stack>
       </Stack>

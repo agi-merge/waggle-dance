@@ -1,5 +1,4 @@
 import * as React from "react";
-import Apps from "@mui/icons-material/Apps";
 import Button from "@mui/joy/Button";
 import Menu from "@mui/joy/Menu";
 import MenuItem from "@mui/joy/MenuItem";
