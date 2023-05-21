@@ -53,53 +53,6 @@ function separateWords(input: string): string {
     .replace(/(\d+)([a-zA-Z])/g, "$1 $2"); // Separate numbers followed by words
 }
 
-// Example usage:
-console.log(separateWords("camelCase"));
-function wrapText(
-  text: string,
-  maxWidth: number,
-  ctx: CanvasRenderingContext2D,
-) {
-  const words = text.split(" ");
-  const lines: string[] = [];
-  let currentLine = words[0];
-
-  for (let i = 1; i < words.length; i++) {
-    const word = words[i];
-    const width = ctx.measureText(`${currentLine} ${word}`).width;
-
-    if (width < maxWidth) {
-      currentLine = `${currentLine} ${word}`;
-    } else {
-      if (currentLine) {
-        lines.push(currentLine);
-      }
-      currentLine = word;
-    }
-  }
-  if (currentLine) {
-    lines.push(currentLine);
-  }
-
-  // Force line break for long words
-  for (let i = 0; i < lines.length; i++) {
-    const line = lines[i];
-    if (!line) {
-      break;
-    }
-    const lineWidth = ctx.measureText(line).width;
-    if (lineWidth > maxWidth) {
-      let splitIndex = Math.floor((line.length * maxWidth) / lineWidth);
-      // Ensure splitIndex is at least 1 to avoid infinite loop
-      splitIndex = Math.max(1, splitIndex);
-      const firstPart = line.substring(0, splitIndex);
-      const secondPart = line.substring(splitIndex);
-      lines.splice(i, 1, firstPart, secondPart);
-    }
-  }
-
-  return lines;
-}
 function truncateText(
   text: string,
   maxWidth: number,
@@ -139,7 +92,7 @@ const renderNodeCanvasObject = (
   ctx.font = `${fontSize}px Monospace`;
 
   // Set the maximum width for text wrapping
-  const maxWidth = 30;
+  const maxWidth = 150 / globalScale;
 
   // Truncate the text based on maxWidth
   const truncatedText = truncateText(label, maxWidth, ctx);
@@ -199,7 +152,7 @@ const renderNodeCanvasObject = (
   ctx.textBaseline = "middle";
   ctx.fillStyle = textColor;
   ctx.fillText(
-    label,
+    truncatedText,
     node.x || 0,
     node.y || 0, // - textHeight / 4 + index * fontSize,
   );
