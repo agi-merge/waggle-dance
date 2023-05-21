@@ -1,4 +1,5 @@
 import * as React from "react";
+import { Stack } from "@mui/joy";
 import Button from "@mui/joy/Button";
 import Menu from "@mui/joy/Menu";
 import MenuItem from "@mui/joy/MenuItem";
@@ -28,14 +29,13 @@ export default function SelectedMenu({ dag }: Props) {
   };
 
   return (
-    <div>
+    <Stack gap="0.5rem" className="mr-3">
       <Button
         id="selected-demo-button"
         aria-controls={open ? "selected-demo-menu" : undefined}
         aria-haspopup="true"
         aria-expanded={open ? "true" : undefined}
-        variant="outlined"
-        color="info"
+        variant="soft"
         onClick={handleClick}
       >
         Select AI
@@ -51,6 +51,6 @@ export default function SelectedMenu({ dag }: Props) {
           <MenuItem key={n.id}>{n.id}</MenuItem>
         ))}
       </Menu>
-    </div>
+    </Stack>
   );
 }

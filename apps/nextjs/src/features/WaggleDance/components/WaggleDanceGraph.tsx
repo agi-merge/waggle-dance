@@ -83,36 +83,34 @@ const WaggleDanceGraph = ({}: WaggleDanceGraphProps) => {
       <Box className="flex-grow">
         {isRunning && dag.nodes.length > 1 ? (
           <Tooltip title="Coming soon!" color="info">
-            <Stack direction="row">
-              <TaskChainSelectMenu dag={dag} />
-              <Input
-                endDecorator={
-                  <Button
-                    variant="plain"
-                    color="neutral"
-                    onClick={(event) => {
-                      event.preventDefault();
-                      setChatInput("");
-                    }}
-                  >
-                    <Send />
-                  </Button>
-                }
-                variant="outlined"
-                className="flex-grow"
-                placeholder="Chat → AIs"
-                onKeyUp={(event) => {
-                  if (event.key === "Enter") {
+            <Input
+              endDecorator={
+                <Button
+                  variant="plain"
+                  color="neutral"
+                  onClick={(event) => {
                     event.preventDefault();
                     setChatInput("");
-                  }
-                }}
-                onChange={(event) => {
-                  setChatInput(event.target.value);
-                }}
-                value={chatInput}
-              />
-            </Stack>
+                  }}
+                >
+                  <Send />
+                </Button>
+              }
+              startDecorator={<TaskChainSelectMenu dag={dag} />}
+              variant="outlined"
+              className="flex-grow"
+              placeholder="Chat → AIs"
+              onKeyUp={(event) => {
+                if (event.key === "Enter") {
+                  event.preventDefault();
+                  setChatInput("");
+                }
+              }}
+              onChange={(event) => {
+                setChatInput(event.target.value);
+              }}
+              value={chatInput}
+            />
           </Tooltip>
         ) : null}
       </Box>

@@ -13,7 +13,7 @@ export default function BasicModal({ children }: Props) {
       <Link
         variant="plain"
         color="neutral"
-        level="body3"
+        level="body4"
         className="flex-shrink"
         onClick={() => setOpen(true)}
       >
