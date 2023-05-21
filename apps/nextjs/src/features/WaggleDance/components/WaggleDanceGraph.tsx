@@ -17,6 +17,8 @@ import {
   ListItemButton,
   ListItemContent,
   ListItemDecorator,
+  Modal,
+  ModalDialog,
   Stack,
   Tab,
   TabList,
@@ -27,9 +29,11 @@ import {
   type StackProps,
 } from "@mui/joy";
 
+import AddDocuments from "~/pages/add-documents";
 import useApp from "~/stores/appStore";
 import useGoal from "~/stores/goalStore";
 import useWaggleDanceMachine from "../hooks/useWaggleDanceMachine";
+import DocsModal from "./DocsModal";
 import ForceGraph from "./ForceGraph";
 import TaskChainSelectMenu from "./TaskChainSelectMenu";
 
@@ -43,6 +47,7 @@ const WaggleDanceGraph = ({}: WaggleDanceGraphProps) => {
     goal,
   });
   const [chatInput, setChatInput] = React.useState("");
+  const [open, setOpen] = React.useState<boolean>(false);
 
   const handleStart = useCallback(() => {
     if (!isRunning) {
@@ -275,6 +280,9 @@ const WaggleDanceGraph = ({}: WaggleDanceGraphProps) => {
         </Tabs>
       )}
       {isRunning && button}
+      <DocsModal>
+        <AddDocuments hideTitleGoal={true} />
+      </DocsModal>
     </Stack>
   );
 };

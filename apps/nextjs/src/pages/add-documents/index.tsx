@@ -9,7 +9,7 @@ import React, {
   useState,
   type KeyboardEvent,
 } from "react";
-import type { NextPage } from "next";
+import type { NextPage, NextPageContext } from "next";
 import { useRouter } from "next/router";
 import { CheckCircle, KeyboardArrowRight } from "@mui/icons-material";
 import {
@@ -78,7 +78,11 @@ function isValidUrl(url: string) {
   }
 }
 
-const AddDocuments: NextPage = () => {
+type Props = {
+  hideTitleGoal?: boolean;
+  onClose?: () => void;
+};
+const AddDocuments = ({ hideTitleGoal, onClose }: Props) => {
   const router = useRouter();
   const [ingestFiles, setIngestFiles] = useState<IngestFiles>({});
   const [ingestUrls, setIngestUrls] = useState<IngestUrls>({});
@@ -150,21 +154,23 @@ const AddDocuments: NextPage = () => {
   );
 
   return (
-    <Card variant="soft" className="mb-3">
+    // <Card variant="soft" className="mb-3">
+    <>
       <Title
         title="🌺 Get better results"
         description="
                 Providing up to date and relevant information upfront will
                 ensure better planning and execution by the waggling swarm of
                 bees. You can keep adding documents later as well."
+        hideGoal={hideTitleGoal}
       />
       <Stack gap="1rem" className="mt-6">
         <IngestContext.Provider
           value={{
-            ingestFiles: ingestFiles,
-            setIngestFiles: setIngestFiles,
-            ingestUrls: ingestUrls,
-            setIngestUrls: setIngestUrls,
+            ingestFiles,
+            setIngestFiles,
+            ingestUrls,
+            setIngestUrls,
           }}
         >
           <Table
@@ -184,7 +190,12 @@ const AddDocuments: NextPage = () => {
             <tbody>
               {Object.entries(ingestFiles).map((ingestFile) => (
                 <tr key={ingestFile[0]}>
-                  <td>{ingestFile[1].file.name}</td>
+                  <td>
+                    {ingestFile[1].file.name.slice(
+                      0,
+                      Math.min(30, ingestFile[1].file.name.length),
+                    )}
+                  </td>
                   <td>{ingestFile[1].file.type}</td>
                   <td>
                     <div>
@@ -201,7 +212,6 @@ const AddDocuments: NextPage = () => {
                     </div>
                   </td>
                 </tr>
-                // <FileUploadStatus key={ingestFile[0]} ingestFile={ingestFile[1]} />
               ))}
               {Object.entries(ingestUrls).map((ingestUrl) => (
                 <tr key={ingestUrl[0]}>
@@ -214,7 +224,7 @@ const AddDocuments: NextPage = () => {
           </Table>
         </IngestContext.Provider>
         <Typography className="mt-6" color="primary">
-          URLs to Ingest
+          URLs
         </Typography>
         <Box className="flex pr-3">
           <Input
@@ -235,13 +245,13 @@ const AddDocuments: NextPage = () => {
           </IconButton>
         </Box>
         <Typography className="mt-2" color="primary">
-          Files to Ingest
+          Files
         </Typography>
         <DropZoneUploader />
         <Typography className="mt-6" color="primary">
-          Service Connectors
+          Plugins
         </Typography>
-        <Sheet className="m-2 p-2">
+        <Card className="mt-2 p-2" variant="outlined">
           <Typography className="mt-6" level="body3">
             <Typography level="body2" color="info">
               Coming soon:
@@ -249,7 +259,7 @@ const AddDocuments: NextPage = () => {
             Use waggledance.ai to automatically automate your life w/ Zapier,
             IFTTT, Email, Discord, and more!
           </Typography>
-        </Sheet>
+        </Card>
         <Stack direction="row-reverse" className="mt-2" gap="1rem">
           <Button
             disabled={isAnyFileUploading}
@@ -257,15 +267,19 @@ const AddDocuments: NextPage = () => {
             color="primary"
             href="waggle-dance"
             onClick={() => {
-              void router.push("/waggle-dance");
+              if (!hideTitleGoal) {
+                void router.push("/waggle-dance");
+              } else {
+                if (onClose) onClose();
+              }
             }}
           >
-            Next
+            {onClose ? "Next" : "Done"}
             <KeyboardArrowRight />
           </Button>
         </Stack>
       </Stack>
-    </Card>
+    </>
   );
 };
 
