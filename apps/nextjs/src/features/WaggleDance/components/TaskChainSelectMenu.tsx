@@ -36,6 +36,7 @@ export default function SelectedMenu({ dag }: Props) {
         aria-haspopup="true"
         aria-expanded={open ? "true" : undefined}
         variant="soft"
+        color="neutral"
         onClick={handleClick}
       >
         Select AI
