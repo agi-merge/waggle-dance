@@ -8,6 +8,7 @@ import React, {
 import { Edit, Lan, ListAlt, Send, Start, Stop } from "@mui/icons-material";
 import {
   Button,
+  Divider,
   Input,
   LinearProgress,
   List,
@@ -120,15 +121,18 @@ const WaggleDanceGraph = ({}: WaggleDanceGraphProps) => {
         href="waggle-dance"
         onClick={isRunning ? handleStop : handleStart}
       >
-        {isRunning ? (
-          <>
-            Stop <Stop />
-          </>
-        ) : (
-          <>
-            {dag.nodes.length > 0 ? "Restart" : "Start"} <Start />
-          </>
-        )}
+        <Stack direction="row" gap="0.5rem" className="items-center">
+          {isRunning ? (
+            <>
+              Stop <Stop />
+            </>
+          ) : (
+            <>
+              {dag.nodes.length > 0 ? "Restart" : "Start"}
+              <Start />
+            </>
+          )}
+        </Stack>
       </Button>
     </Stack>
   );
@@ -238,6 +242,7 @@ const WaggleDanceGraph = ({}: WaggleDanceGraphProps) => {
                             <Tooltip title="Chat">
                               <Send />
                             </Tooltip>
+                            <Divider />
                             <Tooltip title="Edit">
                               <Edit />
                             </Tooltip>
