@@ -204,6 +204,12 @@ const NoSSRForceGraph: React.FC<ForceGraphProps> = ({ data }) => {
     }
   }, [containerRef, setContainerWidth]);
 
+  useEffect(() => {
+    if (containerRef && containerRef.current) {
+      containerRef.current.scrollIntoView();
+    }
+  }, [containerRef]);
+
   const [debouncedData, _state] = useDebounce(data, 1000);
 
   return (
