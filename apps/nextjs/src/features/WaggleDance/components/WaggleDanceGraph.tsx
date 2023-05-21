@@ -89,7 +89,7 @@ const WaggleDanceGraph = ({}: WaggleDanceGraphProps) => {
   }, [dag.edges]);
 
   const button = (
-    <Stack direction="row" gap="0.1rem" className="flex items-end">
+    <Stack direction="row" gap="0.1rem" className="flex items-end justify-end">
       {isRunning && dag.nodes.length > 1 ? (
         <Tooltip title="Coming soon!" color="info">
           <Input
@@ -162,7 +162,7 @@ const WaggleDanceGraph = ({}: WaggleDanceGraphProps) => {
                 <Typography color="neutral">
                   {!isAttachingRealEdges
                     ? "planning tasks…"
-                    : "scheduling tasks…"}
+                    : "optimizing tasks…"}
                 </Typography>
               </Typography>
               <Typography level="body3">
@@ -186,7 +186,7 @@ const WaggleDanceGraph = ({}: WaggleDanceGraphProps) => {
               <ListAlt />
               <Typography className="px-1">Tasks</Typography>
             </Tab>
-            {dag.nodes.length > 1 && (
+            {dag.nodes.length > 2 && ( // would be 1, except rendering bugs when its only 2 nodes.
               <Tab>
                 <Lan />
                 <Typography className="px-1">Graph</Typography>
