@@ -12,7 +12,7 @@ export const config = {
 };
 
 const handler = async (req: NextRequest) => {
-  const nodeId = "👸🐝"; // maybe goal.slice(0, 5)
+  const nodeId = "👸"; // maybe goal.slice(0, 5)
 
   try {
     const {
