@@ -15,7 +15,7 @@ Params
 Node
   name: string
   act: string
-  params: Params
+  params: Params // must be detailed
   id: string;
 Edge
   sId: string
