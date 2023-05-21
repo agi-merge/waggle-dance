@@ -1,16 +1,13 @@
-/* eslint-disable @typescript-eslint/no-unsafe-assignment */
-/* eslint-disable @typescript-eslint/ban-ts-comment */
-
 // DropZone.tsx
-
-import * as React from "react";
-import { useState } from "react";
+import React, { useState } from "react";
 import { useRouter } from "next/router";
 import { UploadFile } from "@mui/icons-material";
 import { Tooltip } from "@mui/joy";
 import Box from "@mui/joy/Box";
-import Card, { type CardProps } from "@mui/joy/Card";
+import Card from "@mui/joy/Card";
 import Link from "@mui/joy/Link";
+
+import { getServerSession } from "@acme/auth";
 
 import { acceptExtensions } from "~/features/AddDocuments/mimeTypes";
 import { useIngest, type IngestFile } from "~/pages/add-documents";
@@ -68,16 +65,14 @@ const DropZoneContainer = (props: ContainerProps) => {
 };
 
 export default function DropZoneUploader({ sx, ...props }: DropZoneProps) {
-  const { ingestFiles: uploadedFiles, setIngestFiles: setUploadedFiles } =
-    useIngest();
+  const { ingestFiles: uploadedFiles, setIngestFiles } = useIngest();
   const handleFileChange = (file: IngestFile) => {
-    // Create a new object with the updated data
     const updatedFiles = {
       ...uploadedFiles,
       [file.file.name]: file,
     };
 
-    setUploadedFiles(updatedFiles);
+    setIngestFiles(updatedFiles);
   };
   const fileInput = React.useRef<HTMLInputElement>(null);
   const shadowFormRef = React.useRef<HTMLFormElement>(null);
@@ -170,8 +165,9 @@ export default function DropZoneUploader({ sx, ...props }: DropZoneProps) {
   return (
     <DropZoneContainer
       onDrop={(files: FileList) => {
-        // @ts-ignore TODO: gotta come back to this one, its tricky
-        handleUpload({ target: { files } });
+        handleUpload({
+          target: { files },
+        } as React.ChangeEvent<HTMLInputElement>);
       }}
     >
       <Card
@@ -208,11 +204,7 @@ export default function DropZoneUploader({ sx, ...props }: DropZoneProps) {
         <Link component="button" overlay onClick={handleClick} type="button">
           Click to upload
         </Link>{" "}
-        <form
-          // onSubmit={(event) => void handleSubmit(event)}
-          // onProgress={(event) => void handleSubmit(event)}
-          ref={shadowFormRef}
-        >
+        <form ref={shadowFormRef}>
           <input
             type="file"
             name="files"

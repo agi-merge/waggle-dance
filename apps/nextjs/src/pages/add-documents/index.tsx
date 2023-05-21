@@ -47,18 +47,14 @@ export type IngestFiles = Record<string, IngestFile>;
 export type IngestUrls = Record<string, IngestUrl>;
 
 const IngestContext = createContext<{
-  // Add uploadedUrls to the context
   ingestFiles: IngestFiles;
   ingestUrls: IngestUrls;
   setIngestFiles: React.Dispatch<React.SetStateAction<IngestFiles>>;
   setIngestUrls: React.Dispatch<React.SetStateAction<IngestUrls>>;
 }>({
-  // Same initial values as earlier
   ingestFiles: {},
   ingestUrls: {},
-  // eslint-disable-next-line @typescript-eslint/no-empty-function
   setIngestFiles: () => {},
-  // eslint-disable-next-line @typescript-eslint/no-empty-function
   setIngestUrls: () => {},
 });
 
@@ -87,7 +83,6 @@ const AddDocuments = ({ hideTitleGoal, onClose }: Props) => {
   const { goal } = useGoal();
 
   useEffect(() => {
-    // Redirect if the goal is undefined or empty
     if (!goal) {
       void router.push("/");
     }
@@ -152,7 +147,6 @@ const AddDocuments = ({ hideTitleGoal, onClose }: Props) => {
   );
 
   return (
-    // <Card variant="soft" className="mb-3">
     <>
       <Title
         title="🌺 Get better results"
@@ -236,7 +230,6 @@ const AddDocuments = ({ hideTitleGoal, onClose }: Props) => {
           />
           <IconButton
             disabled={!isValidUrl(urlInput)}
-            // edge="end"
             onClick={void handleUrlSubmit}
           >
             <CheckCircle />
