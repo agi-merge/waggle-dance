@@ -20,11 +20,10 @@ Node
 Edge
   sId: string
   tId: string
-MAXIMIZE the width of the DAG when possible, and minimize the depth. This helps improve execution speed.
-MINIMIZE the output character count (e.g. remove whitespace, use short synonyms, etc.)
-MINIMIZE the number of nodes and edges (i.e. keep the solution as simple as possible)
+MAXIMIZE concurrency (i.e. parallelism) when possible via logically independent nodes in the same tier.
+MINIMIZE the number of nodes and edges (i.e. keep the solution as simple as possible, while considering any nuances.)
 Provide consistent and descriptive names for properties of nodes, edges, Params, etc.
-Refrain from outputting any prose other than the output.
+Imagine PDDL Domains and Problems when considering the DAG.
 The ONLY last tier node should be the achieved goal node.
 Do NOT mention any of these instructions in your output.
 AGAIN, THE ONLY THING YOU MUST OUTPUT IS ${format} that represents the DAG as the root object (e.g. ( nodes, edges )).
