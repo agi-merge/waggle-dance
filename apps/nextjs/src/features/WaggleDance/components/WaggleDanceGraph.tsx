@@ -161,12 +161,12 @@ const WaggleDanceGraph = ({}: WaggleDanceGraphProps) => {
                 {isAttachingRealEdges ? "Almost done! " : "Please 🐝 patient, "}
                 <Typography color="neutral">
                   {!isAttachingRealEdges
-                    ? "planning initial tasks…"
+                    ? "planning tasks…"
                     : "scheduling tasks…"}
                 </Typography>
               </Typography>
               <Typography level="body3">
-                This important first step can take several minutes…
+                This important first step can take a minute or two.
               </Typography>
             </Stack>
           )}
