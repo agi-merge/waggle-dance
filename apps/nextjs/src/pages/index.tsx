@@ -41,7 +41,7 @@ const Home: NextPage = () => {
     <Card variant="soft" className="mb-3">
       <Title
         title="🐝 Your goal"
-        description="Don't be afraid of being ambitious. We will refine it later."
+        description="Try something tedious you do on your phone/computer in your job or daily life. You can refine this later."
         hideGoal={true}
       />
       <GoalInput

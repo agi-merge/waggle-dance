@@ -10,6 +10,7 @@ import {
 } from "@mui/joy";
 
 import useGoal, { GoalInputState } from "~/stores/goalStore";
+import GoalDoctorModal from "./components/GoalDoctorModal";
 
 const GoalMenu = () => {
   const { goal, setGoalInputState, setGoal } = useGoal();
@@ -45,9 +46,7 @@ const GoalMenu = () => {
                   goal.length > 55 ? "…" : ""
                 }`}
                 <br />
-                <Tooltip title="Coming soon" color="info">
-                  <Link href="#">Improve your prompt</Link>
-                </Tooltip>
+                <GoalDoctorModal>Coming soon!</GoalDoctorModal>
               </Typography>
             </Stack>
           </Alert>

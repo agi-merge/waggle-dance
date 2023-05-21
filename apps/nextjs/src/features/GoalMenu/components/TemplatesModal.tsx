@@ -1,5 +1,5 @@
 import * as React from "react";
-import { Box, Card, Link } from "@mui/joy";
+import { Card, Link } from "@mui/joy";
 import Modal from "@mui/joy/Modal";
 import ModalClose from "@mui/joy/ModalClose";
 
@@ -10,17 +10,15 @@ export default function BasicModal({ children }: Props) {
   const [open, setOpen] = React.useState<boolean>(false);
   return (
     <React.Fragment>
-      <Box className="flex justify-center">
-        <Link
-          variant="plain"
-          color="primary"
-          level="body3"
-          className="flex-shrink"
-          onClick={() => setOpen(true)}
-        >
-          🌺 Improve your results
-        </Link>
-      </Box>
+      <Link
+        variant="plain"
+        color="neutral"
+        level="body3"
+        className="flex-shrink"
+        onClick={() => setOpen(true)}
+      >
+        🤔 Browse Templates
+      </Link>
       <Modal
         aria-labelledby="modal-title"
         aria-describedby="modal-desc"

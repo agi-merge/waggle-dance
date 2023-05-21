@@ -276,10 +276,10 @@ const WaggleDanceGraph = ({}: WaggleDanceGraphProps) => {
           )}
         </Tabs>
       )}
-      {isRunning && button}
       <DocsModal>
         <AddDocuments hideTitleGoal={true} />
       </DocsModal>
+      {isRunning && button}
     </Stack>
   );
 };

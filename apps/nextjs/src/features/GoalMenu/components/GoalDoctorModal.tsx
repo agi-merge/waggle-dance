@@ -10,17 +10,15 @@ export default function BasicModal({ children }: Props) {
   const [open, setOpen] = React.useState<boolean>(false);
   return (
     <React.Fragment>
-      <Box className="flex justify-center">
-        <Link
-          variant="plain"
-          color="primary"
-          level="body3"
-          className="flex-shrink"
-          onClick={() => setOpen(true)}
-        >
-          🌺 Improve your results
-        </Link>
-      </Box>
+      <Link
+        variant="plain"
+        color="neutral"
+        level="body4"
+        className="flex-shrink"
+        onClick={() => setOpen(true)}
+      >
+        🌺 Refine Goal
+      </Link>
       <Modal
         aria-labelledby="modal-title"
         aria-describedby="modal-desc"

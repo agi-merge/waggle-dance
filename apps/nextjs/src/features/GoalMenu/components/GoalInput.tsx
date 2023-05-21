@@ -1,17 +1,12 @@
 import React, { useEffect, useState } from "react";
 import { KeyboardArrowRight } from "@mui/icons-material";
-import {
-  Button,
-  FormControl,
-  Stack,
-  Textarea,
-  Tooltip,
-  Typography,
-} from "@mui/joy";
+import { Button, FormControl, Stack, Textarea, Typography } from "@mui/joy";
 import { type CardProps } from "@mui/joy/Card";
 
 import { type Handlers } from "~/pages";
 import { GoalInputState } from "~/stores/goalStore";
+import GoalDoctorModal from "./GoalDoctorModal";
+import TemplatesModal from "./TemplatesModal";
 
 export const examplePrompts = [
   "What is the most popular event planning trend right now in April 2023?",
@@ -52,7 +47,6 @@ export default function GoalInput({
       : "",
     //examplePrompts[(Math.random() * examplePrompts.length) | 0],
   );
-  const [tooltipTappedOpen] = useState<boolean | undefined>(undefined);
 
   useEffect(() => {
     if (startingValue) {
@@ -90,63 +84,46 @@ export default function GoalInput({
   return (
     <form onSubmit={handleSubmit} className="mt-6 space-y-2">
       <FormControl>
-        <Tooltip
-          title={
-            <div>
-              <Typography color="info">
-                Try a complex task or question that you perform in your
-                profession. <Typography color="neutral">e.g.</Typography>
-              </Typography>
-              <Typography level="body1" className="mt-2">
-                {examplePrompts[currentPromptIndex]}
-              </Typography>
-            </div>
+        <Textarea
+          id="goalTextarea"
+          name="goalTextarea"
+          placeholder={placeholders[currentPlaceholderIndex]}
+          minRows={3}
+          maxRows={10}
+          endDecorator={
+            <Stack direction="row" gap="0.5rem">
+              <Button
+                size="sm"
+                variant="outlined"
+                className="flex-end"
+                onClick={() => {
+                  setGoalInputValue("");
+                }}
+              >
+                Clear
+              </Button>
+              <TemplatesModal>
+                <Typography color="info">Templates coming soon!</Typography>
+              </TemplatesModal>
+              <GoalDoctorModal>
+                <Typography color="info">Coming soon!</Typography>
+              </GoalDoctorModal>
+            </Stack>
           }
-          enterDelay={1500}
+          size="lg"
+          disabled={state !== GoalInputState.start}
+          required
           variant="outlined"
-          arrow
-          color="info"
-          open={tooltipTappedOpen}
-          placement="bottom-end"
-        >
-          <Textarea
-            id="goalTextarea"
-            name="goalTextarea"
-            placeholder={placeholders[currentPlaceholderIndex]}
-            minRows={3}
-            maxRows={10}
-            endDecorator={
-              <Stack direction="row" gap="0.5rem">
-                <Button
-                  size="sm"
-                  variant="outlined"
-                  className="flex-end"
-                  onClick={() => {
-                    setGoalInputValue("");
-                  }}
-                >
-                  Clear
-                </Button>
-                <Button variant="outlined" color="info">
-                  Browse Templates
-                </Button>
-              </Stack>
+          className="py-col flex-grow"
+          onKeyPress={(event) => {
+            if (event.key === "Enter" && !event.shiftKey) {
+              event.preventDefault();
+              handleSubmit(event);
             }
-            size="lg"
-            disabled={state !== GoalInputState.start}
-            required
-            variant="outlined"
-            className="py-col flex-grow"
-            onKeyPress={(event) => {
-              if (event.key === "Enter" && !event.shiftKey) {
-                event.preventDefault();
-                handleSubmit(event);
-              }
-            }}
-            value={goalInputValue}
-            onChange={handleChange}
-          />
-        </Tooltip>
+          }}
+          value={goalInputValue}
+          onChange={handleChange}
+        />
       </FormControl>
 
       <Stack direction="row-reverse" gap="1rem">
