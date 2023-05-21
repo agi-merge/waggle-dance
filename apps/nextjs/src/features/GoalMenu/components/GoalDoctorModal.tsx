@@ -1,5 +1,5 @@
 import * as React from "react";
-import { Box, Card, Link } from "@mui/joy";
+import { Card, Link } from "@mui/joy";
 import Modal from "@mui/joy/Modal";
 import ModalClose from "@mui/joy/ModalClose";
 

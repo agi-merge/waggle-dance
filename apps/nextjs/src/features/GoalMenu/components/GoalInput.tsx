@@ -39,7 +39,7 @@ export default function GoalInput({
   callbacks,
   startingValue,
 }: GoalInputProps) {
-  const [currentPromptIndex, setCurrentPromptIndex] = useState(0);
+  const [_currentPromptIndex, setCurrentPromptIndex] = useState(0);
   const [currentPlaceholderIndex, setCurrentPlaceholderIndex] = useState(0);
   const [goalInputValue, setGoalInputValue] = useState(
     process.env.NODE_ENV === "development"

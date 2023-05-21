@@ -1,13 +1,5 @@
 import { Close } from "@mui/icons-material";
-import {
-  Alert,
-  Divider,
-  IconButton,
-  Link,
-  Stack,
-  Tooltip,
-  Typography,
-} from "@mui/joy";
+import { Alert, Divider, IconButton, Stack, Typography } from "@mui/joy";
 
 import useGoal, { GoalInputState } from "~/stores/goalStore";
 import GoalDoctorModal from "./components/GoalDoctorModal";
