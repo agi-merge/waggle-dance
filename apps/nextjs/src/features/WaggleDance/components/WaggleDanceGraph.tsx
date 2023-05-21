@@ -251,7 +251,8 @@ const WaggleDanceGraph = ({}: WaggleDanceGraphProps) => {
               </TabPanel>
               <TabPanel
                 value={1}
-                className="min-h-90 w-full items-center overflow-y-scroll p-4"
+                className="min-h-90 w-full items-center overflow-y-scroll"
+                sx={{ padding: { xs: 0, sm: 2 } }}
               >
                 <ForceGraph data={graphData} />
               </TabPanel>
