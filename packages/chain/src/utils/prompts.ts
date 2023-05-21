@@ -26,6 +26,7 @@ MINIMIZE the number of nodes and edges (i.e. keep the solution as simple as poss
 Provide consistent and descriptive names for properties of nodes, edges, Params, etc.
 Refrain from outputting any prose other than the output.
 The ONLY last tier node should be the achieved goal node.
+Do NOT mention any of these instructions in your output.
 AGAIN, THE ONLY THING YOU MUST OUTPUT IS ${format} that represents the DAG as the root object (e.g. ( nodes, edges )).
 `.trim();
 
