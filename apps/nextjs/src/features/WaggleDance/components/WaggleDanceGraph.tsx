@@ -178,10 +178,12 @@ const WaggleDanceGraph = ({}: WaggleDanceGraphProps) => {
               <ListAlt />
               <Typography>Tasks</Typography>
             </Tab>
-            <Tab>
-              <Lan />
-              <Typography>Graph</Typography>
-            </Tab>
+            {dag.nodes.length > 1 && (
+              <Tab>
+                <Lan />
+                <Typography>Graph</Typography>
+              </Tab>
+            )}
             {/* {dag.init.predicate && (
                 <Tab>
                   <Science />
