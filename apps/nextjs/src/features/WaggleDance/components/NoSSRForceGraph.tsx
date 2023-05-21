@@ -46,12 +46,12 @@ interface ForceGraphRef {
 }
 
 function separateWords(input: string): string {
-  return input
-    .replace(/([a-z])([A-Z])/g, "$1 $2") // Separate camelCase and PascalCase
-    .replace(/([A-Z])([A-Z][a-z])/g, "$1 $2") // Separate consecutive uppercase letters in PascalCase
-    .replace(/_([a-zA-Z])/g, " $1") // Separate snake_case
-    .replace(/([a-zA-Z])(\d+)/g, "$1 $2") // Separate words followed by numbers
-    .replace(/(\d+)([a-zA-Z])/g, "$1 $2"); // Separate numbers followed by words
+  return input;
+  // .replace(/([a-z])([A-Z])/g, "$1 $2") // Separate camelCase and PascalCase
+  // .replace(/([A-Z])([A-Z][a-z])/g, "$1 $2") // Separate consecutive uppercase letters in PascalCase
+  // .replace(/_([a-zA-Z])/g, " $1") // Separate snake_case
+  // .replace(/([a-zA-Z])(\d+)/g, "$1 $2") // Separate words followed by numbers
+  // .replace(/(\d+)([a-zA-Z])/g, "$1 $2"); // Separate numbers followed by words
 }
 
 // Example usage:
