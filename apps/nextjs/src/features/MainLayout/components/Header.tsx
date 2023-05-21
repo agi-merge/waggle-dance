@@ -56,29 +56,30 @@ const Header = () => {
 
     if (isActive(path)) {
       return (
-        <Link href={`/${path}`} key={path} onClick={handleStateChange}>
-          <Typography
-            component="span"
-            level="body3"
-            color={isHighlighted ? "primary" : "neutral"}
-            className={isHighlighted ? "font-bold" : ""}
-          >
-            {label}
-          </Typography>
-        </Link>
+        // <Link href={`/${path}`} key={path} onClick={handleStateChange}>
+        <Typography
+          sx={{ cursor: "default" }}
+          component="span"
+          level="body3"
+          color={isHighlighted ? "primary" : "neutral"}
+          className={isHighlighted ? "font-bold" : ""}
+        >
+          {label}
+        </Typography>
+        // </Link>
       );
     } else {
       return (
-        <Link href={`/${path}`} key={path} onClick={handleStateChange}>
-          <Typography
-            key={path}
-            level="body3"
-            color="neutral"
-            className="cursor-default opacity-50"
-          >
-            {label}
-          </Typography>
-        </Link>
+        // <Link href={`/${path}`} key={path} onClick={handleStateChange}>
+        <Typography
+          key={path}
+          level="body3"
+          color="neutral"
+          className="cursor-default opacity-50"
+        >
+          {label}
+        </Typography>
+        // </Link>
       );
     }
   };
