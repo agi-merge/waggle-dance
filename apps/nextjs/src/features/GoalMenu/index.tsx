@@ -1,5 +1,13 @@
 import { Close } from "@mui/icons-material";
-import { Alert, Divider, IconButton, Stack, Typography } from "@mui/joy";
+import {
+  Alert,
+  Divider,
+  IconButton,
+  Link,
+  Stack,
+  Tooltip,
+  Typography,
+} from "@mui/joy";
 
 import useGoal, { GoalInputState } from "~/stores/goalStore";
 import GoalDoctorModal from "./components/GoalDoctorModal";
@@ -38,7 +46,21 @@ const GoalMenu = () => {
                   goal.length > 55 ? "…" : ""
                 }`}
                 <br />
-                <GoalDoctorModal>Coming soon!</GoalDoctorModal>
+                <Stack direction="row" gap="0.25rem">
+                  <Tooltip title="Coming soon!" color="info">
+                    <Link
+                      variant="plain"
+                      color="neutral"
+                      level="body4"
+                      className="flex-shrink"
+                      // onClick={() => setOpen(true)}
+                    >
+                      ✐ Edit
+                    </Link>
+                  </Tooltip>
+                  <Divider orientation="vertical" />
+                  <GoalDoctorModal>Coming soon!</GoalDoctorModal>
+                </Stack>
               </Typography>
             </Stack>
           </Alert>
