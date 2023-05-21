@@ -1,5 +1,6 @@
 import * as React from "react";
-import { Stack } from "@mui/joy";
+import { KeyboardArrowUp } from "@mui/icons-material";
+import { Stack, Typography } from "@mui/joy";
 import Button from "@mui/joy/Button";
 import Menu from "@mui/joy/Menu";
 import MenuItem from "@mui/joy/MenuItem";
@@ -36,15 +37,18 @@ export default function SelectedMenu({ dag }: Props) {
         aria-haspopup="true"
         aria-expanded={open ? "true" : undefined}
         variant="soft"
+        size="sm"
         color="neutral"
         onClick={handleClick}
+        startDecorator={<KeyboardArrowUp />}
       >
-        Select AI
+        <Typography>AI</Typography>
       </Button>
       <Menu
         id="selected-demo-menu"
         anchorEl={anchorEl}
         open={open}
+        size="sm"
         onClose={createHandleClose(-1)}
         aria-labelledby="selected-demo-button"
       >

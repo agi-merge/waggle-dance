@@ -89,59 +89,56 @@ const WaggleDanceGraph = ({}: WaggleDanceGraphProps) => {
   }, [dag.edges]);
 
   const button = (
-    <Stack direction="row" gap="1rem" className="flex items-end">
-      <Box className="flex-grow">
-        {isRunning && dag.nodes.length > 1 ? (
-          <Tooltip title="Coming soon!" color="info">
-            <Input
-              endDecorator={
-                <Button
-                  variant="plain"
-                  color="neutral"
-                  onClick={(event) => {
-                    event.preventDefault();
-                    setChatInput("");
-                  }}
-                >
-                  <Send />
-                </Button>
-              }
-              startDecorator={<TaskChainSelectMenu dag={dag} />}
-              variant="outlined"
-              className="flex-grow"
-              placeholder="Chat → AIs"
-              onKeyUp={(event) => {
-                if (event.key === "Enter") {
+    <Stack direction="row" gap="0.1rem" className="flex items-end">
+      {isRunning && dag.nodes.length > 1 ? (
+        <Tooltip title="Coming soon!" color="info">
+          <Input
+            endDecorator={
+              <Button
+                variant="plain"
+                color="neutral"
+                className="m-0 p-0"
+                onClick={(event) => {
                   event.preventDefault();
                   setChatInput("");
-                }
-              }}
-              onChange={(event) => {
-                setChatInput(event.target.value);
-              }}
-              value={chatInput}
-            />
-          </Tooltip>
-        ) : null}
-      </Box>
-      <Box>
-        <Button
-          className="col-end p-2"
-          color="primary"
-          href="waggle-dance"
-          onClick={isRunning ? handleStop : handleStart}
-        >
-          {isRunning ? (
-            <>
-              Stop <Stop />
-            </>
-          ) : (
-            <>
-              {dag.nodes.length > 0 ? "Restart" : "Start"} <Start />
-            </>
-          )}
-        </Button>
-      </Box>
+                }}
+              >
+                <Send />
+              </Button>
+            }
+            startDecorator={<TaskChainSelectMenu dag={dag} />}
+            variant="outlined"
+            className="flex-grow"
+            placeholder="Chat → AIs"
+            onKeyUp={(event) => {
+              if (event.key === "Enter") {
+                event.preventDefault();
+                setChatInput("");
+              }
+            }}
+            onChange={(event) => {
+              setChatInput(event.target.value);
+            }}
+            value={chatInput}
+          />
+        </Tooltip>
+      ) : null}
+      <Button
+        className="col-end p-2"
+        color="primary"
+        href="waggle-dance"
+        onClick={isRunning ? handleStop : handleStart}
+      >
+        {isRunning ? (
+          <>
+            Stop <Stop />
+          </>
+        ) : (
+          <>
+            {dag.nodes.length > 0 ? "Restart" : "Start"} <Start />
+          </>
+        )}
+      </Button>
     </Stack>
   );
 

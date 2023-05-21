@@ -33,7 +33,7 @@ const MainLayout = ({ children }: Props) => {
   }
   return (
     <div className={`bg-honeycomb ${mode === "dark" ? " dark" : "light"}`}>
-      <div className="min-h-screen px-2 pb-2">
+      <div className="max-h-screen min-h-screen overflow-y-auto px-2 pb-2">
         <Head>
           <title>{app.name}</title>
           <meta name="description" content={app.description} />
@@ -57,7 +57,7 @@ const MainLayout = ({ children }: Props) => {
         <div className="mx" />
         <Sheet
           // variant="outlined"
-          className="mx-auto sm:w-full md:max-w-2xl"
+          className="mx-auto sm:w-full md:w-3/4 lg:max-w-screen-md"
           sx={{
             borderRadius: "lg",
             shadowRadius: "xl",
@@ -75,7 +75,7 @@ const MainLayout = ({ children }: Props) => {
             invertedColors
             color="primary"
             variant="outlined"
-            className="-m-2 p-2"
+            className="-m-2 p-0"
           >
             <Alerts />
             {children}
