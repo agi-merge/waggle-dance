@@ -100,6 +100,34 @@ function wrapText(
 
   return lines;
 }
+function truncateText(
+  text: string,
+  maxWidth: number,
+  ctx: CanvasRenderingContext2D,
+) {
+  const ellipsis = "...";
+  const ellipsisWidth = ctx.measureText(ellipsis).width;
+
+  let truncatedText = "";
+  let truncatedTextWidth = 0;
+
+  for (const char of text) {
+    const charWidth = ctx.measureText(char).width;
+
+    if (truncatedTextWidth + charWidth + ellipsisWidth < maxWidth) {
+      truncatedText += char;
+      truncatedTextWidth += charWidth;
+    } else {
+      break;
+    }
+  }
+
+  if (truncatedText !== text) {
+    return truncatedText + ellipsis;
+  }
+
+  return text;
+}
 
 const renderNodeCanvasObject = (
   node: NodeObject,
@@ -112,13 +140,11 @@ const renderNodeCanvasObject = (
 
   // Set the maximum width for text wrapping
   const maxWidth = 30;
-  const lines = wrapText(String(label), maxWidth, ctx) || [];
 
-  // Calculate the width and height of the wrapped text
-  const textWidth = Math.max(
-    ...lines.map((line) => ctx.measureText(line ?? "?").width),
-  );
-  const textHeight = fontSize * lines.length;
+  // Truncate the text based on maxWidth
+  const truncatedText = truncateText(label, maxWidth, ctx);
+  const textWidth = ctx.measureText(truncatedText).width;
+  const textHeight = fontSize;
 
   // Set the background color based on the node color
   const backgroundColor = (node as { color: string }).color || "white";
@@ -172,13 +198,11 @@ const renderNodeCanvasObject = (
   ctx.textAlign = "center";
   ctx.textBaseline = "middle";
   ctx.fillStyle = textColor;
-  lines.forEach((line, index) => {
-    ctx.fillText(
-      line ?? "?",
-      node.x || 0,
-      (node.y || 0) - textHeight / 4 + index * fontSize,
-    );
-  });
+  ctx.fillText(
+    label,
+    node.x || 0,
+    node.y || 0, // - textHeight / 4 + index * fontSize,
+  );
 
   // Reset the shadow
   ctx.shadowBlur = 0;
