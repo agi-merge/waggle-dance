@@ -23,6 +23,7 @@ type NodeObject = object & {
 
   // my props (not on original type)
   name?: string;
+  containerWidth?: number;
 };
 
 type LinkObject = object & {
@@ -146,15 +147,17 @@ const renderNodeCanvasObject = (
     ctx.fill();
   }
 
+  const paddingX = 20 / globalScale;
+  const paddingY = 20 / globalScale;
   // Replace the ctx.ellipse method with the drawRoundedRect function
   drawRoundedRect(
     ctx,
     // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
-    node.x! - textWidth / 2 - 2,
+    node.x! - textWidth / 2 - paddingX / 2,
     // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
-    node.y! - textHeight / 2 - 2,
-    textWidth + 4,
-    textHeight + 4,
+    node.y! - textHeight / 2 - paddingY / 2,
+    textWidth + paddingX,
+    textHeight + paddingY,
     1,
   );
 
@@ -199,7 +202,7 @@ const NoSSRForceGraph: React.FC<ForceGraphProps> = ({ data }) => {
     if (containerRef.current) {
       setContainerWidth(containerRef.current.clientWidth);
     }
-  }, []);
+  }, [containerRef, setContainerWidth]);
 
   const [debouncedData, _state] = useDebounce(data, 1000);
 
@@ -212,8 +215,6 @@ const NoSSRForceGraph: React.FC<ForceGraphProps> = ({ data }) => {
         // eslint-disable-next-line @typescript-eslint/ban-ts-comment
         // @ts-ignore
         ref={fgRef}
-        // dagMode="td"
-        // dagLevelDistance={10}
         nodeLabel="name"
         nodeAutoColorBy="id"
         graphData={debouncedData}
