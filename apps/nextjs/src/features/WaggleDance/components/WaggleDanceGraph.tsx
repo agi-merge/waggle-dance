@@ -5,16 +5,8 @@ import React, {
   useRef,
   useState,
 } from "react";
+import { Edit, Lan, ListAlt, Send, Start, Stop } from "@mui/icons-material";
 import {
-  KeyboardArrowRight,
-  Lan,
-  ListAlt,
-  Send,
-  Start,
-  Stop,
-} from "@mui/icons-material";
-import {
-  Box,
   Button,
   Input,
   LinearProgress,
@@ -24,7 +16,6 @@ import {
   ListItemButton,
   ListItemContent,
   ListItemDecorator,
-  Sheet,
   Stack,
   Tab,
   TabList,
@@ -233,12 +224,24 @@ const WaggleDanceGraph = ({}: WaggleDanceGraphProps) => {
                             <Typography>{n.name}</Typography>
                             <Typography level="body3">
                               {n.act}{" "}
-                              <Typography level="body5" color="info">
+                              <Typography
+                                fontFamily="monospace"
+                                level="body5"
+                                color="info"
+                                variant="outlined"
+                              >
                                 {JSON.stringify(n.params)}
                               </Typography>
                             </Typography>
                           </ListItemContent>
-                          <KeyboardArrowRight />
+                          <Stack gap="0.3rem">
+                            <Tooltip title="Chat">
+                              <Send />
+                            </Tooltip>
+                            <Tooltip title="Edit">
+                              <Edit />
+                            </Tooltip>
+                          </Stack>
                         </ListItemButton>
                       </ListItem>
                       <ListDivider inset="gutter" />
