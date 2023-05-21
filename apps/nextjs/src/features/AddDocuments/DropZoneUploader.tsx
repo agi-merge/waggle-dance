@@ -4,10 +4,8 @@ import { useRouter } from "next/router";
 import { UploadFile } from "@mui/icons-material";
 import { Tooltip } from "@mui/joy";
 import Box from "@mui/joy/Box";
-import Card from "@mui/joy/Card";
+import Card, { type CardProps } from "@mui/joy/Card";
 import Link from "@mui/joy/Link";
-
-import { getServerSession } from "@acme/auth";
 
 import { acceptExtensions } from "~/features/AddDocuments/mimeTypes";
 import { useIngest, type IngestFile } from "~/pages/add-documents";
@@ -183,6 +181,7 @@ export default function DropZoneUploader({ sx, ...props }: DropZoneProps) {
             px: 3,
             flexGrow: 1,
           },
+          /* eslint-disable-next-line @typescript-eslint/no-unsafe-assignment */
           ...(Array.isArray(sx) ? sx : [sx]),
         ]}
       >

@@ -39,5 +39,7 @@
   "eslint.packageManager": "pnpm",
   "[typescript]": {
     "editor.defaultFormatter": "vscode.typescript-language-features"
-  }
+  },
+  "eslint.enable": true,
+  "eslint.format.enable": true
 }

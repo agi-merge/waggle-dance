@@ -54,8 +54,12 @@ const IngestContext = createContext<{
 }>({
   ingestFiles: {},
   ingestUrls: {},
-  setIngestFiles: () => {},
-  setIngestUrls: () => {},
+  setIngestFiles: () => {
+    // intentionally blank
+  },
+  setIngestUrls: () => {
+    // intentionally blank
+  },
 });
 
 export function useIngest() {

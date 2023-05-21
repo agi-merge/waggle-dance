@@ -50,13 +50,12 @@ const Header = () => {
   ) => {
     const isHighlighted = slug === path || (slug?.length ?? 0) < 1;
 
-    const handleStateChange = () => {
+    const _handleStateChange = () => {
       setGoalInputState(goalState ?? GoalInputState.start);
     };
 
     if (isActive(path)) {
       return (
-        // <Link href={`/${path}`} key={path} onClick={handleStateChange}>
         <Typography
           sx={{ cursor: "default" }}
           component="span"
