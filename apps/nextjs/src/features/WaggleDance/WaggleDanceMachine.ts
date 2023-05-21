@@ -40,13 +40,13 @@ function decodeText(data: Uint8Array) {
   }
 }
 
-const planId = "👑"
+const planId = "👸🐝"
 export const initialCond = { predicate: "", params: {} }
-export const initialNodes = (goal: string, modelName: string) => [
+export const initialNodes = (goal: string, _modelName: string) => [
   new DAGNodeClass(
     planId,
-    `👑🐝-${modelName}`,
-    `coming up with an initial plan to divide-and-conquer`,
+    `👸🐝 Queen Bee`,
+    `Planning how to achieve your goal`,
     { goal },
   ),
 ]

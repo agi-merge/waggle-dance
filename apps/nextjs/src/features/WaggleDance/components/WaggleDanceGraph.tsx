@@ -75,7 +75,7 @@ const WaggleDanceGraph = ({}: WaggleDanceGraphProps) => {
   });
 
   const isAttachingRealEdges = useMemo(() => {
-    return dag.edges.filter((e) => e.sId !== "👑").length > 0;
+    return dag.edges.filter((e) => e.sId !== "👸🐝").length > 0;
   }, [dag.edges]);
 
   const button = (
@@ -205,8 +205,8 @@ const WaggleDanceGraph = ({}: WaggleDanceGraphProps) => {
                     <ListItem key={n.id}>
                       <ListItemButton>
                         <ListItemDecorator>
-                          <Typography color="primary" level="body2">
-                            {n.id}
+                          <Typography color="primary" level="body3">
+                            🐝{n.id}
                           </Typography>
                         </ListItemDecorator>
                         <ListItemContent>
