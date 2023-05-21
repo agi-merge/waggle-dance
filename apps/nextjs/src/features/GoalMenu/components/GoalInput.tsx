@@ -1,6 +1,14 @@
 import React, { useEffect, useState } from "react";
 import { KeyboardArrowRight } from "@mui/icons-material";
-import { Button, FormControl, Stack, Textarea, Typography } from "@mui/joy";
+import {
+  Box,
+  Button,
+  Divider,
+  FormControl,
+  Stack,
+  Textarea,
+  Typography,
+} from "@mui/joy";
 import { type CardProps } from "@mui/joy/Card";
 
 import { type Handlers } from "~/pages";
@@ -91,24 +99,29 @@ export default function GoalInput({
           minRows={3}
           maxRows={10}
           endDecorator={
-            <Stack direction="row" gap="0.5rem">
-              <Button
-                size="sm"
-                variant="outlined"
-                className="flex-end"
-                onClick={() => {
-                  setGoalInputValue("");
-                }}
-              >
-                Clear
-              </Button>
-              <TemplatesModal>
-                <Typography color="info">Templates coming soon!</Typography>
-              </TemplatesModal>
-              <GoalDoctorModal>
-                <Typography color="info">Coming soon!</Typography>
-              </GoalDoctorModal>
-            </Stack>
+            <Box>
+              <Stack direction="row" gap="0.5rem">
+                <Button
+                  size="sm"
+                  variant="solid"
+                  color="neutral"
+                  disabled={goalInputValue.trim().length === 0}
+                  onClick={() => {
+                    setGoalInputValue("");
+                  }}
+                >
+                  Clear
+                </Button>
+                <Divider orientation="vertical" />
+                <TemplatesModal>
+                  <Typography color="info">Templates coming soon!</Typography>
+                </TemplatesModal>
+                <Divider orientation="vertical" />
+                <GoalDoctorModal>
+                  <Typography color="info">Coming soon!</Typography>
+                </GoalDoctorModal>
+              </Stack>
+            </Box>
           }
           size="lg"
           disabled={state !== GoalInputState.start}

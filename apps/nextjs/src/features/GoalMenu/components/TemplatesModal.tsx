@@ -14,7 +14,6 @@ export default function BasicModal({ children }: Props) {
         variant="plain"
         color="neutral"
         level="body4"
-        className="flex-shrink"
         onClick={() => setOpen(true)}
       >
         🤔 Browse Templates
