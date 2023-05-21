@@ -11,9 +11,9 @@ import {
 } from "@mui/joy";
 import { useSession } from "next-auth/react";
 
-import ThemeToggle from "~/components/ThemeToggle";
 import { app } from "~/constants";
 import useGoal, { GoalInputState } from "~/stores/goalStore";
+import ThemeToggle from "./ThemeToggle";
 
 function removeFirstCharIfMatching(str: string, targetChar: string): string {
   return str && str.length > 0 && str[0] === targetChar ? str.slice(1) : str;

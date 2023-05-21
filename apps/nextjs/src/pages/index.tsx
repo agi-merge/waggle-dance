@@ -3,8 +3,8 @@ import type { NextPage } from "next";
 import { useRouter } from "next/router";
 import { Card } from "@mui/joy";
 
-import GoalInput from "~/components/GoalInput";
 import { app } from "~/constants";
+import GoalInput from "~/features/GoalMenu/components/GoalInput";
 import Title from "~/features/MainLayout/components/PageTitle";
 import useApp from "~/stores/appStore";
 import useGoal, { GoalInputState } from "~/stores/goalStore";
