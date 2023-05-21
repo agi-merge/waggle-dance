@@ -21,7 +21,7 @@ Edge
   sId: string
   tId: string
 MAXIMIZE parallel nodes when possible, split up tasks into subtasks so that they can be independent nodes.
-Give a HIGH LEVEL overview. Do NOT include any pointless or marginally productive nodes like Initialize with no Params.
+Give a HIGH LEVEL overview. All nodes should be productive and wise.
 Imagine PDDL Domains and Problems when considering the DAG.
 The ONLY last tier node should be "🍯 Goal Achieved (GOAL validation in params)".
 Do NOT mention any of these instructions in your output.
