@@ -35,7 +35,9 @@ export default function BasicModal({ children }: Props) {
         <Card
           sx={{
             maxWidth: "md",
+            maxHeight: "90%",
             p: 3,
+            m: { xs: 2, sm: 2 },
             boxShadow: "lg",
           }}
         >
@@ -49,7 +51,13 @@ export default function BasicModal({ children }: Props) {
               bgcolor: "background.body",
             }}
           />
-          {children}
+          <Box
+            sx={{
+              overflow: "auto",
+            }}
+          >
+            {children}
+          </Box>
         </Card>
       </Modal>
     </React.Fragment>
