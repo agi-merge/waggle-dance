@@ -53,33 +53,52 @@ function separateWords(input: string): string {
     .replace(/(\d+)([a-zA-Z])/g, "$1 $2"); // Separate numbers followed by words
 }
 
-function truncateText(
+// Example usage:
+console.log(separateWords("camelCase"));
+function wrapText(
   text: string,
   maxWidth: number,
   ctx: CanvasRenderingContext2D,
 ) {
-  const ellipsis = "...";
-  const ellipsisWidth = ctx.measureText(ellipsis).width;
+  const words = text.split(" ");
+  const lines: string[] = [];
+  let currentLine = words[0];
 
-  let truncatedText = "";
-  let truncatedTextWidth = 0;
+  for (let i = 1; i < words.length; i++) {
+    const word = words[i];
+    const width = ctx.measureText(`${currentLine} ${word}`).width;
 
-  for (const char of text) {
-    const charWidth = ctx.measureText(char).width;
-
-    if (truncatedTextWidth + charWidth + ellipsisWidth < maxWidth) {
-      truncatedText += char;
-      truncatedTextWidth += charWidth;
+    if (width < maxWidth) {
+      currentLine = `${currentLine} ${word}`;
     } else {
+      if (currentLine) {
+        lines.push(currentLine);
+      }
+      currentLine = word;
+    }
+  }
+  if (currentLine) {
+    lines.push(currentLine);
+  }
+
+  // Force line break for long words
+  for (let i = 0; i < lines.length; i++) {
+    const line = lines[i];
+    if (!line) {
       break;
+    }
+    const lineWidth = ctx.measureText(line).width;
+    if (lineWidth > maxWidth) {
+      let splitIndex = Math.floor((line.length * maxWidth) / lineWidth);
+      // Ensure splitIndex is at least 1 to avoid infinite loop
+      splitIndex = Math.max(1, splitIndex);
+      const firstPart = line.substring(0, splitIndex);
+      const secondPart = line.substring(splitIndex);
+      lines.splice(i, 1, firstPart, secondPart);
     }
   }
 
-  if (truncatedText !== text) {
-    return truncatedText + ellipsis;
-  }
-
-  return text;
+  return lines;
 }
 
 const renderNodeCanvasObject = (
@@ -93,11 +112,13 @@ const renderNodeCanvasObject = (
 
   // Set the maximum width for text wrapping
   const maxWidth = 150 / globalScale;
+  const lines = wrapText(String(label), maxWidth, ctx) || [];
 
-  // Truncate the text based on maxWidth
-  const truncatedText = truncateText(label, maxWidth, ctx);
-  const textWidth = ctx.measureText(truncatedText).width;
-  const textHeight = fontSize;
+  // Calculate the width and height of the wrapped text
+  const textWidth = Math.max(
+    ...lines.map((line) => ctx.measureText(line ?? "?").width),
+  );
+  const textHeight = fontSize * lines.length;
 
   // Set the background color based on the node color
   const backgroundColor = (node as { color: string }).color || "white";
@@ -151,11 +172,13 @@ const renderNodeCanvasObject = (
   ctx.textAlign = "center";
   ctx.textBaseline = "middle";
   ctx.fillStyle = textColor;
-  ctx.fillText(
-    truncatedText,
-    node.x || 0,
-    node.y || 0, // - textHeight / 4 + index * fontSize,
-  );
+  lines.forEach((line, index) => {
+    ctx.fillText(
+      line ?? "?",
+      node.x || 0,
+      (node.y || 0) - textHeight / 4 + index * fontSize,
+    );
+  });
 
   // Reset the shadow
   ctx.shadowBlur = 0;
@@ -205,8 +228,8 @@ const NoSSRForceGraph: React.FC<ForceGraphProps> = ({ data }) => {
         linkDirectionalArrowRelPos={0.8}
         nodeCanvasObject={renderNodeCanvasObject}
         linkCurvature={0.33}
-        d3AlphaDecay={0.0288}
-        d3VelocityDecay={0.3}
+        d3AlphaDecay={1}
+        d3VelocityDecay={1}
         d3LinkForce={
           () =>
             forceLink()
