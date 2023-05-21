@@ -202,7 +202,12 @@ const WaggleDanceGraph = ({}: WaggleDanceGraphProps) => {
                 value={0}
                 className="relative h-96 w-full overflow-y-scroll p-4"
               >
-                <List className="absolute left-0 top-0 mt-3 w-full p-2">
+                <List
+                  className="absolute left-0 top-0 mt-3"
+                  sx={{
+                    marginX: { xs: -2, sm: 0 },
+                  }}
+                >
                   {dag.nodes.map((n, i) => (
                     <>
                       <ListItem key={n.id}>
