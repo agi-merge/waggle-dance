@@ -1,4 +1,10 @@
-import React, { useCallback, useEffect, useMemo, useRef } from "react";
+import React, {
+  useCallback,
+  useEffect,
+  useMemo,
+  useRef,
+  useState,
+} from "react";
 import {
   KeyboardArrowRight,
   Lan,
@@ -47,9 +53,11 @@ const WaggleDanceGraph = ({}: WaggleDanceGraphProps) => {
     goal,
   });
   const [chatInput, setChatInput] = React.useState("");
+  const [runId, setRunId] = useState<Date | null>(null);
 
   const handleStart = useCallback(() => {
     if (!isRunning) {
+      setRunId(new Date());
       setIsRunning(true);
       void run();
     } else {
@@ -170,9 +178,10 @@ const WaggleDanceGraph = ({}: WaggleDanceGraphProps) => {
 
       {dag.nodes.length > 0 && (
         <Tabs
+          key={runId?.toString()}
           aria-label="Waggle Dance Status and Results"
           defaultValue={0}
-          variant="soft"
+          variant="outlined"
           sx={{ borderRadius: "lg" }}
         >
           <TabList variant="outlined" color="primary">
