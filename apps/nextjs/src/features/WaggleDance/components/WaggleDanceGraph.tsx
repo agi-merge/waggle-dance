@@ -79,7 +79,7 @@ const WaggleDanceGraph = ({}: WaggleDanceGraphProps) => {
   const button = (
     <Stack direction="row" gap="1rem" className="flex items-end">
       <Box className="flex-grow">
-        {isRunning && dag.nodes.length > 2 ? (
+        {isRunning && dag.nodes.length > 1 ? (
           <Tooltip title="Coming soon!" color="info">
             <Stack direction="row">
               <TaskChainSelectMenu dag={dag} />
