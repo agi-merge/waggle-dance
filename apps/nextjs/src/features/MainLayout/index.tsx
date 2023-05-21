@@ -38,14 +38,19 @@ const MainLayout = ({ children }: Props) => {
           <title>{app.name}</title>
           <meta name="description" content={app.description} />
           <meta
+            name="theme-color"
+            content={mode === "dark" ? "#2e1900" : "#FAB561"}
+          />
+          <meta
             name="viewport"
             content="initial-scale=1, width=device-width, viewport-fit=cover"
           />
           <meta name="mobile-web-app-capable" content="yes" />
           <meta name="apple-mobile-web-app-capable" content="yes" />
+          <meta name="apple-mobile-web-app-title" content={app.name} />
           <meta
             name="apple-mobile-web-app-status-bar-style"
-            content="black-translucent"
+            content={mode === "dark" ? "black" : "default"}
           />
           <link rel="icon" href="/favicon.ico" />
         </Head>
