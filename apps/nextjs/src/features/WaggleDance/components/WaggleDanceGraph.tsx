@@ -13,6 +13,7 @@ import {
   Input,
   LinearProgress,
   List,
+  ListDivider,
   ListItem,
   ListItemButton,
   ListItemContent,
@@ -201,27 +202,36 @@ const WaggleDanceGraph = ({}: WaggleDanceGraphProps) => {
                 value={0}
                 className="relative h-96 w-full overflow-y-scroll p-4"
               >
-                <List className="absolute left-0 top-0 mt-3 w-full  p-2">
+                <List className="absolute left-0 top-0 mt-3 w-full p-2">
                   {dag.nodes.map((n, i) => (
-                    <ListItem key={n.id}>
-                      <ListItemButton>
-                        <ListItemDecorator>
-                          <Typography color="primary" level="body3">
-                            {i > 0 ? "🐝" : n.id}
-                          </Typography>
-                        </ListItemDecorator>
-                        <ListItemContent>
-                          <Typography>{n.name}</Typography>
-                          <Typography level="body3">
-                            {n.act}{" "}
-                            <Typography level="body5" color="info">
-                              {JSON.stringify(n.params)}
+                    <>
+                      <ListItem key={n.id}>
+                        <ListItemButton>
+                          <ListItemDecorator>
+                            <Typography color="primary" level="body3">
+                              {i > 0
+                                ? i < dag.nodes.length - 1
+                                  ? "🐝"
+                                  : isDonePlanning
+                                  ? "🍯"
+                                  : "🐝"
+                                : n.id}
                             </Typography>
-                          </Typography>
-                        </ListItemContent>
-                        <KeyboardArrowRight />
-                      </ListItemButton>
-                    </ListItem>
+                          </ListItemDecorator>
+                          <ListItemContent>
+                            <Typography>{n.name}</Typography>
+                            <Typography level="body3">
+                              {n.act}{" "}
+                              <Typography level="body5" color="info">
+                                {JSON.stringify(n.params)}
+                              </Typography>
+                            </Typography>
+                          </ListItemContent>
+                          <KeyboardArrowRight />
+                        </ListItemButton>
+                      </ListItem>
+                      <ListDivider inset="gutter" />
+                    </>
                   ))}
                 </List>
               </TabPanel>
