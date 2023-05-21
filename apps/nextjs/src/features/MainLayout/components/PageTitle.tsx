@@ -29,7 +29,7 @@ const PageTitle = ({ title, description, hideGoal }: TitleProps) => {
           <Typography level="h4">{title}</Typography>
           {headerExpanded && (
             <Typography
-              level="body3"
+              level="body2"
               sx={{
                 userSelect: "none",
                 marginBottom: { xs: hideGoal ? 0 : -3, sm: 0 },
