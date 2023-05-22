@@ -139,6 +139,9 @@ const WaggleDanceGraph = ({}: WaggleDanceGraphProps) => {
 
   return (
     <Stack gap="1rem" className="mt-6">
+      <DocsModal>
+        <AddDocuments hideTitleGoal={true} />
+      </DocsModal>
       {!isRunning && button}
       {isRunning && (
         <>
@@ -305,9 +308,6 @@ const WaggleDanceGraph = ({}: WaggleDanceGraphProps) => {
           )}
         </Tabs>
       )}
-      <DocsModal>
-        <AddDocuments hideTitleGoal={true} />
-      </DocsModal>
       {isRunning && button}
     </Stack>
   );

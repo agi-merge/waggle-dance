@@ -1,5 +1,5 @@
 import * as React from "react";
-import { Box, Card, Link } from "@mui/joy";
+import { Box, Card, Link, Tooltip } from "@mui/joy";
 import Modal from "@mui/joy/Modal";
 import ModalClose from "@mui/joy/ModalClose";
 
@@ -11,15 +11,17 @@ export default function BasicModal({ children }: Props) {
   return (
     <React.Fragment>
       <Box className="flex justify-center">
-        <Link
-          variant="plain"
-          color="primary"
-          level="body3"
-          className="flex-shrink"
-          onClick={() => setOpen(true)}
-        >
-          🌺 Improve your results
-        </Link>
+        <Tooltip title="Add relevant documents and data" color="info">
+          <Link
+            variant="plain"
+            color="primary"
+            level="body3"
+            className="flex-shrink"
+            onClick={() => setOpen(true)}
+          >
+            🌺 Get better results
+          </Link>
+        </Tooltip>
       </Box>
       <Modal
         aria-labelledby="modal-title"
