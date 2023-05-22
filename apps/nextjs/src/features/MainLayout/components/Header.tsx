@@ -3,12 +3,8 @@ import { useRouter } from "next/router";
 import { KeyboardArrowRight } from "@mui/icons-material";
 import {
   Avatar,
-  Box,
   Breadcrumbs,
-  Card,
-  LinearProgress,
   Link,
-  Sheet,
   Stack,
   Tooltip,
   Typography,
@@ -18,6 +14,7 @@ import { useSession } from "next-auth/react";
 import { type CombinedResponse } from "~/utils/openAIUsageAPI";
 import { app } from "~/constants";
 import useGoal, { GoalInputState } from "~/stores/goalStore";
+import OpenAIUsage from "./OpenAIUsage";
 import ThemeToggle from "./ThemeToggle";
 
 function removeFirstCharIfMatching(str: string, targetChar: string): string {
@@ -144,59 +141,18 @@ const Header = ({
           direction={{ xs: "column", sm: "row" }}
           gap="0.5rem"
           fontSize="body4"
-          className="mb-4 flex"
+          className="mb-4 flex justify-center"
         >
           <Breadcrumbs
             separator={<KeyboardArrowRight />}
-            className="mb-2 flex flex-grow"
+            className="mb-2 mt-4 flex flex-grow"
             size="sm"
           >
             {routes.map((route) =>
               renderBreadcrumbLink(route.path, route.label, route.goalState),
             )}
           </Breadcrumbs>
-          {openAIUsage && (
-            <Box
-              className="m-0 flex min-w-fit flex-grow flex-col p-0"
-              color="neutral"
-            >
-              <Typography level="body3">Global Free OpenAI Limit:</Typography>
-              <Link
-                className="flex flex-grow"
-                color="neutral"
-                target="_blank"
-                href={app.routes.donate}
-              >
-                <LinearProgress
-                  determinate
-                  variant="outlined"
-                  color="neutral"
-                  size="sm"
-                  thickness={32}
-                  value={
-                    openAIUsage.usage.total_usage /
-                    openAIUsage.subscription.hard_limit_usd
-                  }
-                  sx={{
-                    "--LinearProgress-radius": "0px",
-                    "--LinearProgress-progressThickness": "24px",
-                    boxShadow: "sm",
-                    borderColor: "neutral.500",
-                  }}
-                >
-                  <Typography
-                    level="body3"
-                    fontWeight="xl"
-                    textColor="common.white"
-                    sx={{ mixBlendMode: "difference" }}
-                  >
-                    ${Math.round(openAIUsage.usage.total_usage)} / $
-                    {Math.round(openAIUsage.subscription.hard_limit_usd)}
-                  </Typography>
-                </LinearProgress>
-              </Link>
-            </Box>
-          )}
+          {openAIUsage && <OpenAIUsage openAIUsage={openAIUsage} />}
         </Stack>
       </Tooltip>
     </header>

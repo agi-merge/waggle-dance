@@ -137,7 +137,7 @@ async function executeTasks(
       if (!response.ok || !stream) {
         throw new Error(`No stream: ${response.statusText} `);
       } else {
-        log(`Task ${task.id} -${task.name} executed!`);
+        log(`Task ${task.id} -${task.name} stream began!`);
       }
 
       // Read the stream data and process based on response

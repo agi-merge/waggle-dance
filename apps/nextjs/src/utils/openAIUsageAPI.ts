@@ -14,18 +14,22 @@ type UsageResponse = {
 }
 
 type SubscriptionResponse = {
+    soft_limit: number;
+    hard_limit: number;
+    system_hard_limit: number;
     soft_limit_usd: number;
     hard_limit_usd: number;
+    system_hard_limit_usd: number;
 };
 
 export type CombinedResponse = {
-    usage: UsageResponse;
-    subscription: SubscriptionResponse;
+    currentUsage: number;
+    allottedUsage: number;
+    maxUsage: number;
 };
 
 export const getOpenAIUsage = async (startDate: Date): Promise<CombinedResponse> => {
     const endDate = new Date(startDate);
-    startDate.setMonth(startDate.getMonth() - 1);
     endDate.setMonth(endDate.getMonth() + 1)
     startDate.setDate(1)
     endDate.setDate(1)
@@ -38,6 +42,7 @@ export const getOpenAIUsage = async (startDate: Date): Promise<CombinedResponse>
         "OpenAI-Organization": process.env.OPENAI_ORGANIZATION_ID || "",
     };
 
+    // if this isn't exactly one month, usageData will be something other than usd and mess up calculations
     const usageRequest = fetch(
         `https://api.openai.com/dashboard/billing/usage?start_date=${formattedStartDate}&end_date=${formattedEndDate}`,
         {
@@ -58,15 +63,16 @@ export const getOpenAIUsage = async (startDate: Date): Promise<CombinedResponse>
             subscriptionRequest,
         ]);
 
-
         const usageData = await usageResponse.json() as UsageResponse;
         const subscriptionData = await subscriptionResponse.json() as SubscriptionResponse;
-        console.log("usageResponse", usageData)
-        console.log("subscriptionResponse", subscriptionData)
-
+        console.log("usageResponse", usageData.total_usage) // when this is
+        console.log("subscriptionResponse", subscriptionData.hard_limit)
+        usageData.total_usage
+        subscriptionData.hard_limit_usd
         return {
-            usage: usageData,
-            subscription: subscriptionData,
+            currentUsage: (usageData.total_usage / 100),
+            allottedUsage: subscriptionData.hard_limit_usd,
+            maxUsage: subscriptionData.system_hard_limit_usd,
         };
     } catch (error) {
         console.error("Error fetching OpenAI data:", error);
