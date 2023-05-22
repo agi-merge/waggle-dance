@@ -280,6 +280,9 @@ importers:
       serpapi:
         specifier: ^1.1.1
         version: 1.1.1
+      yaml:
+        specifier: ^2.2.2
+        version: 2.2.2
     devDependencies:
       '@acme/eslint-config':
         specifier: ^0.1.0

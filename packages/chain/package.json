@@ -12,7 +12,8 @@
   },
   "dependencies": {
     "cheerio": "1.0.0-rc.12",
-    "serpapi": "^1.1.1"
+    "serpapi": "^1.1.1",
+    "yaml": "^2.2.2"
   },
   "devDependencies": {
     "@acme/eslint-config": "^0.1.0",

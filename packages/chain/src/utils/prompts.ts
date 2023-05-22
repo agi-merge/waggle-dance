@@ -33,6 +33,8 @@ export const createPrompt = (
   type: ChainType,
   creationProps?: ModelCreationProps,
   goal?: string,
+  task?: string,
+  dag?: string,
   tools = "Self-query, web search, long-term-memory-query, web search, calculator, Zapier.",
 ): PromptTemplate => {
   const llmName = creationProps?.modelName ?? "unknown";
@@ -47,10 +49,12 @@ export const createPrompt = (
       TASK: To come up with an efficient and expert plan to solve the User's GOAL. Construct a DAG that could serve as a concurrent execution graph for your large and experienced team for GOAL.
       RETURN: ONLY the DAG as described in SCHEMA${returnType === "JSON" ? ":" : ". Do NOT return JSON:"}`.trim(),
     execute:
-      `GOAL: ${goal}
+      `YOU: A senior project manager AI based on the ${llmName} architecture employed by the User to solve the User's GOAL. You have a large and experienced TEAM.
+      GOAL: ${goal}
       SCHEMA: ${schema(returnType, llmName)}
-      TASK: As a consultancy senior project manager employed by the User to solve the User's GOAL, construct a DAG that could serve as a concurrent execution graph for your large and experienced team for GOAL.
-      RETURN: ONLY msgpack in base64 (no TEXT) for the DAG as described in SCHEMA. Output will be MessagePack (msgpack) decoded.${returnType === "JSON" ? "" : "Do NOT return JSON:"}`.trim(),
+      EXECUTION DAG: ${dag}
+      TASK: ${task}
+      RETURN: ONLY the DAG as described in SCHEMA${returnType === "JSON" ? ":" : ". Do NOT return JSON:"}`.trim(),
   };
 
   const template = basePromptMessages[type]

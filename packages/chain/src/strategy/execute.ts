@@ -1,121 +1,33 @@
-// strategy/execute.ts
-// strategy/execute.ts
+// chain/strategy/plan.ts
 
-import {
-  AgentExecutor,
-  ZeroShotAgent,
-  type AgentExecutorInput,
-} from "langchain/agents";
 import { LLMChain } from "langchain/chains";
-import { type Tool } from "langchain/dist/tools/base";
-import {
-  ChatPromptTemplate,
-  HumanMessagePromptTemplate,
-  SystemMessagePromptTemplate,
-} from "langchain/prompts";
-import { SerpAPI } from "langchain/tools";
-import { WebBrowser } from "langchain/tools/webbrowser";
 
 import { createMemory } from "../utils/memory";
-import { createEmbeddings, createModel } from "../utils/model";
+import { createModel } from "../utils/model";
 import { createPrompt } from "../utils/prompts";
 import { type ModelCreationProps } from "../utils/types";
 
-export const PLANNER_SYSTEM_PROMPT_MESSAGE_TEMPLATE = [
-  `Let's first understand the problem and devise a plan to solve the problem.`,
-  `Please output the plan starting with the header "Plan:"`,
-  `and then followed by a numbered list of steps.`,
-  `Please make the plan the minimum number of steps required`,
-  `to answer the query or complete the task accurately and precisely.`,
-  `Your steps should be general, and should not require a specific method to solve a step. If the task is a question,`,
-  `the final step in the plan must be the following: "Given the above steps taken,`,
-  `please respond to the original query."`,
-  `At the end of your plan, say "<END_OF_PLAN>"`,
-].join(" ");
-export const PLANNER_CHAT_PROMPT =
-  /* #__PURE__ */ ChatPromptTemplate.fromPromptMessages([
-    /* #__PURE__ */ SystemMessagePromptTemplate.fromTemplate(
-  PLANNER_SYSTEM_PROMPT_MESSAGE_TEMPLATE,
-),
-    /* #__PURE__ */ HumanMessagePromptTemplate.fromTemplate(`{input}`),
-]);
-export const DEFAULT_STEP_EXECUTOR_HUMAN_CHAT_MESSAGE_TEMPLATE = `Previous steps: {previous_steps}
-
-Current objective: {current_step}
-
-{agent_scratchpad}
-
-You may extract and combine relevant data from your previous steps when responding to me.`;
-
-export async function executeChain({
-  creationProps,
-  goal,
-  task,
-  dag,
-}: {
-  creationProps: ModelCreationProps;
-  goal: string;
-  task: object;
-  dag: object | undefined;
-}): Promise<string> {
-  const model = createModel(creationProps);
-  const embeddings = createEmbeddings(creationProps);
+export async function executeChain(
+  creationProps: ModelCreationProps,
+  goal: string,
+  task: string,
+  dag: string,
+) {
+  const llm = createModel(creationProps);
   const memory = await createMemory(goal);
-  // const history = memory?.context ?? await memory.loadMemoryVariables({})
-  // const skipHistory = history.length === 0;
-
-  const tools: Tool[] = [new WebBrowser({ model, embeddings })];
-  if (process.env.SERPAPI_API_KEY?.length) {
-    tools.push(
-      new SerpAPI(process.env.SERPAPI_API_KEY, {
-        location: "Los Angeles,California,United States",
-        hl: "en",
-        gl: "us",
-      }),
-    );
-  }
-
-  // const instructions = `Given your goal "${goal}", and the task "${task}", execute the task.`;
-  const prompt = createPrompt("execute", creationProps, goal);
-  // const input = await prompt.format();
-  // console.log("input prompt", input);
-  // const prompt = ZeroShotAgent.createPrompt(tools);
-  const llmChain = new LLMChain({
+  // const planPrompt = createPrompt("plan");
+  const prompt = createPrompt("execute", creationProps, goal, task, dag);
+  const chain = new LLMChain({
     memory,
     prompt,
-    llm: model,
-    // callbacks: callbacks as unknown as CallbackManager,
+    llm,
   });
-  const agent = new ZeroShotAgent({
-    llmChain,
-    allowedTools: tools.map((tool) => tool.name),
-    // outputParser: new ZeroShotAgentOutputParser({}),
-  });
+  const [call] = await Promise.all([
+    // prompt.format({ goal, schema: "string[]" }),
+    chain.call({
+    }),
+  ]);
+  const _dag = call?.response ? (call.response as string) : "";
 
-  // const singleAgent = new LLMSingleActionAgent({ llmChain, tools })
-
-  const executorConfig = {
-    agent,
-    tools,
-    memory,
-    streaming: true,
-    returnIntermediateSteps: false,
-    callbacks: creationProps.callbacks,
-  } as AgentExecutorInput;
-  const executor = AgentExecutor.fromAgentAndTools(executorConfig);
-  // const executorConfig = {
-  //   llm: model,
-  //   tools,
-  //   humanMessageTemplate: text,
-  // };
-  // const executor = PlanAndExecuteAgentExecutor.fromLLMAndTools(executorConfig);
-  // console.debug(`about to call execute chain`);
-  const call = await executor.call({ goal, task, dag });
-  // console.debug(`called chain: ${JSON.stringify(call)}`);
-  const completion =
-    (call?.output ? (call.output as string | undefined) : undefined) ??
-    "<failed>";
-  // console.debug(`executeChain: ${JSON.stringify(completion)}`);
-  // const lastTasks = await memory.loadMemoryVariables({})
-  return completion;
+  return _dag;
 }

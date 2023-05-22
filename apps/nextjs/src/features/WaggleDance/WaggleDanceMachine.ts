@@ -23,10 +23,10 @@ import {
   type IsDonePlanningState,
 } from "./types";
 
-function isGoalReached(_goal: string, _completedTasks: Set<string>): boolean {
-  return false;
+// Check if every node is included in the completedTasks set
+function isGoalReached(dag: DAG, completedTasks: Set<string>): boolean {
+  return dag.nodes.every((node) => completedTasks.has(node.id));
 }
-
 // A utility function to wait for a specified amount of time (ms)
 function sleep(ms: number): Promise<void> {
   return new Promise((resolve) => setTimeout(resolve, ms));
@@ -74,7 +74,7 @@ function findNodesWithNoIncomingEdges(dag: DAG | OptionalDAG): DAGNode[] {
 async function executeTasks(
   request: ExecuteRequestBody,
   maxConcurrency: number,
-  isRunning: boolean
+  _isRunning: boolean
 ): Promise<{
   completedTasks: string[];
   taskResults: Record<string, BaseResultType>;
@@ -88,7 +88,7 @@ async function executeTasks(
   const taskQueue: ScheduledTask[] = tasks.map((t) => ({ ...t, isScheduled: false }));
 
   // Keep looping while there are tasks in the task queue
-  while (isRunning && taskQueue.length > 0) {
+  while (taskQueue.length > 0) {
     // Gather the valid pairs of {task, dag} c from the task queue based on the completed tasks and the DAG edges
     const validPairs = taskQueue.reduce((acc: Array<{ task: DAGNode; dag: DAG }>, task, idx) => {
       const dag = dags[idx];
@@ -138,26 +138,26 @@ async function executeTasks(
 
       // Read the stream data and process based on response
       const reader = stream.getReader();
+      let buffer = "";
       try {
-        while (isRunning && true) {
-          console.log("about to read:")
+        while (true) {
           const { done, value } = await reader.read();
           if (done) {
             console.log("Stream complete");
-            break;
+            // Decode response data
+
+            console.log(`About to decode response data for task ${task.id} -${task.name}:`);
+
+            // Process response data and store packets in completedTasksSet and taskResults
+            const packets: ChainPacket[] = readJSONL(buffer);
+
+            completedTasksSet.add(task.id);
+            taskResults[task.id] = packets;
+            return packets;
+          } else if (value.length) {
+            const jsonLines = decodeText(value);
+            buffer += jsonLines;
           }
-
-          // Decode response data
-
-          console.log(`About to decode response data for task ${task.id} -${task.name}:`);
-          const jsonLines = decodeText(value);
-          console.log(`Decoded response data for task ${task.id} -${task.name}:`, jsonLines);
-
-          // Process response data and store packets in completedTasksSet and taskResults
-          const packets: ChainPacket[] = await readJSONL(jsonLines);
-          completedTasksSet.add(task.id);
-          taskResults[task.id] = packets;
-          return packets;
         }
       } catch (error) {
         let errMessage: string
@@ -174,7 +174,7 @@ async function executeTasks(
     });
 
     // Wait for all task promises to settle and sleep for 1 second before looping again
-    await Promise.allSettled(executeTaskPromises);
+    await Promise.all(executeTaskPromises);
     await sleep(1000);
   }
 
@@ -276,17 +276,19 @@ export default class WaggleDanceMachine implements BaseWaggleDanceMachine {
     setIsDonePlanning(true);
     console.log("dag", dag);
     // prepend our initial nodes to the DAG
-    setDAG(new DAG(
+    const planDAG = new DAG(
       [...initialNodes(request.goal, request.creationProps.modelName), ...dag.nodes],
       // connect our initial nodes to the DAG: gotta find them and create edges
       [...initialEdges(), ...dag.edges, ...findNodesWithNoIncomingEdges(dag).map((node) => new DAGEdgeClass(planId, node.id))],
-    ));
-    const completedTasks: Set<string> = new Set();
+    )
+    setDAG(planDAG);
+    const completedTasks: Set<string> = new Set(planId);
     let taskResults: Record<string, BaseResultType> = {};
     const maxConcurrency = request.creationProps.maxConcurrency ?? 8;
 
     // Continue executing tasks and updating DAG until the goal is reached
-    while (isRunning && !isGoalReached(request.goal, completedTasks)) {
+    while (!isGoalReached(planDAG, completedTasks)) {
+      console.group("WaggleDanceMachine.run")
       const pendingTasks = dag.nodes.filter(
         (node) => !completedTasks.has(node.id),
       );
@@ -300,6 +302,8 @@ export default class WaggleDanceMachine implements BaseWaggleDanceMachine {
           .filter((edge) => edge.tId === task.id)
           .every((edge) => completedTasks.has(edge.sId)),
       );
+
+      console.log("relevantPendingTasks", relevantPendingTasks)
 
       const executeRequest = {
         ...request,
