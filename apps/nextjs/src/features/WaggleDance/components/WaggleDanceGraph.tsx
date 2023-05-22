@@ -7,6 +7,7 @@ import React, {
 } from "react";
 import { Edit, Lan, ListAlt, Send, Start, Stop } from "@mui/icons-material";
 import {
+  Box,
   Button,
   Divider,
   Input,
@@ -213,8 +214,8 @@ const WaggleDanceGraph = ({}: WaggleDanceGraphProps) => {
                   }}
                 >
                   {dag.nodes.map((n, i) => (
-                    <>
-                      <ListItem key={n.id}>
+                    <Box key={n.id}>
+                      <ListItem>
                         <ListItemButton>
                           <ListItemDecorator>
                             <Typography color="primary" level="body3">
@@ -253,7 +254,7 @@ const WaggleDanceGraph = ({}: WaggleDanceGraphProps) => {
                         </ListItemButton>
                       </ListItem>
                       <ListDivider inset="gutter" />
-                    </>
+                    </Box>
                   ))}
                 </List>
               </TabPanel>
