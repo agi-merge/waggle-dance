@@ -55,7 +55,7 @@ const GoalMenu = () => {
                       className="flex-shrink"
                       // onClick={() => setOpen(true)}
                     >
-                      ✐ Edit
+                      ✏️ Edit
                     </Link>
                   </Tooltip>
                   <Divider orientation="vertical" />
