@@ -3,6 +3,7 @@ import Head from "next/head";
 import { useRouter } from "next/router";
 import { Card, LinearProgress, Sheet, useColorScheme } from "@mui/joy";
 
+import { type CombinedResponse } from "~/utils/openAIUsageAPI";
 import { app } from "~/constants";
 import useApp from "~/stores/appStore";
 import Alerts from "./components/Alerts";
@@ -11,9 +12,10 @@ import Header from "./components/Header";
 
 type Props = {
   children: React.ReactNode;
+  openAIUsage?: CombinedResponse | null; // Add this prop
 };
 
-const MainLayout = ({ children }: Props) => {
+const MainLayout = ({ children, openAIUsage }: Props) => {
   const { mode } = useColorScheme();
   const { isPageLoading } = useApp();
   const [mounted, setMounted] = useState(false);
@@ -70,7 +72,7 @@ const MainLayout = ({ children }: Props) => {
             sx={{ opacity: progressOpacity }}
             color="primary"
           />
-          <Header />
+          <Header openAIUsage={openAIUsage} />
           <Card
             invertedColors
             color="primary"

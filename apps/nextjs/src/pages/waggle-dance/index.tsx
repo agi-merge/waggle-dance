@@ -4,6 +4,7 @@ import type { NextPage } from "next";
 import { useRouter } from "next/router";
 import { Card } from "@mui/joy";
 
+import MainLayout from "~/features/MainLayout";
 import PageTitle from "~/features/MainLayout/components/PageTitle";
 import WaggleDanceGraph from "~/features/WaggleDance/components/WaggleDanceGraph";
 import useGoal from "~/stores/goalStore";
@@ -25,9 +26,11 @@ const WaggleDance: NextPage = (/*{ goal, onDelete }: WaggleDanceProps*/) => {
   }, [goal, router]);
 
   return (
-    <Card variant="soft" className="mb-3">
-      <WaggleDanceGraph />
-    </Card>
+    <MainLayout>
+      <Card variant="soft" className="mb-3">
+        <WaggleDanceGraph />
+      </Card>
+    </MainLayout>
   );
 };
 

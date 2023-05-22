@@ -1,3 +1,4 @@
+// _app.tsx
 import "../styles/globals.css";
 import { useCallback, useEffect } from "react";
 import type { AppType } from "next/app";
@@ -13,7 +14,6 @@ import { SessionProvider } from "next-auth/react";
 import { api } from "~/utils/api";
 import theme from "~/styles/theme";
 import { app } from "~/constants";
-import MainLayout from "~/features/MainLayout";
 import useApp from "~/stores/appStore";
 import useGoal, { GoalInputState } from "~/stores/goalStore";
 
@@ -136,9 +136,7 @@ const MyApp: AppType<{ session: Session | null }> = ({
       {getInitColorSchemeScript()}
       <RouteControllerProvider>
         <CssVarsProvider theme={theme} defaultMode="dark">
-          <MainLayout>
-            <Component {...pageProps} />
-          </MainLayout>
+          <Component {...pageProps} />
         </CssVarsProvider>
       </RouteControllerProvider>
     </SessionProvider>

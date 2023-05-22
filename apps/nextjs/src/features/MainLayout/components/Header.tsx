@@ -15,6 +15,7 @@ import {
 } from "@mui/joy";
 import { useSession } from "next-auth/react";
 
+import { type CombinedResponse } from "~/utils/openAIUsageAPI";
 import { app } from "~/constants";
 import useGoal, { GoalInputState } from "~/stores/goalStore";
 import ThemeToggle from "./ThemeToggle";
@@ -23,7 +24,11 @@ function removeFirstCharIfMatching(str: string, targetChar: string): string {
   return str && str.length > 0 && str[0] === targetChar ? str.slice(1) : str;
 }
 
-const Header = () => {
+const Header = ({
+  openAIUsage,
+}: {
+  openAIUsage: CombinedResponse | null | undefined;
+}) => {
   const router = useRouter();
   const { setGoalInputState } = useGoal();
   const slug = removeFirstCharIfMatching(router.pathname, "/");
@@ -150,42 +155,48 @@ const Header = () => {
               renderBreadcrumbLink(route.path, route.label, route.goalState),
             )}
           </Breadcrumbs>
-          <Box
-            className="m-0 flex min-w-fit flex-grow flex-col p-0"
-            color="neutral"
-          >
-            <Typography level="body3">Global Free OpenAI Limit:</Typography>
-            <Link
-              className="flex flex-grow"
+          {openAIUsage && (
+            <Box
+              className="m-0 flex min-w-fit flex-grow flex-col p-0"
               color="neutral"
-              target="_blank"
-              href={app.routes.donate}
             >
-              <LinearProgress
-                determinate
-                variant="outlined"
+              <Typography level="body3">Global Free OpenAI Limit:</Typography>
+              <Link
+                className="flex flex-grow"
                 color="neutral"
-                size="sm"
-                thickness={32}
-                value={69}
-                sx={{
-                  "--LinearProgress-radius": "0px",
-                  "--LinearProgress-progressThickness": "24px",
-                  boxShadow: "sm",
-                  borderColor: "neutral.500",
-                }}
+                target="_blank"
+                href={app.routes.donate}
               >
-                <Typography
-                  level="body3"
-                  fontWeight="xl"
-                  textColor="common.white"
-                  sx={{ mixBlendMode: "difference" }}
+                <LinearProgress
+                  determinate
+                  variant="outlined"
+                  color="neutral"
+                  size="sm"
+                  thickness={32}
+                  value={
+                    openAIUsage.usage.total_usage /
+                    openAIUsage.subscription.hard_limit_usd
+                  }
+                  sx={{
+                    "--LinearProgress-radius": "0px",
+                    "--LinearProgress-progressThickness": "24px",
+                    boxShadow: "sm",
+                    borderColor: "neutral.500",
+                  }}
                 >
-                  $120 / $140
-                </Typography>
-              </LinearProgress>
-            </Link>
-          </Box>
+                  <Typography
+                    level="body3"
+                    fontWeight="xl"
+                    textColor="common.white"
+                    sx={{ mixBlendMode: "difference" }}
+                  >
+                    ${Math.round(openAIUsage.usage.total_usage)} / $
+                    {Math.round(openAIUsage.subscription.hard_limit_usd)}
+                  </Typography>
+                </LinearProgress>
+              </Link>
+            </Box>
+          )}
         </Stack>
       </Tooltip>
     </header>

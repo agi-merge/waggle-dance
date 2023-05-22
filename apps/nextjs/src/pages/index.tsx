@@ -1,10 +1,15 @@
 import React from "react";
-import type { NextPage } from "next";
+import type {
+  GetServerSidePropsContext,
+  InferGetServerSidePropsType,
+} from "next";
 import { useRouter } from "next/router";
 import { Card } from "@mui/joy";
 
+import { getOpenAIUsage, type CombinedResponse } from "~/utils/openAIUsageAPI";
 import { app } from "~/constants";
 import GoalInput from "~/features/GoalMenu/components/GoalInput";
+import MainLayout from "~/features/MainLayout";
 import Title from "~/features/MainLayout/components/PageTitle";
 import useApp from "~/stores/appStore";
 import useGoal, { GoalInputState } from "~/stores/goalStore";
@@ -15,7 +20,24 @@ export interface Handlers {
   onChange: (goal: string) => void;
 }
 
-const Home: NextPage = () => {
+export async function getServerSideProps(context: GetServerSidePropsContext) {
+  console.log("getServerSideProps", context.req.headers.cookie);
+  const startDate = new Date();
+
+  const openAIUsage: CombinedResponse | null = await getOpenAIUsage(
+    startDate,
+  ).catch(() => null);
+
+  return {
+    props: {
+      openAIUsage,
+    },
+  };
+}
+
+export default function Home({
+  openAIUsage,
+}: InferGetServerSidePropsType<typeof getServerSideProps>) {
   const { setIsAutoStartEnabled } = useApp();
   const router = useRouter();
   const { goal, setGoal, goalInputState, setGoalInputState } = useGoal();
@@ -38,25 +60,25 @@ const Home: NextPage = () => {
   };
 
   return (
-    <Card variant="soft">
-      <Title
-        title="🐝 Your goal"
-        description="Input a goal or task 🍯 that you would like to automate. 🤔 Browse templates below for examples!"
-        hideGoal={true}
-      />
-      <GoalInput
-        state={goalInputState}
-        startingValue={goal}
-        callbacks={{
-          setGoal: handleSetGoal,
-          onChange: handleInputChange,
-          onStop: () => {
-            setGoalInputState(GoalInputState.start);
-          },
-        }}
-      />
-    </Card>
+    <MainLayout openAIUsage={openAIUsage}>
+      <Card variant="soft">
+        <Title
+          title="🐝 Your goal"
+          description="Input a goal or task 🍯 that you would like to automate. 🤔 Browse templates below for examples!"
+          hideGoal={true}
+        />
+        <GoalInput
+          state={goalInputState}
+          startingValue={goal}
+          callbacks={{
+            setGoal: handleSetGoal,
+            onChange: handleInputChange,
+            onStop: () => {
+              setGoalInputState(GoalInputState.start);
+            },
+          }}
+        />
+      </Card>
+    </MainLayout>
   );
-};
-
-export default Home;
+}
