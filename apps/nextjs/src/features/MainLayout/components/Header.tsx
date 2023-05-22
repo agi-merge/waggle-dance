@@ -3,8 +3,12 @@ import { useRouter } from "next/router";
 import { KeyboardArrowRight } from "@mui/icons-material";
 import {
   Avatar,
+  Box,
   Breadcrumbs,
+  Card,
+  LinearProgress,
   Link,
+  Sheet,
   Stack,
   Tooltip,
   Typography,
@@ -130,16 +134,60 @@ const Header = () => {
           of AIs
         </Typography>
       )}
-
-      <Breadcrumbs
-        separator={<KeyboardArrowRight />}
-        className="mb-2"
-        size="sm"
-      >
-        {routes.map((route) =>
-          renderBreadcrumbLink(route.path, route.label, route.goalState),
-        )}
-      </Breadcrumbs>
+      <Tooltip title="Help keep waggle dance's free tier free">
+        <Stack
+          direction={{ xs: "column", sm: "row" }}
+          gap="0.5rem"
+          fontSize="body4"
+          className="mb-4 flex"
+        >
+          <Breadcrumbs
+            separator={<KeyboardArrowRight />}
+            className="mb-2 flex flex-grow"
+            size="sm"
+          >
+            {routes.map((route) =>
+              renderBreadcrumbLink(route.path, route.label, route.goalState),
+            )}
+          </Breadcrumbs>
+          <Box
+            className="m-0 flex min-w-fit flex-grow flex-col p-0"
+            color="neutral"
+          >
+            <Typography level="body3">Global Free OpenAI Limit:</Typography>
+            <Link
+              className="flex flex-grow"
+              color="neutral"
+              target="_blank"
+              href={app.routes.donate}
+            >
+              <LinearProgress
+                determinate
+                variant="outlined"
+                color="neutral"
+                size="sm"
+                thickness={32}
+                value={69}
+                sx={{
+                  "--LinearProgress-radius": "0px",
+                  "--LinearProgress-progressThickness": "24px",
+                  boxShadow: "sm",
+                  borderColor: "neutral.500",
+                }}
+              >
+                <Typography
+                  level="body3"
+                  fontWeight="xl"
+                  textColor="common.white"
+                  sx={{ mixBlendMode: "difference" }}
+                >
+                  $120 / $140
+                </Typography>
+              </LinearProgress>
+            </Link>
+          </Box>
+        </Stack>
+      </Tooltip>
     </header>
   );
 };

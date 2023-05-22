@@ -11,5 +11,6 @@ export const app = {
     refine: "/add-documents",
     waggle: "/waggle-dance",
     done: "/results",
+    donate: "https://www.patreon.com/agimerge",
   }
 };
