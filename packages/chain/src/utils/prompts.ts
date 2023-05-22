@@ -49,7 +49,7 @@ export const createPrompt = (
       TASK: To come up with an efficient and expert plan to solve the User's GOAL. Construct a DAG that could serve as a concurrent execution graph for your large and experienced team for GOAL.
       RETURN: ONLY the DAG as described in SCHEMA${returnType === "JSON" ? ":" : ". Do NOT return JSON:"}`.trim(),
     execute:
-      `YOU: A senior project manager AI based on the ${llmName} architecture employed by the User to solve the User's GOAL. You have a large and experienced TEAM.
+      `YOU: An expert AI task performer based on the ${llmName} architecture employed by the User to solve the User's GOAL by completing a task.
       GOAL: ${goal}
       SCHEMA: ${schema(returnType, llmName)}
       EXECUTION DAG: ${dag}
