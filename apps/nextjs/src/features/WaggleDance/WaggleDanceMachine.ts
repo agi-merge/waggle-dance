@@ -111,10 +111,14 @@ async function executeTasks(
       break;
     }
 
+    log("Task queue:", taskQueue);
+
     // Execute the valid pairs of {task, dag} concurrently, storing the execution request promises in executeTaskPromises array
     const executeTaskPromises = validPairs.map(async ({ task, dag }) => {
       log(`About to schedule task ${task.id} -${task.name} `);
-      taskQueue.splice(taskQueue.findIndex((scheduledTask) => { scheduledTask.id == task.id }), 1)
+      // remove task from taskQueue
+      const scheduledTask = taskQueue.findIndex((scheduledTask) => { scheduledTask.id == task.id })
+      taskQueue.splice(scheduledTask, 1)
 
       log(`About to execute task ${task.id} -${task.name}...`);
 
@@ -131,7 +135,6 @@ async function executeTasks(
       // Get the response body as a stream
       const stream = response.body;
       if (!response.ok || !stream) {
-        debugger;
         throw new Error(`No stream: ${response.statusText} `);
       } else {
         log(`Task ${task.id} -${task.name} executed!`);
@@ -168,7 +171,6 @@ async function executeTasks(
           errMessage = JSON.stringify(error)
         }
         console.error(`Error while reading the stream or processing the response data for task ${task.id} -${task.name}: ${errMessage}`);
-        debugger;
       } finally {
         reader.releaseLock();
       }
@@ -205,7 +207,6 @@ async function plan(
   // Get the response body as a stream
   const stream = res.body;
   if (!stream) {
-    debugger;
     throw new Error(`No stream: ${res.statusText} `);
   } else {
     log(`Planned!`);
@@ -310,6 +311,7 @@ export default class WaggleDanceMachine implements BaseWaggleDanceMachine {
       );
 
       if (pendingTasks.length === 0) {
+        log("No pending tasks, but goal not reached. DAG:", dag);
         break;
       }
 

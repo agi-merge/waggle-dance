@@ -259,23 +259,34 @@ const WaggleDanceGraph = ({}: WaggleDanceGraphProps) => {
                   aria-label="Log List"
                 >
                   {logs.map((log) => (
-                    <ListItem key={log.timestamp.toString()}>
-                      <Stack
-                        direction="row"
-                        className="overflow-scroll"
-                        gap="1rem"
-                      >
-                        <Typography fontFamily="Monospace" color="info">
-                          {log.timestamp.toISOString()}
-                        </Typography>
-                        <Typography fontFamily="Monospace" color="success">
-                          {log.type}
-                        </Typography>
-                        <Typography fontFamily="Monospace" color="neutral">
-                          {log.message}
-                        </Typography>
-                      </Stack>
-                    </ListItem>
+                    <>
+                      <ListItem key={log.timestamp.toString()}>
+                        <Stack
+                          direction="row"
+                          className="overflow-scroll"
+                          gap="1rem"
+                        >
+                          <Typography
+                            fontFamily="Monospace"
+                            color="info"
+                            level="body3"
+                          >
+                            {log.timestamp.toISOString().split("T")[1]}
+                          </Typography>
+                          <Typography fontFamily="Monospace" color="success">
+                            {log.type}
+                          </Typography>
+                          <Typography
+                            fontFamily="Monospace"
+                            color="neutral"
+                            className="max-w-24 max-h-24 flex-shrink"
+                          >
+                            {log.message}
+                          </Typography>
+                        </Stack>
+                      </ListItem>
+                      <ListDivider inset="gutter" />
+                    </>
                   ))}
                 </List>
               </TabPanel>

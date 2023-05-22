@@ -153,7 +153,7 @@ const AddDocuments = ({ hideTitleGoal, onClose }: Props) => {
   return (
     <>
       <Title
-        title="🌺 Get better results"
+        title="🌺 Add Documents & Data"
         description="
                 Providing up to date and relevant information upfront will
                 ensure better planning and execution by the waggling swarm of

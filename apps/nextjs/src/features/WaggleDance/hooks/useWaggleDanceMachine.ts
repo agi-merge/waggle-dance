@@ -32,9 +32,19 @@ const useWaggleDanceMachine = ({
 
 
   const log = useCallback((...args: (string | number | object)[]) => {
-    const message = args.map((arg) => JSON.stringify(arg)).join(" ");
+    const message = args.map((arg) => {
+      if (arg as string) {
+        return arg as string;
+      } else {
+        return JSON.stringify(arg)
+      }
+    }).join(", ");
 
-    setLogs([...logs, { message, type: "info", timestamp: new Date() }]);
+    console.log("logs", logs.length);
+    const newLogs = logs
+    newLogs.push({ message, type: "info", timestamp: new Date() })
+    setLogs(newLogs);
+    console.log("logs", newLogs.length);
 
     // Log to the console (optional)
     console.log(message);
