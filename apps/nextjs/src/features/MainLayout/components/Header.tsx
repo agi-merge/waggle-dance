@@ -57,6 +57,7 @@ const Header = () => {
     if (isActive(path)) {
       return (
         <Typography
+          key={path}
           sx={{ cursor: "default" }}
           component="span"
           level="body3"
