@@ -20,7 +20,6 @@ import {
   ListItemButton,
   ListItemContent,
   ListItemDecorator,
-  Sheet,
   Stack,
   Tab,
   TabList,
@@ -163,7 +162,7 @@ const WaggleDanceGraph = ({}: WaggleDanceGraphProps) => {
           aria-label="Waggle Dance Status and Results"
           defaultValue={0}
           variant="outlined"
-          sx={{ borderRadius: "lg" }}
+          sx={{ borderRadius: "sm" }}
         >
           <TabList variant="outlined" color="primary">
             <Tab>
@@ -189,6 +188,7 @@ const WaggleDanceGraph = ({}: WaggleDanceGraphProps) => {
                 className=" relative max-h-96 w-full overflow-y-scroll p-4"
               >
                 <List
+                  aria-label="Task list"
                   className="absolute left-0 top-0 mt-3"
                   sx={{
                     marginX: { xs: -2, sm: 0 },
@@ -246,30 +246,38 @@ const WaggleDanceGraph = ({}: WaggleDanceGraphProps) => {
               >
                 <ForceGraph data={graphData} />
               </TabPanel>
-              <TabPanel value={2} className="text-center">
-                <Sheet>
-                  <List aria-label="Log List">
-                    {logs.map((log) => (
-                      <ListItem key={log.message}>
-                        <Stack
-                          direction="row"
-                          className="overflow-scroll"
-                          gap="1rem"
-                        >
-                          <Typography fontFamily="Monospace" color="info">
-                            {log.timestamp.toISOString()}
-                          </Typography>
-                          <Typography fontFamily="Monospace" color="success">
-                            {log.type}
-                          </Typography>
-                          <Typography fontFamily="Monospace" color="neutral">
-                            {log.message}
-                          </Typography>
-                        </Stack>
-                      </ListItem>
-                    ))}
-                  </List>
-                </Sheet>
+
+              <TabPanel
+                value={2}
+                className=" relative max-h-96 w-full overflow-y-scroll p-4"
+              >
+                <List
+                  className="absolute left-0 top-0 mt-3"
+                  sx={{
+                    marginX: { xs: -2, sm: 0 },
+                  }}
+                  aria-label="Log List"
+                >
+                  {logs.map((log) => (
+                    <ListItem key={log.timestamp.toString()}>
+                      <Stack
+                        direction="row"
+                        className="overflow-scroll"
+                        gap="1rem"
+                      >
+                        <Typography fontFamily="Monospace" color="info">
+                          {log.timestamp.toISOString()}
+                        </Typography>
+                        <Typography fontFamily="Monospace" color="success">
+                          {log.type}
+                        </Typography>
+                        <Typography fontFamily="Monospace" color="neutral">
+                          {log.message}
+                        </Typography>
+                      </Stack>
+                    </ListItem>
+                  ))}
+                </List>
               </TabPanel>
             </>
           )}

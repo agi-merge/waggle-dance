@@ -75,7 +75,7 @@ async function executeTasks(
   request: ExecuteRequestBody,
   maxConcurrency: number,
   _isRunning: boolean,
-  log: (...args: (string | object)[]) => void
+  log: (...args: (string | number | object)[]) => void
 ): Promise<{
   completedTasks: string[];
   taskResults: Record<string, BaseResultType>;
@@ -189,7 +189,7 @@ async function plan(
   creationProps: ModelCreationProps,
   dag: DAG,
   setDAG: (dag: DAG) => void,
-  log: (...args: (string | object)[]) => void
+  log: (...args: (string | number | object)[]) => void
 ): Promise<DAG> {
   const data = { goal, creationProps };
   const res = await fetch("/api/chain/plan", {
@@ -233,7 +233,14 @@ async function plan(
               // optDag?.init ?? initialCond,
               // optDag?.goal ?? initialCond,
             );
-            if (partialDAG.nodes.length > partialDAG.nodes.length || partialDAG.edges.length > dag.edges.length) {
+            const diffNodesCount = partialDAG.nodes.length - dag.nodes.length
+            const newEdgesCount = partialDAG.edges.length - dag.edges.length
+            if (diffNodesCount || newEdgesCount) {
+              if (newEdgesCount) {
+                log("newEdgesCount", newEdgesCount)
+              } else {
+                log("diffNodesCount", diffNodesCount)
+              }
               setDAG(partialDAG)
             }
           }
@@ -271,7 +278,7 @@ export default class WaggleDanceMachine implements BaseWaggleDanceMachine {
     request: BaseRequestBody,
     [initDAG, setDAG]: GraphDataState,
     [_isDonePlanning, setIsDonePlanning]: IsDonePlanningState,
-    log: (...args: (string | object)[]) => void,
+    log: (...args: (string | number | object)[]) => void,
     isRunning: boolean,
   ): Promise<WaggleDanceResult | Error> {
     let dag: DAG

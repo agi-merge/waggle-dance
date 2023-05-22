@@ -31,7 +31,7 @@ const useWaggleDanceMachine = ({
   const [logs, setLogs] = useState<LogMessage[]>([]);
 
 
-  const log = useCallback((...args: (string | object)[]) => {
+  const log = useCallback((...args: (string | number | object)[]) => {
     const message = args.map((arg) => JSON.stringify(arg)).join(" ");
 
     setLogs([...logs, { message, type: "info", timestamp: new Date() }]);

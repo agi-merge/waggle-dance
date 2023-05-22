@@ -36,7 +36,7 @@ export interface BaseWaggleDanceMachine {
     request: BaseRequestBody,
     graphDataState: GraphDataState,
     isDonePlanningState: IsDonePlanningState,
-    log: (...args: (string | object)[]) => void,
+    log: (...args: (string | number | object)[]) => void,
     isRunning: boolean,
   ): Promise<WaggleDanceResult | Error>;
 }
