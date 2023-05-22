@@ -1,20 +1,35 @@
 // WaggleDance.tsx
 import React, { useEffect } from "react";
-import type { NextPage } from "next";
+import type {
+  GetServerSidePropsContext,
+  InferGetServerSidePropsType,
+} from "next";
 import { useRouter } from "next/router";
 import { Card } from "@mui/joy";
 
+import { getOpenAIUsage, type CombinedResponse } from "~/utils/openAIUsageAPI";
 import MainLayout from "~/features/MainLayout";
-import PageTitle from "~/features/MainLayout/components/PageTitle";
 import WaggleDanceGraph from "~/features/WaggleDance/components/WaggleDanceGraph";
 import useGoal from "~/stores/goalStore";
 
-// interface WaggleDanceProps {
-//   goal: string;
-//   onDelete?: () => void;
-// }
-// AKA goal solver
-const WaggleDance: NextPage = (/*{ goal, onDelete }: WaggleDanceProps*/) => {
+export async function getServerSideProps(context: GetServerSidePropsContext) {
+  console.log("getServerSideProps", context.req.headers.cookie);
+  const startDate = new Date();
+
+  const openAIUsage: CombinedResponse | null = await getOpenAIUsage(
+    startDate,
+  ).catch(() => null);
+
+  return {
+    props: {
+      openAIUsage,
+    },
+  };
+}
+
+export default function WaggleDance({
+  openAIUsage,
+}: InferGetServerSidePropsType<typeof getServerSideProps>) {
   const router = useRouter();
   const { goal } = useGoal();
 
@@ -26,12 +41,10 @@ const WaggleDance: NextPage = (/*{ goal, onDelete }: WaggleDanceProps*/) => {
   }, [goal, router]);
 
   return (
-    <MainLayout>
+    <MainLayout openAIUsage={openAIUsage}>
       <Card variant="soft" className="mb-3">
         <WaggleDanceGraph />
       </Card>
     </MainLayout>
   );
-};
-
-export default WaggleDance;
+}
