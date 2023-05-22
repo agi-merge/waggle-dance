@@ -21,11 +21,11 @@ const PageTitle = ({ title, description, hideGoal }: TitleProps) => {
       }}
     >
       <Stack
-        direction={{ xs: "column", sm: "row" }}
+        direction={{ xs: "column-reverse", sm: "row" }}
         className="flex"
         gap="1rem"
       >
-        <Stack direction="column">
+        <Stack direction="column" className="flex-grow">
           <Typography level="h4">{title}</Typography>
           {headerExpanded && (
             <Typography

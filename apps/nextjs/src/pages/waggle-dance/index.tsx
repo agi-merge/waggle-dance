@@ -26,10 +26,6 @@ const WaggleDance: NextPage = (/*{ goal, onDelete }: WaggleDanceProps*/) => {
 
   return (
     <Card variant="soft" className="mb-3">
-      <PageTitle
-        title="💃 Waggle Dance"
-        description="Waggle dancing puts a swarm of GPT-4 AIs to work to achieve your goals. The AI splits goals into steps, and tries to fix mistakes on its own."
-      />
       <WaggleDanceGraph />
     </Card>
   );

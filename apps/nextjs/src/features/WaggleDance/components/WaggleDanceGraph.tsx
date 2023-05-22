@@ -28,6 +28,7 @@ import {
   type StackProps,
 } from "@mui/joy";
 
+import PageTitle from "~/features/MainLayout/components/PageTitle";
 import AddDocuments from "~/pages/add-documents";
 import useApp from "~/stores/appStore";
 import useGoal from "~/stores/goalStore";
@@ -139,38 +140,22 @@ const WaggleDanceGraph = ({}: WaggleDanceGraphProps) => {
   );
 
   return (
-    <Stack gap="1rem" className="mt-6">
+    <Stack gap="1rem">
+      <PageTitle
+        title={!isRunning ? "💃 Waggle Dance" : "Please 🐝 patient"}
+        description={
+          !isRunning
+            ? "Waggle dancing puts a swarm of language AIs to work to achieve your goals. The AI splits goals into steps, and tries to fix mistakes on its own."
+            : !isDonePlanning
+            ? "Planning tasks… this may take a minute"
+            : "Almost done! Optimizing tasks…"
+        }
+      />
+      <div style={{ height: "6" }} />
       <DocsModal>
         <AddDocuments hideTitleGoal={true} />
       </DocsModal>
       {!isRunning && button}
-      {isRunning && (
-        <>
-          {isDonePlanning && (
-            <Typography className="text-center" color="warning" level="body4">
-              This demo will currently not proceed beyond initial planning.
-            </Typography>
-          )}
-          {!isDonePlanning && (
-            <Stack className="text-center">
-              <Typography
-                level="h5"
-                color={isAttachingRealEdges ? "success" : "primary"}
-              >
-                {isAttachingRealEdges ? "Almost done! " : "Please 🐝 patient, "}
-                <Typography color="neutral">
-                  {!isAttachingRealEdges
-                    ? "planning tasks…"
-                    : "optimizing tasks…"}
-                </Typography>
-              </Typography>
-              <Typography level="body3">
-                This important first step can take a minute or two.
-              </Typography>
-            </Stack>
-          )}
-        </>
-      )}
 
       {dag.nodes.length > 0 && (
         <Tabs

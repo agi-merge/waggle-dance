@@ -1,6 +1,7 @@
 import { Close } from "@mui/icons-material";
 import {
   Alert,
+  Box,
   Divider,
   IconButton,
   Link,
@@ -15,7 +16,7 @@ import GoalDoctorModal from "./components/GoalDoctorModal";
 const GoalMenu = () => {
   const { goal, setGoalInputState, setGoal } = useGoal();
   return (
-    <>
+    <Box className="flex-grow">
       {goal && (
         <>
           <Divider orientation="vertical" className="m-2" />
@@ -26,17 +27,20 @@ const GoalMenu = () => {
             variant="plain"
             color="info"
             endDecorator={
-              <IconButton
-                variant="plain"
-                size="sm"
-                className="-m-3"
-                onClick={() => {
-                  setGoal("");
-                  setGoalInputState(GoalInputState.start);
-                }}
-              >
-                <Close />
-              </IconButton>
+              <Tooltip title="Reset goal" color="danger">
+                <IconButton
+                  variant="plain"
+                  size="sm"
+                  color="danger"
+                  className="-m-3"
+                  onClick={() => {
+                    setGoal("");
+                    setGoalInputState(GoalInputState.start);
+                  }}
+                >
+                  <Close />
+                </IconButton>
+              </Tooltip>
             }
           >
             <Stack direction="column" className="p-0">
@@ -66,7 +70,7 @@ const GoalMenu = () => {
           </Alert>
         </>
       )}
-    </>
+    </Box>
   );
 };
 
