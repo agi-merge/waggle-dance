@@ -13,6 +13,13 @@ import useApp from "~/stores/appStore";
 interface UseWaggleDanceMachineProps {
   goal: string;
 }
+
+export type LogMessage = {
+  message: string;
+  type: "info" | "error";
+  timestamp: Date;
+};
+
 const useWaggleDanceMachine = ({
   goal,
 }:
@@ -21,6 +28,17 @@ const useWaggleDanceMachine = ({
   const { isRunning } = useApp();
   const [dag, setDAG] = useState<DAG>(new DAG([], []));
   const [isDonePlanning, setIsDonePlanning] = useState(false);
+  const [logs, setLogs] = useState<LogMessage[]>([]);
+
+
+  const log = useCallback((...args: (string | object)[]) => {
+    const message = args.map((arg) => JSON.stringify(arg)).join(" ");
+
+    setLogs([...logs, { message, type: "info", timestamp: new Date() }]);
+
+    // Log to the console (optional)
+    console.log(message);
+  }, [setLogs, logs])
 
   const [graphData, setGraphData] = useState<GraphData>({
     nodes: [],
@@ -50,6 +68,7 @@ const useWaggleDanceMachine = ({
       },
       [dag, setDAG],
       [false, setIsDonePlanning],
+      log,
       isRunning,
     );
 
@@ -62,9 +81,9 @@ const useWaggleDanceMachine = ({
 
     console.log("result", result);
     return result;
-  }, [goal, dag, setDAG, waggleDanceMachine, isRunning, setIsDonePlanning]);
+  }, [goal, dag, setDAG, waggleDanceMachine, isRunning, setIsDonePlanning, log]);
 
-  return { waggleDanceMachine, dag, graphData, run, setIsDonePlanning, isDonePlanning };
+  return { waggleDanceMachine, dag, graphData, run, setIsDonePlanning, isDonePlanning, logs };
 };
 
 export default useWaggleDanceMachine;

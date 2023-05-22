@@ -74,7 +74,8 @@ function findNodesWithNoIncomingEdges(dag: DAG | OptionalDAG): DAGNode[] {
 async function executeTasks(
   request: ExecuteRequestBody,
   maxConcurrency: number,
-  _isRunning: boolean
+  _isRunning: boolean,
+  log: (...args: (string | object)[]) => void
 ): Promise<{
   completedTasks: string[];
   taskResults: Record<string, BaseResultType>;
@@ -112,10 +113,10 @@ async function executeTasks(
 
     // Execute the valid pairs of {task, dag} concurrently, storing the execution request promises in executeTaskPromises array
     const executeTaskPromises = validPairs.map(async ({ task, dag }) => {
-      console.log(`About to schedule task ${task.id} -${task.name} `);
+      log(`About to schedule task ${task.id} -${task.name} `);
       taskQueue.splice(taskQueue.findIndex((scheduledTask) => { scheduledTask.id == task.id }), 1)
 
-      console.log(`About to execute task ${task.id} -${task.name}...`);
+      log(`About to execute task ${task.id} -${task.name}...`);
 
       // Execute each task by making an API request
       const data = { ...request, task, dag };
@@ -133,7 +134,7 @@ async function executeTasks(
         debugger;
         throw new Error(`No stream: ${response.statusText} `);
       } else {
-        console.log(`Task ${task.id} -${task.name} executed!`);
+        log(`Task ${task.id} -${task.name} executed!`);
       }
 
       // Read the stream data and process based on response
@@ -143,10 +144,10 @@ async function executeTasks(
         while (true) {
           const { done, value } = await reader.read();
           if (done) {
-            console.log("Stream complete");
+            log("Stream complete");
             // Decode response data
 
-            console.log(`About to decode response data for task ${task.id} -${task.name}:`);
+            log(`About to decode response data for task ${task.id} -${task.name}:`);
 
             // Process response data and store packets in completedTasksSet and taskResults
             const packets: ChainPacket[] = readJSONL(buffer);
@@ -187,7 +188,8 @@ async function plan(
   goal: string,
   creationProps: ModelCreationProps,
   dag: DAG,
-  setDAG: (dag: DAG) => void
+  setDAG: (dag: DAG) => void,
+  log: (...args: (string | object)[]) => void
 ): Promise<DAG> {
   const data = { goal, creationProps };
   const res = await fetch("/api/chain/plan", {
@@ -206,7 +208,7 @@ async function plan(
     debugger;
     throw new Error(`No stream: ${res.statusText} `);
   } else {
-    console.log(`Planned!`);
+    log(`Planned!`);
   }
   async function streamToString(stream: ReadableStream<Uint8Array>): Promise<string> {
     let chunks = "" as string;
@@ -247,10 +249,10 @@ async function plan(
   // Convert the ReadableStream<Uint8Array> to a string
   const dagYamlString = await streamToString(stream);
 
-  console.log("dagYamlString", dagYamlString);
+  log("dagYamlString", dagYamlString);
   try {
     const dag = parse(dagYamlString) as unknown;
-    console.log("dag", JSON.stringify(dag))
+    log("dag", JSON.stringify(dag))
     // TODO: if this fails, spin up a ConstitutionChain w/ return type reinforcement
     return dag as DAG;
   } catch (error) {
@@ -269,12 +271,19 @@ export default class WaggleDanceMachine implements BaseWaggleDanceMachine {
     request: BaseRequestBody,
     [initDAG, setDAG]: GraphDataState,
     [_isDonePlanning, setIsDonePlanning]: IsDonePlanningState,
+    log: (...args: (string | object)[]) => void,
     isRunning: boolean,
   ): Promise<WaggleDanceResult | Error> {
-    setIsDonePlanning(false);
-    const dag = await plan(request.goal, request.creationProps, initDAG, setDAG);
-    setIsDonePlanning(true);
-    console.log("dag", dag);
+    let dag: DAG
+    if (initDAG.edges.length > 1) {
+      log("skipping planning because it is done - initDAG", initDAG);
+      dag = initDAG;
+    } else {
+      setIsDonePlanning(false);
+      dag = await plan(request.goal, request.creationProps, initDAG, setDAG, log);
+      setIsDonePlanning(true);
+      log("dag", dag);
+    }
     // prepend our initial nodes to the DAG
     const planDAG = new DAG(
       [...initialNodes(request.goal, request.creationProps.modelName), ...dag.nodes],
@@ -303,7 +312,7 @@ export default class WaggleDanceMachine implements BaseWaggleDanceMachine {
           .every((edge) => completedTasks.has(edge.sId)),
       );
 
-      console.log("relevantPendingTasks", relevantPendingTasks)
+      log("relevantPendingTasks", relevantPendingTasks)
 
       const executeRequest = {
         ...request,
@@ -313,7 +322,7 @@ export default class WaggleDanceMachine implements BaseWaggleDanceMachine {
         taskResults,
       } as ExecuteRequestBody;
 
-      const executionResponse = await executeTasks(executeRequest, maxConcurrency, isRunning);
+      const executionResponse = await executeTasks(executeRequest, maxConcurrency, isRunning, log);
       taskResults = { ...taskResults, ...executionResponse.taskResults };
       completedTasks.clear();
       for (const taskId of executionResponse.completedTasks) {

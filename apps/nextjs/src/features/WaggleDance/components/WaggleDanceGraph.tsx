@@ -1,11 +1,13 @@
-import React, {
-  useCallback,
-  useEffect,
-  useMemo,
-  useRef,
-  useState,
-} from "react";
-import { Edit, Lan, ListAlt, Send, Start, Stop } from "@mui/icons-material";
+import React, { useCallback, useEffect, useRef, useState } from "react";
+import {
+  Edit,
+  Lan,
+  ListAlt,
+  Science,
+  Send,
+  Start,
+  Stop,
+} from "@mui/icons-material";
 import {
   Box,
   Button,
@@ -18,6 +20,7 @@ import {
   ListItemButton,
   ListItemContent,
   ListItemDecorator,
+  Sheet,
   Stack,
   Tab,
   TabList,
@@ -43,12 +46,13 @@ const WaggleDanceGraph = ({}: WaggleDanceGraphProps) => {
   const { isRunning, setIsRunning, isAutoStartEnabled, setIsAutoStartEnabled } =
     useApp();
   const { goal } = useGoal();
-  const { graphData, dag, run, isDonePlanning } = useWaggleDanceMachine({
+  const { graphData, dag, run, isDonePlanning, logs } = useWaggleDanceMachine({
     goal,
   });
-  const [chatInput, setChatInput] = React.useState("");
+  const [chatInput, setChatInput] = useState("");
   const [runId, setRunId] = useState<Date | null>(null);
 
+  // Replace console.log() calls with customLog()
   const handleStart = useCallback(() => {
     if (!isRunning) {
       setRunId(new Date());
@@ -77,10 +81,6 @@ const WaggleDanceGraph = ({}: WaggleDanceGraphProps) => {
       // }, 333);
     }
   });
-
-  const isAttachingRealEdges = useMemo(() => {
-    return dag.edges.filter((e) => e.sId !== "👸").length > 0;
-  }, [dag.edges]);
 
   const button = (
     <Stack direction="row" gap="0.1rem" className="flex items-end justify-end">
@@ -142,16 +142,15 @@ const WaggleDanceGraph = ({}: WaggleDanceGraphProps) => {
   return (
     <Stack gap="1rem">
       <PageTitle
-        title={!isRunning ? "💃 Waggle Dance" : "Please 🐝 patient"}
+        title={!isRunning ? "🐝💃" : "Please 🐝 patient"}
         description={
           !isRunning
-            ? "Waggle dancing puts a swarm of language AIs to work to achieve your goals. The AI splits goals into steps, and tries to fix mistakes on its own."
+            ? "Waggle dancing puts a swarm of language AIs to work to achieve your goal. The AIs split your goal into tasks, does them, and tries to fix mistakes on its own."
             : !isDonePlanning
             ? "Planning tasks… this may take a minute…"
             : "Almost done! Optimizing tasks…"
         }
       />
-      <div style={{ height: "6" }} />
       <DocsModal>
         <AddDocuments hideTitleGoal={true} />
       </DocsModal>
@@ -159,6 +158,7 @@ const WaggleDanceGraph = ({}: WaggleDanceGraphProps) => {
 
       {dag.nodes.length > 0 && (
         <Tabs
+          size="sm"
           key={runId?.toString()}
           aria-label="Waggle Dance Status and Results"
           defaultValue={0}
@@ -170,18 +170,14 @@ const WaggleDanceGraph = ({}: WaggleDanceGraphProps) => {
               <ListAlt />
               <Typography className="px-1">Tasks</Typography>
             </Tab>
-            {dag.nodes.length > 2 && ( // would be 1, except rendering bugs when its only 2 nodes.
-              <Tab>
-                <Lan />
-                <Typography className="px-1">Graph</Typography>
-              </Tab>
-            )}
-            {/* {dag.init.predicate && (
-                <Tab>
-                  <Science />
-                  <Typography>Results</Typography>
-                </Tab>
-              )} */}
+            <Tab>
+              <Lan />
+              <Typography className="px-1">Graph</Typography>
+            </Tab>
+            <Tab>
+              <Science />
+              <Typography>Logs</Typography>
+            </Tab>
           </TabList>
           {dag.nodes.length > 0 && (
             <>
@@ -190,7 +186,7 @@ const WaggleDanceGraph = ({}: WaggleDanceGraphProps) => {
               )}
               <TabPanel
                 value={0}
-                className="relative h-96 w-full overflow-y-scroll p-4"
+                className=" relative max-h-96 w-full overflow-y-scroll p-4"
               >
                 <List
                   className="absolute left-0 top-0 mt-3"
@@ -251,44 +247,29 @@ const WaggleDanceGraph = ({}: WaggleDanceGraphProps) => {
                 <ForceGraph data={graphData} />
               </TabPanel>
               <TabPanel value={2} className="text-center">
-                Work in progres…
-                {/* {dag.init.predicate && (
-                    <Sheet>
-                      <Table aria-label="Results table">
-                        <thead>
-                          <tr>
-                            <th>State</th>
-                            <th>Predicate</th>
-                            <th>Parameters</th>
-                          </tr>
-                        </thead>
-                        <tbody>
-                          <tr>
-                            <td>Initial</td>
-                            <td>{dag.init.predicate}</td>
-                            <td>
-                              <pre>
-                                <code>
-                                  {JSON.stringify(dag.init.params, null, 2)}
-                                </code>
-                              </pre>
-                            </td>
-                          </tr>
-                          <tr>
-                            <td>Goal</td>
-                            <td>{dag.goal.predicate}</td>
-                            <td>
-                              <pre>
-                                <code>
-                                  {JSON.stringify(dag.goal.params, null, 2)}
-                                </code>
-                              </pre>
-                            </td>
-                          </tr>
-                        </tbody>
-                      </Table>
-                    </Sheet>
-                  )} */}
+                <Sheet>
+                  <List aria-label="Log List">
+                    {logs.map((log) => (
+                      <ListItem key={log.message}>
+                        <Stack
+                          direction="row"
+                          className="overflow-scroll"
+                          gap="1rem"
+                        >
+                          <Typography fontFamily="Monospace" color="info">
+                            {log.timestamp.toISOString()}
+                          </Typography>
+                          <Typography fontFamily="Monospace" color="success">
+                            {log.type}
+                          </Typography>
+                          <Typography fontFamily="Monospace" color="neutral">
+                            {log.message}
+                          </Typography>
+                        </Stack>
+                      </ListItem>
+                    ))}
+                  </List>
+                </Sheet>
               </TabPanel>
             </>
           )}

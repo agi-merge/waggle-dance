@@ -17,7 +17,7 @@ import GoalDoctorModal from "./components/GoalDoctorModal";
 const GoalMenu = ({}: CardProps) => {
   const { goal, setGoalInputState, setGoal } = useGoal();
   return (
-    <Card>
+    <Card size="sm">
       {goal && (
         <>
           <Divider orientation="vertical" className="m-2 ml-10" />
