@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { Divider, Stack, Typography } from "@mui/joy";
+import { Box, Divider, Stack, Typography } from "@mui/joy";
 
 import GoalMenu from "~/features/GoalMenu";
 
@@ -34,7 +34,6 @@ const PageTitle = ({ title, description, hideGoal }: TitleProps) => {
                 userSelect: "none",
                 marginBottom: { xs: hideGoal ? 0 : -3, sm: 0 },
               }}
-              className="max-w-md"
             >
               {description}
             </Typography>
@@ -43,6 +42,7 @@ const PageTitle = ({ title, description, hideGoal }: TitleProps) => {
 
         {!hideGoal && <GoalMenu />}
       </Stack>
+      <Box sx={{ marginTop: { xs: 6, sm: 2 } }} />
       <Divider inset="context">
         <Typography className="w-52 text-center" level="body3">
           ~

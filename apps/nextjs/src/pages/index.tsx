@@ -41,7 +41,7 @@ const Home: NextPage = () => {
     <Card variant="soft" className="mb-3">
       <Title
         title="🐝 Your goal"
-        description="Try something tedious you do on your phone/computer in your job or daily life. You can refine this later."
+        description="Input a goal or task 🍯 that you would like to automate. 🤔 Browse templates below for examples!"
         hideGoal={true}
       />
       <GoalInput

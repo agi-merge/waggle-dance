@@ -147,7 +147,7 @@ const WaggleDanceGraph = ({}: WaggleDanceGraphProps) => {
           !isRunning
             ? "Waggle dancing puts a swarm of language AIs to work to achieve your goals. The AI splits goals into steps, and tries to fix mistakes on its own."
             : !isDonePlanning
-            ? "Planning tasks… this may take a minute"
+            ? "Planning tasks… this may take a minute…"
             : "Almost done! Optimizing tasks…"
         }
       />
