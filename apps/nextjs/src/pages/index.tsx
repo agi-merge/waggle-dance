@@ -38,7 +38,7 @@ const Home: NextPage = () => {
   };
 
   return (
-    <Card variant="soft" className="mb-3">
+    <Card variant="soft">
       <Title
         title="🐝 Your goal"
         description="Input a goal or task 🍯 that you would like to automate. 🤔 Browse templates below for examples!"

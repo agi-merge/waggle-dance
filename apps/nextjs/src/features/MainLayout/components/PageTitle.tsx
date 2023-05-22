@@ -25,7 +25,7 @@ const PageTitle = ({ title, description, hideGoal }: TitleProps) => {
         className="flex"
         gap="1rem"
       >
-        <Stack direction="column" className="flex-grow">
+        <Stack direction="column" className="flex w-full">
           <Typography level="h4">{title}</Typography>
           {headerExpanded && (
             <Typography
@@ -42,9 +42,9 @@ const PageTitle = ({ title, description, hideGoal }: TitleProps) => {
 
         {!hideGoal && <GoalMenu />}
       </Stack>
-      <Box sx={{ marginTop: { xs: 6, sm: 2 } }} />
+      <Box sx={{ marginTop: { xs: 4, sm: 2 } }} />
       <Divider inset="context">
-        <Typography className="w-52 text-center" level="body3">
+        <Typography className="w-1/2 text-center" level="body3">
           ~
         </Typography>
       </Divider>

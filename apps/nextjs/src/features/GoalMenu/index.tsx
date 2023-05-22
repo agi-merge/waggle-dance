@@ -1,25 +1,26 @@
 import { Close } from "@mui/icons-material";
 import {
   Alert,
-  Box,
+  Card,
   Divider,
   IconButton,
   Link,
   Stack,
   Tooltip,
   Typography,
+  type CardProps,
 } from "@mui/joy";
 
 import useGoal, { GoalInputState } from "~/stores/goalStore";
 import GoalDoctorModal from "./components/GoalDoctorModal";
 
-const GoalMenu = () => {
+const GoalMenu = ({}: CardProps) => {
   const { goal, setGoalInputState, setGoal } = useGoal();
   return (
-    <Box className="flex-grow">
+    <Card>
       {goal && (
         <>
-          <Divider orientation="vertical" className="m-2" />
+          <Divider orientation="vertical" className="m-2 ml-10" />
           <Alert
             className="min-w-xs mt-0" // -m-3 ml-3 mt-0
             key="goal"
@@ -47,7 +48,7 @@ const GoalMenu = () => {
               <Typography level="body1">Goal:</Typography>
               <Typography level="body4">
                 {`${goal.slice(0, goal.length > 55 ? 55 : goal.length)}${
-                  goal.length > 55 ? "…" : ""
+                  goal.length > 20 ? "…" : ""
                 }`}
                 <br />
                 <Stack direction="row" gap="0.25rem">
@@ -70,7 +71,7 @@ const GoalMenu = () => {
           </Alert>
         </>
       )}
-    </Box>
+    </Card>
   );
 };
 

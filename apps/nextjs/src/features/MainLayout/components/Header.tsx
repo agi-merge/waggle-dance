@@ -90,7 +90,10 @@ const Header = () => {
     <header className="z-10 mx-auto w-full px-5 pt-5">
       <Stack direction="row" className="items-center">
         <Stack className="flex-grow pl-2 pr-5">
-          <Typography level={isHomeSlug ? "h3" : "h4"}>
+          <Typography
+            fontSize={{ xs: "15pt", sm: "24pt" }}
+            level={isHomeSlug ? "h3" : "h4"}
+          >
             waggle🐝<Typography>💃dance</Typography>
             <Typography level="body5" className="pl-2">
               {app.version}
