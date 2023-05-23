@@ -4,7 +4,7 @@ import { useCallback, useEffect, useMemo, useState } from "react";
 
 import { type ChainPacket, LLM, llmResponseTokenLimit } from "@acme/chain";
 
-import DAG from "../DAG";
+import DAG, { type DAGNode } from "../DAG";
 import WaggleDanceMachine, { initialEdges, initialNodes } from "../WaggleDanceMachine";
 import { type GraphData } from "../components/ForceGraph";
 import { dagToGraphData } from "../utils/conversions";
@@ -21,13 +21,17 @@ export type LogMessage = {
   timestamp: Date;
 };
 
-type TaskState = {
-  id: string;
-  act: string;
-  params: object;
-  name: string;
+export enum TaskStatus {
+  idle = "idle",
+  work = "work",
+  done = "done",
+  error = "error",
+}
+
+export type TaskState = DAGNode & {
   status: string;
   result: string | null;
+  packets: ChainPacket[];
 };
 
 function reduceTaskStates(
@@ -39,6 +43,23 @@ function reduceTaskStates(
 
   // Initialize taskStates from DAG nodes
   dag.nodes.forEach((node) => {
+    // const myPacketsIndexes = new Set(chainPackets.flatMap((packet, i) => packet.nodeId === node.id && i || null))
+    // const packets = chainPackets.filter((packet, i) => !myPacketsIndexes.has(i))
+
+    // var i = 0;
+    // const myPackets = []
+    // for (const packet of myPacketsIndexes) {
+
+    //   if (myPacketsIndexes.has(i)) {
+    //     myPackets.push(chainPackets[i])
+    //   } else {
+
+    //   }
+    //   i += 1;
+    // }
+    // chainPackets = chainPackets.filter((packet, i) => !myPacketsIndexes.has(i))
+
+    const packets = chainPackets.filter((packet) => packet.nodeId === node.id);
     taskStates[node.id] = {
       id: node.id,
       act: node.act,
@@ -46,17 +67,18 @@ function reduceTaskStates(
       name: node.name,
       status: "idle",
       result: null,
+      packets,
     };
   });
 
   // Update taskStates with LogMessages
-  logMessages.forEach((logMessage) => {
-    const nodeIdPattern = /task (\w+) -/i;
-    const match = logMessage.message.match(nodeIdPattern);
-    if (match && match[1] && taskStates[match[1]]) {
-      taskStates[match[1]].status = logMessage.type;
-    }
-  });
+  // logMessages.forEach((logMessage) => {
+  //   const nodeIdPattern = /task (\w+) -/i;
+  //   const match = logMessage.message.match(nodeIdPattern);
+  //   if (match && match[1] && taskStates[match[1]]) {
+  //     taskStates[match[1]].status = logMessage.type;
+  //   }
+  // });
 
   // Update taskStates with ChainPackets
   chainPackets.forEach((chainPacket) => {
@@ -89,6 +111,10 @@ const useWaggleDanceMachine = ({
     },
       [logs, chainPackets, dag]
     ), 250);
+
+  const sendChainPacket = useCallback((chainPacket: ChainPacket) => {
+    setChainPackets([...chainPackets, chainPacket])
+  }, [chainPackets, setChainPackets])
 
   const log = useCallback((...args: (string | number | object)[]) => {
     const message = args.map((arg) => {
