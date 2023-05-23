@@ -83,10 +83,12 @@ const useWaggleDanceMachine = ({
   const [logs, setLogs] = useState<LogMessage[]>([]);
   const [chainPackets, setChainPackets] = useState<ChainPacket[]>([]);
 
-  const taskStates = useMemo(() => {
-    return { logs, chainPackets, dag }
-  }, [logs, chainPackets, dag]);
-  const [debouncedTaskStates, _state] = useDebounce(taskStates, 250);
+  const taskStates = useDebounce(
+    useMemo(() => {
+      return reduceTaskStates(logs, chainPackets, dag)
+    },
+      [logs, chainPackets, dag]
+    ), 250);
 
   const log = useCallback((...args: (string | number | object)[]) => {
     const message = args.map((arg) => {
@@ -151,7 +153,7 @@ const useWaggleDanceMachine = ({
     return result;
   }, [goal, dag, setDAG, waggleDanceMachine, isRunning, setIsDonePlanning, log, chainPackets, setChainPackets]);
 
-  return { waggleDanceMachine, dag, graphData, run, setIsDonePlanning, isDonePlanning, logs };
+  return { waggleDanceMachine, dag, graphData, run, setIsDonePlanning, isDonePlanning, logs, taskStates };
 };
 
 export default useWaggleDanceMachine;

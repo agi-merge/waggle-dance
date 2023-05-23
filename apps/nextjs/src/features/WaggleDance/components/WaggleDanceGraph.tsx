@@ -45,9 +45,10 @@ const WaggleDanceGraph = ({}: WaggleDanceGraphProps) => {
   const { isRunning, setIsRunning, isAutoStartEnabled, setIsAutoStartEnabled } =
     useApp();
   const { goal } = useGoal();
-  const { graphData, dag, run, isDonePlanning, logs } = useWaggleDanceMachine({
-    goal,
-  });
+  const { graphData, dag, run, isDonePlanning, logs, taskStates } =
+    useWaggleDanceMachine({
+      goal,
+    });
   const [chatInput, setChatInput] = useState("");
   const [runId, setRunId] = useState<Date | null>(null);
 
@@ -180,7 +181,7 @@ const WaggleDanceGraph = ({}: WaggleDanceGraphProps) => {
               </Tab>
             )}
           </TabList>
-          {dag.nodes.length > 0 && (
+          {taskStates[0].length > 0 && (
             <>
               {isRunning && !isDonePlanning && (
                 <LinearProgress thickness={1} className="mx-2 -mt-0.5" />
@@ -196,14 +197,14 @@ const WaggleDanceGraph = ({}: WaggleDanceGraphProps) => {
                     marginX: { xs: -2, sm: 0 },
                   }}
                 >
-                  {dag.nodes.map((n, i) => (
+                  {taskStates[0].map((n, i) => (
                     <Box key={n.id}>
                       <ListItem>
                         <ListItemButton>
                           <ListItemDecorator>
                             <Stack
                               direction="column"
-                              className="w-10 items-center"
+                              className="w-16 items-center"
                             >
                               <Typography color="primary" level="body3">
                                 {i > 0
@@ -214,12 +215,12 @@ const WaggleDanceGraph = ({}: WaggleDanceGraphProps) => {
                                     : "🐝"
                                   : n.id}
                               </Typography>
-                              <Typography level="body3">
+                              <Typography level="body4">
                                 {n.id === "👸"
                                   ? isDonePlanning
                                     ? "Done"
                                     : "Working"
-                                  : ""}
+                                  : n.status}
                               </Typography>
                             </Stack>
                           </ListItemDecorator>
