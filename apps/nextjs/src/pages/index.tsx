@@ -21,7 +21,6 @@ export interface Handlers {
 }
 
 export async function getServerSideProps(context: GetServerSidePropsContext) {
-  console.log("getServerSideProps", context.req.headers.cookie);
   const startDate = new Date();
 
   const openAIUsage: CombinedResponse | null = await getOpenAIUsage(

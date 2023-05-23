@@ -13,7 +13,6 @@ import WaggleDanceGraph from "~/features/WaggleDance/components/WaggleDanceGraph
 import useGoal from "~/stores/goalStore";
 
 export async function getServerSideProps(context: GetServerSidePropsContext) {
-  console.log("getServerSideProps", context.req.headers.cookie);
   const startDate = new Date();
 
   const openAIUsage: CombinedResponse | null = await getOpenAIUsage(
