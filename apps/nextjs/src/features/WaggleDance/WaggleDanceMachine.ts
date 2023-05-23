@@ -17,10 +17,10 @@ import {
   type GraphDataState,
   type WaggleDanceResult,
   type IsDonePlanningState,
-  type ChainPacketsState,
 } from "./types";
 import executeTasks from "./utils/executeTasks";
 import planTasks from "./utils/planTasks"
+import { type ChainPacket } from "@acme/chain";
 
 // Check if every node is included in the completedTasks set
 function isGoalReached(dag: DAG, completedTasks: Set<string>): boolean {
@@ -61,10 +61,11 @@ export default class WaggleDanceMachine implements BaseWaggleDanceMachine {
     request: BaseRequestBody,
     [initDAG, setDAG]: GraphDataState,
     [_isDonePlanning, setIsDonePlanning]: IsDonePlanningState,
-    [chainPackets, setChainPackets]: ChainPacketsState,
+    sendChainPacket: (chainPacket: ChainPacket) => void,
     log: (...args: (string | number | object)[]) => void,
     isRunning: boolean,
   ): Promise<WaggleDanceResult | Error> {
+
     let dag: DAG
     if (initDAG.edges.length > 1) {
       log("skipping planning because it is done - initDAG", initDAG);
@@ -114,13 +115,16 @@ export default class WaggleDanceMachine implements BaseWaggleDanceMachine {
         taskResults,
       } as ExecuteRequestBody;
 
-      const executionResponse = await executeTasks(executeRequest, maxConcurrency, isRunning, [chainPackets, setChainPackets], log);
+      const executionResponse = await executeTasks(executeRequest, maxConcurrency, isRunning, sendChainPacket, log);
       taskResults = { ...taskResults, ...executionResponse.taskResults };
       completedTasks.clear();
       for (const taskId of executionResponse.completedTasks) {
         completedTasks.add(taskId);
       }
     }
+
+    console.log("WaggleDanceMachine.run: completedTasks", completedTasks)
+    console.groupEnd();
 
     return { results: taskResults, completedTasks };
   }

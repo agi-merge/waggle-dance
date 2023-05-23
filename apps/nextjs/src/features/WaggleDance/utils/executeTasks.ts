@@ -6,7 +6,7 @@ import { type ExecuteRequestBody } from "~/pages/api/chain/types";
 import readJSONL from "~/utils/jsonl";
 import { type DAGNode } from "../DAG";
 import type DAG from "../DAG";
-import { type ChainPacketsState, type BaseResultType, type ScheduledTask } from "../types";
+import { type BaseResultType, type ScheduledTask } from "../types";
 
 // A utility function to wait for a specified amount of time (ms)
 function sleep(ms: number): Promise<void> {
@@ -26,7 +26,7 @@ export default async function executeTasks(
     request: ExecuteRequestBody,
     maxConcurrency: number,
     _isRunning: boolean,
-    [chainPackets, setChainPackets]: ChainPacketsState,
+    sendChainPacket: (chainPacket: ChainPacket) => void,
     log: (...args: (string | number | object)[]) => void
 ): Promise<{
     completedTasks: Set<string>;
@@ -63,7 +63,7 @@ export default async function executeTasks(
             break;
         }
 
-        log("Task queue:", taskQueue);
+        log("Task queue:", taskQueue.map((t) => t.id));
 
         // Execute the valid pairs of {task, dag} concurrently, storing the execution request promises in executeTaskPromises array
         const executeTaskPromises = validPairs.map(async ({ task, dag }) => {
@@ -72,6 +72,7 @@ export default async function executeTasks(
             taskQueue.splice(scheduledTask, 1)
 
             log(`About to execute task ${task.id} -${task.name}...`);
+            sendChainPacket({ type: "scheduled", nodeId: task.id })
 
             // Execute each task by making an API request
             const data = { ...request, task, dag };
@@ -88,6 +89,7 @@ export default async function executeTasks(
             if (!response.ok || !stream) {
                 throw new Error(`No stream: ${response.statusText} `);
             } else {
+                sendChainPacket({ type: "scheduled", nodeId: task.id })
                 log(`Task ${task.id} -${task.name} stream began!`);
             }
 
@@ -102,20 +104,25 @@ export default async function executeTasks(
                         log(`Stream ended for task ${task.id} -${task.name}:`);
 
                         // Process response data and store packets in completedTasksSet and taskResults
+
                         const packets: ChainPacket[] = readJSONL(buffer);
 
                         completedTasksSet.add(task.id);
                         taskResults[task.id] = packets;
+                        sendChainPacket({ type: "return", nodeId: task.id, value: JSON.stringify(packets) })
                         return packets;
                     } else if (value.length) {
                         const jsonLines = decodeText(value);
                         buffer += jsonLines;
                         try {
-                            const packet = JSON.parse(jsonLines) as ChainPacket;
-                            if (packet) {
-                                completedTasksSet.add(task.id);
-                                taskResults[task.id] = packet;
-                                setChainPackets([...chainPackets, packet]); // Call setChainPackets after each streamed packet
+                            const packets: ChainPacket[] = readJSONL(buffer);
+                            log("packets: ", packets)
+                            if (packets) {
+                                packets.forEach((packet) => { sendChainPacket(packet) })
+                                // completedTasksSet.add(task.id);
+                                // taskResults[task.id] = packet;
+                                // sendChainPacket(packet);
+                                // setChainPackets([...chainPackets, packet]); // Call setChainPackets after each streamed packet
                             }
                         } catch {
                             // normal, do nothing
@@ -129,7 +136,9 @@ export default async function executeTasks(
                 } else {
                     errMessage = JSON.stringify(error)
                 }
-                console.error(`Error while reading the stream or processing the response data for task ${task.id} -${task.name}: ${errMessage}`);
+                const message = `Error while reading the stream or processing the response data for task ${task.id} -${task.name}: ${errMessage}`
+                sendChainPacket({ type: "error", nodeId: task.id, severity: "fatal", message })
+                log(`Error while reading the stream or processing the response data for task ${task.id} -${task.name}: ${errMessage}`)
             } finally {
                 reader.releaseLock();
             }

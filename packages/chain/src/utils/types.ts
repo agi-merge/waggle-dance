@@ -104,4 +104,5 @@ export type ChainPacket =
   | { type: "handleAgentAction", nodeId: string, action: AgentAction }
   // our callbacks
   | { type: "return", nodeId: string, value: string }
-  | { type: "error"; nodeId: string, severity: "warn" | "human" | "fatal", message: string };
+  | { type: "error"; nodeId: string, severity: "warn" | "human" | "fatal", message: string }
+  | { type: "scheduled"; nodeId: string };

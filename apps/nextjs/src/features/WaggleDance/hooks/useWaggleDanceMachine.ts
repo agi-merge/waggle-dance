@@ -9,7 +9,6 @@ import WaggleDanceMachine, { initialEdges, initialNodes } from "../WaggleDanceMa
 import { type GraphData } from "../components/ForceGraph";
 import { dagToGraphData } from "../utils/conversions";
 import useApp from "~/stores/appStore";
-import { useDebounce } from "use-debounce";
 
 interface UseWaggleDanceMachineProps {
   goal: string;
@@ -34,66 +33,6 @@ export type TaskState = DAGNode & {
   packets: ChainPacket[];
 };
 
-function reduceTaskStates(
-  logMessages: LogMessage[],
-  chainPackets: ChainPacket[],
-  dag: DAG
-): TaskState[] {
-  const taskStates: Record<string, TaskState> = {};
-
-  // Initialize taskStates from DAG nodes
-  dag.nodes.forEach((node) => {
-    // const myPacketsIndexes = new Set(chainPackets.flatMap((packet, i) => packet.nodeId === node.id && i || null))
-    // const packets = chainPackets.filter((packet, i) => !myPacketsIndexes.has(i))
-
-    // var i = 0;
-    // const myPackets = []
-    // for (const packet of myPacketsIndexes) {
-
-    //   if (myPacketsIndexes.has(i)) {
-    //     myPackets.push(chainPackets[i])
-    //   } else {
-
-    //   }
-    //   i += 1;
-    // }
-    // chainPackets = chainPackets.filter((packet, i) => !myPacketsIndexes.has(i))
-
-    const packets = chainPackets.filter((packet) => packet.nodeId === node.id);
-    taskStates[node.id] = {
-      id: node.id,
-      act: node.act,
-      params: node.params,
-      name: node.name,
-      status: "idle",
-      result: null,
-      packets,
-    };
-  });
-
-  // Update taskStates with LogMessages
-  // logMessages.forEach((logMessage) => {
-  //   const nodeIdPattern = /task (\w+) -/i;
-  //   const match = logMessage.message.match(nodeIdPattern);
-  //   if (match && match[1] && taskStates[match[1]]) {
-  //     taskStates[match[1]].status = logMessage.type;
-  //   }
-  // });
-
-  // Update taskStates with ChainPackets
-  // chainPackets.forEach((chainPacket) => {
-  //   if (chainPacket.type === "return" && taskStates[chainPacket.nodeId]) {
-  //     taskStates[chainPacket.nodeId].status = "completed";
-  //     taskStates[chainPacket.nodeId].result = chainPacket.value;
-  //   }
-  //   if (chainPacket.type === "error" && taskStates[chainPacket.nodeId]) {
-  //     taskStates[chainPacket.nodeId].status = "error";
-  //   }
-  // });
-
-  return Object.values(taskStates);
-}
-
 const useWaggleDanceMachine = ({
   goal,
 }: UseWaggleDanceMachineProps) => {
@@ -102,37 +41,100 @@ const useWaggleDanceMachine = ({
   const [dag, setDAG] = useState<DAG>(new DAG([], []));
   const [isDonePlanning, setIsDonePlanning] = useState(false);
   const [logs, setLogs] = useState<LogMessage[]>([]);
-  const [chainPackets, setChainPackets] = useState<ChainPacket[]>([]);
+  const [chainPackets, setChainPackets] = useState<Record<string, TaskState>>({});
 
-  const taskStates = useDebounce(
-    useMemo(() => {
-      return reduceTaskStates(logs, chainPackets, dag)
+  const mapPacketTypeToStatus = (packetType: string): TaskStatus => {
+    switch (packetType) {
+      case "handleLLMNewToken":
+      case "handleLLMStart":
+      case "handleChainStart":
+      case "handleToolStart":
+      case "handleAgentAction":
+        return TaskStatus.work;
+      case "return":
+        return TaskStatus.done;
+      case "error":
+        return TaskStatus.error;
+      case "scheduled":
+        return TaskStatus.work;
+      default:
+        return TaskStatus.idle;
+    }
+  };
+
+  const reduceTaskStates = useCallback(
+    (dagNodes: DAGNode[]): TaskState[] => {
+      return dagNodes.map(node => ({
+        ...node,
+        status: chainPackets[node.id]?.status ?? TaskStatus.idle,
+        result: chainPackets[node.id]?.result ?? null,
+        packets: chainPackets[node.id]?.packets ?? [],
+      }));
     },
-      [logs, chainPackets, dag]
-    ), 250);
+    [chainPackets]
+  );
+
+  const taskStates = useMemo(() => {
+    return reduceTaskStates(dag.nodes);
+  }, [dag, reduceTaskStates]);
+
+  const log = useCallback(
+    (...args: (string | number | object)[]) => {
+      const message = args
+        .map((arg) => {
+          if (typeof arg === "string") {
+            return arg;
+          } else {
+            return JSON.stringify(arg);
+          }
+        })
+        .join(", ");
+
+      setLogs((prevLogs) => [
+        ...prevLogs,
+        { message, type: "info", timestamp: new Date() },
+      ]);
+
+      // Log to the console (optional)
+      console.log(message);
+    },
+    [setLogs]
+  );
 
   const sendChainPacket = useCallback((chainPacket: ChainPacket) => {
-    setChainPackets([...chainPackets, chainPacket])
-  }, [chainPackets, setChainPackets])
-
-  const log = useCallback((...args: (string | number | object)[]) => {
-    const message = args.map((arg) => {
-      if (arg as string) {
-        return arg as string;
+    let existingTask = chainPackets[chainPacket.nodeId];
+    if (!existingTask) {
+      const node = dag.nodes.find((node) => node.id === chainPacket.nodeId);
+      if (!node) {
+        log(`Warning: node ${chainPacket.nodeId} not found in the dag during state update`);
+        return;
       } else {
-        return JSON.stringify(arg)
+        const newChainPackets = {
+          ...chainPackets,
+          [chainPacket.nodeId]: {
+            ...node,
+            status: TaskStatus.idle,
+            result: null,
+            packets: [chainPacket],
+          },
+        };
+        setChainPackets(newChainPackets);
+        existingTask = newChainPackets[chainPacket.nodeId];
       }
-    }).join(", ");
-
-    console.log("logs", logs.length);
-    const newLogs = logs
-    newLogs.push({ message, type: "info", timestamp: new Date() })
-    setLogs(newLogs);
-    console.log("logs", newLogs.length);
-
-    // Log to the console (optional)
-    console.log(message);
-  }, [setLogs, logs])
+    } else {
+      const updatedTask = {
+        ...existingTask,
+        status: mapPacketTypeToStatus(chainPacket.type),
+        result: chainPacket.type === "return" ? chainPacket.value : chainPacket.type === "error" ? chainPacket.message : null,
+        packets: [...existingTask.packets, chainPacket],
+      };
+      const newChainPackets = {
+        ...chainPackets,
+        [chainPacket.nodeId]: updatedTask,
+      };
+      setChainPackets(newChainPackets);
+    }
+  }, [chainPackets, setChainPackets, dag, log]);
 
   const [graphData, setGraphData] = useState<GraphData>({
     nodes: [],
@@ -161,8 +163,8 @@ const useWaggleDanceMachine = ({
         },
       },
       [dag, setDAG],
-      [false, setIsDonePlanning],
-      [chainPackets, setChainPackets],
+      [isDonePlanning, setIsDonePlanning],
+      sendChainPacket,
       log,
       isRunning,
     );
@@ -176,9 +178,9 @@ const useWaggleDanceMachine = ({
 
     console.log("result", result);
     return result;
-  }, [goal, dag, setDAG, waggleDanceMachine, isRunning, setIsDonePlanning, log, chainPackets, setChainPackets]);
+  }, [goal, dag, setDAG, waggleDanceMachine, isRunning, setIsDonePlanning, log, isDonePlanning, sendChainPacket]);
 
-  return { waggleDanceMachine, dag, graphData, run, setIsDonePlanning, isDonePlanning, logs, taskStates, sendChainPacket };
+  return { waggleDanceMachine, dag, graphData, run, setIsDonePlanning, isDonePlanning, logs, taskStates };
 };
 
 export default useWaggleDanceMachine;

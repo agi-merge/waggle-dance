@@ -83,6 +83,11 @@ const WaggleDanceGraph = ({}: WaggleDanceGraphProps) => {
     }
   });
 
+  const stringifyMax = (value: unknown, max: number) => {
+    const json = JSON.stringify(value);
+    return json.length < max ? json : `${json.slice(0, max)}…`;
+  };
+
   const button = (
     <Stack direction="row" gap="0.1rem" className="flex items-end justify-end">
       {isRunning && dag.nodes.length > 1 ? (
@@ -182,7 +187,7 @@ const WaggleDanceGraph = ({}: WaggleDanceGraphProps) => {
               </Tab>
             )}
           </TabList>
-          {taskStates[0].length > 0 && (
+          {taskStates.length > 0 && (
             <>
               {isRunning && !isDonePlanning && (
                 <LinearProgress thickness={1} className="mx-2 -mt-0.5" />
@@ -198,14 +203,14 @@ const WaggleDanceGraph = ({}: WaggleDanceGraphProps) => {
                     marginX: { xs: -2, sm: 0 },
                   }}
                 >
-                  {taskStates[0].map((n, i) => (
+                  {taskStates.map((n, i) => (
                     <Box key={n.id}>
                       <ListItem>
                         <ListItemButton>
                           <ListItemDecorator>
                             <Stack
                               direction="column"
-                              className="w-16 items-center"
+                              className="w-24 items-center"
                             >
                               <Typography color="primary" level="body3">
                                 {i > 0
@@ -216,11 +221,11 @@ const WaggleDanceGraph = ({}: WaggleDanceGraphProps) => {
                                     : "🐝"
                                   : n.id}
                               </Typography>
-                              <Typography level="body4">
+                              <Typography level="body4" className="pl-0 pt-2">
                                 {n.id === rootPlanId
                                   ? isDonePlanning
                                     ? "Done"
-                                    : "Working"
+                                    : "💃work"
                                   : n.status}
                               </Typography>
                             </Stack>
@@ -235,7 +240,7 @@ const WaggleDanceGraph = ({}: WaggleDanceGraphProps) => {
                                 color="info"
                                 variant="outlined"
                               >
-                                {JSON.stringify(n.params)}
+                                {stringifyMax(n.params, 200)}
                               </Typography>
                             </Typography>
                           </ListItemContent>
@@ -271,7 +276,7 @@ const WaggleDanceGraph = ({}: WaggleDanceGraphProps) => {
                       <ListItem key={log.timestamp.toString()}>
                         <Stack
                           direction="row"
-                          className="overflow-scroll"
+                          className="max-h-24 overflow-x-scroll"
                           gap="1rem"
                         >
                           <Typography

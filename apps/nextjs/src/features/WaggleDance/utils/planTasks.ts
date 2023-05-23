@@ -56,11 +56,12 @@ export default async function planTasks(
                         const diffNodesCount = partialDAG.nodes.length - dag.nodes.length
                         const newEdgesCount = partialDAG.edges.length - dag.edges.length
                         if (diffNodesCount || newEdgesCount) {
-                            if (newEdgesCount) {
-                                log("newEdgesCount", newEdgesCount)
-                            } else {
-                                log("diffNodesCount", diffNodesCount)
-                            }
+                            // FIXME: this gets called 4x for some reason
+                            // if (newEdgesCount) {
+                            //     log("newEdgesCount", newEdgesCount)
+                            // } else {
+                            //     log("diffNodesCount", diffNodesCount)
+                            // }
                             setDAG(partialDAG)
                         }
                     }
