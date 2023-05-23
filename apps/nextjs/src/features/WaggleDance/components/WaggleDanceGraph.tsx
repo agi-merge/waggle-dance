@@ -170,13 +170,15 @@ const WaggleDanceGraph = ({}: WaggleDanceGraphProps) => {
               <Typography className="px-1">Tasks</Typography>
             </Tab>
             <Tab>
-              <Lan />
-              <Typography className="px-1">Graph</Typography>
-            </Tab>
-            <Tab>
               <Science />
               <Typography>Logs</Typography>
             </Tab>
+            {dag.nodes.length > 2 && (
+              <Tab>
+                <Lan />
+                <Typography className="px-1">Graph</Typography>
+              </Tab>
+            )}
           </TabList>
           {dag.nodes.length > 0 && (
             <>
@@ -241,14 +243,6 @@ const WaggleDanceGraph = ({}: WaggleDanceGraphProps) => {
               </TabPanel>
               <TabPanel
                 value={1}
-                className="min-h-90 w-full items-center overflow-y-scroll"
-                sx={{ padding: { xs: 0, sm: 2 } }}
-              >
-                <ForceGraph data={graphData} />
-              </TabPanel>
-
-              <TabPanel
-                value={2}
                 className=" relative max-h-96 w-full overflow-y-scroll p-4"
               >
                 <List
@@ -290,6 +284,15 @@ const WaggleDanceGraph = ({}: WaggleDanceGraphProps) => {
                   ))}
                 </List>
               </TabPanel>
+              {dag.nodes.length > 2 && (
+                <TabPanel
+                  value={2}
+                  className="min-h-90 w-full items-center overflow-y-scroll"
+                  sx={{ padding: { xs: 0, sm: 2 } }}
+                >
+                  <ForceGraph data={graphData} />
+                </TabPanel>
+              )}
             </>
           )}
         </Tabs>

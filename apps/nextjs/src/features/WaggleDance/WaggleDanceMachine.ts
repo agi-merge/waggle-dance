@@ -111,14 +111,11 @@ async function executeTasks(
       break;
     }
 
-    log("Task queue:", taskQueue);
+    log("Task queue:", taskQueue.map((t) => t.id));
 
     // Execute the valid pairs of {task, dag} concurrently, storing the execution request promises in executeTaskPromises array
     const executeTaskPromises = validPairs.map(async ({ task, dag }) => {
       log(`About to schedule task ${task.id} -${task.name} `);
-      // remove task from taskQueue
-      const scheduledTask = taskQueue.findIndex((scheduledTask) => { scheduledTask.id == task.id })
-      taskQueue.splice(scheduledTask, 1)
 
       log(`About to execute task ${task.id} -${task.name}...`);
 
@@ -172,6 +169,10 @@ async function executeTasks(
         }
         console.error(`Error while reading the stream or processing the response data for task ${task.id} -${task.name}: ${errMessage}`);
       } finally {
+        // remove task from taskQueue
+        const scheduledTask = taskQueue.findIndex((scheduledTask) => { scheduledTask.id == task.id })
+        taskQueue.splice(scheduledTask, 1)
+
         reader.releaseLock();
       }
     });
@@ -209,9 +210,31 @@ async function plan(
   if (!stream) {
     throw new Error(`No stream: ${res.statusText} `);
   } else {
-    log(`Planned!`);
+    log(`Started planning.`);
+  } function updateDAG(partialDAG: OptionalDAG, dag: DAG, log: (...args: (string | number | object)[]) => void, setDAG: (dag: DAG) => void) {
+    const validNodes = partialDAG.nodes?.filter((n) => n.name.length > 0 && n.act.length > 0 && n.id.length > 0 && n.params);
+    const validEdges = partialDAG.edges?.filter((n) => n.sId.length > 0 && n.tId.length > 0);
+    if (validNodes) {
+      const hookupEdges = findNodesWithNoIncomingEdges(partialDAG).map((node) => new DAGEdgeClass(planId, node.id))
+      const mergedDAG = new DAG(
+        [...initialNodes(goal, creationProps.modelName), ...dag.nodes, ...validNodes.filter((n) => !dag.nodes.find((existingNode) => existingNode.id === n.id))],
+        [...initialEdges(), ...dag.edges, ...validEdges ?? [], ...hookupEdges],
+      );
+      const newNodes = new Set([...dag.nodes, ...validNodes]).size;
+      const newEdges = new Set([...dag.edges, ...validEdges ?? []]).size;
+
+      if (newNodes > dag.nodes.length || newEdges > dag.edges.length) {
+        if (newNodes > dag.nodes.length) {
+          log("Added a new task!");
+        } else {
+          log("Schedule a task.");
+        }
+        setDAG(mergedDAG);
+      }
+    }
   }
-  async function streamToString(stream: ReadableStream<Uint8Array>): Promise<string> {
+
+  async function streamToString(stream: ReadableStream<Uint8Array>, dag: DAG, log: (...args: (string | number | object)[]) => void, setDAG: (dag: DAG) => void): Promise<string> {
     let chunks = "" as string;
     const reader = stream.getReader();
 
@@ -222,29 +245,8 @@ async function plan(
       try {
         const yaml = parse(chunks) as unknown;
         if (yaml && yaml as OptionalDAG) {
-          const optDag = yaml as OptionalDAG
-          const validNodes = optDag.nodes?.filter((n) => n.name.length > 0 && n.act.length > 0 && n.id.length > 0 && n.params);
-          const validEdges = optDag.edges?.filter((n) => n.sId.length > 0 && n.tId.length > 0);
-          if (validNodes) {
-            const hookupEdges = findNodesWithNoIncomingEdges(optDag).map((node) => new DAGEdgeClass(planId, node.id))
-            const partialDAG = new DAG(
-              [...initialNodes(goal, creationProps.modelName), ...validNodes],
-              // connect our initial nodes to the DAG: gotta find them and create edges
-              [...initialEdges(), ...validEdges ?? [], ...hookupEdges],
-              // optDag?.init ?? initialCond,
-              // optDag?.goal ?? initialCond,
-            );
-            const diffNodesCount = partialDAG.nodes.length - dag.nodes.length
-            const newEdgesCount = partialDAG.edges.length - dag.edges.length
-            if (diffNodesCount || newEdgesCount) {
-              if (newEdgesCount) {
-                log("newEdgesCount", newEdgesCount)
-              } else {
-                log("diffNodesCount", diffNodesCount)
-              }
-              setDAG(partialDAG)
-            }
-          }
+          const optDAG = yaml as OptionalDAG;
+          updateDAG(optDAG, dag, log, setDAG);
         }
       } catch {
         // normal, do nothing
@@ -255,7 +257,7 @@ async function plan(
   }
 
   // Convert the ReadableStream<Uint8Array> to a string
-  const dagYamlString = await streamToString(stream);
+  const dagYamlString = await streamToString(stream, dag, log, setDAG);
 
   log("dagYamlString", dagYamlString);
   try {
@@ -321,7 +323,7 @@ export default class WaggleDanceMachine implements BaseWaggleDanceMachine {
           .every((edge) => completedTasks.has(edge.sId)),
       );
 
-      log("relevantPendingTasks", relevantPendingTasks)
+      log("relevantPendingTasks", relevantPendingTasks.map((task) => task.name))
 
       const executeRequest = {
         ...request,
