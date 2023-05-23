@@ -34,6 +34,7 @@ import PageTitle from "~/features/MainLayout/components/PageTitle";
 import AddDocuments from "~/pages/add-documents";
 import useApp from "~/stores/appStore";
 import useGoal from "~/stores/goalStore";
+import { rootPlanId } from "../WaggleDanceMachine";
 import useWaggleDanceMachine from "../hooks/useWaggleDanceMachine";
 import DocsModal from "./DocsModal";
 import ForceGraph from "./ForceGraph";
@@ -216,7 +217,7 @@ const WaggleDanceGraph = ({}: WaggleDanceGraphProps) => {
                                   : n.id}
                               </Typography>
                               <Typography level="body4">
-                                {n.id === "👸"
+                                {n.id === rootPlanId
                                   ? isDonePlanning
                                     ? "Done"
                                     : "Working"

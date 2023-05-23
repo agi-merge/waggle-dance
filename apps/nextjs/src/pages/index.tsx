@@ -20,7 +20,7 @@ export interface Handlers {
   onChange: (goal: string) => void;
 }
 
-export async function getServerSideProps(context: GetServerSidePropsContext) {
+export async function getServerSideProps(_context: GetServerSidePropsContext) {
   const startDate = new Date();
 
   const openAIUsage: CombinedResponse | null = await getOpenAIUsage(

@@ -1,0 +1,145 @@
+
+// The executeTasks function takes in a request and a DAG, then runs tasks concurrently,
+
+import { type ChainPacket } from "@acme/chain";
+import { type ExecuteRequestBody } from "~/pages/api/chain/types";
+import readJSONL from "~/utils/jsonl";
+import { type DAGNode } from "../DAG";
+import type DAG from "../DAG";
+import { type ChainPacketsState, type BaseResultType, type ScheduledTask } from "../types";
+
+// A utility function to wait for a specified amount of time (ms)
+function sleep(ms: number): Promise<void> {
+    return new Promise((resolve) => setTimeout(resolve, ms));
+}
+
+function decodeText(data: Uint8Array) {
+    if (typeof TextDecoder !== "undefined") {
+        return new TextDecoder().decode(data);
+    } else {
+        return String.fromCharCode.apply(null, Array.from(data));
+    }
+}
+
+// and updates the completed tasks and task results accordingly.
+export default async function executeTasks(
+    request: ExecuteRequestBody,
+    maxConcurrency: number,
+    _isRunning: boolean,
+    [chainPackets, setChainPackets]: ChainPacketsState,
+    log: (...args: (string | number | object)[]) => void
+): Promise<{
+    completedTasks: Set<string>;
+    taskResults: Record<string, BaseResultType>;
+}> {
+    // Destructure tasks and completedTasks from the request object
+    const { dags, tasks, completedTasks, taskResults } = request;
+
+    // Create a Set of completed tasks
+    const completedTasksSet = new Set(completedTasks);
+    // Create a task queue to store the tasks
+    const taskQueue: ScheduledTask[] = tasks.map((t) => ({ ...t, isScheduled: false }));
+
+    // Keep looping while there are tasks in the task queue
+    while (taskQueue.length > 0) {
+        // Gather the valid pairs of {task, dag} c from the task queue based on the completed tasks and the DAG edges
+        const validPairs = taskQueue.reduce((acc: Array<{ task: DAGNode; dag: DAG }>, task, idx) => {
+            const dag = dags[idx];
+            if (!dag || task.isScheduled) {
+                return acc;
+            }
+
+            const isValid = dag.edges.filter((edge) => edge.tId === task.id)
+                .every((edge) => completedTasksSet.has(edge.sId));
+
+            if (isValid) {
+                task.isScheduled = true
+                acc.push({ task, dag });
+            }
+
+            return acc;
+        }, []);
+        if (validPairs.length >= maxConcurrency) {
+            break;
+        }
+
+        log("Task queue:", taskQueue);
+
+        // Execute the valid pairs of {task, dag} concurrently, storing the execution request promises in executeTaskPromises array
+        const executeTaskPromises = validPairs.map(async ({ task, dag }) => {
+            // remove task from taskQueue
+            const scheduledTask = taskQueue.findIndex((scheduledTask) => { scheduledTask.id == task.id })
+            taskQueue.splice(scheduledTask, 1)
+
+            log(`About to execute task ${task.id} -${task.name}...`);
+
+            // Execute each task by making an API request
+            const data = { ...request, task, dag };
+            const response = await fetch("/api/chain/execute", {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json",
+                },
+                body: JSON.stringify(data),
+            });
+
+            // Get the response body as a stream
+            const stream = response.body;
+            if (!response.ok || !stream) {
+                throw new Error(`No stream: ${response.statusText} `);
+            } else {
+                log(`Task ${task.id} -${task.name} stream began!`);
+            }
+
+            // Read the stream data and process based on response
+            const reader = stream.getReader();
+            let buffer = "";
+            try {
+                while (true) {
+                    const { done, value } = await reader.read();
+                    if (done) {
+                        // Decode response data
+                        log(`Stream ended for task ${task.id} -${task.name}:`);
+
+                        // Process response data and store packets in completedTasksSet and taskResults
+                        const packets: ChainPacket[] = readJSONL(buffer);
+
+                        completedTasksSet.add(task.id);
+                        taskResults[task.id] = packets;
+                        return packets;
+                    } else if (value.length) {
+                        const jsonLines = decodeText(value);
+                        buffer += jsonLines;
+                        try {
+                            const packet = JSON.parse(jsonLines) as ChainPacket;
+                            if (packet) {
+                                completedTasksSet.add(task.id);
+                                taskResults[task.id] = packet;
+                                setChainPackets([...chainPackets, packet]); // Call setChainPackets after each streamed packet
+                            }
+                        } catch {
+                            // normal, do nothing
+                        }
+                    }
+                }
+            } catch (error) {
+                let errMessage: string
+                if (error instanceof Error) {
+                    errMessage = error.message
+                } else {
+                    errMessage = JSON.stringify(error)
+                }
+                console.error(`Error while reading the stream or processing the response data for task ${task.id} -${task.name}: ${errMessage}`);
+            } finally {
+                reader.releaseLock();
+            }
+        });
+
+        // Wait for all task promises to settle and sleep for 1 second before looping again
+        await Promise.all(executeTaskPromises);
+        await sleep(1000);
+    }
+
+    // Return completed tasks and task results
+    return { completedTasks: completedTasksSet, taskResults };
+}

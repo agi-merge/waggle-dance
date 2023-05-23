@@ -3,6 +3,7 @@
 import { planChain } from "@acme/chain";
 import { type StrategyRequestBody } from "./types";
 import { type NextRequest } from "next/server";
+import { rootPlanId } from "~/features/WaggleDance/WaggleDanceMachine";
 
 export const config = {
   api: {
@@ -12,7 +13,7 @@ export const config = {
 };
 
 const handler = async (req: NextRequest) => {
-  const nodeId = "👸"; // maybe goal.slice(0, 5)
+  const nodeId = rootPlanId; // maybe goal.slice(0, 5)
 
   try {
     const {

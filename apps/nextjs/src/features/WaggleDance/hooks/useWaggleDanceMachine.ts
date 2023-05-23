@@ -81,23 +81,22 @@ function reduceTaskStates(
   // });
 
   // Update taskStates with ChainPackets
-  chainPackets.forEach((chainPacket) => {
-    if (chainPacket.type === "return" && taskStates[chainPacket.nodeId]) {
-      taskStates[chainPacket.nodeId].status = "completed";
-      taskStates[chainPacket.nodeId].result = chainPacket.value;
-    }
-    if (chainPacket.type === "error" && taskStates[chainPacket.nodeId]) {
-      taskStates[chainPacket.nodeId].status = "error";
-    }
-  });
+  // chainPackets.forEach((chainPacket) => {
+  //   if (chainPacket.type === "return" && taskStates[chainPacket.nodeId]) {
+  //     taskStates[chainPacket.nodeId].status = "completed";
+  //     taskStates[chainPacket.nodeId].result = chainPacket.value;
+  //   }
+  //   if (chainPacket.type === "error" && taskStates[chainPacket.nodeId]) {
+  //     taskStates[chainPacket.nodeId].status = "error";
+  //   }
+  // });
 
   return Object.values(taskStates);
 }
 
 const useWaggleDanceMachine = ({
   goal,
-}:
-  UseWaggleDanceMachineProps) => {
+}: UseWaggleDanceMachineProps) => {
   const [waggleDanceMachine] = useState(() => new WaggleDanceMachine());
   const { isRunning } = useApp();
   const [dag, setDAG] = useState<DAG>(new DAG([], []));
@@ -179,7 +178,7 @@ const useWaggleDanceMachine = ({
     return result;
   }, [goal, dag, setDAG, waggleDanceMachine, isRunning, setIsDonePlanning, log, chainPackets, setChainPackets]);
 
-  return { waggleDanceMachine, dag, graphData, run, setIsDonePlanning, isDonePlanning, logs, taskStates };
+  return { waggleDanceMachine, dag, graphData, run, setIsDonePlanning, isDonePlanning, logs, taskStates, sendChainPacket };
 };
 
 export default useWaggleDanceMachine;

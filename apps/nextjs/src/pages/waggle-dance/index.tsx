@@ -12,7 +12,7 @@ import MainLayout from "~/features/MainLayout";
 import WaggleDanceGraph from "~/features/WaggleDance/components/WaggleDanceGraph";
 import useGoal from "~/stores/goalStore";
 
-export async function getServerSideProps(context: GetServerSidePropsContext) {
+export async function getServerSideProps(_context: GetServerSidePropsContext) {
   const startDate = new Date();
 
   const openAIUsage: CombinedResponse | null = await getOpenAIUsage(
