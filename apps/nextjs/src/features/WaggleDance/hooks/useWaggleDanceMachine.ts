@@ -1,14 +1,15 @@
 // useWaggleDanceMachine.ts
 
-import { useCallback, useEffect, useState } from "react";
+import { useCallback, useEffect, useMemo, useState } from "react";
 
-import { LLM, llmResponseTokenLimit } from "@acme/chain";
+import { type ChainPacket, LLM, llmResponseTokenLimit } from "@acme/chain";
 
 import DAG from "../DAG";
 import WaggleDanceMachine, { initialEdges, initialNodes } from "../WaggleDanceMachine";
 import { type GraphData } from "../components/ForceGraph";
 import { dagToGraphData } from "../utils/conversions";
 import useApp from "~/stores/appStore";
+import { useDebounce } from "use-debounce";
 
 interface UseWaggleDanceMachineProps {
   goal: string;
@@ -20,6 +21,57 @@ export type LogMessage = {
   timestamp: Date;
 };
 
+type TaskState = {
+  id: string;
+  act: string;
+  params: object;
+  name: string;
+  status: string;
+  result: string | null;
+};
+
+function reduceTaskStates(
+  logMessages: LogMessage[],
+  chainPackets: ChainPacket[],
+  dag: DAG
+): TaskState[] {
+  const taskStates: Record<string, TaskState> = {};
+
+  // Initialize taskStates from DAG nodes
+  dag.nodes.forEach((node) => {
+    taskStates[node.id] = {
+      id: node.id,
+      act: node.act,
+      params: node.params,
+      name: node.name,
+      status: "idle",
+      result: null,
+    };
+  });
+
+  // Update taskStates with LogMessages
+  logMessages.forEach((logMessage) => {
+    const nodeIdPattern = /task (\w+) -/i;
+    const match = logMessage.message.match(nodeIdPattern);
+    if (match && match[1] && taskStates[match[1]]) {
+      taskStates[match[1]].status = logMessage.type;
+    }
+  });
+
+  // Update taskStates with ChainPackets
+  chainPackets.forEach((chainPacket) => {
+    if (chainPacket.type === "return" && taskStates[chainPacket.nodeId]) {
+      taskStates[chainPacket.nodeId].status = "completed";
+      taskStates[chainPacket.nodeId].result = chainPacket.value;
+    }
+    if (chainPacket.type === "error" && taskStates[chainPacket.nodeId]) {
+      taskStates[chainPacket.nodeId].status = "error";
+    }
+  });
+
+  return Object.values(taskStates);
+}
+
 const useWaggleDanceMachine = ({
   goal,
 }:
@@ -29,7 +81,12 @@ const useWaggleDanceMachine = ({
   const [dag, setDAG] = useState<DAG>(new DAG([], []));
   const [isDonePlanning, setIsDonePlanning] = useState(false);
   const [logs, setLogs] = useState<LogMessage[]>([]);
+  const [chainPackets, setChainPackets] = useState<ChainPacket[]>([]);
 
+  const taskStates = useMemo(() => {
+    return { logs, chainPackets, dag }
+  }, [logs, chainPackets, dag]);
+  const [debouncedTaskStates, _state] = useDebounce(taskStates, 250);
 
   const log = useCallback((...args: (string | number | object)[]) => {
     const message = args.map((arg) => {
@@ -78,6 +135,7 @@ const useWaggleDanceMachine = ({
       },
       [dag, setDAG],
       [false, setIsDonePlanning],
+      [chainPackets, setChainPackets],
       log,
       isRunning,
     );
@@ -91,7 +149,7 @@ const useWaggleDanceMachine = ({
 
     console.log("result", result);
     return result;
-  }, [goal, dag, setDAG, waggleDanceMachine, isRunning, setIsDonePlanning, log]);
+  }, [goal, dag, setDAG, waggleDanceMachine, isRunning, setIsDonePlanning, log, chainPackets, setChainPackets]);
 
   return { waggleDanceMachine, dag, graphData, run, setIsDonePlanning, isDonePlanning, logs };
 };

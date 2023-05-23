@@ -170,13 +170,15 @@ const WaggleDanceGraph = ({}: WaggleDanceGraphProps) => {
               <Typography className="px-1">Tasks</Typography>
             </Tab>
             <Tab>
-              <Lan />
-              <Typography className="px-1">Graph</Typography>
-            </Tab>
-            <Tab>
               <Science />
               <Typography>Logs</Typography>
             </Tab>
+            {dag.nodes.length > 2 && (
+              <Tab>
+                <Lan />
+                <Typography className="px-1">Graph</Typography>
+              </Tab>
+            )}
           </TabList>
           {dag.nodes.length > 0 && (
             <>
@@ -199,15 +201,27 @@ const WaggleDanceGraph = ({}: WaggleDanceGraphProps) => {
                       <ListItem>
                         <ListItemButton>
                           <ListItemDecorator>
-                            <Typography color="primary" level="body3">
-                              {i > 0
-                                ? i < dag.nodes.length - 1
-                                  ? "🐝"
-                                  : isDonePlanning
-                                  ? "🍯"
-                                  : "🐝"
-                                : n.id}
-                            </Typography>
+                            <Stack
+                              direction="column"
+                              className="w-10 items-center"
+                            >
+                              <Typography color="primary" level="body3">
+                                {i > 0
+                                  ? i < dag.nodes.length - 1
+                                    ? "🐝"
+                                    : isDonePlanning
+                                    ? "🍯"
+                                    : "🐝"
+                                  : n.id}
+                              </Typography>
+                              <Typography level="body3">
+                                {n.id === "👸"
+                                  ? isDonePlanning
+                                    ? "Done"
+                                    : "Working"
+                                  : ""}
+                              </Typography>
+                            </Stack>
                           </ListItemDecorator>
                           <ListItemContent>
                             <Typography>{n.name}</Typography>
@@ -241,14 +255,6 @@ const WaggleDanceGraph = ({}: WaggleDanceGraphProps) => {
               </TabPanel>
               <TabPanel
                 value={1}
-                className="min-h-90 w-full items-center overflow-y-scroll"
-                sx={{ padding: { xs: 0, sm: 2 } }}
-              >
-                <ForceGraph data={graphData} />
-              </TabPanel>
-
-              <TabPanel
-                value={2}
                 className=" relative max-h-96 w-full overflow-y-scroll p-4"
               >
                 <List
@@ -290,6 +296,15 @@ const WaggleDanceGraph = ({}: WaggleDanceGraphProps) => {
                   ))}
                 </List>
               </TabPanel>
+              {dag.nodes.length > 2 && (
+                <TabPanel
+                  value={2}
+                  className="min-h-90 w-full items-center overflow-y-scroll"
+                  sx={{ padding: { xs: 0, sm: 2 } }}
+                >
+                  <ForceGraph data={graphData} />
+                </TabPanel>
+              )}
             </>
           )}
         </Tabs>

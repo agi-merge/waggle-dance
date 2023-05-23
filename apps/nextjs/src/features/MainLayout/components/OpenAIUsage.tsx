@@ -45,7 +45,11 @@ const OpenAIUsage = ({ openAIUsage }: { openAIUsage: CombinedResponse }) => {
             sx={{ mixBlendMode: "difference" }}
           >
             ${Math.round(openAIUsage.currentUsage)} / $
-            {Math.round(openAIUsage.allottedUsage)}
+            {Math.round(openAIUsage.allottedUsage)} ($
+            {Math.round(
+              openAIUsage.allottedUsage - openAIUsage.currentUsage,
+            )}{" "}
+            remaining)
           </Typography>
         </LinearProgress>
       </Link>

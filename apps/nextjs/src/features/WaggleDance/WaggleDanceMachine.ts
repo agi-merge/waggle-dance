@@ -21,6 +21,7 @@ import {
   type GraphDataState,
   type WaggleDanceResult,
   type IsDonePlanningState,
+  type ChainPacketsState,
 } from "./types";
 
 // Check if every node is included in the completedTasks set
@@ -75,9 +76,10 @@ async function executeTasks(
   request: ExecuteRequestBody,
   maxConcurrency: number,
   _isRunning: boolean,
+  [chainPackets, setChainPackets]: ChainPacketsState,
   log: (...args: (string | number | object)[]) => void
 ): Promise<{
-  completedTasks: string[];
+  completedTasks: Set<string>;
   taskResults: Record<string, BaseResultType>;
 }> {
   // Destructure tasks and completedTasks from the request object
@@ -115,7 +117,6 @@ async function executeTasks(
 
     // Execute the valid pairs of {task, dag} concurrently, storing the execution request promises in executeTaskPromises array
     const executeTaskPromises = validPairs.map(async ({ task, dag }) => {
-      log(`About to schedule task ${task.id} -${task.name} `);
       // remove task from taskQueue
       const scheduledTask = taskQueue.findIndex((scheduledTask) => { scheduledTask.id == task.id })
       taskQueue.splice(scheduledTask, 1)
@@ -161,6 +162,16 @@ async function executeTasks(
           } else if (value.length) {
             const jsonLines = decodeText(value);
             buffer += jsonLines;
+            try {
+              const packet: ChainPacket = JSON.parse(jsonLines);
+              if (packet) {
+                completedTasksSet.add(task.id);
+                taskResults[task.id] = packet;
+                setChainPackets([...chainPackets, packet]); // Call setChainPackets after each streamed packet
+              }
+            } catch {
+              // normal, do nothing
+            }
           }
         }
       } catch (error) {
@@ -182,7 +193,7 @@ async function executeTasks(
   }
 
   // Return completed tasks and task results
-  return { completedTasks: Array.from(completedTasksSet), taskResults };
+  return { completedTasks: completedTasksSet, taskResults };
 }
 
 // Request the execution plan (DAG) from the API
@@ -279,6 +290,7 @@ export default class WaggleDanceMachine implements BaseWaggleDanceMachine {
     request: BaseRequestBody,
     [initDAG, setDAG]: GraphDataState,
     [_isDonePlanning, setIsDonePlanning]: IsDonePlanningState,
+    [chainPackets, setChainPackets]: ChainPacketsState,
     log: (...args: (string | number | object)[]) => void,
     isRunning: boolean,
   ): Promise<WaggleDanceResult | Error> {
@@ -321,7 +333,7 @@ export default class WaggleDanceMachine implements BaseWaggleDanceMachine {
           .every((edge) => completedTasks.has(edge.sId)),
       );
 
-      log("relevantPendingTasks", relevantPendingTasks)
+      log("relevantPendingTasks", relevantPendingTasks.map((task) => task.name))
 
       const executeRequest = {
         ...request,
@@ -331,7 +343,7 @@ export default class WaggleDanceMachine implements BaseWaggleDanceMachine {
         taskResults,
       } as ExecuteRequestBody;
 
-      const executionResponse = await executeTasks(executeRequest, maxConcurrency, isRunning, log);
+      const executionResponse = await executeTasks(executeRequest, maxConcurrency, isRunning, [chainPackets, setChainPackets], log);
       taskResults = { ...taskResults, ...executionResponse.taskResults };
       completedTasks.clear();
       for (const taskId of executionResponse.completedTasks) {
@@ -339,6 +351,6 @@ export default class WaggleDanceMachine implements BaseWaggleDanceMachine {
       }
     }
 
-    return { results: taskResults };
+    return { results: taskResults, completedTasks };
   }
 }

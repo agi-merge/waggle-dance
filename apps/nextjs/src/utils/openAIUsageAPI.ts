@@ -57,7 +57,6 @@ export const getOpenAIUsage = async (startDate: Date): Promise<CombinedResponse>
     });
 
     try {
-        console.log("about to send usage request")
         const [usageResponse, subscriptionResponse] = await Promise.all([
             usageRequest,
             subscriptionRequest,
@@ -65,8 +64,6 @@ export const getOpenAIUsage = async (startDate: Date): Promise<CombinedResponse>
 
         const usageData = await usageResponse.json() as UsageResponse;
         const subscriptionData = await subscriptionResponse.json() as SubscriptionResponse;
-        console.log("usageResponse", usageData.total_usage) // when this is
-        console.log("subscriptionResponse", subscriptionData.hard_limit)
         usageData.total_usage
         subscriptionData.hard_limit_usd
         return {
@@ -79,9 +76,6 @@ export const getOpenAIUsage = async (startDate: Date): Promise<CombinedResponse>
         throw new Error(`Error fetching OpenAI data: ${JSON.stringify(error)}`);
     }
 };
-// const formatAPIDate = (date: Date): string | undefined => {
-//     return date.toISOString().split("T")[0];
-// };
 
 const formatDate = (date: Date) => {
     const year = date.getFullYear();
