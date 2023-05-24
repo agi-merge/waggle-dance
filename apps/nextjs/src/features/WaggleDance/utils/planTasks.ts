@@ -55,7 +55,6 @@ export default async function planTasks(
             const chunk = new TextDecoder().decode(result.value);
             chunks += chunk;
             try {
-                initialNode && sendChainPacket({ type: "working", nodeId: initialNode.id }, initialNode)
                 const yaml = parse(chunks) as unknown;
                 if (yaml && yaml as OptionalDAG) {
                     const optDag = yaml as OptionalDAG

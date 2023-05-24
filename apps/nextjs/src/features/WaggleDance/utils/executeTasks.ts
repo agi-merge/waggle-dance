@@ -1,6 +1,6 @@
 // utils/executeTasks.ts
 
-import { type ChainPacket } from "@acme/chain";
+import { type RawChainPacket, type ChainPacket } from "@acme/chain";
 import { type ExecuteRequestBody } from "~/pages/api/chain/types";
 import { type DAGNode } from "../DAG";
 import type DAG from "../DAG";
@@ -106,28 +106,30 @@ export default async function executeTasks(
                         const { done, value } = await reader.read();
                         if (done) {
                             // Decode response data
-                            log(`Stream ended for task ${task.id} -${task.name}:`);
+                            log(`Stream ended for task ${task.id}-${task.name}:`);
                             log(`Raw buffer: ${buffer}`)
                             // Process response data and store packets in completedTasksSet and taskResults
 
-                            const packet = parse(buffer) as ChainPacket
+                            const packet = parse(buffer) as RawChainPacket
 
                             completedTasksSet.add(task.id);
                             taskResults[task.id] = [packet];
-                            sendChainPacket({ type: "done", nodeId: task.id, value: JSON.stringify(packet) }, task)
+                            sendChainPacket({ type: "done", nodeId: task.id, value: JSON.stringify(packet.p) }, task)
                             return packet;
                         } else if (value.length) {
-                            const jsonLines = decodeText(value);
-                            const lastNewLineIndex = jsonLines.lastIndexOf("\n");
-                            buffer += lastNewLineIndex === jsonLines.length - 1 ? jsonLines : jsonLines.slice(0, lastNewLineIndex + 1);
+                            buffer += decodeText(value);
+                            // const jsonLines = decodeText(value);
+                            // console.log("jsonLines", jsonLines)
+                            // const lastNewLineIndex = jsonLines.lastIndexOf("\n");
+                            // buffer += lastNewLineIndex === jsonLines.length - 1 ? jsonLines : jsonLines.slice(0, lastNewLineIndex + 1);
 
-                            try {
-                                const packet = parse(buffer) as ChainPacket;
-                                log("packet", packet)
-                                sendChainPacket(packet, task);
-                            } catch {
-                                // normal, do nothing
-                            }
+                            // try {
+                            //     const packet = parse(buffer) as ChainPacket;
+                            //     log("packet", packet)
+                            //     sendChainPacket(packet, task);
+                            // } catch {
+                            //     // normal, do nothing
+                            // }
                         }
                     }
                 } catch (error) {

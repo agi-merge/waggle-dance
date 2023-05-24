@@ -26,8 +26,6 @@ export async function executeChain(
   const llm = createModel(creationProps);
   const memory = await createMemory(goal);
   const embeddings = createEmbeddings({ modelName: LLM.embeddings });
-  // const planPrompt = createPrompt("plan");
-  task = task.trim().replaceAll("{", ")").replaceAll("}", ")")
   const prompt = createPrompt("execute", creationProps, goal, task, dag);
   const formattedPrompt = await prompt.format({ chat_history: memory?.chatHistory ?? "" })
 
@@ -82,7 +80,7 @@ export async function executeChain(
 
   const executor = await initializeAgentExecutorWithOptions(tools, llm, {
     agentType: "chat-conversational-react-description",
-    verbose: false,
+    verbose: true,
     streaming: true,
     returnIntermediateSteps: false,
     callbacks,

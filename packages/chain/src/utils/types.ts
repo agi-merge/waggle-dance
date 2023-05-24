@@ -74,26 +74,11 @@ export interface EmbeddingsCreationProps
   verbose?: boolean;
 }
 
-// export const packetParser = z.object({
-//   type: z.enum(["plan", "execute", "review", "human", "info", "error"]),
-//   value: z.string(),
-//   message: z.string().optional(),
-// });
-
-// export type ChainPacket = z.infer<typeof packetParser>;
-// export interface ChainPacket extends BaseChainPacket {
-
-// }
-// export interface BaseChainPacket {
-//   type: ChainPacketType;
-// }
-
-// export type ChainPacketType = { ("plan" | "execute" | "review" | "human" | "info" | "error"): }
-// export const ChainPacket = {
-//   type: ChainPacketType,
-
-// }
 import { type AgentAction } from "langchain/schema";
+
+export type RawChainPacket = {
+  p: ChainPacket;
+}
 
 export type ChainPacket =
   // langchain callbacks

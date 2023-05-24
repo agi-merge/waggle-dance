@@ -9,6 +9,7 @@ import WaggleDanceMachine, { initialEdges, initialNodes } from "../WaggleDanceMa
 import { type GraphData } from "../components/ForceGraph";
 import { dagToGraphData } from "../utils/conversions";
 import useApp from "~/stores/appStore";
+import { useDebounce } from "use-debounce";
 
 interface UseWaggleDanceMachineProps {
   goal: string;
@@ -88,10 +89,7 @@ const useWaggleDanceMachine = ({
     [setLogs]
   );
 
-  const taskStates = useMemo(() => {
-    console.group("taskStates")
-    console.log("chainPackets", chainPackets)
-    console.log("dag.nodes", dag.nodes)
+  const [taskStates] = useDebounce(useMemo(() => {
     const reduceTaskStates = (dagNodes: DAGNode[], chainPackets: Record<string, TaskState>): TaskState[] => {
       return dagNodes.map(node => {
         const chainPacket = chainPackets[node.id]
@@ -107,10 +105,8 @@ const useWaggleDanceMachine = ({
       });
     };
     const taskStates = reduceTaskStates(dag.nodes, chainPackets);
-    console.log("taskStates", taskStates)
-    console.groupEnd()
     return taskStates;
-  }, [chainPackets, dag.nodes]);
+  }, [chainPackets, dag.nodes]), 500);
 
   const sendChainPacket = useCallback((chainPacket: ChainPacket, node: DAGNode) => {
     const existingTask = chainPackets[chainPacket.nodeId];
