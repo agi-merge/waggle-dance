@@ -3,7 +3,7 @@
 import { type ChainPacket, type ModelCreationProps } from "@acme/chain";
 import { parse } from "yaml";
 import DAG, { type OptionalDAG, DAGEdgeClass, type DAGNode } from "../DAG";
-import { initialNodes, initialEdges, findNodesWithNoIncomingEdges, rootPlanId } from "../WaggleDanceMachine";
+import { initialNodes, initialEdges, findNodesWithNoIncomingEdges, rootPlanId, type OptimisticFirstTaskState } from "../WaggleDanceMachine";
 
 
 // Request the execution plan (DAG) from the API
@@ -14,6 +14,8 @@ export default async function planTasks(
     setDAG: (dag: DAG) => void,
     log: (...args: (string | number | object)[]) => void,
     sendChainPacket: (chainPacket: ChainPacket, node: DAGNode) => void,
+    taskState: OptimisticFirstTaskState,
+    updateTaskState?: (state: "not started" | "started" | "done") => void,
     startFirstTask?: (task: DAGNode) => Promise<void>,
 ): Promise<DAG> {
     const data = { goal, creationProps };
@@ -44,7 +46,7 @@ export default async function planTasks(
         let chunks = "" as string;
         const reader = stream.getReader();
 
-        let isFirstTaskStarted = false;
+        updateTaskState && updateTaskState("not started")
 
         let result;
         while ((result = await reader.read()) && !result.done) {
@@ -77,8 +79,8 @@ export default async function planTasks(
                             setDAG(partialDAG)
                         }
                         const firstNode = validNodes[0]
-                        if (startFirstTask && !isFirstTaskStarted && firstNode && validNodes.length > 1) { // wait for entire node to populate so we dont send partial strings
-                            isFirstTaskStarted = true;
+                        if (startFirstTask && taskState.firstTaskState === "not started" && firstNode && validNodes.length > 1) {
+                            updateTaskState && updateTaskState("started");
                             void startFirstTask(firstNode);
                         }
                     }
