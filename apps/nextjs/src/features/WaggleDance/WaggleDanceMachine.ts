@@ -18,7 +18,7 @@ import {
   type WaggleDanceResult,
   type IsDonePlanningState,
 } from "./types";
-import executeTasks from "./utils/executeTasks";
+import executeTasks, { sleep } from "./utils/executeTasks";
 import planTasks from "./utils/planTasks"
 import { type ChainPacket } from "@acme/chain";
 
@@ -110,14 +110,15 @@ export default class WaggleDanceMachine implements BaseWaggleDanceMachine {
 
     // Continue executing tasks and updating DAG until the goal is reached
     while (!isGoalReached(planDAG, completedTasks)) {
-      console.group("WaggleDanceMachine.run")
+      // console.group("WaggleDanceMachine.run")
       const pendingTasks = dag.nodes.filter(
         (node) => !completedTasks.has(node.id),
       );
 
       if (pendingTasks.length === 0) {
         log("No pending tasks, but goal not reached. DAG:", dag);
-        break;
+        await sleep(1000);
+        continue;
       }
 
       const relevantPendingTasks = pendingTasks.filter((task, i) =>
@@ -125,6 +126,13 @@ export default class WaggleDanceMachine implements BaseWaggleDanceMachine {
           .filter((edge) => edge.tId === task.id)
           .every((edge) => completedTasks.has(edge.sId)),
       );
+
+
+      if (relevantPendingTasks.length === 0) {
+        log("No relevantPendingTasks tasks, but goal not reached. DAG:", dag);
+        await sleep(1000);
+        continue;
+      }
 
       log("relevantPendingTasks", relevantPendingTasks.map((task) => task.name))
 
@@ -138,7 +146,6 @@ export default class WaggleDanceMachine implements BaseWaggleDanceMachine {
 
       const executionResponse = await executeTasks(executeRequest, maxConcurrency, isRunning, sendChainPacket, log);
       taskResults = { ...taskResults, ...executionResponse.taskResults };
-      completedTasks.clear();
       for (const taskId of executionResponse.completedTasks) {
         completedTasks.add(taskId);
       }
