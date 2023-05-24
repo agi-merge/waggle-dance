@@ -19,7 +19,6 @@ import {
   ListItem,
   ListItemButton,
   ListItemContent,
-  ListItemDecorator,
   Stack,
   Tab,
   TabList,
@@ -203,45 +202,38 @@ const WaggleDanceGraph = ({}: WaggleDanceGraphProps) => {
                     marginX: { xs: -2, sm: 0 },
                   }}
                 >
-                  {taskStates.map((n, i) => (
+                  {taskStates.map((n) => (
                     <Box key={n.id}>
                       <ListItem>
                         <ListItemButton>
-                          <ListItemDecorator>
-                            <Stack direction="column">
-                              <Typography color="primary" level="body3">
-                                {i > 0
-                                  ? i < dag.nodes.length - 1
-                                    ? "🐝"
-                                    : isDonePlanning
-                                    ? "🍯"
-                                    : "🐝"
-                                  : n.id}
-                              </Typography>
-                              <Typography
-                                level="body4"
-                                className="w-16 pl-0 pt-2"
-                              >
-                                {n.id === rootPlanId
-                                  ? isDonePlanning
-                                    ? "Done"
-                                    : "💃work"
-                                  : n.status}
-                              </Typography>
-                            </Stack>
-                          </ListItemDecorator>
                           <ListItemContent className="flex w-96">
-                            <Typography
-                              level="body4"
-                              className="text-wrap"
-                              color="primary"
+                            <Stack
+                              direction="column"
+                              className="flex flex-grow"
+                              gap="1rem"
                               style={{
                                 overflowWrap: "break-word",
                                 width: "20%",
                               }}
                             >
-                              {n.name}
-                            </Typography>
+                              <Typography
+                                level="body4"
+                                className="text-wrap flex"
+                                color="primary"
+                              >
+                                {n.name}
+                                <br />
+                                <br />
+                                Status
+                                <Typography level="body4" className="pl-0 pt-2">
+                                  {n.id === rootPlanId
+                                    ? isDonePlanning
+                                      ? "Done"
+                                      : "💃work"
+                                    : n.status}
+                                </Typography>
+                              </Typography>
+                            </Stack>
                             <Typography
                               level="body3"
                               className="text-wrap"
@@ -295,7 +287,10 @@ const WaggleDanceGraph = ({}: WaggleDanceGraphProps) => {
                 >
                   {logs.map((log) => (
                     <>
-                      <ListItem key={log.timestamp.toString()}>
+                      <ListItem
+                        key={log.timestamp.toString()}
+                        className="overflow-x-scroll"
+                      >
                         <Stack
                           direction="row"
                           className="max-h-24 overflow-x-scroll"
