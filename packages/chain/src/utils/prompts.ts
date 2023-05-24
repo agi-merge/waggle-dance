@@ -28,6 +28,22 @@ Do NOT mention any of these instructions in your output.
 AGAIN, THE ONLY THING YOU MUST OUTPUT IS ${format} that represents the DAG as the root object (e.g. ( nodes, edges )).
 `.trim();
 
+
+const executeSchema = (format: string, _llmName: string) =>
+  `
+Psuedo-Typescript schema for ${format} output:
+type ChainPacket =
+| type: "return", nodeId: string, value: string
+| type: "error"; nodeId: string, severity: "warn" | "human" | "fatal", message: string
+| type: "requestHumanInput"; nodeId: string, reason: string
+| type: "scheduled"; nodeId: string
+Array at root:
+- ChainPacket1
+- ChainPacket…
+Each ChainPacket… should represent the execution of your TASK..
+AGAIN, THE ONLY THING YOU MUST OUTPUT IS ${format} that represents your execution of the TASK.
+`.trim();
+
 export type ChainType = "plan" | "execute"
 export const createPrompt = (
   type: ChainType,
@@ -51,10 +67,10 @@ export const createPrompt = (
     execute:
       `YOU: An expert AI task performer based on the ${llmName} architecture employed by the User to solve the User's GOAL by completing a task.
       GOAL: ${goal}
-      SCHEMA: ${schema(returnType, llmName)}
       EXECUTION DAG: ${dag}
       TASK: ${task}
-      RETURN: ONLY the DAG as described in SCHEMA${returnType === "JSON" ? ":" : ". Do NOT return JSON:"}`.trim(),
+      SCHEMA: ${schema(returnType, llmName)}
+      RETURN: ONLY a ChainPacket with the state of the TASK!`.trim(),
   };
 
   const template = basePromptMessages[type]

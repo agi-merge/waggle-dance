@@ -7,6 +7,7 @@ import readJSONL from "~/utils/jsonl";
 import { type DAGNode } from "../DAG";
 import type DAG from "../DAG";
 import { type BaseResultType, type ScheduledTask } from "../types";
+import { parse } from "yaml";
 
 // A utility function to wait for a specified amount of time (ms)
 function sleep(ms: number): Promise<void> {
@@ -45,7 +46,7 @@ export default async function executeTasks(
         // Gather the valid pairs of {task, dag} c from the task queue based on the completed tasks and the DAG edges
         const validPairs = taskQueue.reduce((acc: Array<{ task: DAGNode; dag: DAG }>, task, idx) => {
             const dag = dags[idx];
-            if (!dag || task.isScheduled) {
+            if (!dag || task.isScheduled || acc.length >= maxConcurrency) {
                 return acc;
             }
 
@@ -105,7 +106,7 @@ export default async function executeTasks(
 
                         // Process response data and store packets in completedTasksSet and taskResults
 
-                        const packets: ChainPacket[] = readJSONL(buffer);
+                        const packets = parse(buffer) as ChainPacket[]
 
                         completedTasksSet.add(task.id);
                         taskResults[task.id] = packets;
