@@ -1,12 +1,11 @@
 // api/chain/execute.ts
 
 import { type ExecuteRequestBody } from "./types";
-import { type ChainPacket, executeChain } from "@acme/chain";
+import { executeChain } from "@acme/chain";
 import { stringify } from "yaml"
 import { type NextApiRequest, type NextApiResponse } from "next";
 import { getServerSession } from "@acme/auth";
 import { type IncomingMessage } from "http";
-import { type AgentAction } from "langchain/schema";
 
 export const config = {
   api: {
@@ -33,7 +32,7 @@ const handler = async (req: IncomingMessage, res: NextApiResponse) => {
       tasks,
       dag,
     } = JSON.parse(body) as ExecuteRequestBody;
-    const encoder = new TextEncoder();
+    // const encoder = new TextEncoder();
 
     // Replace the ReadableStream with res.writeHead/write/end
     res.writeHead(200, {
@@ -44,7 +43,7 @@ const handler = async (req: IncomingMessage, res: NextApiResponse) => {
     //   res.write(JSON.stringify(packet) + "\n");
     // };
     const inlineCallback = {
-      handleLLMNewToken(token: string) {
+      handleLLMNewToken(_token: string) {
         res.write(" ");
       },
 

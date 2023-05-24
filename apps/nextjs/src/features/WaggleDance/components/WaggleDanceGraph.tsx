@@ -235,8 +235,6 @@ const WaggleDanceGraph = ({}: WaggleDanceGraphProps) => {
                       if (b.status === "working") return 1;
                       if (a.status === "idle") return -1;
                       if (b.status === "idle") return 1;
-                      if (a.status === "running") return -1;
-                      if (b.status === "running") return 1;
                       // unhandled use alphabetical
                       return a.status.localeCompare(b.status);
                     })

@@ -9,7 +9,6 @@ import WaggleDanceMachine, { initialEdges, initialNodes } from "../WaggleDanceMa
 import { type GraphData } from "../components/ForceGraph";
 import { dagToGraphData } from "../utils/conversions";
 import useApp from "~/stores/appStore";
-import { useDebounce } from "use-debounce";
 
 interface UseWaggleDanceMachineProps {
   goal: string;

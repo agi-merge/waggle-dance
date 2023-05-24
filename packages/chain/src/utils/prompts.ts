@@ -6,7 +6,7 @@ import { type ModelCreationProps } from "./types";
 
 const schema = (format: string, _llmName: string) =>
   `
-Psuedo-Typescript schema for ${format} output:
+Psuedo-Typescript schema for to be translated into ${format} for output:
 DAG
   nodes: Node[]
   edges: Edge[]
@@ -15,7 +15,7 @@ Params
 Node
   name: string
   act: string
-  params: Params // must be detailed
+  params: Params // must be detailed; Do NOT return anything with braces/brackets
   id: string;
 Edge
   sId: string

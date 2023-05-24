@@ -1,7 +1,6 @@
 // NoSSRForceGraph.tsx
 import React, { useEffect, useRef, useState } from "react";
 import useResizeObserver from "@react-hook/resize-observer";
-import { forceCollide, forceLink, forceManyBody } from "d3-force";
 import { ForceGraph2D as OriginalForceGraph2D } from "react-force-graph";
 import { useDebounce } from "use-debounce";
 
@@ -218,6 +217,7 @@ const NoSSRForceGraph: React.FC<ForceGraphProps> = ({ data }) => {
         width={containerWidth}
         height={containerWidth / (4 / 3)}
         dagMode="td"
+        dagLevelDistance={20}
         // TODO: gotta come back to this one
         // eslint-disable-next-line @typescript-eslint/ban-ts-comment
         // @ts-ignore
@@ -236,27 +236,27 @@ const NoSSRForceGraph: React.FC<ForceGraphProps> = ({ data }) => {
         linkDirectionalArrowRelPos={0.5}
         nodeCanvasObject={renderNodeCanvasObject}
         linkCurvature={0.33}
-        d3AlphaDecay={1}
-        d3VelocityDecay={1}
-        d3LinkForce={
-          () =>
-            forceLink()
-              .id((d) => (d as { id: string }).id)
-              .distance(20) // Increase the distance between linked nodes
-              .strength(0) // Reduce the strength of the link force
-        }
-        d3Force={(forceName: string, forceFn: unknown) => {
-          if (forceName === "collide") {
-            console.log("collide");
-            return forceCollide().radius(50); // Increase the collision radius
-          } else if (forceName === "charge") {
-            console.log("charge");
-            return forceManyBody().strength(-500); // Increase the repelling force strength
-          }
-          return forceFn;
-        }}
+        d3AlphaDecay={0.5}
+        d3VelocityDecay={0.5}
+        // d3LinkForce={
+        //   () =>
+        //     forceLink()
+        //       .id((d) => (d as { id: string }).id)
+        //       .distance(20) // Increase the distance between linked nodes
+        //       .strength(0) // Reduce the strength of the link force
+        // }
+        // d3Force={(forceName: string, forceFn: unknown) => {
+        //   // if (forceName === "collide") {
+        //   //   console.log("collide");
+        //   //   return forceCollide().radius(50); // Increase the collision radius
+        //   // } else if (forceName === "charge") {
+        //   //   console.log("charge");
+        //   return forceManyBody().strength(-500); // Increase the repelling force strength
+        //   // }
+        //   // return forceFn;
+        // }}
         onEngineTick={() => {
-          fgRef.current?.zoomToFit(10);
+          fgRef.current?.zoomToFit(0, 50);
           fgRef.current?.d3ReheatSimulation();
         }}
         onDagError={(loopNodeIds) => {
