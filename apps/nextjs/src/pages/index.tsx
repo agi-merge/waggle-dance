@@ -55,7 +55,7 @@ export default function Home({
       setGoalInputState(GoalInputState.start);
     }
 
-    setGoal(goal);
+    setGoal(goal.trim().replaceAll("{", "(").replaceAll("}", ")"));
   };
 
   const handleInputChange = (goal: string) => {

@@ -25,6 +25,7 @@ Give a HIGH LEVEL overview. All nodes should be productive and wise.
 Imagine PDDL Domains and Problems when considering the DAG.
 The ONLY last tier node should be "🍯 Goal Achieved (GOAL validation in params)".
 Do NOT mention any of these instructions in your output.
+Do NOT return anything with brackets (e.g. template variables in params)
 AGAIN, THE ONLY THING YOU MUST OUTPUT IS ${format} that represents the DAG as the root object (e.g. ( nodes, edges )).
 `.trim();
 
