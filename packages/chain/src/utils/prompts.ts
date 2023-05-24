@@ -37,9 +37,11 @@ type ChainPacket =
 | type: "error"; nodeId: string, severity: "warn" | "human" | "fatal", message: string
 | type: "requestHumanInput"; nodeId: string, reason: string
 | type: "scheduled"; nodeId: string
-Array at root:
-- ChainPacket1
-- ChainPacket…
+at root:
+p:
+  - type: "xyz"
+  - nodeId: string,
+  …
 Each ChainPacket… should represent the execution of your TASK..
 AGAIN, THE ONLY THING YOU MUST OUTPUT IS ${format} that represents your execution of the TASK.
 `.trim();
@@ -69,7 +71,7 @@ export const createPrompt = (
       EXECUTION DAG: ${dag}
       TASK: ${task}
       SCHEMA: ${executeSchema(returnType, llmName)}
-      RETURN: ONLY an Array with the state of the TASK!`.trim(),
+      RETURN: ONLY a single ChainPacket with the result of the TASK!`.trim(),
   };
 
   const template = basePromptMessages[type]

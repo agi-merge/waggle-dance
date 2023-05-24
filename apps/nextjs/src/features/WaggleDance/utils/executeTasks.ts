@@ -110,23 +110,21 @@ export default async function executeTasks(
                             log(`Raw buffer: ${buffer}`)
                             // Process response data and store packets in completedTasksSet and taskResults
 
-                            const packets = parse(buffer) as ChainPacket[]
+                            const packet = parse(buffer) as ChainPacket
 
                             completedTasksSet.add(task.id);
-                            taskResults[task.id] = packets;
-                            sendChainPacket({ type: "return", nodeId: task.id, value: JSON.stringify(packets) }, task)
-                            return packets;
+                            taskResults[task.id] = [packet];
+                            sendChainPacket({ type: "return", nodeId: task.id, value: JSON.stringify(packet) }, task)
+                            return packet;
                         } else if (value.length) {
                             const jsonLines = decodeText(value);
                             const lastNewLineIndex = jsonLines.lastIndexOf("\n");
                             buffer += lastNewLineIndex === jsonLines.length - 1 ? jsonLines : jsonLines.slice(0, lastNewLineIndex + 1);
 
                             try {
-                                const packets = parse(buffer) as ChainPacket[];
-                                log("packets: ", packets)
-                                if (packets) {
-                                    packets.forEach((packet) => { sendChainPacket(packet, task) });
-                                }
+                                const packet = parse(buffer) as ChainPacket;
+                                log("packet", packet)
+                                sendChainPacket(packet, task);
                             } catch {
                                 // normal, do nothing
                             }

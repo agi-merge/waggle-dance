@@ -4,7 +4,7 @@
 import { createMemory } from "../utils/memory";
 import { createModel, createEmbeddings } from "../utils/model";
 import { createPrompt } from "../utils/prompts";
-import { type ModelCreationProps } from "../utils/types";
+import { LLM, type ModelCreationProps } from "../utils/types";
 import { WebBrowser } from "langchain/tools/webbrowser";
 import { initializeAgentExecutorWithOptions } from "langchain/agents";
 import { SerpAPI, ChainTool } from "langchain/tools";
@@ -20,45 +20,55 @@ export async function executeChain(
   goal: string,
   task: string,
   dag: string,
+  namespace?: string,
 ) {
+  const callbacks = creationProps.callbacks;
+  creationProps.callbacks = undefined;
   const llm = createModel(creationProps);
   const memory = await createMemory(goal);
-  const embeddings = createEmbeddings(creationProps);
+  const embeddings = createEmbeddings({ modelName: LLM.embeddings });
   // const planPrompt = createPrompt("plan");
   const prompt = createPrompt("execute", creationProps, goal, task, dag);
   const formattedPrompt = await prompt.format({ chat_history: memory?.chatHistory ?? "" })
 
-  if (process.env.PINECONE_API_KEY === undefined)
-    throw new Error("No pinecone api key found");
-  if (process.env.PINECONE_ENVIRONMENT === undefined)
-    throw new Error("No pinecone environment found");
-  if (process.env.PINECONE_INDEX === undefined)
-    throw new Error("No pinecone index found");
-  const client = new PineconeClient();
-  await client.init({
-    apiKey: process.env.PINECONE_API_KEY,
-    environment: process.env.PINECONE_ENVIRONMENT,
-  });
-  const pineconeIndex = client.Index(process.env.PINECONE_INDEX);
-
-  const vectorStore = await PineconeStore.fromExistingIndex(
-    embeddings,
-    { pineconeIndex }
-  );
-
-  const ltmChain = VectorDBQAChain.fromLLM(llm, vectorStore);
-  const ltmTool = new ChainTool({
-    name: "Your long-term memory",
-    description:
-      "Your long-term memory - useful for recalling facts related to solving the goal/task",
-    chain: ltmChain,
-  });
-
   const tools: Tool[] = [
     new WebBrowser({ model: llm, embeddings }),
-    new Calculator(),
-    ltmTool
+    new Calculator()
   ];
+
+  // optional tools
+
+  if (namespace) {
+
+    if (process.env.PINECONE_API_KEY === undefined)
+      throw new Error("No pinecone api key found");
+    if (process.env.PINECONE_ENVIRONMENT === undefined)
+      throw new Error("No pinecone environment found");
+    if (process.env.PINECONE_INDEX === undefined)
+      throw new Error("No pinecone index found");
+    const client = new PineconeClient();
+    await client.init({
+      apiKey: process.env.PINECONE_API_KEY,
+      environment: process.env.PINECONE_ENVIRONMENT,
+    });
+    const pineconeIndex = client.Index(process.env.PINECONE_INDEX);
+
+    const vectorStore = await PineconeStore.fromExistingIndex(
+      embeddings,
+      { pineconeIndex, namespace }
+    );
+
+    const ltmChain = VectorDBQAChain.fromLLM(llm, vectorStore);
+    const ltm = await ltmChain.call({ input: "What are your main contents?" })
+    const description = `Your long-term memory - useful for recalling facts related to solving the goal/task. ${ltm}`;
+    const ltmTool = new ChainTool({
+      name: "Your long-term memory",
+      description,
+      chain: ltmChain,
+    });
+    tools.push(ltmTool);
+  }
+
   if (process.env.SERPAPI_API_KEY?.length) {
     tools.push(
       new SerpAPI(process.env.SERPAPI_API_KEY, {
@@ -76,12 +86,12 @@ export async function executeChain(
     verbose: false,
     streaming: true,
     returnIntermediateSteps: false,
-    callbacks: creationProps.callbacks,
+    callbacks,
     memory,
     ...creationProps,
   });
 
-  const call = await executor.call({ input: formattedPrompt, chat_history: memory?.chatHistory, signal: controller.signal }, creationProps.callbacks);
+  const call = await executor.call({ input: formattedPrompt, chat_history: memory?.chatHistory, signal: controller.signal });
 
   const _dag = call?.response ? (call.response as string) : "";
 

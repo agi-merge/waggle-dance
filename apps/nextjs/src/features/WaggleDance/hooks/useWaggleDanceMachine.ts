@@ -65,21 +65,6 @@ const useWaggleDanceMachine = ({
     }
   };
 
-  const reduceTaskStates = useCallback(
-    (dagNodes: DAGNode[]): TaskState[] => {
-      return dagNodes.map(node => ({
-        ...node,
-        status: chainPackets[node.id]?.status ?? TaskStatus.idle,
-        result: chainPackets[node.id]?.result ?? null,
-        packets: chainPackets[node.id]?.packets ?? [],
-      }));
-    },
-    [chainPackets]
-  );
-
-  const taskStates = useMemo(() => {
-    return reduceTaskStates(dag.nodes);
-  }, [dag, reduceTaskStates]);
 
   const log = useCallback(
     (...args: (string | number | object)[]) => {
@@ -104,6 +89,31 @@ const useWaggleDanceMachine = ({
     [setLogs]
   );
 
+  const taskStates = useMemo(() => {
+    console.group("taskStates")
+    console.log("chainPackets", chainPackets)
+    console.log("dag.nodes", dag.nodes)
+    const reduceTaskStates = (dagNodes: DAGNode[], chainPackets: Record<string, TaskState>): TaskState[] => {
+      return dagNodes.map(node => {
+        const chainPacket = chainPackets[node.id]
+        log("chainPackets[node.id]", chainPacket ?? "not found", "node.id", node.id)
+        const packets = chainPacket?.packets ?? []
+        const status = packets[packets.length - 1]?.type ?? "idle"
+        const result = chainPacket?.result ?? null
+        return {
+          ...node,
+          status,
+          result,
+          packets,
+        }
+      });
+    };
+    const taskStates = reduceTaskStates(dag.nodes, chainPackets);
+    console.log("taskStates", taskStates)
+    console.groupEnd()
+    return taskStates;
+  }, [chainPackets, dag.nodes, log]);
+
   const sendChainPacket = useCallback((chainPacket: ChainPacket, node: DAGNode) => {
     const existingTask = chainPackets[chainPacket.nodeId];
     if (!existingTask) {
@@ -120,11 +130,20 @@ const useWaggleDanceMachine = ({
             packets: [chainPacket],
           },
         };
-        console.log("newChainPackets1", newChainPackets)
-        setChainPackets(newChainPackets);
+        log("newChainPackets1", newChainPackets)
+        setChainPackets((prevChainPackets) => ({
+          ...prevChainPackets,
+          [chainPacket.nodeId]: {
+            ...node,
+            status: TaskStatus.idle,
+            result: null,
+            packets: [chainPacket],
+          },
+        }));
+        log("After setChainPackets:", chainPackets);
       }
     } else {
-      let updatedTask
+      let updatedTask: TaskState;
       if (existingTask.packets) {
         updatedTask = {
           ...existingTask,
@@ -141,13 +160,16 @@ const useWaggleDanceMachine = ({
           packets: [chainPacket],
         };
       }
-
       const newChainPackets = {
         ...chainPackets,
         [chainPacket.nodeId]: updatedTask,
       };
-      console.log("newChainPackets", newChainPackets)
-      setChainPackets(newChainPackets);
+      log("newChainPackets", newChainPackets)
+      setChainPackets((prevChainPackets) => ({
+        ...prevChainPackets,
+        [chainPacket.nodeId]: updatedTask,
+      }));
+      log("After setChainPackets:", chainPackets);
     }
   }, [chainPackets, setChainPackets, log]);
 

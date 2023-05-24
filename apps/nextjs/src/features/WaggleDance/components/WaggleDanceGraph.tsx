@@ -34,7 +34,9 @@ import AddDocuments from "~/pages/add-documents";
 import useApp from "~/stores/appStore";
 import useGoal from "~/stores/goalStore";
 import { rootPlanId } from "../WaggleDanceMachine";
-import useWaggleDanceMachine from "../hooks/useWaggleDanceMachine";
+import useWaggleDanceMachine, {
+  type TaskState,
+} from "../hooks/useWaggleDanceMachine";
 import DocsModal from "./DocsModal";
 import ForceGraph from "./ForceGraph";
 import TaskChainSelectMenu from "./TaskChainSelectMenu";
@@ -144,6 +146,25 @@ const WaggleDanceGraph = ({}: WaggleDanceGraphProps) => {
     </Stack>
   );
 
+  const statusColor = (n: TaskState) => {
+    switch (n.status.toLocaleLowerCase()) {
+      case "done":
+        return "success";
+      case "error":
+        return "danger";
+      case "running":
+        return "info";
+      case "idle":
+        return "primary";
+      case "work":
+        return "warning";
+      case "💃work":
+        return "info";
+      default:
+        return "neutral";
+    }
+  };
+
   return (
     <Stack gap="1rem">
       <PageTitle
@@ -223,9 +244,18 @@ const WaggleDanceGraph = ({}: WaggleDanceGraphProps) => {
                               >
                                 {n.name}
                                 <br />
-                                <br />
-                                Status
-                                <Typography level="body4" className="pl-0 pt-2">
+                                <Typography
+                                  level="body4"
+                                  sx={{ color: "white" }}
+                                  className="pl-0 pt-2"
+                                >
+                                  Status:
+                                </Typography>{" "}
+                                <Typography
+                                  level="body4"
+                                  className="pl-0 pt-2"
+                                  color={statusColor(n)}
+                                >
                                   {n.id === rootPlanId
                                     ? isDonePlanning
                                       ? "Done"
