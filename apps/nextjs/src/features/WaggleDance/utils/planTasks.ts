@@ -2,7 +2,7 @@
 
 import { type ModelCreationProps } from "@acme/chain";
 import { parse } from "yaml";
-import DAG, { type OptionalDAG, DAGEdgeClass } from "../DAG";
+import DAG, { type OptionalDAG, DAGEdgeClass, type DAGNode } from "../DAG";
 import { initialNodes, initialEdges, findNodesWithNoIncomingEdges, rootPlanId } from "../WaggleDanceMachine";
 
 
@@ -12,7 +12,8 @@ export default async function planTasks(
     creationProps: ModelCreationProps,
     dag: DAG,
     setDAG: (dag: DAG) => void,
-    log: (...args: (string | number | object)[]) => void
+    log: (...args: (string | number | object)[]) => void,
+    startFirstTask?: (task: DAGNode) => Promise<void>,
 ): Promise<DAG> {
     const data = { goal, creationProps };
     const res = await fetch("/api/chain/plan", {
@@ -36,6 +37,8 @@ export default async function planTasks(
         let chunks = "" as string;
         const reader = stream.getReader();
 
+        let isFirstTaskStarted = false;
+
         let result;
         while ((result = await reader.read()) && !result.done) {
             const chunk = new TextDecoder().decode(result.value);
@@ -46,7 +49,7 @@ export default async function planTasks(
                     const optDag = yaml as OptionalDAG
                     const validNodes = optDag.nodes?.filter((n) => n.name.length > 0 && n.act.length > 0 && n.id.length > 0 && n.params);
                     const validEdges = optDag.edges?.filter((n) => n.sId.length > 0 && n.tId.length > 0);
-                    if (validNodes) {
+                    if (validNodes?.length) {
                         const hookupEdges = findNodesWithNoIncomingEdges(optDag).map((node) => new DAGEdgeClass(rootPlanId, node.id))
                         const partialDAG = new DAG(
                             [...initialNodes(goal, creationProps.modelName), ...validNodes],
@@ -65,6 +68,11 @@ export default async function planTasks(
                             //     log("diffNodesCount", diffNodesCount)
                             // }
                             setDAG(partialDAG)
+                        }
+                        const firstNode = validNodes[0]
+                        if (startFirstTask && !isFirstTaskStarted && firstNode && validNodes.length > 2) { // wait for entire node to populate so we dont send partial strings
+                            isFirstTaskStarted = true;
+                            void startFirstTask(firstNode);
                         }
                     }
                 }

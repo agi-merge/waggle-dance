@@ -34,7 +34,7 @@ export default async function executeTasks(
     taskResults: Record<string, BaseResultType>;
 }> {
     // Destructure tasks and completedTasks from the request object
-    const { dags, tasks, completedTasks, taskResults } = request;
+    const { dag, tasks, completedTasks, taskResults } = request;
 
     // Create a Set of completed tasks
     const completedTasksSet = new Set(completedTasks);
@@ -43,28 +43,33 @@ export default async function executeTasks(
 
     // Keep looping while there are tasks in the task queue
     while (taskQueue.length > 0) {
-        // Gather the valid pairs of {task, dag} c from the task queue based on the completed tasks and the DAG edges
-        const validPairs = taskQueue.reduce((acc: Array<{ task: DAGNode; dag: DAG }>, task, idx) => {
-            const dag = dags[idx];
-            if (!dag || task.isScheduled || acc.length >= maxConcurrency) {
+        let validPairs
+        if (tasks.length === 1 && tasks[0]) {
+            validPairs = [{ task: tasks[0], dag }]
+        } else {
+            // Gather the valid pairs of {task, dag} c from the task queue based on the completed tasks and the DAG edges
+            validPairs = taskQueue.reduce((acc: Array<{ task: DAGNode; dag: DAG }>, task) => {
+                // const dag = dag[idx];
+                if (!dag || task.isScheduled || acc.length >= maxConcurrency) {
+                    return acc;
+                }
+
+                const isValid = dag.edges.filter((edge) => edge.tId === task.id)
+                    .every((edge) => completedTasksSet.has(edge.sId));
+
+                if (isValid) {
+                    task.isScheduled = true
+                    acc.push({ task, dag });
+                }
+
                 return acc;
+            }, []);
+            if (validPairs.length >= maxConcurrency) {
+                break;
             }
-
-            const isValid = dag.edges.filter((edge) => edge.tId === task.id)
-                .every((edge) => completedTasksSet.has(edge.sId));
-
-            if (isValid) {
-                task.isScheduled = true
-                acc.push({ task, dag });
-            }
-
-            return acc;
-        }, []);
-        if (validPairs.length >= maxConcurrency) {
-            break;
         }
 
-        log("Task queue:", taskQueue.map((t) => t.id));
+        log("Task queue:", taskQueue.map((t) => t.id), "validPairs", validPairs.map((p) => p.task.id));
 
         // Execute the valid pairs of {task, dag} concurrently, storing the execution request promises in executeTaskPromises array
         const executeTaskPromises = validPairs.map(async ({ task, dag }) => {

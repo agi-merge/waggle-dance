@@ -20,7 +20,7 @@ const handler = async (req: NextRequest) => {
       creationProps,
       goal,
       tasks,
-      dags,
+      dag,
     } = await req.json() as ExecuteRequestBody;
     const encoder = new TextEncoder()
     const stream = new ReadableStream({
@@ -33,8 +33,7 @@ const handler = async (req: NextRequest) => {
 
         const callbacks = [inlineCallback];
         creationProps.callbacks = callbacks;
-        const promises = tasks.map(async (task, i) => {
-          const dag = dags[i];
+        const promises = tasks.map(async (task) => {
           console.log("about to executeChain", task.id);
           return await executeChain(
             creationProps, goal, stringify(task), stringify(dag));

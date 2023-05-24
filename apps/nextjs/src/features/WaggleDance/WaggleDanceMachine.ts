@@ -57,6 +57,7 @@ export function findNodesWithNoIncomingEdges(dag: DAG | OptionalDAG): DAGNode[] 
 
 // The main class for the WaggleDanceMachine that coordinates the planning and execution of tasks
 export default class WaggleDanceMachine implements BaseWaggleDanceMachine {
+
   async run(
     request: BaseRequestBody,
     [initDAG, setDAG]: GraphDataState,
@@ -65,14 +66,32 @@ export default class WaggleDanceMachine implements BaseWaggleDanceMachine {
     log: (...args: (string | number | object)[]) => void,
     isRunning: boolean,
   ): Promise<WaggleDanceResult | Error> {
-
+    let hasCalledFirstTask = false;
     let dag: DAG
+    let completedTasks: Set<string> = new Set(rootPlanId);
+    let taskResults: Record<string, BaseResultType> = {};
+    const maxConcurrency = request.creationProps.maxConcurrency ?? 8;
+
+    const startFirstTask = async (task: DAGNode) => {
+      hasCalledFirstTask = true;
+      // Call the executeTasks function for the given task and update the states accordingly
+      const { completedTasks: newCompletedTasks, taskResults: newTaskResults } = await executeTasks(
+        { ...request, tasks: [task], dag, taskResults, completedTasks },
+        maxConcurrency,
+        isRunning,
+        sendChainPacket,
+        log
+      )
+      completedTasks = new Set([...newCompletedTasks, ...completedTasks]);
+      taskResults = { ...newTaskResults, ...taskResults };
+      // console.error("Error executing the first task:", error);
+    };
     if (initDAG.edges.length > 1) {
       log("skipping planning because it is done - initDAG", initDAG);
       dag = initDAG;
     } else {
       setIsDonePlanning(false);
-      dag = await planTasks(request.goal, request.creationProps, initDAG, setDAG, log);
+      dag = await planTasks(request.goal, request.creationProps, initDAG, setDAG, log, startFirstTask);
       setIsDonePlanning(true);
       log("dag", dag);
     }
@@ -83,9 +102,6 @@ export default class WaggleDanceMachine implements BaseWaggleDanceMachine {
       [...initialEdges(), ...dag.edges, ...findNodesWithNoIncomingEdges(dag).map((node) => new DAGEdgeClass(rootPlanId, node.id))],
     )
     setDAG(planDAG);
-    const completedTasks: Set<string> = new Set(rootPlanId);
-    let taskResults: Record<string, BaseResultType> = {};
-    const maxConcurrency = request.creationProps.maxConcurrency ?? 8;
 
     // Continue executing tasks and updating DAG until the goal is reached
     while (!isGoalReached(planDAG, completedTasks)) {
@@ -99,8 +115,8 @@ export default class WaggleDanceMachine implements BaseWaggleDanceMachine {
         break;
       }
 
-      const relevantPendingTasks = pendingTasks.filter((task) =>
-        dag.edges
+      const relevantPendingTasks = pendingTasks.filter((task, i) =>
+        !(hasCalledFirstTask && i === 0) && dag.edges
           .filter((edge) => edge.tId === task.id)
           .every((edge) => completedTasks.has(edge.sId)),
       );
@@ -110,8 +126,8 @@ export default class WaggleDanceMachine implements BaseWaggleDanceMachine {
       const executeRequest = {
         ...request,
         tasks: relevantPendingTasks.slice(0, maxConcurrency),
-        dags: relevantPendingTasks.map(() => dag), // copy current dag to each subtask
-        completedTasks: Array.from(completedTasks),
+        dag: dag,
+        completedTasks: completedTasks,
         taskResults,
       } as ExecuteRequestBody;
 

@@ -14,7 +14,7 @@ export interface BaseRequestBody {
 export type StrategyRequestBody = BaseRequestBody;
 export interface ExecuteRequestBody extends BaseRequestBody {
   tasks: DAGNode[];
-  completedTasks: string[];
+  completedTasks: Set<string>;
   taskResults: Record<string, BaseResultType>;
-  dags: DAG[];
+  dag: DAG;
 }
