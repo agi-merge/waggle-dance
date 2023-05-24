@@ -170,7 +170,7 @@ const WaggleDanceGraph = ({}: WaggleDanceGraphProps) => {
         title={!isRunning ? "🐝💃" : "Please 🐝 patient"}
         description={
           !isRunning
-            ? "Waggle dancing puts a swarm of language AIs to work to achieve your goal. The AIs split your goal into tasks, does them, and tries to fix mistakes on its own."
+            ? "Waggle dancing puts a swarm of language AIs to work to achieve your goal. The AIs split your goal into tasks, complete the tasks, and try to fix mistakes on their own."
             : !isDonePlanning
             ? "Planning tasks… this may take a minute… Please do NOT close this page or refresh."
             : "Done planning. Running tasks… Please do NOT close this page or refresh."

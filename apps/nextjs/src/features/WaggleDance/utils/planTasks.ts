@@ -81,7 +81,7 @@ export default async function planTasks(
                             setDAG(partialDAG)
                         }
                         const firstNode = validNodes[0]
-                        if (startFirstTask && taskState.firstTaskState === "not started" && firstNode && validNodes.length > 1) {
+                        if (startFirstTask && taskState.firstTaskState === "not started" && firstNode && validNodes.length > 0) {
                             updateTaskState && updateTaskState("started");
                             void startFirstTask(firstNode);
                         }

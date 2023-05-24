@@ -33,50 +33,49 @@ const handler = async (req: IncomingMessage, res: NextApiResponse) => {
       tasks,
       dag,
     } = JSON.parse(body) as ExecuteRequestBody;
-    // const encoder = new TextEncoder();
+    const encoder = new TextEncoder();
 
     // Replace the ReadableStream with res.writeHead/write/end
     res.writeHead(200, {
       "Content-Type": "application/octet-stream",
       "Transfer-Encoding": "chunked",
     });
-    const writePacket = (packet: ChainPacket) => {
-      res.write(JSON.stringify(packet) + "\n");
-    };
+    // const writePacket = (packet: ChainPacket) => {
+    //   res.write(JSON.stringify(packet) + "\n");
+    // };
     const inlineCallback = {
-      // handleLLMNewToken(token: string) {
-      //   // res.write(encoder.encode(token));
-      // },
+      handleLLMNewToken(token: string) {
+        res.write(" ");
+      },
 
-      handleLLMStart: (llm: { name: string }, _prompts: string[]) => {
-        console.debug("handleLLMStart", { llm });
-        writePacket({ type: "handleLLMStart", nodeId, llm });
-      },
-      handleChainStart: (chain: { name: string }) => {
-        console.debug("handleChainStart", { chain });
-        writePacket({ type: "handleChainStart", nodeId, chain });
-      },
-      handleAgentAction: (action: AgentAction) => {
-        console.debug("handleAgentAction", action);
-        writePacket({ type: "handleAgentAction", nodeId, action });
-      },
-      handleToolStart: (tool: { name: string }) => {
-        console.debug("handleToolStart", { tool });
-        writePacket({ type: "handleToolStart", nodeId, tool });
-      },
+      // handleLLMStart: (llm: { name: string }, _prompts: string[]) => {
+      //   console.debug("handleLLMStart", { llm });
+      //   writePacket({ type: "handleLLMStart", nodeId, llm });
+      // },
+      // handleChainStart: (chain: { name: string }) => {
+      //   console.debug("handleChainStart", { chain });
+      //   writePacket({ type: "handleChainStart", nodeId, chain });
+      // },
+      // handleAgentAction: (action: AgentAction) => {
+      //   console.debug("handleAgentAction", action);
+      //   writePacket({ type: "handleAgentAction", nodeId, action });
+      // },
+      // handleToolStart: (tool: { name: string }) => {
+      //   console.debug("handleToolStart", { tool });
+      //   writePacket({ type: "handleToolStart", nodeId, tool });
+      // },
     };
 
     const callbacks = [inlineCallback];
     creationProps.callbacks = callbacks;
     const promises = tasks.map(async (task) => {
       console.log("about to executeChain", task.id);
-      return await executeChain(
-        creationProps, goal, stringify(task), stringify(dag), session?.user.id);
+      return await executeChain(creationProps, goal, stringify(task), stringify(dag), session?.user.id);
     })
 
-    const _results = await Promise.all(promises)
-    console.log("results", _results);
-    res.end();
+    const results = await Promise.all(promises)
+    console.log("results", results);
+    res.end(stringify(results[0]));
 
   } catch (e) {
     let message;

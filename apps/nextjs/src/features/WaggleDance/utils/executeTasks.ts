@@ -12,14 +12,6 @@ export function sleep(ms: number): Promise<void> {
     return new Promise((resolve) => setTimeout(resolve, ms));
 }
 
-function decodeText(data: Uint8Array) {
-    if (typeof TextDecoder !== "undefined") {
-        return new TextDecoder().decode(data);
-    } else {
-        return String.fromCharCode.apply(null, Array.from(data));
-    }
-}
-
 // The executeTasks function takes in a request and a DAG, then runs tasks concurrently,
 // and updates the completed tasks and task results accordingly.
 export default async function executeTasks(
@@ -97,10 +89,11 @@ export default async function executeTasks(
                     sendChainPacket({ type: "working", nodeId: task.id }, task)
                     log(`Task ${task.id} -${task.name} stream began!`);
                 }
+                const decoder = new TextDecoder()
 
                 // Read the stream data and process based on response
                 const reader = stream.getReader();
-                let buffer = "";
+                let buffer = ""
                 try {
                     while (true) {
                         const { done, value } = await reader.read();
@@ -109,7 +102,6 @@ export default async function executeTasks(
                             log(`Stream ended for task ${task.id}-${task.name}:`);
                             log(`Raw buffer: ${buffer}`)
                             // Process response data and store packets in completedTasksSet and taskResults
-
                             const packet = parse(buffer) as RawChainPacket
 
                             completedTasksSet.add(task.id);
@@ -117,7 +109,9 @@ export default async function executeTasks(
                             sendChainPacket({ type: "done", nodeId: task.id, value: JSON.stringify(packet.p) }, task)
                             return packet;
                         } else if (value.length) {
-                            buffer += decodeText(value);
+                            // buffer.set(value, buffer.length);
+                            const data = decoder.decode(value);
+                            buffer += data
                             // const jsonLines = decodeText(value);
                             // console.log("jsonLines", jsonLines)
                             // const lastNewLineIndex = jsonLines.lastIndexOf("\n");

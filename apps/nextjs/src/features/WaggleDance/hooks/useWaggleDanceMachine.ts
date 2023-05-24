@@ -89,7 +89,7 @@ const useWaggleDanceMachine = ({
     [setLogs]
   );
 
-  const [taskStates] = useDebounce(useMemo(() => {
+  const taskStates = useMemo(() => {
     const reduceTaskStates = (dagNodes: DAGNode[], chainPackets: Record<string, TaskState>): TaskState[] => {
       return dagNodes.map(node => {
         const chainPacket = chainPackets[node.id]
@@ -106,7 +106,7 @@ const useWaggleDanceMachine = ({
     };
     const taskStates = reduceTaskStates(dag.nodes, chainPackets);
     return taskStates;
-  }, [chainPackets, dag.nodes]), 500);
+  }, [chainPackets, dag.nodes]);
 
   const sendChainPacket = useCallback((chainPacket: ChainPacket, node: DAGNode) => {
     const existingTask = chainPackets[chainPacket.nodeId];

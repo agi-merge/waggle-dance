@@ -83,13 +83,12 @@ export async function executeChain(
     verbose: true,
     streaming: true,
     returnIntermediateSteps: false,
-    callbacks,
     memory,
     ...creationProps,
   });
 
   console.log("history", memory?.chatHistory)
-  const call = await executor.call({ input: formattedPrompt, chat_history: memory?.chatHistory, signal: controller.signal });
+  const call = await executor.call({ input: formattedPrompt, chat_history: memory?.chatHistory, signal: controller.signal }, callbacks);
 
   const response = call?.output ? (call.output as string) : "";
 
