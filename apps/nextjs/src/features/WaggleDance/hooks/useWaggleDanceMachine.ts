@@ -120,6 +120,7 @@ const useWaggleDanceMachine = ({
             packets: [chainPacket],
           },
         };
+        console.log("newChainPackets1", newChainPackets)
         setChainPackets(newChainPackets);
       }
     } else {
@@ -133,6 +134,7 @@ const useWaggleDanceMachine = ({
         ...chainPackets,
         [chainPacket.nodeId]: updatedTask,
       };
+      console.log("newChainPackets", newChainPackets)
       setChainPackets(newChainPackets);
     }
   }, [chainPackets, setChainPackets, log]);
@@ -160,7 +162,7 @@ const useWaggleDanceMachine = ({
           maxTokens,
           maxConcurrency: 16,
           streaming: true,
-          verbose: process.env.NODE_ENV === "development",
+          verbose: false,
         },
       },
       [dag, setDAG],
