@@ -246,10 +246,10 @@ const WaggleDanceGraph = ({}: WaggleDanceGraphProps) => {
                           key={`${n.id}-${n.name}`}
                           color={statusColor(n)}
                           variant="outlined"
-                          sx={{ backgroundColor: statusColor(n) }}
+                          sx={{ backgroundColor: statusColor(n), padding: 0 }}
                         >
                           <ListItem>
-                            <ListItemButton>
+                            <ListItemButton sx={{ borderRadius: "md" }}>
                               <ListItemContent
                                 className="flex w-96"
                                 sx={{ backgroundColor: statusColor(n) }}
