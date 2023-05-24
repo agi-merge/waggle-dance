@@ -61,7 +61,7 @@ export default class WaggleDanceMachine implements BaseWaggleDanceMachine {
   async run(
     request: BaseRequestBody,
     [initDAG, setDAG]: GraphDataState,
-    [_isDonePlanning, setIsDonePlanning]: IsDonePlanningState,
+    [isDonePlanning, setIsDonePlanning]: IsDonePlanningState,
     sendChainPacket: (chainPacket: ChainPacket, node: DAGNode) => void,
     log: (...args: (string | number | object)[]) => void,
     isRunning: boolean,
@@ -84,9 +84,10 @@ export default class WaggleDanceMachine implements BaseWaggleDanceMachine {
       )
       completedTasks = new Set([...newCompletedTasks, ...completedTasks]);
       taskResults = { ...newTaskResults, ...taskResults };
+      hasCalledFirstTask = false;
       // console.error("Error executing the first task:", error);
     };
-    if (initDAG.edges.length > 1) {
+    if (initDAG.edges.length > 1 && isDonePlanning) {
       log("skipping planning because it is done - initDAG", initDAG);
       dag = initDAG;
     } else {
@@ -122,7 +123,7 @@ export default class WaggleDanceMachine implements BaseWaggleDanceMachine {
       }
 
       const relevantPendingTasks = pendingTasks.filter((task, i) =>
-        !(hasCalledFirstTask && i === 0) && dag.edges
+        !(hasCalledFirstTask && i === 0) && !(completedTasks.has(task.id)) && planDAG.edges
           .filter((edge) => edge.tId === task.id)
           .every((edge) => completedTasks.has(edge.sId)),
       );
@@ -139,7 +140,7 @@ export default class WaggleDanceMachine implements BaseWaggleDanceMachine {
       const executeRequest = {
         ...request,
         tasks: relevantPendingTasks.slice(0, maxConcurrency),
-        dag: dag,
+        dag: planDAG,
         completedTasks: completedTasks,
         taskResults,
       } as ExecuteRequestBody;

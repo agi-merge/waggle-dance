@@ -8,7 +8,7 @@ import { type BaseResultType, type ScheduledTask } from "../types";
 import { parse } from "yaml";
 
 // A utility function to wait for a specified amount of time (ms)
-function sleep(ms: number): Promise<void> {
+export function sleep(ms: number): Promise<void> {
     return new Promise((resolve) => setTimeout(resolve, ms));
 }
 

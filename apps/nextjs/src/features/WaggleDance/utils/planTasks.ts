@@ -77,7 +77,7 @@ export default async function planTasks(
                             setDAG(partialDAG)
                         }
                         const firstNode = validNodes[0]
-                        if (startFirstTask && !isFirstTaskStarted && firstNode && validNodes.length > 2) { // wait for entire node to populate so we dont send partial strings
+                        if (startFirstTask && !isFirstTaskStarted && firstNode && validNodes.length > 1) { // wait for entire node to populate so we dont send partial strings
                             isFirstTaskStarted = true;
                             void startFirstTask(firstNode);
                         }

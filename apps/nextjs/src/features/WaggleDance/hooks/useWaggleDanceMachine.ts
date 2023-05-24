@@ -65,7 +65,6 @@ const useWaggleDanceMachine = ({
     }
   };
 
-
   const log = useCallback(
     (...args: (string | number | object)[]) => {
       const message = args
@@ -96,7 +95,6 @@ const useWaggleDanceMachine = ({
     const reduceTaskStates = (dagNodes: DAGNode[], chainPackets: Record<string, TaskState>): TaskState[] => {
       return dagNodes.map(node => {
         const chainPacket = chainPackets[node.id]
-        log("chainPackets[node.id]", chainPacket ?? "not found", "node.id", node.id)
         const packets = chainPacket?.packets ?? []
         const status = packets[packets.length - 1]?.type ?? "idle"
         const result = chainPacket?.result ?? null
@@ -112,7 +110,7 @@ const useWaggleDanceMachine = ({
     console.log("taskStates", taskStates)
     console.groupEnd()
     return taskStates;
-  }, [chainPackets, dag.nodes, log]);
+  }, [chainPackets, dag.nodes]);
 
   const sendChainPacket = useCallback((chainPacket: ChainPacket, node: DAGNode) => {
     const existingTask = chainPackets[chainPacket.nodeId];
@@ -143,23 +141,13 @@ const useWaggleDanceMachine = ({
         log("After setChainPackets:", chainPackets);
       }
     } else {
-      let updatedTask: TaskState;
-      if (existingTask.packets) {
-        updatedTask = {
-          ...existingTask,
-          status: mapPacketTypeToStatus(chainPacket.type),
-          result: chainPacket.type === "done" ? chainPacket.value : chainPacket.type === "error" ? chainPacket.message : null,
-          packets: [...existingTask.packets, chainPacket],
-        };
-      } else {
-        // Handle the case where existingTask.packets is undefined
-        updatedTask = {
-          ...existingTask,
-          status: mapPacketTypeToStatus(chainPacket.type),
-          result: chainPacket.type === "done" ? chainPacket.value : chainPacket.type === "error" ? chainPacket.message : null,
-          packets: [chainPacket],
-        };
-      }
+      const updatedTask = {
+        ...existingTask,
+        status: mapPacketTypeToStatus(chainPacket.type),
+        result: chainPacket.type === "done" ? chainPacket.value : chainPacket.type === "error" ? chainPacket.message : null,
+        packets: [...existingTask.packets, chainPacket],
+      } as TaskState;
+
       const newChainPackets = {
         ...chainPackets,
         [chainPacket.nodeId]: updatedTask,
@@ -185,8 +173,9 @@ const useWaggleDanceMachine = ({
   const run = useCallback(async () => {
     const maxTokens = llmResponseTokenLimit(LLM.smart)
 
-    setDAG(new DAG(initialNodes(goal, LLM.smart), initialEdges()/*, initialCond, initialCond*/));
-
+    if (!isDonePlanning) {
+      setDAG(new DAG(initialNodes(goal, LLM.smart), initialEdges()));
+    }
     const result = await waggleDanceMachine.run(
       {
         goal,

@@ -57,8 +57,8 @@ export async function executeChain(
     );
 
     const ltmChain = VectorDBQAChain.fromLLM(llm, vectorStore);
-    const ltm = await ltmChain.call({ input: "What are your main contents?" })
-    const description = `Your long-term memory - useful for recalling facts related to solving the goal/task. ${ltm}`;
+    // const ltm = await ltmChain.call({ input: "What are your main contents?" })
+    const description = `Your long-term memory - useful for recalling facts related to solving the goal/task.`;
     const ltmTool = new ChainTool({
       name: "Your long-term memory",
       description,
@@ -92,7 +92,7 @@ export async function executeChain(
   console.log("history", memory?.chatHistory)
   const call = await executor.call({ input: formattedPrompt, chat_history: memory?.chatHistory, signal: controller.signal });
 
-  const response = call?.response ? (call.response as string) : "";
+  const response = call?.output ? (call.output as string) : "";
 
   console.log("finished task, got response", JSON.stringify(response));
   return response;

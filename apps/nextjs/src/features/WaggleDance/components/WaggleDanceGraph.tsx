@@ -172,8 +172,8 @@ const WaggleDanceGraph = ({}: WaggleDanceGraphProps) => {
           !isRunning
             ? "Waggle dancing puts a swarm of language AIs to work to achieve your goal. The AIs split your goal into tasks, does them, and tries to fix mistakes on its own."
             : !isDonePlanning
-            ? "Planning tasks… this may take a minute…"
-            : "Almost done! Optimizing tasks…"
+            ? "Planning tasks… this may take a minute… Please do NOT close this page or refresh."
+            : "Done planning. Running tasks… Please do NOT close this page or refresh."
         }
       />
       <DocsModal>
@@ -308,6 +308,9 @@ const WaggleDanceGraph = ({}: WaggleDanceGraphProps) => {
                                     {stringifyMax(n.params, 200)}
                                   </Typography>
                                 </Typography>
+                                {n.result && (
+                                  <Typography>{n.result}</Typography>
+                                )}
                               </ListItemContent>
                               <Stack gap="0.3rem">
                                 <Tooltip title="Chat">
