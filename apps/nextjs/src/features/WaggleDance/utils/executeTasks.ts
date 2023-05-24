@@ -1,5 +1,4 @@
-
-// The executeTasks function takes in a request and a DAG, then runs tasks concurrently,
+// utils/executeTasks.ts
 
 import { type ChainPacket } from "@acme/chain";
 import { type ExecuteRequestBody } from "~/pages/api/chain/types";
@@ -22,12 +21,13 @@ function decodeText(data: Uint8Array) {
     }
 }
 
+// The executeTasks function takes in a request and a DAG, then runs tasks concurrently,
 // and updates the completed tasks and task results accordingly.
 export default async function executeTasks(
     request: ExecuteRequestBody,
     maxConcurrency: number,
     _isRunning: boolean,
-    sendChainPacket: (chainPacket: ChainPacket) => void,
+    sendChainPacket: (chainPacket: ChainPacket, node: DAGNode) => void,
     log: (...args: (string | number | object)[]) => void
 ): Promise<{
     completedTasks: Set<string>;
@@ -73,7 +73,7 @@ export default async function executeTasks(
             taskQueue.splice(scheduledTask, 1)
 
             log(`About to execute task ${task.id} -${task.name}...`);
-            sendChainPacket({ type: "scheduled", nodeId: task.id })
+            sendChainPacket({ type: "scheduled", nodeId: task.id }, task)
 
             // Execute each task by making an API request
             const data = { ...request, task, dag };
@@ -90,7 +90,7 @@ export default async function executeTasks(
             if (!response.ok || !stream) {
                 throw new Error(`No stream: ${response.statusText} `);
             } else {
-                sendChainPacket({ type: "scheduled", nodeId: task.id })
+                sendChainPacket({ type: "scheduled", nodeId: task.id }, task)
                 log(`Task ${task.id} -${task.name} stream began!`);
             }
 
@@ -110,7 +110,7 @@ export default async function executeTasks(
 
                         completedTasksSet.add(task.id);
                         taskResults[task.id] = packets;
-                        sendChainPacket({ type: "return", nodeId: task.id, value: JSON.stringify(packets) })
+                        sendChainPacket({ type: "return", nodeId: task.id, value: JSON.stringify(packets) }, task)
                         return packets;
                     } else if (value.length) {
                         const jsonLines = decodeText(value);
@@ -119,7 +119,7 @@ export default async function executeTasks(
                             const packets: ChainPacket[] = readJSONL(buffer);
                             log("packets: ", packets)
                             if (packets) {
-                                packets.forEach((packet) => { sendChainPacket(packet) })
+                                packets.forEach((packet) => { sendChainPacket(packet, task) })
                                 // completedTasksSet.add(task.id);
                                 // taskResults[task.id] = packet;
                                 // sendChainPacket(packet);
@@ -138,7 +138,7 @@ export default async function executeTasks(
                     errMessage = JSON.stringify(error)
                 }
                 const message = `Error while reading the stream or processing the response data for task ${task.id} -${task.name}: ${errMessage}`
-                sendChainPacket({ type: "error", nodeId: task.id, severity: "fatal", message })
+                sendChainPacket({ type: "error", nodeId: task.id, severity: "fatal", message }, task)
                 log(`Error while reading the stream or processing the response data for task ${task.id} -${task.name}: ${errMessage}`)
             } finally {
                 reader.releaseLock();

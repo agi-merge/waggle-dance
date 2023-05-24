@@ -61,7 +61,7 @@ export default class WaggleDanceMachine implements BaseWaggleDanceMachine {
     request: BaseRequestBody,
     [initDAG, setDAG]: GraphDataState,
     [_isDonePlanning, setIsDonePlanning]: IsDonePlanningState,
-    sendChainPacket: (chainPacket: ChainPacket) => void,
+    sendChainPacket: (chainPacket: ChainPacket, node: DAGNode) => void,
     log: (...args: (string | number | object)[]) => void,
     isRunning: boolean,
   ): Promise<WaggleDanceResult | Error> {

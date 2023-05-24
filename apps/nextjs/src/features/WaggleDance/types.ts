@@ -1,5 +1,4 @@
 // WaggleDance/types.ts
-import { createContext } from "react";
 import { type Dispatch, type SetStateAction } from "react";
 
 import { type BaseRequestBody } from "~/pages/api/chain/types";
@@ -43,7 +42,7 @@ export interface BaseWaggleDanceMachine {
     request: BaseRequestBody,
     graphDataState: GraphDataState,
     isDonePlanningState: IsDonePlanningState,
-    sendChainPacket: (chainPacket: ChainPacket) => void,
+    sendChainPacket: (chainPacket: ChainPacket, node: DAGNode) => void,
     log: (...args: (string | number | object)[]) => void,
     isRunning: boolean,
   ): Promise<WaggleDanceResult | Error>;

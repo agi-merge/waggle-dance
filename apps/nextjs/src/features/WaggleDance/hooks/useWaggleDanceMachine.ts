@@ -104,10 +104,9 @@ const useWaggleDanceMachine = ({
     [setLogs]
   );
 
-  const sendChainPacket = useCallback((chainPacket: ChainPacket) => {
+  const sendChainPacket = useCallback((chainPacket: ChainPacket, node: DAGNode) => {
     const existingTask = chainPackets[chainPacket.nodeId];
     if (!existingTask) {
-      const node = dag.nodes.find((node) => node.id === chainPacket.nodeId);
       if (!node) {
         log(`Warning: node ${chainPacket.nodeId} not found in the dag during state update`);
         return;
@@ -136,7 +135,7 @@ const useWaggleDanceMachine = ({
       };
       setChainPackets(newChainPackets);
     }
-  }, [chainPackets, setChainPackets, dag, log]);
+  }, [chainPackets, setChainPackets, log]);
 
   const [graphData, setGraphData] = useState<GraphData>({
     nodes: [],
