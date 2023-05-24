@@ -1,6 +1,6 @@
 // utils/planTasks.ts
 
-import { type ModelCreationProps } from "@acme/chain";
+import { type ChainPacket, type ModelCreationProps } from "@acme/chain";
 import { parse } from "yaml";
 import DAG, { type OptionalDAG, DAGEdgeClass, type DAGNode } from "../DAG";
 import { initialNodes, initialEdges, findNodesWithNoIncomingEdges, rootPlanId } from "../WaggleDanceMachine";
@@ -13,6 +13,7 @@ export default async function planTasks(
     dag: DAG,
     setDAG: (dag: DAG) => void,
     log: (...args: (string | number | object)[]) => void,
+    sendChainPacket: (chainPacket: ChainPacket, node: DAGNode) => void,
     startFirstTask?: (task: DAGNode) => Promise<void>,
 ): Promise<DAG> {
     const data = { goal, creationProps };
@@ -31,7 +32,13 @@ export default async function planTasks(
     if (!stream) {
         throw new Error(`No stream: ${res.statusText} `);
     } else {
-        log(`Planned!`);
+        log(`started planning!`);
+        const initialNode = initialNodes(goal, creationProps.modelName)[0]
+        if (initialNode) {
+            sendChainPacket({ type: "working", nodeId: rootPlanId }, initialNode)
+        } else {
+            log({ type: "error", nodeId: rootPlanId, message: "No initial node" })
+        }
     }
     async function streamToString(stream: ReadableStream<Uint8Array>): Promise<string> {
         let chunks = "" as string;

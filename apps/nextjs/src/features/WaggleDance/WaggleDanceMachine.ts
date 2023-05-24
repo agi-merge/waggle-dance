@@ -91,9 +91,14 @@ export default class WaggleDanceMachine implements BaseWaggleDanceMachine {
       dag = initDAG;
     } else {
       setIsDonePlanning(false);
-      dag = await planTasks(request.goal, request.creationProps, initDAG, setDAG, log, startFirstTask);
+      dag = await planTasks(request.goal, request.creationProps, initDAG, setDAG, log, sendChainPacket, startFirstTask);
+      if (dag.nodes[0]) {
+        sendChainPacket({ type: "done", nodeId: rootPlanId, value: "🍯 Goal Achieved (GOAL validation in params)" }, dag.nodes[0])
+      } else {
+        log("no nodes in dag")
+      }
       setIsDonePlanning(true);
-      log("dag", dag);
+      log("done planning");
     }
     // prepend our initial nodes to the DAG
     const planDAG = new DAG(

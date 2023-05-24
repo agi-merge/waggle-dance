@@ -103,7 +103,7 @@ export type ChainPacket =
   | { type: "handleToolStart", nodeId: string, tool: { name: string } }
   | { type: "handleAgentAction", nodeId: string, action: AgentAction }
   // our callbacks
-  | { type: "return", nodeId: string, value: string }
+  | { type: "done", nodeId: string, value: string }
   | { type: "error"; nodeId: string, severity: "warn" | "human" | "fatal", message: string }
   | { type: "requestHumanInput"; nodeId: string, reason: string }
-  | { type: "scheduled"; nodeId: string };
+  | { type: "working"; nodeId: string };

@@ -77,7 +77,7 @@ export default async function executeTasks(
                 taskQueue.splice(scheduledTask, 1)
 
                 log(`About to execute task ${task.id} -${task.name}...`);
-                sendChainPacket({ type: "scheduled", nodeId: task.id }, task)
+                sendChainPacket({ type: "working", nodeId: task.id }, task)
 
                 // Execute each task by making an API request
                 const data = { ...request, task, dag };
@@ -94,7 +94,7 @@ export default async function executeTasks(
                 if (!response.ok || !stream) {
                     throw new Error(`No stream: ${response.statusText} `);
                 } else {
-                    sendChainPacket({ type: "scheduled", nodeId: task.id }, task)
+                    sendChainPacket({ type: "working", nodeId: task.id }, task)
                     log(`Task ${task.id} -${task.name} stream began!`);
                 }
 
@@ -114,7 +114,7 @@ export default async function executeTasks(
 
                             completedTasksSet.add(task.id);
                             taskResults[task.id] = [packet];
-                            sendChainPacket({ type: "return", nodeId: task.id, value: JSON.stringify(packet) }, task)
+                            sendChainPacket({ type: "done", nodeId: task.id, value: JSON.stringify(packet) }, task)
                             return packet;
                         } else if (value.length) {
                             const jsonLines = decodeText(value);

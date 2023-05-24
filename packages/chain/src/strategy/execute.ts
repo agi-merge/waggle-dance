@@ -91,11 +91,13 @@ export async function executeChain(
     ...creationProps,
   });
 
+  console.log("history", memory?.chatHistory)
   const call = await executor.call({ input: formattedPrompt, chat_history: memory?.chatHistory, signal: controller.signal });
 
-  const _dag = call?.response ? (call.response as string) : "";
+  const response = call?.response ? (call.response as string) : "";
 
-  return _dag;
+  console.log("finished task, got response", JSON.stringify(response));
+  return response;
 }
 
 

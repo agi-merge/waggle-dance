@@ -9,8 +9,8 @@ import {
   Stop,
 } from "@mui/icons-material";
 import {
-  Box,
   Button,
+  Card,
   Divider,
   Input,
   LinearProgress,
@@ -33,7 +33,6 @@ import PageTitle from "~/features/MainLayout/components/PageTitle";
 import AddDocuments from "~/pages/add-documents";
 import useApp from "~/stores/appStore";
 import useGoal from "~/stores/goalStore";
-import { rootPlanId } from "../WaggleDanceMachine";
 import useWaggleDanceMachine, {
   type TaskState,
 } from "../hooks/useWaggleDanceMachine";
@@ -155,10 +154,10 @@ const WaggleDanceGraph = ({}: WaggleDanceGraphProps) => {
       case "running":
         return "info";
       case "idle":
-        return "primary";
-      case "work":
+        return "neutral";
+      case "working":
         return "warning";
-      case "💃work":
+      case "working":
         return "info";
       default:
         return "neutral";
@@ -223,85 +222,94 @@ const WaggleDanceGraph = ({}: WaggleDanceGraphProps) => {
                     marginX: { xs: -2, sm: 0 },
                   }}
                 >
-                  {taskStates.map((n) => (
-                    <Box key={n.id}>
-                      <ListItem>
-                        <ListItemButton>
-                          <ListItemContent className="flex w-96">
-                            <Stack
-                              direction="column"
-                              className="flex flex-grow"
-                              gap="1rem"
-                              style={{
-                                overflowWrap: "break-word",
-                                width: "20%",
-                              }}
-                            >
-                              <Typography
-                                level="body4"
-                                className="text-wrap flex"
-                                color="primary"
+                  {taskStates
+                    .sort((a: TaskState, b: TaskState) => {
+                      return a.status.localeCompare(b.status);
+                    })
+                    .map((n) => (
+                      <>
+                        <Card
+                          key={`${n.id}-${n.name}`}
+                          color={statusColor(n)}
+                          variant="outlined"
+                          sx={{ backgroundColor: statusColor(n) }}
+                        >
+                          <ListItem>
+                            <ListItemButton>
+                              <ListItemContent
+                                className="flex w-96"
+                                sx={{ backgroundColor: statusColor(n) }}
                               >
-                                {n.name}
-                                <br />
-                                <Typography
-                                  level="body4"
-                                  sx={{ color: "white" }}
-                                  className="pl-0 pt-2"
+                                <Stack
+                                  direction="column"
+                                  className="flex flex-grow"
+                                  gap="1rem"
+                                  style={{
+                                    overflowWrap: "break-word",
+                                    width: "20%",
+                                  }}
                                 >
-                                  Status:
-                                </Typography>{" "}
+                                  <Typography
+                                    level="body4"
+                                    className="text-wrap flex"
+                                    color="primary"
+                                  >
+                                    {n.name}
+                                    <br />
+                                    <Typography
+                                      level="body4"
+                                      textColor="common.white"
+                                      sx={{ mixBlendMode: "difference" }}
+                                    >
+                                      Status:
+                                    </Typography>{" "}
+                                    <Typography
+                                      level="body4"
+                                      color={statusColor(n)}
+                                    >
+                                      {n.status}
+                                    </Typography>
+                                  </Typography>
+                                </Stack>
                                 <Typography
-                                  level="body4"
-                                  className="pl-0 pt-2"
-                                  color={statusColor(n)}
+                                  level="body3"
+                                  className="text-wrap"
+                                  style={{
+                                    overflowWrap: "break-word",
+                                    width: "80%",
+                                  }}
                                 >
-                                  {n.id === rootPlanId
-                                    ? isDonePlanning
-                                      ? "Done"
-                                      : "💃work"
-                                    : n.status}
+                                  {n.act}{" "}
+                                  <Typography
+                                    fontFamily="monospace"
+                                    level="body5"
+                                    color="info"
+                                    variant="outlined"
+                                    className="text-wrap"
+                                    style={{
+                                      overflowWrap: "break-word",
+                                      width: "100%",
+                                    }}
+                                  >
+                                    {stringifyMax(n.params, 200)}
+                                  </Typography>
                                 </Typography>
-                              </Typography>
-                            </Stack>
-                            <Typography
-                              level="body3"
-                              className="text-wrap"
-                              style={{
-                                overflowWrap: "break-word",
-                                width: "80%",
-                              }}
-                            >
-                              {n.act}{" "}
-                              <Typography
-                                fontFamily="monospace"
-                                level="body5"
-                                color="info"
-                                variant="outlined"
-                                className="text-wrap"
-                                style={{
-                                  overflowWrap: "break-word",
-                                  width: "100%",
-                                }}
-                              >
-                                {stringifyMax(n.params, 200)}
-                              </Typography>
-                            </Typography>
-                          </ListItemContent>
-                          <Stack gap="0.3rem">
-                            <Tooltip title="Chat">
-                              <Send />
-                            </Tooltip>
-                            <Divider />
-                            <Tooltip title="Edit">
-                              <Edit />
-                            </Tooltip>
-                          </Stack>
-                        </ListItemButton>
-                      </ListItem>
-                      <ListDivider inset="gutter" />
-                    </Box>
-                  ))}
+                              </ListItemContent>
+                              <Stack gap="0.3rem">
+                                <Tooltip title="Chat">
+                                  <Send />
+                                </Tooltip>
+                                <Divider />
+                                <Tooltip title="Edit">
+                                  <Edit />
+                                </Tooltip>
+                              </Stack>
+                            </ListItemButton>
+                          </ListItem>
+                        </Card>
+                        <ListDivider inset="gutter" />
+                      </>
+                    ))}
                 </List>
               </TabPanel>
               <TabPanel

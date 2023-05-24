@@ -22,7 +22,7 @@ export type LogMessage = {
 
 export enum TaskStatus {
   idle = "idle",
-  work = "work",
+  working = "working",
   done = "done",
   wait = "wait",
   error = "error",
@@ -51,13 +51,13 @@ const useWaggleDanceMachine = ({
       case "handleChainStart":
       case "handleToolStart":
       case "handleAgentAction":
-        return TaskStatus.work;
-      case "return":
+        return TaskStatus.working;
+      case "done":
         return TaskStatus.done;
       case "error":
         return TaskStatus.error;
-      case "scheduled":
-        return TaskStatus.work;
+      case "working":
+        return TaskStatus.working;
       case "requestHumanInput":
         return TaskStatus.wait;
       default:
@@ -148,7 +148,7 @@ const useWaggleDanceMachine = ({
         updatedTask = {
           ...existingTask,
           status: mapPacketTypeToStatus(chainPacket.type),
-          result: chainPacket.type === "return" ? chainPacket.value : chainPacket.type === "error" ? chainPacket.message : null,
+          result: chainPacket.type === "done" ? chainPacket.value : chainPacket.type === "error" ? chainPacket.message : null,
           packets: [...existingTask.packets, chainPacket],
         };
       } else {
@@ -156,7 +156,7 @@ const useWaggleDanceMachine = ({
         updatedTask = {
           ...existingTask,
           status: mapPacketTypeToStatus(chainPacket.type),
-          result: chainPacket.type === "return" ? chainPacket.value : chainPacket.type === "error" ? chainPacket.message : null,
+          result: chainPacket.type === "done" ? chainPacket.value : chainPacket.type === "error" ? chainPacket.message : null,
           packets: [chainPacket],
         };
       }

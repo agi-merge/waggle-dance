@@ -33,10 +33,10 @@ const executeSchema = (format: string, _llmName: string) =>
   `
 Psuedo-Typescript schema for ${format} output:
 type ChainPacket =
-| type: "return", nodeId: string, value: string
+| type: "done", nodeId: string, value: string
 | type: "error"; nodeId: string, severity: "warn" | "human" | "fatal", message: string
 | type: "requestHumanInput"; nodeId: string, reason: string
-| type: "scheduled"; nodeId: string
+| type: "working"; nodeId: string
 at root:
 p:
   - type: "xyz"
