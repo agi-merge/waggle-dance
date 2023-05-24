@@ -2,7 +2,6 @@
 
 import { type ChainPacket } from "@acme/chain";
 import { type ExecuteRequestBody } from "~/pages/api/chain/types";
-import readJSONL from "~/utils/jsonl";
 import { type DAGNode } from "../DAG";
 import type DAG from "../DAG";
 import { type BaseResultType, type ScheduledTask } from "../types";
