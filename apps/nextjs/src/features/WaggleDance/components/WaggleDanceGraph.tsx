@@ -208,10 +208,7 @@ const WaggleDanceGraph = ({}: WaggleDanceGraphProps) => {
                       <ListItem>
                         <ListItemButton>
                           <ListItemDecorator>
-                            <Stack
-                              direction="column"
-                              className="w-24 items-center"
-                            >
+                            <Stack direction="column">
                               <Typography color="primary" level="body3">
                                 {i > 0
                                   ? i < dag.nodes.length - 1
@@ -221,7 +218,10 @@ const WaggleDanceGraph = ({}: WaggleDanceGraphProps) => {
                                     : "🐝"
                                   : n.id}
                               </Typography>
-                              <Typography level="body4" className="pl-0 pt-2">
+                              <Typography
+                                level="body4"
+                                className="w-16 pl-0 pt-2"
+                              >
                                 {n.id === rootPlanId
                                   ? isDonePlanning
                                     ? "Done"
@@ -230,15 +230,37 @@ const WaggleDanceGraph = ({}: WaggleDanceGraphProps) => {
                               </Typography>
                             </Stack>
                           </ListItemDecorator>
-                          <ListItemContent>
-                            <Typography>{n.name}</Typography>
-                            <Typography level="body3">
+                          <ListItemContent className="flex w-96">
+                            <Typography
+                              level="body4"
+                              className="text-wrap"
+                              color="primary"
+                              style={{
+                                overflowWrap: "break-word",
+                                width: "20%",
+                              }}
+                            >
+                              {n.name}
+                            </Typography>
+                            <Typography
+                              level="body3"
+                              className="text-wrap"
+                              style={{
+                                overflowWrap: "break-word",
+                                width: "80%",
+                              }}
+                            >
                               {n.act}{" "}
                               <Typography
                                 fontFamily="monospace"
                                 level="body5"
                                 color="info"
                                 variant="outlined"
+                                className="text-wrap"
+                                style={{
+                                  overflowWrap: "break-word",
+                                  width: "100%",
+                                }}
                               >
                                 {stringifyMax(n.params, 200)}
                               </Typography>
