@@ -65,12 +65,11 @@ export const createPrompt = (
       TASK: To come up with an efficient and expert plan to solve the User's GOAL. Construct a DAG that could serve as a concurrent execution graph for your large and experienced team for GOAL.
       RETURN: ONLY the DAG as described in SCHEMA${returnType === "JSON" ? ":" : ". Do NOT return JSON:"}`.trim(),
     execute:
-      `YOU: An expert AI task performer based on the ${llmName} architecture employed by the User to solve the User's GOAL by completing a task.
-      GOAL: ${goal}
+      `GOAL: ${goal}
       EXECUTION DAG: ${dag}
       TASK: ${task}
-      SCHEMA: ${schema(returnType, llmName)}
-      RETURN: ONLY a ChainPacket with the state of the TASK!`.trim(),
+      SCHEMA: ${executeSchema(returnType, llmName)}
+      RETURN: ONLY an Array with the state of the TASK!`.trim(),
   };
 
   const template = basePromptMessages[type]
