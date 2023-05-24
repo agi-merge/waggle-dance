@@ -66,7 +66,7 @@ export default function Home({
     <MainLayout openAIUsage={openAIUsage}>
       <Card variant="soft">
         <Title
-          title="🐝 Your goal"
+          title="🐝 Goal solver"
           description="Input a goal or task 🍯 that you would like to automate. 🤔 Browse templates below for examples!"
           hideGoal={true}
         />
