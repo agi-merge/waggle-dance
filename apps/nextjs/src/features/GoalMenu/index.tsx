@@ -11,11 +11,11 @@ import {
   type CardProps,
 } from "@mui/joy";
 
-import useGoal, { GoalInputState } from "~/stores/goalStore";
+import useGoal from "~/stores/goalStore";
 import GoalDoctorModal from "./components/GoalDoctorModal";
 
 const GoalMenu = ({}: CardProps) => {
-  const { goal, setGoalInputState, setGoal } = useGoal();
+  const { goal, setGoal } = useGoal();
   return (
     <Card size="sm">
       {goal && (
@@ -35,8 +35,8 @@ const GoalMenu = ({}: CardProps) => {
                   color="danger"
                   className="-m-3"
                   onClick={() => {
+                    // FIXME: confirmation modal
                     setGoal("");
-                    setGoalInputState(GoalInputState.start);
                   }}
                 >
                   <Close />

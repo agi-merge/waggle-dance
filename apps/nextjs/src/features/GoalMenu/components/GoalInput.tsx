@@ -12,7 +12,6 @@ import {
 import { type CardProps } from "@mui/joy/Card";
 
 import { type Handlers } from "~/pages";
-import { GoalInputState } from "~/stores/goalStore";
 import GoalDoctorModal from "./GoalDoctorModal";
 import TemplatesModal from "./TemplatesModal";
 
@@ -37,13 +36,11 @@ const placeholders = [
 ];
 
 interface GoalInputProps extends CardProps {
-  state?: GoalInputState;
   callbacks: Handlers; // Update the type of callbacks
   startingValue?: string;
 }
 
 export default function GoalInput({
-  state,
   callbacks,
   startingValue,
 }: GoalInputProps) {
@@ -64,11 +61,7 @@ export default function GoalInput({
 
   const handleSubmit = (event: React.FormEvent) => {
     event.preventDefault();
-    if (state !== GoalInputState.start) {
-      callbacks.onStop();
-    } else {
-      callbacks.setGoal(goalInputValue);
-    }
+    callbacks.setGoal(goalInputValue);
   };
 
   const handleChange = (event: React.ChangeEvent<HTMLTextAreaElement>) => {
@@ -124,7 +117,6 @@ export default function GoalInput({
             </Box>
           }
           size="lg"
-          disabled={state !== GoalInputState.start}
           required
           variant="outlined"
           className="py-col flex-grow"
@@ -143,9 +135,7 @@ export default function GoalInput({
         <Button
           className="col-end mt-2"
           type="submit"
-          disabled={
-            state === GoalInputState.start && goalInputValue.trim().length === 0
-          }
+          disabled={goalInputValue.trim().length === 0}
         >
           Next
           <KeyboardArrowRight />

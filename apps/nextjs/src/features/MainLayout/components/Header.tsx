@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useMemo } from "react";
 import { useRouter } from "next/router";
 import { KeyboardArrowRight } from "@mui/icons-material";
 import {
@@ -13,7 +13,7 @@ import { useSession } from "next-auth/react";
 
 import { type CombinedResponse } from "~/utils/openAIUsageAPI";
 import { app } from "~/constants";
-import useGoal, { GoalInputState } from "~/stores/goalStore";
+import useGoal from "~/stores/goalStore";
 import OpenAIUsage from "./OpenAIUsage";
 import ThemeToggle from "./ThemeToggle";
 
@@ -21,73 +21,97 @@ function removeFirstCharIfMatching(str: string, targetChar: string): string {
   return str && str.length > 0 && str[0] === targetChar ? str.slice(1) : str;
 }
 
+const routes = {
+  "": {
+    path: "" as RoutePath,
+    label: "🐝 Start",
+  },
+  // {
+  //   path: "add-documents",
+  //   label: "🌺 Data ",
+  //   goalState: GoalInputState.refine,
+  // },
+  "waggle-dance": {
+    path: "waggle-dance" as RoutePath,
+    label: "💃 Waggle",
+  },
+  "goal-done": {
+    path: "goal-done" as RoutePath,
+    label: "🍯 Done",
+  },
+};
+
+type RoutePath = "" | "waggle-dance" | "goal-done";
 const Header = ({
   openAIUsage,
 }: {
   openAIUsage: CombinedResponse | null | undefined;
 }) => {
   const router = useRouter();
-  const { setGoalInputState } = useGoal();
+  const { setGoal } = useGoal();
   const slug = removeFirstCharIfMatching(router.pathname, "/");
   const { data: session } = useSession();
-  const routes = [
-    { path: "", label: "🐝 Start", goalState: GoalInputState.start },
-    // {
-    //   path: "add-documents",
-    //   label: "🌺 Data ",
-    //   goalState: GoalInputState.refine,
-    // },
-    {
-      path: "waggle-dance",
-      label: "💃 Waggle",
-      goalState: GoalInputState.configure,
-    },
-    { path: "goal-done", label: "🍯 Done", goalState: GoalInputState.done },
-  ];
 
-  const isActive = (path: string) => {
-    return path === slug;
-  };
+  const activeIndex = useMemo(() => {
+    return Object.keys(routes).findIndex((path) => path === slug);
+  }, [slug]);
 
   const renderBreadcrumbLink = (
-    path: string,
+    path: RoutePath,
     label: string,
-    goalState?: GoalInputState,
+    index: number,
+    activeIndex: number,
   ) => {
-    const isHighlighted = slug === path || (slug?.length ?? 0) < 1;
-
-    const _handleStateChange = () => {
-      setGoalInputState(goalState ?? GoalInputState.start);
-    };
-
-    if (isActive(path)) {
-      return (
-        <Typography
-          key={path}
-          sx={{ cursor: "default" }}
-          component="span"
-          level="body3"
-          color={isHighlighted ? "primary" : "neutral"}
-          className={isHighlighted ? "font-bold" : ""}
-        >
-          {label}
-        </Typography>
-        // </Link>
-      );
-    } else {
-      return (
-        // <Link href={`/${path}`} key={path} onClick={handleStateChange}>
-        <Typography
-          key={path}
-          level="body3"
-          color="neutral"
-          className="cursor-default opacity-50"
-        >
-          {label}
-        </Typography>
-        // </Link>
-      );
-    }
+    const isHighlighted = index <= activeIndex;
+    const isLink = index != activeIndex && isHighlighted;
+    const isCurrent = index === activeIndex;
+    // const _handleStateChange = () => {
+    //   setGoalInputState(goalState ?? GoalInputState.start);
+    // };
+    // const route = routes[path];
+    // const isHighlighted = goalState <= route.goalState;
+    const labelElement = isHighlighted ? (
+      <Typography
+        key={path}
+        sx={{ cursor: isCurrent ? "default" : "pointer" }}
+        component="span"
+        level="body3"
+        color={isCurrent ? "primary" : "neutral"}
+        className={isHighlighted ? "font-bold" : ""}
+      >
+        {label}
+      </Typography>
+    ) : (
+      <Typography
+        key={path}
+        level="body3"
+        color="neutral"
+        className="cursor-default opacity-50"
+      >
+        {label}
+      </Typography>
+    );
+    return (
+      <>
+        {isLink ? (
+          <Link
+            onClick={() => {
+              // FIXME: confirmation modal
+              if (path === "") {
+                setGoal("");
+              }
+              void router.replace(path);
+            }}
+            color={isCurrent ? "primary" : "neutral"}
+            className="cursor-pointer"
+          >
+            {labelElement}
+          </Link>
+        ) : (
+          labelElement
+        )}
+      </>
+    );
   };
 
   const isHomeSlug = (slug?.length ?? 0) === 0;
@@ -148,8 +172,8 @@ const Header = ({
             className="mb-2 mt-4 flex flex-grow"
             size="sm"
           >
-            {routes.map((route) =>
-              renderBreadcrumbLink(route.path, route.label, route.goalState),
+            {Object.values(routes).map((route, i) =>
+              renderBreadcrumbLink(route.path, route.label, i, activeIndex),
             )}
           </Breadcrumbs>
           {openAIUsage && <OpenAIUsage openAIUsage={openAIUsage} />}

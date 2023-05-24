@@ -12,7 +12,7 @@ import GoalInput from "~/features/GoalMenu/components/GoalInput";
 import MainLayout from "~/features/MainLayout";
 import Title from "~/features/MainLayout/components/PageTitle";
 import useApp from "~/stores/appStore";
-import useGoal, { GoalInputState } from "~/stores/goalStore";
+import useGoal from "~/stores/goalStore";
 
 export interface Handlers {
   setGoal: (goal: string) => void;
@@ -43,16 +43,13 @@ export default function Home({
 }: InferGetServerSidePropsType<typeof getServerSideProps>) {
   const { setIsAutoStartEnabled } = useApp();
   const router = useRouter();
-  const { goal, setGoal, goalInputState, setGoalInputState } = useGoal();
+  const { goal, setGoal } = useGoal();
 
   // Define handleSetGoal function
   const handleSetGoal = (goal: string) => {
     if (goal.trim().length > 0) {
       setIsAutoStartEnabled(true);
       void router.push(app.routes.waggle);
-      setGoalInputState(GoalInputState.run);
-    } else {
-      setGoalInputState(GoalInputState.start);
     }
 
     setGoal(goal.trim().replaceAll("{", "(").replaceAll("}", ")"));
@@ -71,13 +68,12 @@ export default function Home({
           hideGoal={true}
         />
         <GoalInput
-          state={goalInputState}
           startingValue={goal}
           callbacks={{
             setGoal: handleSetGoal,
             onChange: handleInputChange,
             onStop: () => {
-              setGoalInputState(GoalInputState.start);
+              /* do nothing */
             },
           }}
         />
