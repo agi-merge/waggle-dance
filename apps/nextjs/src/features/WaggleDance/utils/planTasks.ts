@@ -31,15 +31,17 @@ export default async function planTasks(
     }
     // Get the response body as a stream
     const stream = res.body;
+    let initialNode: DAGNode | undefined
     if (!stream) {
         throw new Error(`No stream: ${res.statusText} `);
     } else {
         log(`started planning!`);
-        const initialNode = initialNodes(goal, creationProps.modelName)[0]
+        initialNode = initialNodes(goal, creationProps.modelName)[0]
         if (initialNode) {
             sendChainPacket({ type: "working", nodeId: rootPlanId }, initialNode)
         } else {
             log({ type: "error", nodeId: rootPlanId, message: "No initial node" })
+            throw new Error("No initial node")
         }
     }
     async function streamToString(stream: ReadableStream<Uint8Array>): Promise<string> {
@@ -53,6 +55,7 @@ export default async function planTasks(
             const chunk = new TextDecoder().decode(result.value);
             chunks += chunk;
             try {
+                initialNode && sendChainPacket({ type: "working", nodeId: initialNode.id }, initialNode)
                 const yaml = parse(chunks) as unknown;
                 if (yaml && yaml as OptionalDAG) {
                     const optDag = yaml as OptionalDAG
