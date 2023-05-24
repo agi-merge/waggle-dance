@@ -118,16 +118,14 @@ export default async function executeTasks(
                             return packets;
                         } else if (value.length) {
                             const jsonLines = decodeText(value);
-                            buffer += jsonLines;
+                            const lastNewLineIndex = jsonLines.lastIndexOf("\n");
+                            buffer += lastNewLineIndex === jsonLines.length - 1 ? jsonLines : jsonLines.slice(0, lastNewLineIndex + 1);
+
                             try {
                                 const packets = parse(buffer) as ChainPacket[];
                                 log("packets: ", packets)
                                 if (packets) {
-                                    packets.forEach((packet) => { sendChainPacket(packet, task) })
-                                    // completedTasksSet.add(task.id);
-                                    // taskResults[task.id] = packet;
-                                    // sendChainPacket(packet);
-                                    // setChainPackets([...chainPackets, packet]); // Call setChainPackets after each streamed packet
+                                    packets.forEach((packet) => { sendChainPacket(packet, task) });
                                 }
                             } catch {
                                 // normal, do nothing
