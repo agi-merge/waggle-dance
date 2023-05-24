@@ -124,12 +124,24 @@ const useWaggleDanceMachine = ({
         setChainPackets(newChainPackets);
       }
     } else {
-      const updatedTask = {
-        ...existingTask,
-        status: mapPacketTypeToStatus(chainPacket.type),
-        result: chainPacket.type === "return" ? chainPacket.value : chainPacket.type === "error" ? chainPacket.message : null,
-        packets: [...existingTask.packets, chainPacket],
-      };
+      let updatedTask
+      if (existingTask.packets) {
+        updatedTask = {
+          ...existingTask,
+          status: mapPacketTypeToStatus(chainPacket.type),
+          result: chainPacket.type === "return" ? chainPacket.value : chainPacket.type === "error" ? chainPacket.message : null,
+          packets: [...existingTask.packets, chainPacket],
+        };
+      } else {
+        // Handle the case where existingTask.packets is undefined
+        updatedTask = {
+          ...existingTask,
+          status: mapPacketTypeToStatus(chainPacket.type),
+          result: chainPacket.type === "return" ? chainPacket.value : chainPacket.type === "error" ? chainPacket.message : null,
+          packets: [chainPacket],
+        };
+      }
+
       const newChainPackets = {
         ...chainPackets,
         [chainPacket.nodeId]: updatedTask,
