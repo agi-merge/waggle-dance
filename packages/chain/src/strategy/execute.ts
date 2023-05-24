@@ -27,6 +27,7 @@ export async function executeChain(
   const memory = await createMemory(goal);
   const embeddings = createEmbeddings({ modelName: LLM.embeddings });
   // const planPrompt = createPrompt("plan");
+  task = task.trim().replaceAll("{", ")").replaceAll("}", ")")
   const prompt = createPrompt("execute", creationProps, goal, task, dag);
   const formattedPrompt = await prompt.format({ chat_history: memory?.chatHistory ?? "" })
 
