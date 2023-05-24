@@ -69,6 +69,7 @@ const handler = async (req: IncomingMessage, res: NextApiResponse) => {
     const callbacks = [inlineCallback];
     creationProps.callbacks = callbacks;
     const promises = tasks.map(async (task) => {
+      console.log("about to executeChain", task.id);
       return await executeChain(
         creationProps, goal, stringify(task), stringify(dag), session?.user.id);
     })

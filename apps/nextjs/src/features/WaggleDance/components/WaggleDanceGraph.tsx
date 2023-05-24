@@ -224,6 +224,20 @@ const WaggleDanceGraph = ({}: WaggleDanceGraphProps) => {
                 >
                   {taskStates
                     .sort((a: TaskState, b: TaskState) => {
+                      if (a.status === b.status) return -1; // use natural order for equal elements
+                      if (a.status === "done") return -1;
+                      if (b.status === "done") return 1;
+                      if (a.status === "error") return -1;
+                      if (b.status === "error") return 1;
+                      if (a.status === "done") return -1;
+                      if (b.status === "done") return 1;
+                      if (a.status === "working") return -1;
+                      if (b.status === "working") return 1;
+                      if (a.status === "idle") return -1;
+                      if (b.status === "idle") return 1;
+                      if (a.status === "running") return -1;
+                      if (b.status === "running") return 1;
+                      // unhandled use alphabetical
                       return a.status.localeCompare(b.status);
                     })
                     .map((n) => (
@@ -246,12 +260,12 @@ const WaggleDanceGraph = ({}: WaggleDanceGraphProps) => {
                                   gap="1rem"
                                   style={{
                                     overflowWrap: "break-word",
-                                    width: "20%",
+                                    width: "25%",
                                   }}
                                 >
                                   <Typography
-                                    level="body4"
-                                    className="text-wrap flex"
+                                    level="body3"
+                                    className="text-wrap flex p-1"
                                     color="primary"
                                   >
                                     {n.name}
