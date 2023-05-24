@@ -53,7 +53,7 @@ export const createPrompt = (
   goal?: string,
   task?: string,
   dag?: string,
-  tools = "Self-query, web search, long-term-memory-query, web search, calculator, Zapier.",
+  tools = "Self-query, web search, long-term-memory-query, web search, Zapier, return data.",
 ): PromptTemplate => {
   const llmName = creationProps?.modelName ?? "unknown";
   const returnType = "YAML" as string;

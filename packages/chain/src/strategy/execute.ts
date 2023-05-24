@@ -8,7 +8,6 @@ import { LLM, type ModelCreationProps } from "../utils/types";
 import { WebBrowser } from "langchain/tools/webbrowser";
 import { initializeAgentExecutorWithOptions } from "langchain/agents";
 import { SerpAPI, ChainTool } from "langchain/tools";
-import { Calculator } from "langchain/tools/calculator";
 import { type Tool } from "langchain/dist/tools/base";
 
 import { VectorDBQAChain } from "langchain/chains";
@@ -33,7 +32,6 @@ export async function executeChain(
 
   const tools: Tool[] = [
     new WebBrowser({ model: llm, embeddings }),
-    new Calculator()
   ];
 
   // optional tools
