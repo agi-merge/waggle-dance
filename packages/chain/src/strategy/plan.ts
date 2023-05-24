@@ -20,10 +20,13 @@ export async function planChain(
     prompt,
     llm,
   });
+
+  const controller = new AbortController();
   const [call] = await Promise.all([
     // prompt.format({ goal, schema: "string[]" }),
     chain.call({
-    }),
+      signal: controller.signal
+    },),
   ]);
   const dag = call?.response ? (call.response as string) : "";
 

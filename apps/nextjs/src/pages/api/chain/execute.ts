@@ -35,7 +35,7 @@ const handler = async (req: NextRequest) => {
         creationProps.callbacks = callbacks;
         const promises = tasks.map(async (task, i) => {
           const dag = dags[i];
-          console.log("about to executeChain");
+          console.log("about to executeChain", task.id);
           return await executeChain(
             creationProps, goal, stringify(task), stringify(dag));
         })

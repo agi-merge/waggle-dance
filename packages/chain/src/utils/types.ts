@@ -105,4 +105,5 @@ export type ChainPacket =
   // our callbacks
   | { type: "return", nodeId: string, value: string }
   | { type: "error"; nodeId: string, severity: "warn" | "human" | "fatal", message: string }
+  | { type: "requestHumanInput"; nodeId: string, reason: string }
   | { type: "scheduled"; nodeId: string };

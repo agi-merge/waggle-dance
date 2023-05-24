@@ -24,6 +24,7 @@ export enum TaskStatus {
   idle = "idle",
   work = "work",
   done = "done",
+  wait = "wait",
   error = "error",
 }
 
@@ -57,6 +58,8 @@ const useWaggleDanceMachine = ({
         return TaskStatus.error;
       case "scheduled":
         return TaskStatus.work;
+      case "requestHumanInput":
+        return TaskStatus.wait;
       default:
         return TaskStatus.idle;
     }
@@ -102,7 +105,7 @@ const useWaggleDanceMachine = ({
   );
 
   const sendChainPacket = useCallback((chainPacket: ChainPacket) => {
-    let existingTask = chainPackets[chainPacket.nodeId];
+    const existingTask = chainPackets[chainPacket.nodeId];
     if (!existingTask) {
       const node = dag.nodes.find((node) => node.id === chainPacket.nodeId);
       if (!node) {
@@ -119,7 +122,6 @@ const useWaggleDanceMachine = ({
           },
         };
         setChainPackets(newChainPackets);
-        existingTask = newChainPackets[chainPacket.nodeId];
       }
     } else {
       const updatedTask = {
