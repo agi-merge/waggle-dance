@@ -13,12 +13,12 @@
   "dependencies": {
     "cheerio": "1.0.0-rc.12",
     "serpapi": "^1.1.1",
-    "yaml": "^2.2.2"
+    "yaml": "^2.3.0"
   },
   "devDependencies": {
     "@acme/eslint-config": "^0.1.0",
     "@types/crypto-js": "^4.1.1",
-    "eslint": "^8.40.0",
+    "eslint": "^8.41.0",
     "typescript": "^5.0.4"
   }
 }
