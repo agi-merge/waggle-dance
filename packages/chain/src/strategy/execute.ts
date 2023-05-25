@@ -27,7 +27,7 @@ export async function executeChain(
   const memory = await createMemory(goal);
   const embeddings = createEmbeddings({ modelName: LLM.embeddings });
   const prompt = createPrompt("execute", creationProps, goal, task, dag);
-  const formattedPrompt = await prompt.format({ chat_history: memory?.chatHistory ?? "" })
+  const formattedPrompt = await prompt.format({ chat_history: memory?.chatHistory ?? "None", format: "YAML" })
 
   const tools: Tool[] = [
     new WebBrowser({ model: llm, embeddings }),
@@ -80,7 +80,7 @@ export async function executeChain(
 
   const executor = await initializeAgentExecutorWithOptions(tools, llm, {
     agentType: "chat-conversational-react-description",
-    verbose: true,
+    verbose: false,
     streaming: true,
     returnIntermediateSteps: false,
     memory,
@@ -88,7 +88,7 @@ export async function executeChain(
   });
 
   console.log("history", memory?.chatHistory)
-  const call = await executor.call({ input: formattedPrompt, chat_history: memory?.chatHistory, signal: controller.signal }, callbacks);
+  const call = await executor.call({ input: formattedPrompt, chat_history: memory?.chatHistory ?? "None", signal: controller.signal }, callbacks);
 
   const response = call?.output ? (call.output as string) : "";
 

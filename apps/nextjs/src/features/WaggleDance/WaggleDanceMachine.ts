@@ -111,7 +111,7 @@ export default class WaggleDanceMachine implements BaseWaggleDanceMachine {
       log("done planning");
     }
     // prepend our initial nodes to the DAG
-    const planDAG = new DAG(
+    let planDAG = new DAG(
       [...initialNodes(request.goal, request.creationProps.modelName), ...dag.nodes],
       // connect our initial nodes to the DAG: gotta find them and create edges
       [...initialEdges(), ...dag.edges, ...findNodesWithNoIncomingEdges(dag).map((node) => new DAGEdgeClass(rootPlanId, node.id))],
@@ -161,11 +161,13 @@ export default class WaggleDanceMachine implements BaseWaggleDanceMachine {
         // queue review task
         const goalNode = planDAG.nodes[planDAG.nodes.length - 1]
         const reviewId = `review-${taskId}`
-        setDAG({
+        planDAG = {
           ...planDAG,
-          nodes: [...planDAG.nodes, new DAGNodeClass(reviewId, `Review ${dag.nodes.find(n => n.id === taskId)}`, "Review", {})],
+          nodes: [...planDAG.nodes, new DAGNodeClass(reviewId, `Review ${dag.nodes.find(n => n.id === taskId)?.name}`, "Review", {})],
           edges: [...planDAG.edges, ...(goalNode ? [new DAGEdgeClass(reviewId, goalNode.id)] : []), new DAGEdgeClass(taskId, reviewId)],
-        })
+        }
+        dag = planDAG;
+        setDAG(planDAG)
       }
     }
 
