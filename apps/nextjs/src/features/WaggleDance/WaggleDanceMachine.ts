@@ -13,7 +13,6 @@ import {
 import DAG, { DAGNodeClass, DAGEdgeClass, type DAGNode, type OptionalDAG } from "./DAG";
 import {
   type BaseResultType,
-  type BaseWaggleDanceMachine,
   type GraphDataState,
   type WaggleDanceResult,
   type IsDonePlanningState,
@@ -60,7 +59,7 @@ export type OptimisticFirstTaskState = {
 }
 
 // The main class for the WaggleDanceMachine that coordinates the planning and execution of tasks
-export default class WaggleDanceMachine implements BaseWaggleDanceMachine {
+export default class WaggleDanceMachine {
 
   async run(
     request: BaseRequestBody,

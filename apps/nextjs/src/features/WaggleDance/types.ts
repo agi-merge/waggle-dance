@@ -1,10 +1,8 @@
 // WaggleDance/types.ts
 import { type Dispatch, type SetStateAction } from "react";
 
-import { type BaseRequestBody } from "~/pages/api/chain/types";
 import type DAG from "./DAG";
 import { type DAGNode } from "./DAG";
-import { type ChainPacket } from "@acme/chain";
 
 export type PlanResult = DAG;
 export type ScheduledTask = DAGNode & { isScheduled: boolean };
@@ -36,17 +34,6 @@ export interface WaggleDanceResult {
 
 export type GraphDataState = [DAG, Dispatch<SetStateAction<DAG>>];
 export type IsDonePlanningState = [boolean, Dispatch<SetStateAction<boolean>>];
-
-export interface BaseWaggleDanceMachine {
-  run(
-    request: BaseRequestBody,
-    graphDataState: GraphDataState,
-    isDonePlanningState: IsDonePlanningState,
-    sendChainPacket: (chainPacket: ChainPacket, node: DAGNode) => void,
-    log: (...args: (string | number | object)[]) => void,
-    isRunning: boolean,
-  ): Promise<WaggleDanceResult | Error>;
-}
 
 export type JsonValue =
   | string
