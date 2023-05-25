@@ -158,6 +158,14 @@ export default class WaggleDanceMachine implements BaseWaggleDanceMachine {
       taskResults = { ...taskResults, ...executionResponse.taskResults };
       for (const taskId of executionResponse.completedTasks) {
         completedTasks.add(taskId);
+        // queue review task
+        const goalNode = planDAG.nodes[planDAG.nodes.length - 1]
+        const reviewId = `review-${taskId}`
+        setDAG({
+          ...planDAG,
+          nodes: [...planDAG.nodes, new DAGNodeClass(reviewId, `Review ${dag.nodes.find(n => n.id === taskId)}`, "Review", {})],
+          edges: [...planDAG.edges, ...(goalNode ? [new DAGEdgeClass(reviewId, goalNode.id)] : []), new DAGEdgeClass(taskId, reviewId)],
+        })
       }
     }
 

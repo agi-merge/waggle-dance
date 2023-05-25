@@ -6,7 +6,7 @@ import { type ModelCreationProps } from "./types";
 
 const schema = (format: string, _llmName: string) =>
   `
-Psuedo-Typescript schema for to be translated into ${format} for output:
+Psuedo-Typescript schema to be translated into ${format} for output:
 DAG
   nodes: Node[]
   edges: Edge[]
@@ -30,9 +30,9 @@ AGAIN, THE ONLY THING YOU MUST OUTPUT IS ${format} that represents the DAG as th
 `.trim();
 
 
-const executeSchema = (format: string, _llmName: string) =>
+const executeBaseSchema = (format: string, _llmName: string) =>
   `
-Psuedo-Typescript schema for ${format} output:
+Psuedo-Typescript schema to be translated into ${format} for output:
 type ChainPacket =
 | type: "done", nodeId: string, value: string
 | type: "error"; nodeId: string, severity: "warn" | "human" | "fatal", message: string
@@ -43,8 +43,19 @@ p:
   - type: "xyz"
   - nodeId: string,
   …
-Each ChainPacket… should represent the execution of your TASK..
+`.trim();
+
+const executeSchema = (format: string, _llmName: string) =>
+  `${executeBaseSchema}
+The RETURN VALUE IN SCHEMA should represent the execution of your TASK.
 AGAIN, THE ONLY THING YOU MUST OUTPUT IS ${format} that represents your execution of the TASK.
+`.trim();
+
+const criticizeSchema = (format: string, _llmName: string) =>
+  `${executeBaseSchema}
+  The RETURN VALUE IN SCHEMA should represent the execution of your TASK.
+  AGAIN, THE ONLY THING YOU MUST OUTPUT IS ${format} that represents your execution of the TASK.
+
 `.trim();
 
 export type ChainType = "plan" | "execute"
@@ -54,6 +65,7 @@ export const createPrompt = (
   goal?: string,
   task?: string,
   dag?: string,
+  result?: string,
   tools = "Self-query, web search, long-term-memory-query, web search, Zapier, return data.",
 ): PromptTemplate => {
   const llmName = creationProps?.modelName ?? "unknown";
@@ -67,14 +79,27 @@ export const createPrompt = (
       DATETIME: (avoid stale data) ${new Date().toUTCString()}
       SCHEMA: ${schema(returnType, llmName)}
       TASK: To come up with an efficient and expert plan to solve the User's GOAL. Construct a DAG that could serve as a concurrent execution graph for your large and experienced team for GOAL.
-      RETURN: ONLY the DAG as described in SCHEMA${returnType === "JSON" ? ":" : ". Do NOT return JSON:"}`.trim(),
+      RETURN: ONLY the DAG as described in SCHEMA${returnType === "JSON" ? ":" : ". Do NOT return JSON:"}
+      `.trim(),
     execute:
       `GOAL: ${goal}
       EXECUTION DAG: ${dag}
       TASK: ${task}
       DATETIME: (avoid stale data) ${new Date().toUTCString()}
       SCHEMA: ${executeSchema(returnType, llmName)}
-      RETURN: ONLY a single ChainPacket with the result of the TASK!`.trim(),
+      RETURN: ONLY a single ChainPacket with the result of your TASK in SCHEMA${returnType === "JSON" ? ":" : ". Do NOT return JSON:"}
+      `.trim(),
+    criticize:
+      `GOAL: ${goal}
+      EXECUTION DAG: ${dag}
+      TASK: Review REVIEWEE OUTPUT of REVIEWEE TASK. Evaluate the result in context for each of the following criteria: [Coherence (15%), Creativity (15%), Efficiency (10%), Estimated IQ (10%), Directness (10%), Resourcefulness (10%), Accuracy (20%), Ethics (10%), Overall (Weighted rank-based))
+      Calculate a weighted score for criteria as 0.0≤1.0
+      REVIEWEE TASK: ${task}
+      REVIEWEE OUTPUT: ${result}
+      DATETIME: (avoid stale data) ${new Date().toUTCString()}
+      SCHEMA: ${criticizeSchema(returnType, llmName)}
+      RETURN: ONLY a single ChainPacket with the result of your TASK in SCHEMA${returnType === "JSON" ? ":" : ". Do NOT return JSON:"}
+      `.trim(),
   };
 
   const template = basePromptMessages[type]
