@@ -56,6 +56,7 @@ export function findNodesWithNoIncomingEdges(dag: DAG | OptionalDAG): DAGNode[] 
 
 export type OptimisticFirstTaskState = {
   firstTaskState: "not started" | "started" | "done"
+  taskId?: string
 }
 
 // The main class for the WaggleDanceMachine that coordinates the planning and execution of tasks
@@ -71,6 +72,7 @@ export default class WaggleDanceMachine {
   ): Promise<WaggleDanceResult | Error> {
     const reviewPrefix = `review-${new Date().getUTCMilliseconds()}-`
     const taskState = { firstTaskState: "not started" as "not started" | "started" | "done" } as OptimisticFirstTaskState;
+
     let dag: DAG
     let completedTasks: Set<string> = new Set(rootPlanId);
     let taskResults: Record<string, BaseResultType> = {};
@@ -78,6 +80,7 @@ export default class WaggleDanceMachine {
 
     const startFirstTask = async (task: DAGNode) => {
       taskState.firstTaskState = "started";
+      taskState.taskId = task.id
       // Call the executeTasks function for the given task and update the states accordingly
       const { completedTasks: newCompletedTasks, taskResults: newTaskResults } = await executeTask(
         { ...request, task, dag, taskResults, completedTasks, reviewPrefix },
@@ -133,8 +136,8 @@ export default class WaggleDanceMachine {
       }
 
       // FIXME:
-      const relevantPendingTasks = pendingTasks.filter((task, i) =>
-        !(taskState.firstTaskState === "started" && i === 0) && !(completedTasks.has(task.id)) && planDAG.edges
+      const relevantPendingTasks = pendingTasks.filter((task) =>
+        !(taskState.firstTaskState === "started" && task.id === taskState.taskId) && !(completedTasks.has(task.id)) && planDAG.edges
           .filter((edge) => edge.tId === task.id)
           .every((edge) => completedTasks.has(edge.sId)),
       );
