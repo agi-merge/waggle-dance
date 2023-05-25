@@ -156,8 +156,8 @@ const WaggleDanceGraph = ({}: WaggleDanceGraphProps) => {
         return "info";
       case "idle":
         return "neutral";
-      case "working":
-        return "warning";
+      case "starting":
+        return "info";
       case "working":
         return "info";
       default:

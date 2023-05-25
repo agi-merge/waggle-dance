@@ -135,18 +135,19 @@ export default class WaggleDanceMachine {
         continue;
       }
 
-      // FIXME:
       const relevantPendingTasks = pendingTasks.filter((task) =>
         !(taskState.firstTaskState === "started" && task.id === taskState.taskId) && !(completedTasks.has(task.id)) && planDAG.edges
           .filter((edge) => edge.tId === task.id)
           .every((edge) => completedTasks.has(edge.sId)),
       );
 
-
       if (relevantPendingTasks.length === 0) {
-        log("No relevantPendingTasks tasks, but goal not reached. DAG:", dag);
+        if (pendingTasks.length === 0 && toDoNodes.length === 0) {
+          throw new Error("No pending tasks, and no executable tasks, but goal not reached.")
+        }
+        console.log("waiting for tasks to complete")
         await sleep(1000);
-        continue;
+        // throw new Error("No relevantPendingTasks tasks, but goal not reached.");
       }
 
       log("relevantPendingTasks", relevantPendingTasks.map((task) => task.name))

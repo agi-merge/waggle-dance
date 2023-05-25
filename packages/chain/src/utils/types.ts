@@ -91,4 +91,5 @@ export type ChainPacket =
   | { type: "done", nodeId: string, value: string }
   | { type: "error"; nodeId: string, severity: "warn" | "human" | "fatal", message: string }
   | { type: "requestHumanInput"; nodeId: string, reason: string }
+  | { type: "starting"; nodeId: string }
   | { type: "working"; nodeId: string };

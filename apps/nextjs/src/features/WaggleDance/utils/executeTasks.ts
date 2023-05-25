@@ -3,7 +3,7 @@
 import { type ChainPacket } from "@acme/chain";
 import { type ExecuteRequestBody } from "~/pages/api/chain/types";
 import { type DAGNode } from "../DAG";
-import { type BaseResultType, type ScheduledTask } from "../types";
+import { type BaseResultType } from "../types";
 
 // A utility function to wait for a specified amount of time (ms)
 export function sleep(ms: number): Promise<void> {
@@ -28,22 +28,21 @@ export default async function executeTask(
     // Create a Set of completed tasks
     const completedTasksSet = new Set(completedTasks);
     // Create a task queue to store the tasks
-    const taskQueue: ScheduledTask[] = [{ ...task, isScheduled: false }]
+    const taskQueue: DAGNode[] = [{ ...task }]
     try {
         // Keep looping while there are tasks in the task queue
         while (taskQueue.length > 0) {
-            const validPairs = [{ task, dag }]
 
-            log("Task queue:", taskQueue.map((t) => t.id), "validPairs", validPairs.map((p) => p.task.id));
+            log("Task queue:", taskQueue.map((t) => t.id));
 
             // Execute the valid pairs of {task, dag} concurrently, storing the execution request promises in executeTaskPromises array
-            const executeTaskPromises = validPairs.map(async ({ task, dag }) => {
+            const executeTaskPromise = async () => {
                 // remove task from taskQueue
-                const scheduledTask = taskQueue.findIndex((scheduledTask) => { scheduledTask.id == task.id })
-                taskQueue.splice(scheduledTask, 1)
+                // const scheduledTask = taskQueue.findIndex((scheduledTask) => { scheduledTask.id == task.id })
+                taskQueue.splice(0, 1)
 
                 log(`About to execute task ${task.id} -${task.name}...`);
-                sendChainPacket({ type: "working", nodeId: task.id }, task)
+                sendChainPacket({ type: "starting", nodeId: task.id }, task)
 
                 // Execute each task by making an API request
                 const data = { ...request, task, dag };
@@ -109,15 +108,17 @@ export default async function executeTask(
                         errMessage = JSON.stringify(error)
                     }
                     const message = `Error while reading the stream or processing the response data for task ${task.id} -${task.name}: ${errMessage}`
-                    sendChainPacket({ type: "error", nodeId: task.id, severity: "fatal", message }, task)
+                    const errorPacket = { type: "error", nodeId: task.id, severity: "fatal", message } as ChainPacket
+                    sendChainPacket(errorPacket, task)
                     log(`Error while reading the stream or processing the response data for task ${task.id} -${task.name}: ${errMessage}`)
+                    return errorPacket;
                 } finally {
                     reader.releaseLock();
                 }
-            });
+            }
 
             // Wait for all task promises to settle and sleep for 1 second before looping again
-            await Promise.all(executeTaskPromises);
+            await executeTaskPromise();
             await sleep(1000);
         }
     } catch (error) {

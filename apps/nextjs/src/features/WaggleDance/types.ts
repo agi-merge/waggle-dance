@@ -2,10 +2,8 @@
 import { type Dispatch, type SetStateAction } from "react";
 
 import type DAG from "./DAG";
-import { type DAGNode } from "./DAG";
 
 export type PlanResult = DAG;
-export type ScheduledTask = DAGNode & { isScheduled: boolean };
 
 export type WaggleDanceContextType = {
   dag: DAG;
