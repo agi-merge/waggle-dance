@@ -107,7 +107,8 @@ const renderNodeCanvasObject = (
   globalScale: number,
 ) => {
   const label = separateWords((node as { name: string }).name);
-  const fontSize = 12 / globalScale;
+
+  const fontSize = ctx.canvas.clientWidth / 50 / globalScale;
   ctx.font = `${fontSize}px Monospace`;
 
   // Set the maximum width for text wrapping
@@ -217,7 +218,7 @@ const NoSSRForceGraph: React.FC<ForceGraphProps> = ({ data }) => {
         width={containerWidth}
         height={containerWidth / (4 / 3)}
         dagMode="td"
-        dagLevelDistance={20}
+        dagLevelDistance={containerWidth / 75}
         // TODO: gotta come back to this one
         // eslint-disable-next-line @typescript-eslint/ban-ts-comment
         // @ts-ignore
