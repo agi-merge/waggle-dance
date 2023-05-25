@@ -33,6 +33,7 @@ import PageTitle from "~/features/MainLayout/components/PageTitle";
 import AddDocuments from "~/pages/add-documents";
 import useApp from "~/stores/appStore";
 import useGoal from "~/stores/goalStore";
+import { rootPlanId } from "../WaggleDanceMachine";
 import useWaggleDanceMachine, {
   type TaskState,
 } from "../hooks/useWaggleDanceMachine";
@@ -224,7 +225,15 @@ const WaggleDanceGraph = ({}: WaggleDanceGraphProps) => {
                 >
                   {taskStates
                     .sort((a: TaskState, b: TaskState) => {
-                      if (a.status === b.status) return -1; // use natural order for equal elements
+                      if (a.id === rootPlanId) {
+                        return -1;
+                      }
+                      if (b.id === rootPlanId) {
+                        return 1;
+                      }
+                      if (a.status === b.status) {
+                        return a.id.localeCompare(b.id) || -1;
+                      }
                       if (a.status === "done") return -1;
                       if (b.status === "done") return 1;
                       if (a.status === "error") return -1;
