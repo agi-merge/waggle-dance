@@ -184,7 +184,7 @@ export default class WaggleDanceMachine {
             }
           }
         }
-      })
+      })()
 
 
       await sleep(1000);
