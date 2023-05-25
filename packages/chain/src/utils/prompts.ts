@@ -74,7 +74,9 @@ export const createPrompt = (
       TOOLS: Self-query. Use this to enumerate your own knowledge on a topic or task.
       TEAM TOOLS: ${tools}
       GOAL: ${goal}
-      NOW: ${new Date().toUTCString()}
+      NOW: ${new Date().toDateString()}
+      HISTORY: {chat_history}
+      RELEVANT ENTITIES: {entities}
       SCHEMA: ${schema(returnType, llmName)}
       TASK: To come up with an efficient and expert plan to solve the User's GOAL. Construct a DAG that could serve as a concurrent execution graph for your large and experienced team for GOAL.
       RETURN: ONLY the DAG as described in SCHEMA${returnType === "JSON" ? ":" : ". Do NOT return JSON:"}
@@ -82,8 +84,9 @@ export const createPrompt = (
     execute:
       `GOAL: ${goal}
       TASK: ${task}
-      NOW: ${new Date().toUTCString()}
-      CHAT HISTORY: {chat_history}
+      NOW: ${new Date().toDateString()}
+      HISTORY: {chat_history}
+      RELEVANT ENTITIES: {entities}
       SCHEMA: ${executeSchema(returnType, llmName)}
       RETURN: ONLY a single ChainPacket with the result of your TASK in SCHEMA${returnType === "JSON" ? ":" : ". Do NOT return JSON:"}
       `.trim(),
@@ -93,7 +96,9 @@ export const createPrompt = (
       REVIEWEE TASK: ${task}
       REVIEWEE OUTPUT: ${result}
       CHAT HISTORY: {chat_history}
-      NOW: ${new Date().toUTCString()}
+      NOW: ${new Date().toDateString()}
+      HISTORY: {chat_history}
+      RELEVANT ENTITIES: {entities}
       SCHEMA: ${criticizeSchema(returnType, llmName)}
       RETURN: ONLY a single ChainPacket with the result of your TASK in SCHEMA${returnType === "JSON" ? ":" : ". Do NOT return JSON:"}
       `.trim(),

@@ -26,11 +26,11 @@ export async function executeChain(
   const callbacks = creationProps.callbacks;
   creationProps.callbacks = undefined;
   const llm = createModel(creationProps);
-  const memory = await createMemory(goal);
+  const memory = createMemory("entity", llm);
   const embeddings = createEmbeddings({ modelName: LLM.embeddings });
   const isReview = (parse(task) as { id: string }).id.startsWith(reviewPrefix)
   const prompt = createPrompt(isReview ? "criticize" : "execute", creationProps, goal, task, dag);
-  const formattedPrompt = await prompt.format({ chat_history: memory?.chatHistory ?? "None", format: "YAML" })
+  const formattedPrompt = await prompt.format({ format: "YAML" })
 
   const tools: Tool[] = [
     new WebBrowser({ model: llm, embeddings }),
@@ -91,7 +91,7 @@ export async function executeChain(
   });
 
   console.log("history", memory?.chatHistory)
-  const call = await executor.call({ input: formattedPrompt, chat_history: memory?.chatHistory ?? "None", signal: controller.signal }, callbacks);
+  const call = await executor.call({ input: formattedPrompt, signal: controller.signal }, callbacks);
 
   const response = call?.output ? (call.output as string) : "";
 
