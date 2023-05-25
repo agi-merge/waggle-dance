@@ -17,4 +17,5 @@ export interface ExecuteRequestBody extends BaseRequestBody {
   completedTasks: Set<string>;
   taskResults: Record<string, BaseResultType>;
   dag: DAG;
+  reviewPrefix: string;
 }

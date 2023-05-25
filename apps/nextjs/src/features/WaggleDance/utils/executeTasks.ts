@@ -19,7 +19,7 @@ export default async function executeTasks(
     maxConcurrency: number,
     _isRunning: boolean,
     sendChainPacket: (chainPacket: ChainPacket, node: DAGNode) => void,
-    log: (...args: (string | number | object)[]) => void
+    log: (...args: (string | number | object)[]) => void,
 ): Promise<{
     completedTasks: Set<string>;
     taskResults: Record<string, BaseResultType>;

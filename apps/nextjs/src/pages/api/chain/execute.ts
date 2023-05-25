@@ -18,7 +18,6 @@ const handler = async (req: IncomingMessage, res: NextApiResponse) => {
     req: req as unknown as NextApiRequest,
     res: res,
   });
-  const nodeId = "👸"; // maybe goal.slice(0, 5)
 
   const bodyChunks = [];
   for await (const chunk of req) {
@@ -31,6 +30,7 @@ const handler = async (req: IncomingMessage, res: NextApiResponse) => {
       goal,
       tasks,
       dag,
+      reviewPrefix,
     } = JSON.parse(body) as ExecuteRequestBody;
     // const encoder = new TextEncoder();
 
@@ -69,12 +69,12 @@ const handler = async (req: IncomingMessage, res: NextApiResponse) => {
     creationProps.callbacks = callbacks;
     const promises = tasks.map(async (task) => {
       console.log("about to executeChain", task.id);
-      return await executeChain(creationProps, goal, stringify(task), stringify(dag), session?.user.id);
+      return await executeChain(creationProps, goal, stringify(task), stringify(dag), reviewPrefix, session?.user.id);
     })
 
     const results = await Promise.all(promises)
     console.log("results", results);
-    res.end(stringify(results[0]));
+    res.end(stringify(results));
 
   } catch (e) {
     let message;
@@ -92,7 +92,7 @@ const handler = async (req: IncomingMessage, res: NextApiResponse) => {
 
     const all = { stack, message, status };
     console.error(all);
-    const errorPacket = { type: "error", nodeId, severity: "fatal", message: JSON.stringify(all) };
+    const errorPacket = { type: "error", nodeId: "catch-all", severity: "fatal", message: JSON.stringify(all) };
     if (!res.headersSent) {
       res.writeHead(500, {
         "Content-Type": "application/json",

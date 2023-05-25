@@ -69,6 +69,7 @@ export default class WaggleDanceMachine {
     log: (...args: (string | number | object)[]) => void,
     isRunning: boolean,
   ): Promise<WaggleDanceResult | Error> {
+    const reviewPrefix = `review-${new Date().getUTCMilliseconds()}-`
     const taskState = { firstTaskState: "not started" as "not started" | "started" | "done" } as OptimisticFirstTaskState;
     let dag: DAG
     let completedTasks: Set<string> = new Set(rootPlanId);
@@ -79,11 +80,11 @@ export default class WaggleDanceMachine {
       taskState.firstTaskState = "started";
       // Call the executeTasks function for the given task and update the states accordingly
       const { completedTasks: newCompletedTasks, taskResults: newTaskResults } = await executeTasks(
-        { ...request, tasks: [task], dag, taskResults, completedTasks },
+        { ...request, tasks: [task], dag, taskResults, completedTasks, reviewPrefix },
         maxConcurrency,
         isRunning,
         sendChainPacket,
-        log
+        log,
       )
       completedTasks = new Set([...newCompletedTasks, ...completedTasks]);
       taskResults = { ...newTaskResults, ...taskResults };
@@ -156,17 +157,24 @@ export default class WaggleDanceMachine {
       const executionResponse = await executeTasks(executeRequest, maxConcurrency, isRunning, sendChainPacket, log);
       taskResults = { ...taskResults, ...executionResponse.taskResults };
       for (const taskId of executionResponse.completedTasks) {
+        const lastTaskCount = completedTasks.size;
         completedTasks.add(taskId);
-        // queue review task
-        const goalNode = planDAG.nodes[planDAG.nodes.length - 1]
-        const reviewId = `review-${taskId}`
-        planDAG = {
-          ...planDAG,
-          nodes: [...planDAG.nodes, new DAGNodeClass(reviewId, `Review ${dag.nodes.find(n => n.id === taskId)?.name}`, "Review", {})],
-          edges: [...planDAG.edges, ...(goalNode ? [new DAGEdgeClass(reviewId, goalNode.id)] : []), new DAGEdgeClass(taskId, reviewId)],
+        if (lastTaskCount < completedTasks.size) {
+          // do not infinite queue reviews of reviews
+          if (!taskId.startsWith(reviewPrefix)) {
+            // added a new task
+            // queue review task
+            const goalNode = planDAG.nodes[planDAG.nodes.length - 1]
+            const reviewId = `${reviewPrefix}${taskId}`
+            planDAG = {
+              ...planDAG,
+              nodes: [...planDAG.nodes, new DAGNodeClass(reviewId, `Review ${dag.nodes.find(n => n.id === taskId)?.name}`, "Review", {})],
+              edges: [...planDAG.edges, ...(goalNode ? [new DAGEdgeClass(reviewId, goalNode.id)] : []), new DAGEdgeClass(taskId, reviewId)],
+            }
+            dag = planDAG;
+            setDAG(planDAG)
+          }
         }
-        dag = planDAG;
-        setDAG(planDAG)
       }
     }
 

@@ -57,7 +57,7 @@ The RETURN VALUE IN SCHEMA should represent the result of the execution of your 
 AGAIN, THE ONLY THING YOU MUST OUTPUT IS ${format} that represents the execution of your TASK:
 `.trim();
 
-export type ChainType = "plan" | "execute"
+export type ChainType = "plan" | "execute" | "criticize"
 export const createPrompt = (
   type: ChainType,
   creationProps?: ModelCreationProps,
@@ -90,8 +90,7 @@ export const createPrompt = (
       `.trim(),
     criticize:
       `GOAL: ${goal}
-      TASK: Review REVIEWEE OUTPUT of REVIEWEE TASK. Evaluate the result in context for each of the following criteria: [Coherence (15%), Creativity (15%), Efficiency (10%), Estimated IQ (10%), Directness (10%), Resourcefulness (10%), Accuracy (20%), Ethics (10%), Overall (Weighted rank-based))
-      Calculate a weighted score for criteria as 0.0≤1.0
+      TASK: Review REVIEWEE OUTPUT of REVIEWEE TASK. Calculate a weighted score (0.0≤1.0) in context for each of the following criteria: [Coherence (15%), Creativity (15%), Efficiency (10%), Estimated IQ (10%), Directness (10%), Resourcefulness (10%), Accuracy (20%), Ethics (10%), Overall (Weighted rank-based))]
       REVIEWEE TASK: ${task}
       REVIEWEE OUTPUT: ${result}
       CHAT HISTORY: {chat_history}

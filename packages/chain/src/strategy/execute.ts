@@ -13,12 +13,14 @@ import { type Tool } from "langchain/dist/tools/base";
 import { VectorDBQAChain } from "langchain/chains";
 import { PineconeClient } from "@pinecone-database/pinecone";
 import { PineconeStore } from "langchain/vectorstores/pinecone";
+import { parse } from "yaml";
 
 export async function executeChain(
   creationProps: ModelCreationProps,
   goal: string,
   task: string,
   dag: string,
+  reviewPrefix: string,
   namespace?: string,
 ) {
   const callbacks = creationProps.callbacks;
@@ -26,7 +28,8 @@ export async function executeChain(
   const llm = createModel(creationProps);
   const memory = await createMemory(goal);
   const embeddings = createEmbeddings({ modelName: LLM.embeddings });
-  const prompt = createPrompt("execute", creationProps, goal, task, dag);
+  const isReview = (parse(task) as { id: string }).id.startsWith(reviewPrefix)
+  const prompt = createPrompt(isReview ? "criticize" : "execute", creationProps, goal, task, dag);
   const formattedPrompt = await prompt.format({ chat_history: memory?.chatHistory ?? "None", format: "YAML" })
 
   const tools: Tool[] = [
