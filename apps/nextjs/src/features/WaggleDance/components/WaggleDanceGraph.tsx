@@ -31,8 +31,8 @@ import {
 
 import PageTitle from "~/features/MainLayout/components/PageTitle";
 import AddDocuments from "~/pages/add-documents";
-import useApp from "~/stores/appStore";
 import useGoal from "~/stores/goalStore";
+import useWaggleDanceMachineState from "~/stores/waggleDanceStore";
 import { rootPlanId } from "../WaggleDanceMachine";
 import useWaggleDanceMachine, {
   type TaskState,
@@ -45,7 +45,7 @@ type WaggleDanceGraphProps = StackProps;
 // shows the graph, agents, results, general messages and chat input
 const WaggleDanceGraph = ({}: WaggleDanceGraphProps) => {
   const { isRunning, setIsRunning, isAutoStartEnabled, setIsAutoStartEnabled } =
-    useApp();
+    useWaggleDanceMachineState();
   const { goal } = useGoal();
   const { graphData, dag, run, isDonePlanning, logs, taskStates } =
     useWaggleDanceMachine({

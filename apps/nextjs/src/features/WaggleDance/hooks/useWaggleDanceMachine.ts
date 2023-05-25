@@ -8,7 +8,7 @@ import DAG, { type DAGNode } from "../DAG";
 import WaggleDanceMachine, { initialEdges, initialNodes } from "../WaggleDanceMachine";
 import { type GraphData } from "../components/ForceGraph";
 import { dagToGraphData } from "../utils/conversions";
-import useApp from "~/stores/appStore";
+import useWaggleDanceMachineStore from "~/stores/waggleDanceStore";
 
 interface UseWaggleDanceMachineProps {
   goal: string;
@@ -38,7 +38,7 @@ const useWaggleDanceMachine = ({
   goal,
 }: UseWaggleDanceMachineProps) => {
   const [waggleDanceMachine] = useState(() => new WaggleDanceMachine());
-  const { isRunning } = useApp();
+  const { isRunning } = useWaggleDanceMachineStore();
   const [dag, setDAG] = useState<DAG>(new DAG([], []));
   const [isDonePlanning, setIsDonePlanning] = useState(false);
   const [logs, setLogs] = useState<LogMessage[]>([]);

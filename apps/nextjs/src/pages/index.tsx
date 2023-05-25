@@ -11,8 +11,8 @@ import { app } from "~/constants";
 import GoalInput from "~/features/GoalMenu/components/GoalInput";
 import MainLayout from "~/features/MainLayout";
 import Title from "~/features/MainLayout/components/PageTitle";
-import useApp from "~/stores/appStore";
 import useGoal from "~/stores/goalStore";
+import useWaggleDanceMachineStore from "~/stores/waggleDanceStore";
 
 export interface Handlers {
   setGoal: (goal: string) => void;
@@ -41,7 +41,7 @@ export async function getServerSideProps(context: GetServerSidePropsContext) {
 export default function Home({
   openAIUsage,
 }: InferGetServerSidePropsType<typeof getServerSideProps>) {
-  const { setIsAutoStartEnabled } = useApp();
+  const { setIsAutoStartEnabled } = useWaggleDanceMachineStore();
   const router = useRouter();
   const { goal, setGoal } = useGoal();
 
