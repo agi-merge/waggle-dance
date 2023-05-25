@@ -81,7 +81,7 @@ export default async function planTasks(
                             setDAG(partialDAG)
                         }
                         const firstNode = validNodes[0]
-                        if (startFirstTask && taskState.firstTaskState === "not started" && firstNode && validNodes.length > 0) {
+                        if (startFirstTask && taskState.firstTaskState === "not started" && firstNode && validNodes.length > 0) { // would be 0, but params can be cut off
                             updateTaskState && updateTaskState("started");
                             void startFirstTask(firstNode);
                         }
@@ -108,8 +108,4 @@ export default async function planTasks(
         console.error(error);
         throw new Error(`Error parsing DAG: ${error}`);
     }
-    // }
-    // const planResult = (await res.json()) as string;
-    // const json = JSON.parse(planResult) as PlanResult;
-    // return json;
 }

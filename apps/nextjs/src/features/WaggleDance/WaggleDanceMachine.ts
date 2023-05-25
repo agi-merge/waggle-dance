@@ -17,7 +17,7 @@ import {
   type WaggleDanceResult,
   type IsDonePlanningState,
 } from "./types";
-import executeTasks, { sleep } from "./utils/executeTasks";
+import executeTask, { sleep } from "./utils/executeTasks";
 import planTasks from "./utils/planTasks"
 import { type ChainPacket } from "@acme/chain";
 
@@ -79,8 +79,8 @@ export default class WaggleDanceMachine {
     const startFirstTask = async (task: DAGNode) => {
       taskState.firstTaskState = "started";
       // Call the executeTasks function for the given task and update the states accordingly
-      const { completedTasks: newCompletedTasks, taskResults: newTaskResults } = await executeTasks(
-        { ...request, tasks: [task], dag, taskResults, completedTasks, reviewPrefix },
+      const { completedTasks: newCompletedTasks, taskResults: newTaskResults } = await executeTask(
+        { ...request, task, dag, taskResults, completedTasks, reviewPrefix },
         maxConcurrency,
         isRunning,
         sendChainPacket,
@@ -93,7 +93,7 @@ export default class WaggleDanceMachine {
     };
     if (initDAG.edges.length > 0 && isDonePlanning) {
       log("skipping planning because it is done - initDAG", initDAG);
-      dag = initDAG;
+      dag = { ...initDAG };
     } else {
       setIsDonePlanning(false);
       const updateTaskState = (state: "not started" | "started" | "done") => {
@@ -118,10 +118,11 @@ export default class WaggleDanceMachine {
     )
     setDAG(planDAG);
 
+    const toDoNodes = Array.from(planDAG.nodes)
     // Continue executing tasks and updating DAG until the goal is reached
     while (!isGoalReached(planDAG, completedTasks)) {
       // console.group("WaggleDanceMachine.run")
-      const pendingTasks = dag.nodes.filter(
+      const pendingTasks = toDoNodes.filter(
         (node) => !completedTasks.has(node.id),
       );
 
@@ -131,6 +132,7 @@ export default class WaggleDanceMachine {
         continue;
       }
 
+      // FIXME:
       const relevantPendingTasks = pendingTasks.filter((task, i) =>
         !(taskState.firstTaskState === "started" && i === 0) && !(completedTasks.has(task.id)) && planDAG.edges
           .filter((edge) => edge.tId === task.id)
@@ -146,36 +148,43 @@ export default class WaggleDanceMachine {
 
       log("relevantPendingTasks", relevantPendingTasks.map((task) => task.name))
 
+      const task = relevantPendingTasks.splice(0, 1)[0] // pop first task
+      // task && pendingTasks.splice(pendingTasks.indexOf(task), 1) // remove from pending tasks
+      task && toDoNodes.splice(toDoNodes.indexOf(task), 1) // remove from toDoNodes
       const executeRequest = {
         ...request,
-        tasks: relevantPendingTasks.slice(0, maxConcurrency),
+        task,
         dag: planDAG,
         completedTasks: completedTasks,
         taskResults,
       } as ExecuteRequestBody;
-
-      const executionResponse = await executeTasks(executeRequest, maxConcurrency, isRunning, sendChainPacket, log);
-      taskResults = { ...taskResults, ...executionResponse.taskResults };
-      for (const taskId of executionResponse.completedTasks) {
-        const lastTaskCount = completedTasks.size;
-        completedTasks.add(taskId);
-        if (lastTaskCount < completedTasks.size) {
-          // do not infinite queue reviews of reviews
-          if (!taskId.startsWith(reviewPrefix)) {
-            // added a new task
-            // queue review task
-            const goalNode = planDAG.nodes[planDAG.nodes.length - 1]
-            const reviewId = `${reviewPrefix}${taskId}`
-            planDAG = {
-              ...planDAG,
-              nodes: [...planDAG.nodes, new DAGNodeClass(reviewId, `Review ${dag.nodes.find(n => n.id === taskId)?.name}`, "Review", {})],
-              edges: [...planDAG.edges, ...(goalNode ? [new DAGEdgeClass(reviewId, goalNode.id)] : []), new DAGEdgeClass(taskId, reviewId)],
+      void (async () => {
+        const executionResponse = await executeTask(executeRequest, maxConcurrency, isRunning, sendChainPacket, log);
+        taskResults = { ...taskResults, ...executionResponse.taskResults };
+        for (const taskId of executionResponse.completedTasks) {
+          const lastTaskCount = completedTasks.size;
+          completedTasks.add(taskId);
+          if (lastTaskCount < completedTasks.size) {
+            // do not infinite queue reviews of reviews
+            if (!taskId.startsWith(reviewPrefix)) {
+              // added a new task
+              // queue review task
+              const goalNode = planDAG.nodes[planDAG.nodes.length - 1]
+              const reviewId = `${reviewPrefix}${taskId}`
+              planDAG = {
+                ...planDAG,
+                nodes: [...planDAG.nodes, new DAGNodeClass(reviewId, `Review ${dag.nodes.find(n => n.id === taskId)?.name}`, "Review", {})],
+                edges: [...planDAG.edges, ...(goalNode ? [new DAGEdgeClass(reviewId, goalNode.id)] : []), new DAGEdgeClass(taskId, reviewId)],
+              }
+              dag = { ...planDAG };
+              setDAG(planDAG)
             }
-            dag = planDAG;
-            setDAG(planDAG)
           }
         }
-      }
+      })
+
+
+      await sleep(1000);
     }
 
     console.log("WaggleDanceMachine.run: completedTasks", completedTasks)

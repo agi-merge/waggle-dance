@@ -28,7 +28,7 @@ const handler = async (req: IncomingMessage, res: NextApiResponse) => {
     const {
       creationProps,
       goal,
-      tasks,
+      task,
       dag,
       reviewPrefix,
     } = JSON.parse(body) as ExecuteRequestBody;
@@ -67,14 +67,10 @@ const handler = async (req: IncomingMessage, res: NextApiResponse) => {
 
     const callbacks = [inlineCallback];
     creationProps.callbacks = callbacks;
-    const promises = tasks.map(async (task) => {
-      console.log("about to executeChain", task.id);
-      return await executeChain(creationProps, goal, stringify(task), stringify(dag), reviewPrefix, session?.user.id);
-    })
+    const result = await executeChain(creationProps, goal, stringify(task), stringify(dag), reviewPrefix, session?.user.id)
 
-    const results = await Promise.all(promises)
-    console.log("results", results);
-    res.end(stringify(results));
+    console.log("result", result);
+    res.end(stringify(result));
 
   } catch (e) {
     let message;

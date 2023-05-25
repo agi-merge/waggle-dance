@@ -1,11 +1,9 @@
 // utils/executeTasks.ts
 
-import { type RawChainPacket, type ChainPacket } from "@acme/chain";
+import { type ChainPacket } from "@acme/chain";
 import { type ExecuteRequestBody } from "~/pages/api/chain/types";
 import { type DAGNode } from "../DAG";
-import type DAG from "../DAG";
 import { type BaseResultType, type ScheduledTask } from "../types";
-import { parse } from "yaml";
 
 // A utility function to wait for a specified amount of time (ms)
 export function sleep(ms: number): Promise<void> {
@@ -14,9 +12,9 @@ export function sleep(ms: number): Promise<void> {
 
 // The executeTasks function takes in a request and a DAG, then runs tasks concurrently,
 // and updates the completed tasks and task results accordingly.
-export default async function executeTasks(
+export default async function executeTask(
     request: ExecuteRequestBody,
-    maxConcurrency: number,
+    _maxConcurrency: number,
     _isRunning: boolean,
     sendChainPacket: (chainPacket: ChainPacket, node: DAGNode) => void,
     log: (...args: (string | number | object)[]) => void,
@@ -25,40 +23,16 @@ export default async function executeTasks(
     taskResults: Record<string, BaseResultType>;
 }> {
     // Destructure tasks and completedTasks from the request object
-    const { dag, tasks, completedTasks, taskResults } = request;
+    const { dag, task, completedTasks, taskResults } = request;
 
     // Create a Set of completed tasks
     const completedTasksSet = new Set(completedTasks);
     // Create a task queue to store the tasks
-    const taskQueue: ScheduledTask[] = tasks.map((t) => ({ ...t, isScheduled: false }));
+    const taskQueue: ScheduledTask[] = [{ ...task, isScheduled: false }]
     try {
         // Keep looping while there are tasks in the task queue
         while (taskQueue.length > 0) {
-            let validPairs
-            if (tasks.length === 1 && tasks[0]) {
-                validPairs = [{ task: tasks[0], dag }]
-            } else {
-                // Gather the valid pairs of {task, dag} c from the task queue based on the completed tasks and the DAG edges
-                validPairs = taskQueue.reduce((acc: Array<{ task: DAGNode; dag: DAG }>, task) => {
-                    // const dag = dag[idx];
-                    if (!dag || task.isScheduled || acc.length >= maxConcurrency) {
-                        return acc;
-                    }
-
-                    const isValid = dag.edges.filter((edge) => edge.tId === task.id)
-                        .every((edge) => completedTasksSet.has(edge.sId));
-
-                    if (isValid) {
-                        task.isScheduled = true
-                        acc.push({ task, dag });
-                    }
-
-                    return acc;
-                }, []);
-                if (validPairs.length >= maxConcurrency) {
-                    break;
-                }
-            }
+            const validPairs = [{ task, dag }]
 
             log("Task queue:", taskQueue.map((t) => t.id), "validPairs", validPairs.map((p) => p.task.id));
 
@@ -102,11 +76,12 @@ export default async function executeTasks(
                             log(`Stream ended for task ${task.id}-${task.name}:`);
                             log(`Raw buffer: ${buffer}`)
                             // Process response data and store packets in completedTasksSet and taskResults
-                            const packet = parse(buffer) as RawChainPacket
+                            // const packet = parse(buffer)
 
                             completedTasksSet.add(task.id);
-                            taskResults[task.id] = [packet];
-                            sendChainPacket({ type: "done", nodeId: task.id, value: JSON.stringify(packet.p) }, task)
+                            taskResults[task.id] = buffer;
+                            const packet = { type: "done", nodeId: task.id, value: buffer } as ChainPacket
+                            sendChainPacket(packet, task)
                             return packet;
                         } else if (value.length) {
                             // buffer.set(value, buffer.length);
