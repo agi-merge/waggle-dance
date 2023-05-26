@@ -31,6 +31,7 @@ export async function createMemory(
     case "buffer":
       return new BufferMemory({
         inputKey,
+        returnMessages: true
       });
     case "conversation":
       return new ConversationSummaryMemory({
