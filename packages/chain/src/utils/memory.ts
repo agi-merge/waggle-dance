@@ -1,35 +1,40 @@
+import Hex from "crypto-js/enc-hex";
+import sha256 from "crypto-js/sha256";
 import { OpenAI } from "langchain/llms/openai";
 import {
   BufferMemory,
   ConversationSummaryMemory,
+  MotorheadMemory,
   type BaseChatMemory,
 } from "langchain/memory";
 
-import {
-  EntityMemory,
-} from "langchain/memory";
-import { type BaseLLM } from "langchain/llms"
 import { LLM } from "./types";
 
+function hash(str: string): string {
+  const hash = sha256(str);
+  return hash.toString(Hex);
+}
 
-export type Memory = "buffer" | "entity" | "vector"
-export function createMemory(
-  type: "entity" | "conversation" | "buffer",
-  model: BaseLLM
-): BaseChatMemory | undefined {
-  switch (type || process.env.MEMORY_TYPE) {
-    case "entity":
-      return new EntityMemory({
-        llm: model,
-        chatHistoryKey: "chat_history", // Default value
-        entitiesKey: "entities", // Default value
+export async function createMemory(
+  goal: string,
+  inputKey: "goal" | "task" = "goal",
+): Promise<BaseChatMemory | undefined> {
+  switch (process.env.MEMORY_TYPE) {
+    case "motorhead":
+      const memory: MotorheadMemory = new MotorheadMemory({
+        sessionId: hash(goal),
+        motorheadURL: process.env.MEMORY_URL ?? "http://localhost:8080",
+        inputKey,
       });
+      await memory?.init(); // loads previous state from Motörhead 🤘
+      return memory;
     case "buffer":
       return new BufferMemory({
-        returnMessages: true
+        inputKey,
       });
     case "conversation":
       return new ConversationSummaryMemory({
+        inputKey,
         llm: new OpenAI({ modelName: LLM.fast, temperature: 0 }),
       });
   }
