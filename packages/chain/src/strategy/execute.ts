@@ -26,7 +26,7 @@ export async function executeChain(
   const callbacks = creationProps.callbacks;
   creationProps.callbacks = undefined;
   const llm = createModel(creationProps);
-  const memory = createMemory("vector", llm);
+  const memory = createMemory("entity", llm);
   const embeddings = createEmbeddings({ modelName: LLM.embeddings });
   const isReview = (parse(task) as { id: string }).id.startsWith(reviewPrefix)
   const prompt = createPrompt(isReview ? "criticize" : "execute", creationProps, goal, task, dag);
@@ -83,14 +83,14 @@ export async function executeChain(
 
   const executor = await initializeAgentExecutorWithOptions(tools, llm, {
     agentType: "chat-conversational-react-description",
-    verbose: true,
+    verbose: false,
     streaming: true,
     returnIntermediateSteps: false,
     memory,
     ...creationProps,
   });
 
-  // console.log("history", memory?.chatHistory)
+  console.log("history", memory?.chatHistory)
   const call = await executor.call({ input: formattedPrompt, signal: controller.signal }, callbacks);
 
   const response = call?.output ? (call.output as string) : "";
