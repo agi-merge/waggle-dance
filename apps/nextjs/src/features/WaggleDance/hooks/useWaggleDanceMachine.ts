@@ -180,7 +180,7 @@ const useWaggleDanceMachine = ({
           maxTokens,
           maxConcurrency: 16,
           streaming: true,
-          verbose: false,
+          verbose: true,
         },
       },
       [dag, setDAG],

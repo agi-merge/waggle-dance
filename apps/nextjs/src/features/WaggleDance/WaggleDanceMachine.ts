@@ -104,7 +104,7 @@ export default class WaggleDanceMachine {
       };
 
       dag = await planTasks(request.goal, request.creationProps, initDAG, setDAG, log, sendChainPacket, taskState, updateTaskState, startFirstTask);
-      if (dag.nodes[0]) {
+      if (dag.nodes && dag.nodes[0]) {
         sendChainPacket({ type: "done", nodeId: rootPlanId, value: "🍯 Goal Achieved (GOAL validation in params)" }, dag.nodes[0])
       } else {
         log("no nodes in dag")
