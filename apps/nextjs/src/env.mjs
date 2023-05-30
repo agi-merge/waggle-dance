@@ -23,7 +23,9 @@ export const env = createEnv({
     // Add `.min(1) on ID and SECRET if you want to make sure they're not empty
     DISCORD_ID: z.string().min(19).max(19).optional(),
     DISCORD_SECRET: z.string().min(32).max(32).optional(),
-    MEMORY_TYPE: z.enum(["buffer", "motorhead", "conversation"]).optional(),
+    MEMORY_TYPE: z
+      .enum(["buffer", "motorhead", "conversation", "redis"])
+      .optional(),
     MEMORY_URL: z.string().url().optional(),
     GITHUB_ID: z.string().min(20).max(21).optional(),
     GITHUB_SECRET: z.string().min(40).max(40).optional(),
