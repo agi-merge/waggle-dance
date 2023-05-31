@@ -37,7 +37,7 @@ export type TaskState = DAGNode & {
 const useWaggleDanceMachine = ({
   goal,
 }: UseWaggleDanceMachineProps) => {
-  const [waggleDanceMachine] = useState(() => new WaggleDanceMachine());
+  const [waggleDanceMachine] = useState(new WaggleDanceMachine());
   const { isRunning } = useWaggleDanceMachineStore();
   const [dag, setDAG] = useState<DAG>(new DAG([], []));
   const [isDonePlanning, setIsDonePlanning] = useState(false);
