@@ -40,6 +40,7 @@ export const env = createEnv({
     PINECONE_API_KEY: z.string().min(36).max(36),
     PINECONE_ENVIRONMENT: z.string().min(1),
     PINECONE_INDEX: z.string().min(1),
+    LANGCHAIN_TRACE: z.boolean().optional(),
   },
   /**
    * Specify your client-side environment variables schema here.
@@ -48,6 +49,7 @@ export const env = createEnv({
   client: {
     NEXT_PUBLIC_APP_VERSION: z.string().optional(),
     NEXT_PUBLIC_DISCORD_INVITE_URL: z.string().url().optional(),
+    NEXT_PUBLIC_LANGCHAIN_VERBOSE: z.string().optional(),
   },
   /**
    * Destructure all variables from `process.env` to make sure they aren't tree-shaken away.
@@ -63,7 +65,8 @@ export const env = createEnv({
     MEMORY_URL: process.env.MEMORY_URL,
     MEMORY_REST_API_URL: process.env.MEMORY_REST_API_URL,
     MEMORY_REST_API_TOKEN: process.env.MEMORY_REST_API_TOKEN,
-    MEMORY_REST_API_READ_ONLY_TOKEN: process.env.MEMORY_REST_API_READ_ONLY_TOKEN,
+    MEMORY_REST_API_READ_ONLY_TOKEN:
+      process.env.MEMORY_REST_API_READ_ONLY_TOKEN,
     GITHUB_ID: process.env.GITHUB_ID,
     GITHUB_SECRET: process.env.GITHUB_SECRET,
     OPENAI_API_KEY: process.env.OPENAI_API_KEY,
@@ -76,5 +79,7 @@ export const env = createEnv({
     PINECONE_API_KEY: process.env.PINECONE_API_KEY,
     PINECONE_ENVIRONMENT: process.env.PINECONE_ENVIRONMENT,
     PINECONE_INDEX: process.env.PINECONE_INDEX,
+    NEXT_PUBLIC_LANGCHAIN_VERBOSE: process.env.NEXT_PUBLIC_LANGCHAIN_VERBOSE,
+    LANGCHAIN_TRACE: process.env.LANGCHAIN_TRACE,
   },
 });

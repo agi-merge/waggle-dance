@@ -181,7 +181,7 @@ const useWaggleDanceMachine = ({
           maxTokens,
           maxConcurrency: 16,
           streaming: true,
-          verbose: env.NODE_ENV === "development",
+          verbose: env.NEXT_PUBLIC_LANGCHAIN_VERBOSE === "true",
         },
       },
       [dag, setDAG],
