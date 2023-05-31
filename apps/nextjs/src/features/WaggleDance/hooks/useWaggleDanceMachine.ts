@@ -9,6 +9,7 @@ import WaggleDanceMachine, { initialEdges, initialNodes } from "../WaggleDanceMa
 import { type GraphData } from "../components/ForceGraph";
 import { dagToGraphData } from "../utils/conversions";
 import useWaggleDanceMachineStore from "~/stores/waggleDanceStore";
+import { env } from "~/env.mjs";
 
 interface UseWaggleDanceMachineProps {
   goal: string;
@@ -180,7 +181,7 @@ const useWaggleDanceMachine = ({
           maxTokens,
           maxConcurrency: 16,
           streaming: true,
-          verbose: false,
+          verbose: env.NODE_ENV === "development",
         },
       },
       [dag, setDAG],

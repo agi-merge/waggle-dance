@@ -84,7 +84,7 @@ export async function executeChain(
 
   const executor = await initializeAgentExecutorWithOptions(tools, llm, {
     agentType: "chat-conversational-react-description",
-    verbose: false,
+    verbose: process.env.NODE_ENV === "development",
     streaming: true,
     returnIntermediateSteps: false,
     memory,
