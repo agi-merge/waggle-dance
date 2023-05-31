@@ -24,9 +24,12 @@ export const env = createEnv({
     DISCORD_ID: z.string().min(19).max(19).optional(),
     DISCORD_SECRET: z.string().min(32).max(32).optional(),
     MEMORY_TYPE: z
-      .enum(["buffer", "motorhead", "conversation", "redis"])
+      .enum(["buffer", "motorhead", "conversation", "redis", "upstash-redis"])
       .optional(),
     MEMORY_URL: z.string().url().optional(),
+    MEMORY_REST_API_URL: z.string().url().optional(),
+    MEMORY_REST_API_TOKEN: z.string().optional(),
+    MEMORY_REST_API_READ_ONLY_TOKEN: z.string().optional(),
     GITHUB_ID: z.string().min(20).max(21).optional(),
     GITHUB_SECRET: z.string().min(40).max(40).optional(),
     OPENAI_API_KEY: z.string().min(51).max(51),
@@ -58,6 +61,9 @@ export const env = createEnv({
     DISCORD_SECRET: process.env.DISCORD_SECRET,
     MEMORY_TYPE: process.env.MEMORY_TYPE,
     MEMORY_URL: process.env.MEMORY_URL,
+    MEMORY_REST_API_URL: process.env.MEMORY_REST_API_URL,
+    MEMORY_REST_API_TOKEN: process.env.MEMORY_REST_API_TOKEN,
+    MEMORY_REST_API_READ_ONLY_TOKEN: process.env.MEMORY_REST_API_READ_ONLY_TOKEN,
     GITHUB_ID: process.env.GITHUB_ID,
     GITHUB_SECRET: process.env.GITHUB_SECRET,
     OPENAI_API_KEY: process.env.OPENAI_API_KEY,

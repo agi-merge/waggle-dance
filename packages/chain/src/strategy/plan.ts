@@ -12,11 +12,11 @@ export async function planChain(
   goal: string,
 ) {
   const llm = createModel(creationProps);
-  const memory = await createMemory(goal);
+  // const memory = await createMemory(goal);
   // const planPrompt = createPrompt("plan");
   const prompt = createPrompt("plan", creationProps, goal);
   const chain = new LLMChain({
-    memory,
+    // memory,
     prompt,
     llm,
   });

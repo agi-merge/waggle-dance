@@ -33,6 +33,7 @@
     "@trpc/next": "^10.28.0",
     "@trpc/react-query": "^10.28.0",
     "@trpc/server": "^10.28.0",
+    "@upstash/redis": "^1.20.6",
     "crypto-js": "^4.1.1",
     "d3": "^7.8.4",
     "d3-dsv": "^2.0.0",

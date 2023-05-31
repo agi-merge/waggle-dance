@@ -8,6 +8,7 @@ import {
   type BaseChatMemory,
 } from "langchain/memory";
 import { RedisChatMessageHistory } from "langchain/stores/message/redis";
+import { UpstashRedisChatMessageHistory } from "langchain/stores/message/upstash_redis";
 
 import { LLM } from "./types";
 
@@ -23,7 +24,7 @@ export async function createMemory(
   switch (process.env.MEMORY_TYPE) {
     case "motorhead":
       const memory: MotorheadMemory = new MotorheadMemory({
-        sessionId: hash(goal),
+        sessionId: hash(goal), //FIXME:
         motorheadURL: process.env.MEMORY_URL ?? "http://localhost:8080",
         inputKey,
       });
@@ -48,6 +49,25 @@ export async function createMemory(
             url: process.env.MEMORY_URL, // Default value, override with your own instance's URL
           },
         }),
+      });
+    case "upstash-redis":
+      const url = process.env.MEMORY_REST_API_URL ?? "";
+      const token = process.env.MEMORY_REST_API_TOKEN ?? "";
+      if (url?.length === 0 ?? false) {
+        throw new Error("No memory rest api url found")
+      }
+      if (token?.length === 0 ?? false) {
+        throw new Error("No memory rest api key found")
+      }
+      return new BufferMemory({
+        chatHistory: new UpstashRedisChatMessageHistory({
+          sessionId: new Date().toISOString(), // FIXME: Or some other unique identifier for the conversation
+          sessionTTL: 3600, // 1 hour, omit this parameter to make sessions never expire
+          config: {
+            url,
+            token,
+          },
+        })
       });
   }
 }

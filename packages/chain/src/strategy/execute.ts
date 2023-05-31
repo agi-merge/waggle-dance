@@ -27,10 +27,11 @@ export async function executeChain(
   creationProps.callbacks = undefined;
   const llm = createModel(creationProps);
   const memory = await createMemory(goal);
+  const chat_history = memory?.chatHistory ?? "None"
   const embeddings = createEmbeddings({ modelName: LLM.embeddings });
   const isReview = (parse(task) as { id: string }).id.startsWith(reviewPrefix)
   const prompt = createPrompt(isReview ? "criticize" : "execute", creationProps, goal, task, dag);
-  const formattedPrompt = await prompt.format({ chat_history: memory?.chatHistory ?? "None", format: "YAML" })
+  const formattedPrompt = await prompt.format({ chat_history, format: "YAML" })
 
   const tools: Tool[] = [
     new WebBrowser({ model: llm, embeddings }),

@@ -1,4 +1,4 @@
-import React, { useCallback, useEffect, useRef, useState } from "react";
+import React, { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import {
   Edit,
   Lan,
@@ -165,6 +165,8 @@ const WaggleDanceGraph = ({}: WaggleDanceGraphProps) => {
     }
   };
 
+  const results = useMemo(() => { return taskStates.filter((n) => !!n.result); }, [taskStates]);
+
   return (
     <Stack gap="1rem">
       <PageTitle
@@ -204,6 +206,12 @@ const WaggleDanceGraph = ({}: WaggleDanceGraphProps) => {
               <Tab>
                 <Lan />
                 <Typography className="px-1">Graph</Typography>
+              </Tab>
+            )}
+            {results.length > 0 && (
+              <Tab>
+                <ListAlt />
+                <Typography className="px-1">Results</Typography>
               </Tab>
             )}
           </TabList>
@@ -252,7 +260,7 @@ const WaggleDanceGraph = ({}: WaggleDanceGraphProps) => {
                         <Card
                           key={`${n.id}-${n.name}`}
                           color={statusColor(n)}
-                          variant="outlined"
+                          variant="soft"
                           sx={{ backgroundColor: statusColor(n), padding: 0 }}
                         >
                           <ListItem>

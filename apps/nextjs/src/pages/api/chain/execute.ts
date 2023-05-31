@@ -71,7 +71,6 @@ const handler = async (req: IncomingMessage, res: NextApiResponse) => {
 
     console.log("result", result);
     res.end(stringify(result));
-
   } catch (e) {
     let message;
     let status: number;

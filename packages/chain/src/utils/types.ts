@@ -81,12 +81,6 @@ export type RawChainPacket = {
 }
 
 export type ChainPacket =
-  // langchain callbacks
-  | { type: "handleLLMNewToken", nodeId: string, token: string }
-  | { type: "handleLLMStart", nodeId: string, llm: { name: string } }
-  | { type: "handleChainStart", nodeId: string, chain: { name: string } }
-  | { type: "handleToolStart", nodeId: string, tool: { name: string } }
-  | { type: "handleAgentAction", nodeId: string, action: AgentAction }
   // our callbacks
   | { type: "done", nodeId: string, value: string }
   | { type: "error"; nodeId: string, severity: "warn" | "human" | "fatal", message: string }

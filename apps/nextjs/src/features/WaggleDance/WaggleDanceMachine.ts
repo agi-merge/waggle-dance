@@ -25,7 +25,7 @@ import { type ChainPacket } from "@acme/chain";
 function isGoalReached(dag: DAG, completedTasks: Set<string>): boolean {
   return dag.nodes.every((node) => completedTasks.has(node.id));
 }
-export const rootPlanId = "👸"
+export const rootPlanId = `${Math.random()}`
 export const initialCond = { predicate: "", params: {} }
 export const initialNodes = (goal: string, _modelName: string) => [
   new DAGNodeClass(
@@ -162,6 +162,7 @@ export default class WaggleDanceMachine {
         completedTasks: completedTasks,
         taskResults,
       } as ExecuteRequestBody;
+
       void (async () => {
         const executionResponse = await executeTask(executeRequest, maxConcurrency, isRunning, sendChainPacket, log);
         taskResults = { ...taskResults, ...executionResponse.taskResults };
@@ -175,9 +176,12 @@ export default class WaggleDanceMachine {
               // queue review task
               const goalNode = planDAG.nodes[planDAG.nodes.length - 1]
               const reviewId = `${reviewPrefix}${taskId}`
+              const revieweeNode = planDAG.nodes.find(n => n.id === taskId)
+              const revieweeEdges = dag.edges.filter(e => e.sId === taskId)
+
               planDAG = {
                 ...planDAG,
-                nodes: [...planDAG.nodes, new DAGNodeClass(reviewId, `Review ${dag.nodes.find(n => n.id === taskId)?.name}`, "Review", {})],
+                nodes: [...planDAG.nodes, new DAGNodeClass(reviewId, `Review ${revieweeNode?.name}`, "Review", {})],
                 edges: [...planDAG.edges, ...(goalNode ? [new DAGEdgeClass(reviewId, goalNode.id)] : []), new DAGEdgeClass(taskId, reviewId)],
               }
               dag = { ...planDAG };
