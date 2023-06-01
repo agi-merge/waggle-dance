@@ -23,8 +23,8 @@ export default async function executeTask(
     taskResults: Record<string, BaseResultType>;
 }> {
     // Destructure tasks and completedTasks from the request object
-    const { dag, task, completedTasks, taskResults } = request;
-
+    const { dag, completedTasks, taskResults } = request;
+    let { task } = request;
     // Create a Set of completed tasks
     const completedTasksSet = new Set(completedTasks);
     // Create a task queue to store the tasks
@@ -42,11 +42,14 @@ export default async function executeTask(
                 console.log("before splice", taskQueue)
                 const removed = taskQueue.splice(0, 1)
                 console.log("after splice", taskQueue)
-                if (removed && removed.length > 0) {
+                if (!removed || removed.length <= 0) {
                     console.warn("Task not popped from taskQueue")
                     return
                 }
                 if (!task) {
+                    if (removed.length > 0) {
+                        task = removed[0]
+                    }
                     console.warn("No task")
                     return
                 }
