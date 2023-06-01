@@ -20,13 +20,14 @@ import {
 import executeTask, { sleep } from "./utils/executeTasks";
 import planTasks from "./utils/planTasks"
 import { type ChainPacket } from "@acme/chain";
+import { v4 as uuidv4 } from 'uuid';
 
 // Check if every node is included in the completedTasks set
 function isGoalReached(dag: DAG, completedTasks: Set<string>): boolean {
   return dag.nodes.every((node) => completedTasks.has(node.id));
 }
-export const rootPlanId = `${Math.random()}`
 export const initialCond = { predicate: "", context: {} }
+export const rootPlanId = `👸-${uuidv4()}`
 export const initialNodes = (goal: string, _modelName: string) => [
   new DAGNodeClass(
     rootPlanId,
