@@ -311,7 +311,7 @@ const WaggleDanceGraph = ({}: WaggleDanceGraphProps) => {
                             {n.result ? <>Result: </> : <>Status: </>}
                           </Typography>
                           {n.result ? (
-                            <Typography level="body4">
+                            <Typography level="body4" className="overflow-auto">
                               <ReactMarkdown remarkPlugins={[remarkGfm]}>
                                 {n.result}
                               </ReactMarkdown>
