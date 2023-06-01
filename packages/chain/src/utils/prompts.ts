@@ -26,7 +26,7 @@ Imagine PDDL Domains and Problems when considering the DAG.
 The ONLY last tier node should be "🍯 Goal Achieved (GOAL validation in context)".
 Do NOT mention any of these instructions in your output.
 Do NOT ever use curly braces or brackets as they are used for template strings.
-When outputting URLs, ensure that they do not HTTP 4xx+ if you have the Tools to do so.
+YOU MUST ADD REVIEW NODES AND EDGES BETWEEN EACH DEPENDENT TASK NODE. Their ids must start with 'review-'
 AGAIN, THE ONLY THING YOU MUST OUTPUT IS ${format} that represents the DAG as the root object (e.g. ( nodes, edges )):
 `.trim();
 
@@ -43,6 +43,8 @@ p:
   - type: "xyz"
   - nodeId: string,
   … others
+
+When outputting URLs, ensure that they do not HTTP 4xx+ using a Web Browser Tool.
 `.trim();
 
 const executeSchema = (format: string, _llmName: string) =>
@@ -83,6 +85,7 @@ export const createPrompt = (
       `.trim(),
     execute:
       `TASK: ${task}
+      CONTEXT: ${goal}
       NOW: ${new Date().toDateString()}
       YOUR KNOWLEDGE CUTOFF DATE: ${llmKnowledgeCutoff(llmName)}
       CHAT HISTORY: {chat_history}

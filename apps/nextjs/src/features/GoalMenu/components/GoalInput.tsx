@@ -1,3 +1,5 @@
+// GoalInput.tsx
+
 import React, { useEffect, useState } from "react";
 import { KeyboardArrowRight } from "@mui/icons-material";
 import {
@@ -14,10 +16,12 @@ import Card, { type CardProps } from "@mui/joy/Card";
 
 import { type Handlers } from "~/pages";
 import GoalDoctorModal from "./GoalDoctorModal";
+import GoalSettings from "./GoalSettings";
 import TemplatesModal from "./TemplatesModal";
 
 export const examplePrompts = [
   "Compare and contrast AgentGPT, AutoGPT, BabyAGI, https://waggledance.ai, and SuperAGI. Find similar projects or state of the art research papers. Create a .md (GFM) report of the findings.",
+  "Write a 1000+ word markdown document (GFM / Github flavored markdown). Research and summarize trends in the multi-family housing trends in San Francisco and surrounding areas. Create tables and figures that compare and contrast, and display relevant data to support the metrics. Afterwards, add citations, ensuring that URLs are valid.",
   "What is the most popular event planning trend right now in April 2023?",
   "Who came in fourth place in the latest golf major?",
   "How do fluctuations in mortgage interest rates affect the demand for home loans in the current market?",
@@ -38,7 +42,7 @@ const placeholders = [
 ];
 
 interface GoalInputProps extends CardProps {
-  callbacks: Handlers; // Update the type of callbacks
+  callbacks: Handlers;
   startingValue?: string;
 }
 
@@ -50,7 +54,7 @@ export default function GoalInput({
   const [currentPlaceholderIndex, setCurrentPlaceholderIndex] = useState(0);
   const [goalInputValue, setGoalInputValue] = useState(
     process.env.NODE_ENV === "development"
-      ? "Give me 50 words on current multi-family housing trends in San Francisco and surrounding areas with 3 metrics to support (including sources for all data), in markdown."
+      ? "Write a 1000+ word markdown document (GFM / Github flavored markdown). Research and summarize trends in the multi-family housing trends in San Francisco and surrounding areas. Create tables and figures that compare and contrast, and display relevant data to support the metrics. Afterwards, add citations, ensuring that URLs are valid."
       : "",
     //examplePrompts[(Math.random() * examplePrompts.length) | 0],
   );
@@ -160,6 +164,7 @@ export default function GoalInput({
           Next
           <KeyboardArrowRight />
         </Button>
+        <GoalSettings />
       </Stack>
     </form>
   );
