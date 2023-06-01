@@ -5,17 +5,19 @@ import {
   Button,
   Divider,
   FormControl,
+  Grid,
   Stack,
   Textarea,
   Typography,
 } from "@mui/joy";
-import { type CardProps } from "@mui/joy/Card";
+import Card, { type CardProps } from "@mui/joy/Card";
 
 import { type Handlers } from "~/pages";
 import GoalDoctorModal from "./GoalDoctorModal";
 import TemplatesModal from "./TemplatesModal";
 
 export const examplePrompts = [
+  "Compare and contrast AgentGPT, AutoGPT, BabyAGI, https://waggledance.ai, and SuperAGI. Find similar projects or state of the art research papers. Create a .md (GFM) report of the findings.",
   "What is the most popular event planning trend right now in April 2023?",
   "Who came in fourth place in the latest golf major?",
   "How do fluctuations in mortgage interest rates affect the demand for home loans in the current market?",
@@ -107,7 +109,25 @@ export default function GoalInput({
                 </Button>
                 <Divider orientation="vertical" />
                 <TemplatesModal>
-                  <Typography color="info">Templates coming soon!</Typography>
+                    <Typography color="info" level="h6" className="p-5">
+                      Template builder coming soon! For now, examples:
+                    </Typography>
+                    <Grid container spacing={2} sx={{ flexGrow: 1 }}>
+                      {examplePrompts.map((prompt, _index) => (
+                        <Grid key={prompt} xs={4}>
+                          <Card color="neutral" variant="soft">
+                            <Button
+                              variant="plain"
+                              onClick={() =>
+                                handleTemplateClick(prompt, handleClose)
+                              }
+                            >
+                              <Typography>{prompt}</Typography>
+                            </Button>
+                          </Card>
+                        </Grid>
+                      ))}
+                    </Grid>
                 </TemplatesModal>
                 <Divider orientation="vertical" />
                 <GoalDoctorModal>
