@@ -15,8 +15,8 @@ function AdvancedSettingsToggle({ children }) {
   };
 
   return (
-    <Stack direction={{ xs: "row", md: "column" }}>
-      <Link className="m-0 mt-0 p-0" variant="soft" onClick={toggleSettings}>
+    <Stack direction={{ xs: "column", md: "row" }} gap="1rem">
+      <Link className="m-0 mt-0 p-0" onClick={toggleSettings}>
         <Typography level="body4" className="m-0 p-0">
           Advanced Settings {isOpen ? "▲" : "▼"}
         </Typography>
@@ -39,7 +39,7 @@ function GoalSettings() {
   return (
     <Card>
       <Stack
-        direction={{ xs: "column", lg: "column" }}
+        direction={{ xs: "column", md: "column" }}
         gap="1rem"
         className="flex"
       >
