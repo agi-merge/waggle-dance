@@ -44,7 +44,7 @@ const useWaggleDanceMachine = ({
   const [isDonePlanning, setIsDonePlanning] = useState(false);
   const [logs, setLogs] = useState<LogMessage[]>([]);
   const [chainPackets, setChainPackets] = useState<Record<string, TaskState>>({});
-
+  const [abortController, _setAbortController] = useState<AbortController>(new AbortController());
   const mapPacketTypeToStatus = (packetType: string): TaskStatus => {
     switch (packetType) {
       case "handleLLMNewToken":
@@ -189,6 +189,7 @@ const useWaggleDanceMachine = ({
       sendChainPacket,
       log,
       isRunning,
+      abortController
     );
 
     console.log("waggleDanceMachine.run result", result);
@@ -200,7 +201,7 @@ const useWaggleDanceMachine = ({
 
     console.log("result", result);
     return result;
-  }, [goal, dag, setDAG, waggleDanceMachine, isRunning, setIsDonePlanning, log, isDonePlanning, sendChainPacket]);
+  }, [goal, dag, setDAG, waggleDanceMachine, isRunning, setIsDonePlanning, log, isDonePlanning, sendChainPacket, abortController]);
 
   return { waggleDanceMachine, dag, graphData, run, setIsDonePlanning, isDonePlanning, logs, taskStates };
 };
