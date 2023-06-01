@@ -179,7 +179,7 @@ const useWaggleDanceMachine = ({
           modelName: LLM.smart,
           temperature: 0,
           maxTokens,
-          maxConcurrency: 16,
+          maxConcurrency: 64,
           streaming: true,
           verbose: env.NEXT_PUBLIC_LANGCHAIN_VERBOSE === "true",
         },
