@@ -70,6 +70,7 @@ export default class WaggleDanceMachine {
     sendChainPacket: (chainPacket: ChainPacket, node: DAGNode) => void,
     log: (...args: (string | number | object)[]) => void,
     isRunning: boolean,
+    abortController: AbortController,
   ): Promise<WaggleDanceResult | Error> {
     const reviewPrefix = `review-${new Date().getUTCMilliseconds()}-`
     const taskState = { firstTaskState: "not started" as "not started" | "started" | "done" } as OptimisticFirstTaskState;
@@ -89,6 +90,7 @@ export default class WaggleDanceMachine {
         isRunning,
         sendChainPacket,
         log,
+        abortController,
       )
       completedTasks = new Set([...newCompletedTasks, ...completedTasks]);
       taskResults = { ...newTaskResults, ...taskResults };
@@ -166,7 +168,7 @@ export default class WaggleDanceMachine {
       } as ExecuteRequestBody;
 
       void (async () => {
-        const executionResponse = await executeTask(executeRequest, maxConcurrency, isRunning, sendChainPacket, log);
+        const executionResponse = await executeTask(executeRequest, maxConcurrency, isRunning, sendChainPacket, log, abortController);
         taskResults = { ...taskResults, ...executionResponse.taskResults };
         for (const taskId of executionResponse.completedTasks) {
           completedTasks.add(taskId);
