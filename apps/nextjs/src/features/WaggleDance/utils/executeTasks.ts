@@ -39,8 +39,17 @@ export default async function executeTask(
             const executeTaskPromise = async () => {
                 // remove task from taskQueue
                 // const scheduledTask = taskQueue.findIndex((scheduledTask) => { scheduledTask.id == task.id })
-                taskQueue.splice(0, 1)
-
+                console.log("before splice", taskQueue)
+                const removed = taskQueue.splice(0, 1)
+                console.log("after splice", taskQueue)
+                if (removed && removed.length > 0) {
+                    console.warn("Task not popped from taskQueue")
+                    return
+                }
+                if (!task) {
+                    console.warn("No task")
+                    return
+                }
                 log(`About to execute task ${task.id} -${task.name}...`);
                 sendChainPacket({ type: "starting", nodeId: task.id }, task)
 
