@@ -47,7 +47,7 @@ export default async function executeTask(
                     return
                 }
                 if (!task) {
-                    if (removed.length > 0) {
+                    if (removed.length > 0 && removed[0]) {
                         task = removed[0]
                     }
                     console.warn("No task")
