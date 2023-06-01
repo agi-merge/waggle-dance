@@ -117,8 +117,10 @@ export default async function executeTask(
             }
 
             // Wait for all task promises to settle and sleep for 1 second before looping again
-            await executeTaskPromise();
-            await sleep(1000);
+            if (taskQueue.filter(t => !!t).length > 0) {
+                await executeTaskPromise();
+            }
+            await sleep(500);
         }
     } catch (error) {
         throw error;
