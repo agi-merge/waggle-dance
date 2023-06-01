@@ -15,7 +15,7 @@ import { PineconeClient } from "@pinecone-database/pinecone";
 import { PineconeStore } from "langchain/vectorstores/pinecone";
 import { parse } from "yaml";
 
-export async function executeChain(
+export async function createExecutionAgent(
   creationProps: ModelCreationProps,
   goal: string,
   task: string,

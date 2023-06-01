@@ -1,7 +1,7 @@
 // api/chain/execute.ts
 
 import { type ExecuteRequestBody } from "./types";
-import { executeChain } from "@acme/chain";
+import { createExecutionAgent } from "@acme/chain";
 import { stringify } from "yaml"
 import { type NextApiRequest, type NextApiResponse } from "next";
 import { getServerSession } from "@acme/auth";
@@ -67,7 +67,7 @@ const handler = async (req: IncomingMessage, res: NextApiResponse) => {
 
     const callbacks = [inlineCallback];
     creationProps.callbacks = callbacks;
-    const result = await executeChain(creationProps, goal, stringify(task), stringify(dag), reviewPrefix, session?.user.id)
+    const result = await createExecutionAgent(creationProps, goal, stringify(task), stringify(dag), reviewPrefix, session?.user.id)
 
     console.log("result", result);
     res.end(stringify(result));
