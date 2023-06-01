@@ -71,12 +71,12 @@ const MainLayout = ({ children, openAIUsage }: Props) => {
           invertedColors
           variant="soft"
         >
+          <Header openAIUsage={openAIUsage} />
           <LinearProgress
             thickness={3}
             sx={{ opacity: progressOpacity }}
-            color="primary"
+            color="neutral"
           />
-          <Header openAIUsage={openAIUsage} />
           <Card
             invertedColors
             color="primary"
