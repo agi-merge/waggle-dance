@@ -12,7 +12,7 @@ import { type Tool } from "langchain/dist/tools/base";
 import { VectorDBQAChain } from "langchain/chains";
 import { PineconeClient } from "@pinecone-database/pinecone";
 import { PineconeStore } from "langchain/vectorstores/pinecone";
-import { parse } from "yaml";
+import { parse, stringify } from "yaml";
 import { PlanAndExecuteAgentExecutor } from "langchain/experimental/plan_and_execute";
 import { initializeAgentExecutorWithOptions } from "langchain/agents";
 import {
@@ -45,7 +45,7 @@ export async function createExecutionAgent(
   } else if (memory && memory["chatHistory"]) {
     chat_history = memory["chatHistory"]
   }
-  const formattedPrompt = await prompt.format({ chat_history, format: "YAML" })
+  const formattedPrompt = await prompt.format({ chat_history: stringify(chat_history), format: "YAML" })
 
   const tools: Tool[] = [
     new WebBrowser({ model: llm, embeddings }),
