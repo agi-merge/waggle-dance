@@ -114,7 +114,7 @@ export default class WaggleDanceMachine {
       log("done planning");
     }
     // prepend our initial nodes to the DAG
-    let planDAG = new DAG(
+    const planDAG = new DAG(
       [...initialNodes(request.goal, request.creationProps.modelName), ...dag.nodes],
       // connect our initial nodes to the DAG: gotta find them and create edges
       [...initialEdges(), ...dag.edges, ...findNodesWithNoIncomingEdges(dag).map((node) => new DAGEdgeClass(rootPlanId, node.id))],
@@ -167,27 +167,8 @@ export default class WaggleDanceMachine {
         const executionResponse = await executeTask(executeRequest, maxConcurrency, isRunning, sendChainPacket, log);
         taskResults = { ...taskResults, ...executionResponse.taskResults };
         for (const taskId of executionResponse.completedTasks) {
-          const lastTaskCount = completedTasks.size;
           completedTasks.add(taskId);
-          if (lastTaskCount < completedTasks.size) {
-            // do not infinite queue reviews of reviews
-            if (!taskId.startsWith(reviewPrefix)) {
-              // added a new task
-              // queue review task
-              const goalNode = planDAG.nodes[planDAG.nodes.length - 1]
-              const reviewId = `${reviewPrefix}${taskId}`
-              const revieweeNode = planDAG.nodes.find(n => n.id === taskId)
-              const revieweeEdges = dag.edges.filter(e => e.sId === taskId)
 
-              planDAG = {
-                ...planDAG,
-                nodes: [...planDAG.nodes, new DAGNodeClass(reviewId, `Review ${revieweeNode?.name}`, "Review", {})],
-                edges: [...planDAG.edges, ...(goalNode ? [new DAGEdgeClass(reviewId, goalNode.id)] : []), new DAGEdgeClass(taskId, reviewId)],
-              }
-              dag = { ...planDAG };
-              setDAG(planDAG)
-            }
-          }
         }
       })()
 
