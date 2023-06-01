@@ -24,7 +24,14 @@ export const env = createEnv({
     DISCORD_ID: z.string().min(19).max(19).optional(),
     DISCORD_SECRET: z.string().min(32).max(32).optional(),
     MEMORY_TYPE: z
-      .enum(["buffer", "motorhead", "conversation", "redis", "upstash-redis"])
+      .enum([
+        "buffer",
+        "motorhead",
+        "conversation",
+        "redis",
+        "upstash-redis",
+        "vector",
+      ])
       .optional(),
     MEMORY_URL: z.string().url().optional(),
     MEMORY_REST_API_URL: z.string().url().optional(),

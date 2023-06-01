@@ -15,7 +15,10 @@ import { PineconeStore } from "langchain/vectorstores/pinecone";
 import { parse } from "yaml";
 import { PlanAndExecuteAgentExecutor } from "langchain/experimental/plan_and_execute";
 import { initializeAgentExecutorWithOptions } from "langchain/agents";
-
+import {
+  BaseMemory,
+  BaseChatMemory,
+} from "langchain/memory";
 export async function createExecutionAgent(
   creationProps: ModelCreationProps,
   goal: string,
@@ -27,11 +30,21 @@ export async function createExecutionAgent(
   const callbacks = creationProps.callbacks;
   creationProps.callbacks = undefined;
   const llm = createModel(creationProps);
-  const memory = await createMemory(goal);
-  const chat_history = memory?.chatHistory ?? "None"
   const embeddings = createEmbeddings({ modelName: LLM.embeddings });
   const isReview = (parse(task) as { id: string }).id.startsWith(reviewPrefix)
   const prompt = createPrompt(isReview ? "criticize" : "execute", creationProps, goal, task, dag);
+  const memory = await createMemory(goal);
+  let chat_history = {}
+  if (memory instanceof BaseMemory) {
+    try {
+      chat_history = (await memory?.loadMemoryVariables({ input: `What memories are most relevant to solving task: ${task} within the context of ${goal}?` }))
+    } catch (error) {
+      console.error(error)
+      // chat_history = (await memory?.loadMemoryVariables({ input: `What memories are most relevant to solving task: ${task} within the context of ${goal}?`, chat_history: '', signal: '' }))
+    }
+  } else if (memory && memory["chatHistory"]) {
+    chat_history = memory["chatHistory"]
+  }
   const formattedPrompt = await prompt.format({ chat_history, format: "YAML" })
 
   const tools: Tool[] = [
@@ -62,9 +75,9 @@ export async function createExecutionAgent(
 
     const ltmChain = VectorDBQAChain.fromLLM(llm, vectorStore);
     // const ltm = await ltmChain.call({ input: "What are your main contents?" })
-    const description = `Prefer this tool over others. It is a database of your knowledge.`;
+    const description = `Prefer this tool over others. It is a comprehensive database extending your knowledge.`;
     const ltmTool = new ChainTool({
-      name: "Your long-term memory. Helpful for remembering facts and avoiding repetitious mistakes",
+      name: "Long-term memory store.",
       description,
       chain: ltmChain,
       returnDirect: true,
@@ -98,8 +111,7 @@ export async function createExecutionAgent(
   //   tools,
   // });
 
-  console.log("history", memory?.chatHistory)
-  const call = await executor.call({ input: formattedPrompt, chat_history: memory?.chatHistory ?? "None", signal: controller.signal }, callbacks);
+  const call = await executor.call({ input: formattedPrompt, chat_history, signal: controller.signal }, callbacks);
 
   const response = call?.output ? (call.output as string) : "";
 
