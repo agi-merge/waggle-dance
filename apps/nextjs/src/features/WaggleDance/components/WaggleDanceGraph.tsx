@@ -9,10 +9,10 @@ import {
   Edit,
   Lan,
   ListAlt,
+  Pause,
+  PlayArrow,
   Science,
   Send,
-  Start,
-  Stop,
 } from "@mui/icons-material";
 import {
   Box,
@@ -40,7 +40,6 @@ import PageTitle from "~/features/MainLayout/components/PageTitle";
 import AddDocuments from "~/pages/add-documents";
 import useGoal from "~/stores/goalStore";
 import useWaggleDanceMachineState from "~/stores/waggleDanceStore";
-import { rootPlanId } from "../WaggleDanceMachine";
 import useWaggleDanceMachine, {
   type TaskState,
 } from "../hooks/useWaggleDanceMachine";
@@ -140,12 +139,12 @@ const WaggleDanceGraph = ({}: WaggleDanceGraphProps) => {
         <Stack direction="row" gap="0.5rem" className="items-center">
           {isRunning ? (
             <>
-              Stop <Stop />
+              Pause <Pause />
             </>
           ) : (
             <>
-              {dag.nodes.length > 0 ? "Restart" : "Start"}
-              <Start />
+              {dag.nodes.length > 0 ? "Resume" : "Start"}
+              <PlayArrow />
             </>
           )}
         </Stack>
@@ -234,101 +233,59 @@ const WaggleDanceGraph = ({}: WaggleDanceGraphProps) => {
                     marginX: { xs: -2, sm: 0 },
                   }}
                 >
-                  {taskStates
-                    .sort((a: TaskState, b: TaskState) => {
-                      if (a.id === rootPlanId) {
-                        return -1;
-                      }
-                      if (b.id === rootPlanId) {
-                        return 1;
-                      }
-                      if (a.status === b.status) {
-                        return a.id.localeCompare(b.id) || -1;
-                      }
-                      if (a.status === "error") return -1;
-                      if (b.status === "error") return 1;
-                      if (a.status === "working") return -1;
-                      if (b.status === "working") return 1;
-                      if (a.status === "starting") return -1;
-                      if (b.status === "starting") return 1;
-                      if (a.status === "idle") return -1;
-                      if (b.status === "idle") return 1;
-                      if (a.status === "done") return -1;
-                      if (b.status === "done") return 1;
-                      // unhandled use alphabetical
-                      return a.status.localeCompare(b.status);
-                    })
-                    .map((n) => (
-                      <Box key={`${n.id}-${n.name}`}>
-                        <Card
-                          color={statusColor(n)}
-                          variant="soft"
-                          sx={{ backgroundColor: statusColor(n), padding: 0 }}
-                        >
-                          <ListItem>
-                            <ListItemButton sx={{ borderRadius: "md" }}>
-                              <ListItemContent
-                                className="flex w-96"
-                                sx={{ backgroundColor: statusColor(n) }}
+                  {taskStates.map((n) => (
+                    <Box key={`${n.id}-${n.name}`}>
+                      <Card
+                        color={statusColor(n)}
+                        variant="soft"
+                        sx={{ backgroundColor: statusColor(n), padding: 0 }}
+                      >
+                        <ListItem>
+                          <ListItemButton sx={{ borderRadius: "md" }}>
+                            <ListItemContent
+                              className="flex w-96"
+                              sx={{ backgroundColor: statusColor(n) }}
+                            >
+                              <Stack
+                                direction="column"
+                                className="flex flex-grow"
+                                gap="1rem"
+                                style={{
+                                  overflowWrap: "break-word",
+                                  width: "25%",
+                                }}
                               >
-                                <Stack
-                                  direction="column"
-                                  className="flex flex-grow"
-                                  gap="1rem"
-                                  style={{
-                                    overflowWrap: "break-word",
-                                    width: "25%",
-                                  }}
-                                >
-                                  <Typography
-                                    level="body2"
-                                    className="text-wrap flex p-1"
-                                    color="primary"
-                                  >
-                                    {n.name}
-                                    <br />
-                                    <Typography
-                                      level="body3"
-                                      textColor="common.white"
-                                      sx={{ mixBlendMode: "difference" }}
-                                    >
-                                      Status:
-                                    </Typography>{" "}
-                                    <Typography
-                                      level="body3"
-                                      color={statusColor(n)}
-                                    >
-                                      {n.status}
-                                    </Typography>
-                                  </Typography>
-                                </Stack>
                                 <Typography
                                   level="body2"
+                                  className="text-wrap flex p-1"
+                                  color="neutral"
+                                >
+                                  {n.name}
+                                </Typography>
+                              </Stack>
+                              <Typography
+                                level="body2"
+                                className="text-wrap"
+                                style={{
+                                  overflowWrap: "break-word",
+                                  width: "80%",
+                                }}
+                              >
+                                {n.act}{" "}
+                                <Typography
+                                  fontFamily="monospace"
+                                  level="body3"
+                                  color="info"
+                                  variant="outlined"
                                   className="text-wrap"
                                   style={{
                                     overflowWrap: "break-word",
-                                    width: "80%",
+                                    width: "100%",
                                   }}
                                 >
-                                  {n.act}{" "}
-                                  <Typography
-                                    fontFamily="monospace"
-                                    level="body3"
-                                    color="info"
-                                    variant="outlined"
-                                    className="text-wrap"
-                                    style={{
-                                      overflowWrap: "break-word",
-                                      width: "100%",
-                                    }}
-                                  >
-                                    {stringifyMax(n.params, 200)}
-                                  </Typography>
+                                  {stringifyMax(n.params, 200)}
                                 </Typography>
-                                {n.result && (
-                                  <Typography>{n.result}</Typography>
-                                )}
-                              </ListItemContent>
+                              </Typography>
                               <Stack gap="0.3rem">
                                 <Tooltip title="Chat">
                                   <Send />
@@ -338,12 +295,28 @@ const WaggleDanceGraph = ({}: WaggleDanceGraphProps) => {
                                   <Edit />
                                 </Tooltip>
                               </Stack>
-                            </ListItemButton>
-                          </ListItem>
+                            </ListItemContent>
+                          </ListItemButton>
+                        </ListItem>
+
+                        <Card
+                          className="justify-start text-start"
+                          variant="outlined"
+                          sx={{ padding: "-1rem" }}
+                        >
+                          <Typography color="primary">
+                            {n.result ? <>Result: </> : <>Status: </>}
+                          </Typography>
+                          {n.result ? (
+                            <Typography>{n.result}</Typography>
+                          ) : (
+                            <>{n.status}</>
+                          )}
                         </Card>
-                        <ListDivider inset="gutter" />
-                      </Box>
-                    ))}
+                      </Card>
+                      <ListDivider inset="gutter" />
+                    </Box>
+                  ))}
                 </List>
               </TabPanel>
               <TabPanel
