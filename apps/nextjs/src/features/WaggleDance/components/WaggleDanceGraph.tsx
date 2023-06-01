@@ -245,16 +245,16 @@ const WaggleDanceGraph = ({}: WaggleDanceGraphProps) => {
                       if (a.status === b.status) {
                         return a.id.localeCompare(b.id) || -1;
                       }
-                      if (a.status === "done") return -1;
-                      if (b.status === "done") return 1;
                       if (a.status === "error") return -1;
                       if (b.status === "error") return 1;
-                      if (a.status === "done") return -1;
-                      if (b.status === "done") return 1;
                       if (a.status === "working") return -1;
                       if (b.status === "working") return 1;
+                      if (a.status === "starting") return -1;
+                      if (b.status === "starting") return 1;
                       if (a.status === "idle") return -1;
                       if (b.status === "idle") return 1;
+                      if (a.status === "done") return -1;
+                      if (b.status === "done") return 1;
                       // unhandled use alphabetical
                       return a.status.localeCompare(b.status);
                     })
