@@ -74,7 +74,7 @@ export default class WaggleDanceMachine {
     const taskState = { firstTaskState: "not started" as "not started" | "started" | "done" } as OptimisticFirstTaskState;
 
     let dag: DAG
-    let completedTasks: Set<string> = new Set(rootPlanId);
+    let completedTasks: Set<string> = new Set([rootPlanId]);
     let taskResults: Record<string, BaseResultType> = {};
     const maxConcurrency = request.creationProps.maxConcurrency ?? 8;
 
