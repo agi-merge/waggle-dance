@@ -9,6 +9,7 @@ import {
   Stop,
 } from "@mui/icons-material";
 import {
+  Box,
   Button,
   Card,
   Divider,
@@ -256,9 +257,8 @@ const WaggleDanceGraph = ({}: WaggleDanceGraphProps) => {
                       return a.status.localeCompare(b.status);
                     })
                     .map((n) => (
-                      <>
+                      <Box key={`${n.id}-${n.name}`}>
                         <Card
-                          key={`${n.id}-${n.name}`}
                           color={statusColor(n)}
                           variant="soft"
                           sx={{ backgroundColor: statusColor(n), padding: 0 }}
@@ -340,7 +340,7 @@ const WaggleDanceGraph = ({}: WaggleDanceGraphProps) => {
                           </ListItem>
                         </Card>
                         <ListDivider inset="gutter" />
-                      </>
+                      </Box>
                     ))}
                 </List>
               </TabPanel>
@@ -356,11 +356,8 @@ const WaggleDanceGraph = ({}: WaggleDanceGraphProps) => {
                   aria-label="Log List"
                 >
                   {logs.map((log) => (
-                    <>
-                      <ListItem
-                        key={log.timestamp.toString()}
-                        className="overflow-x-scroll"
-                      >
+                    <Box key={log.timestamp.toString()}>
+                      <ListItem className="overflow-x-scroll">
                         <Stack
                           direction="row"
                           className="max-h-24 overflow-x-scroll"
@@ -386,7 +383,7 @@ const WaggleDanceGraph = ({}: WaggleDanceGraphProps) => {
                         </Stack>
                       </ListItem>
                       <ListDivider inset="gutter" />
-                    </>
+                    </Box>
                   ))}
                 </List>
               </TabPanel>

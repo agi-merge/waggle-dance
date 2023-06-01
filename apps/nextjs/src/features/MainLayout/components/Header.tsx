@@ -3,6 +3,7 @@ import { useRouter } from "next/router";
 import { KeyboardArrowRight } from "@mui/icons-material";
 import {
   Avatar,
+  Box,
   Breadcrumbs,
   Link,
   Stack,
@@ -92,7 +93,7 @@ const Header = ({
       </Typography>
     );
     return (
-      <>
+      <Box key={path}>
         {isLink ? (
           <Link
             onClick={() => {
@@ -110,7 +111,7 @@ const Header = ({
         ) : (
           labelElement
         )}
-      </>
+      </Box>
     );
   };
 
