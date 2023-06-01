@@ -130,7 +130,7 @@ const useWaggleDanceMachine = ({
           [chainPacket.nodeId]: {
             ...node,
             status: TaskStatus.idle,
-            result: null,
+            result: chainPacket.type === "done" ? chainPacket.value : null,
             packets: [chainPacket],
           },
         }));
