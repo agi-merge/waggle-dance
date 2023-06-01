@@ -8,7 +8,7 @@ const Alerts = () => {
   const { isDemoAlertOpen, setIsDemoAlertOpen } = usePreferences();
   const color = "info";
   const title = "Limited Demo";
-  const description = "Expect frequent changes and bugs";
+  const description = "MVP 1 Complete! OTW -> MVP 2.";
   const icon = <Warning />;
   return (
     <>
@@ -50,7 +50,10 @@ const Alerts = () => {
                 {title}
               </Typography>
               <Typography fontSize="sm" sx={{ opacity: 0.8 }}>
-                ••• {description} •••
+                {description}
+              </Typography>
+              <Typography fontSize="xs" sx={{ opacity: 0.5 }}>
+                • Expect changes and bugs. Do not input anything sensitive.
               </Typography>
             </div>
           </Alert>
