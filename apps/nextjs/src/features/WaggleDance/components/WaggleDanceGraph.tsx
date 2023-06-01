@@ -281,21 +281,21 @@ const WaggleDanceGraph = ({}: WaggleDanceGraphProps) => {
                                   }}
                                 >
                                   <Typography
-                                    level="body3"
+                                    level="body2"
                                     className="text-wrap flex p-1"
                                     color="primary"
                                   >
                                     {n.name}
                                     <br />
                                     <Typography
-                                      level="body4"
+                                      level="body3"
                                       textColor="common.white"
                                       sx={{ mixBlendMode: "difference" }}
                                     >
                                       Status:
                                     </Typography>{" "}
                                     <Typography
-                                      level="body4"
+                                      level="body3"
                                       color={statusColor(n)}
                                     >
                                       {n.status}
@@ -303,7 +303,7 @@ const WaggleDanceGraph = ({}: WaggleDanceGraphProps) => {
                                   </Typography>
                                 </Stack>
                                 <Typography
-                                  level="body3"
+                                  level="body2"
                                   className="text-wrap"
                                   style={{
                                     overflowWrap: "break-word",
@@ -313,7 +313,7 @@ const WaggleDanceGraph = ({}: WaggleDanceGraphProps) => {
                                   {n.act}{" "}
                                   <Typography
                                     fontFamily="monospace"
-                                    level="body5"
+                                    level="body3"
                                     color="info"
                                     variant="outlined"
                                     className="text-wrap"
