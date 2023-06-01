@@ -28,7 +28,7 @@ export default async function executeTask(
     // Create a Set of completed tasks
     const completedTasksSet = new Set(completedTasks);
     // Create a task queue to store the tasks
-    const taskQueue: DAGNode[] = [{ ...task }]
+    const taskQueue: DAGNode[] = [{ ...task }].filter(t => !!t)
     try {
         // Keep looping while there are tasks in the task queue
         while (taskQueue.length > 0) {
@@ -129,7 +129,7 @@ export default async function executeTask(
             }
 
             // Wait for all task promises to settle and sleep for 1 second before looping again
-            if (taskQueue.filter(t => !!t).length > 0) {
+            if (taskQueue.length > 0) {
                 await executeTaskPromise();
             }
             await sleep(500);

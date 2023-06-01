@@ -35,6 +35,8 @@ import {
   Typography,
   type StackProps,
 } from "@mui/joy";
+import ReactMarkdown from "react-markdown";
+import remarkGfm from "remark-gfm";
 
 import PageTitle from "~/features/MainLayout/components/PageTitle";
 import AddDocuments from "~/pages/add-documents";
@@ -309,7 +311,9 @@ const WaggleDanceGraph = ({}: WaggleDanceGraphProps) => {
                             {n.result ? <>Result: </> : <>Status: </>}
                           </Typography>
                           {n.result ? (
-                            <Typography>{n.result}</Typography>
+                            <ReactMarkdown remarkPlugins={[remarkGfm]}>
+                              {n.result}
+                            </ReactMarkdown>
                           ) : (
                             <>{n.status}</>
                           )}

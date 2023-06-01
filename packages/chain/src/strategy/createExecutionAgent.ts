@@ -6,7 +6,6 @@ import { createModel, createEmbeddings } from "../utils/model";
 import { createPrompt } from "../utils/prompts";
 import { LLM, type ModelCreationProps } from "../utils/types";
 import { WebBrowser } from "langchain/tools/webbrowser";
-import { initializeAgentExecutorWithOptions } from "langchain/agents";
 import { SerpAPI, ChainTool } from "langchain/tools";
 import { type Tool } from "langchain/dist/tools/base";
 
@@ -14,6 +13,7 @@ import { VectorDBQAChain } from "langchain/chains";
 import { PineconeClient } from "@pinecone-database/pinecone";
 import { PineconeStore } from "langchain/vectorstores/pinecone";
 import { parse } from "yaml";
+import { PlanAndExecuteAgentExecutor } from "langchain/experimental/plan_and_execute";
 
 export async function createExecutionAgent(
   creationProps: ModelCreationProps,
@@ -82,13 +82,18 @@ export async function createExecutionAgent(
 
   const controller = new AbortController();
 
-  const executor = await initializeAgentExecutorWithOptions(tools, llm, {
-    agentType: "chat-conversational-react-description",
-    verbose: process.env.NEXT_PUBLIC_LANGCHAIN_VERBOSE === "true",
-    streaming: true,
-    returnIntermediateSteps: false,
-    memory,
-    ...creationProps,
+  // const executor = await initializeAgentExecutorWithOptions(tools, llm, {
+  //   agentType: "chat-conversational-react-description",
+  //   verbose: process.env.NEXT_PUBLIC_LANGCHAIN_VERBOSE === "true",
+  //   streaming: true,
+  //   returnIntermediateSteps: false,
+  //   memory,
+  //   ...creationProps,
+  // });
+
+  const executor = PlanAndExecuteAgentExecutor.fromLLMAndTools({
+    llm: llm,
+    tools,
   });
 
   console.log("history", memory?.chatHistory)

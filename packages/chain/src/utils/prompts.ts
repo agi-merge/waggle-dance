@@ -2,7 +2,7 @@ import {
   PromptTemplate,
 } from "langchain/prompts";
 
-import { type ModelCreationProps } from "./types";
+import { llmKnowledgeCutoff, type ModelCreationProps } from "./types";
 
 const schema = (format: string, _llmName: string) =>
   `
@@ -76,6 +76,7 @@ export const createPrompt = (
       TEAM TOOLS: ${tools}
       GOAL: ${goal}
       NOW: ${new Date().toDateString()}
+      MODEL CUTOFF DATE: ${llmKnowledgeCutoff(llmName)}
       SCHEMA: ${schema(returnType, llmName)}
       TASK: To come up with an efficient and expert plan to solve the User's GOAL. Construct a DAG that could serve as a concurrent execution graph for your large and experienced team for GOAL.
       RETURN: ONLY the DAG as described in SCHEMA${returnType === "JSON" ? ":" : ". Do NOT return JSON:"}
@@ -84,6 +85,7 @@ export const createPrompt = (
       `GOAL: ${goal}
       TASK: ${task}
       NOW: ${new Date().toDateString()}
+      MODEL CUTOFF DATE: ${llmKnowledgeCutoff(llmName)}
       CHAT HISTORY: {chat_history}
       SCHEMA: ${executeSchema(returnType, llmName)}
       RETURN: ONLY a single ChainPacket with the result of your TASK in SCHEMA${returnType === "JSON" ? ":" : ". Do NOT return JSON:"}

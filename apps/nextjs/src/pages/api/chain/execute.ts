@@ -43,8 +43,8 @@ const handler = async (req: IncomingMessage, res: NextApiResponse) => {
     //   res.write(JSON.stringify(packet) + "\n");
     // };
     const inlineCallback = {
-      handleLLMNewToken(_token: string) {
-        res.write(" ");
+      handleLLMNewToken(token: string) {
+        res.write(token);
       },
 
       // handleLLMStart: (llm: { name: string }, _prompts: string[]) => {

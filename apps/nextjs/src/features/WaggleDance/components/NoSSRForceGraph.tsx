@@ -1,6 +1,7 @@
 // NoSSRForceGraph.tsx
 import React, { useEffect, useRef, useState } from "react";
 import useResizeObserver from "@react-hook/resize-observer";
+import { forceCollide } from "d3-force";
 import { ForceGraph2D as OriginalForceGraph2D } from "react-force-graph";
 import { useDebounce } from "use-debounce";
 
@@ -193,7 +194,8 @@ const NoSSRForceGraph: React.FC<ForceGraphProps> = ({ data }) => {
   const fgRef = useRef<ForceGraphRef | null>(null);
   const containerRef = useRef<HTMLDivElement | null>(null);
   const [containerWidth, setContainerWidth] = useState(0);
-
+  const dagMode = containerWidth > 768 ? "td" : "lr"; // Use 'td' for larger screens and 'lr' for smaller screens
+  const enableZoomInteraction = containerWidth < 768;
   useResizeObserver(containerRef, (entry) => {
     setContainerWidth(entry.contentRect.width);
   });
@@ -217,8 +219,8 @@ const NoSSRForceGraph: React.FC<ForceGraphProps> = ({ data }) => {
       <OriginalForceGraph2D
         width={containerWidth}
         height={containerWidth / (4 / 3)}
-        dagMode="td"
-        dagLevelDistance={containerWidth / 75}
+        dagMode={dagMode}
+        dagLevelDistance={(containerWidth / 170) ** 2}
         // TODO: gotta come back to this one
         // eslint-disable-next-line @typescript-eslint/ban-ts-comment
         // @ts-ignore
@@ -236,9 +238,15 @@ const NoSSRForceGraph: React.FC<ForceGraphProps> = ({ data }) => {
         linkDirectionalArrowLength={3}
         linkDirectionalArrowRelPos={0.5}
         nodeCanvasObject={renderNodeCanvasObject}
-        linkCurvature={0.33}
-        d3AlphaDecay={0.5}
-        d3VelocityDecay={0.5}
+        linkCurvature={0.7 + (containerWidth / 2000) ** 2}
+        d3AlphaDecay={0.9}
+        d3VelocityDecay={0.9}
+        d3Force={(forceName, forceFn) => {
+          if (forceName === "collide") {
+            return forceCollide().radius(40 + (containerWidth / 200) ** 2); // Increase the collision radius based on containerWidth
+          }
+          return forceFn;
+        }}
         // d3LinkForce={
         //   () =>
         //     forceLink()
@@ -257,7 +265,7 @@ const NoSSRForceGraph: React.FC<ForceGraphProps> = ({ data }) => {
         //   // return forceFn;
         // }}
         onEngineTick={() => {
-          fgRef.current?.zoomToFit(0, 50);
+          fgRef.current?.zoomToFit(0, containerWidth / 10);
           fgRef.current?.d3ReheatSimulation();
         }}
         onDagError={(loopNodeIds) => {
@@ -268,10 +276,10 @@ const NoSSRForceGraph: React.FC<ForceGraphProps> = ({ data }) => {
           node.fy = node.y;
         }}
         onEngineStop={() => fgRef.current?.zoomToFit(10)}
-        enableZoomInteraction={false}
-        enablePanInteraction={false}
+        enableZoomInteraction={enableZoomInteraction}
+        enablePanInteraction={true}
         // onNodeClick={handleClick}
-        // enablePointerInteraction={false}
+        enablePointerInteraction={true}
       />
     </div>
   );
