@@ -58,7 +58,7 @@ export default async function planTasks(
                 const yaml = parse(chunks) as unknown;
                 if (yaml && yaml as OptionalDAG) {
                     const optDag = yaml as OptionalDAG
-                    const validNodes = optDag.nodes?.filter((n) => n.name.length > 0 && n.act.length > 0 && n.id.length > 0 && n.params);
+                    const validNodes = optDag.nodes?.filter((n) => n.name.length > 0 && n.act.length > 0 && n.id.length > 0 && n.context);
                     const validEdges = optDag.edges?.filter((n) => n.sId.length > 0 && n.tId.length > 0);
                     if (validNodes?.length) {
                         const hookupEdges = findNodesWithNoIncomingEdges(optDag).map((node) => new DAGEdgeClass(rootPlanId, node.id))

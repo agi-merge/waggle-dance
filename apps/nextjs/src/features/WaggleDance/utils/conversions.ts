@@ -13,7 +13,7 @@ export function dagToGraphData(dag: DAG): GraphData {
       id: node.id,
       name: node.name,
       act: node.act,
-      params: node.params,
+      context: node.context,
     };
   });
 

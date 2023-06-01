@@ -92,7 +92,7 @@ const WaggleDanceGraph = ({}: WaggleDanceGraphProps) => {
 
   const stringifyMax = (value: unknown, max: number) => {
     const json = JSON.stringify(value);
-    return json.length < max ? json : `${json.slice(0, max)}…`;
+    return json && json.length < max ? json : `${json.slice(0, max)}…`;
   };
 
   const button = (
@@ -222,6 +222,7 @@ const WaggleDanceGraph = ({}: WaggleDanceGraphProps) => {
               {isRunning && !isDonePlanning && (
                 <LinearProgress thickness={1} className="mx-2 -mt-0.5" />
               )}
+              <LinearProgress thickness={1} className="mx-2 -mt-0.5" />
               <TabPanel
                 value={0}
                 className=" relative max-h-96 w-full overflow-y-scroll p-4"
@@ -283,7 +284,7 @@ const WaggleDanceGraph = ({}: WaggleDanceGraphProps) => {
                                     width: "100%",
                                   }}
                                 >
-                                  {stringifyMax(n.params, 200)}
+                                  {stringifyMax(n.context, 200)}
                                 </Typography>
                               </Typography>
                               <Stack gap="0.3rem">

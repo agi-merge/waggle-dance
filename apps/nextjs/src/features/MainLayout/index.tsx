@@ -30,6 +30,10 @@ const MainLayout = ({ children, openAIUsage }: Props) => {
     return isPageLoading ? 100 : 0;
   }, [isPageLoading]);
 
+  const pageOpacity = useMemo(() => {
+    return isPageLoading ? 80 : 100;
+  }, [isPageLoading]);
+
   if (!mounted) {
     return null;
   }
@@ -78,6 +82,9 @@ const MainLayout = ({ children, openAIUsage }: Props) => {
             color="primary"
             variant="outlined"
             className="-m-2 p-0"
+            sx={{
+              opacity: pageOpacity,
+            }}
           >
             <Alerts />
             {children}

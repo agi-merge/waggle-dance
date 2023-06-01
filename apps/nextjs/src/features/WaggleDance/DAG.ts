@@ -1,19 +1,19 @@
 // DAG.ts
-export interface Params {
+export interface Context {
   [key: string]: string;
 }
 export interface Cond {
   predicate: string;
-  params: Params;
+  context: Context;
 }
 
 export class CondClass {
   predicate: string;
-  params: Params;
+  context: Context;
 
-  constructor(predicate: string, params: Params) {
+  constructor(predicate: string, context: Context) {
     this.predicate = predicate;
-    this.params = params;
+    this.context = context;
   }
 }
 
@@ -21,7 +21,7 @@ export interface DAGNode {
   id: string;
   name: string;
   act: string;
-  params: Params;
+  context: Context;
 }
 export interface DAGEdge {
   sId: string;
@@ -31,13 +31,13 @@ export class DAGNodeClass implements DAGNode {
   id: string;
   name: string;
   act: string;
-  params: Params;
+  context: Context;
 
-  constructor(id: string, name: string, act: string, params: Params) {
+  constructor(id: string, name: string, act: string, context: Context) {
     this.id = id;
     this.name = name;
     this.act = act;
-    this.params = params;
+    this.context = context;
   }
 }
 
