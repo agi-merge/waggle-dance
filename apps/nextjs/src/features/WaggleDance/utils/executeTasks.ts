@@ -72,14 +72,13 @@ export default async function executeTask(
                         const { done, value } = await reader.read();
                         if (done) {
                             // Decode response data
-                            log(`Stream ended for task ${task.id}-${task.name}:`);
-                            log(`Raw buffer: ${buffer}`)
                             // Process response data and store packets in completedTasksSet and taskResults
                             // const packet = parse(buffer)
 
                             completedTasksSet.add(task.id);
                             taskResults[task.id] = buffer;
                             const packet = { type: "done", nodeId: task.id, value: buffer } as ChainPacket
+                            log(`Stream ended, raw buffer for ${task.id}: ${buffer}`, "packet", packet)
                             sendChainPacket(packet, task)
                             return packet;
                         } else if (value.length) {
