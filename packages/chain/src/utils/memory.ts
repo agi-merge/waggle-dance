@@ -59,7 +59,6 @@ export async function createMemory(
         vectorStoreRetriever: vectorStore.asRetriever(4),
         memoryKey: "chat_history",
         inputKey,
-        returnDocs: true,
       });
 
       return vectorMemory;
@@ -87,7 +86,10 @@ export async function createMemory(
       if (token?.length === 0 ?? false) {
         throw new Error("No memory rest api key found")
       }
-      return new BufferMemory({
+
+      return new ConversationSummaryMemory({
+        inputKey,
+        llm: new OpenAI({ modelName: LLM.fast, temperature: 0 }),
         chatHistory: new UpstashRedisChatMessageHistory({
           sessionId: new Date().toISOString(), // FIXME: Or some other unique identifier for the conversation
           sessionTTL: 3600, // 1 hour, omit this parameter to make sessions never expire
@@ -97,5 +99,8 @@ export async function createMemory(
           },
         })
       });
+    // return new BufferMemory({
+
+    // });
   }
 }
