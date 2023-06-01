@@ -149,8 +149,9 @@ export default class WaggleDanceMachine {
         await sleep(1000);
         // throw new Error("No relevantPendingTasks tasks, but goal not reached.");
       }
-
-      log("relevantPendingTasks", relevantPendingTasks.map((task) => task.name))
+      if (relevantPendingTasks.length > 0) {
+        log("relevantPendingTasks", relevantPendingTasks.map((task) => task.name))
+      }
 
       const task = relevantPendingTasks.splice(0, 1)[0] // pop first task
       // task && pendingTasks.splice(pendingTasks.indexOf(task), 1) // remove from pending tasks
@@ -168,7 +169,6 @@ export default class WaggleDanceMachine {
         taskResults = { ...taskResults, ...executionResponse.taskResults };
         for (const taskId of executionResponse.completedTasks) {
           completedTasks.add(taskId);
-
         }
       })()
 

@@ -82,10 +82,9 @@ export const createPrompt = (
       RETURN: ONLY the DAG as described in SCHEMA${returnType === "JSON" ? ":" : ". Do NOT return JSON:"}
       `.trim(),
     execute:
-      `GOAL: ${goal}
-      TASK: ${task}
+      `TASK: ${task}
       NOW: ${new Date().toDateString()}
-      MODEL CUTOFF DATE: ${llmKnowledgeCutoff(llmName)}
+      YOUR KNOWLEDGE CUTOFF DATE: ${llmKnowledgeCutoff(llmName)}
       CHAT HISTORY: {chat_history}
       SCHEMA: ${executeSchema(returnType, llmName)}
       RETURN: ONLY a single ChainPacket with the result of your TASK in SCHEMA${returnType === "JSON" ? ":" : ". Do NOT return JSON:"}
@@ -97,6 +96,7 @@ export const createPrompt = (
       REVIEWEE OUTPUT: ${result}
       CHAT HISTORY: {chat_history}
       NOW: ${new Date().toDateString()}
+      YOUR KNOWLEDGE CUTOFF DATE: ${llmKnowledgeCutoff(llmName)}
       SCHEMA: ${criticizeSchema(returnType, llmName)}
       RETURN: ONLY a single ChainPacket with the result of your TASK in SCHEMA${returnType === "JSON" ? ":" : ". Do NOT return JSON:"}
       `.trim(),

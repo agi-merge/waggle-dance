@@ -33,15 +33,15 @@ export default async function executeTask(
         // Keep looping while there are tasks in the task queue
         while (taskQueue.length > 0) {
 
-            log("Task queue:", taskQueue.map((t) => t.id));
+            if (taskQueue.length > 0) {
+                log("Task queue:", taskQueue.map((t) => t.id));
+            }
 
             // Execute the valid pairs of {task, dag} concurrently, storing the execution request promises in executeTaskPromises array
             const executeTaskPromise = async () => {
                 // remove task from taskQueue
                 // const scheduledTask = taskQueue.findIndex((scheduledTask) => { scheduledTask.id == task.id })
-                console.log("before splice", taskQueue)
                 const removed = taskQueue.splice(0, 1)
-                console.log("after splice", taskQueue)
                 if (!removed || removed.length <= 0) {
                     console.warn("Task not popped from taskQueue")
                     return
@@ -50,7 +50,6 @@ export default async function executeTask(
                     if (removed.length > 0 && removed[0]) {
                         task = removed[0]
                     }
-                    console.warn("No task")
                     return
                 }
                 log(`About to execute task ${task.id} -${task.name}...`);

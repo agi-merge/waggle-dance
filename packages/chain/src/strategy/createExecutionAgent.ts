@@ -14,6 +14,7 @@ import { PineconeClient } from "@pinecone-database/pinecone";
 import { PineconeStore } from "langchain/vectorstores/pinecone";
 import { parse } from "yaml";
 import { PlanAndExecuteAgentExecutor } from "langchain/experimental/plan_and_execute";
+import { initializeAgentExecutorWithOptions } from "langchain/agents";
 
 export async function createExecutionAgent(
   creationProps: ModelCreationProps,
@@ -61,11 +62,12 @@ export async function createExecutionAgent(
 
     const ltmChain = VectorDBQAChain.fromLLM(llm, vectorStore);
     // const ltm = await ltmChain.call({ input: "What are your main contents?" })
-    const description = `Your long-term memory - useful for recalling facts related to solving the goal/task.`;
+    const description = `Prefer this tool over others. It is a database of your knowledge.`;
     const ltmTool = new ChainTool({
-      name: "Your long-term memory",
+      name: "Your long-term memory. Helpful for remembering facts and avoiding repetitious mistakes",
       description,
       chain: ltmChain,
+      returnDirect: true,
     });
     tools.push(ltmTool);
   }
@@ -82,19 +84,19 @@ export async function createExecutionAgent(
 
   const controller = new AbortController();
 
-  // const executor = await initializeAgentExecutorWithOptions(tools, llm, {
-  //   agentType: "chat-conversational-react-description",
-  //   verbose: process.env.NEXT_PUBLIC_LANGCHAIN_VERBOSE === "true",
-  //   streaming: true,
-  //   returnIntermediateSteps: false,
-  //   memory,
-  //   ...creationProps,
-  // });
-
-  const executor = PlanAndExecuteAgentExecutor.fromLLMAndTools({
-    llm: llm,
-    tools,
+  const executor = await initializeAgentExecutorWithOptions(tools, llm, {
+    agentType: "chat-conversational-react-description",
+    verbose: process.env.NEXT_PUBLIC_LANGCHAIN_VERBOSE === "true",
+    streaming: true,
+    returnIntermediateSteps: false,
+    memory,
+    ...creationProps,
   });
+
+  // const executor = PlanAndExecuteAgentExecutor.fromLLMAndTools({
+  //   llm: llm,
+  //   tools,
+  // });
 
   console.log("history", memory?.chatHistory)
   const call = await executor.call({ input: formattedPrompt, chat_history: memory?.chatHistory ?? "None", signal: controller.signal }, callbacks);

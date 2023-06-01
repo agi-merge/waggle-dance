@@ -307,13 +307,15 @@ const WaggleDanceGraph = ({}: WaggleDanceGraphProps) => {
                           variant="outlined"
                           sx={{ padding: "-1rem" }}
                         >
-                          <Typography color="primary">
+                          <Typography level="h6">
                             {n.result ? <>Result: </> : <>Status: </>}
                           </Typography>
                           {n.result ? (
-                            <ReactMarkdown remarkPlugins={[remarkGfm]}>
-                              {n.result}
-                            </ReactMarkdown>
+                            <Typography level="body4">
+                              <ReactMarkdown remarkPlugins={[remarkGfm]}>
+                                {n.result}
+                              </ReactMarkdown>
+                            </Typography>
                           ) : (
                             <>{n.status}</>
                           )}
