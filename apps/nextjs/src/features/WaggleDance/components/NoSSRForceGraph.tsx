@@ -241,29 +241,6 @@ const NoSSRForceGraph: React.FC<ForceGraphProps> = ({ data }) => {
         linkCurvature={0.7 + (containerWidth / 2000) ** 2}
         d3AlphaDecay={0.9}
         d3VelocityDecay={0.9}
-        d3Force={(forceName, forceFn) => {
-          if (forceName === "collide") {
-            return forceCollide().radius(40 + (containerWidth / 200) ** 2); // Increase the collision radius based on containerWidth
-          }
-          return forceFn;
-        }}
-        // d3LinkForce={
-        //   () =>
-        //     forceLink()
-        //       .id((d) => (d as { id: string }).id)
-        //       .distance(20) // Increase the distance between linked nodes
-        //       .strength(0) // Reduce the strength of the link force
-        // }
-        // d3Force={(forceName: string, forceFn: unknown) => {
-        //   // if (forceName === "collide") {
-        //   //   console.log("collide");
-        //   //   return forceCollide().radius(50); // Increase the collision radius
-        //   // } else if (forceName === "charge") {
-        //   //   console.log("charge");
-        //   return forceManyBody().strength(-500); // Increase the repelling force strength
-        //   // }
-        //   // return forceFn;
-        // }}
         onEngineTick={() => {
           fgRef.current?.zoomToFit(0, containerWidth / 10);
           fgRef.current?.d3ReheatSimulation();
