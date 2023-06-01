@@ -74,8 +74,6 @@ export interface EmbeddingsCreationProps
   verbose?: boolean;
 }
 
-import { type AgentAction } from "langchain/schema";
-
 export type RawChainPacket = {
   p: ChainPacket;
 }
@@ -85,5 +83,6 @@ export type ChainPacket =
   | { type: "done", nodeId: string, value: string }
   | { type: "error"; nodeId: string, severity: "warn" | "human" | "fatal", message: string }
   | { type: "requestHumanInput"; nodeId: string, reason: string }
+  // client-side only
   | { type: "starting"; nodeId: string }
   | { type: "working"; nodeId: string };

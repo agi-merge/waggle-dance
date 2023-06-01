@@ -2,7 +2,6 @@
 
 import { LLMChain } from "langchain/chains";
 
-import { createMemory } from "../utils/memory";
 import { createModel } from "../utils/model";
 import { createPrompt } from "../utils/prompts";
 import { type ModelCreationProps } from "../utils/types";
