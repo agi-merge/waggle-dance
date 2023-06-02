@@ -1,4 +1,6 @@
-import React, { useState } from "react";
+// GoalSettings.tsx
+
+import React from "react";
 import { Button, Card, FormHelperText, FormLabel, Link, Sheet } from "@mui/joy";
 import Box from "@mui/joy/Box";
 import Option from "@mui/joy/Option";
@@ -7,8 +9,10 @@ import Stack from "@mui/joy/Stack";
 import Switch from "@mui/joy/Switch";
 import Typography from "@mui/joy/Typography";
 
+import useWaggleDanceMachineStore from "~/stores/waggleDanceStore";
+
 function AdvancedSettingsToggle({ children }) {
-  const [isOpen, setIsOpen] = useState(false);
+  const [isOpen, setIsOpen] = React.useState(false);
 
   const toggleSettings = () => {
     setIsOpen(!isOpen);
@@ -29,13 +33,19 @@ function AdvancedSettingsToggle({ children }) {
 }
 
 function GoalSettings() {
-  const [autoStart, setAutoStart] = useState(true);
-  const [executionMethod, setExecutionMethod] = useState("ConversationalReAct");
-  const [temperatureOption, setTemperatureOption] = useState("Stable");
-  const [llmOption, setLLMOption] = useState("gpt-4-0314");
+  const {
+    isAutoStartEnabled,
+    setIsAutoStartEnabled,
+    executionMethod,
+    setExecutionMethod,
+    temperatureOption,
+    setTemperatureOption,
+    llmOption,
+    setLLMOption,
+  } = useWaggleDanceMachineStore();
 
   const handleSwitchChange = (event: React.ChangeEvent<HTMLInputElement>) => {
-    setAutoStart(event.target.checked);
+    setIsAutoStartEnabled(event.target.checked);
   };
 
   return (
@@ -51,14 +61,14 @@ function GoalSettings() {
                 level="body4"
                 className="h-8 w-48 items-center justify-center"
               >
-                {autoStart
+                {isAutoStartEnabled
                   ? 'Planning begins immediately after pressing "Next"'
                   : "Connect data and tools before starting"}
               </Typography>
             </FormHelperText>
           </Box>
           <Switch
-            checked={autoStart}
+            checked={isAutoStartEnabled}
             onChange={handleSwitchChange}
             variant="soft"
             slotProps={{
@@ -76,14 +86,14 @@ function GoalSettings() {
               <Typography level="body3">Execution Method</Typography>
               <Select
                 value={executionMethod}
-                onChange={(_event, value) => {
+                onChange={(_, value) => {
                   value && setExecutionMethod(value);
                 }}
               >
                 <Option value="ConversationalReAct">
-                  Fast - Conversational ReAct
+                  Faster, less accurate
                 </Option>
-                <Option value="CoT">Slow - PlanAndExecuteAgentExecutor</Option>
+                <Option value="CoT">Slower, more accurate</Option>
               </Select>
             </Box>
             <Box>

@@ -5,6 +5,7 @@ export const app = {
   localStorageKeys: {
     goal: "AGI:MERGE:GOAL:STORE",
     preferences: "AGI:MERGE:PREFERENCES:STORE",
+    waggleDance: "AGI:MERGE:WAGGLE:DANCE:STORE",
   },
   routes: {
     home: "/",
