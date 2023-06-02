@@ -164,8 +164,8 @@ const useWaggleDanceMachine = ({
   });
 
   useEffect(() => {
-    setGraphData(dagToGraphData(dag));
-  }, [dag]);
+    setGraphData(dagToGraphData(dag, taskStates));
+  }, [dag, taskStates]);
 
   const run = useCallback(async () => {
     const maxTokens = llmResponseTokenLimit(LLM.smart)

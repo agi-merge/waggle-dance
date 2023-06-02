@@ -6,14 +6,17 @@ import {
   type LinkObject,
   type NodeObject,
 } from "../components/ForceGraph";
+import { type TaskState } from "../hooks/useWaggleDanceMachine";
 
-export function dagToGraphData(dag: DAG): GraphData {
+export function dagToGraphData(dag: DAG, taskStates: TaskState[]): GraphData {
+
   const nodes = dag.nodes.map((node) => {
     return {
       id: node.id,
       name: node.name,
       act: node.act,
       context: node.context,
+      status: taskStates.find((taskState) => taskState.id === node.id)?.status, // FIXME: nested O(n)
     };
   });
 

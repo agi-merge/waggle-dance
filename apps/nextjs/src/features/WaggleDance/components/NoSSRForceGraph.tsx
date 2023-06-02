@@ -23,6 +23,7 @@ type NodeObject = object & {
   // my props (not on original type)
   name?: string;
   containerWidth?: number;
+  status?: boolean;
 };
 
 type LinkObject = object & {
@@ -108,11 +109,11 @@ const renderNodeCanvasObject = (
 ) => {
   const label = separateWords((node as { name: string }).name);
 
-  const fontSize = ctx.canvas.clientWidth / 50 / globalScale;
+  const fontSize = ctx.canvas.width / 200 / globalScale;
   ctx.font = `${fontSize}px Monospace`;
 
   // Set the maximum width for text wrapping
-  const maxWidth = 150 / globalScale;
+  const maxWidth = ctx.canvas.width / 20 / globalScale;
   const lines = wrapText(String(label), maxWidth, ctx) || [];
 
   // Calculate the width and height of the wrapped text
@@ -218,14 +219,15 @@ const NoSSRForceGraph: React.FC<ForceGraphProps> = ({ data }) => {
       <OriginalForceGraph2D
         width={containerWidth}
         height={containerWidth / (4 / 3)}
-        dagMode={dagMode}
-        dagLevelDistance={(containerWidth / 170) ** 2}
+        // dagMode={dagMode}
+        // dagLevelDistance={(containerWidth / 200) ** 2}
         // TODO: gotta come back to this one
         // eslint-disable-next-line @typescript-eslint/ban-ts-comment
         // @ts-ignore
         ref={fgRef}
         nodeLabel="name"
-        nodeAutoColorBy="id"
+        nodeAutoColorBy="status"
+        // nodeColor={(node: NodeObject) => node.isActive ? "white"}
         graphData={debouncedData}
         cooldownTicks={60}
         linkWidth={4}
@@ -239,8 +241,8 @@ const NoSSRForceGraph: React.FC<ForceGraphProps> = ({ data }) => {
         nodeCanvasObject={renderNodeCanvasObject}
         nodeCanvasObjectMode={() => "after"}
         linkCurvature={0}
-        d3AlphaDecay={1}
-        d3VelocityDecay={1}
+        d3AlphaDecay={0.04}
+        d3VelocityDecay={0.7}
         onEngineTick={() => {
           fgRef.current?.zoomToFit(0, containerWidth / 10);
           fgRef.current?.d3ReheatSimulation();

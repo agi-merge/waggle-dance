@@ -244,7 +244,7 @@ const AddDocuments = ({ hideTitleGoal, onClose }: Props) => {
         </Typography>
         <DropZoneUploader />
         <Typography className="mt-6" color="primary">
-          Plugins
+          Service connectors and Tools
         </Typography>
         <Card className="mt-2 p-2" variant="outlined">
           <Typography className="mt-6" level="body3">

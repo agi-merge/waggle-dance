@@ -225,12 +225,17 @@ const WaggleDanceGraph = ({}: WaggleDanceGraphProps) => {
           </TabList>
           {taskStates.length > 0 && (
             <>
-              <LinearProgress
-                determinate={true}
-                value={progress}
-                thickness={3}
-                className="mx-3 -mt-0.5"
-              />
+              <Tooltip
+                title={`${progress.toFixed(0)}% through planned tasks.`}
+                color="info"
+              >
+                <LinearProgress
+                  determinate={true}
+                  value={progress}
+                  thickness={3}
+                  className="mx-3 -mt-0.5"
+                />
+              </Tooltip>
 
               <TabPanel
                 value={0}
