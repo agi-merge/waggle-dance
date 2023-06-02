@@ -15,7 +15,7 @@ function AdvancedSettingsToggle({ children }) {
   };
 
   return (
-    <Stack direction={{ xs: "column" }} gap="1rem">
+    <Stack direction={{ xs: "column" }} gap="0.25rem">
       <Box>
         <Link className="m-0 mt-0 p-0" onClick={toggleSettings}>
           <Typography level="body4" color="primary" className="m-0 p-0">
@@ -42,7 +42,7 @@ function GoalSettings() {
     <Stack
       direction={{ xs: "column", md: "column" }}
       gap="0rem"
-      className="m-0 flex flex-grow"
+      className="flex flex-grow p-2"
     >
       <Stack direction="row" gap="0.25rem">
         <Box>
