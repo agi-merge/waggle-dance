@@ -39,7 +39,7 @@ const useWaggleDanceMachine = ({
   goal,
 }: UseWaggleDanceMachineProps) => {
   const [waggleDanceMachine] = useState(new WaggleDanceMachine());
-  const { isRunning } = useWaggleDanceMachineStore();
+  const { isRunning, temperatureOption, llmOption } = useWaggleDanceMachineStore();
   const [dag, setDAG] = useState<DAG>(new DAG([], []));
   const [isDonePlanning, setIsDonePlanning] = useState(false);
   const [logs, setLogs] = useState<LogMessage[]>([]);
@@ -176,8 +176,8 @@ const useWaggleDanceMachine = ({
       {
         goal,
         creationProps: {
-          modelName: LLM.smart,
-          temperature: 0,
+          modelName: llmOption === LLM.smart ? LLM.smart : LLM.fast,
+          temperature: temperatureOption === "Stable" ? 0 : temperatureOption === "Balanced" ? 0.4 : 0.9,
           maxTokens,
           maxConcurrency: 64,
           streaming: true,
