@@ -42,6 +42,7 @@ import PageTitle from "~/features/MainLayout/components/PageTitle";
 import AddDocuments from "~/pages/add-documents";
 import useGoal from "~/stores/goalStore";
 import useWaggleDanceMachineState from "~/stores/waggleDanceStore";
+import { rootPlanId } from "../WaggleDanceMachine";
 import useWaggleDanceMachine, {
   type TaskState,
 } from "../hooks/useWaggleDanceMachine";
@@ -165,11 +166,11 @@ const WaggleDanceGraph = ({}: WaggleDanceGraphProps) => {
       case "idle":
         return "neutral";
       case "starting":
-        return "info";
+        return "danger";
       case "working":
         return "info";
       default:
-        return "neutral";
+        return "primary";
     }
   };
 
@@ -245,115 +246,139 @@ const WaggleDanceGraph = ({}: WaggleDanceGraphProps) => {
                     marginX: { xs: -2, sm: 0 },
                   }}
                 >
-                  {taskStates.map((n) => (
-                    <Box key={`${n.id}-${n.name}`}>
-                      <Card
-                        color={statusColor(n)}
-                        variant="soft"
-                        sx={{ backgroundColor: statusColor(n), padding: 0 }}
-                      >
-                        <ListItem>
-                          <ListItemButton sx={{ borderRadius: "md" }}>
-                            <ListItemContent
-                              className="flex w-96"
-                              sx={{ backgroundColor: statusColor(n) }}
-                            >
-                              <Box
-                                sx={{
-                                  xs: { width: "20%" },
-                                  width: "30%",
-                                }}
-                                className="min-h-24 overflow-auto p-2"
-                              >
-                                <Stack
-                                  direction="column"
-                                  gap="0.25rem"
-                                  style={{
-                                    overflowWrap: "break-word",
-                                  }}
-                                >
-                                  <Typography
-                                    level="body3"
-                                    className="text-wrap flex p-1"
-                                    color="primary"
-                                    sx={{ mixBlendMode: "difference" }}
-                                  >
-                                    {n.name}
-                                  </Typography>
-                                  <Typography
-                                    level="body4"
-                                    className="text-wrap flex p-1"
-                                    color="neutral"
-                                    fontFamily="monospace"
-                                  >
-                                    id: {n.id}
-                                  </Typography>
-                                </Stack>
-                              </Box>
-                              <Typography
-                                level="body2"
-                                className="text-wrap p-2"
-                                textColor="common.white"
-                                style={{
-                                  overflowWrap: "break-word",
-                                }}
-                                sx={{
-                                  xs: { width: "80%" },
-                                  width: "70%",
-                                  mixBlendMode: "difference",
-                                }}
-                              >
-                                {n.act}
-                                {"("}
-                                <Typography
-                                  fontFamily="monospace"
-                                  level="body3"
-                                  className="text-wrap"
-                                  style={{
-                                    overflowWrap: "break-word",
-                                    width: "100%",
-                                  }}
-                                >
-                                  {stringifyMax(n.context, 200)}
-                                </Typography>
-
-                                {")"}
-                              </Typography>
-                              <Stack gap="0.3rem">
-                                <Tooltip title="Chat">
-                                  <Send />
-                                </Tooltip>
-                                <Divider />
-                                <Tooltip title="Edit">
-                                  <Edit />
-                                </Tooltip>
-                              </Stack>
-                            </ListItemContent>
-                          </ListItemButton>
-                        </ListItem>
-
+                  {taskStates
+                    .sort((a: TaskState, b: TaskState) => {
+                      if (a.id === rootPlanId) {
+                        return -1;
+                      }
+                      if (b.id === rootPlanId) {
+                        return 1;
+                      }
+                      if (a.status === "done") return -1;
+                      if (b.status === "done") return 1;
+                      if (a.status === "error") return -1;
+                      if (b.status === "error") return 1;
+                      if (a.status === "working") return -1;
+                      if (b.status === "working") return 1;
+                      if (a.status === "starting") return -1;
+                      if (b.status === "starting") return 1;
+                      if (a.status === "idle") return -1;
+                      if (b.status === "idle") return 1;
+                      // unhandled use alphabetical
+                      return -1;
+                    })
+                    .map((n) => (
+                      <Box key={`${n.id}-${n.name}`}>
                         <Card
-                          className="justify-start text-start"
-                          variant="outlined"
-                          sx={{ padding: "-1rem" }}
+                          color={statusColor(n)}
+                          variant="soft"
+                          sx={{ backgroundColor: statusColor(n), padding: 0 }}
                         >
-                          <Typography level="h6">
-                            {n.result ? <>Result: </> : <>Status: </>}
-                          </Typography>
-                          {n.result ? (
-                            <Typography level="body4" className="overflow-auto">
-                              <ReactMarkdown remarkPlugins={[remarkGfm]}>
-                                {n.result}
-                              </ReactMarkdown>
+                          <ListItem>
+                            <ListItemButton sx={{ borderRadius: "md" }}>
+                              <ListItemContent
+                                className="flex w-96"
+                                sx={{ backgroundColor: statusColor(n) }}
+                              >
+                                <Box
+                                  sx={{
+                                    xs: { width: "20%" },
+                                    width: "30%",
+                                  }}
+                                  className="min-h-24 overflow-auto p-2"
+                                >
+                                  <Stack
+                                    direction="column"
+                                    gap="0.25rem"
+                                    style={{
+                                      overflowWrap: "break-word",
+                                    }}
+                                  >
+                                    <Typography
+                                      level="body3"
+                                      className="text-wrap flex p-1"
+                                      color="primary"
+                                      sx={{ mixBlendMode: "difference" }}
+                                    >
+                                      {n.name}
+                                    </Typography>
+                                    <Typography
+                                      level="body4"
+                                      className="text-wrap flex p-1"
+                                      color="neutral"
+                                      fontFamily="monospace"
+                                    >
+                                      id: {n.id}
+                                    </Typography>
+                                  </Stack>
+                                </Box>
+                                <Typography
+                                  level="body2"
+                                  className="text-wrap p-2"
+                                  textColor="common.white"
+                                  style={{
+                                    overflowWrap: "break-word",
+                                  }}
+                                  sx={{
+                                    xs: { width: "80%" },
+                                    width: "70%",
+                                    mixBlendMode: "difference",
+                                  }}
+                                >
+                                  {n.act}
+                                  {"("}
+                                  <Typography
+                                    fontFamily="monospace"
+                                    level="body3"
+                                    className="text-wrap"
+                                    style={{
+                                      overflowWrap: "break-word",
+                                      width: "80%",
+                                    }}
+                                  >
+                                    {stringifyMax(n.context, 200)}
+                                  </Typography>
+
+                                  {")"}
+                                </Typography>
+                                <Stack gap="0.3rem">
+                                  <Tooltip title="Chat">
+                                    <Send />
+                                  </Tooltip>
+                                  <Divider />
+                                  <Tooltip title="Edit">
+                                    <Edit />
+                                  </Tooltip>
+                                </Stack>
+                              </ListItemContent>
+                            </ListItemButton>
+                          </ListItem>
+
+                          <Card
+                            className="justify-start text-start"
+                            variant="outlined"
+                            sx={{ padding: "-1rem" }}
+                          >
+                            <Typography level="h6">
+                              {n.result ? <>Result: </> : <>Status: </>}
                             </Typography>
-                          ) : (
-                            <>{n.status}</>
-                          )}
+                            {n.result ? (
+                              <Typography
+                                level="body4"
+                                className="overflow-auto"
+                              >
+                                <ReactMarkdown remarkPlugins={[remarkGfm]}>
+                                  {n.result}
+                                </ReactMarkdown>
+                              </Typography>
+                            ) : (
+                              <>{n.status}</>
+                            )}
+                          </Card>
                         </Card>
-                      </Card>
-                      <ListDivider inset="gutter" />
-                    </Box>
-                  ))}
+                        <ListDivider inset="gutter" />
+                      </Box>
+                    ))}
                 </List>
               </TabPanel>
               <TabPanel
