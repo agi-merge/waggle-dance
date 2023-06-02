@@ -56,7 +56,11 @@ function GoalSettings() {
   };
 
   return (
-    <Card variant="outlined" size="sm">
+    <Card
+      variant="outlined"
+      size="sm"
+      className="flex flex-grow sm:flex-shrink"
+    >
       <Stack direction={{ xs: "column", md: "column" }} gap="0rem">
         <Stack direction="row" gap="0.25rem">
           <Box>
