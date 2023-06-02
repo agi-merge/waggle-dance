@@ -10,7 +10,6 @@ import {
 } from "langchain/memory";
 import { RedisChatMessageHistory } from "langchain/stores/message/redis";
 import { UpstashRedisChatMessageHistory } from "langchain/stores/message/upstash_redis";
-import { TimeWeightedVectorStoreRetriever } from "langchain/retrievers/time_weighted";
 import { MemoryVectorStore } from "langchain/vectorstores/memory";
 import { LLM } from "./types";
 import { createEmbeddings } from "./model";

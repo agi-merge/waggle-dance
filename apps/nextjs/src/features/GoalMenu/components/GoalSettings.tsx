@@ -1,7 +1,7 @@
 // GoalSettings.tsx
 
 import React from "react";
-import { Button, Card, FormHelperText, FormLabel, Link, Sheet } from "@mui/joy";
+import { Card, FormHelperText, FormLabel, Link } from "@mui/joy";
 import Box from "@mui/joy/Box";
 import Option from "@mui/joy/Option";
 import Select from "@mui/joy/Select";
@@ -13,7 +13,7 @@ import DocsModal from "~/features/WaggleDance/components/DocsModal";
 import AddDocuments from "~/pages/add-documents";
 import useWaggleDanceMachineStore from "~/stores/waggleDanceStore";
 
-function AdvancedSettingsToggle({ children }) {
+function AdvancedSettingsToggle({ children }: { children: React.ReactNode }) {
   const [isOpen, setIsOpen] = React.useState(false);
 
   const toggleSettings = () => {

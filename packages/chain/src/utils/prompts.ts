@@ -2,7 +2,7 @@ import {
   PromptTemplate,
 } from "langchain/prompts";
 
-import { llmKnowledgeCutoff, type ModelCreationProps } from "./types";
+import { type ModelCreationProps } from "./types";
 
 const schema = (format: string, _llmName: string, reviewPrefix?: string) =>
   `

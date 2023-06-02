@@ -10,6 +10,7 @@ import { type GraphData } from "../components/ForceGraph";
 import { dagToGraphData } from "../utils/conversions";
 import useWaggleDanceMachineStore from "~/stores/waggleDanceStore";
 import { env } from "~/env.mjs";
+import { stringify } from "yaml";
 
 interface UseWaggleDanceMachineProps {
   goal: string;
@@ -73,7 +74,7 @@ const useWaggleDanceMachine = ({
           if (typeof arg === "string") {
             return arg;
           } else {
-            return JSON.stringify(arg);
+            return stringify(arg);
           }
         })
         .join(", ");

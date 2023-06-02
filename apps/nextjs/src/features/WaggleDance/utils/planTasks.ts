@@ -1,7 +1,7 @@
 // utils/planTasks.ts
 
 import { type ChainPacket, type ModelCreationProps } from "@acme/chain";
-import { parse } from "yaml";
+import { parse, stringify } from "yaml";
 import DAG, { type OptionalDAG, DAGEdgeClass, type DAGNode } from "../DAG";
 import { initialNodes, initialEdges, findNodesWithNoIncomingEdges, rootPlanId, type OptimisticFirstTaskState } from "../WaggleDanceMachine";
 
@@ -101,7 +101,7 @@ export default async function planTasks(
     log("dagYamlString", dagYamlString);
     try {
         const dag = parse(dagYamlString) as unknown;
-        log("dag", JSON.stringify(dag))
+        log("dag", stringify(dag))
         // TODO: if this fails, spin up a ConstitutionChain w/ return type reinforcement
         return dag as DAG;
     } catch (error) {

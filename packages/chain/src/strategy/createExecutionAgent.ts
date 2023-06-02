@@ -17,7 +17,6 @@ import { PlanAndExecuteAgentExecutor } from "langchain/experimental/plan_and_exe
 import { initializeAgentExecutorWithOptions } from "langchain/agents";
 import {
   BaseMemory,
-  BaseChatMemory,
 } from "langchain/memory";
 export async function createExecutionAgent(
   creationProps: ModelCreationProps,
