@@ -39,7 +39,7 @@ const useWaggleDanceMachine = ({
   goal,
 }: UseWaggleDanceMachineProps) => {
   const [waggleDanceMachine] = useState(new WaggleDanceMachine());
-  const { isRunning, temperatureOption, llmOption } = useWaggleDanceMachineStore();
+  const { isRunning, setIsRunning, temperatureOption, llmOption } = useWaggleDanceMachineStore();
   const [dag, setDAG] = useState<DAG>(new DAG([], []));
   const [isDonePlanning, setIsDonePlanning] = useState(false);
   const [logs, setLogs] = useState<LogMessage[]>([]);
@@ -200,8 +200,9 @@ const useWaggleDanceMachine = ({
     }
 
     console.log("result", result);
+    setIsRunning(false);
     return result;
-  }, [isDonePlanning, waggleDanceMachine, goal, llmOption, temperatureOption, dag, sendChainPacket, log, isRunning, abortController]);
+  }, [isDonePlanning, waggleDanceMachine, goal, llmOption, temperatureOption, dag, sendChainPacket, log, isRunning, setIsRunning, abortController]);
 
   return { waggleDanceMachine, dag, graphData, run, setIsDonePlanning, isDonePlanning, logs, taskStates };
 };
