@@ -104,7 +104,6 @@ export async function createExecutionAgent(
 
     executor = await initializeAgentExecutorWithOptions(tools, llm, {
       agentType: "chat-conversational-react-description",
-      verbose: process.env.NEXT_PUBLIC_LANGCHAIN_VERBOSE === "true",
       streaming: true,
       returnIntermediateSteps: false,
       memory,
