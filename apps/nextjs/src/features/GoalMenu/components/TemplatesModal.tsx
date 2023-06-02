@@ -5,9 +5,10 @@ import ModalClose from "@mui/joy/ModalClose";
 
 type Props = {
   children: React.ReactNode;
+  open: boolean;
+  setOpen: (isOpen: boolean) => void;
 };
-export default function BasicModal({ children }: Props) {
-  const [open, setOpen] = React.useState<boolean>(false);
+export default function BasicModal({ children, open, setOpen }: Props) {
   return (
     <React.Fragment>
       <Link

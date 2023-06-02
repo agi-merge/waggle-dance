@@ -13,7 +13,7 @@ import {
   Textarea,
   Typography,
 } from "@mui/joy";
-import Card, { type CardProps } from "@mui/joy/Card";
+import { type CardProps } from "@mui/joy/Card";
 
 import { type Handlers } from "~/pages";
 import GoalDoctorModal from "./GoalDoctorModal";
@@ -59,6 +59,8 @@ export default function GoalInput({
       : "",
     //examplePrompts[(Math.random() * examplePrompts.length) | 0],
   );
+  const [templatesModalOpen, setTemplatesModalOpen] =
+    React.useState<boolean>(false);
 
   useEffect(() => {
     if (startingValue) {
@@ -113,7 +115,10 @@ export default function GoalInput({
                   Clear
                 </Button>
                 <Divider orientation="vertical" />
-                <TemplatesModal>
+                <TemplatesModal
+                  open={templatesModalOpen}
+                  setOpen={setTemplatesModalOpen}
+                >
                   <Typography color="info" level="h6" className="p-5">
                     Template builder coming soon! For now, examples:
                   </Typography>
@@ -125,7 +130,11 @@ export default function GoalInput({
                             color="info"
                             variant="soft"
                             className="flex flex-grow flex-row justify-center"
-                            onClick={(event) => handleChange(event)}
+                            onClick={() => {
+                              setGoalInputValue(prompt);
+                              callbacks.onChange(prompt);
+                              setTemplatesModalOpen(false);
+                            }}
                           >
                             <Typography
                               level="body4"
