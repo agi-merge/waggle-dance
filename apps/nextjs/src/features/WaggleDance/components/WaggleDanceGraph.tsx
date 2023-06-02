@@ -37,6 +37,7 @@ import {
 } from "@mui/joy";
 import ReactMarkdown from "react-markdown";
 import remarkGfm from "remark-gfm";
+import { stringify } from "yaml";
 
 import PageTitle from "~/features/MainLayout/components/PageTitle";
 import AddDocuments from "~/pages/add-documents";
@@ -94,7 +95,7 @@ const WaggleDanceGraph = ({}: WaggleDanceGraphProps) => {
   });
 
   const stringifyMax = (value: unknown, max: number) => {
-    const json = JSON.stringify(value);
+    const json = stringify(value);
     return json && json.length < max ? json : `${json.slice(0, max)}…`;
   };
 
@@ -166,7 +167,7 @@ const WaggleDanceGraph = ({}: WaggleDanceGraphProps) => {
       case "idle":
         return "neutral";
       case "starting":
-        return "danger";
+        return "primary";
       case "working":
         return "info";
       default:
@@ -224,16 +225,12 @@ const WaggleDanceGraph = ({}: WaggleDanceGraphProps) => {
           </TabList>
           {taskStates.length > 0 && (
             <>
-              {(isRunning && !isDonePlanning && (
-                <LinearProgress thickness={1} className="mx-2" />
-              )) || (
-                <LinearProgress
-                  determinate={true}
-                  value={progress}
-                  thickness={3}
-                  className="mx-3"
-                />
-              )}
+              <LinearProgress
+                determinate={true}
+                value={progress}
+                thickness={3}
+                className="mx-3 -mt-0.5"
+              />
 
               <TabPanel
                 value={0}
@@ -254,6 +251,9 @@ const WaggleDanceGraph = ({}: WaggleDanceGraphProps) => {
                       if (b.id === rootPlanId) {
                         return 1;
                       }
+                      if (a.status === b.status) {
+                        return a.id.localeCompare(b.id) || 1;
+                      }
                       if (a.status === "done") return -1;
                       if (b.status === "done") return 1;
                       if (a.status === "error") return -1;
@@ -265,7 +265,7 @@ const WaggleDanceGraph = ({}: WaggleDanceGraphProps) => {
                       if (a.status === "idle") return -1;
                       if (b.status === "idle") return 1;
                       // unhandled use alphabetical
-                      return -1;
+                      return 1;
                     })
                     .map((n) => (
                       <Box key={`${n.id}-${n.name}`}>
@@ -326,7 +326,7 @@ const WaggleDanceGraph = ({}: WaggleDanceGraphProps) => {
                                   }}
                                 >
                                   {n.act}
-                                  {"("}
+                                  {" ( "}
                                   <Typography
                                     fontFamily="monospace"
                                     level="body3"
@@ -354,25 +354,28 @@ const WaggleDanceGraph = ({}: WaggleDanceGraphProps) => {
                             </ListItemButton>
                           </ListItem>
 
+                          {n.status === "working" && (
+                            <LinearProgress thickness={1} />
+                          )}
                           <Card
                             className="justify-start text-start"
-                            variant="outlined"
-                            sx={{ padding: "-1rem" }}
+                            sx={{
+                              padding: "-1rem",
+                              mixBlendMode: "difference",
+                            }}
                           >
                             <Typography level="h6">
                               {n.result ? <>Result: </> : <>Status: </>}
+                              <Typography color={statusColor(n)} level="body2">
+                                {n.status}
+                              </Typography>
                             </Typography>
-                            {n.result ? (
-                              <Typography
-                                level="body4"
-                                className="overflow-auto"
-                              >
+                            {n.result && (
+                              <Typography level="body4" className="pt-2">
                                 <ReactMarkdown remarkPlugins={[remarkGfm]}>
                                   {n.result}
                                 </ReactMarkdown>
                               </Typography>
-                            ) : (
-                              <>{n.status}</>
                             )}
                           </Card>
                         </Card>
