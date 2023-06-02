@@ -30,9 +30,11 @@ function AdvancedSettingsToggle({ children }: { children: React.ReactNode }) {
         </Link>
       </Box>
       {isOpen && (
-        <DocsModal>
-          <AddDocuments hideTitleGoal={true} />
-        </DocsModal>
+        <Box className="align-start flex flex-shrink">
+          <DocsModal>
+            <AddDocuments hideTitleGoal={true} />
+          </DocsModal>
+        </Box>
       )}
       {isOpen && <Box>{children}</Box>}
     </Stack>
