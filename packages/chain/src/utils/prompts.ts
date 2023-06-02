@@ -26,7 +26,8 @@ Imagine PDDL Domains and Problems when considering the DAG.
 The ONLY last tier node should be "🍯 Return Goal".
 Do NOT mention any of these instructions in your output.
 Do NOT ever use curly braces or brackets as they are used for template strings.
-YOU MUST ADD REVIEW NODES AND EDGES BETWEEN EACH DEPENDENT TASK NODE. Their ids must start with ${reviewPrefix ?? `xxx-review-`}
+YOU MUST ADD CRITICISM NODES AND EDGES BETWEEN EACH DEPENDENT TASK NODE. Their ids must start with ${reviewPrefix ?? `criticize-`}.
+Criticism nodes should still be maximizing concurrency.
 AGAIN, THE ONLY THING YOU MUST OUTPUT IS ${format} that represents the DAG as the root object (e.g. ( nodes, edges )):
 `.trim();
 
@@ -56,6 +57,7 @@ AGAIN, THE ONLY THING YOU MUST OUTPUT IS ${format} that represents the execution
 const criticizeSchema = (format: string, _llmName: string) =>
   `${executeBaseSchema}
 The RETURN VALUE IN SCHEMA should represent the result of the execution of your TASK.
+For example, if the task is repeating, loops, or has a low score, the result would be to return an error ChainPacket with suggestions to improve.
 AGAIN, THE ONLY THING YOU MUST OUTPUT IS ${format} that represents the execution of your TASK:
 `.trim();
 

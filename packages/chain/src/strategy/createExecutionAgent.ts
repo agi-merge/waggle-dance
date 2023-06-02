@@ -32,7 +32,7 @@ export async function createExecutionAgent(
   const llm = createModel(creationProps);
   const embeddings = createEmbeddings({ modelName: LLM.embeddings });
   const id = (parse(task) as { id: string }).id
-  const isReview = id.startsWith(reviewPrefix) || id.startsWith("xxx-review-")
+  const isReview = id.startsWith(reviewPrefix) || id.startsWith("criticize-")
   const prompt = createPrompt(isReview ? "criticize" : "execute", creationProps, goal, task, dag, reviewPrefix);
   const memory = await createMemory(goal);
   let chat_history = {}

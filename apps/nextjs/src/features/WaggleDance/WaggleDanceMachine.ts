@@ -72,7 +72,7 @@ export default class WaggleDanceMachine {
     isRunning: boolean,
     abortController: AbortController,
   ): Promise<WaggleDanceResult | Error> {
-    const reviewPrefix = `review-${new Date().getUTCMilliseconds()}-`
+    const reviewPrefix = `criticism-${new Date().getUTCMilliseconds()}-`
     const taskState = { firstTaskState: "not started" as "not started" | "started" | "done" } as OptimisticFirstTaskState;
 
     let dag: DAG
