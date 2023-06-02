@@ -1,7 +1,7 @@
 import React, {
   useCallback,
   useEffect,
-  // useMemo,
+  useMemo,
   useRef,
   useState,
 } from "react";
@@ -173,14 +173,16 @@ const WaggleDanceGraph = ({}: WaggleDanceGraphProps) => {
     }
   };
 
-  // const results = useMemo(() => {
-  //   return taskStates.filter((n) => !!n.result);
-  // }, [taskStates]);
+  const progress = useMemo(() => {
+    return (
+      (taskStates.filter((n) => !!n.result).length / taskStates.length) * 100
+    );
+  }, [taskStates]);
 
   return (
     <Stack gap="1rem">
       <PageTitle
-        title={!isRunning ? "🐝💃" : "Please 🐝 patient"}
+        title={!isRunning ? "🐝💃" : isDonePlanning ? "" : "Please 🐝 patient"}
         description={
           !isRunning
             ? "Waggle dancing puts a swarm of language AIs to work to achieve your goal. The AIs split your goal into tasks, complete the tasks, and try to fix mistakes on their own."
@@ -221,10 +223,17 @@ const WaggleDanceGraph = ({}: WaggleDanceGraphProps) => {
           </TabList>
           {taskStates.length > 0 && (
             <>
-              {isRunning && !isDonePlanning && (
-                <LinearProgress thickness={1} className="mx-2 -mt-0.5" />
+              {(isRunning && !isDonePlanning && (
+                <LinearProgress thickness={1} className="mx-2" />
+              )) || (
+                <LinearProgress
+                  determinate={true}
+                  value={progress}
+                  thickness={3}
+                  className="mx-3"
+                />
               )}
-              <LinearProgress thickness={1} className="mx-2 -mt-0.5" />
+
               <TabPanel
                 value={0}
                 className=" relative max-h-96 w-full overflow-y-scroll p-4"
@@ -249,37 +258,56 @@ const WaggleDanceGraph = ({}: WaggleDanceGraphProps) => {
                               className="flex w-96"
                               sx={{ backgroundColor: statusColor(n) }}
                             >
-                              <Stack
-                                direction="column"
-                                className="flex flex-grow"
-                                gap="1rem"
-                                style={{
-                                  overflowWrap: "break-word",
-                                  width: "25%",
+                              <Box
+                                sx={{
+                                  xs: { width: "20%" },
+                                  width: "30%",
                                 }}
+                                className="min-h-24 overflow-auto p-2"
                               >
-                                <Typography
-                                  level="body2"
-                                  className="text-wrap flex p-1"
-                                  color="neutral"
+                                <Stack
+                                  direction="column"
+                                  gap="0.25rem"
+                                  style={{
+                                    overflowWrap: "break-word",
+                                  }}
                                 >
-                                  {n.name}
-                                </Typography>
-                              </Stack>
+                                  <Typography
+                                    level="body3"
+                                    className="text-wrap flex p-1"
+                                    color="primary"
+                                    sx={{ mixBlendMode: "difference" }}
+                                  >
+                                    {n.name}
+                                  </Typography>
+                                  <Typography
+                                    level="body4"
+                                    className="text-wrap flex p-1"
+                                    color="neutral"
+                                    fontFamily="monospace"
+                                  >
+                                    id: {n.id}
+                                  </Typography>
+                                </Stack>
+                              </Box>
                               <Typography
                                 level="body2"
-                                className="text-wrap"
+                                className="text-wrap p-2"
+                                textColor="common.white"
                                 style={{
                                   overflowWrap: "break-word",
-                                  width: "80%",
+                                }}
+                                sx={{
+                                  xs: { width: "80%" },
+                                  width: "70%",
+                                  mixBlendMode: "difference",
                                 }}
                               >
-                                {n.act}{" "}
+                                {n.act}
+                                {"("}
                                 <Typography
                                   fontFamily="monospace"
                                   level="body3"
-                                  color="info"
-                                  variant="outlined"
                                   className="text-wrap"
                                   style={{
                                     overflowWrap: "break-word",
@@ -288,6 +316,8 @@ const WaggleDanceGraph = ({}: WaggleDanceGraphProps) => {
                                 >
                                   {stringifyMax(n.context, 200)}
                                 </Typography>
+
+                                {")"}
                               </Typography>
                               <Stack gap="0.3rem">
                                 <Tooltip title="Chat">
