@@ -40,7 +40,7 @@ const useWaggleDanceMachine = ({
   goal,
 }: UseWaggleDanceMachineProps) => {
   const [waggleDanceMachine] = useState(new WaggleDanceMachine());
-  const { isRunning, setIsRunning, temperatureOption, llmOption } = useWaggleDanceMachineStore();
+  const { isRunning, setIsRunning, temperatureOption, llmOption, executionMethod } = useWaggleDanceMachineStore();
   const [dag, setDAG] = useState<DAG>(new DAG([], []));
   const [isDonePlanning, setIsDonePlanning] = useState(false);
   const [logs, setLogs] = useState<LogMessage[]>([]);
@@ -180,7 +180,7 @@ const useWaggleDanceMachine = ({
           modelName: llmOption === LLM.smart ? LLM.smart : LLM.fast,
           temperature: temperatureOption === "Stable" ? 0 : temperatureOption === "Balanced" ? 0.4 : 0.9,
           maxTokens,
-          maxConcurrency: 64,
+          maxConcurrency: 8,
           streaming: true,
           verbose: env.NEXT_PUBLIC_LANGCHAIN_VERBOSE === "true",
         },
@@ -190,6 +190,7 @@ const useWaggleDanceMachine = ({
       sendChainPacket,
       log,
       isRunning,
+      executionMethod,
       abortController
     );
 

@@ -18,6 +18,8 @@ export default async function executeTask(
     _isRunning: boolean,
     sendChainPacket: (chainPacket: ChainPacket, node: DAGNode) => void,
     log: (...args: (string | number | object)[]) => void,
+    executionMethod: string,
+    result: string,
     abortController: AbortController,
 ): Promise<{
     completedTasks: Set<string>;
@@ -53,7 +55,7 @@ export default async function executeTask(
                 sendChainPacket({ type: "starting", nodeId: task.id }, task)
 
                 // Execute each task by making an API request
-                const data = { ...request, task, dag };
+                const data = { ...request, task, dag, executionMethod, result };
                 const signal = abortController.signal;
                 const response = await fetch("/api/chain/execute", {
                     method: "POST",

@@ -30,7 +30,8 @@ const handler = async (req: IncomingMessage, res: NextApiResponse) => {
       goal,
       task,
       dag,
-      executionMode,
+      executionMethod,
+      result,
       reviewPrefix,
     } = JSON.parse(body) as ExecuteRequestBody;
     // const encoder = new TextEncoder();
@@ -68,9 +69,9 @@ const handler = async (req: IncomingMessage, res: NextApiResponse) => {
 
     const callbacks = [inlineCallback];
     creationProps.callbacks = callbacks;
-    const result = await createExecutionAgent(creationProps, goal, stringify(task), stringify(dag), executionMode, reviewPrefix, session?.user.id)
+    const exeResult = await createExecutionAgent(creationProps, goal, stringify(task), stringify(dag), executionMethod, result, reviewPrefix, session?.user.id)
 
-    console.log("result", result);
+    console.log("exeResult", exeResult);
     res.end();
   } catch (e) {
     let message;

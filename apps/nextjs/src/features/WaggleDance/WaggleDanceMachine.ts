@@ -69,6 +69,7 @@ export default class WaggleDanceMachine {
     [isDonePlanning, setIsDonePlanning]: IsDonePlanningState,
     sendChainPacket: (chainPacket: ChainPacket, node: DAGNode) => void,
     log: (...args: (string | number | object)[]) => void,
+    executionMethod: string,
     isRunning: boolean,
     abortController: AbortController,
   ): Promise<WaggleDanceResult | Error> {
@@ -90,6 +91,8 @@ export default class WaggleDanceMachine {
         isRunning,
         sendChainPacket,
         log,
+        executionMethod,
+        '',
         abortController,
       )
       completedTasks = new Set([...newCompletedTasks, ...completedTasks]);

@@ -23,7 +23,7 @@ export async function createExecutionAgent(
   goal: string,
   task: string,
   dag: string,
-  executionMode: string,
+  executionMethod: string,
   result: string,
   reviewPrefix: string,
   namespace?: string,
@@ -100,7 +100,7 @@ export async function createExecutionAgent(
   const controller = new AbortController();
 
   let executor;
-  if (executionMode.startsWith("Fast")) {
+  if (executionMethod?.startsWith("Fast") ?? true) {
 
     executor = await initializeAgentExecutorWithOptions(tools, llm, {
       agentType: "chat-conversational-react-description",
