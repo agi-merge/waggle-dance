@@ -237,6 +237,7 @@ const NoSSRForceGraph: React.FC<ForceGraphProps> = ({ data }) => {
         linkDirectionalArrowLength={3}
         linkDirectionalArrowRelPos={0.5}
         nodeCanvasObject={renderNodeCanvasObject}
+        nodeCanvasObjectMode={() => "after"}
         linkCurvature={0}
         d3AlphaDecay={1}
         d3VelocityDecay={1}
