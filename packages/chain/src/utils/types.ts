@@ -5,7 +5,7 @@ import { type BaseLLMParams } from "langchain/llms/base";
 import { type OpenAIInput } from "langchain/llms/openai";
 
 const TEXT_EMBEDDING_ADA = "text-embedding-ada-002";
-const GPT_35_TURBO = "gpt-3.5-turbo";
+const GPT_35_TURBO = "gpt-3.5-turbo-0314";
 const GPT_4 = "gpt-4-0314";
 // const _GPT_4_32k = "gpt-4-32k";
 export enum LLM {
