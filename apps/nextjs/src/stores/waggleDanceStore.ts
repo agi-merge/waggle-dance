@@ -24,7 +24,7 @@ const useWaggleDanceMachineStore = create(
       setIsRunning: (newState) => set({ isRunning: newState }),
       isAutoStartEnabled: true,
       setIsAutoStartEnabled: (newState) => set({ isAutoStartEnabled: newState }),
-      executionMethod: "ConversationalReAct",
+      executionMethod: "Slower, more accurate",
       setExecutionMethod: (newValue) => set({ executionMethod: newValue }),
       temperatureOption: "Stable",
       setTemperatureOption: (newValue) => set({ temperatureOption: newValue }),

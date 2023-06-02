@@ -98,10 +98,12 @@ function GoalSettings() {
                   value && setExecutionMethod(value);
                 }}
               >
-                <Option value="ConversationalReAct">
+                <Option value="Faster, less accurate">
                   Faster, less accurate
                 </Option>
-                <Option value="CoT">Slower, more accurate</Option>
+                <Option value="Slower, more accurate">
+                  Slower, more accurate
+                </Option>
               </Select>
             </Box>
             <Box>

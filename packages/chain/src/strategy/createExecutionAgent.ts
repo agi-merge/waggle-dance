@@ -100,8 +100,8 @@ export async function createExecutionAgent(
   const controller = new AbortController();
 
   let executor;
+  console.log("executionMethod", executionMethod);
   if (executionMethod?.startsWith("Fast") ?? true) {
-
     executor = await initializeAgentExecutorWithOptions(tools, llm, {
       agentType: "chat-conversational-react-description",
       streaming: true,
