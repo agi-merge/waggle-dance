@@ -15,6 +15,8 @@ import { MemoryVectorStore } from "langchain/vectorstores/memory";
 import { LLM } from "./types";
 import { createEmbeddings } from "./model";
 import { VectorStoreRetrieverMemory } from "langchain/memory";
+import { PineconeClient } from "@pinecone-database/pinecone";
+import { PineconeStore } from "langchain/vectorstores/pinecone";
 
 function hash(str: string): string {
   const hash = sha256(str);
@@ -24,6 +26,7 @@ function hash(str: string): string {
 export async function createMemory(
   goal: string,
   inputKey: "goal" | "task" = "goal",
+  namespace?: string,
 ): Promise<BaseChatMemory | BaseMemory | undefined> {
   switch (process.env.MEMORY_TYPE) {
     case "motorhead":
@@ -42,26 +45,45 @@ export async function createMemory(
       });
 
     case "vector":
-      const vectorStore = new MemoryVectorStore(createEmbeddings({ modelName: LLM.embeddings }));
 
-      // const retriever = new TimeWeightedVectorStoreRetriever({
-      //   vectorStore,
-      //   memoryStream: [],
-      //   searchKwargs: 2,
-      // });
+      if (namespace) {
 
-      // const vectorMemory = VectorStoreRetrieverMemory({
-      //   // 1 is how many documents to return, you might want to return more, eg. 4
-      //   vectorStoreRetriever: vectorStore.asRetriever(4),
-      // });
-      const vectorMemory = new VectorStoreRetrieverMemory({
-        // 1 is how many documents to return, you might want to return more, eg. 4
-        vectorStoreRetriever: vectorStore.asRetriever(4),
-        memoryKey: "chat_history",
-        inputKey,
-      });
+        if (process.env.PINECONE_API_KEY === undefined)
+          throw new Error("No pinecone api key found");
+        if (process.env.PINECONE_ENVIRONMENT === undefined)
+          throw new Error("No pinecone environment found");
+        if (process.env.PINECONE_INDEX === undefined)
+          throw new Error("No pinecone index found");
+        const client = new PineconeClient();
+        await client.init({
+          apiKey: process.env.PINECONE_API_KEY,
+          environment: process.env.PINECONE_ENVIRONMENT,
+        });
+        const pineconeIndex = client.Index(process.env.PINECONE_INDEX);
 
-      return vectorMemory;
+        const embeddings = createEmbeddings({ modelName: LLM.embeddings });
+        const vectorStore = await PineconeStore.fromExistingIndex(
+          embeddings,
+          { pineconeIndex, namespace }
+        );
+
+        const vectorMemory = new VectorStoreRetrieverMemory({
+          // 1 is how many documents to return, you might want to return more, eg. 4
+          vectorStoreRetriever: vectorStore.asRetriever(4),
+          memoryKey: "chat_history",
+        });
+
+
+        return vectorMemory;
+      } else {
+        const vectorStore = new MemoryVectorStore(createEmbeddings({ modelName: LLM.embeddings }));
+        return new VectorStoreRetrieverMemory({
+          // 1 is how many documents to return, you might want to return more, eg. 4
+          vectorStoreRetriever: vectorStore.asRetriever(4),
+          memoryKey: "chat_history",
+          inputKey,
+        });
+      }
     case "conversation":
       return new ConversationSummaryMemory({
         inputKey,
