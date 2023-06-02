@@ -58,24 +58,16 @@ function GoalSettings() {
   };
 
   return (
-    <Card variant="outlined" size="sm">
+    <Card
+      variant="outlined"
+      size="sm"
+      className="flex flex-grow sm:flex-shrink md:items-end "
+    >
       <Stack direction={{ xs: "column", md: "column" }} gap="0rem">
-        <Stack direction="row" gap="0.25rem">
-          <Box>
-            <FormLabel>
-              <Typography level="body2">Auto start</Typography>
-            </FormLabel>
-            <FormHelperText sx={{ mt: 0 }}>
-              <Typography
-                level="body4"
-                className="h-8 w-48 items-center justify-center"
-              >
-                {isAutoStartEnabled
-                  ? 'Planning begins immediately after pressing "Next"'
-                  : "Connect data and tools before starting"}
-              </Typography>
-            </FormHelperText>
-          </Box>
+        <Stack direction="row" gap="0.5rem">
+          <FormLabel>
+            <Typography>Auto start</Typography>{" "}
+          </FormLabel>
           <Switch
             checked={isAutoStartEnabled}
             onChange={handleSwitchChange}
@@ -89,6 +81,13 @@ function GoalSettings() {
             }}
           />
         </Stack>
+        <FormHelperText sx={{ mt: 0 }}>
+          <Typography level="body4" className="h-8 items-center justify-center">
+            {isAutoStartEnabled
+              ? 'Planning begins immediately after pressing "Next"'
+              : "Connect data and tools before starting"}
+          </Typography>
+        </FormHelperText>
         <AdvancedSettingsToggle>
           <Stack direction={{ xs: "column", md: "row" }} gap="0.5rem">
             <Box>
