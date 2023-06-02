@@ -70,7 +70,7 @@ const handler = async (req: IncomingMessage, res: NextApiResponse) => {
     const result = await createExecutionAgent(creationProps, goal, stringify(task), stringify(dag), reviewPrefix, session?.user.id)
 
     console.log("result", result);
-    res.end(stringify(result));
+    res.end();
   } catch (e) {
     let message;
     let status: number;
