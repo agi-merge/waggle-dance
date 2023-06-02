@@ -9,14 +9,14 @@ export const createModel = (creationProps: ModelCreationProps): OpenAI => {
     {
       ...creationProps,
     },
-    {
-      basePath: "https://oai.hconeai.com/v1", // TODO: move this to .env
-      baseOptions: {
-        headers: {
-          "Helicone-Cache-Enabled": "true",
-        },
-      },
-    },
+    // {
+    //   basePath: "https://oai.hconeai.com/v1", // TODO: move this to .env
+    //   baseOptions: {
+    //     headers: {
+    //       "Helicone-Cache-Enabled": "true",
+    //     },
+    //   },
+    // },
   );
 };
 
@@ -25,14 +25,14 @@ export const createEmbeddings = (
 ): OpenAIEmbeddings => {
   return new OpenAIEmbeddings(
     { ...creationProps },
-    {
-      basePath: "https://oai.hconeai.com/v1", // TODO: move this to .env
-      baseOptions: {
-        headers: {
-          "Helicone-Cache-Enabled": "true",
-          // TODO: migrate to bearer token if helicone is used
-        },
-      },
-    },
+    // {
+    //   basePath: "https://oai.hconeai.com/v1", // TODO: move this to .env
+    //   baseOptions: {
+    //     headers: {
+    //       "Helicone-Cache-Enabled": "true",
+    //       // TODO: migrate to bearer token if helicone is used
+    //     },
+    //   },
+    // },
   );
 };
