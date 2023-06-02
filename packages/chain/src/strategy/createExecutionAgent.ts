@@ -23,6 +23,8 @@ export async function createExecutionAgent(
   goal: string,
   task: string,
   dag: string,
+  executionMode: string,
+  result: string,
   reviewPrefix: string,
   namespace?: string,
 ) {
@@ -30,9 +32,9 @@ export async function createExecutionAgent(
   creationProps.callbacks = undefined;
   const llm = createModel(creationProps);
   const embeddings = createEmbeddings({ modelName: LLM.embeddings });
-  const id = (parse(task) as { id: string }).id
-  const isReview = id.startsWith(reviewPrefix) || id.startsWith("criticize-")
-  const prompt = createPrompt(isReview ? "criticize" : "execute", creationProps, goal, task, dag, reviewPrefix);
+  const taskObj = (parse(task) as { id: string })
+  const isReview = taskObj.id.startsWith(reviewPrefix) || taskObj.id.startsWith("criticize-")
+  const prompt = createPrompt(isReview ? "criticize" : "execute", creationProps, goal, task, dag, result, reviewPrefix);
   const memory = await createMemory(goal);
   let chat_history = {}
   if (memory instanceof BaseMemory) {
@@ -97,24 +99,29 @@ export async function createExecutionAgent(
 
   const controller = new AbortController();
 
-  const executor = await initializeAgentExecutorWithOptions(tools, llm, {
-    agentType: "chat-conversational-react-description",
-    verbose: process.env.NEXT_PUBLIC_LANGCHAIN_VERBOSE === "true",
-    streaming: true,
-    returnIntermediateSteps: false,
-    memory,
-    ...creationProps,
-  });
+  let executor;
+  if (executionMode.startsWith("Fast")) {
 
-  // const executor = PlanAndExecuteAgentExecutor.fromLLMAndTools({
-  //   llm: llm,
-  //   tools,
-  // });
+    executor = await initializeAgentExecutorWithOptions(tools, llm, {
+      agentType: "chat-conversational-react-description",
+      verbose: process.env.NEXT_PUBLIC_LANGCHAIN_VERBOSE === "true",
+      streaming: true,
+      returnIntermediateSteps: false,
+      memory,
+      ...creationProps,
+    });
+  } else {
+    executor = PlanAndExecuteAgentExecutor.fromLLMAndTools({
+      llm: llm,
+      tools,
+    });
+  }
+
 
   const call = await executor.call({ input: formattedPrompt, chat_history, signal: controller.signal }, callbacks);
 
   const response = call?.output ? (call.output as string) : "";
 
-  console.log("finished task, got response", JSON.stringify(response));
+  console.log("finished task, got response", stringify(response));
   return response;
 }
