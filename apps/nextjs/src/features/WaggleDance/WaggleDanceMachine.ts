@@ -79,20 +79,18 @@ export default class WaggleDanceMachine {
     let dag: DAG
     let completedTasks: Set<string> = new Set([rootPlanId]);
     let taskResults: Record<string, BaseResultType> = {};
-    const maxConcurrency = request.creationProps.maxConcurrency ?? 8;
+    const maxConcurrency = request.creationProps.maxConcurrency ?? 4;
 
     const startFirstTask = async (task: DAGNode) => {
       taskState.firstTaskState = "started";
       taskState.taskId = task.id
       // Call the executeTasks function for the given task and update the states accordingly
       const { completedTasks: newCompletedTasks, taskResults: newTaskResults } = await executeTask(
-        { ...request, task, dag, taskResults, completedTasks, reviewPrefix },
+        { ...request, task, dag, taskResults, completedTasks, reviewPrefix, executionMethod },
         maxConcurrency,
         isRunning,
         sendChainPacket,
         log,
-        executionMethod,
-        '',
         abortController,
       )
       completedTasks = new Set([...newCompletedTasks, ...completedTasks]);
@@ -167,6 +165,7 @@ export default class WaggleDanceMachine {
         task,
         dag: planDAG,
         completedTasks: completedTasks,
+        executionMethod,
         taskResults,
       } as ExecuteRequestBody;
 

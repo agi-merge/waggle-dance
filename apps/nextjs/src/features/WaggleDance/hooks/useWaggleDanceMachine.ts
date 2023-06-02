@@ -180,7 +180,7 @@ const useWaggleDanceMachine = ({
           modelName: llmOption === LLM.smart ? LLM.smart : LLM.fast,
           temperature: temperatureOption === "Stable" ? 0 : temperatureOption === "Balanced" ? 0.4 : 0.9,
           maxTokens,
-          maxConcurrency: 8,
+          maxConcurrency: 4,
           streaming: true,
           verbose: env.NEXT_PUBLIC_LANGCHAIN_VERBOSE === "true",
         },
@@ -189,8 +189,8 @@ const useWaggleDanceMachine = ({
       [isDonePlanning, setIsDonePlanning],
       sendChainPacket,
       log,
-      isRunning,
       executionMethod,
+      isRunning,
       abortController
     );
 
