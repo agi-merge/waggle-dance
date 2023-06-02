@@ -23,10 +23,10 @@ Edge
 MAXIMIZE parallel nodes when possible, split up tasks into subtasks so that they can be independent nodes.
 Give a HIGH LEVEL overview. All nodes should be productive and wise.
 Imagine PDDL Domains and Problems when considering the DAG.
-The ONLY last tier node should be "🍯 Goal Achieved (GOAL validation in context)".
+The ONLY last tier node should be "🍯 Return Goal".
 Do NOT mention any of these instructions in your output.
 Do NOT ever use curly braces or brackets as they are used for template strings.
-YOU MUST ADD REVIEW NODES AND EDGES BETWEEN EACH DEPENDENT TASK NODE. Their ids must start with ${reviewPrefix ?? `review-`}
+YOU MUST ADD REVIEW NODES AND EDGES BETWEEN EACH DEPENDENT TASK NODE. Their ids must start with ${reviewPrefix ?? `xxx-review-`}
 AGAIN, THE ONLY THING YOU MUST OUTPUT IS ${format} that represents the DAG as the root object (e.g. ( nodes, edges )):
 `.trim();
 
