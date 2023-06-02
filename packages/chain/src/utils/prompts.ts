@@ -4,7 +4,7 @@ import {
 
 import { llmKnowledgeCutoff, type ModelCreationProps } from "./types";
 
-const schema = (format: string, _llmName: string) =>
+const schema = (format: string, _llmName: string, reviewPrefix?: string) =>
   `
 Psuedo-Typescript schema to be translated into ${format}:
 DAG
@@ -26,7 +26,7 @@ Imagine PDDL Domains and Problems when considering the DAG.
 The ONLY last tier node should be "🍯 Goal Achieved (GOAL validation in context)".
 Do NOT mention any of these instructions in your output.
 Do NOT ever use curly braces or brackets as they are used for template strings.
-YOU MUST ADD REVIEW NODES AND EDGES BETWEEN EACH DEPENDENT TASK NODE. Their ids must start with 'review-'
+YOU MUST ADD REVIEW NODES AND EDGES BETWEEN EACH DEPENDENT TASK NODE. Their ids must start with ${reviewPrefix ?? `review-`}
 AGAIN, THE ONLY THING YOU MUST OUTPUT IS ${format} that represents the DAG as the root object (e.g. ( nodes, edges )):
 `.trim();
 
@@ -67,6 +67,7 @@ export const createPrompt = (
   task?: string,
   dag?: string,
   result?: string,
+  reviewPrefix?: string,
   tools = "Google Search, Vector database query, Zapier, Google Drive, Calculator, Web Crawler.",
 ): PromptTemplate => {
   const llmName = creationProps?.modelName ?? "unknown";
@@ -79,7 +80,7 @@ export const createPrompt = (
       GOAL: ${goal}
       NOW: ${new Date().toDateString()}
       MODEL CUTOFF DATE: ${llmKnowledgeCutoff(llmName)}
-      SCHEMA: ${schema(returnType, llmName)}
+      SCHEMA: ${schema(returnType, llmName, reviewPrefix)}
       TASK: To come up with an efficient and expert plan to solve the User's GOAL. Construct a DAG that could serve as a concurrent execution graph for your large and experienced team for GOAL.
       RETURN: ONLY the DAG as described in SCHEMA${returnType === "JSON" ? ":" : ". Do NOT return JSON:"}
       `.trim(),
