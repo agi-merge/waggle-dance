@@ -81,28 +81,23 @@ export const createPrompt = (
       TEAM TOOLS: ${tools}
       GOAL: ${goal}
       NOW: ${new Date().toDateString()}
-      MODEL CUTOFF DATE: ${llmKnowledgeCutoff(llmName)}
       SCHEMA: ${schema(returnType, llmName, reviewPrefix)}
       TASK: To come up with an efficient and expert plan to solve the User's GOAL. Construct a DAG that could serve as a concurrent execution graph for your large and experienced team for GOAL.
       RETURN: ONLY the DAG as described in SCHEMA${returnType === "JSON" ? ":" : ". Do NOT return JSON:"}
       `.trim(),
     execute:
       `TASK: ${task}
-      CONTEXT: ${goal}
       NOW: ${new Date().toDateString()}
-      YOUR KNOWLEDGE CUTOFF DATE: ${llmKnowledgeCutoff(llmName)}
       CHAT HISTORY: {chat_history}
       SCHEMA: ${executeSchema(returnType, llmName)}
       RETURN: ONLY a single ChainPacket with the result of your TASK in SCHEMA${returnType === "JSON" ? ":" : ". Do NOT return JSON:"}
       `.trim(),
     criticize:
-      `GOAL: ${goal}
-      TASK: Review REVIEWEE OUTPUT of REVIEWEE TASK. Calculate a weighted score (0.0≤1.0) in context for each of the following criteria: [Coherence (15%), Creativity (15%), Efficiency (10%), Estimated IQ (10%), Directness (10%), Resourcefulness (10%), Accuracy (20%), Ethics (10%), Overall (Weighted rank-based))]
+      `TASK: Review REVIEWEE OUTPUT of REVIEWEE TASK. Calculate a weighted score (0.0≤1.0) in context for each of the following criteria: [Coherence (15%), Creativity (15%), Efficiency (10%), Estimated IQ (10%), Directness (10%), Resourcefulness (10%), Accuracy (20%), Ethics (10%), Overall (Weighted rank-based))]
       REVIEWEE TASK: ${task}
       REVIEWEE OUTPUT: ${result}
       CHAT HISTORY: {chat_history}
       NOW: ${new Date().toDateString()}
-      YOUR KNOWLEDGE CUTOFF DATE: ${llmKnowledgeCutoff(llmName)}
       SCHEMA: ${criticizeSchema(returnType, llmName)}
       RETURN: ONLY a single ChainPacket with the result of your TASK in SCHEMA${returnType === "JSON" ? ":" : ". Do NOT return JSON:"}
       `.trim(),
