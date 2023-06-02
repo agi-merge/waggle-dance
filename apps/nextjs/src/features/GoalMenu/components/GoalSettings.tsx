@@ -124,7 +124,7 @@ function GoalSettings() {
                   value && setLLMOption(value);
                 }}
               >
-                <Option value="gpt-3.5-turbo-0314">gpt-3.5-turbo-0314</Option>
+                <Option value="gpt-3.5-turbo-0301">gpt-3.5-turbo-0301</Option>
                 <Option value="gpt-4-0314">gpt-4-0314</Option>
               </Select>
             </Box>

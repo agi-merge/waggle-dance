@@ -28,7 +28,7 @@ const useWaggleDanceMachineStore = create(
       setExecutionMethod: (newValue) => set({ executionMethod: newValue }),
       temperatureOption: "Stable",
       setTemperatureOption: (newValue) => set({ temperatureOption: newValue }),
-      llmOption: "gpt-4-0314",
+      llmOption: "gpt-4-0301",
       setLLMOption: (newValue) => set({ llmOption: newValue }),
     }),
     {
