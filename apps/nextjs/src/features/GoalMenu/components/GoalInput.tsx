@@ -8,6 +8,7 @@ import {
   Divider,
   FormControl,
   Grid,
+  List,
   Stack,
   Textarea,
   Typography,
@@ -113,25 +114,34 @@ export default function GoalInput({
                 </Button>
                 <Divider orientation="vertical" />
                 <TemplatesModal>
-                    <Typography color="info" level="h6" className="p-5">
-                      Template builder coming soon! For now, examples:
-                    </Typography>
-                    <Grid container spacing={2} sx={{ flexGrow: 1 }}>
+                  <Typography color="info" level="h6" className="p-5">
+                    Template builder coming soon! For now, examples:
+                  </Typography>
+                  <List className="h-24 overflow-auto">
+                    <Grid
+                      container
+                      spacing={2}
+                      sx={{ flexGrow: 1 }}
+                      className="h-24 overflow-auto"
+                    >
                       {examplePrompts.map((prompt, _index) => (
-                        <Grid key={prompt} xs={4}>
-                          <Card color="neutral" variant="soft">
-                            <Button
-                              variant="plain"
-                              onClick={() =>
-                                handleTemplateClick(prompt, handleClose)
-                              }
+                        <Grid key={prompt} xs={1} sm={2} md={4}>
+                          <Button
+                            color="info"
+                            variant="soft"
+                            onClick={(event) => handleChange(event)}
+                          >
+                            <Typography
+                              level="body4"
+                              className="h-24 overflow-auto"
                             >
-                              <Typography>{prompt}</Typography>
-                            </Button>
-                          </Card>
+                              {prompt}
+                            </Typography>
+                          </Button>
                         </Grid>
                       ))}
                     </Grid>
+                  </List>
                 </TemplatesModal>
                 <Divider orientation="vertical" />
                 <GoalDoctorModal>
