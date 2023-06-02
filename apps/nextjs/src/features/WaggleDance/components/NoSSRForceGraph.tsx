@@ -194,7 +194,7 @@ const NoSSRForceGraph: React.FC<ForceGraphProps> = ({ data }) => {
   const fgRef = useRef<ForceGraphRef | null>(null);
   const containerRef = useRef<HTMLDivElement | null>(null);
   const [containerWidth, setContainerWidth] = useState(0);
-  const dagMode = containerWidth > 768 ? "td" : "lr"; // Use 'td' for larger screens and 'lr' for smaller screens
+  const dagMode = containerWidth > 768 ? "radialout" : "lr"; // Use 'td' for larger screens and 'lr' for smaller screens
   const enableZoomInteraction = containerWidth < 768;
   useResizeObserver(containerRef, (entry) => {
     setContainerWidth(entry.contentRect.width);
@@ -238,9 +238,9 @@ const NoSSRForceGraph: React.FC<ForceGraphProps> = ({ data }) => {
         linkDirectionalArrowLength={3}
         linkDirectionalArrowRelPos={0.5}
         nodeCanvasObject={renderNodeCanvasObject}
-        linkCurvature={0.7 + (containerWidth / 2000) ** 2}
-        d3AlphaDecay={0.9}
-        d3VelocityDecay={0.9}
+        linkCurvature={0}
+        d3AlphaDecay={1}
+        d3VelocityDecay={1}
         onEngineTick={() => {
           fgRef.current?.zoomToFit(0, containerWidth / 10);
           fgRef.current?.d3ReheatSimulation();
