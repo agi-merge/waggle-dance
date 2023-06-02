@@ -16,14 +16,15 @@ export enum LLM {
 
 // Currently, this uses 256 arbitrarily for embeddings, and 50/50 for prompt/response with OpenAI LLMs.
 export const llmResponseTokenLimit = (llm: string) => {
-  switch (llm) {
-    case TEXT_EMBEDDING_ADA:
-      return 256;
-    case GPT_35_TURBO:
-      return 2048;
-    case GPT_4:
-      return 4096;
-  }
+  // switch (llm) {
+  //   case TEXT_EMBEDDING_ADA:
+  //     return 256;
+  // case GPT_35_TURBO:
+  //   return 2048;
+  // case GPT_4:
+  //   return 4096;
+  // }
+  return -1;
 };
 
 export const llmKnowledgeCutoff = (llm: string) => {
