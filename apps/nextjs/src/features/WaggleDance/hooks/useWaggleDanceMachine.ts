@@ -181,6 +181,8 @@ const useWaggleDanceMachine = ({
           temperature: temperatureOption === "Stable" ? 0 : temperatureOption === "Balanced" ? 0.4 : 0.9,
           maxTokens,
           maxConcurrency: 4,
+          frequencyPenalty: 0.4,
+          topP: 0.95,
           streaming: true,
           verbose: env.NEXT_PUBLIC_LANGCHAIN_VERBOSE === "true",
         },
