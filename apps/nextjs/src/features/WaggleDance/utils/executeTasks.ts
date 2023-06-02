@@ -34,10 +34,6 @@ export default async function executeTask(
         // Keep looping while there are tasks in the task queue
         while (taskQueue.length > 0) {
 
-            if (taskQueue.length > 0) {
-                log("Task queue:", taskQueue.map((t) => t.id));
-            }
-
             // Execute the valid pairs of {task, dag} concurrently, storing the execution request promises in executeTaskPromises array
             const executeTaskPromise = async () => {
                 // remove task from taskQueue
