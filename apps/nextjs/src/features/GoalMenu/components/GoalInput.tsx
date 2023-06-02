@@ -117,23 +117,19 @@ export default function GoalInput({
                   <Typography color="info" level="h6" className="p-5">
                     Template builder coming soon! For now, examples:
                   </Typography>
-                  <List className="h-24 overflow-auto">
-                    <Grid
-                      container
-                      spacing={2}
-                      sx={{ flexGrow: 1 }}
-                      className="h-24 overflow-auto"
-                    >
+                  <List className="h-96 overflow-auto">
+                    <Grid container spacing={2}>
                       {examplePrompts.map((prompt, _index) => (
-                        <Grid key={prompt} xs={1} sm={2} md={4}>
+                        <Grid key={prompt} sm={4} md={6}>
                           <Button
                             color="info"
                             variant="soft"
+                            className="flex flex-grow flex-row justify-center"
                             onClick={(event) => handleChange(event)}
                           >
                             <Typography
                               level="body4"
-                              className="h-24 overflow-auto"
+                              className="flex flex-grow flex-row justify-center"
                             >
                               {prompt}
                             </Typography>
