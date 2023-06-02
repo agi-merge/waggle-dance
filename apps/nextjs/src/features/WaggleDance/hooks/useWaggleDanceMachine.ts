@@ -206,7 +206,7 @@ const useWaggleDanceMachine = ({
     console.log("result", result);
     setIsRunning(false);
     return result;
-  }, [isDonePlanning, waggleDanceMachine, goal, llmOption, temperatureOption, dag, sendChainPacket, log, isRunning, setIsRunning, abortController]);
+  }, [isDonePlanning, waggleDanceMachine, goal, llmOption, temperatureOption, dag, sendChainPacket, log, executionMethod, isRunning, abortController, setIsRunning]);
 
   return { waggleDanceMachine, dag, graphData, run, setIsDonePlanning, isDonePlanning, logs, taskStates };
 };
