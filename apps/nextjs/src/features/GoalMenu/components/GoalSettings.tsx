@@ -9,6 +9,8 @@ import Stack from "@mui/joy/Stack";
 import Switch from "@mui/joy/Switch";
 import Typography from "@mui/joy/Typography";
 
+import DocsModal from "~/features/WaggleDance/components/DocsModal";
+import AddDocuments from "~/pages/add-documents";
 import useWaggleDanceMachineStore from "~/stores/waggleDanceStore";
 
 function AdvancedSettingsToggle({ children }) {
@@ -27,6 +29,11 @@ function AdvancedSettingsToggle({ children }) {
           </Typography>
         </Link>
       </Box>
+      {isOpen && (
+        <DocsModal>
+          <AddDocuments hideTitleGoal={true} />
+        </DocsModal>
+      )}
       {isOpen && <Box>{children}</Box>}
     </Stack>
   );
