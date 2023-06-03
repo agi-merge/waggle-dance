@@ -6,6 +6,8 @@ import {
   Box,
   Breadcrumbs,
   Link,
+  Menu,
+  MenuItem,
   Stack,
   Tooltip,
   Typography,
@@ -52,6 +54,8 @@ const Header = ({
   const { setGoal } = useGoal();
   const slug = removeFirstCharIfMatching(router.pathname, "/");
   const { data: session } = useSession();
+  const [anchorEl, setAnchorEl] = React.useState<null | HTMLElement>(null);
+  const open = Boolean(anchorEl);
 
   const activeIndex = useMemo(() => {
     return Object.keys(routes).findIndex((path) => path === slug);
@@ -117,6 +121,14 @@ const Header = ({
 
   const isHomeSlug = (slug?.length ?? 0) === 0;
 
+  const handleAvatarClick = (event: React.MouseEvent<HTMLButtonElement>) => {
+    setAnchorEl(event.currentTarget);
+  };
+
+  const handleAvatarClose = () => {
+    setAnchorEl(null);
+  };
+
   return (
     <header className="z-10 mx-auto w-full px-5 pt-5">
       <Stack direction="row" className="items-center">
@@ -135,14 +147,34 @@ const Header = ({
           {session?.user && (
             <Tooltip title={`${session.user.name} has 100 credits`}>
               <Link>
-                <Avatar
-                  className="mr-3"
-                  src={session.user.image || undefined}
-                  alt={session.user.name || undefined}
-                />
+                <span onClick={handleAvatarClick}>
+                  <Avatar
+                    className="mr-3"
+                    src={session.user.image || undefined}
+                    alt={session.user.name || undefined}
+                  />
+                </span>
               </Link>
             </Tooltip>
           )}
+          <Menu
+            id="basic-menu"
+            anchorEl={anchorEl}
+            open={open}
+            onClose={handleAvatarClose}
+            aria-labelledby="basic-demo-button"
+          >
+            {/* <MenuItem onClick={handleAvatarClose}>😀 Profile</MenuItem>
+            <MenuItem onClick={handleAvatarClose}>🧾 My account</MenuItem> */}
+            <MenuItem
+              onClick={() => {
+                void router.push("/auth/signout");
+                handleAvatarClose();
+              }}
+            >
+              👋 Logout
+            </MenuItem>
+          </Menu>
           <ThemeToggle />
         </Stack>
       </Stack>

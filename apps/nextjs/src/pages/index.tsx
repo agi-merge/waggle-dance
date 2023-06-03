@@ -1,6 +1,6 @@
 // pages/index.tsx
 
-import React from "react";
+import React, { useEffect } from "react";
 import type {
   GetServerSidePropsContext,
   InferGetServerSidePropsType,
@@ -18,23 +18,8 @@ import HistoryTabber, {
   HistoryTab,
 } from "~/features/WaggleDance/components/HistoryTabber";
 import useGoal from "~/stores/goalStore";
+import useHistory from "~/stores/historyStore";
 import useWaggleDanceMachineStore from "~/stores/waggleDanceStore";
-
-const tabsDebug: HistoryTab[] = [
-  {
-    index: 0,
-    label: "First tab",
-    selectedByDefault: true,
-  },
-  {
-    index: 1,
-    label: "Second tab",
-  },
-  {
-    index: 2,
-    label: "Third tab",
-  },
-];
 
 export interface Handlers {
   setGoal: (goal: string) => void;
@@ -67,8 +52,13 @@ export default function Home({
   const router = useRouter();
   const { goal, setGoal } = useGoal();
   const { data: sessionData } = useSession();
+  const { historyData, initializeHistoryData } = useHistory();
 
-  console.log("👋 Hey there!", sessionData);
+  // Initialize history data based on whether the user is logged in or not
+  // If not, the + button will ask the user to log in
+  useEffect(() => {
+    initializeHistoryData(sessionData);
+  }, [sessionData]);
 
   // Define handleSetGoal function
   const handleSetGoal = (goal: string) => {
@@ -91,7 +81,7 @@ export default function Home({
         gap="0.5rem"
         className="items-left justify-left mb-2 flex"
       >
-        <HistoryTabber tabs={tabsDebug} />
+        <HistoryTabber tabs={historyData.tabs} />
       </Stack>
       <Card variant="soft">
         <Title

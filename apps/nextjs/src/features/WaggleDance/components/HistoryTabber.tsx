@@ -1,17 +1,37 @@
 import { useEffect, useState } from "react";
-import { Tab, TabList, Tabs } from "@mui/joy";
+import { Tab, TabList, Tabs, Tooltip } from "@mui/joy";
 
 export interface HistoryTab {
   index: number;
   label: string;
   handler?: () => void;
+  tooltip?: string;
   selectedByDefault?: boolean;
+}
+
+interface HistoryTabProps {
+  tab: HistoryTab;
+  currentTabIndex: number;
 }
 
 interface HistoryTabberProps {
   tabs: HistoryTab[];
 }
 
+// A single history tab inside the main tabber
+const HistoryTab: React.FC<HistoryTabProps> = ({ tab, currentTabIndex }) => {
+  return (
+    <Tab
+      key={tab.index}
+      variant={currentTabIndex === tab.index ? "soft" : "plain"}
+      color={currentTabIndex === tab.index ? "primary" : "neutral"}
+    >
+      {tab.label}
+    </Tab>
+  );
+};
+
+// The main tabber component
 const HistoryTabber: React.FC<HistoryTabberProps> = ({ tabs }) => {
   const [currentTabIndex, setCurrentTabIndex] = useState(0);
 
@@ -46,15 +66,12 @@ const HistoryTabber: React.FC<HistoryTabberProps> = ({ tabs }) => {
       sx={{ borderRadius: "lg" }}
     >
       <TabList>
-        {/* Tab styles - @see: https://mui.com/joy-ui/react-tabs/ */}
         {tabs.map((tab) => (
-          <Tab
-            key={tab.index}
-            variant={currentTabIndex === tab.index ? "soft" : "plain"}
-            color={currentTabIndex === tab.index ? "primary" : "neutral"}
-          >
-            {tab.label}
-          </Tab>
+          <Tooltip placement="right" key={tab.index} title={tab.tooltip ?? ""}>
+            <div>
+              <HistoryTab tab={tab} currentTabIndex={currentTabIndex} />
+            </div>
+          </Tooltip>
         ))}
       </TabList>
     </Tabs>
