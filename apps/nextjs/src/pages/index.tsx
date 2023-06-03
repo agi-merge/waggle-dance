@@ -9,14 +9,13 @@ import { useRouter } from "next/router";
 import { Card, Stack } from "@mui/joy";
 import { useSession } from "next-auth/react";
 
+import { api } from "~/utils/api";
 import { getOpenAIUsage, type CombinedResponse } from "~/utils/openAIUsageAPI";
 import { app } from "~/constants";
 import GoalInput from "~/features/GoalMenu/components/GoalInput";
 import MainLayout from "~/features/MainLayout";
 import Title from "~/features/MainLayout/components/PageTitle";
-import HistoryTabber, {
-  HistoryTab,
-} from "~/features/WaggleDance/components/HistoryTabber";
+import HistoryTabber from "~/features/WaggleDance/components/HistoryTabber";
 import useGoal from "~/stores/goalStore";
 import useHistory from "~/stores/historyStore";
 import useWaggleDanceMachineStore from "~/stores/waggleDanceStore";
@@ -53,11 +52,29 @@ export default function Home({
   const { goal, setGoal } = useGoal();
   const { data: sessionData } = useSession();
   const { historyData, initializeHistoryData } = useHistory();
+  const {
+    data: historicGoals,
+    refetch,
+    isLoading,
+    isFetching,
+    error,
+  } = api.goal.topByUser.useQuery(undefined, {
+    refetchOnMount: false,
+    refetchOnWindowFocus: false,
+    onSuccess: (data) => {
+      console.log("Success!", data);
+    },
+  });
+
+  const handleHistoricGoals = async () => {
+    if (!historicGoals) await refetch();
+    initializeHistoryData(sessionData, historicGoals);
+  };
 
   // Initialize history data based on whether the user is logged in or not
   // If not, the + button will ask the user to log in
   useEffect(() => {
-    initializeHistoryData(sessionData);
+    handleHistoricGoals();
   }, [sessionData]);
 
   // Define handleSetGoal function
