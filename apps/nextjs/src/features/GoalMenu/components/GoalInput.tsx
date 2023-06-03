@@ -14,7 +14,9 @@ import {
   Typography,
 } from "@mui/joy";
 import { type CardProps } from "@mui/joy/Card";
+import { useSession } from "next-auth/react";
 
+import { api } from "~/utils/api";
 import { type Handlers } from "~/pages";
 import GoalDoctorModal from "./GoalDoctorModal";
 import GoalSettings from "./GoalSettings";
@@ -61,6 +63,15 @@ export default function GoalInput({
   );
   const [templatesModalOpen, setTemplatesModalOpen] =
     React.useState<boolean>(false);
+  const { data: sessionData } = useSession();
+  const { mutate } = api.goal.create.useMutation({
+    onSuccess: () => {
+      console.log("Goal saved!");
+    },
+    onError: (e) => {
+      console.error("Failed to post!", e.message);
+    },
+  });
 
   useEffect(() => {
     if (startingValue) {
@@ -71,6 +82,7 @@ export default function GoalInput({
   const handleSubmit = (event: React.FormEvent) => {
     event.preventDefault();
     callbacks.setGoal(goalInputValue);
+    if (sessionData) void mutate({ prompt: goalInputValue });
   };
 
   const handleChange = (event: React.ChangeEvent<HTMLTextAreaElement>) => {
