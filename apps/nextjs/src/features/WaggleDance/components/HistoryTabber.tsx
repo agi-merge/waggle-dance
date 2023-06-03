@@ -18,6 +18,14 @@ interface HistoryTabberProps {
   tabs: HistoryTab[];
 }
 
+// Constants
+const MAX_TAB_LABEL_LENGTH = 20;
+
+// Util function to limit the number of characters in a string and add ...
+const truncate = (str: string, n: number) => {
+  return str.length > n ? str.substr(0, n - 1) + "..." : str;
+};
+
 // A single history tab inside the main tabber
 const HistoryTab: React.FC<HistoryTabProps> = ({ tab, currentTabIndex }) => {
   return (
@@ -26,7 +34,7 @@ const HistoryTab: React.FC<HistoryTabProps> = ({ tab, currentTabIndex }) => {
       variant={currentTabIndex === tab.index ? "soft" : "plain"}
       color={currentTabIndex === tab.index ? "primary" : "neutral"}
     >
-      {tab.label}
+      {truncate(tab.label, MAX_TAB_LABEL_LENGTH)}
     </Tab>
   );
 };
