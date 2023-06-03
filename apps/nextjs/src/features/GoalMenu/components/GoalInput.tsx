@@ -152,6 +152,8 @@ export default function GoalInput({
                 <GoalDoctorModal>
                   <Typography color="info">Coming soon!</Typography>
                 </GoalDoctorModal>
+                <Divider orientation="vertical" />
+                <GoalSettings />
               </Stack>
             </Box>
           }
@@ -179,7 +181,6 @@ export default function GoalInput({
           Next
           <KeyboardArrowRight />
         </Button>
-        <GoalSettings />
       </Stack>
     </form>
   );
