@@ -6,15 +6,35 @@ import type {
   InferGetServerSidePropsType,
 } from "next";
 import { useRouter } from "next/router";
-import { Card } from "@mui/joy";
+import { Card, Stack } from "@mui/joy";
+import { useSession } from "next-auth/react";
 
 import { getOpenAIUsage, type CombinedResponse } from "~/utils/openAIUsageAPI";
 import { app } from "~/constants";
 import GoalInput from "~/features/GoalMenu/components/GoalInput";
 import MainLayout from "~/features/MainLayout";
 import Title from "~/features/MainLayout/components/PageTitle";
+import HistoryTabber, {
+  HistoryTab,
+} from "~/features/WaggleDance/components/HistoryTabber";
 import useGoal from "~/stores/goalStore";
 import useWaggleDanceMachineStore from "~/stores/waggleDanceStore";
+
+const tabsDebug: HistoryTab[] = [
+  {
+    index: 0,
+    label: "First tab",
+    selectedByDefault: true,
+  },
+  {
+    index: 1,
+    label: "Second tab",
+  },
+  {
+    index: 2,
+    label: "Third tab",
+  },
+];
 
 export interface Handlers {
   setGoal: (goal: string) => void;
@@ -46,6 +66,9 @@ export default function Home({
   const { setIsAutoStartEnabled } = useWaggleDanceMachineStore();
   const router = useRouter();
   const { goal, setGoal } = useGoal();
+  const { data: sessionData } = useSession();
+
+  console.log("👋 Hey there!", sessionData);
 
   // Define handleSetGoal function
   const handleSetGoal = (goal: string) => {
@@ -63,6 +86,13 @@ export default function Home({
 
   return (
     <MainLayout openAIUsage={openAIUsage}>
+      <Stack
+        direction="row"
+        gap="0.5rem"
+        className="items-left justify-left mb-2 flex"
+      >
+        <HistoryTabber tabs={tabsDebug} />
+      </Stack>
       <Card variant="soft">
         <Title
           title="🐝 Goal solver"
