@@ -65,24 +65,61 @@ const HistoryTabber: React.FC<HistoryTabberProps> = ({ tabs }) => {
     if (thisTab?.handler) thisTab.handler();
   };
 
+  // Functions to handle "<" and ">" clicks
+  const handlePrevTab = () => {
+    if (currentTabIndex > 0) {
+      setCurrentTabIndex(currentTabIndex - 1);
+    }
+  };
+
+  const handleNextTab = () => {
+    if (currentTabIndex < tabs.length - 1) {
+      setCurrentTabIndex(currentTabIndex + 1);
+    }
+  };
+
   // 🌍 Render
   return (
-    <Tabs
-      aria-label="Disabled tabs"
-      value={currentTabIndex}
-      onChange={(event, newValue) => handleChange(event, newValue as number)}
-      sx={{ borderRadius: "lg" }}
-    >
-      <TabList>
-        {tabs.map((tab) => (
-          <Tooltip placement="right" key={tab.index} title={tab.tooltip ?? ""}>
-            <div>
-              <HistoryTab tab={tab} currentTabIndex={currentTabIndex} />
-            </div>
-          </Tooltip>
-        ))}
-      </TabList>
-    </Tabs>
+    <>
+      {/* TODO: started out thinking tabber was the way, MUI core has built in slider
+      but MUI joy does not so I hacked this in for now...  Feel like probs 
+      sidebar is mo betah now though 🥲 */}
+      {/* Paginate left */}
+      <div className="flex items-center justify-center">
+        <button onClick={handlePrevTab}>&lt;</button>
+      </div>
+
+      {/* Tabs */}
+      <div>
+        <Tabs
+          aria-label="Disabled tabs"
+          value={currentTabIndex}
+          onChange={(event, newValue) =>
+            handleChange(event, newValue as number)
+          }
+          sx={{ borderRadius: "lg" }}
+        >
+          <TabList>
+            {tabs.map((tab) => (
+              <Tooltip
+                placement="right"
+                key={tab.index}
+                title={tab.tooltip ?? ""}
+              >
+                <div>
+                  <HistoryTab tab={tab} currentTabIndex={currentTabIndex} />
+                </div>
+              </Tooltip>
+            ))}
+          </TabList>
+        </Tabs>
+      </div>
+
+      {/* Paginate right */}
+      <div className="flex items-center justify-center">
+        <button onClick={handleNextTab}>&gt;</button>
+      </div>
+    </>
   );
 };
 
