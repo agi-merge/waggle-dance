@@ -1,28 +1,39 @@
 import { z } from "zod";
 
-import { createTRPCRouter, publicProcedure } from "../trpc";
+import { createTRPCRouter, protectedProcedure, publicProcedure } from "../trpc";
 
 export const goalRouter = createTRPCRouter({
   all: publicProcedure.query(({ ctx }) => {
     return ctx.prisma.goal.findMany({ orderBy: { id: "desc" } });
   }),
+
   byId: publicProcedure
     .input(z.object({ id: z.string() }))
     .query(({ ctx, input }) => {
       return ctx.prisma.goal.findFirst({ where: { id: input.id } });
     }),
-  create: publicProcedure
+
+  create: protectedProcedure
     .input(
       z.object({
-        id: z.string().min(1),
-        prompt: z.string().min(1),
-        userId: z.string().min(1),
+        prompt: z.string().nonempty(),
       }),
     )
     .mutation(({ ctx, input }) => {
-      return ctx.prisma.goal.create({ data: input });
+      const { prompt } = input;
+      const userId = ctx.session.user.id;
+
+      // TODO: Additional validation/biz logic can go here if needed
+
+      return ctx.prisma.goal.create({
+        data: {
+          prompt,
+          userId,
+        }
+      });
     }),
-  delete: publicProcedure.input(z.string()).mutation(({ ctx, input }) => {
+
+  delete: protectedProcedure.input(z.string()).mutation(({ ctx, input }) => {
     return ctx.prisma.goal.delete({ where: { id: input } });
   }),
 });
