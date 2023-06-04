@@ -23,7 +23,7 @@ type NodeObject = object & {
   // my props (not on original type)
   name?: string;
   containerWidth?: number;
-  status?: boolean;
+  status?: string;
 };
 
 type LinkObject = object & {
@@ -219,15 +219,26 @@ const NoSSRForceGraph: React.FC<ForceGraphProps> = ({ data }) => {
       <OriginalForceGraph2D
         width={containerWidth}
         height={containerWidth / (4 / 3)}
-        // dagMode={dagMode}
-        // dagLevelDistance={(containerWidth / 200) ** 2}
+        dagMode={dagMode}
+        dagLevelDistance={(containerWidth / 200) ** 2}
         // TODO: gotta come back to this one
         // eslint-disable-next-line @typescript-eslint/ban-ts-comment
         // @ts-ignore
         ref={fgRef}
         nodeLabel="name"
-        nodeAutoColorBy="status"
-        // nodeColor={(node: NodeObject) => node.isActive ? "white"}
+        // nodeAutoColorBy="status"
+        nodeColor={(node: NodeObject) => {
+          switch (node.status) {
+            case "working":
+              return "#ffcc00";
+            case "done":
+              return "#00ff00";
+            case "error":
+              return "#ff0000";
+            default:
+              return "#ffffff";
+          }
+        }}
         graphData={debouncedData}
         cooldownTicks={60}
         linkWidth={4}
@@ -244,7 +255,7 @@ const NoSSRForceGraph: React.FC<ForceGraphProps> = ({ data }) => {
         d3AlphaDecay={0.04}
         d3VelocityDecay={0.7}
         onEngineTick={() => {
-          fgRef.current?.zoomToFit(0, containerWidth / 10);
+          fgRef.current?.zoomToFit(0, containerWidth / 20);
           fgRef.current?.d3ReheatSimulation();
         }}
         onDagError={(loopNodeIds) => {
@@ -254,7 +265,6 @@ const NoSSRForceGraph: React.FC<ForceGraphProps> = ({ data }) => {
           node.fx = node.x;
           node.fy = node.y;
         }}
-        onEngineStop={() => fgRef.current?.zoomToFit(10)}
         enableZoomInteraction={enableZoomInteraction}
         enablePanInteraction={true}
         // onNodeClick={handleClick}
