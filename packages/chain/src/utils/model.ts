@@ -1,5 +1,5 @@
 import { OpenAIEmbeddings } from "langchain/embeddings/openai";
-import { Embeddings } from "langchain/embeddings/base"
+import { type Embeddings } from "langchain/embeddings/base"
 import { OpenAI } from "langchain/llms/openai";
 
 import { type EmbeddingsCreationProps, type ModelCreationProps } from "./types";
