@@ -16,6 +16,7 @@
     "redis": "^4.6.6",
     "serpapi": "^1.1.1",
     "tls": "^0.0.1",
+    "langchain": "^0.0.91",
     "yaml": "^2.3.0"
   },
   "devDependencies": {
