@@ -63,7 +63,7 @@ const MainLayout = ({ children, openAIUsage }: Props) => {
         <div className="mx" />
         <Sheet
           // variant="outlined"
-          className="mx-auto sm:w-full md:w-3/4 lg:max-w-screen-md xl:max-w-screen-lg"
+          className="mx-auto md:max-w-screen-lg xl:max-w-screen-lg"
           sx={{
             borderRadius: "lg",
             shadowRadius: "xl",
