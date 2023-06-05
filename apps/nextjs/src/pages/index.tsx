@@ -52,30 +52,26 @@ export default function Home({
   const { goal, setGoal } = useGoal();
   const { data: sessionData } = useSession();
   const { historyData, initializeHistoryData } = useHistory();
-  const {
-    data: historicGoals,
-    refetch,
-    isLoading,
-    isFetching,
-    error,
-  } = api.goal.topByUser.useQuery(undefined, {
-    refetchOnMount: false,
-    refetchOnWindowFocus: false,
-    onSuccess: (data) => {
-      console.log("Success!", data);
+  const { data: historicGoals, refetch } = api.goal.topByUser.useQuery(
+    undefined,
+    {
+      refetchOnMount: false,
+      refetchOnWindowFocus: false,
+      onSuccess: (data) => {
+        console.log("Success!", data);
+      },
     },
-  });
-
-  const handleHistoricGoals = async () => {
-    if (!historicGoals) await refetch();
-    initializeHistoryData(sessionData, historicGoals);
-  };
+  );
 
   // Initialize history data based on whether the user is logged in or not
   // If not, the + button will ask the user to log in
   useEffect(() => {
-    handleHistoricGoals();
-  }, [sessionData]);
+    const handleHistoricGoals = async () => {
+      if (!historicGoals) await refetch();
+      initializeHistoryData(sessionData, historicGoals);
+    };
+    void handleHistoricGoals();
+  }, [sessionData, historicGoals, initializeHistoryData, refetch]);
 
   // Define handleSetGoal function
   const handleSetGoal = (goal: string) => {

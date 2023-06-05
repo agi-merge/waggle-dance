@@ -50,7 +50,7 @@ const HistoryTabber: React.FC<HistoryTabberProps> = ({ tabs }) => {
     if (defaultTab) {
       setCurrentTabIndex(defaultTab.index);
     }
-  }, []);
+  }, [tabs]);
 
   // Handle tab change
   const handleChange = (
