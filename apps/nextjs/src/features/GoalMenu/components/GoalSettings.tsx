@@ -1,7 +1,7 @@
 // GoalSettings.tsx
 
 import React, { type MouseEventHandler } from "react";
-import { Card, Link, Menu } from "@mui/joy";
+import { Card, Divider, Link, Menu, type CardProps } from "@mui/joy";
 import Box from "@mui/joy/Box";
 import Option from "@mui/joy/Option";
 import Select from "@mui/joy/Select";
@@ -23,12 +23,13 @@ function AdvancedSettingsToggle({ children }: { children: React.ReactNode }) {
   };
 
   return (
-    <Stack direction="row" gap="0.25rem">
+    <Stack direction="row" gap="0.5rem">
       <Box className="align-start flex flex-shrink">
         <DocsModal>
           <AddDocuments hideTitleGoal={true} />\
         </DocsModal>
       </Box>
+      <Divider orientation="vertical" />
       <Link
         id="basic-demo-button"
         className="m-0 mt-0 p-0"
@@ -42,7 +43,8 @@ function AdvancedSettingsToggle({ children }: { children: React.ReactNode }) {
       >
         <Typography
           level="body4"
-          sx={{ color: "common.white" }}
+          sx={{ mixBlendMode: "difference" }}
+          textColor="common.white"
           className="m-0 p-0"
           aria-labelledby="basic-demo-button"
         >
@@ -62,7 +64,7 @@ function AdvancedSettingsToggle({ children }: { children: React.ReactNode }) {
   );
 }
 
-function GoalSettings() {
+function GoalSettings({}: CardProps) {
   const {
     executionMethod,
     setExecutionMethod,
