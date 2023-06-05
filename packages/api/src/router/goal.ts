@@ -1,7 +1,6 @@
 import { z } from "zod";
 
 import { createTRPCRouter, protectedProcedure, publicProcedure } from "../trpc";
-import { Prisma } from "@acme/db";
 
 export const goalRouter = createTRPCRouter({
   // Query all goals

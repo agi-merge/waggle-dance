@@ -1,7 +1,7 @@
-import { Goal } from ".prisma/client";
+import { type Goal } from ".prisma/client";
 import Router from "next/router";
 import { create } from "zustand";
-import { HistoryTab } from "~/features/WaggleDance/components/HistoryTabber";
+import { type HistoryTab } from "~/features/WaggleDance/components/HistoryTabber";
 
 const ANON_USER_TABS: HistoryTab[] = [
   {
@@ -12,7 +12,7 @@ const ANON_USER_TABS: HistoryTab[] = [
     index: 1,
     label: "+",
     tooltip: "🪵 Log in to save your history!",
-    handler: () => Router.push("/auth/signin"),
+    handler: () => void Router.push("/auth/signin"),
   },
 ];
 

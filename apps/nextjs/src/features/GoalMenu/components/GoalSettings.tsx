@@ -1,13 +1,12 @@
 // GoalSettings.tsx
 
-import React, { type MouseEventHandler } from "react";
+import React from "react";
 import { Card, Divider, Link, Menu, type CardProps } from "@mui/joy";
 import Box from "@mui/joy/Box";
 import Option from "@mui/joy/Option";
 import Select from "@mui/joy/Select";
 import Stack from "@mui/joy/Stack";
 import Typography from "@mui/joy/Typography";
-import { MenuItem } from "@mui/material";
 
 import DocsModal from "~/features/WaggleDance/components/DocsModal";
 import AddDocuments from "~/pages/add-documents";
