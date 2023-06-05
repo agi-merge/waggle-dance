@@ -93,13 +93,15 @@ export default function Home({
 
   return (
     <MainLayout openAIUsage={openAIUsage}>
-      <Stack
-        direction="row"
-        gap="0.5rem"
-        className="items-left justify-left mb-2 flex"
-      >
-        <HistoryTabber tabs={historyData.tabs} />
-      </Stack>
+      {historyData.tabs.length > 1 && ( // would be zero, except faked "+" as a tab
+        <Stack
+          direction="row"
+          gap="0.5rem"
+          className="items-left justify-left mb-2 flex"
+        >
+          <HistoryTabber tabs={historyData.tabs} />
+        </Stack>
+      )}
       <Card variant="soft">
         <Title
           title="🐝 Goal solver"
