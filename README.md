@@ -152,3 +152,6 @@ We believe in the importance of observability, and transparency in performance o
 ## Special Thanks
 
 -
+
+## Open Core
+The applications, packages, libraries, entire monorepo, etc, are freely available under the MIT license. The development process is open and everyone is welcome to join. In the future we may choose to develop extensions that are licensed for commercial use.
