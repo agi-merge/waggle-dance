@@ -6,7 +6,7 @@ import type {
   InferGetServerSidePropsType,
 } from "next";
 import { useRouter } from "next/router";
-import { Card, Stack } from "@mui/joy";
+import { Card } from "@mui/joy";
 import { useSession } from "next-auth/react";
 
 import { api } from "~/utils/api";
@@ -89,31 +89,24 @@ export default function Home({
 
   return (
     <MainLayout openAIUsage={openAIUsage}>
-      {historyData.tabs.length > 1 && ( // would be zero, except faked "+" as a tab
-        <Stack
-          direction="row"
-          gap="0.5rem"
-          className="items-left justify-left mb-2 flex"
-        >
-          <HistoryTabber tabs={historyData.tabs} />
-        </Stack>
-      )}
       <Card variant="soft">
-        <Title
-          title="🐝 Goal solver"
-          description="Input a goal or task 🍯 that you would like to automate. 🤔 Browse templates below for examples!"
-          hideGoal={true}
-        />
-        <GoalInput
-          startingValue={goal}
-          callbacks={{
-            setGoal: handleSetGoal,
-            onChange: handleInputChange,
-            onStop: () => {
-              /* do nothing */
-            },
-          }}
-        />
+        <HistoryTabber tabs={historyData.tabs}>
+          <Title
+            title="🐝 Goal solver"
+            description="Input a goal or task 🍯 that you would like to automate. 🤔 Browse templates below for examples!"
+            hideGoal={true}
+          />
+          <GoalInput
+            startingValue={goal}
+            callbacks={{
+              setGoal: handleSetGoal,
+              onChange: handleInputChange,
+              onStop: () => {
+                /* do nothing */
+              },
+            }}
+          />
+        </HistoryTabber>
       </Card>
     </MainLayout>
   );
