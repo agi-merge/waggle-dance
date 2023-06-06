@@ -22,9 +22,20 @@
 - [Special Thanks](#special-thanks)
 - [Open Core](#open-core)
 
-## 📖 Overview
+# Main Features
 
-The key differentiators and aims of Waggle Dance set it apart from related projects like AutoGPT, AgentGPT, and SuperAGI. Waggle Dance focuses on utilizing a swarm of AGI agents and a directed acyclic graph concurrent execution model to handle complex problem-solving tasks efficiently. It also aims to implement cutting-edge approaches like Tree-of-thought, as well as connecting Agents with data and Tools. The following table compares Waggle Dance with other similar projects to highlight their unique features:
+- Highly concurrent execution graph. Some sub-tasks are not dependent, and can be run concurrently.
+- [Free Public deployment](https://waggledance.ai)
+- Agent data connections, e.g. GitHub, Google Drive, Databases, etc.
+- Vector database for long-term memory
+- Tools, e.g. Zapier, Web Search, Code-improvement, etc.\*
+- Templates and sharing\*
+
+* coming soon
+
+## 📖 Comparisons to Other "AGI" Projects
+
+Waggle Dance focuses on utilizing a swarm of LLM Agents and a directed acyclic graph to enable a highly concurrent execution model. Waggle Dance aims to handle complex problem-solving tasks efficiently. It also aims t be a testing ground for cutting-edge approaches like Tree-of-thought, as well as connecting Agents with data and Tools. The following table compares Waggle Dance with other similar projects to highlight their unique features:
 
 | Project      | Language                   | Stack                                            | Tools | Plugins | Execution Mode                              | LLM Models | License | Public Deployment |
 | ------------ | -------------------------- | ------------------------------------------------ | ----- | ------- | ------------------------------------------- | ---------- | ------- | ----------------- |
@@ -39,6 +50,7 @@ The table aims to provide an overview of each project's unique value proposition
 
 As of June 6, 2023, these are not yet achieved.
 
+- Upload [x format document] report of multi-family housing in the [y metro] area, citing reliable sources and
 - Convert [x simple library] from [y language] to [z language]
 - Develop and create a pull request for [x feature] to the project at [y git url]
 
@@ -50,7 +62,9 @@ To help the project you can:
 - If you have technological skills and want to contribute to development, have a look at the open issues. If you are new you can have a look at the good-first-issue and help-wanted labels.
 - If you don't have technological skills you can still help improving documentation or add examples or share your user-stories with our community, any help and contribution is welcome!
 
-## 🏃 Running locally and developing
+## 🏃 Running Locally and Developing
+
+Waggle Dance can be deployed using Docker or manually using Node.js. Configuration of `.env` vars is required.
 
 ### Docker
 
@@ -62,7 +76,7 @@ To help the project you can:
 - [pnpm](https://pnpm.io/installation)
 - Turbo - `pnpm add turbo --global`
 
-### Install
+### Run Development build
 
 ```bash
 turbo dev
