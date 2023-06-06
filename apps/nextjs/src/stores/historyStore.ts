@@ -1,32 +1,6 @@
 import { type Goal } from ".prisma/client";
-import Router from "next/router";
 import { create } from "zustand";
 import { type HistoryTab } from "~/features/WaggleDance/components/HistoryTabber";
-
-const ANON_USER_TABS: HistoryTab[] = [
-  {
-    index: 0,
-    label: "Current Goal",
-  },
-  {
-    index: 1,
-    label: "+",
-    tooltip: "🪵 Log in to save your history!",
-    handler: () => void Router.push("/auth/signin"),
-  },
-];
-
-const AUTH_USER_TABS: HistoryTab[] = [
-  {
-    index: 0,
-    label: "Current Goal",
-  },
-  {
-    index: 1,
-    label: "+",
-    tooltip: "🐝 Start wagglin' and your history will be saved!",
-  },
-];
 
 export interface HistoryData {
   tabs: HistoryTab[];
@@ -44,12 +18,12 @@ const useHistory = create<HistoryState>((set) => ({
   isLoading: false,
   setIsLoading: (newState) => set({ isLoading: newState }),
   historyData: {
-    tabs: ANON_USER_TABS,
+    tabs: [],
   },
   setHistoryData: (newData) => set({ historyData: newData }),
   initializeHistoryData: (sessionData, historicGoals) => {
     // Default to static auth tabs array
-    let authTabs: HistoryTab[] = AUTH_USER_TABS;
+    let authTabs: HistoryTab[] = [];
 
     // If actual data is passed in then use that
     if (sessionData && historicGoals) {
@@ -71,7 +45,7 @@ const useHistory = create<HistoryState>((set) => ({
     // If no session data/historic goals
     set({
       historyData: {
-        tabs: sessionData ? authTabs : ANON_USER_TABS,
+        tabs: sessionData ? authTabs : [],
       },
     })
   },
