@@ -50,6 +50,7 @@ The table aims to provide an overview of each project's unique value proposition
 
 As of June 6, 2023, these are not yet achieved.
 
+- Create a statistically likely to be successful Hacker News post title suggestion. Determine the most successful types of Show HN titles in the last three months, with a special focus on AI produts.
 - Upload [x format document] report of multi-family housing in the [y metro] area, citing reliable sources and
 - Convert [x simple library] from [y language] to [z language]
 - Develop and create a pull request for [x feature] to the project at [y git url]
