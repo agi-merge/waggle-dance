@@ -1,6 +1,6 @@
 # Waggle🐝💃Dance
 
-![Version](https://img.shields.io/badge/version-1.0.0-blue)
+[![Deploy with Vercel](https://vercel.com/button)](https://vercel.com/new/clone?repository-url=https%3A%2F%2Fgithub.com%2Fagi-merge%2Fwaggle-dance&env=OPENAI_API_KEY&project-name=waggle-dance&repository-name=waggle-dance)
 ![License](https://img.shields.io/badge/license-MIT-green)
 ![CI](https://github.com/agi-merge/waggle-dance/actions/workflows/ci.yml/badge.svg?event=push)
 
