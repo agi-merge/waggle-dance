@@ -3,7 +3,6 @@ import { Close } from "@mui/icons-material";
 import {
   Divider,
   IconButton,
-  Stack,
   Tab,
   TabList,
   Tabs,
@@ -55,7 +54,7 @@ const HistoryTab: React.FC<HistoryTabProps> = ({
       color={currentTabIndex === tab.index ? "primary" : "neutral"}
       onClick={tab.handler}
     >
-      {tab.index !== count - 1 ? (
+      {tab.index !== count - 1 && tab.closeHandler ? (
         <>
           <IconButton
             size="sm"
