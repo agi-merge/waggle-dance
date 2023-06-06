@@ -23,26 +23,14 @@ import GoalSettings from "./GoalSettings";
 import TemplatesModal from "./TemplatesModal";
 
 export const examplePrompts = [
+  "Create a Hacker News post title suggestion that is statistically likely to be successful. Determine the most successful types of Show HN titles in the last three months, with a special focus on AI produts.",
   "Compare and contrast AgentGPT, AutoGPT, BabyAGI, https://waggledance.ai, and SuperAGI. Find similar projects or state of the art research papers. Create a .md (GFM) report of the findings.",
   "Write a 1000+ word markdown document (GFM / Github flavored markdown). Research and summarize trends in the multi-family housing trends in San Francisco and surrounding areas. Create tables and figures that compare and contrast, and display relevant data to support the metrics. Afterwards, add citations, ensuring that URLs are valid.",
   "What is the most popular event planning trend right now in April 2023?",
-  "Who came in fourth place in the latest golf major?",
-  "How do fluctuations in mortgage interest rates affect the demand for home loans in the current market?",
-  "How does the current competitive landscape in the renewable energy sector influence market strategy?",
-  "How are electric vehicle charging infrastructure regulations evolving in response to the rapid growth of EV adoption?",
-  "What are the implications of the most recent antitrust investigations on major tech companies?",
-  "What are the top five rising star SaaS startups serving sales teams?",
-  "in nextjs 13, write a minimal example of a streaming API HTTP response that uses langchainjs CallbackHandler callbacks",
+  "In nextjs 13, write a minimal example of a streaming API HTTP response that uses langchainjs CallbackHandler callbacks",
 ];
 
-const placeholders = [
-  "What's your goal?",
-  "Is there an un-Googleable topic that you want to explore?",
-  "Add a feature to a GitHub repository?",
-  "Do your taxes?",
-  "Try something that ChatGPT might be not able to do!",
-  "Achieve global peace and equity for all?",
-];
+const placeholders = ["What's your goal? Check Templates for examples!"];
 
 interface GoalInputProps extends CardProps {
   callbacks: Handlers;

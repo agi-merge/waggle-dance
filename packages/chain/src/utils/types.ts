@@ -24,7 +24,7 @@ export const llmResponseTokenLimit = (_llm: string) => {
   // case GPT_4:
   //   return 4096;
   // }
-  return -1;
+  return -1; // uses max remaining token according to model on OpenAI's backend.
 };
 
 export const llmKnowledgeCutoff = (llm: string) => {
