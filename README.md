@@ -25,13 +25,17 @@
 # Main Features
 
 - Highly concurrent execution graph. Some sub-tasks are not dependent, and can be run concurrently.
+- Adversarial agents that review results
 - [Free Public deployment](https://waggledance.ai)
 - Agent data connections, e.g. GitHub, Google Drive, Databases, etc.
 - Vector database for long-term memory
 - Tools, e.g. Zapier, Web Search, Code-improvement, etc.\*
 - Templates and sharing\*
 
-* coming soon
+## 📍 Roadmap
+
+- Tree of thought
+- See more: [Project Roadmap](https://github.com/orgs/agi-merge/projects/1/views/1)
 
 ## 📖 Comparisons to Other "AGI" Projects
 
