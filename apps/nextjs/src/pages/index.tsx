@@ -1,10 +1,7 @@
 // pages/index.tsx
 
 import React from "react";
-import type {
-  GetServerSidePropsContext,
-  InferGetServerSidePropsType,
-} from "next";
+import type { InferGetStaticPropsType } from "next";
 import { useRouter } from "next/router";
 import { Card } from "@mui/joy";
 
@@ -22,11 +19,7 @@ export interface Handlers {
   onChange: (goal: string) => void;
 }
 
-export async function getServerSideProps(context: GetServerSidePropsContext) {
-  context.res.setHeader(
-    "Cache-Control",
-    "public, s-maxage=300, stale-while-revalidate=300",
-  );
+export async function getStaticProps() {
   const startDate = new Date();
 
   const openAIUsage: CombinedResponse | null = await getOpenAIUsage(
@@ -37,12 +30,16 @@ export async function getServerSideProps(context: GetServerSidePropsContext) {
     props: {
       openAIUsage,
     },
+    // Next.js will attempt to re-generate the page:
+    // - When a request comes in
+    // - At most once every 10 seconds
+    revalidate: 300, // In seconds
   };
 }
 
 export default function Home({
   openAIUsage,
-}: InferGetServerSidePropsType<typeof getServerSideProps>) {
+}: InferGetStaticPropsType<typeof getStaticProps>) {
   const { setIsAutoStartEnabled } = useWaggleDanceMachineStore();
   const router = useRouter();
   const { goal, setGoal } = useGoal();
