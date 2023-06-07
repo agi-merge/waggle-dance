@@ -45,7 +45,7 @@ const useWaggleDanceMachine = ({
   const [isDonePlanning, setIsDonePlanning] = useState(false);
   const [logs, setLogs] = useState<LogMessage[]>([]);
   const [chainPackets, setChainPackets] = useState<Record<string, TaskState>>({});
-  const [abortController, _setAbortController] = useState<AbortController>(new AbortController());
+  const [abortController, setAbortController] = useState<AbortController>(new AbortController());
   const mapPacketTypeToStatus = (packetType: string): TaskStatus => {
     switch (packetType) {
       case "handleLLMNewToken":
@@ -168,11 +168,15 @@ const useWaggleDanceMachine = ({
   }, [dag, taskStates]);
 
   const stop = useCallback(() => {
-    abortController.abort();
+    if (!abortController.signal.aborted) {
+      abortController.abort();
+    }
   }, [abortController]);
 
 
   const run = useCallback(async () => {
+    stop();
+    setAbortController(new AbortController());
     const maxTokens = llmResponseTokenLimit(LLM.smart)
 
     if (!isDonePlanning) {
@@ -211,7 +215,7 @@ const useWaggleDanceMachine = ({
     console.log("result", result);
     setIsRunning(false);
     return result;
-  }, [isDonePlanning, waggleDanceMachine, goal, llmOption, temperatureOption, dag, sendChainPacket, log, executionMethod, isRunning, abortController, setIsRunning]);
+  }, [stop, isDonePlanning, waggleDanceMachine, goal, llmOption, temperatureOption, dag, sendChainPacket, log, executionMethod, isRunning, abortController, setIsRunning]);
 
   return { waggleDanceMachine, dag, graphData, stop, run, setIsDonePlanning, isDonePlanning, logs, taskStates, };
 };
