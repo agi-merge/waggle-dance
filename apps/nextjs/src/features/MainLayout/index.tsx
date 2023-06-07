@@ -9,6 +9,7 @@ import useApp from "~/stores/appStore";
 import Alerts from "./components/Alerts";
 import Footer from "./components/Footer";
 import Header from "./components/Header";
+import OpenAIUsage from "./components/OpenAIUsage";
 
 type Props = {
   children: React.ReactNode;
@@ -71,7 +72,7 @@ const MainLayout = ({ children, openAIUsage }: Props) => {
           invertedColors
           variant="soft"
         >
-          <Header openAIUsage={openAIUsage} />
+          <Header />
           <LinearProgress
             thickness={3}
             sx={{ opacity: progressOpacity }}
@@ -88,6 +89,7 @@ const MainLayout = ({ children, openAIUsage }: Props) => {
           >
             <Alerts />
             {children}
+            {openAIUsage && <OpenAIUsage openAIUsage={openAIUsage} />}
           </Card>
           <Footer />
         </Sheet>

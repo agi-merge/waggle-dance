@@ -12,10 +12,8 @@ import {
 } from "@mui/joy";
 import { useSession } from "next-auth/react";
 
-import { type CombinedResponse } from "~/utils/openAIUsageAPI";
 import { app } from "~/constants";
 import useGoal from "~/stores/goalStore";
-import OpenAIUsage from "./OpenAIUsage";
 import ThemeToggle from "./ThemeToggle";
 
 function removeFirstCharIfMatching(str: string, targetChar: string): string {
@@ -43,11 +41,7 @@ const routes = {
 };
 
 type RoutePath = "" | "waggle-dance" | "goal-done";
-const Header = ({
-  openAIUsage,
-}: {
-  openAIUsage: CombinedResponse | null | undefined;
-}) => {
+const Header = ({}) => {
   const router = useRouter();
   const { setGoal } = useGoal();
   const slug = removeFirstCharIfMatching(router.pathname, "/");
@@ -147,8 +141,13 @@ const Header = ({
         </Stack>
       </Stack>
       {isHomeSlug && (
-        <Typography className="pl-2 pt-3" level="body2" color="neutral">
-          Automate your boring, complex tasks with the help of{" "}
+        <Typography
+          className="pl-2 pt-3"
+          level="body2"
+          fontSize={{ xs: "8pt", sm: "10pt" }}
+          color="neutral"
+        >
+          Automate boring, complex tasks with the help of{" "}
           <Tooltip title="I swear it is a thing" color="info">
             <a
               href="https://wikipedia.org/wiki/Waggle_dance"
@@ -158,7 +157,7 @@ const Header = ({
               wagglin&apos; swarms{" "}
             </a>
           </Tooltip>
-          of AIs
+          of large language model agents
         </Typography>
       )}
       <Tooltip title="Help keep waggle dance's free tier free">
@@ -166,7 +165,7 @@ const Header = ({
           direction={{ xs: "column", sm: "row" }}
           gap="0.5rem"
           fontSize="body4"
-          className="mb-4 flex justify-center"
+          className="flex justify-center"
         >
           <Breadcrumbs
             separator={<KeyboardArrowRight />}
@@ -177,7 +176,6 @@ const Header = ({
               renderBreadcrumbLink(route.path, route.label, i, activeIndex),
             )}
           </Breadcrumbs>
-          {openAIUsage && <OpenAIUsage openAIUsage={openAIUsage} />}
         </Stack>
       </Tooltip>
     </header>
