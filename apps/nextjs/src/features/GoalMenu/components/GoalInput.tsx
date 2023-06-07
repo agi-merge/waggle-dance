@@ -43,12 +43,7 @@ export default function GoalInput({
 }: GoalInputProps) {
   const [_currentPromptIndex, setCurrentPromptIndex] = useState(0);
   const [currentPlaceholderIndex, setCurrentPlaceholderIndex] = useState(0);
-  const [goalInputValue, setGoalInputValue] = useState(
-    process.env.NODE_ENV === "development"
-      ? "Write a 1000+ word markdown document (GFM / Github flavored markdown). Research and summarize trends in the multi-family housing trends in San Francisco and surrounding areas. Create tables and figures that compare and contrast, and display relevant data to support the metrics. Afterwards, add citations, ensuring that URLs are valid."
-      : "",
-    //examplePrompts[(Math.random() * examplePrompts.length) | 0],
-  );
+  const [goalInputValue, setGoalInputValue] = useState("");
   const [templatesModalOpen, setTemplatesModalOpen] =
     React.useState<boolean>(false);
   const { data: sessionData } = useSession();

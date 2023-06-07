@@ -1,4 +1,5 @@
 import { useEffect, useState } from "react";
+import { useRouter } from "next/router";
 import { Close } from "@mui/icons-material";
 import {
   Box,
@@ -43,14 +44,27 @@ const HistoryTab: React.FC<HistoryTabProps> = ({
   count,
   onSelect,
 }) => {
+  const router = useRouter();
   const del = api.goal.delete.useMutation();
+  const { data: historicGoals, refetch } = api.goal.topByUser.useQuery(
+    undefined,
+    {
+      refetchOnMount: true,
+      refetchOnWindowFocus: true,
+      onSuccess: (data) => {
+        console.log("Success!", data);
+      },
+    },
+  );
   const closeHandler = async (tab: HistoryTab) => {
     await del.mutateAsync(tab.id);
+    const goals = await refetch();
+    (goals.data?.length ?? 0) === 0 && (await router.push("/"));
   };
 
   return (
     <Tab
-      key={tab.label}
+      key={tab.id}
       className={`text-overflow-ellipsis m-0 flex items-start overflow-hidden p-0`}
       sx={{
         maxWidth: `${100 / count - 3}%`,
@@ -92,7 +106,7 @@ const HistoryTab: React.FC<HistoryTabProps> = ({
           </IconButton>
         )}
         <Typography noWrap className="overflow-clip">
-          {tab.label}
+          {tab.label.length < 55 ? tab.label : `${tab.label.slice(0, 55)}…`}
         </Typography>
       </Stack>
       {/* <Box sx={{ flexGrow: 1, overflow: "hidden", px: 3 }}>
@@ -166,7 +180,7 @@ const HistoryTabber: React.FC<HistoryTabberProps> = ({ tabs, children }) => {
   // 🌍 Render
   return (
     <Box>
-      {tabs.length > 1 && (
+      {tabs.length > 0 && (
         <Tabs
           aria-label="Goal tabs"
           value={currentTabIndex}
