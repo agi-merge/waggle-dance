@@ -10,12 +10,15 @@ import {
   Typography,
   type TabsProps,
 } from "@mui/joy";
+import { v4 } from "uuid";
+
+import { api } from "~/utils/api";
+import useHistory from "~/stores/historyStore";
 
 export interface HistoryTab {
+  id: string;
   index: number;
   label: string;
-  handler?: () => void;
-  closeHandler?: () => void;
   tooltip?: string;
   selectedByDefault?: boolean;
 }
@@ -45,6 +48,11 @@ const HistoryTab: React.FC<HistoryTabProps> = ({
   tab,
   currentTabIndex,
 }) => {
+  const del = api.goal.delete.useMutation();
+  const closeHandler = async (tab: HistoryTab) => {
+    await del.mutateAsync(tab.id);
+  };
+
   return (
     <Tab
       key={tab.label}
@@ -54,13 +62,13 @@ const HistoryTab: React.FC<HistoryTabProps> = ({
       color={currentTabIndex === tab.index ? "primary" : "neutral"}
       onClick={tab.handler}
     >
-      {tab.index !== count - 1 && tab.closeHandler ? (
+      {tab.closeHandler ? (
         <>
           <IconButton
             size="sm"
             color="neutral"
             variant="plain"
-            onClick={tab.closeHandler}
+            onClick={() => closeHandler(tab)}
           >
             <Close />
           </IconButton>
@@ -78,9 +86,9 @@ const HistoryTab: React.FC<HistoryTabProps> = ({
 };
 
 // The main tabber component
-const HistoryTabber: React.FC<HistoryTabberProps> = ({ tabs }) => {
+const HistoryTabber: React.FC<HistoryTabberProps> = ({ tabs, children }) => {
   const [currentTabIndex, setCurrentTabIndex] = useState(0);
-
+  const { setHistoryData } = useHistory();
   // Set the default tab if it exists on first component mount
   useEffect(() => {
     const defaultTab = tabs.find((tab) => tab.selectedByDefault === true);
@@ -98,14 +106,34 @@ const HistoryTabber: React.FC<HistoryTabberProps> = ({ tabs }) => {
     const thisTab = tabs?.[newValue];
     if (newValue === tabs.length - 1) {
       event?.preventDefault();
-      if (thisTab?.handler) thisTab.handler();
       return;
     }
     // Update tab state
     setCurrentTabIndex(newValue);
+  };
 
-    // Run the handler if it exists
-    if (thisTab?.handler) thisTab.handler();
+  const plusTab = () => {
+    return {
+      id: v4(),
+      index: tabs.length,
+      label: "+",
+      tooltip: "🐝 Start wagglin' and your history will be saved!",
+      // handler: () => {
+      //   const plus = tabs.pop();
+      //   const index = tabs.length;
+      //   tabs.push({
+      //     index,
+      //     label: "New Tab",
+      //     closeHandler: () => {
+      //       // console.log("close", goal);
+      //       tabs.splice(index, 1);
+      //     },
+      //   });
+      //   plus && tabs.push(plus);
+      //   setHistoryData({
+      //     tabs,
+      //   });
+    } as HistoryTab;
   };
 
   // 🌍 Render
@@ -120,7 +148,7 @@ const HistoryTabber: React.FC<HistoryTabberProps> = ({ tabs }) => {
     >
       <TabList className="m-0 p-0" sx={{ background: "transparent" }}>
         {tabs.map((tab) => (
-          <Tooltip placement="right" key={tab.index} title={tab.tooltip ?? ""}>
+          <Tooltip placement="right" key={tab.id} title={tab.tooltip ?? ""}>
             <HistoryTab
               count={tabs.length}
               tab={tab}
@@ -128,8 +156,20 @@ const HistoryTabber: React.FC<HistoryTabberProps> = ({ tabs }) => {
             />
           </Tooltip>
         ))}
+        <Tooltip
+          placement="right"
+          key={plusTab().id}
+          title={plusTab().tooltip ?? ""}
+        >
+          <HistoryTab
+            count={tabs.length}
+            tab={plusTab()}
+            currentTabIndex={currentTabIndex}
+          />
+        </Tooltip>
       </TabList>
       <Divider className="-mt-4" />
+      {children}
     </Tabs>
   );
 };
