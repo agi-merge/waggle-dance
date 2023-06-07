@@ -167,6 +167,11 @@ const useWaggleDanceMachine = ({
     setGraphData(dagToGraphData(dag, taskStates));
   }, [dag, taskStates]);
 
+  const stop = useCallback(() => {
+    abortController.abort();
+  }, [abortController]);
+
+
   const run = useCallback(async () => {
     const maxTokens = llmResponseTokenLimit(LLM.smart)
 
@@ -208,7 +213,7 @@ const useWaggleDanceMachine = ({
     return result;
   }, [isDonePlanning, waggleDanceMachine, goal, llmOption, temperatureOption, dag, sendChainPacket, log, executionMethod, isRunning, abortController, setIsRunning]);
 
-  return { waggleDanceMachine, dag, graphData, run, setIsDonePlanning, isDonePlanning, logs, taskStates };
+  return { waggleDanceMachine, dag, graphData, stop, run, setIsDonePlanning, isDonePlanning, logs, taskStates, };
 };
 
 export default useWaggleDanceMachine;

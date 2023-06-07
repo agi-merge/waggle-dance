@@ -57,7 +57,7 @@ const WaggleDanceGraph = ({}: WaggleDanceGraphProps) => {
   const { isRunning, setIsRunning, isAutoStartEnabled, setIsAutoStartEnabled } =
     useWaggleDanceMachineState();
   const { goal } = useGoal();
-  const { graphData, dag, run, isDonePlanning, logs, taskStates } =
+  const { graphData, dag, stop, run, isDonePlanning, logs, taskStates } =
     useWaggleDanceMachine({
       goal,
     });
@@ -72,8 +72,9 @@ const WaggleDanceGraph = ({}: WaggleDanceGraphProps) => {
       void run();
     } else {
       setIsRunning(true);
+      stop();
     }
-  }, [run, setIsRunning, isRunning]);
+  }, [stop, run, setIsRunning, isRunning]);
 
   const handleStop = () => {
     setIsRunning(false);
