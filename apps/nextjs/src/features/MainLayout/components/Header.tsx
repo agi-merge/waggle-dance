@@ -160,24 +160,22 @@ const Header = ({}) => {
           of large language model agents
         </Typography>
       )}
-      <Tooltip title="Help keep waggle dance's free tier free">
-        <Stack
-          direction={{ xs: "column", sm: "row" }}
-          gap="0.5rem"
-          fontSize="body4"
-          className="flex justify-center"
+      <Stack
+        direction={{ xs: "column", sm: "row" }}
+        gap="0.5rem"
+        fontSize="body4"
+        className="flex justify-center"
+      >
+        <Breadcrumbs
+          separator={<KeyboardArrowRight />}
+          className="mb-2 mt-4 flex flex-grow"
+          size="sm"
         >
-          <Breadcrumbs
-            separator={<KeyboardArrowRight />}
-            className="mb-2 mt-4 flex flex-grow"
-            size="sm"
-          >
-            {Object.values(routes).map((route, i) =>
-              renderBreadcrumbLink(route.path, route.label, i, activeIndex),
-            )}
-          </Breadcrumbs>
-        </Stack>
-      </Tooltip>
+          {Object.values(routes).map((route, i) =>
+            renderBreadcrumbLink(route.path, route.label, i, activeIndex),
+          )}
+        </Breadcrumbs>
+      </Stack>
     </header>
   );
 };
