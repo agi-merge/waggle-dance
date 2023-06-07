@@ -165,40 +165,45 @@ const HistoryTabber: React.FC<HistoryTabberProps> = ({ tabs, children }) => {
 
   // 🌍 Render
   return (
-    <>
-      <Tabs
-        aria-label="Goal tabs"
-        value={currentTabIndex}
-        onChange={(event, newValue) => handleChange(event, newValue as number)}
-        sx={{ borderRadius: "sm" }}
-        className="-mx-4 -mt-4"
-        color="primary"
-        variant="plain"
-      >
-        <TabList className="m-0 p-0">
-          {tabs.map((tab) => (
-            <Tooltip key={tab.id} title={tab.tooltip ?? ""}>
-              <HistoryTab
-                onSelect={() => setCurrentTabIndex(tab.index)}
-                count={tabs.length}
-                tab={tab}
-                currentTabIndex={currentTabIndex}
-              />
-            </Tooltip>
-          ))}
-          {tabs.length > 0 && (
-            <Tooltip key={plusTab().id} title={plusTab().tooltip ?? ""}>
-              <HistoryTab
-                count={tabs.length}
-                tab={plusTab()}
-                currentTabIndex={currentTabIndex}
-              />
-            </Tooltip>
-          )}
-        </TabList>
-      </Tabs>
+    <Box>
+      {tabs.length > 1 && (
+        <Tabs
+          aria-label="Goal tabs"
+          value={currentTabIndex}
+          onChange={(event, newValue) =>
+            handleChange(event, newValue as number)
+          }
+          sx={{ borderRadius: "sm" }}
+          className="-mx-4 -mt-4"
+          color="primary"
+          variant="plain"
+        >
+          <TabList className="m-0 p-0">
+            {tabs.map((tab) => (
+              <Tooltip key={tab.id} title={tab.tooltip ?? ""}>
+                <HistoryTab
+                  onSelect={() => setCurrentTabIndex(tab.index)}
+                  count={tabs.length}
+                  tab={tab}
+                  currentTabIndex={currentTabIndex}
+                />
+              </Tooltip>
+            ))}
+            {tabs.length > 0 && (
+              <Tooltip key={plusTab().id} title={plusTab().tooltip ?? ""}>
+                <HistoryTab
+                  count={tabs.length}
+                  tab={plusTab()}
+                  currentTabIndex={currentTabIndex}
+                />
+              </Tooltip>
+            )}
+          </TabList>
+        </Tabs>
+      )}
+
       <Box className="mx-2 mt-2 p-0">{children}</Box>
-    </>
+    </Box>
   );
 };
 

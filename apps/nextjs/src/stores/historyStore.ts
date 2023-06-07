@@ -2,7 +2,6 @@ import { type Goal } from ".prisma/client";
 import { type Session } from "@acme/auth";
 import { create } from "zustand";
 import { type HistoryTab } from "~/features/WaggleDance/components/HistoryTabber";
-import { api } from "~/utils/api";
 
 export interface HistoryData {
   tabs: HistoryTab[];
@@ -29,23 +28,10 @@ const useHistory = create<HistoryState>((set) => ({
     if (sessionData && historicGoals) {
       const tabs: HistoryTab[] = historicGoals.map((goal, index) => {
         return {
+          id: goal.id,
           index,
+          tooltip: goal.prompt,
           label: goal.prompt,
-          // handler: () => {
-          //   console.log("🐝 WaggleDance: HistoryTabber: Goal clicked:", goal);
-          // },
-          // closeHandler: () => {
-          //   console.log("close", goal);
-          //   const tabsCopy = [...tabs];
-          //   tabsCopy.splice(index, 1);
-          //   const delApi = api.goal.delete;
-          //   const _data = delApi.mutate(goal.id, { onSuccess: () => { }, onError: () => { } });
-          //   set({
-          //     historyData: {
-          //       tabs: tabsCopy,
-          //     },
-          //   })
-          // }
         } as HistoryTab;
       });
       set({

@@ -5,7 +5,6 @@ import type {
   InferGetServerSidePropsType,
 } from "next";
 import { useRouter } from "next/router";
-import { Card } from "@mui/joy";
 
 import { getOpenAIUsage, type CombinedResponse } from "~/utils/openAIUsageAPI";
 import MainLayout from "~/features/MainLayout";
@@ -46,9 +45,7 @@ export default function WaggleDance({
 
   return (
     <MainLayout openAIUsage={openAIUsage}>
-      <Card variant="soft" className="mb-3">
-        <WaggleDanceGraph />
-      </Card>
+      <WaggleDanceGraph />
     </MainLayout>
   );
 }
