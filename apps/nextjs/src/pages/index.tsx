@@ -3,7 +3,6 @@
 import React, { useEffect } from "react";
 import type { InferGetStaticPropsType } from "next";
 import { useRouter } from "next/router";
-import { Card } from "@mui/joy";
 import { useSession } from "next-auth/react";
 
 import { api } from "~/utils/api";
@@ -86,21 +85,19 @@ export default function Home({
 
   return (
     <MainLayout openAIUsage={openAIUsage}>
-      <Card variant="soft">
-        <HistoryTabber tabs={historyData.tabs}>
-          <Title title="🐝 Goal solver" description="" hideGoal={true} />
-          <GoalInput
-            startingValue={goal}
-            callbacks={{
-              setGoal: handleSetGoal,
-              onChange: handleInputChange,
-              onStop: () => {
-                /* do nothing */
-              },
-            }}
-          />
-        </HistoryTabber>
-      </Card>
+      <HistoryTabber tabs={historyData.tabs}>
+        <Title title="🐝 Goal solver" description="" hideGoal={true} />
+        <GoalInput
+          startingValue={goal}
+          callbacks={{
+            setGoal: handleSetGoal,
+            onChange: handleInputChange,
+            onStop: () => {
+              /* do nothing */
+            },
+          }}
+        />
+      </HistoryTabber>
     </MainLayout>
   );
 }
