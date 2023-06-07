@@ -1,6 +1,6 @@
 import { useMemo } from "react";
 import Link from "next/link";
-import { LinearProgress, Sheet, Typography } from "@mui/joy";
+import { Box, LinearProgress, Typography } from "@mui/joy";
 
 import { type CombinedResponse } from "~/utils/openAIUsageAPI";
 import { app } from "~/constants";
@@ -12,11 +12,7 @@ const OpenAIUsage = ({ openAIUsage }: { openAIUsage: CombinedResponse }) => {
   );
 
   return (
-    <Sheet
-      variant="soft"
-      className="m-1 flex min-w-fit flex-grow flex-col p-1"
-      color="neutral"
-    >
+    <Box className="m-1 flex min-w-fit flex-grow flex-col p-1" color="neutral">
       <Typography level="body3">Global Free OpenAI Limit:</Typography>
       <Link
         className="flex flex-grow"
@@ -53,7 +49,7 @@ const OpenAIUsage = ({ openAIUsage }: { openAIUsage: CombinedResponse }) => {
           </Typography>
         </LinearProgress>
       </Link>
-    </Sheet>
+    </Box>
   );
 };
 

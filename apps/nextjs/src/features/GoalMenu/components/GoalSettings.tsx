@@ -47,7 +47,7 @@ function AdvancedSettingsToggle({ children }: { children: React.ReactNode }) {
           className="m-0 p-0"
           aria-labelledby="basic-demo-button"
         >
-          Advanced Settings {isOpen ? "▼" : "▲"}
+          {isOpen ? "▼" : "▲"} Advanced Settings
         </Typography>
       </Link>
       <Menu

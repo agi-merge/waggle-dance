@@ -42,7 +42,7 @@ const PageTitle = ({ title, description, hideGoal }: TitleProps) => {
 
         {!hideGoal && <GoalMenu />}
       </Stack>
-      <Box sx={{ marginTop: { xs: 4, sm: 2 } }} />
+      <Box sx={{ marginTop: { xs: 1, sm: 2 } }} />
       <Divider inset="context">
         <Typography className="w-1/2 text-center" level="body3">
           ~
