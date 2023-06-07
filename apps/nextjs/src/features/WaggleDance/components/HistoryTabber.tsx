@@ -3,6 +3,7 @@ import { useRouter } from "next/router";
 import { Close } from "@mui/icons-material";
 import {
   Box,
+  Button,
   IconButton,
   Stack,
   Tab,
@@ -30,6 +31,7 @@ interface HistoryTabProps {
   currentTabIndex: number;
   count: number;
   onSelect?: (tab: HistoryTab) => void; // if falsy, tab is not selectable and is treated as the plus button
+  isPlusTab?: boolean;
 }
 
 interface HistoryTabberProps extends TabsProps {
@@ -43,23 +45,23 @@ const HistoryTab: React.FC<HistoryTabProps> = ({
   currentTabIndex,
   count,
   onSelect,
+  isPlusTab,
 }) => {
   const router = useRouter();
   const del = api.goal.delete.useMutation();
-  const { data: historicGoals, refetch } = api.goal.topByUser.useQuery(
-    undefined,
-    {
-      refetchOnMount: true,
-      refetchOnWindowFocus: true,
-      onSuccess: (data) => {
-        console.log("Success!", data);
-      },
+  const { refetch } = api.goal.topByUser.useQuery(undefined, {
+    refetchOnMount: false,
+    refetchOnWindowFocus: false,
+    onSuccess: (data) => {
+      console.log("Success!", data);
     },
-  );
+  });
   const closeHandler = async (tab: HistoryTab) => {
     await del.mutateAsync(tab.id);
     const goals = await refetch();
-    (goals.data?.length ?? 0) === 0 && (await router.push("/"));
+    (goals.data?.length ?? 0) === 0 &&
+      router.pathname !== "/" &&
+      (await router.push("/"));
   };
 
   return (
@@ -67,23 +69,16 @@ const HistoryTab: React.FC<HistoryTabProps> = ({
       key={tab.id}
       className={`text-overflow-ellipsis m-0 flex items-start overflow-hidden p-0`}
       sx={{
-        maxWidth: `${100 / count - 3}%`,
+        maxWidth: `${100 / count - 10}%`,
         background: theme.palette.background.tooltip,
       }}
       variant="outlined"
       color={currentTabIndex === tab.index ? "primary" : "neutral"}
       onSelect={(e) => {
-        if (!onSelect) e.preventDefault();
+        if (isPlusTab) e.preventDefault();
       }}
       onBlur={(e) => {
-        if (!onSelect) e.preventDefault();
-      }}
-      onClick={(e) => {
-        if (onSelect) {
-          onSelect(tab);
-        } else {
-          e.preventDefault();
-        }
+        if (isPlusTab) e.preventDefault();
       }}
     >
       <Stack
@@ -91,52 +86,40 @@ const HistoryTab: React.FC<HistoryTabProps> = ({
         direction="row"
         alignItems="center"
         useFlexGap
-        className="overflow-hidden"
+        className="m-0 overflow-hidden p-0"
       >
-        {onSelect && (
-          <IconButton
-            size="sm"
-            color="neutral"
-            variant="plain"
-            onClick={() => {
-              void closeHandler(tab);
-            }}
-          >
-            <Close />
-          </IconButton>
-        )}
-        <Typography noWrap className="overflow-clip">
-          {tab.label.length < 55 ? tab.label : `${tab.label.slice(0, 55)}…`}
-        </Typography>
-      </Stack>
-      {/* <Box sx={{ flexGrow: 1, overflow: "hidden", px: 3 }}>
-        <Stack
-          direction="row"
-          gap="0.25rem"
-          useFlexGap
-          className={`w-1/${count}`}
+        <Button
+          startDecorator={
+            !isPlusTab && (
+              <IconButton
+                color="danger"
+                variant="plain"
+                onClick={() => {
+                  debugger;
+                  void closeHandler(tab);
+                }}
+              >
+                <Close />
+              </IconButton>
+            )
+          }
+          className="m-0 overflow-clip p-0"
+          size="sm"
+          color="neutral"
+          variant="plain"
+          onClick={(e) => {
+            debugger;
+            onSelect && onSelect(tab);
+            if (isPlusTab) {
+              e.preventDefault();
+            }
+          }}
         >
-          {onSelect && (
-            <IconButton
-              size="sm"
-              color="neutral"
-              variant="plain"
-              onClick={() => {
-                void closeHandler(tab);
-              }}
-            >
-              <Close />
-            </IconButton>
-          )}
-          <Typography
-            className={`text-ellipsis pl-2`}
-            sx={{ textOverflow: "ellipsis" }}
-            noWrap
-          >
-            {tab.label}
+          <Typography noWrap>
+            {tab.label.length < 120 ? tab.label : `${tab.label.slice(0, 120)}…`}
           </Typography>
-        </Stack>
-      </Box> */}
+        </Button>
+      </Stack>
     </Tab>
   );
 };
@@ -196,7 +179,10 @@ const HistoryTabber: React.FC<HistoryTabberProps> = ({ tabs, children }) => {
             {tabs.map((tab) => (
               <Tooltip key={tab.id} title={tab.tooltip ?? ""}>
                 <HistoryTab
-                  onSelect={() => setCurrentTabIndex(tab.index)}
+                  onSelect={() => {
+                    debugger;
+                    setCurrentTabIndex(tab.index);
+                  }}
                   count={tabs.length}
                   tab={tab}
                   currentTabIndex={currentTabIndex}
@@ -209,6 +195,11 @@ const HistoryTabber: React.FC<HistoryTabberProps> = ({ tabs, children }) => {
                   count={tabs.length}
                   tab={plusTab()}
                   currentTabIndex={currentTabIndex}
+                  onSelect={() => {
+                    console.log("here");
+                    setCurrentTabIndex(tabs.length - 2);
+                  }}
+                  isPlusTab={true}
                 />
               </Tooltip>
             )}
