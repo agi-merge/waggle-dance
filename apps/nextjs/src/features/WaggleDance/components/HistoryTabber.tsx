@@ -9,14 +9,17 @@ import {
   Tab,
   TabList,
   Tabs,
-  Tooltip,
   Typography,
   type TabsProps,
 } from "@mui/joy";
 import { v4 } from "uuid";
 
+import { type Goal } from "@acme/db";
+
 import { api } from "~/utils/api";
-import theme from "~/styles/theme";
+import useGoal from "~/stores/goalStore";
+import useHistory from "~/stores/historyStore";
+import useWaggleDanceMachineStore from "~/stores/waggleDanceStore";
 
 export interface HistoryTab {
   id: string;
@@ -47,6 +50,7 @@ const HistoryTab: React.FC<HistoryTabProps> = ({
   onSelect,
   isPlusTab,
 }) => {
+  const { setIsRunning } = useWaggleDanceMachineStore();
   const router = useRouter();
   const del = api.goal.delete.useMutation();
   const { refetch } = api.goal.topByUser.useQuery(undefined, {
@@ -57,9 +61,16 @@ const HistoryTab: React.FC<HistoryTabProps> = ({
     },
   });
   const closeHandler = async (tab: HistoryTab) => {
-    await del.mutateAsync(tab.id);
-    const goals = await refetch();
-    (goals.data?.length ?? 0) === 0 &&
+    setIsRunning(false);
+    let goals: Goal[] | undefined;
+    if (tab.id.startsWith("tempgoal-")) {
+      // skip stubbed new tabs
+      await del.mutateAsync(tab.id);
+      goals = (await refetch()).data;
+    } else {
+      goals = [];
+    }
+    (goals?.length ?? 0) === 0 &&
       router.pathname !== "/" &&
       (await router.push("/"));
   };
@@ -69,8 +80,8 @@ const HistoryTab: React.FC<HistoryTabProps> = ({
       key={tab.id}
       className={`text-overflow-ellipsis m-0 flex items-start overflow-hidden p-0`}
       sx={{
-        maxWidth: `${100 / count - 10}%`,
-        background: theme.palette.background.tooltip,
+        maxWidth: `${100 / (count + 1)}%`,
+        background: "transparent",
       }}
       variant="outlined"
       color={currentTabIndex === tab.index ? "primary" : "neutral"}
@@ -93,9 +104,8 @@ const HistoryTab: React.FC<HistoryTabProps> = ({
             !isPlusTab && (
               <IconButton
                 color="danger"
-                variant="plain"
+                variant="outlined"
                 onClick={() => {
-                  debugger;
                   void closeHandler(tab);
                 }}
               >
@@ -103,12 +113,11 @@ const HistoryTab: React.FC<HistoryTabProps> = ({
               </IconButton>
             )
           }
-          className="m-0 overflow-clip p-0"
+          className="m-0 flex-grow overflow-clip p-0"
           size="sm"
           color="neutral"
           variant="plain"
           onClick={(e) => {
-            debugger;
             onSelect && onSelect(tab);
             if (isPlusTab) {
               e.preventDefault();
@@ -126,9 +135,10 @@ const HistoryTab: React.FC<HistoryTabProps> = ({
 
 // The main tabber component
 const HistoryTabber: React.FC<HistoryTabberProps> = ({ tabs, children }) => {
+  const { setGoal } = useGoal();
   const [currentTabIndex, setCurrentTabIndex] = useState(0);
   const [plusUUID] = useState(v4());
-  // const { setHistoryData } = useHistory();
+  const { historyData, setHistoryData } = useHistory();
   // Set the default tab if it exists on first component mount
   useEffect(() => {
     const defaultTab = tabs.find((tab) => tab.selectedByDefault === true);
@@ -143,7 +153,7 @@ const HistoryTabber: React.FC<HistoryTabberProps> = ({ tabs, children }) => {
     event: React.SyntheticEvent | null,
     newValue: number,
   ) => {
-    if (newValue === tabs.length - 1) {
+    if (newValue === tabs.length) {
       event?.preventDefault();
       return;
     }
@@ -177,31 +187,42 @@ const HistoryTabber: React.FC<HistoryTabberProps> = ({ tabs, children }) => {
         >
           <TabList className="m-0 p-0">
             {tabs.map((tab) => (
-              <Tooltip key={tab.id} title={tab.tooltip ?? ""}>
-                <HistoryTab
-                  onSelect={() => {
-                    debugger;
-                    setCurrentTabIndex(tab.index);
-                  }}
-                  count={tabs.length}
-                  tab={tab}
-                  currentTabIndex={currentTabIndex}
-                />
-              </Tooltip>
+              <HistoryTab
+                key={tab.id}
+                onSelect={() => {
+                  setCurrentTabIndex(tab.index);
+                  setGoal(tab.label);
+                }}
+                count={tabs.length}
+                tab={tab}
+                currentTabIndex={currentTabIndex}
+              />
             ))}
             {tabs.length > 0 && (
-              <Tooltip key={plusTab().id} title={plusTab().tooltip ?? ""}>
-                <HistoryTab
-                  count={tabs.length}
-                  tab={plusTab()}
-                  currentTabIndex={currentTabIndex}
-                  onSelect={() => {
-                    console.log("here");
-                    setCurrentTabIndex(tabs.length - 2);
-                  }}
-                  isPlusTab={true}
-                />
-              </Tooltip>
+              <HistoryTab
+                count={tabs.length}
+                tab={plusTab()}
+                currentTabIndex={currentTabIndex}
+                onSelect={() => {
+                  console.log("wtf");
+                  setGoal("");
+                  const tabs = historyData.tabs;
+                  const index = tabs.length - 1;
+                  setHistoryData({
+                    tabs: [
+                      ...tabs,
+                      ...[
+                        {
+                          id: `tempgoal-${v4()}`,
+                          label: "",
+                          index,
+                        } as HistoryTab,
+                      ],
+                    ],
+                  });
+                }}
+                isPlusTab={true}
+              />
             )}
           </TabList>
         </Tabs>
