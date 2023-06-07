@@ -16,12 +16,12 @@
     "redis": "^4.6.6",
     "serpapi": "^1.1.1",
     "tls": "^0.0.1",
-    "yaml": "^2.3.0"
+    "yaml": "^2.3.1"
   },
   "devDependencies": {
     "@acme/eslint-config": "^0.1.0",
     "@types/crypto-js": "^4.1.1",
-    "eslint": "^8.41.0",
+    "eslint": "^8.40.0",
     "typescript": "^5.0.4"
   }
 }
