@@ -39,7 +39,6 @@ import ReactMarkdown from "react-markdown";
 import remarkGfm from "remark-gfm";
 import { stringify } from "yaml";
 
-import PageTitle from "~/features/MainLayout/components/PageTitle";
 import AddDocuments from "~/pages/add-documents";
 import useGoal from "~/stores/goalStore";
 import useWaggleDanceMachineState from "~/stores/waggleDanceStore";
@@ -57,10 +56,11 @@ const WaggleDanceGraph = ({}: WaggleDanceGraphProps) => {
   const { isRunning, setIsRunning, isAutoStartEnabled, setIsAutoStartEnabled } =
     useWaggleDanceMachineState();
   const { goal } = useGoal();
-  const { graphData, dag, stop, run, isDonePlanning, logs, taskStates } =
-    useWaggleDanceMachine({
+  const { graphData, dag, stop, run, logs, taskStates } = useWaggleDanceMachine(
+    {
       goal,
-    });
+    },
+  );
   const [chatInput, setChatInput] = useState("");
   const [runId, setRunId] = useState<Date | null>(null);
 
