@@ -78,6 +78,7 @@ const WaggleDanceGraph = ({}: WaggleDanceGraphProps) => {
 
   const handleStop = () => {
     setIsRunning(false);
+    stop();
   };
 
   const hasMountedRef = useRef(false);
