@@ -23,9 +23,9 @@ type SubscriptionResponse = {
 };
 
 export type CombinedResponse = {
-    currentUsage: number | null;
-    allottedUsage: number | null;
-    maxUsage: number | null;
+    currentUsage: number;
+    allottedUsage: number;
+    maxUsage: number;
 };
 
 export const getOpenAIUsage = async (startDate: Date): Promise<CombinedResponse> => {
