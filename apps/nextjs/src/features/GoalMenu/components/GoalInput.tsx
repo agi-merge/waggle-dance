@@ -125,27 +125,29 @@ export default function GoalInput({
                   </Typography>
                   <List className="h-96 overflow-auto">
                     <Grid container spacing={2}>
-                      {examplePrompts.map((prompt, _index) => (
-                        <Grid key={prompt} sm={4} md={6}>
-                          <Button
-                            color="info"
-                            variant="soft"
-                            className="flex flex-grow flex-row justify-center"
-                            onClick={() => {
-                              setGoalInputValue(prompt);
-                              callbacks.onChange(prompt);
-                              setTemplatesModalOpen(false);
-                            }}
-                          >
-                            <Typography
-                              level="body4"
+                      {examplePrompts
+                        .sort((a, b) => (a.length < b.length ? 1 : -1))
+                        .map((prompt, _index) => (
+                          <Grid key={prompt} sm={4} md={6}>
+                            <Button
+                              color="neutral"
+                              variant="soft"
                               className="flex flex-grow flex-row justify-center"
+                              onClick={() => {
+                                setGoalInputValue(prompt);
+                                callbacks.onChange(prompt);
+                                setTemplatesModalOpen(false);
+                              }}
                             >
-                              {prompt}
-                            </Typography>
-                          </Button>
-                        </Grid>
-                      ))}
+                              <Typography
+                                level="body4"
+                                className="flex flex-grow flex-row justify-center"
+                              >
+                                {prompt}
+                              </Typography>
+                            </Button>
+                          </Grid>
+                        ))}
                     </Grid>
                   </List>
                 </TemplatesModal>
