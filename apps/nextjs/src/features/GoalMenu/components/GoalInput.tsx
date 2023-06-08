@@ -8,6 +8,7 @@ import {
   Divider,
   FormControl,
   Grid,
+  Link,
   List,
   Stack,
   Textarea,
@@ -19,6 +20,7 @@ import { useSession } from "next-auth/react";
 import { api } from "~/utils/api";
 import { type Handlers } from "~/pages";
 import useGoal from "~/stores/goalStore";
+import useHistory from "~/stores/historyStore";
 import GoalDoctorModal from "./GoalDoctorModal";
 import GoalSettings from "./GoalSettings";
 import TemplatesModal from "./TemplatesModal";
@@ -43,9 +45,9 @@ export default function GoalInput({
   startingValue,
 }: GoalInputProps) {
   const { goal } = useGoal();
+  const { goalInputValue, setGoalInputValue } = useHistory();
   const [_currentPromptIndex, setCurrentPromptIndex] = useState(0);
   const [currentPlaceholderIndex, setCurrentPlaceholderIndex] = useState(0);
-  const [goalInputValue, setGoalInputValue] = useState("");
   const [templatesModalOpen, setTemplatesModalOpen] =
     React.useState<boolean>(false);
   const { data: sessionData } = useSession();
@@ -62,11 +64,11 @@ export default function GoalInput({
     if (startingValue) {
       setGoalInputValue(startingValue);
     }
-  }, [startingValue]);
+  }, [startingValue, setGoalInputValue]);
 
   useEffect(() => {
     setGoalInputValue(goal);
-  }, [goal]);
+  }, [goal, setGoalInputValue]);
 
   const handleSubmit = (event: React.FormEvent) => {
     event.preventDefault();
@@ -120,10 +122,19 @@ export default function GoalInput({
                   open={templatesModalOpen}
                   setOpen={setTemplatesModalOpen}
                 >
-                  <Typography color="info" level="h6" className="p-5">
+                  <Typography color="info" level="h6" className="px-5">
                     Examples
                   </Typography>
-                  <List className="h-96 overflow-auto">
+                  <Typography level="body2" className="px-5 pb-2">
+                    For better results, try to{" "}
+                    <Link
+                      href="https://platform.openai.com/docs/guides/gpt-best-practices"
+                      target="_blank"
+                    >
+                      follow GPT best practices
+                    </Link>
+                  </Typography>
+                  <List className="absolute left-0 top-0 mt-3">
                     <Grid container spacing={2}>
                       {examplePrompts
                         .sort((a, b) => (a.length < b.length ? 1 : -1))
