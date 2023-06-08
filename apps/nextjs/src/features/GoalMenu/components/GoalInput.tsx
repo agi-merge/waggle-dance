@@ -18,6 +18,7 @@ import { useSession } from "next-auth/react";
 
 import { api } from "~/utils/api";
 import { type Handlers } from "~/pages";
+import useGoal from "~/stores/goalStore";
 import GoalDoctorModal from "./GoalDoctorModal";
 import GoalSettings from "./GoalSettings";
 import TemplatesModal from "./TemplatesModal";
@@ -41,6 +42,7 @@ export default function GoalInput({
   callbacks,
   startingValue,
 }: GoalInputProps) {
+  const { goal } = useGoal();
   const [_currentPromptIndex, setCurrentPromptIndex] = useState(0);
   const [currentPlaceholderIndex, setCurrentPlaceholderIndex] = useState(0);
   const [goalInputValue, setGoalInputValue] = useState("");
@@ -61,6 +63,10 @@ export default function GoalInput({
       setGoalInputValue(startingValue);
     }
   }, [startingValue]);
+
+  useEffect(() => {
+    setGoalInputValue(goal);
+  }, [goal]);
 
   const handleSubmit = (event: React.FormEvent) => {
     event.preventDefault();
