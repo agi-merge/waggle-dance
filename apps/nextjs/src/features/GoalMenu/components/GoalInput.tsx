@@ -19,6 +19,7 @@ import { useSession } from "next-auth/react";
 
 import { api } from "~/utils/api";
 import { type Handlers } from "~/pages";
+import useApp from "~/stores/appStore";
 import useGoal from "~/stores/goalStore";
 import useHistory from "~/stores/historyStore";
 import GoalDoctorModal from "./GoalDoctorModal";
@@ -46,6 +47,7 @@ export default function GoalInput({
 }: GoalInputProps) {
   const { goal } = useGoal();
   const { goalInputValue, setGoalInputValue } = useHistory();
+  const { isPageLoading } = useApp();
   const [_currentPromptIndex, setCurrentPromptIndex] = useState(0);
   const [currentPlaceholderIndex, setCurrentPlaceholderIndex] = useState(0);
   const [templatesModalOpen, setTemplatesModalOpen] =
@@ -188,6 +190,7 @@ export default function GoalInput({
 
       <Stack direction="row-reverse" gap="1rem">
         <Button
+          loading={isPageLoading}
           className="col-end mt-2"
           type="submit"
           disabled={goalInputValue.trim().length === 0}
