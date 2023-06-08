@@ -17,7 +17,7 @@ export default function BasicModal({ children, open, setOpen }: Props) {
         level="body4"
         onClick={() => setOpen(true)}
       >
-        🤔 Templates
+        🤔 Examples
       </Link>
       <Modal
         aria-labelledby="modal-title"

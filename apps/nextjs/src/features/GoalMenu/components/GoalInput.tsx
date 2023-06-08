@@ -31,7 +31,7 @@ export const examplePrompts = [
   "In nextjs 13, write a minimal example of a streaming API HTTP response that uses langchainjs CallbackHandler callbacks",
 ];
 
-const placeholders = ["What's your goal? Check Templates for examples!"];
+const placeholders = ["What's your goal? …Not sure? Check Examples!"];
 
 interface GoalInputProps extends CardProps {
   callbacks: Handlers;
@@ -121,7 +121,7 @@ export default function GoalInput({
                   setOpen={setTemplatesModalOpen}
                 >
                   <Typography color="info" level="h6" className="p-5">
-                    Template builder coming soon! For now, examples:
+                    Examples
                   </Typography>
                   <List className="h-96 overflow-auto">
                     <Grid container spacing={2}>
