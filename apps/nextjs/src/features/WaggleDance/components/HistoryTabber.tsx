@@ -136,9 +136,9 @@ const HistoryTab: React.FC<HistoryTabProps> = ({
 // The main tabber component
 const HistoryTabber: React.FC<HistoryTabberProps> = ({ tabs, children }) => {
   const { setGoal } = useGoal();
-  const [currentTabIndex, setCurrentTabIndex] = useState(0);
   const [plusUUID] = useState(v4());
-  const { historyData, setHistoryData } = useHistory();
+  const { historyData, setHistoryData, currentTabIndex, setCurrentTabIndex } =
+    useHistory();
   // Set the default tab if it exists on first component mount
   useEffect(() => {
     const defaultTab = tabs.find((tab) => tab.selectedByDefault === true);
@@ -146,7 +146,7 @@ const HistoryTabber: React.FC<HistoryTabberProps> = ({ tabs, children }) => {
     if (defaultTab) {
       setCurrentTabIndex(defaultTab.index);
     }
-  }, [tabs]);
+  }, [tabs, setCurrentTabIndex]);
 
   // Handle tab change
   const handleChange = (

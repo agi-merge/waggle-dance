@@ -13,6 +13,8 @@ export interface HistoryState {
   historyData: HistoryData;
   setHistoryData: (newData: HistoryData) => void;
   initializeHistoryData: (sessionData?: Session | null, historicGoals?: Goal[]) => void;
+  currentTabIndex: number;
+  setCurrentTabIndex: (newTabIndex: number) => void;
 }
 
 const useHistory = create<HistoryState>((set) => ({
@@ -47,6 +49,8 @@ const useHistory = create<HistoryState>((set) => ({
       })
     }
   },
+  currentTabIndex: 0,
+  setCurrentTabIndex: (newTabIndex) => set({ currentTabIndex: newTabIndex }),
 }));
 
 export default useHistory;
