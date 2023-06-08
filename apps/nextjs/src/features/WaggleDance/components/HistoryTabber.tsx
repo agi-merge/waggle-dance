@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect } from "react";
 import { useRouter } from "next/router";
 import { Close } from "@mui/icons-material";
 import {
@@ -13,8 +13,6 @@ import {
   type TabsProps,
 } from "@mui/joy";
 import { v4 } from "uuid";
-
-import { type Goal } from "@acme/db";
 
 import { api } from "~/utils/api";
 import useGoal from "~/stores/goalStore";
@@ -62,12 +60,11 @@ const HistoryTab: React.FC<HistoryTabProps> = ({
   });
   const closeHandler = async (tab: HistoryTab) => {
     setIsRunning(false);
-    let goals: Goal[] | undefined;
     if (!tab.id.startsWith("tempgoal-")) {
       // skip stubbed new tabs
       await del.mutateAsync(tab.id);
     }
-    goals = (await refetch()).data;
+    const goals = (await refetch()).data;
     (goals?.length ?? 0) === 0 &&
       router.pathname !== "/" &&
       (await router.push("/"));
@@ -90,43 +87,35 @@ const HistoryTab: React.FC<HistoryTabProps> = ({
         if (isPlusTab) e.preventDefault();
       }}
     >
-      <Stack
-        spacing={1}
-        direction="row"
-        alignItems="center"
-        useFlexGap
-        className="m-0 overflow-hidden p-0"
-      >
-        <Button
-          startDecorator={
-            !isPlusTab && (
-              <IconButton
-                color="danger"
-                variant="plain"
-                onClick={() => {
-                  void closeHandler(tab);
-                }}
-              >
-                <Close />
-              </IconButton>
-            )
+      <Button
+        startDecorator={
+          !isPlusTab && (
+            <IconButton
+              color="danger"
+              variant="plain"
+              onClick={() => {
+                void closeHandler(tab);
+              }}
+            >
+              <Close />
+            </IconButton>
+          )
+        }
+        className="m-0 flex-grow overflow-clip p-0"
+        size="sm"
+        color="neutral"
+        variant="outlined"
+        onClick={(e) => {
+          onSelect && onSelect(tab);
+          if (isPlusTab) {
+            e.preventDefault();
           }
-          className="m-0 flex-grow overflow-clip p-0"
-          size="sm"
-          color="neutral"
-          variant="plain"
-          onClick={(e) => {
-            onSelect && onSelect(tab);
-            if (isPlusTab) {
-              e.preventDefault();
-            }
-          }}
-        >
-          <Typography noWrap>
-            {tab.label.length < 120 ? tab.label : `${tab.label.slice(0, 120)}…`}
-          </Typography>
-        </Button>
-      </Stack>
+        }}
+      >
+        <Typography noWrap>
+          {tab.label.length < 120 ? tab.label : `${tab.label.slice(0, 120)}…`}
+        </Typography>
+      </Button>
     </Tab>
   );
 };
@@ -134,7 +123,6 @@ const HistoryTab: React.FC<HistoryTabProps> = ({
 // The main tabber component
 const HistoryTabber: React.FC<HistoryTabberProps> = ({ tabs, children }) => {
   const { setGoal } = useGoal();
-  const [plusUUID] = useState(v4());
   const { historyData, setHistoryData, currentTabIndex, setCurrentTabIndex } =
     useHistory();
   // Set the default tab if it exists on first component mount
@@ -157,15 +145,6 @@ const HistoryTabber: React.FC<HistoryTabberProps> = ({ tabs, children }) => {
     }
     // Update tab state
     setCurrentTabIndex(newValue);
-  };
-
-  const plusTab = () => {
-    return {
-      id: plusUUID,
-      index: tabs.length,
-      label: "+",
-      tooltip: "🐝 Start wagglin' and your history will be saved!",
-    } as HistoryTab;
   };
 
   // 🌍 Render
@@ -209,7 +188,7 @@ const HistoryTabber: React.FC<HistoryTabberProps> = ({ tabs, children }) => {
                   size="sm"
                   color="neutral"
                   variant="plain"
-                  onClick={(e) => {
+                  onClick={() => {
                     setGoal("");
                     const tabs = historyData.tabs;
                     const index = tabs.length - 1;
