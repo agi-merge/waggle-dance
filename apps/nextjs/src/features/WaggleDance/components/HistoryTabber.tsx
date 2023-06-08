@@ -104,7 +104,7 @@ const HistoryTab: React.FC<HistoryTabProps> = ({
             !isPlusTab && (
               <IconButton
                 color="danger"
-                variant="outlined"
+                variant="plain"
                 onClick={() => {
                   void closeHandler(tab);
                 }}
