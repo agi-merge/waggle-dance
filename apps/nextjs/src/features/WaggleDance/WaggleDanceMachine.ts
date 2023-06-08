@@ -56,7 +56,7 @@ export function findNodesWithNoIncomingEdges(dag: DAG | OptionalDAG): DAGNode[] 
 }
 
 export type OptimisticFirstTaskState = {
-  firstTaskState: "not started" | "started" | "done"
+  firstTaskState: "not started" | "started" | "done" | "error"
   taskId?: string
 }
 
@@ -74,7 +74,7 @@ export default class WaggleDanceMachine {
     abortSignal: AbortSignal,
   ): Promise<WaggleDanceResult | Error> {
     const reviewPrefix = `criticism-${new Date().getUTCMilliseconds()}-`
-    const taskState = { firstTaskState: "not started" as "not started" | "started" | "done" } as OptimisticFirstTaskState;
+    const taskState = { firstTaskState: "not started" as "not started" | "started" | "done" | "error" } as OptimisticFirstTaskState;
 
     let dag: DAG
     let completedTasks: Set<string> = new Set([rootPlanId]);
@@ -85,17 +85,23 @@ export default class WaggleDanceMachine {
       taskState.firstTaskState = "started";
       taskState.taskId = task.id
       // Call the executeTasks function for the given task and update the states accordingly
-      const { completedTasks: newCompletedTasks, taskResults: newTaskResults } = await executeTask(
-        { ...request, task, dag, taskResults, completedTasks, reviewPrefix, executionMethod },
-        maxConcurrency,
-        isRunning,
-        sendChainPacket,
-        log,
-        abortSignal,
-      )
-      completedTasks = new Set([...newCompletedTasks, ...completedTasks]);
-      taskResults = { ...newTaskResults, ...taskResults };
-      taskState.firstTaskState = "done";
+      if (!abortSignal.aborted) {
+        const { completedTasks: newCompletedTasks, taskResults: newTaskResults } = await executeTask(
+          { ...request, task, dag, taskResults, completedTasks, reviewPrefix, executionMethod },
+          maxConcurrency,
+          isRunning,
+          sendChainPacket,
+          log,
+          abortSignal,
+        )
+        completedTasks = new Set([...newCompletedTasks, ...completedTasks]);
+        taskResults = { ...newTaskResults, ...taskResults };
+        taskState.firstTaskState = "done";
+      } else {
+        console.warn("aborted startFirstTask")
+        taskState.firstTaskState = "error";
+        return
+      }
       // console.error("Error executing the first task:", error);
     };
     if (initDAG.edges.length > 0 && isDonePlanning) {

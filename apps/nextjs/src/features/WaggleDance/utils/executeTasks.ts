@@ -49,6 +49,12 @@ export default async function executeTask(
                     }
                     return
                 }
+
+                if (abortSignal.aborted) {
+                    sendChainPacket({ type: "error", nodeId: task.id, severity: "fatal", message: "Task has been canceled" }, task)
+                    throw new Error("Aborted")
+                }
+
                 log(`About to execute task ${task.id} -${task.name}...`);
                 sendChainPacket({ type: "starting", nodeId: task.id }, task)
 

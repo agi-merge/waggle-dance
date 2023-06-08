@@ -175,9 +175,6 @@ const useWaggleDanceMachine = ({
 
 
   const run = useCallback(async () => {
-    if (!abortController.signal.aborted) {
-      abortController.abort();
-    }
     setAbortController(new AbortController());
 
     const maxTokens = llmResponseTokenLimit(LLM.smart)

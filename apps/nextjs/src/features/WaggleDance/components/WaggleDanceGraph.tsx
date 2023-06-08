@@ -70,16 +70,13 @@ const WaggleDanceGraph = ({}: WaggleDanceGraphProps) => {
       setRunId(new Date());
       setIsRunning(true);
       void run();
-    } else {
-      setIsRunning(true);
-      stop();
     }
-  }, [stop, run, setIsRunning, isRunning]);
+  }, [run, setIsRunning, isRunning]);
 
-  const handleStop = () => {
+  const handleStop = useCallback(() => {
     setIsRunning(false);
     stop();
-  };
+  }, [setIsRunning, stop]);
 
   const hasMountedRef = useRef(false);
 
