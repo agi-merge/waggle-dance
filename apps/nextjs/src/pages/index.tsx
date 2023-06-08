@@ -14,7 +14,6 @@ import useWaggleDanceMachineStore from "~/stores/waggleDanceStore";
 
 export interface Handlers {
   setGoal: (goal: string) => void;
-  onStop: () => void;
   onChange: (goal: string) => void;
 }
 
@@ -76,9 +75,6 @@ export default function Home({
         callbacks={{
           setGoal: handleSetGoal,
           onChange: handleInputChange,
-          onStop: () => {
-            /* do nothing */
-          },
         }}
       />
     </MainLayout>
