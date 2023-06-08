@@ -5,10 +5,16 @@ import { Box, LinearProgress, Typography } from "@mui/joy";
 import { type CombinedResponse } from "~/utils/openAIUsageAPI";
 import { app } from "~/constants";
 
-const OpenAIUsage = ({ openAIUsage }: { openAIUsage: CombinedResponse }) => {
+const OpenAIUsage = ({
+  openAIUsage,
+}: {
+  openAIUsage: CombinedResponse | null;
+}) => {
   const percent = useMemo(
-    () => (openAIUsage.currentUsage / openAIUsage.allottedUsage) * 100,
-    [openAIUsage.currentUsage, openAIUsage.allottedUsage],
+    () =>
+      (openAIUsage?.currentUsage ?? 0 / (openAIUsage?.allottedUsage ?? 1)) *
+      100,
+    [openAIUsage?.currentUsage, openAIUsage?.allottedUsage],
   );
 
   return (
@@ -40,10 +46,11 @@ const OpenAIUsage = ({ openAIUsage }: { openAIUsage: CombinedResponse }) => {
             textColor="common.white"
             sx={{ mixBlendMode: "difference" }}
           >
-            ${Math.round(openAIUsage.currentUsage)} / $
-            {Math.round(openAIUsage.allottedUsage)} ($
+            ${Math.round(openAIUsage?.currentUsage ?? 0)} / $
+            {Math.round(openAIUsage?.allottedUsage ?? 1)} ($
             {Math.round(
-              openAIUsage.allottedUsage - openAIUsage.currentUsage,
+              (openAIUsage?.allottedUsage ?? 0) -
+                (openAIUsage?.currentUsage ?? 0),
             )}{" "}
             remaining)
           </Typography>
