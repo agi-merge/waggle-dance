@@ -87,14 +87,14 @@ const WaggleDanceGraph = ({}: WaggleDanceGraphProps) => {
   useEffect(() => {
     if (isAutoStartEnabled) {
       setIsAutoStartEnabled(false);
-      // setTimeout(() => {
-      if (!hasMountedRef.current) {
-        hasMountedRef.current = true;
-        handleStart();
-      }
-      // }, 333);
+      setTimeout(() => {
+        if (!hasMountedRef.current) {
+          hasMountedRef.current = true;
+          handleStart();
+        }
+      }, 0);
     }
-  });
+  }, [handleStart, hasMountedRef, isAutoStartEnabled, setIsAutoStartEnabled]);
 
   const stringifyMax = (value: unknown, max: number) => {
     const json = stringify(value);
