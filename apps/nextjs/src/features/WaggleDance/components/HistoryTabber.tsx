@@ -63,7 +63,7 @@ const HistoryTab: React.FC<HistoryTabProps> = ({
   const closeHandler = async (tab: HistoryTab) => {
     setIsRunning(false);
     let goals: Goal[] | undefined;
-    if (tab.id.startsWith("tempgoal-")) {
+    if (!tab.id.startsWith("tempgoal-")) {
       // skip stubbed new tabs
       await del.mutateAsync(tab.id);
       goals = (await refetch()).data;
