@@ -101,7 +101,11 @@ const WaggleDanceGraph = ({}: WaggleDanceGraphProps) => {
   };
 
   const button = (
-    <Stack direction="row" gap="0.1rem" className="flex items-end justify-end">
+    <Stack
+      direction="row"
+      gap="0.5rem"
+      className="flex items-center justify-end"
+    >
       {isRunning && dag.nodes.length > 1 ? (
         <Tooltip title="Coming soon!" color="info">
           <Input
@@ -135,6 +139,11 @@ const WaggleDanceGraph = ({}: WaggleDanceGraphProps) => {
           />
         </Tooltip>
       ) : null}
+      <Box className="items-center justify-center align-top">
+        <DocsModal>
+          <AddDocuments hideTitleGoal={true} />
+        </DocsModal>
+      </Box>
       <Button
         className="col-end p-2"
         color="primary"
@@ -184,19 +193,6 @@ const WaggleDanceGraph = ({}: WaggleDanceGraphProps) => {
 
   return (
     <Stack gap="1rem">
-      <PageTitle
-        title={!isRunning ? "🐝💃" : isDonePlanning ? "" : "Please 🐝 patient"}
-        description={
-          !isRunning
-            ? "Waggle dancing puts a swarm of language AIs to work to achieve your goal. The AIs split your goal into tasks, complete the tasks, and try to fix mistakes on their own."
-            : !isDonePlanning
-            ? "Planning tasks… this may take a minute… Please do NOT close this page or refresh."
-            : "Done planning. Running tasks… Please do NOT close this page or refresh."
-        }
-      />
-      <DocsModal>
-        <AddDocuments hideTitleGoal={true} />
-      </DocsModal>
       {!isRunning && button}
 
       {dag.nodes.length > 0 && (
