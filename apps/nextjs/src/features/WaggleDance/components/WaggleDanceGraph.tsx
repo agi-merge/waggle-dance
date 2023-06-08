@@ -275,7 +275,11 @@ const WaggleDanceGraph = ({}: WaggleDanceGraphProps) => {
                         <Card
                           color={statusColor(n)}
                           variant="soft"
-                          sx={{ backgroundColor: statusColor(n), padding: 0 }}
+                          sx={{
+                            backgroundColor: statusColor(n),
+                            padding: 0,
+                            overflow: "scroll",
+                          }}
                         >
                           <ListItem>
                             <ListItemButton sx={{ borderRadius: "md" }}>
