@@ -66,10 +66,8 @@ const HistoryTab: React.FC<HistoryTabProps> = ({
     if (!tab.id.startsWith("tempgoal-")) {
       // skip stubbed new tabs
       await del.mutateAsync(tab.id);
-      goals = (await refetch()).data;
-    } else {
-      goals = [];
     }
+    goals = (await refetch()).data;
     (goals?.length ?? 0) === 0 &&
       router.pathname !== "/" &&
       (await router.push("/"));
@@ -199,30 +197,39 @@ const HistoryTabber: React.FC<HistoryTabberProps> = ({ tabs, children }) => {
               />
             ))}
             {tabs.length > 0 && (
-              <HistoryTab
-                count={tabs.length}
-                tab={plusTab()}
-                currentTabIndex={currentTabIndex}
-                onSelect={() => {
-                  console.log("wtf");
-                  setGoal("");
-                  const tabs = historyData.tabs;
-                  const index = tabs.length - 1;
-                  setHistoryData({
-                    tabs: [
-                      ...tabs,
-                      ...[
-                        {
-                          id: `tempgoal-${v4()}`,
-                          label: "",
-                          index,
-                        } as HistoryTab,
+              <Stack
+                spacing={1}
+                direction="row"
+                alignItems="center"
+                useFlexGap
+                className="m-0 flex flex-grow items-end overflow-hidden p-0"
+              >
+                <Button
+                  className="m-0 flex-grow overflow-clip p-0"
+                  size="sm"
+                  color="neutral"
+                  variant="plain"
+                  onClick={(e) => {
+                    setGoal("");
+                    const tabs = historyData.tabs;
+                    const index = tabs.length - 1;
+                    setHistoryData({
+                      tabs: [
+                        ...tabs,
+                        ...[
+                          {
+                            id: `tempgoal-${v4()}`,
+                            label: "",
+                            index,
+                          } as HistoryTab,
+                        ],
                       ],
-                    ],
-                  });
-                }}
-                isPlusTab={true}
-              />
+                    });
+                  }}
+                >
+                  <Typography noWrap>+</Typography>
+                </Button>
+              </Stack>
             )}
           </TabList>
         </Tabs>
