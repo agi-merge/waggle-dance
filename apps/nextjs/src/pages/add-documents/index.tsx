@@ -153,7 +153,7 @@ const AddDocuments = ({ hideTitleGoal, onClose }: Props) => {
   return (
     <>
       <Title
-        title="🌺 Add Documents & Data"
+        title="💰 Documents, Data, and Tools"
         description="Add websites, documents, and tools to ensure better planning and execution."
         hideGoal={hideTitleGoal}
       />
