@@ -1,6 +1,6 @@
 // api/chain/plan.ts
 
-import { planChain } from "@acme/chain";
+import { createPlanningAgent } from "@acme/chain";
 import { type StrategyRequestBody } from "./types";
 import { type NextRequest } from "next/server";
 import { rootPlanId } from "~/features/WaggleDance/WaggleDanceMachine";
@@ -40,7 +40,7 @@ const handler = async (req: NextRequest) => {
         creationProps.callbacks = callbacks;
         console.log("about to planChain");
 
-        const _planResult = await planChain(creationProps, goal, req.signal);
+        const _planResult = await createPlanningAgent(creationProps, goal, req.signal);
         controller.close();
       },
 

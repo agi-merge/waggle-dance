@@ -1,4 +1,4 @@
-// chain/strategy/plan.ts
+// chain/strategy/createPlanningAgent.ts
 
 import { LLMChain } from "langchain/chains";
 
@@ -6,7 +6,7 @@ import { createModel } from "../utils/model";
 import { createPrompt } from "../utils/prompts";
 import { type ModelCreationProps } from "../utils/types";
 
-export async function planChain(
+export async function createPlanningAgent(
   creationProps: ModelCreationProps,
   goal: string,
   signal: AbortSignal,
