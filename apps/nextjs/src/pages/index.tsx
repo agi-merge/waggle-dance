@@ -1,7 +1,7 @@
 // pages/index.tsx
 
 import React from "react";
-import type { InferGetStaticPropsType } from "next";
+import type { GetStaticProps, InferGetStaticPropsType } from "next";
 import { useRouter } from "next/router";
 
 import { getOpenAIUsage, type CombinedResponse } from "~/utils/openAIUsageAPI";
@@ -18,23 +18,34 @@ export interface Handlers {
   onChange: (goal: string) => void;
 }
 
-export async function getStaticProps() {
+export const getStaticProps: GetStaticProps<{
+  openAIUsage: CombinedResponse | null;
+}> = async () => {
   const startDate = new Date();
 
-  const openAIUsage: CombinedResponse | null = await getOpenAIUsage(
-    startDate,
-  ).catch(() => null);
+  try {
+    const openAIUsage: CombinedResponse | null = await getOpenAIUsage(
+      startDate,
+    );
 
-  return {
-    props: {
-      openAIUsage,
-    },
-    // Next.js will attempt to re-generate the page:
-    // - When a request comes in
-    // - At most once every 10 seconds
-    revalidate: 300, // In seconds
-  };
-}
+    return {
+      props: {
+        openAIUsage,
+      },
+      // Next.js will attempt to re-generate the page:
+      // - When a request comes in
+      // - At most once every 10 seconds
+      revalidate: 300, // In seconds
+    };
+  } catch (e) {
+    return {
+      props: {
+        openAIUsage: null,
+      },
+      revalidate: 0,
+    };
+  }
+};
 
 export default function Home({
   openAIUsage,
