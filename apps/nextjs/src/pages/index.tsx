@@ -1,7 +1,7 @@
 // pages/index.tsx
 
 import React from "react";
-import type { GetStaticProps, InferGetStaticPropsType } from "next";
+import type { InferGetStaticPropsType } from "next";
 import { useRouter } from "next/router";
 
 import { getOpenAIUsage, type CombinedResponse } from "~/utils/openAIUsageAPI";
@@ -18,9 +18,7 @@ export interface Handlers {
   onChange: (goal: string) => void;
 }
 
-export const getStaticProps: GetStaticProps<{
-  openAIUsage: CombinedResponse | null;
-}> = async () => {
+export const getStaticProps = async () => {
   const startDate = new Date();
 
   try {
@@ -30,7 +28,8 @@ export const getStaticProps: GetStaticProps<{
 
     return {
       props: {
-        openAIUsage,
+        // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
+        openAIUsage: JSON.parse(JSON.stringify(openAIUsage)),
       },
       // Next.js will attempt to re-generate the page:
       // - When a request comes in
@@ -69,6 +68,7 @@ export default function Home({
   };
 
   return (
+    // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
     <MainLayout openAIUsage={openAIUsage}>
       <Title title="🐝 Goal solver" description="" hideGoal={true} />
       <GoalInput
