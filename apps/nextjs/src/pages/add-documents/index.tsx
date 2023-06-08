@@ -154,10 +154,7 @@ const AddDocuments = ({ hideTitleGoal, onClose }: Props) => {
     <>
       <Title
         title="🌺 Add Documents & Data"
-        description="
-                Providing up to date and relevant information upfront will
-                ensure better planning and execution by the waggling swarm of
-                bees. You can keep adding documents later as well."
+        description="Add websites, documents, and tools to ensure better planning and execution."
         hideGoal={hideTitleGoal}
       />
       <Stack gap="1rem" className="mt-6">
