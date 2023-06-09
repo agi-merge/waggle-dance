@@ -101,11 +101,6 @@ const MainLayout = ({ children, openAIUsage }: Props) => {
           variant="soft"
         >
           <Header />
-          <LinearProgress
-            thickness={3}
-            sx={{ opacity: progressOpacity }}
-            color="neutral"
-          />
           <Card
             invertedColors
             color="primary"
@@ -116,7 +111,15 @@ const MainLayout = ({ children, openAIUsage }: Props) => {
             }}
           >
             <Alerts />
-            <HistoryTabber>{children}</HistoryTabber>
+            <HistoryTabber>
+              <LinearProgress
+                thickness={3}
+                sx={{ opacity: progressOpacity }}
+                color="neutral"
+              />
+              {children}
+            </HistoryTabber>
+
             {openAIUsage && <OpenAIUsage openAIUsage={openAIUsage} />}
           </Card>
           <Footer />
