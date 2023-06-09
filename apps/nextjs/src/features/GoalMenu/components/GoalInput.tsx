@@ -124,7 +124,7 @@ export default function GoalInput({
                   open={templatesModalOpen}
                   setOpen={setTemplatesModalOpen}
                 >
-                  <Typography color="info" level="h6" className="px-5">
+                  <Typography color="neutral" level="h5" className="px-5">
                     Examples
                   </Typography>
                   <Typography level="body2" className="px-5 pb-2">
