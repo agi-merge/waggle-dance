@@ -53,6 +53,7 @@ export default function WaggleDance({
           <WaggleDanceGraph />
         </TabPanel>
       ))}
+      {historyData.tabs.length <= 1 && <WaggleDanceGraph />}
     </MainLayout>
   );
 }

@@ -60,6 +60,16 @@ const HistoryTab: React.FC<HistoryTabProps> = ({
   const closeHandler = async (tab: HistoryTab) => {
     setIsRunning(false);
     if (historyData.tabs.length <= 1) {
+      setHistoryData({
+        tabs: [
+          {
+            id: "tempgoal-1",
+            index: 0,
+            label: "",
+            selectedByDefault: true,
+          },
+        ],
+      });
       return;
     }
     if (!tab.id.startsWith("tempgoal-")) {

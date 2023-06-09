@@ -11,6 +11,7 @@ import { dagToGraphData } from "../utils/conversions";
 import useWaggleDanceMachineStore from "~/stores/waggleDanceStore";
 import { env } from "~/env.mjs";
 import { stringify } from "yaml";
+import { type BaseResultType } from "../types";
 
 interface UseWaggleDanceMachineProps {
   goal: string;
@@ -43,6 +44,7 @@ const useWaggleDanceMachine = ({
   const { isRunning, setIsRunning, temperatureOption, llmOption, executionMethod } = useWaggleDanceMachineStore();
   const [dag, setDAG] = useState<DAG>(new DAG([], []));
   const [isDonePlanning, setIsDonePlanning] = useState(false);
+  const [taskResults, setTaskResults] = useState<Record<string, TaskState>>({});
   const [logs, setLogs] = useState<LogMessage[]>([]);
   const [chainPackets, setChainPackets] = useState<Record<string, TaskState>>({});
   const [abortController, setAbortController] = useState<AbortController>(new AbortController());
@@ -173,7 +175,7 @@ const useWaggleDanceMachine = ({
     }
   }, [abortController]);
 
-
+  // main entrypoint
   const run = useCallback(async () => {
     setAbortController(new AbortController());
 
@@ -182,6 +184,7 @@ const useWaggleDanceMachine = ({
     if (!isDonePlanning) {
       setDAG(new DAG(initialNodes(goal, LLM.smart), initialEdges()));
     }
+
     const result = await waggleDanceMachine.run(
       {
         goal,
@@ -214,10 +217,12 @@ const useWaggleDanceMachine = ({
 
     console.log("result", result);
     setIsRunning(false);
+    const res = result.results[0] as Record<string, TaskState>;
+    res && setTaskResults(res)
     return result;
   }, [isDonePlanning, waggleDanceMachine, goal, llmOption, temperatureOption, dag, sendChainPacket, log, executionMethod, isRunning, abortController, setIsRunning]);
 
-  return { waggleDanceMachine, dag, graphData, stop, run, setIsDonePlanning, isDonePlanning, logs, taskStates, };
+  return { waggleDanceMachine, dag, graphData, stop, run, setIsDonePlanning, isDonePlanning, logs, taskStates, taskResults };
 };
 
 export default useWaggleDanceMachine;

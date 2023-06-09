@@ -27,7 +27,7 @@ import GoalSettings from "./GoalSettings";
 import TemplatesModal from "./TemplatesModal";
 
 export const examplePrompts = [
-  "Create a Hacker News post title suggestion that is statistically likely to be successful. Determine the most successful types of Show HN titles in the last three months, with a special focus on AI produts.",
+  "I am launching a product. I want to come up with more strategies to add to the product launch plan, as well as create ten 'Show HN' post titles. The post titles should take into account top show hn posts from the last three months for open source ai product launches. The product can be understood by visiting https://waggledance.ai (source code at https://github.com/agi-merge/waggle-dance).",
   "Compare and contrast AgentGPT, AutoGPT, BabyAGI, https://waggledance.ai, and SuperAGI. Find similar projects or state of the art research papers. Create a .md (GFM) report of the findings.",
   "Write a 1000+ word markdown document (GFM / Github flavored markdown). Research and summarize trends in the multi-family housing trends in San Francisco and surrounding areas. Create tables and figures that compare and contrast, and display relevant data to support the metrics. Afterwards, add citations, ensuring that URLs are valid.",
   "What is the most popular event planning trend right now in April 2023?",
@@ -46,7 +46,7 @@ export default function GoalInput({
   startingValue,
 }: GoalInputProps) {
   const { goal } = useGoal();
-  const { goalInputValue, setGoalInputValue } = useHistory();
+  const { goalInputValue, setGoalInputValue, currentTabIndex } = useHistory();
   const { isPageLoading } = useApp();
   const [_currentPromptIndex, setCurrentPromptIndex] = useState(0);
   const [currentPlaceholderIndex, setCurrentPlaceholderIndex] = useState(0);
@@ -61,6 +61,8 @@ export default function GoalInput({
       console.error("Failed to post!", e.message);
     },
   });
+
+  useEffect(() => {}, [currentTabIndex]);
 
   useEffect(() => {
     if (startingValue) {
@@ -100,6 +102,7 @@ export default function GoalInput({
     <form onSubmit={handleSubmit} className="mt-6 space-y-2">
       <FormControl>
         <Textarea
+          autoFocus
           id="goalTextarea"
           name="goalTextarea"
           placeholder={placeholders[currentPlaceholderIndex]}
@@ -144,7 +147,8 @@ export default function GoalInput({
                           <Grid key={prompt} sm={4} md={6}>
                             <Button
                               color="neutral"
-                              variant="soft"
+                              size="sm"
+                              variant="outlined"
                               className="flex flex-grow flex-row justify-center"
                               onClick={() => {
                                 setGoalInputValue(prompt);
@@ -153,7 +157,7 @@ export default function GoalInput({
                               }}
                             >
                               <Typography
-                                level="body4"
+                                level="body2"
                                 className="flex flex-grow flex-row justify-center"
                               >
                                 {prompt}
