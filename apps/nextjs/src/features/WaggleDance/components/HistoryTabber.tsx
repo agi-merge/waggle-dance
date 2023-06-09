@@ -38,23 +38,28 @@ interface HistoryTabberProps extends TabsProps {
 }
 
 // A single history tab inside the main tabber
-const HistoryTab: React.FC<HistoryTabProps> = ({ tab, count, onSelect }) => {
+const HistoryTab: React.FC<HistoryTabProps> = ({
+  tab,
+  currentTabIndex,
+  count,
+  onSelect,
+}) => {
   const { setIsRunning } = useWaggleDanceMachineStore();
-  const { goalMap: historyData, setGoalMap: setHistoryData } = useGoalStore();
+  const { goalMap, setGoalMap } = useGoalStore();
   const router = useRouter();
   const del = api.goal.delete.useMutation();
-  const { refetch } = api.goal.topByUser.useQuery(undefined, {
-    refetchOnMount: false,
-    refetchOnWindowFocus: false,
-    onSuccess: (data) => {
-      console.log("Success!", data);
-    },
-  });
+  // const { refetch } = api.goal.topByUser.useQuery(undefined, {
+  //   refetchOnMount: false,
+  //   refetchOnWindowFocus: false,
+  //   onSuccess: (data) => {
+  //     console.log("Success!", data);
+  //   },
+  // });
   const closeHandler = async (tab: HistoryTab) => {
     setIsRunning(false);
-    if (Object.keys(historyData).length <= 1) {
+    if (Object.keys(goalMap).length <= 1) {
       const id = `tempgoal-${v4}`;
-      historyData[id] = {
+      goalMap[id] = {
         id,
         prompt: "",
         index: 0,
@@ -64,22 +69,22 @@ const HistoryTab: React.FC<HistoryTabProps> = ({ tab, count, onSelect }) => {
         updatedAt: new Date(),
         userId: "",
       };
-      setHistoryData({ ...historyData });
+      setGoalMap({ ...goalMap });
       return;
     }
-    delete historyData[tab.id];
-    setHistoryData({ ...historyData });
+    delete goalMap[tab.id];
+    setGoalMap({ ...goalMap });
     if (!tab.id.startsWith("tempgoal-")) {
       // skip stubbed new tabs
       await del.mutateAsync(tab.id);
     }
     // const tabs = Object.values(historyData).filter((t) => t.id !== tab.id);
-    delete historyData[tab.id];
-    setHistoryData(historyData);
-    const goals = (await refetch()).data;
-    (goals?.length ?? 0) === 0 &&
-      router.pathname !== "/" &&
-      (await router.push("/"));
+    // delete goalMap[tab.id];
+    // setGoalMap(goalMap);
+    // const goals = (await refetch()).data;
+    // (goals?.length ?? 0) === 0 &&
+    //   router.pathname !== "/" &&
+    //   (await router.push("/"));
   };
 
   return (
@@ -87,7 +92,7 @@ const HistoryTab: React.FC<HistoryTabProps> = ({ tab, count, onSelect }) => {
       sx={{
         width: `${100 / count - 13}%`,
       }}
-      color="neutral"
+      color={currentTabIndex === tab.index ? "primary" : "neutral"}
       variant="outlined"
     >
       <IconButton
@@ -164,7 +169,7 @@ const HistoryTabber: React.FC<HistoryTabberProps> = ({ children }) => {
           sx={{ borderRadius: "sm", background: "transparent" }}
           className="m-0 p-0"
         >
-          <TabList sx={{ background: "transparent" }}>
+          <TabList sx={{ background: "transparent" }} color={"primary"}>
             {goals.map((tab) => (
               <HistoryTab
                 key={tab.id}
