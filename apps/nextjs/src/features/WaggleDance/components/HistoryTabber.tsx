@@ -4,7 +4,6 @@ import { Add, Close } from "@mui/icons-material";
 import {
   Box,
   Button,
-  Divider,
   IconButton,
   Tab,
   TabList,
@@ -48,16 +47,25 @@ const HistoryTab: React.FC<HistoryTabProps> = ({
   const { goalMap, setGoalMap, goalInputValue } = useGoalStore();
   const router = useRouter();
   const del = api.goal.delete.useMutation();
-  // const { refetch } = api.goal.topByUser.useQuery(undefined, {
-  //   refetchOnMount: false,
-  //   refetchOnWindowFocus: false,
-  //   onSuccess: (data) => {
-  //     console.log("Success!", data);
-  //   },
-  // });
+  const { refetch } = api.goal.topByUser.useQuery(undefined, {
+    refetchOnMount: false,
+    refetchOnWindowFocus: false,
+    onSuccess: (data) => {
+      console.log("Success!", data);
+    },
+  });
   const closeHandler = async (tab: HistoryTab) => {
     setIsRunning(false);
-    if (Object.keys(goalMap).length <= 1) {
+    if (!tab.id.startsWith("tempgoal-")) {
+      // skip stubbed new tabs
+      await del.mutateAsync(tab.id); // const tabs = Object.values(historyData).filter((t) => t.id !== tab.id);
+    } else {
+      delete goalMap[tab.id];
+      setGoalMap({ ...goalMap });
+    }
+    const goals = (await refetch()).data;
+
+    if (goals?.length ?? 0 === 0) {
       const id = `tempgoal-${v4}`;
       goalMap[id] = {
         id,
@@ -72,19 +80,11 @@ const HistoryTab: React.FC<HistoryTabProps> = ({
       setGoalMap({ ...goalMap });
       return;
     }
-    delete goalMap[tab.id];
-    setGoalMap({ ...goalMap });
-    if (!tab.id.startsWith("tempgoal-")) {
-      // skip stubbed new tabs
-      await del.mutateAsync(tab.id);
+    for (const goal of goals ?? []) {
     }
-    // const tabs = Object.values(historyData).filter((t) => t.id !== tab.id);
-    // delete goalMap[tab.id];
-    // setGoalMap(goalMap);
-    // const goals = (await refetch()).data;
-    // (goals?.length ?? 0) === 0 &&
-    //   router.pathname !== "/" &&
-    //   (await router.push("/"));
+    (goals?.length ?? 0) === 0 &&
+      router.pathname !== "/" &&
+      (await router.push("/"));
   };
 
   return (
@@ -117,7 +117,12 @@ const HistoryTab: React.FC<HistoryTabProps> = ({
           onSelect(tab);
         }}
       >
-        <Typography level="body3" noWrap className="flex-grow">
+        <Typography
+          fontStyle={goalInputValue.length > 0 ? "normal" : "italic"}
+          level="body3"
+          noWrap
+          className="flex-grow"
+        >
           {tab.id.startsWith("tempgoal-") ? (
             <>{goalInputValue.length > 0 ? goalInputValue : "New Goal"}</>
           ) : tab.prompt.length < 120 ? (
@@ -162,7 +167,7 @@ const HistoryTabber: React.FC<HistoryTabberProps> = ({ children }) => {
 
   // 🌍 Render
   return (
-    <Box>
+    <>
       {goals.length > 0 && (
         <Tabs
           aria-label="Goal tabs"
@@ -170,11 +175,15 @@ const HistoryTabber: React.FC<HistoryTabberProps> = ({ children }) => {
           onChange={(event, newValue) =>
             handleChange(event, newValue as number)
           }
-          sx={{ borderRadius: "sm", background: "transparent" }}
-          className="m-0 p-0"
+          sx={{
+            borderRadius: "sm",
+            background: "transparent",
+            marginTop: -2.5,
+            marginX: -3,
+          }}
         >
           {goals.filter((t) => t.prompt.length > 0).length > 0}
-          <TabList sx={{ background: "transparent" }} color={"primary"}>
+          <TabList sx={{ background: "transparent" }}>
             {goals.map((tab) => (
               <HistoryTab
                 key={tab.id}
@@ -187,53 +196,54 @@ const HistoryTabber: React.FC<HistoryTabberProps> = ({ children }) => {
               />
             ))}
             {goals.length > 0 && (
-              <IconButton
-                className="w-14 pl-2"
-                color="neutral"
-                variant="plain"
-                onClick={() => {
-                  // setGoal("");
-                  // const tabs = historyData.tabs;
-                  // const index = tabs.length;
-                  // setHistoryData({
-                  //   tabs: [
-                  //     ...tabs,
-                  //     ...[
-                  //       {
-                  //         id: `tempgoal-${v4()}`,
-                  //         label: "",
-                  //         index,
-                  //       } as HistoryTab,
-                  //     ],
-                  //   ],
-                  // });
-                  // setCurrentTabIndex(index);
+              <Box className="mt-1 justify-center px-2 align-middle">
+                <IconButton
+                  color="neutral"
+                  variant="plain"
+                  onClick={() => {
+                    // setGoal("");
+                    // const tabs = historyData.tabs;
+                    // const index = tabs.length;
+                    // setHistoryData({
+                    //   tabs: [
+                    //     ...tabs,
+                    //     ...[
+                    //       {
+                    //         id: `tempgoal-${v4()}`,
+                    //         label: "",
+                    //         index,
+                    //       } as HistoryTab,
+                    //     ],
+                    //   ],
+                    // });
+                    // setCurrentTabIndex(index);
 
-                  const id = `tempgoal-${v4}`;
-                  const index = goals.length;
-                  goalMap[id] = {
-                    id,
-                    prompt: "",
-                    index,
-                    selectedByDefault: true,
-                    tooltip: "",
-                    createdAt: new Date(),
-                    updatedAt: new Date(),
-                    userId: "",
-                  };
+                    const id = `tempgoal-${v4}`;
+                    const index = goals.length;
+                    goalMap[id] = {
+                      id,
+                      prompt: "",
+                      index,
+                      selectedByDefault: true,
+                      tooltip: "",
+                      createdAt: new Date(),
+                      updatedAt: new Date(),
+                      userId: "",
+                    };
 
-                  setGoalMap({ ...goalMap });
-                  setCurrentTabIndex(index);
-                }}
-              >
-                <Add />
-              </IconButton>
+                    setGoalMap({ ...goalMap });
+                    setCurrentTabIndex(index);
+                  }}
+                >
+                  <Add />
+                </IconButton>
+              </Box>
             )}
           </TabList>
-          {children}
+          <Box className="mx-6 mt-1">{children}</Box>
         </Tabs>
       )}
-    </Box>
+    </>
   );
 };
 

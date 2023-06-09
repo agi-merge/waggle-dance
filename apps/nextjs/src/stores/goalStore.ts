@@ -1,5 +1,6 @@
 import { type Goal } from ".prisma/client";
 import { type Session } from "@acme/auth";
+import { v4 } from "uuid";
 import { create } from "zustand";
 import { type HistoryTab as GoalTab } from "~/features/WaggleDance/components/HistoryTabber";
 
@@ -54,12 +55,14 @@ const useGoalStore = create<GoalStore>((set, get) => ({
       //   } as GoalTab
       // });
 
+      // always have at least one tempGoal
+      const id = `tempgoal-${v4()}`
       const goalMap = {
-        "tempgoal-1": {
-          id: "tempgoal-1",
+        id: {
+          id,
           prompt: "",
           index: 0,
-          selectedByDefault: true,
+          selectedByDefault: false,
           tooltip: "",
           createdAt: new Date(),
           updatedAt: new Date(),
@@ -72,7 +75,7 @@ const useGoalStore = create<GoalStore>((set, get) => ({
           index: 0,
           tooltip: goal.prompt,
           prompt: goal.prompt,
-          selectedByDefault: true,
+          selectedByDefault: false,
           createdAt: new Date(),
           updatedAt: new Date(),
           userId: "",
