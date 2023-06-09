@@ -53,7 +53,19 @@ const useGoalStore = create<GoalStore>((set, get) => ({
       //     userId: "",
       //   } as GoalTab
       // });
-      const goalMap = {} as Record<string, GoalTab>;
+
+      const goalMap = {
+        "tempgoal-1": {
+          id: "tempgoal-1",
+          prompt: "",
+          index: 0,
+          selectedByDefault: true,
+          tooltip: "",
+          createdAt: new Date(),
+          updatedAt: new Date(),
+          userId: "",
+        },
+      } as Record<string, GoalTab>;
       for (const goal of historicGoals) {
         goalMap[goal.id] = {
           id: goal.id,
@@ -72,7 +84,18 @@ const useGoalStore = create<GoalStore>((set, get) => ({
       })
     } else {
       set({
-        goalMap: {}
+        goalMap: {
+          "tempgoal-1": {
+            id: "tempgoal-1",
+            prompt: "",
+            index: 0,
+            selectedByDefault: true,
+            tooltip: "",
+            createdAt: new Date(),
+            updatedAt: new Date(),
+            userId: "",
+          },
+        },
       })
     }
   },

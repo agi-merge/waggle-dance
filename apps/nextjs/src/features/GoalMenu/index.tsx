@@ -12,7 +12,7 @@ import {
   type CardProps,
 } from "@mui/joy";
 
-import useGoalStore from "~/stores/historyStore";
+import useGoalStore from "~/stores/goalStore";
 import GoalDoctorModal from "./components/GoalDoctorModal";
 
 const GoalMenu = ({}: CardProps) => {

@@ -40,7 +40,7 @@ import remarkGfm from "remark-gfm";
 import { stringify } from "yaml";
 
 import AddDocuments from "~/pages/add-documents";
-import useGoalStore from "~/stores/historyStore";
+import useGoalStore from "~/stores/goalStore";
 import useWaggleDanceMachineState from "~/stores/waggleDanceStore";
 import { rootPlanId } from "../WaggleDanceMachine";
 import useWaggleDanceMachine, {

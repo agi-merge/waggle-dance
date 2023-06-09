@@ -25,7 +25,7 @@ import Table from "@mui/joy/Table";
 
 import DropZoneUploader from "~/features/AddDocuments/DropZoneUploader";
 import Title from "~/features/MainLayout/components/PageTitle";
-import useGoalStore from "~/stores/historyStore";
+import useGoalStore from "~/stores/goalStore";
 
 type UploadState =
   | { status: "idle" }

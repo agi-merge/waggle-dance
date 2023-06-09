@@ -17,7 +17,7 @@ import { v4 } from "uuid";
 import { type Goal } from "@acme/db";
 
 import { api } from "~/utils/api";
-import useGoalStore from "~/stores/historyStore";
+import useGoalStore from "~/stores/goalStore";
 import useWaggleDanceMachineStore from "~/stores/waggleDanceStore";
 
 export type HistoryTab = Goal & {
@@ -30,7 +30,7 @@ interface HistoryTabProps {
   tab: HistoryTab;
   currentTabIndex: number;
   count: number;
-  onSelect?: (tab: HistoryTab) => void; // if falsy, tab is not selectable and is treated as the plus button
+  onSelect: (tab: HistoryTab) => void;
 }
 
 interface HistoryTabberProps extends TabsProps {
@@ -45,7 +45,7 @@ const HistoryTab: React.FC<HistoryTabProps> = ({
   onSelect,
 }) => {
   const { setIsRunning } = useWaggleDanceMachineStore();
-  const { goalMap, setGoalMap } = useGoalStore();
+  const { goalMap, setGoalMap, goalInputValue } = useGoalStore();
   const router = useRouter();
   const del = api.goal.delete.useMutation();
   // const { refetch } = api.goal.topByUser.useQuery(undefined, {
@@ -106,7 +106,7 @@ const HistoryTab: React.FC<HistoryTabProps> = ({
         <Close />
       </IconButton>
       <Button
-        className="m-0 w-full items-start justify-start overflow-clip p-0"
+        className="m-0 flex w-full overflow-clip p-0"
         size="sm"
         color="neutral"
         // eslint-disable-next-line @typescript-eslint/ban-ts-comment
@@ -114,13 +114,17 @@ const HistoryTab: React.FC<HistoryTabProps> = ({
         // FIXME: relies on undefined behavior to get desired style (weirdly not available otherwise)
         variant=""
         onClick={() => {
-          onSelect && onSelect(tab);
+          onSelect(tab);
         }}
       >
-        <Typography level="body3" noWrap className="w-full">
-          {tab.prompt.length < 120
-            ? tab.prompt
-            : `${tab.prompt.slice(0, 120)}…`}
+        <Typography level="body3" noWrap className="flex-grow">
+          {tab.id.startsWith("tempgoal-") ? (
+            <>{goalInputValue.length > 0 ? goalInputValue : "New Goal"}</>
+          ) : tab.prompt.length < 120 ? (
+            tab.prompt
+          ) : (
+            `${tab.prompt.slice(0, 120)}…`
+          )}
         </Typography>
       </Button>
     </Tab>
@@ -169,6 +173,7 @@ const HistoryTabber: React.FC<HistoryTabberProps> = ({ children }) => {
           sx={{ borderRadius: "sm", background: "transparent" }}
           className="m-0 p-0"
         >
+          {goals.filter((t) => t.prompt.length > 0).length > 0}
           <TabList sx={{ background: "transparent" }} color={"primary"}>
             {goals.map((tab) => (
               <HistoryTab
@@ -225,7 +230,7 @@ const HistoryTabber: React.FC<HistoryTabberProps> = ({ children }) => {
               </IconButton>
             )}
           </TabList>
-          <Box className="mx-2 mt-2 p-0">{children}</Box>
+          {children}
         </Tabs>
       )}
     </Box>

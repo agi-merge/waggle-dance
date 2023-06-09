@@ -9,7 +9,7 @@ import { app } from "~/constants";
 import GoalInput from "~/features/GoalMenu/components/GoalInput";
 import MainLayout from "~/features/MainLayout";
 import Title from "~/features/MainLayout/components/PageTitle";
-import useGoalStore from "~/stores/historyStore";
+import useGoalStore from "~/stores/goalStore";
 import useWaggleDanceMachineStore from "~/stores/waggleDanceStore";
 
 export interface Handlers {

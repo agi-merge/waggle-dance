@@ -10,7 +10,7 @@ import { TabPanel } from "@mui/joy";
 import { getOpenAIUsage, type CombinedResponse } from "~/utils/openAIUsageAPI";
 import MainLayout from "~/features/MainLayout";
 import WaggleDanceGraph from "~/features/WaggleDance/components/WaggleDanceGraph";
-import useGoalStore from "~/stores/historyStore";
+import useGoalStore from "~/stores/goalStore";
 
 export async function getServerSideProps(context: GetServerSidePropsContext) {
   context.res.setHeader(

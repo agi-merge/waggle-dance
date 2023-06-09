@@ -20,7 +20,7 @@ import { useSession } from "next-auth/react";
 import { api } from "~/utils/api";
 import { type Handlers } from "~/pages";
 import useApp from "~/stores/appStore";
-import useGoalStore from "~/stores/historyStore";
+import useGoalStore from "~/stores/goalStore";
 import GoalDoctorModal from "./GoalDoctorModal";
 import GoalSettings from "./GoalSettings";
 import TemplatesModal from "./TemplatesModal";
@@ -65,7 +65,9 @@ export default function GoalInput({
     },
   });
 
-  useEffect(() => {}, [currentTabIndex]);
+  useEffect(() => {
+    setGoalInputValue(getSelectedGoal()?.prompt ?? "");
+  }, [currentTabIndex, getSelectedGoal, setGoalInputValue]);
 
   useEffect(() => {
     if (startingValue) {

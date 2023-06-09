@@ -8,7 +8,7 @@ import { api } from "~/utils/api";
 import { type CombinedResponse } from "~/utils/openAIUsageAPI";
 import { app } from "~/constants";
 import useApp from "~/stores/appStore";
-import useGoalStore from "~/stores/historyStore";
+import useGoalStore from "~/stores/goalStore";
 import HistoryTabber from "../WaggleDance/components/HistoryTabber";
 import Alerts from "./components/Alerts";
 import Footer from "./components/Footer";
@@ -23,7 +23,7 @@ type Props = {
 const MainLayout = ({ children, openAIUsage }: Props) => {
   const { mode } = useColorScheme();
   const { isPageLoading } = useApp();
-  const { goalMap: historyData, initializeHistoryData } = useGoalStore();
+  const { initializeHistoryData } = useGoalStore();
   const router = useRouter();
 
   const [mounted, setMounted] = useState(false);
@@ -44,6 +44,7 @@ const MainLayout = ({ children, openAIUsage }: Props) => {
   // If not, the + button will ask the user to log in
   useEffect(() => {
     const handleHistoricGoals = async () => {
+      if (!sessionData) return;
       if (!historicGoals) await refetch();
       initializeHistoryData(sessionData, historicGoals);
     };
@@ -60,7 +61,7 @@ const MainLayout = ({ children, openAIUsage }: Props) => {
   }, [isPageLoading]);
 
   const pageOpacity = useMemo(() => {
-    return isPageLoading ? 80 : 100;
+    return isPageLoading ? 50 : 100;
   }, [isPageLoading]);
 
   if (!mounted) {
