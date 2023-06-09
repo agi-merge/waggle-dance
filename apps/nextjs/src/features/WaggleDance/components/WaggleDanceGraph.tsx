@@ -19,7 +19,6 @@ import {
   Button,
   Card,
   Divider,
-  Input,
   LinearProgress,
   List,
   ListDivider,
@@ -48,7 +47,6 @@ import useWaggleDanceMachine, {
 } from "../hooks/useWaggleDanceMachine";
 import DocsModal from "./DocsModal";
 import ForceGraph from "./ForceGraph";
-import TaskChainSelectMenu from "./TaskChainSelectMenu";
 
 type WaggleDanceGraphProps = StackProps;
 // shows the graph, agents, results, general messages and chat input
@@ -61,7 +59,6 @@ const WaggleDanceGraph = ({}: WaggleDanceGraphProps) => {
       goal: getSelectedGoal()?.prompt ?? "",
     },
   );
-  const [chatInput, setChatInput] = useState("");
   const [runId, setRunId] = useState<Date | null>(null);
 
   // Replace console.log() calls with customLog()
@@ -106,7 +103,7 @@ const WaggleDanceGraph = ({}: WaggleDanceGraphProps) => {
     >
       <Box className="items-center justify-center align-top">
         <DocsModal>
-          <AddDocuments hideTitleGoal={true} />
+          <AddDocuments />
         </DocsModal>
       </Box>
       <Button

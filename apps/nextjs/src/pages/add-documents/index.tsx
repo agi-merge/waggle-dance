@@ -77,10 +77,9 @@ function isValidUrl(url: string) {
 }
 
 type Props = {
-  hideTitleGoal?: boolean;
   onClose?: () => void;
 };
-const AddDocuments = ({ hideTitleGoal, onClose }: Props) => {
+const AddDocuments = ({ onClose }: Props) => {
   const { getSelectedGoal } = useGoalStore();
   const router = useRouter();
   const [ingestFiles, setIngestFiles] = useState<IngestFiles>({});
@@ -155,7 +154,6 @@ const AddDocuments = ({ hideTitleGoal, onClose }: Props) => {
       <Title
         title="💰 Documents, Data, and Tools"
         description="Add websites, documents, and tools to ensure better planning and execution."
-        hideGoal={hideTitleGoal}
       />
       <Stack gap="1rem" className="mt-6">
         <IngestContext.Provider
@@ -259,11 +257,7 @@ const AddDocuments = ({ hideTitleGoal, onClose }: Props) => {
             color="primary"
             href="waggle-dance"
             onClick={() => {
-              if (!hideTitleGoal) {
-                void router.push("/waggle-dance");
-              } else {
-                if (onClose) onClose();
-              }
+              if (onClose) onClose();
             }}
           >
             {onClose ? (

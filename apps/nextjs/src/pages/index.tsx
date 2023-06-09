@@ -69,7 +69,7 @@ export default function Home({
   return (
     // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
     <MainLayout openAIUsage={openAIUsage}>
-      <Title title="🐝 Goal solver" description="" hideGoal={true} />
+      <Title title="🐝 Goal solver" description="" />
       <GoalInput
         startingValue={getSelectedGoal()?.prompt}
         callbacks={{

@@ -25,7 +25,7 @@ function AdvancedSettingsToggle({ children }: { children: React.ReactNode }) {
     <Stack direction="row" gap="0.5rem">
       <Box className="align-start flex flex-shrink">
         <DocsModal>
-          <AddDocuments hideTitleGoal={true} />\
+          <AddDocuments />
         </DocsModal>
       </Box>
       <Divider orientation="vertical" />
