@@ -104,39 +104,6 @@ const WaggleDanceGraph = ({}: WaggleDanceGraphProps) => {
       gap="0.5rem"
       className="flex items-center justify-end"
     >
-      {isRunning && dag.nodes.length > 1 ? (
-        <Tooltip title="Coming soon!" color="info">
-          <Input
-            endDecorator={
-              <Button
-                variant="plain"
-                color="neutral"
-                className="m-0 p-0"
-                onClick={(event) => {
-                  event.preventDefault();
-                  setChatInput("");
-                }}
-              >
-                <Send />
-              </Button>
-            }
-            startDecorator={<TaskChainSelectMenu dag={dag} />}
-            variant="outlined"
-            className="flex-grow"
-            placeholder="Chat → AIs"
-            onKeyUp={(event) => {
-              if (event.key === "Enter") {
-                event.preventDefault();
-                setChatInput("");
-              }
-            }}
-            onChange={(event) => {
-              setChatInput(event.target.value);
-            }}
-            value={chatInput}
-          />
-        </Tooltip>
-      ) : null}
       <Box className="items-center justify-center align-top">
         <DocsModal>
           <AddDocuments hideTitleGoal={true} />
