@@ -47,8 +47,8 @@ export default function GoalInput({
   const {
     goalInputValue,
     setGoalInputValue,
-    currentTabIndex,
     getSelectedGoal,
+    currentTabIndex,
   } = useGoalStore();
   const { isPageLoading } = useApp();
   const [_currentPromptIndex, setCurrentPromptIndex] = useState(0);
@@ -66,18 +66,12 @@ export default function GoalInput({
   });
 
   useEffect(() => {
-    setGoalInputValue(getSelectedGoal()?.prompt ?? "");
-  }, [currentTabIndex, getSelectedGoal, setGoalInputValue]);
-
-  useEffect(() => {
     if (startingValue) {
       setGoalInputValue(startingValue);
+    } else {
+      setGoalInputValue(getSelectedGoal()?.prompt ?? "");
     }
-  }, [startingValue, setGoalInputValue]);
-
-  useEffect(() => {
-    setGoalInputValue(getSelectedGoal()?.prompt ?? "");
-  }, [getSelectedGoal, setGoalInputValue]);
+  }, [startingValue, getSelectedGoal, setGoalInputValue, currentTabIndex]);
 
   const handleSubmit = (event: React.FormEvent) => {
     event.preventDefault();
