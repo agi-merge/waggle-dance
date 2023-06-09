@@ -40,7 +40,7 @@ import remarkGfm from "remark-gfm";
 import { stringify } from "yaml";
 
 import AddDocuments from "~/pages/add-documents";
-import useGoal from "~/stores/goalStore";
+import useGoalStore from "~/stores/historyStore";
 import useWaggleDanceMachineState from "~/stores/waggleDanceStore";
 import { rootPlanId } from "../WaggleDanceMachine";
 import useWaggleDanceMachine, {
@@ -55,10 +55,10 @@ type WaggleDanceGraphProps = StackProps;
 const WaggleDanceGraph = ({}: WaggleDanceGraphProps) => {
   const { isRunning, setIsRunning, isAutoStartEnabled, setIsAutoStartEnabled } =
     useWaggleDanceMachineState();
-  const { goal } = useGoal();
+  const { getSelectedGoal } = useGoalStore();
   const { graphData, dag, stop, run, logs, taskStates } = useWaggleDanceMachine(
     {
-      goal,
+      goal: getSelectedGoal()?.prompt ?? "",
     },
   );
   const [chatInput, setChatInput] = useState("");

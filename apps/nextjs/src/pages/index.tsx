@@ -9,7 +9,7 @@ import { app } from "~/constants";
 import GoalInput from "~/features/GoalMenu/components/GoalInput";
 import MainLayout from "~/features/MainLayout";
 import Title from "~/features/MainLayout/components/PageTitle";
-import useGoal from "~/stores/goalStore";
+import useGoalStore from "~/stores/historyStore";
 import useWaggleDanceMachineStore from "~/stores/waggleDanceStore";
 
 export interface Handlers {
@@ -50,7 +50,7 @@ export default function Home({
 }: InferGetStaticPropsType<typeof getStaticProps>) {
   const { setIsAutoStartEnabled } = useWaggleDanceMachineStore();
   const router = useRouter();
-  const { goal, setGoal } = useGoal();
+  const { getSelectedGoal, setGoalInputValue } = useGoalStore();
 
   // Define handleSetGoal function
   const handleSetGoal = (goal: string) => {
@@ -59,11 +59,11 @@ export default function Home({
       void router.push(app.routes.waggle);
     }
 
-    setGoal(goal.trim().replaceAll("{", "(").replaceAll("}", ")"));
+    // setGoal(goal.trim().replaceAll("{", "(").replaceAll("}", ")"));
   };
 
   const handleInputChange = (goal: string) => {
-    setGoal(goal);
+    setGoalInputValue(goal);
   };
 
   return (
@@ -71,7 +71,7 @@ export default function Home({
     <MainLayout openAIUsage={openAIUsage}>
       <Title title="🐝 Goal solver" description="" hideGoal={true} />
       <GoalInput
-        startingValue={goal}
+        startingValue={getSelectedGoal()?.prompt}
         callbacks={{
           setGoal: handleSetGoal,
           onChange: handleInputChange,

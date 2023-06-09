@@ -8,7 +8,7 @@ import { api } from "~/utils/api";
 import { type CombinedResponse } from "~/utils/openAIUsageAPI";
 import { app } from "~/constants";
 import useApp from "~/stores/appStore";
-import useHistory from "~/stores/historyStore";
+import useGoalStore from "~/stores/historyStore";
 import HistoryTabber from "../WaggleDance/components/HistoryTabber";
 import Alerts from "./components/Alerts";
 import Footer from "./components/Footer";
@@ -23,7 +23,7 @@ type Props = {
 const MainLayout = ({ children, openAIUsage }: Props) => {
   const { mode } = useColorScheme();
   const { isPageLoading } = useApp();
-  const { historyData, initializeHistoryData } = useHistory();
+  const { goalMap: historyData, initializeHistoryData } = useGoalStore();
   const router = useRouter();
 
   const [mounted, setMounted] = useState(false);
@@ -115,7 +115,7 @@ const MainLayout = ({ children, openAIUsage }: Props) => {
             }}
           >
             <Alerts />
-            <HistoryTabber tabs={historyData.tabs}>{children}</HistoryTabber>
+            <HistoryTabber>{children}</HistoryTabber>
             {openAIUsage && <OpenAIUsage openAIUsage={openAIUsage} />}
           </Card>
           <Footer />

@@ -15,7 +15,6 @@ import {
 import { useSession } from "next-auth/react";
 
 import { app } from "~/constants";
-import useGoal from "~/stores/goalStore";
 import ThemeToggle from "./ThemeToggle";
 
 function removeFirstCharIfMatching(str: string, targetChar: string): string {
@@ -45,7 +44,6 @@ const routes = {
 type RoutePath = "" | "waggle-dance" | "goal-done";
 const Header = ({}) => {
   const router = useRouter();
-  const { setGoal } = useGoal();
   const slug = removeFirstCharIfMatching(router.pathname, "/");
   const { data: session } = useSession();
   const [anchorEl, setAnchorEl] = React.useState<null | HTMLElement>(null);
@@ -96,9 +94,9 @@ const Header = ({}) => {
           <Link
             onClick={() => {
               // FIXME: confirmation modal
-              if (path === "") {
-                setGoal("");
-              }
+              // if (path === "") {
+              //   setGoal("");
+              // }
               void router.replace(path);
             }}
             color={isCurrent ? "primary" : "neutral"}

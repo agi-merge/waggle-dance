@@ -1,17 +1,18 @@
 import { type Goal } from ".prisma/client";
 import { type Session } from "@acme/auth";
 import { create } from "zustand";
-import { type HistoryTab } from "~/features/WaggleDance/components/HistoryTabber";
+import { type HistoryTab as GoalTab } from "~/features/WaggleDance/components/HistoryTabber";
 
-export interface HistoryData {
-  tabs: HistoryTab[];
+export interface GoalMap {
+  [key: string]: GoalTab;
 }
 
-export interface HistoryState {
+export interface GoalStore {
   isLoading: boolean;
   setIsLoading: (newState: boolean) => void;
-  historyData: HistoryData;
-  setHistoryData: (newData: HistoryData) => void;
+  goalMap: GoalMap;
+  setGoalMap: (newData: GoalMap) => void;
+  getSelectedGoal: () => GoalTab | undefined;
   initializeHistoryData: (sessionData?: Session | null, historicGoals?: Goal[]) => void;
   currentTabIndex: number;
   setCurrentTabIndex: (newTabIndex: number) => void;
@@ -19,40 +20,59 @@ export interface HistoryState {
   setGoalInputValue: (newGoalInputValue: string) => void;
 }
 
-const useHistory = create<HistoryState>((set) => ({
+const useGoalStore = create<GoalStore>((set, get) => ({
   isLoading: false,
   setIsLoading: (newState) => set({ isLoading: newState }),
-  historyData: {
-    tabs: [{
+  goalMap: {
+    "tempgoal-1": {
       id: "tempgoal-1",
+      prompt: "",
       index: 0,
-      label: "",
-      selectedByDefault: true
-    }],
+      selectedByDefault: true,
+      tooltip: "",
+      createdAt: new Date(),
+      updatedAt: new Date(),
+      userId: "",
+    },
   },
-  setHistoryData: (newData) => set({ historyData: newData }),
+  setGoalMap: (newData) => set({ goalMap: newData }),
+  getSelectedGoal: () => { return Object.values(get().goalMap)[get().currentTabIndex] },
   initializeHistoryData: (sessionData, historicGoals) => {
 
     // If actual data is passed in then use that
     if (sessionData && historicGoals) {
-      const tabs: HistoryTab[] = historicGoals.map((goal, index) => {
-        return {
+      // const tabs: Record<string, GoalTab> = historicGoals.map((goal, index) => {
+      //   return {
+      //     id: goal.id,
+      //     index,
+      //     tooltip: goal.prompt,
+      //     prompt: goal.prompt,
+      //     selectedByDefault: true,
+      //     createdAt: new Date(),
+      //     updatedAt: new Date(),
+      //     userId: "",
+      //   } as GoalTab
+      // });
+      const goalMap = {} as Record<string, GoalTab>;
+      for (const goal of historicGoals) {
+        goalMap[goal.id] = {
           id: goal.id,
-          index,
+          index: 0,
           tooltip: goal.prompt,
-          label: goal.prompt,
-        } as HistoryTab;
-      });
+          prompt: goal.prompt,
+          selectedByDefault: true,
+          createdAt: new Date(),
+          updatedAt: new Date(),
+          userId: "",
+        }
+      }
+
       set({
-        historyData: {
-          tabs,
-        },
+        goalMap
       })
     } else {
       set({
-        historyData: {
-          tabs: [],
-        },
+        goalMap: {}
       })
     }
   },
@@ -62,4 +82,4 @@ const useHistory = create<HistoryState>((set) => ({
   setGoalInputValue: (newGoalInputValue) => set({ goalInputValue: newGoalInputValue }),
 }));
 
-export default useHistory;
+export default useGoalStore;

@@ -11,7 +11,6 @@ import { dagToGraphData } from "../utils/conversions";
 import useWaggleDanceMachineStore from "~/stores/waggleDanceStore";
 import { env } from "~/env.mjs";
 import { stringify } from "yaml";
-import { type BaseResultType } from "../types";
 
 interface UseWaggleDanceMachineProps {
   goal: string;

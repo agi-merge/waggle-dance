@@ -1,3 +1,4 @@
+import { useMemo } from "react";
 import { Close } from "@mui/icons-material";
 import {
   Alert,
@@ -11,11 +12,15 @@ import {
   type CardProps,
 } from "@mui/joy";
 
-import useGoal from "~/stores/goalStore";
+import useGoalStore from "~/stores/historyStore";
 import GoalDoctorModal from "./components/GoalDoctorModal";
 
 const GoalMenu = ({}: CardProps) => {
-  const { goal, setGoal } = useGoal();
+  const { getSelectedGoal, setGoalInputValue } = useGoalStore();
+  const goal = useMemo(
+    () => getSelectedGoal()?.prompt ?? "",
+    [getSelectedGoal],
+  );
   return (
     <Card size="sm">
       {goal && (
@@ -36,7 +41,7 @@ const GoalMenu = ({}: CardProps) => {
                   className="-m-3"
                   onClick={() => {
                     // FIXME: confirmation modal
-                    setGoal("");
+                    // setGoal("");
                   }}
                 >
                   <Close />

@@ -25,7 +25,7 @@ import Table from "@mui/joy/Table";
 
 import DropZoneUploader from "~/features/AddDocuments/DropZoneUploader";
 import Title from "~/features/MainLayout/components/PageTitle";
-import useGoal from "~/stores/goalStore";
+import useGoalStore from "~/stores/historyStore";
 
 type UploadState =
   | { status: "idle" }
@@ -81,16 +81,16 @@ type Props = {
   onClose?: () => void;
 };
 const AddDocuments = ({ hideTitleGoal, onClose }: Props) => {
+  const { getSelectedGoal } = useGoalStore();
   const router = useRouter();
   const [ingestFiles, setIngestFiles] = useState<IngestFiles>({});
   const [ingestUrls, setIngestUrls] = useState<IngestUrls>({});
-  const { goal } = useGoal();
 
   useEffect(() => {
-    if (!goal) {
+    if (!getSelectedGoal()) {
       void router.push("/");
     }
-  }, [goal, router]);
+  }, [getSelectedGoal, router]);
 
   const isAnyFileUploading = useMemo(() => {
     return Object.values(ingestFiles).some(
