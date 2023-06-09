@@ -44,7 +44,8 @@ const HistoryTab: React.FC<HistoryTabProps> = ({
   onSelect,
 }) => {
   const { setIsRunning } = useWaggleDanceMachineStore();
-  const { goalMap, setGoalMap, goalInputValue } = useGoalStore();
+  const { goalMap, setGoalMap, goalInputValue, setCurrentTabIndex } =
+    useGoalStore();
   const goalCount = useMemo(() => Object.keys(goalMap).length, [goalMap]);
   const router = useRouter();
   const del = api.goal.delete.useMutation();
@@ -52,7 +53,7 @@ const HistoryTab: React.FC<HistoryTabProps> = ({
     refetchOnMount: false,
     refetchOnWindowFocus: false,
     onSuccess: (data) => {
-      console.log("Success!", data);
+      console.log("api.goal.topByUser", data);
     },
   });
   const closeHandler = async (tab: HistoryTab) => {
@@ -61,11 +62,11 @@ const HistoryTab: React.FC<HistoryTabProps> = ({
       // skip stubbed new tabs
       await del.mutateAsync(tab.id); // const tabs = Object.values(historyData).filter((t) => t.id !== tab.id);
     } else {
+      delete goalMap[tab.id];
+      setGoalMap({ ...goalMap });
       if (goalCount <= 1) {
         return;
       }
-      delete goalMap[tab.id];
-      setGoalMap({ ...goalMap });
     }
     const goals = (await refetch()).data;
 
@@ -82,6 +83,7 @@ const HistoryTab: React.FC<HistoryTabProps> = ({
         userId: "",
       };
       setGoalMap({ ...goalMap });
+      setCurrentTabIndex(0);
       return;
     }
     let index = 0;
