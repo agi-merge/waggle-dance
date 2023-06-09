@@ -70,7 +70,7 @@ const HistoryTab: React.FC<HistoryTabProps> = ({
     const goals = (await refetch()).data;
 
     if (goals?.length ?? 0 === 0) {
-      const id = `tempgoal-${v4}`;
+      const id = tab.id;
       goalMap[id] = {
         id,
         prompt: "",
@@ -86,7 +86,11 @@ const HistoryTab: React.FC<HistoryTabProps> = ({
     }
     let index = 0;
     for (const goal of goals ?? []) {
-      goalMap[goal.id] = { ...goal, index, selectedByDefault: false };
+      goalMap[goal.id] = {
+        ...goal,
+        index,
+        selectedByDefault: index === tab.index,
+      };
       index += 1;
     }
     (goals?.length ?? 0) === 0 &&
@@ -208,24 +212,7 @@ const HistoryTabber: React.FC<HistoryTabberProps> = ({ children }) => {
                   color="neutral"
                   variant="plain"
                   onClick={() => {
-                    // setGoal("");
-                    // const tabs = historyData.tabs;
-                    // const index = tabs.length;
-                    // setHistoryData({
-                    //   tabs: [
-                    //     ...tabs,
-                    //     ...[
-                    //       {
-                    //         id: `tempgoal-${v4()}`,
-                    //         label: "",
-                    //         index,
-                    //       } as HistoryTab,
-                    //     ],
-                    //   ],
-                    // });
-                    // setCurrentTabIndex(index);
-
-                    const id = `tempgoal-${v4}`;
+                    const id = `tempgoal-${v4()}`;
                     const index = goals.length;
                     goalMap[id] = {
                       id,

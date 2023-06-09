@@ -16,7 +16,7 @@ import useGoalStore from "~/stores/goalStore";
 import GoalDoctorModal from "./components/GoalDoctorModal";
 
 const GoalMenu = ({}: CardProps) => {
-  const { getSelectedGoal, setGoalInputValue } = useGoalStore();
+  const { getSelectedGoal } = useGoalStore();
   const goal = useMemo(
     () => getSelectedGoal()?.prompt ?? "",
     [getSelectedGoal],

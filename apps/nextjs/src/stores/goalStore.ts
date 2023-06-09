@@ -21,42 +21,19 @@ export interface GoalStore {
   setGoalInputValue: (newGoalInputValue: string) => void;
 }
 
+const uuid = v4();
 const useGoalStore = create<GoalStore>((set, get) => ({
   isLoading: false,
   setIsLoading: (newState) => set({ isLoading: newState }),
-  goalMap: {
-    "tempgoal-1": {
-      id: "tempgoal-1",
-      prompt: "",
-      index: 0,
-      selectedByDefault: true,
-      tooltip: "",
-      createdAt: new Date(),
-      updatedAt: new Date(),
-      userId: "",
-    },
-  },
+  goalMap: {},
   setGoalMap: (newData) => set({ goalMap: newData }),
   getSelectedGoal: () => { return Object.values(get().goalMap)[get().currentTabIndex] },
   initializeHistoryData: (sessionData, historicGoals) => {
 
+    const id = `tempgoal-${uuid}`
     // If actual data is passed in then use that
     if (sessionData && historicGoals) {
-      // const tabs: Record<string, GoalTab> = historicGoals.map((goal, index) => {
-      //   return {
-      //     id: goal.id,
-      //     index,
-      //     tooltip: goal.prompt,
-      //     prompt: goal.prompt,
-      //     selectedByDefault: true,
-      //     createdAt: new Date(),
-      //     updatedAt: new Date(),
-      //     userId: "",
-      //   } as GoalTab
-      // });
-
       // always have at least one tempGoal
-      const id = `tempgoal-${v4()}`
       const goalMap = {
         id: {
           id,
@@ -69,10 +46,11 @@ const useGoalStore = create<GoalStore>((set, get) => ({
           userId: "",
         },
       } as Record<string, GoalTab>;
+      let index = 0;
       for (const goal of historicGoals) {
         goalMap[goal.id] = {
           id: goal.id,
-          index: 0,
+          index,
           tooltip: goal.prompt,
           prompt: goal.prompt,
           selectedByDefault: false,
@@ -80,24 +58,28 @@ const useGoalStore = create<GoalStore>((set, get) => ({
           updatedAt: new Date(),
           userId: "",
         }
+        index += 1;
       }
 
       set({
         goalMap
       })
     } else {
+      const tempGoal = {
+        id,
+        prompt: "",
+        index: 0,
+        selectedByDefault: true,
+        tooltip: "",
+        createdAt: new Date(),
+        updatedAt: new Date(),
+        userId: "",
+      } as GoalTab;
+      const newGoalMap = {} as Record<string, GoalTab>;
+      newGoalMap[tempGoal.id] = tempGoal;
       set({
         goalMap: {
-          "tempgoal-1": {
-            id: "tempgoal-1",
-            prompt: "",
-            index: 0,
-            selectedByDefault: true,
-            tooltip: "",
-            createdAt: new Date(),
-            updatedAt: new Date(),
-            userId: "",
-          },
+          ...newGoalMap
         },
       })
     }
