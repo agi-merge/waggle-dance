@@ -96,7 +96,8 @@ export default class WaggleDanceMachine {
         )
         completedTasks = new Set([...newCompletedTasks, ...completedTasks]);
         taskResults = { ...newTaskResults, ...taskResults };
-        sendChainPacket({ type: "done", nodeId: task.id, value: JSON.stringify(taskResults) }, dag.nodes.find(n => task.id == n.id)!)
+        const node = dag.nodes.find(n => task.id == n.id)
+        node ? sendChainPacket({ type: "done", nodeId: task.id, value: JSON.stringify(taskResults) }, node) : console.warn("node not found", task.id)
         log("taskResults", taskResults);
         taskState.firstTaskState = "done";
       } else {
@@ -117,7 +118,8 @@ export default class WaggleDanceMachine {
 
       dag = await planTasks(request.goal, request.creationProps, initDAG, setDAG, log, sendChainPacket, taskState, updateTaskState, startFirstTask);
       if (dag.nodes[0]) {
-        sendChainPacket({ type: "done", nodeId: rootPlanId, value: "🍯 Return Goal" }, dag.nodes[dag.nodes.length - 1]!)
+        const node = dag.nodes[dag.nodes.length - 1]
+        node && sendChainPacket({ type: "done", nodeId: rootPlanId, value: "🍯 Return Goal" }, node) || console.warn("node not found", rootPlanId)
       } else {
         log("no nodes in dag")
       }
