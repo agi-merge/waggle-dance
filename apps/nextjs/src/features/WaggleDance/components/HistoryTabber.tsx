@@ -41,7 +41,12 @@ interface HistoryTabberProps extends TabsProps {
 }
 
 // A single history tab inside the main tabber
-const HistoryTab: React.FC<HistoryTabProps> = ({ tab, count, onSelect }) => {
+const HistoryTab: React.FC<HistoryTabProps> = ({
+  tab,
+  count,
+  currentTabIndex,
+  onSelect,
+}) => {
   const { setIsRunning } = useWaggleDanceMachineStore();
   const { historyData, setHistoryData } = useHistory();
   const router = useRouter();
@@ -75,6 +80,7 @@ const HistoryTab: React.FC<HistoryTabProps> = ({ tab, count, onSelect }) => {
         width: `${100 / count - 7}%`,
         background: "transparent",
       }}
+      color={"neutral"}
       variant="plain"
     >
       <Button
@@ -91,7 +97,7 @@ const HistoryTab: React.FC<HistoryTabProps> = ({ tab, count, onSelect }) => {
         }
         className="m-0 w-full overflow-clip p-0"
         size="sm"
-        color="neutral"
+        color={currentTabIndex === tab.index ? "primary" : "neutral"}
         variant="outlined"
         onClick={() => {
           onSelect && onSelect(tab);
@@ -144,7 +150,6 @@ const HistoryTabber: React.FC<HistoryTabberProps> = ({ tabs, children }) => {
           }
           sx={{ borderRadius: "sm" }}
           className="-mx-4 -mt-4"
-          color="primary"
           variant="plain"
         >
           <TabList className="m-0 p-0">
@@ -179,7 +184,7 @@ const HistoryTabber: React.FC<HistoryTabberProps> = ({ tabs, children }) => {
                   onClick={() => {
                     setGoal("");
                     const tabs = historyData.tabs;
-                    const index = tabs.length - 1;
+                    const index = tabs.length;
                     setHistoryData({
                       tabs: [
                         ...tabs,
@@ -192,6 +197,7 @@ const HistoryTabber: React.FC<HistoryTabberProps> = ({ tabs, children }) => {
                         ],
                       ],
                     });
+                    setCurrentTabIndex(index);
                   }}
                 >
                   <Typography className="p-2" noWrap>
