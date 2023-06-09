@@ -89,15 +89,15 @@ const HistoryTab: React.FC<HistoryTabProps> = ({ tab, count, onSelect }) => {
             <Close />
           </IconButton>
         }
-        className="m-0 flex flex-grow overflow-clip p-0"
+        className="m-0 w-full overflow-clip p-0"
         size="sm"
         color="neutral"
         variant="outlined"
-        onClick={(e) => {
+        onClick={() => {
           onSelect && onSelect(tab);
         }}
       >
-        <Typography noWrap>
+        <Typography noWrap className="w-full">
           {tab.label.length < 120 ? tab.label : `${tab.label.slice(0, 120)}…`}
         </Typography>
       </Button>
