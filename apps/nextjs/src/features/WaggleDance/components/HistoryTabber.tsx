@@ -1,12 +1,11 @@
 import { useEffect } from "react";
 import { useRouter } from "next/router";
-import { Close } from "@mui/icons-material";
+import { Add, Close } from "@mui/icons-material";
 import {
   Box,
   Button,
   Divider,
   IconButton,
-  Stack,
   Tab,
   TabList,
   Tabs,
@@ -74,36 +73,34 @@ const HistoryTab: React.FC<HistoryTabProps> = ({
 
   return (
     <Tab
-      key={tab.id}
-      className={`text-overflow-ellipsis m-0 flex flex-grow items-start overflow-hidden p-0`}
       sx={{
-        width: `${100 / count - 7}%`,
-        background: "transparent",
+        width: `${100 / count - 13}%`,
       }}
-      color={"neutral"}
-      variant="plain"
+      color="neutral"
+      variant="outlined"
     >
+      <IconButton
+        color="neutral"
+        variant="plain"
+        onClick={() => {
+          void closeHandler(tab);
+        }}
+      >
+        <Close />
+      </IconButton>
       <Button
-        startDecorator={
-          <IconButton
-            color="danger"
-            variant="plain"
-            onClick={() => {
-              void closeHandler(tab);
-            }}
-          >
-            <Close />
-          </IconButton>
-        }
-        className="m-0 w-full overflow-clip p-0"
+        className="m-0 w-full items-start justify-start overflow-clip p-0"
         size="sm"
-        color={currentTabIndex === tab.index ? "primary" : "neutral"}
-        variant="outlined"
+        color="neutral"
+        // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+        // @ts-ignore:next-line
+        // FIXME: relies on undefined behavior to get desired style (weirdly not available otherwise)
+        variant=""
         onClick={() => {
           onSelect && onSelect(tab);
         }}
       >
-        <Typography noWrap className="w-full">
+        <Typography level="body3" noWrap className="w-full">
           {tab.label.length < 120 ? tab.label : `${tab.label.slice(0, 120)}…`}
         </Typography>
       </Button>
@@ -148,15 +145,13 @@ const HistoryTabber: React.FC<HistoryTabberProps> = ({ tabs, children }) => {
           onChange={(event, newValue) =>
             handleChange(event, newValue as number)
           }
-          sx={{ borderRadius: "sm" }}
-          className="-mx-4 -mt-4"
-          variant="plain"
+          sx={{ borderRadius: "sm", background: "transparent" }}
+          className="-ml-6 -mt-5"
         >
-          <TabList className="m-0 p-0">
+          <TabList sx={{ background: "transparent" }}>
             {tabs.map((tab) => (
               <>
                 <HistoryTab
-                  key={tab.id}
                   onSelect={() => {
                     setCurrentTabIndex(tab.index);
                     setGoal(tab.label);
@@ -165,51 +160,42 @@ const HistoryTabber: React.FC<HistoryTabberProps> = ({ tabs, children }) => {
                   tab={tab}
                   currentTabIndex={currentTabIndex}
                 />
-                <Divider orientation="vertical" />
+                {tab.index !== tabs.length && (
+                  <Divider orientation="vertical" />
+                )}
               </>
             ))}
             {tabs.length > 0 && (
-              <Stack
-                spacing={1}
-                direction="row"
-                alignItems="center"
-                useFlexGap
-                className="m-2 flex flex-grow items-end overflow-hidden p-0"
-              >
-                <Button
-                  className="m-0 overflow-clip p-0"
-                  size="sm"
-                  color="neutral"
-                  variant="plain"
-                  onClick={() => {
-                    setGoal("");
-                    const tabs = historyData.tabs;
-                    const index = tabs.length;
-                    setHistoryData({
-                      tabs: [
-                        ...tabs,
-                        ...[
-                          {
-                            id: `tempgoal-${v4()}`,
-                            label: "",
-                            index,
-                          } as HistoryTab,
-                        ],
+              <IconButton
+                className="w-14"
+                size="md"
+                color="neutral"
+                variant="plain"
+                onClick={() => {
+                  setGoal("");
+                  const tabs = historyData.tabs;
+                  const index = tabs.length;
+                  setHistoryData({
+                    tabs: [
+                      ...tabs,
+                      ...[
+                        {
+                          id: `tempgoal-${v4()}`,
+                          label: "",
+                          index,
+                        } as HistoryTab,
                       ],
-                    });
-                    setCurrentTabIndex(index);
-                  }}
-                >
-                  <Typography className="p-2" noWrap>
-                    +
-                  </Typography>
-                </Button>
-              </Stack>
+                    ],
+                  });
+                  setCurrentTabIndex(index);
+                }}
+              >
+                <Add />
+              </IconButton>
             )}
           </TabList>
         </Tabs>
       )}
-
       <Box className="mx-2 mt-2 p-0">{children}</Box>
     </Box>
   );
