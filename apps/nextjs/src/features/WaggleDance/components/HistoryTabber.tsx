@@ -45,6 +45,7 @@ const HistoryTab: React.FC<HistoryTabProps> = ({
 }) => {
   const { setIsRunning } = useWaggleDanceMachineStore();
   const { goalMap, setGoalMap, goalInputValue } = useGoalStore();
+  const goalCount = useMemo(() => Object.keys(goalMap).length, [goalMap]);
   const router = useRouter();
   const del = api.goal.delete.useMutation();
   const { refetch } = api.goal.topByUser.useQuery(undefined, {
@@ -60,6 +61,9 @@ const HistoryTab: React.FC<HistoryTabProps> = ({
       // skip stubbed new tabs
       await del.mutateAsync(tab.id); // const tabs = Object.values(historyData).filter((t) => t.id !== tab.id);
     } else {
+      if (goalCount <= 1) {
+        return;
+      }
       delete goalMap[tab.id];
       setGoalMap({ ...goalMap });
     }
