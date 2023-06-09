@@ -84,7 +84,10 @@ const HistoryTab: React.FC<HistoryTabProps> = ({
       setGoalMap({ ...goalMap });
       return;
     }
+    let index = 0;
     for (const goal of goals ?? []) {
+      goalMap[goal.id] = { ...goal, index, selectedByDefault: false };
+      index += 1;
     }
     (goals?.length ?? 0) === 0 &&
       router.pathname !== "/" &&
