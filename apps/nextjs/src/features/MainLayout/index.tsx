@@ -32,8 +32,8 @@ const MainLayout = ({ children, openAIUsage }: Props) => {
   const { data: historicGoals, refetch } = api.goal.topByUser.useQuery(
     undefined,
     {
-      refetchOnMount: true,
-      refetchOnWindowFocus: true,
+      refetchOnMount: false,
+      refetchOnWindowFocus: false,
       onSuccess: (data) => {
         console.log("Success!", data);
       },

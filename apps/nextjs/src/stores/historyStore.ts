@@ -23,7 +23,12 @@ const useHistory = create<HistoryState>((set) => ({
   isLoading: false,
   setIsLoading: (newState) => set({ isLoading: newState }),
   historyData: {
-    tabs: [],
+    tabs: [{
+      id: "tempgoal-1",
+      index: 0,
+      label: "",
+      selectedByDefault: true
+    }],
   },
   setHistoryData: (newData) => set({ historyData: newData }),
   initializeHistoryData: (sessionData, historicGoals) => {

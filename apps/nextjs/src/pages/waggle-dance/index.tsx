@@ -5,11 +5,13 @@ import type {
   InferGetServerSidePropsType,
 } from "next";
 import { useRouter } from "next/router";
+import { TabPanel } from "@mui/joy";
 
 import { getOpenAIUsage, type CombinedResponse } from "~/utils/openAIUsageAPI";
 import MainLayout from "~/features/MainLayout";
 import WaggleDanceGraph from "~/features/WaggleDance/components/WaggleDanceGraph";
 import useGoal from "~/stores/goalStore";
+import useHistory from "~/stores/historyStore";
 
 export async function getServerSideProps(context: GetServerSidePropsContext) {
   context.res.setHeader(
@@ -35,6 +37,7 @@ export default function WaggleDance({
 }: InferGetServerSidePropsType<typeof getServerSideProps>) {
   const router = useRouter();
   const { goal } = useGoal();
+  const { historyData } = useHistory();
 
   useEffect(() => {
     // Redirect if the goal is undefined or empty
@@ -45,7 +48,11 @@ export default function WaggleDance({
 
   return (
     <MainLayout openAIUsage={openAIUsage}>
-      <WaggleDanceGraph />
+      {historyData.tabs.map((tab, index) => (
+        <TabPanel key={tab.id} value={index}>
+          <WaggleDanceGraph />
+        </TabPanel>
+      ))}
     </MainLayout>
   );
 }

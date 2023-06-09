@@ -59,6 +59,9 @@ const HistoryTab: React.FC<HistoryTabProps> = ({
   });
   const closeHandler = async (tab: HistoryTab) => {
     setIsRunning(false);
+    if (historyData.tabs.length <= 1) {
+      return;
+    }
     if (!tab.id.startsWith("tempgoal-")) {
       // skip stubbed new tabs
       await del.mutateAsync(tab.id);
@@ -146,7 +149,7 @@ const HistoryTabber: React.FC<HistoryTabberProps> = ({ tabs, children }) => {
             handleChange(event, newValue as number)
           }
           sx={{ borderRadius: "sm", background: "transparent" }}
-          className="-ml-6 -mt-5"
+          className="m-0 p-0"
         >
           <TabList sx={{ background: "transparent" }}>
             {tabs.map((tab) => (
@@ -194,9 +197,9 @@ const HistoryTabber: React.FC<HistoryTabberProps> = ({ tabs, children }) => {
               </IconButton>
             )}
           </TabList>
+          <Box className="mx-2 mt-2 p-0">{children}</Box>
         </Tabs>
       )}
-      <Box className="mx-2 mt-2 p-0">{children}</Box>
     </Box>
   );
 };
