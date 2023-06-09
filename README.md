@@ -4,7 +4,7 @@
 ![License](https://img.shields.io/badge/license-MIT-green)
 ![CI](https://github.com/agi-merge/waggle-dance/actions/workflows/ci.yml/badge.svg?event=push)
 
-**Waggle Dance** is a swarm of AI agents. It is a [MIT-licensed](/LICENSE) T3+Next.js monorepo that that implements [Langchain.js](https://github.com/hwchase17/langchainjs).
+**Waggle Dance** is an experimental concurrent LLM Agent goal solver powered by [Langchain.js](https://github.com/hwchase17/langchainjs). It is a [MIT-licensed](/LICENSE) T3+Next.js monorepo.
 
 ## Table of Contents
 
