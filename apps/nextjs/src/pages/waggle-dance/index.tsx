@@ -36,11 +36,11 @@ export default function WaggleDance({
 }: InferGetServerSidePropsType<typeof getServerSideProps>) {
   const router = useRouter();
   const { goalMap, getSelectedGoal } = useGoalStore();
-  const goals = useMemo(() => Object.values(goalMap), [goalMap]);
+  const goals = useMemo(() => Array.from(goalMap.values()), [goalMap]);
 
   useEffect(() => {
     // Redirect if the goal is undefined or empty
-    if (!getSelectedGoal()?.prompt.length) {
+    if (getSelectedGoal()?.prompt.length ?? 0 == 0) {
       void router.push("/");
     }
   }, [getSelectedGoal, router]);

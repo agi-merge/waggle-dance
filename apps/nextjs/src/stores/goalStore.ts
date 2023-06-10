@@ -4,9 +4,7 @@ import { v4 } from "uuid";
 import { create } from "zustand";
 import { type HistoryTab as GoalTab } from "~/features/WaggleDance/components/HistoryTabber";
 
-export interface GoalMap {
-  [key: string]: GoalTab;
-}
+export type GoalMap = Map<string, GoalTab>;
 
 export interface GoalStore {
   isLoading: boolean;
@@ -25,30 +23,43 @@ const uuid = v4();
 const useGoalStore = create<GoalStore>((set, get) => ({
   isLoading: false,
   setIsLoading: (newState) => set({ isLoading: newState }),
-  goalMap: {},
+  goalMap: new Map<string, GoalTab>(),
   setGoalMap: (newData) => set({ goalMap: newData }),
-  getSelectedGoal: () => { return Object.values(get().goalMap)[get().currentTabIndex] },
+  getSelectedGoal: () => {
+    const g = get()
+    if (g.goalMap.size === 0) {
+      return undefined;
+    }
+    const currentTabIndex = g.currentTabIndex;
+    const values = g.goalMap !== undefined && g.goalMap.values !== undefined && g.goalMap.values();
+    if (!values) {
+      return undefined;
+    }
+    const array = Array.from(values);
+    return array.find((goal) => goal.index === currentTabIndex);
+  },
   initializeHistoryData: (sessionData, historicGoals) => {
 
     const id = `tempgoal-${uuid}`
     // If actual data is passed in then use that
     if (sessionData && historicGoals) {
       // always have at least one tempGoal
-      const goalMap = {
-        id: {
-          id,
-          prompt: "",
-          index: 0,
-          selectedByDefault: false,
-          tooltip: "",
-          createdAt: new Date(),
-          updatedAt: new Date(),
-          userId: "",
-        },
-      } as Record<string, GoalTab>;
+      const goalMap = new Map<string, GoalTab>();
+      const newTab = {
+        id,
+        prompt: "",
+        index: 0,
+        selectedByDefault: false,
+        tooltip: "",
+        createdAt: new Date(),
+        updatedAt: new Date(),
+        userId: "",
+      } as GoalTab;
+      goalMap.set(id, newTab)
+
       let index = 0;
       for (const goal of historicGoals) {
-        goalMap[goal.id] = {
+        goalMap.set(goal.id, {
           id: goal.id,
           index,
           tooltip: goal.prompt,
@@ -56,13 +67,13 @@ const useGoalStore = create<GoalStore>((set, get) => ({
           selectedByDefault: false,
           createdAt: new Date(),
           updatedAt: new Date(),
-          userId: "",
-        }
+          userId: goal.userId,
+        });
         index += 1;
       }
 
       set({
-        goalMap
+        goalMap: { ...goalMap }
       })
     } else {
       const tempGoal = {
@@ -75,12 +86,10 @@ const useGoalStore = create<GoalStore>((set, get) => ({
         updatedAt: new Date(),
         userId: "",
       } as GoalTab;
-      const newGoalMap = {} as Record<string, GoalTab>;
-      newGoalMap[tempGoal.id] = tempGoal;
+      const goalMap = new Map<string, GoalTab>();
+      goalMap.set(tempGoal.id, tempGoal)
       set({
-        goalMap: {
-          ...newGoalMap
-        },
+        goalMap: { ...goalMap }
       })
     }
   },

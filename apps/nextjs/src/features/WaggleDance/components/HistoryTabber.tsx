@@ -62,7 +62,7 @@ const HistoryTab: React.FC<HistoryTabProps> = ({
       // skip stubbed new tabs
       await del.mutateAsync(tab.id); // const tabs = Object.values(historyData).filter((t) => t.id !== tab.id);
     } else {
-      delete goalMap[tab.id];
+      goalMap.delete(tab.id);
       setGoalMap({ ...goalMap });
       if (goalCount <= 1) {
         return;
@@ -72,7 +72,9 @@ const HistoryTab: React.FC<HistoryTabProps> = ({
 
     if (goals?.length ?? 0 === 0) {
       const id = tab.id;
-      goalMap[id] = {
+      debugger;
+      // id literal gets inserted
+      goalMap.set(id, {
         id,
         prompt: "",
         index: 0,
@@ -81,18 +83,18 @@ const HistoryTab: React.FC<HistoryTabProps> = ({
         createdAt: new Date(),
         updatedAt: new Date(),
         userId: "",
-      };
+      });
       setGoalMap({ ...goalMap });
       setCurrentTabIndex(0);
       return;
     }
     let index = 0;
     for (const goal of goals ?? []) {
-      goalMap[goal.id] = {
+      goalMap.set(goal.id, {
         ...goal,
         index,
         selectedByDefault: index === tab.index,
-      };
+      });
       index += 1;
     }
     (goals?.length ?? 0) === 0 &&
@@ -135,8 +137,10 @@ const HistoryTab: React.FC<HistoryTabProps> = ({
           level="body3"
           noWrap
           className="flex-grow"
+          textColor="common.white"
+          sx={{ mixBlendMode: "difference" }}
         >
-          {tab.id.startsWith("tempgoal-") ? (
+          {currentTabIndex === tab.index ? (
             <>{goalInputValue.length > 0 ? goalInputValue : "New Goal"}</>
           ) : tab.prompt.length < 120 ? (
             tab.prompt
@@ -151,17 +155,24 @@ const HistoryTab: React.FC<HistoryTabProps> = ({
 
 // The main tabber component
 const HistoryTabber: React.FC<HistoryTabberProps> = ({ children }) => {
-  const { goalMap, setGoalMap, currentTabIndex, setCurrentTabIndex } =
-    useGoalStore();
-  const goals = useMemo(() => Object.values(goalMap), [goalMap]);
+  const {
+    goalMap,
+    setGoalMap,
+    currentTabIndex,
+    setCurrentTabIndex,
+    goalInputValue,
+  } = useGoalStore();
+  const entries = useMemo(
+    () => (goalMap && goalMap.entries ? Array.from(goalMap.entries()) : []),
+    [goalMap],
+  );
   // Set the default tab if it exists on first component mount
   useEffect(() => {
-    const defaultTab = Object.values(goalMap).find(
-      (tab) => tab.selectedByDefault === true,
-    );
-
-    if (defaultTab) {
-      setCurrentTabIndex(defaultTab.index);
+    for (const [_key, value] of goalMap) {
+      if (value.selectedByDefault) {
+        setCurrentTabIndex(value.index);
+        return;
+      }
     }
   }, [goalMap, setCurrentTabIndex]);
 
@@ -170,7 +181,7 @@ const HistoryTabber: React.FC<HistoryTabberProps> = ({ children }) => {
     event: React.SyntheticEvent | null,
     newValue: number,
   ) => {
-    if (newValue === goals.length) {
+    if (newValue === goalMap.size) {
       event?.preventDefault();
       return;
     }
@@ -181,7 +192,7 @@ const HistoryTabber: React.FC<HistoryTabberProps> = ({ children }) => {
   // 🌍 Render
   return (
     <>
-      {goals.length > 0 && (
+      {entries.length > 0 && (
         <Tabs
           aria-label="Goal tabs"
           value={currentTabIndex}
@@ -195,28 +206,40 @@ const HistoryTabber: React.FC<HistoryTabberProps> = ({ children }) => {
             marginX: -3,
           }}
         >
-          {goals.filter((t) => t.prompt.length > 0).length > 0}
           <TabList sx={{ background: "transparent" }}>
-            {goals.map((tab) => (
+            {entries.map(([_key, tab], index) => (
               <HistoryTab
                 key={tab.id}
                 onSelect={() => {
-                  setCurrentTabIndex(tab.index);
+                  debugger;
+                  // save currentSelectedTab's prompt
+                  const goal = goalMap.get(tab.id);
+                  goalMap.set(tab.id, {
+                    id: tab.id ?? goal?.id,
+                    prompt: goalInputValue ?? goal?.prompt,
+                    index: index,
+                    userId: goal?.userId ?? "",
+                    tooltip: goal?.tooltip,
+                    createdAt: goal?.createdAt ?? new Date(),
+                    updatedAt: new Date(),
+                  });
+                  setGoalMap({ ...goalMap });
+                  setCurrentTabIndex(index);
                 }}
-                count={goals.length}
+                count={entries.length}
                 tab={tab}
                 currentTabIndex={currentTabIndex}
               />
             ))}
-            {goals.length > 0 && (
+            {entries.length > 0 && (
               <Box className="mt-1 justify-center px-2 align-middle">
                 <IconButton
                   color="neutral"
                   variant="plain"
                   onClick={() => {
                     const id = `tempgoal-${v4()}`;
-                    const index = goals.length;
-                    goalMap[id] = {
+                    const index = entries.length;
+                    goalMap.set(id, {
                       id,
                       prompt: "",
                       index,
@@ -225,7 +248,7 @@ const HistoryTabber: React.FC<HistoryTabberProps> = ({ children }) => {
                       createdAt: new Date(),
                       updatedAt: new Date(),
                       userId: "",
-                    };
+                    });
 
                     setGoalMap({ ...goalMap });
                     setCurrentTabIndex(index);
