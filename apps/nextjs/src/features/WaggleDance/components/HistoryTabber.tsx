@@ -153,6 +153,9 @@ const HistoryTab: React.FC<HistoryTabProps> = ({
           )}
         </Typography>
       </Button>
+      <Typography level="body5">
+        {tab.index} | {tab.id.slice(tab.id.length - 4)}
+      </Typography>
     </Tab>
   );
 };
