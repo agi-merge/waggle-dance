@@ -24,7 +24,24 @@ const useGoalStore = create<GoalStore>((set, get) => ({
   isLoading: false,
   setIsLoading: (newState) => set({ isLoading: newState }),
   goalMap: new Map<string, GoalTab>(),
-  setGoalMap: (newData) => set({ goalMap: newData }),
+  setGoalMap: (newData) => {
+    if (newData.size === 0) {
+      const goalMap = new Map<string, GoalTab>();
+      const id = `tempgoal-${uuid}`
+      goalMap.set(id, {
+        id,
+        prompt: "",
+        index: 0,
+        tooltip: "",
+        createdAt: new Date(),
+        updatedAt: new Date(),
+        userId: "",
+      } as GoalTab);
+      set({ goalMap });
+    } else {
+      set({ goalMap: newData })
+    }
+  },
   getSelectedGoal: () => {
     const g = get()
     if (g.goalMap.size === 0) {
@@ -71,7 +88,7 @@ const useGoalStore = create<GoalStore>((set, get) => ({
       }
 
       set({
-        goalMap: { ...goalMap }
+        goalMap
       })
     } else {
       const tempGoal = {
@@ -86,7 +103,7 @@ const useGoalStore = create<GoalStore>((set, get) => ({
       const goalMap = new Map<string, GoalTab>();
       goalMap.set(tempGoal.id, tempGoal)
       set({
-        goalMap: { ...goalMap }
+        goalMap,
       })
     }
   },

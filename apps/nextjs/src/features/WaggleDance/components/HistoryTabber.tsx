@@ -61,8 +61,10 @@ const HistoryTab: React.FC<HistoryTabProps> = ({
       // skip stubbed new tabs
       await del.mutateAsync(tab.id); // const tabs = Object.values(historyData).filter((t) => t.id !== tab.id);
     } else {
-      goalMap.delete(tab.id);
-      setGoalMap({ ...goalMap });
+      const newGoalMap = new Map(goalMap);
+
+      newGoalMap.delete(tab.id);
+      setGoalMap(newGoalMap);
       if (goalCount <= 1) {
         return;
       }
@@ -71,9 +73,9 @@ const HistoryTab: React.FC<HistoryTabProps> = ({
 
     if (goals?.length ?? 0 === 0) {
       const id = tab.id;
-      debugger;
+      const newGoalMap = new Map<string, HistoryTab>();
       // id literal gets inserted
-      goalMap.set(id, {
+      newGoalMap.set(id, {
         id,
         prompt: "",
         index: 0,
@@ -82,7 +84,8 @@ const HistoryTab: React.FC<HistoryTabProps> = ({
         updatedAt: new Date(),
         userId: "",
       });
-      setGoalMap({ ...goalMap });
+
+      setGoalMap(newGoalMap);
       setCurrentTabIndex(0);
       return;
     }
@@ -206,7 +209,8 @@ const HistoryTabber: React.FC<HistoryTabberProps> = ({ children }) => {
                 onSelect={() => {
                   // save currentSelectedTab's prompt
                   const goal = goalMap.get(tab.id);
-                  goalMap.set(tab.id, {
+                  const newGoalMap = new Map(goalMap);
+                  newGoalMap.set(tab.id, {
                     id: tab.id ?? goal?.id,
                     prompt: goalInputValue ?? goal?.prompt,
                     index: index,
@@ -215,7 +219,7 @@ const HistoryTabber: React.FC<HistoryTabberProps> = ({ children }) => {
                     createdAt: goal?.createdAt ?? new Date(),
                     updatedAt: new Date(),
                   });
-                  setGoalMap({ ...goalMap });
+                  setGoalMap(newGoalMap);
                   setCurrentTabIndex(index);
                 }}
                 count={entries.length}
@@ -231,7 +235,8 @@ const HistoryTabber: React.FC<HistoryTabberProps> = ({ children }) => {
                   onClick={() => {
                     const id = `tempgoal-${v4()}`;
                     const index = entries.length;
-                    goalMap.set(id, {
+                    const newGoalMap = new Map(goalMap);
+                    newGoalMap.set(id, {
                       id,
                       prompt: "",
                       index,
@@ -241,7 +246,7 @@ const HistoryTabber: React.FC<HistoryTabberProps> = ({ children }) => {
                       userId: "",
                     });
 
-                    setGoalMap({ ...goalMap });
+                    setGoalMap(newGoalMap);
                     setCurrentTabIndex(index);
                   }}
                 >
