@@ -52,7 +52,7 @@ export default function WaggleDance({
           <WaggleDanceGraph />
         </TabPanel>
       ))}
-      {goals.length <= 1 && <WaggleDanceGraph />}
+      {goals.length < 1 && <WaggleDanceGraph />}
     </MainLayout>
   );
 }
