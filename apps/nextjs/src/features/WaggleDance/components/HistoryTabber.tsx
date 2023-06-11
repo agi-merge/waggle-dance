@@ -173,6 +173,7 @@ const HistoryTabber: React.FC<HistoryTabberProps> = ({ children }) => {
     event: React.SyntheticEvent | null,
     newValue: number,
   ) => {
+    // prevent + from being selected
     if (newValue === goalMap.size) {
       event?.preventDefault();
       return;
@@ -203,7 +204,6 @@ const HistoryTabber: React.FC<HistoryTabberProps> = ({ children }) => {
               <HistoryTab
                 key={tab.id}
                 onSelect={() => {
-                  debugger;
                   // save currentSelectedTab's prompt
                   const goal = goalMap.get(tab.id);
                   goalMap.set(tab.id, {
