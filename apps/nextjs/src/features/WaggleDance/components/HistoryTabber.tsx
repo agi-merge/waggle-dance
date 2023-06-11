@@ -140,7 +140,11 @@ const HistoryTab: React.FC<HistoryTabProps> = ({
           {currentTabIndex === tab.index ? (
             <>{goalInputValue.length > 0 ? goalInputValue : "New Goal"}</>
           ) : tab.prompt.length < 120 ? (
-            tab.prompt
+            tab.prompt.length > 0 ? (
+              tab.prompt
+            ) : (
+              "New Goal"
+            )
           ) : (
             `${tab.prompt.slice(0, 120)}…`
           )}
