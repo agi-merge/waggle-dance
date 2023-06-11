@@ -35,7 +35,7 @@ const MainLayout = ({ children, openAIUsage }: Props) => {
       refetchOnMount: false,
       refetchOnWindowFocus: false,
       onSuccess: (data) => {
-        console.log("Success!", data);
+        console.log("Mainlayout goal fetch onSuccess!", data);
       },
     },
   );
@@ -44,8 +44,8 @@ const MainLayout = ({ children, openAIUsage }: Props) => {
   // If not, the + button will ask the user to log in
   useEffect(() => {
     const handleHistoricGoals = async () => {
-      if (!sessionData) return;
-      if (!historicGoals) await refetch();
+      initializeHistoryData(sessionData, historicGoals);
+      await refetch();
       initializeHistoryData(sessionData, historicGoals);
     };
     void handleHistoricGoals();
