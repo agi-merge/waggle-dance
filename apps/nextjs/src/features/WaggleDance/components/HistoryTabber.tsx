@@ -22,7 +22,6 @@ import useWaggleDanceMachineStore from "~/stores/waggleDanceStore";
 export type HistoryTab = Goal & {
   index: number;
   tooltip?: string;
-  selectedByDefault?: boolean;
 };
 
 interface HistoryTabProps {
@@ -78,7 +77,6 @@ const HistoryTab: React.FC<HistoryTabProps> = ({
         id,
         prompt: "",
         index: 0,
-        selectedByDefault: true,
         tooltip: "",
         createdAt: new Date(),
         updatedAt: new Date(),
@@ -93,7 +91,6 @@ const HistoryTab: React.FC<HistoryTabProps> = ({
       goalMap.set(goal.id, {
         ...goal,
         index,
-        selectedByDefault: index === tab.index,
       });
       index += 1;
     }
@@ -166,15 +163,6 @@ const HistoryTabber: React.FC<HistoryTabberProps> = ({ children }) => {
     () => (goalMap && goalMap.entries ? Array.from(goalMap.entries()) : []),
     [goalMap],
   );
-  // Set the default tab if it exists on first component mount
-  useEffect(() => {
-    for (const [_key, value] of goalMap) {
-      if (value.selectedByDefault) {
-        setCurrentTabIndex(value.index);
-        return;
-      }
-    }
-  }, [goalMap, setCurrentTabIndex]);
 
   // Handle tab change
   const handleChange = (
@@ -243,7 +231,6 @@ const HistoryTabber: React.FC<HistoryTabberProps> = ({ children }) => {
                       id,
                       prompt: "",
                       index,
-                      selectedByDefault: true,
                       tooltip: "",
                       createdAt: new Date(),
                       updatedAt: new Date(),
