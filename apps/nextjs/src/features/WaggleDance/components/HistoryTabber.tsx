@@ -156,11 +156,13 @@ const HistoryTab: React.FC<HistoryTabProps> = ({
           sx={{ marginY: -2, marginX: -1.5 }}
           onClick={() => {
             // save currentSelectedTab's prompt
-            const goal = goalMap.get(tab.id);
             const newGoalMap = new Map(goalMap);
+            const goal = newGoalMap.get(tab.id);
+            const goalInputValue = getGoalInputValue();
+            console.log("goalInputValue", goalInputValue);
             newGoalMap.set(tab.id, {
               id: tab.id ?? goal?.id,
-              prompt: getGoalInputValue() ?? goal?.prompt,
+              prompt: goal?.prompt ?? "",
               index: tab.index,
               userId: goal?.userId ?? "",
               tooltip: goal?.tooltip,
