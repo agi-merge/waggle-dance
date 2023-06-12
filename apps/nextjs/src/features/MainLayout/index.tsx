@@ -45,8 +45,11 @@ const MainLayout = ({ children, openAIUsage }: Props) => {
   useEffect(() => {
     const handleHistoricGoals = async () => {
       initializeHistoryData(sessionData, historicGoals);
-      await refetch();
-      initializeHistoryData(sessionData, historicGoals);
+      if (sessionData) {
+        // avoid spamming errors
+        await refetch();
+        initializeHistoryData(sessionData, historicGoals);
+      }
     };
     void handleHistoricGoals();
   }, [sessionData, historicGoals, initializeHistoryData, refetch]);

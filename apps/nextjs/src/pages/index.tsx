@@ -48,34 +48,11 @@ export const getStaticProps = async () => {
 export default function Home({
   openAIUsage,
 }: InferGetStaticPropsType<typeof getStaticProps>) {
-  const { setIsAutoStartEnabled } = useWaggleDanceMachineStore();
-  const router = useRouter();
-  const { setGoalInputValue } = useGoalStore();
-
-  // Define handleSetGoal function
-  const handleSetGoal = (goal: string) => {
-    if (goal.trim().length > 0) {
-      setIsAutoStartEnabled(true);
-      void router.push(app.routes.waggle);
-    }
-
-    // setGoal(goal.trim().replaceAll("{", "(").replaceAll("}", ")"));
-  };
-
-  const handleInputChange = (goal: string) => {
-    setGoalInputValue(goal);
-  };
-
   return (
     // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
     <MainLayout openAIUsage={openAIUsage}>
       <Title title="🐝 Goal solver" description="" />
-      <GoalInput
-        callbacks={{
-          setGoal: handleSetGoal,
-          onChange: handleInputChange,
-        }}
-      />
+      <GoalInput />
     </MainLayout>
   );
 }

@@ -1,6 +1,6 @@
 // GoalInput.tsx
 
-import React, { useEffect, useMemo, useState } from "react";
+import React, { useCallback, useEffect, useMemo, useState } from "react";
 import { KeyboardArrowRight } from "@mui/icons-material";
 import {
   Box,
@@ -35,17 +35,11 @@ export const examplePrompts = [
 
 const placeholders = ["What's your goal? …Not sure? Check Examples!"];
 
-interface GoalInputProps extends CardProps {
-  callbacks: Handlers;
-}
+type GoalInputProps = CardProps;
 
-export default function GoalInput({ callbacks }: GoalInputProps) {
-  const {
-    getGoalInputValue,
-    setGoalInputValue,
-    getSelectedGoal,
-    currentTabIndex,
-  } = useGoalStore();
+export default function GoalInput({}: GoalInputProps) {
+  const { getGoalInputValue, setGoalInputValue, getSelectedGoal } =
+    useGoalStore();
   const { isPageLoading } = useApp();
   const [_currentPromptIndex, setCurrentPromptIndex] = useState(0);
   const [currentPlaceholderIndex, setCurrentPlaceholderIndex] = useState(0);
@@ -69,19 +63,16 @@ export default function GoalInput({ callbacks }: GoalInputProps) {
     },
   });
 
-  useEffect(() => {
-    setGoalInputValue(selectedGoal);
-  }, [selectedGoal, setGoalInputValue, currentTabIndex]);
-
-  const handleSubmit = (event: React.FormEvent) => {
-    event.preventDefault();
-    callbacks.setGoal(goalInputValue);
-    if (sessionData) void mutate({ prompt: goalInputValue });
-  };
+  const handleSubmit = useCallback(
+    (event: React.FormEvent) => {
+      event.preventDefault();
+      if (sessionData) void mutate({ prompt: goalInputValue });
+    },
+    [sessionData, goalInputValue, mutate],
+  );
 
   const handleChange = (event: React.ChangeEvent<HTMLTextAreaElement>) => {
     setGoalInputValue(event.target.value);
-    callbacks.onChange(event.target.value);
   };
 
   useEffect(() => {
@@ -151,7 +142,6 @@ export default function GoalInput({ callbacks }: GoalInputProps) {
                               className="flex flex-grow flex-row justify-center"
                               onClick={() => {
                                 setGoalInputValue(prompt);
-                                callbacks.onChange(prompt);
                                 setTemplatesModalOpen(false);
                               }}
                             >

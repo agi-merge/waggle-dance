@@ -1,4 +1,4 @@
-import { useMemo } from "react";
+import { useCallback, useMemo } from "react";
 import { useRouter } from "next/router";
 import { Add, Close } from "@mui/icons-material";
 import {
@@ -14,6 +14,7 @@ import {
   type TabProps,
   type TabsProps,
 } from "@mui/joy";
+import { useSession } from "next-auth/react";
 import { v4 } from "uuid";
 
 import { type Goal } from "@acme/db";
@@ -51,12 +52,18 @@ const HistoryTab: React.FC<HistoryTabProps> = ({
     getGoalInputValue,
     setCurrentTabIndex,
     prevSelectedGoal,
+    getSelectedGoal,
   } = useGoalStore();
 
   const goalInputValue = useMemo(
     () => getGoalInputValue(),
     [getGoalInputValue],
   );
+  const selectedGoal = useMemo(
+    () => getSelectedGoal()?.prompt ?? "",
+    [getSelectedGoal],
+  );
+  const sessionData = useSession().data;
   const router = useRouter();
   const del = api.goal.delete.useMutation();
   const { refetch } = api.goal.topByUser.useQuery(undefined, {
@@ -67,47 +74,63 @@ const HistoryTab: React.FC<HistoryTabProps> = ({
     },
   });
 
-  const closeHandler = async (tab: HistoryTab) => {
-    const newGoalMap = new Map(goalMap);
-    setIsRunning(false);
+  const closeHandler = useCallback(
+    async (tab: HistoryTab) => {
+      const newGoalMap = new Map(goalMap);
+      setIsRunning(false);
 
-    let goals: Goal[] | undefined = undefined; // tell me about it bruh
-    if (!tab.id.startsWith("tempgoal-")) {
-      // real delete on backend
-      await del.mutateAsync(tab.id);
-      goals = (await refetch()).data;
-    } else {
-      // client side goal delete
+      let goals: Goal[] | undefined = undefined;
+      if (!tab.id.startsWith("tempgoal-")) {
+        // real delete on backend
+        await del.mutateAsync(tab.id);
+        if (sessionData) {
+          goals = (await refetch()).data;
+        }
+      } else {
+        // client side goal delete
 
-      newGoalMap.delete(tab.id);
+        newGoalMap.delete(tab.id);
+        setGoalMap(newGoalMap);
+        if (count <= 1) {
+          // do not allow deleting the last tab
+          setCurrentTabIndex(0);
+          return;
+        }
+        goals = Array.from(newGoalMap.values());
+      }
+
+      let index = 0;
+      let prevIndex = undefined;
+      for (const goal of goals ?? []) {
+        newGoalMap.set(goal.id, {
+          ...goal,
+          index,
+        });
+        if (goal.id === prevSelectedGoal?.id && !prevIndex) {
+          prevIndex = index;
+        }
+        index += 1;
+      }
       setGoalMap(newGoalMap);
-      if (count <= 1) {
-        // do not allow deleting the last tab
-        setCurrentTabIndex(0);
-        return;
-      }
-      goals = Array.from(newGoalMap.values());
-    }
+      prevIndex ? setCurrentTabIndex(prevIndex) : setCurrentTabIndex(0);
 
-    let index = 0;
-    let prevIndex = undefined;
-    for (const goal of goals ?? []) {
-      newGoalMap.set(goal.id, {
-        ...goal,
-        index,
-      });
-      if (goal.id === prevSelectedGoal?.id && !prevIndex) {
-        prevIndex = index;
-      }
-      index += 1;
-    }
-    setGoalMap(newGoalMap);
-    prevIndex ? setCurrentTabIndex(prevIndex) : setCurrentTabIndex(0);
-
-    (goals?.length ?? 0) === 0 &&
-      router.pathname !== "/" &&
-      (await router.push("/"));
-  };
+      (goals?.length ?? 0) === 0 &&
+        router.pathname !== "/" &&
+        (await router.push("/"));
+    },
+    [
+      count,
+      del,
+      goalMap,
+      prevSelectedGoal?.id,
+      refetch,
+      router,
+      setCurrentTabIndex,
+      setGoalMap,
+      setIsRunning,
+      sessionData,
+    ],
+  );
 
   return (
     <>
@@ -167,7 +190,7 @@ const HistoryTab: React.FC<HistoryTabProps> = ({
             sx={{ mixBlendMode: "difference" }}
           >
             {currentTabIndex === tab.index ? (
-              <>{goalInputValue.length > 0 ? goalInputValue : "New Goal"}</>
+              <>{selectedGoal.length > 0 ? selectedGoal : "New Goal"}</>
             ) : tab.prompt.length < 120 ? (
               tab.prompt.length > 0 ? (
                 tab.prompt
