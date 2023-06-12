@@ -19,7 +19,7 @@ export default function BasicModal({ children }: Props) {
             className="flex-shrink"
             onClick={() => setOpen(true)}
           >
-            💰 Data and Tools
+            💰 Data + Tools
           </Link>
         </Tooltip>
       </Box>
