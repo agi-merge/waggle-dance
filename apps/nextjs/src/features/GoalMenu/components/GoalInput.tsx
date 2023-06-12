@@ -1,6 +1,6 @@
 // GoalInput.tsx
 
-import React, { useCallback, useEffect, useMemo, useState } from "react";
+import React, { useCallback, useEffect, useState } from "react";
 import { KeyboardArrowRight } from "@mui/icons-material";
 import {
   Box,
@@ -44,10 +44,7 @@ export default function GoalInput({}: GoalInputProps) {
   const [templatesModalOpen, setTemplatesModalOpen] =
     React.useState<boolean>(false);
   const { data: sessionData } = useSession();
-  const goalInputValue = useMemo(
-    () => getGoalInputValue(),
-    [getGoalInputValue],
-  );
+
   const { mutate } = api.goal.create.useMutation({
     onSuccess: () => {
       console.log("Goal saved!");
@@ -60,9 +57,14 @@ export default function GoalInput({}: GoalInputProps) {
   const handleSubmit = useCallback(
     (event: React.FormEvent) => {
       event.preventDefault();
-      if (sessionData) void mutate({ prompt: goalInputValue });
+      if (sessionData) {
+        void mutate({ prompt: getGoalInputValue() });
+      } else {
+        // hmm
+        // setGoalInputValue(event.target.value as string);
+      }
     },
-    [sessionData, goalInputValue, mutate],
+    [sessionData, getGoalInputValue, mutate],
   );
 
   const handleChange = (event: React.ChangeEvent<HTMLTextAreaElement>) => {

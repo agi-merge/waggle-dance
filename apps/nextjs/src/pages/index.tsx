@@ -2,15 +2,11 @@
 
 import React from "react";
 import type { InferGetStaticPropsType } from "next";
-import { useRouter } from "next/router";
 
 import { getOpenAIUsage, type CombinedResponse } from "~/utils/openAIUsageAPI";
-import { app } from "~/constants";
 import GoalInput from "~/features/GoalMenu/components/GoalInput";
 import MainLayout from "~/features/MainLayout";
 import Title from "~/features/MainLayout/components/PageTitle";
-import useGoalStore from "~/stores/goalStore";
-import useWaggleDanceMachineStore from "~/stores/waggleDanceStore";
 
 export interface Handlers {
   setGoal: (goal: string) => void;

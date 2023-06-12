@@ -123,7 +123,7 @@ const HistoryTab: React.FC<HistoryTabProps> = ({
   );
 
   return (
-    <>
+    <Box sx={{ width: `${100 / goalMap.size + 1}%` }}>
       <Tab
         component={Stack}
         color={currentTabIndex === tab.index ? "primary" : "neutral"}
@@ -197,13 +197,10 @@ const HistoryTab: React.FC<HistoryTabProps> = ({
               `${tab.prompt.slice(0, 120)}…`
             )}
           </Typography>
-          <Typography level="body5">
-            {tab.index} | {tab.id.slice(tab.id.length - 4)}
-          </Typography>
         </Button>
       </Tab>
       <Divider orientation="vertical" />
-    </>
+    </Box>
   );
 };
 
@@ -253,7 +250,6 @@ const HistoryTabber: React.FC<HistoryTabberProps> = ({ children }) => {
             sx={{
               background: "transparent",
               overflow: "scroll",
-              maxWidth: "100%",
             }}
           >
             {entries.map(([_key, tab], _index) => (
@@ -265,10 +261,12 @@ const HistoryTabber: React.FC<HistoryTabberProps> = ({ children }) => {
               />
             ))}
             {entries.length > 0 && (
-              <Box className="justify-center align-middle">
+              <Box className="flex justify-end align-middle">
                 <IconButton
-                  color="neutral"
-                  variant="outlined"
+                  className="flex-end"
+                  color="primary"
+                  size="md"
+                  variant="soft"
                   onClick={() => {
                     const id = `tempgoal-${v4()}`;
                     const index = entries.length;
