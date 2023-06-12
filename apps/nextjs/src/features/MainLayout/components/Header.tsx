@@ -1,4 +1,5 @@
 import React, { useMemo } from "react";
+import NextLink from "next/link";
 import { useRouter } from "next/router";
 import { KeyboardArrowRight } from "@mui/icons-material";
 import {
@@ -23,7 +24,7 @@ function removeFirstCharIfMatching(str: string, targetChar: string): string {
 
 const routes = {
   "": {
-    path: "" as RoutePath,
+    path: "/" as RoutePath,
     label: "🐝 Start",
   },
   // {
@@ -91,19 +92,14 @@ const Header = ({}) => {
     return (
       <Box key={path}>
         {isLink ? (
-          <Link
-            onClick={() => {
-              // FIXME: confirmation modal
-              // if (path === "") {
-              //   setGoal("");
-              // }
-              void router.replace(path);
-            }}
+          <NextLink
+            href={path}
+            passHref
             color={isCurrent ? "primary" : "neutral"}
             className="cursor-pointer"
           >
             {labelElement}
-          </Link>
+          </NextLink>
         ) : (
           labelElement
         )}
