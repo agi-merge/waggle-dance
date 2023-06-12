@@ -11,7 +11,6 @@ export interface GoalStore {
   setIsLoading: (newState: boolean) => void;
   goalMap: GoalMap;
   setGoalMap: (newData: GoalMap) => void;
-  getSelectedGoal: () => GoalTab | undefined;
   prevSelectedGoal: GoalTab | undefined;
   initializeHistoryData: (sessionData?: Session | null, historicGoals?: Goal[]) => void;
   currentTabIndex: number;
@@ -42,19 +41,6 @@ const useGoalStore = create<GoalStore>((set, get) => ({
     } else {
       set({ goalMap: newData })
     }
-  },
-  getSelectedGoal: () => {
-    const g = get()
-    if (g.goalMap.size === 0) {
-      return undefined;
-    }
-    const currentTabIndex = g.currentTabIndex;
-    const values = g.goalMap !== undefined && g.goalMap.values !== undefined && g.goalMap.values();
-    if (!values) {
-      return undefined;
-    }
-    const array = Array.from(values);
-    return array.find((goal) => goal.index === currentTabIndex);
   },
   prevSelectedGoal: undefined,
   initializeHistoryData: (sessionData, historicGoals) => {
@@ -133,7 +119,7 @@ const useGoalStore = create<GoalStore>((set, get) => ({
     const goal = goals.find((goal) => goal.id === prevId)
     const newGoal = { ...goal, prompt: newGoalInputValue } as GoalTab
     goal?.id && goalMap.set(goal.id, newGoal);
-    // debugger;
+    console.log("setGoalInputValue", newGoalInputValue, newGoal)
     set({
       goalMap,
     })

@@ -53,14 +53,10 @@ type WaggleDanceGraphProps = StackProps;
 const WaggleDanceGraph = ({}: WaggleDanceGraphProps) => {
   const { isRunning, setIsRunning, isAutoStartEnabled, setIsAutoStartEnabled } =
     useWaggleDanceMachineState();
-  const { getSelectedGoal } = useGoalStore();
-  const goal = useMemo(
-    () => getSelectedGoal()?.prompt ?? "",
-    [getSelectedGoal],
-  );
+  const { getGoalInputValue } = useGoalStore();
   const { graphData, dag, stop, run, logs, taskStates } = useWaggleDanceMachine(
     {
-      goal,
+      goal: getGoalInputValue(),
     },
   );
   const [runId, setRunId] = useState<Date | null>(null);

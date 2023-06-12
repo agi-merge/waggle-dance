@@ -18,7 +18,6 @@ import { type CardProps } from "@mui/joy/Card";
 import { useSession } from "next-auth/react";
 
 import { api } from "~/utils/api";
-import { type Handlers } from "~/pages";
 import useApp from "~/stores/appStore";
 import useGoalStore from "~/stores/goalStore";
 import GoalDoctorModal from "./GoalDoctorModal";
@@ -38,8 +37,7 @@ const placeholders = ["What's your goal? …Not sure? Check Examples!"];
 type GoalInputProps = CardProps;
 
 export default function GoalInput({}: GoalInputProps) {
-  const { getGoalInputValue, setGoalInputValue, getSelectedGoal } =
-    useGoalStore();
+  const { getGoalInputValue, setGoalInputValue } = useGoalStore();
   const { isPageLoading } = useApp();
   const [_currentPromptIndex, setCurrentPromptIndex] = useState(0);
   const [currentPlaceholderIndex, setCurrentPlaceholderIndex] = useState(0);
@@ -49,10 +47,6 @@ export default function GoalInput({}: GoalInputProps) {
   const goalInputValue = useMemo(
     () => getGoalInputValue(),
     [getGoalInputValue],
-  );
-  const selectedGoal = useMemo(
-    () => getSelectedGoal()?.prompt ?? "",
-    [getSelectedGoal],
   );
   const { mutate } = api.goal.create.useMutation({
     onSuccess: () => {

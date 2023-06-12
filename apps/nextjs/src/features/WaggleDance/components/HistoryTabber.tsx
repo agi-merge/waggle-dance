@@ -52,17 +52,7 @@ const HistoryTab: React.FC<HistoryTabProps> = ({
     getGoalInputValue,
     setCurrentTabIndex,
     prevSelectedGoal,
-    getSelectedGoal,
   } = useGoalStore();
-
-  const goalInputValue = useMemo(
-    () => getGoalInputValue(),
-    [getGoalInputValue],
-  );
-  const selectedGoal = useMemo(
-    () => getSelectedGoal()?.prompt ?? "",
-    [getSelectedGoal],
-  );
   const sessionData = useSession().data;
   const router = useRouter();
   const del = api.goal.delete.useMutation();
@@ -170,7 +160,7 @@ const HistoryTab: React.FC<HistoryTabProps> = ({
             const newGoalMap = new Map(goalMap);
             newGoalMap.set(tab.id, {
               id: tab.id ?? goal?.id,
-              prompt: goalInputValue ?? goal?.prompt,
+              prompt: getGoalInputValue() ?? goal?.prompt,
               index: tab.index,
               userId: goal?.userId ?? "",
               tooltip: goal?.tooltip,
@@ -182,7 +172,7 @@ const HistoryTab: React.FC<HistoryTabProps> = ({
           }}
         >
           <Typography
-            fontStyle={goalInputValue.length > 0 ? "normal" : "italic"}
+            fontStyle={getGoalInputValue().length > 0 ? "normal" : "italic"}
             level="body3"
             noWrap
             className="flex-grow"
@@ -190,7 +180,11 @@ const HistoryTab: React.FC<HistoryTabProps> = ({
             sx={{ mixBlendMode: "difference" }}
           >
             {currentTabIndex === tab.index ? (
-              <>{selectedGoal.length > 0 ? selectedGoal : "New Goal"}</>
+              <>
+                {getGoalInputValue().length > 0
+                  ? getGoalInputValue()
+                  : "New Goal"}
+              </>
             ) : tab.prompt.length < 120 ? (
               tab.prompt.length > 0 ? (
                 tab.prompt
@@ -221,18 +215,18 @@ const HistoryTabber: React.FC<HistoryTabberProps> = ({ children }) => {
   );
 
   // Handle tab change
-  const handleChange = (
-    event: React.SyntheticEvent | null,
-    newValue: number,
-  ) => {
-    // prevent + from being selected
-    if (newValue === goalMap.size) {
-      event?.preventDefault();
-      return;
-    }
-    // Update tab state
-    setCurrentTabIndex(newValue);
-  };
+  const handleChange = useCallback(
+    (event: React.SyntheticEvent | null, newValue: number) => {
+      // prevent + from being selected
+      if (newValue === goalMap.size) {
+        event?.preventDefault();
+        return;
+      }
+      // Update tab state
+      setCurrentTabIndex(newValue);
+    },
+    [goalMap.size, setCurrentTabIndex],
+  );
 
   // 🌍 Render
   return (

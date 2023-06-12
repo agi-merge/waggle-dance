@@ -35,15 +35,15 @@ export default function WaggleDance({
   openAIUsage,
 }: InferGetServerSidePropsType<typeof getServerSideProps>) {
   const router = useRouter();
-  const { goalMap, getSelectedGoal } = useGoalStore();
+  const { goalMap, getGoalInputValue } = useGoalStore();
   const goals = useMemo(() => Array.from(goalMap.values()), [goalMap]);
 
   useEffect(() => {
     // Redirect if the goal is undefined or empty
-    if (getSelectedGoal()?.prompt.length ?? 0 == 0) {
+    if (getGoalInputValue().length ?? 0 == 0) {
       void router.push("/");
     }
-  }, [getSelectedGoal, router]);
+  }, [getGoalInputValue, router]);
 
   return (
     <MainLayout openAIUsage={openAIUsage}>

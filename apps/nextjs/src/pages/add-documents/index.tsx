@@ -80,16 +80,16 @@ type Props = {
   onClose?: () => void;
 };
 const AddDocuments = ({ onClose }: Props) => {
-  const { getSelectedGoal } = useGoalStore();
+  const { getGoalInputValue } = useGoalStore();
   const router = useRouter();
   const [ingestFiles, setIngestFiles] = useState<IngestFiles>({});
   const [ingestUrls, setIngestUrls] = useState<IngestUrls>({});
 
   useEffect(() => {
-    if (!getSelectedGoal()) {
+    if (!getGoalInputValue()) {
       void router.push("/");
     }
-  }, [getSelectedGoal, router]);
+  }, [getGoalInputValue, router]);
 
   const isAnyFileUploading = useMemo(() => {
     return Object.values(ingestFiles).some(
