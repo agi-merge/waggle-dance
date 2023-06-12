@@ -111,24 +111,29 @@ const useGoalStore = create<GoalStore>((set, get) => ({
   },
   currentTabIndex: 0,
   setCurrentTabIndex: (newTabIndex) => {
-    const prevIndex = get().currentTabIndex;
-    const prevGoal = Array.from(get().goalMap.values()).find((goal) => goal.index === prevIndex)
+    const goalMap = get().goalMap;
+    const goals = Array.from(goalMap.values());
+    const prevId = goals[get().currentTabIndex]?.id
+    const prevGoal = goals.find((goal) => goal.id === prevId)
     set({ prevSelectedGoal: prevGoal, currentTabIndex: newTabIndex })
   },
   // FIXME: the usages of Array.from(...) could become a perf issue
   // change to array indexed values 
   getGoalInputValue: () => {
-    const goalMap = get().goalMap;
-    const prevId = Array.from(goalMap.values())[get().currentTabIndex]?.id
-    // goalMap[prevIndex]
-    return Array.from(goalMap.values()).find((goal) => goal.id === prevId)?.prompt || ""
+    const goalMap = new Map(get().goalMap);
+    const goals = Array.from(goalMap.values());
+    const prevId = goals[get().currentTabIndex]?.id
+    const prompt = goals.find((goal) => goal.id === prevId)?.prompt || ""
+    return prompt
   },
   setGoalInputValue: (newGoalInputValue) => {
     const goalMap = new Map(get().goalMap);
     const goals = Array.from(goalMap.values());
     const prevId = goals[get().currentTabIndex]?.id
     const goal = goals.find((goal) => goal.id === prevId)
-    goal?.id && goalMap.set(goal.id, { ...goal, prompt: newGoalInputValue });
+    const newGoal = { ...goal, prompt: newGoalInputValue } as GoalTab
+    goal?.id && goalMap.set(goal.id, newGoal);
+    // debugger;
     set({
       goalMap,
     })
