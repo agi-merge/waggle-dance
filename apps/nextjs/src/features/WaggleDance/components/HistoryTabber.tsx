@@ -105,7 +105,7 @@ const HistoryTab: React.FC<HistoryTabProps> = ({
   return (
     <Tab
       sx={{
-        width: `${100 / count - 13}%`,
+        width: `${100 / (count + 1)}%`,
       }}
       color={currentTabIndex === tab.index ? "primary" : "neutral"}
       variant="outlined"
