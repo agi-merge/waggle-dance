@@ -115,11 +115,8 @@ const HistoryTab: React.FC<HistoryTabProps> = ({
         component={Stack}
         color={currentTabIndex === tab.index ? "primary" : "neutral"}
         sx={{
-          // width: `${100 / count}%`,
           marginX: 0.5,
         }}
-        // slots={{ root: Stack }}
-        // slotProps={{ root: { direction: "row" } }}
         orientation="horizontal"
         variant="outlined"
         className="flex flex-grow items-center justify-center"
@@ -219,7 +216,6 @@ const HistoryTabber: React.FC<HistoryTabberProps> = ({ children }) => {
     <>
       {entries.length > 0 && (
         <Tabs
-          selectionFollowsFocus={true}
           aria-label="Goal tabs"
           value={currentTabIndex}
           onChange={(event, newValue) => {
@@ -232,8 +228,15 @@ const HistoryTabber: React.FC<HistoryTabberProps> = ({ children }) => {
             marginTop: -2.5,
             marginX: -2.5,
           }}
+          orientation="horizontal"
         >
-          <TabList sx={{ background: "transparent" }}>
+          <TabList
+            sx={{
+              background: "transparent",
+              overflow: "scroll",
+              maxWidth: "100%",
+            }}
+          >
             {entries.map(([_key, tab], _index) => (
               <HistoryTab
                 key={tab.id}
@@ -246,7 +249,7 @@ const HistoryTabber: React.FC<HistoryTabberProps> = ({ children }) => {
               <Box className="justify-center align-middle">
                 <IconButton
                   color="neutral"
-                  variant="plain"
+                  variant="outlined"
                   onClick={() => {
                     const id = `tempgoal-${v4()}`;
                     const index = entries.length;

@@ -90,9 +90,8 @@ const MainLayout = ({ children, openAIUsage }: Props) => {
           />
           <link rel="icon" href="/favicon.ico" />
         </Head>
-        <div className="mx" />
         <Sheet
-          className="mx-auto md:max-w-screen-lg xl:max-w-screen-lg"
+          className="mx-auto sm:mt-1 md:mt-2 md:max-w-screen-lg xl:max-w-screen-lg"
           sx={{
             borderRadius: "lg",
             shadowRadius: "xl",
