@@ -52,6 +52,7 @@ const HistoryTab: React.FC<HistoryTabProps> = ({
     setCurrentTabIndex,
     prevSelectedGoal,
   } = useGoalStore();
+
   const goalInputValue = useMemo(
     () => getGoalInputValue(),
     [getGoalInputValue],
@@ -95,13 +96,11 @@ const HistoryTab: React.FC<HistoryTabProps> = ({
         ...goal,
         index,
       });
-      console.log("goal.id", goal.id, prevSelectedGoal?.id, "index", index);
       if (goal.id === prevSelectedGoal?.id && !prevIndex) {
         prevIndex = index;
       }
       index += 1;
     }
-    console.log("prevIndex", prevIndex);
     setGoalMap(newGoalMap);
     prevIndex ? setCurrentTabIndex(prevIndex) : setCurrentTabIndex(0);
 
@@ -111,94 +110,94 @@ const HistoryTab: React.FC<HistoryTabProps> = ({
   };
 
   return (
-    <Tab
-      sx={{
-        width: `${100 / (count + 1)}%`,
-      }}
-      slots={{ root: Stack }}
-      orientation="horizontal"
-      className="flex flex-grow"
-    >
-      <Button
-        className="flex-grow overflow-clip"
-        size="sm"
-        sx={{}}
+    <>
+      <Tab
+        component={Stack}
         color={currentTabIndex === tab.index ? "primary" : "neutral"}
-        startDecorator={
-          <IconButton
-            size="sm"
-            color="neutral"
-            variant="soft"
-            onClick={(e) => {
-              e.stopPropagation();
-              void closeHandler(tab);
-            }}
-          >
-            <Close />
-          </IconButton>
-        }
-        variant="outlined"
-        onClick={() => {
-          // save currentSelectedTab's prompt
-          const goal = goalMap.get(tab.id);
-          const newGoalMap = new Map(goalMap);
-          newGoalMap.set(tab.id, {
-            id: tab.id ?? goal?.id,
-            prompt: goalInputValue ?? goal?.prompt,
-            index: tab.index,
-            userId: goal?.userId ?? "",
-            tooltip: goal?.tooltip,
-            createdAt: goal?.createdAt ?? new Date(),
-            updatedAt: new Date(),
-          });
-          setGoalMap(newGoalMap);
-          setCurrentTabIndex(tab.index);
+        sx={{
+          // width: `${100 / count}%`,
+          marginX: 0.5,
         }}
+        // slots={{ root: Stack }}
+        // slotProps={{ root: { direction: "row" } }}
+        orientation="horizontal"
+        variant="outlined"
+        className="flex flex-grow items-center justify-center"
       >
-        <Typography
-          fontStyle={goalInputValue.length > 0 ? "normal" : "italic"}
-          level="body3"
-          noWrap
-          className="flex-grow"
-          textColor="common.white"
-          sx={{ mixBlendMode: "difference" }}
+        <Button
+          className="flex-grow overflow-clip"
+          size="sm"
+          startDecorator={
+            <IconButton
+              size="sm"
+              color="neutral"
+              variant="soft"
+              onClick={(e) => {
+                e.preventDefault();
+                e.stopPropagation();
+                void closeHandler(tab);
+              }}
+            >
+              <Close />
+            </IconButton>
+          }
+          variant="outlined"
+          color="neutral"
+          sx={{ marginY: -2, marginX: -1.5 }}
+          onClick={() => {
+            // save currentSelectedTab's prompt
+            const goal = goalMap.get(tab.id);
+            const newGoalMap = new Map(goalMap);
+            newGoalMap.set(tab.id, {
+              id: tab.id ?? goal?.id,
+              prompt: goalInputValue ?? goal?.prompt,
+              index: tab.index,
+              userId: goal?.userId ?? "",
+              tooltip: goal?.tooltip,
+              createdAt: goal?.createdAt ?? new Date(),
+              updatedAt: new Date(),
+            });
+            setGoalMap(newGoalMap);
+            setCurrentTabIndex(tab.index);
+          }}
         >
-          {currentTabIndex === tab.index ? (
-            <>{goalInputValue.length > 0 ? goalInputValue : "New Goal"}</>
-          ) : tab.prompt.length < 120 ? (
-            tab.prompt.length > 0 ? (
-              tab.prompt
+          <Typography
+            fontStyle={goalInputValue.length > 0 ? "normal" : "italic"}
+            level="body3"
+            noWrap
+            className="flex-grow"
+            textColor="common.white"
+            sx={{ mixBlendMode: "difference" }}
+          >
+            {currentTabIndex === tab.index ? (
+              <>{goalInputValue.length > 0 ? goalInputValue : "New Goal"}</>
+            ) : tab.prompt.length < 120 ? (
+              tab.prompt.length > 0 ? (
+                tab.prompt
+              ) : (
+                "New Goal"
+              )
             ) : (
-              "New Goal"
-            )
-          ) : (
-            `${tab.prompt.slice(0, 120)}…`
-          )}
-        </Typography>
-        <Typography level="body5">
-          {tab.index} | {tab.id.slice(tab.id.length - 4)}
-        </Typography>
-      </Button>
-    </Tab>
+              `${tab.prompt.slice(0, 120)}…`
+            )}
+          </Typography>
+          <Typography level="body5">
+            {tab.index} | {tab.id.slice(tab.id.length - 4)}
+          </Typography>
+        </Button>
+      </Tab>
+      <Divider orientation="vertical" />
+    </>
   );
 };
 
 // The main tabber component
 const HistoryTabber: React.FC<HistoryTabberProps> = ({ children }) => {
-  const {
-    goalMap,
-    setGoalMap,
-    currentTabIndex,
-    setCurrentTabIndex,
-    getGoalInputValue,
-  } = useGoalStore();
+  const { goalMap, setGoalMap, currentTabIndex, setCurrentTabIndex } =
+    useGoalStore();
   const entries = useMemo(
     () => (goalMap && goalMap.entries ? Array.from(goalMap.entries()) : []),
     [goalMap],
-  );
-  const goalInputValue = useMemo(
-    () => getGoalInputValue(),
-    [getGoalInputValue],
   );
 
   // Handle tab change
@@ -220,11 +219,13 @@ const HistoryTabber: React.FC<HistoryTabberProps> = ({ children }) => {
     <>
       {entries.length > 0 && (
         <Tabs
+          selectionFollowsFocus={true}
           aria-label="Goal tabs"
           value={currentTabIndex}
-          onChange={(event, newValue) =>
-            handleChange(event, newValue as number)
-          }
+          onChange={(event, newValue) => {
+            event?.preventDefault();
+            handleChange(event, newValue as number);
+          }}
           sx={{
             borderRadius: "sm",
             background: "transparent",
@@ -239,14 +240,10 @@ const HistoryTabber: React.FC<HistoryTabberProps> = ({ children }) => {
                 count={entries.length}
                 tab={tab}
                 currentTabIndex={currentTabIndex}
-              >
-                {tab.index != entries.length - 1 && (
-                  <Divider orientation="vertical" />
-                )}
-              </HistoryTab>
+              />
             ))}
             {entries.length > 0 && (
-              <Box className="mt-1 justify-center px-2 align-middle">
+              <Box className="justify-center align-middle">
                 <IconButton
                   color="neutral"
                   variant="plain"

@@ -50,7 +50,7 @@ export default function Home({
 }: InferGetStaticPropsType<typeof getStaticProps>) {
   const { setIsAutoStartEnabled } = useWaggleDanceMachineStore();
   const router = useRouter();
-  const { getSelectedGoal, setGoalInputValue } = useGoalStore();
+  const { setGoalInputValue } = useGoalStore();
 
   // Define handleSetGoal function
   const handleSetGoal = (goal: string) => {
@@ -71,7 +71,6 @@ export default function Home({
     <MainLayout openAIUsage={openAIUsage}>
       <Title title="🐝 Goal solver" description="" />
       <GoalInput
-        startingValue={getSelectedGoal()?.prompt}
         callbacks={{
           setGoal: handleSetGoal,
           onChange: handleInputChange,

@@ -20,8 +20,7 @@ export const goalRouter = createTRPCRouter({
     const userId = ctx.session.user.id;
     return ctx.prisma.goal.findMany({
       where: { userId },
-      // FIXME: There is some tom foolery here: Unknown arg `updatedAt` in orderBy.updatedAt for type GoalOrderByWithRelationInput. Available args:
-      // orderBy: { updatedAt: 'desc' },
+      orderBy: { updatedAt: 'desc' },
       take: 20,
     });
   }),

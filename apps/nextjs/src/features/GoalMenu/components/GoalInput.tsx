@@ -1,6 +1,6 @@
 // GoalInput.tsx
 
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useMemo, useState } from "react";
 import { KeyboardArrowRight } from "@mui/icons-material";
 import {
   Box,
@@ -37,15 +37,11 @@ const placeholders = ["What's your goal? …Not sure? Check Examples!"];
 
 interface GoalInputProps extends CardProps {
   callbacks: Handlers;
-  startingValue?: string;
 }
 
-export default function GoalInput({
-  callbacks,
-  startingValue,
-}: GoalInputProps) {
+export default function GoalInput({ callbacks }: GoalInputProps) {
   const {
-    goalInputValue,
+    getGoalInputValue,
     setGoalInputValue,
     getSelectedGoal,
     currentTabIndex,
@@ -56,6 +52,14 @@ export default function GoalInput({
   const [templatesModalOpen, setTemplatesModalOpen] =
     React.useState<boolean>(false);
   const { data: sessionData } = useSession();
+  const goalInputValue = useMemo(
+    () => getGoalInputValue(),
+    [getGoalInputValue],
+  );
+  const selectedGoal = useMemo(
+    () => getSelectedGoal()?.prompt ?? "",
+    [getSelectedGoal],
+  );
   const { mutate } = api.goal.create.useMutation({
     onSuccess: () => {
       console.log("Goal saved!");
@@ -66,12 +70,8 @@ export default function GoalInput({
   });
 
   useEffect(() => {
-    if (startingValue) {
-      setGoalInputValue(startingValue);
-    } else {
-      setGoalInputValue(getSelectedGoal()?.prompt ?? "");
-    }
-  }, [startingValue, getSelectedGoal, setGoalInputValue, currentTabIndex]);
+    setGoalInputValue(selectedGoal);
+  }, [selectedGoal, setGoalInputValue, currentTabIndex]);
 
   const handleSubmit = (event: React.FormEvent) => {
     event.preventDefault();
@@ -114,7 +114,7 @@ export default function GoalInput({
                   size="sm"
                   variant="solid"
                   color="neutral"
-                  disabled={goalInputValue.trim().length === 0}
+                  disabled={getGoalInputValue().trim().length === 0}
                   onClick={() => {
                     setGoalInputValue("");
                   }}
@@ -186,7 +186,7 @@ export default function GoalInput({
               handleSubmit(event);
             }
           }}
-          value={goalInputValue}
+          value={getGoalInputValue()}
           onChange={handleChange}
         />
       </FormControl>
@@ -196,7 +196,7 @@ export default function GoalInput({
           loading={isPageLoading}
           className="col-end mt-2"
           type="submit"
-          disabled={goalInputValue.trim().length === 0}
+          disabled={getGoalInputValue().trim().length === 0}
         >
           Next
           <KeyboardArrowRight />

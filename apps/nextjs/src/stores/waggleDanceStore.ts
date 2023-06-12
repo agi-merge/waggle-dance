@@ -32,7 +32,7 @@ const useWaggleDanceMachineStore = create(
       setLLMOption: (newValue) => set({ llmOption: newValue }),
     }),
     {
-      name: app.localStorageKeys.goal,
+      name: app.localStorageKeys.waggleDance,
       storage: createJSONStorage(() => sessionStorage), // alternatively use: localStorage
     }
   )
