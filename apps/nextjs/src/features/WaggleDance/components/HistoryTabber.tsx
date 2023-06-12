@@ -1,14 +1,17 @@
-import { useEffect, useMemo } from "react";
+import { useMemo } from "react";
 import { useRouter } from "next/router";
 import { Add, Close } from "@mui/icons-material";
 import {
   Box,
   Button,
+  Divider,
   IconButton,
+  Stack,
   Tab,
   TabList,
   Tabs,
   Typography,
+  type TabProps,
   type TabsProps,
 } from "@mui/joy";
 import { v4 } from "uuid";
@@ -24,11 +27,11 @@ export type HistoryTab = Goal & {
   tooltip?: string;
 };
 
-interface HistoryTabProps {
+interface HistoryTabProps extends TabProps {
   tab: HistoryTab;
   currentTabIndex: number;
   count: number;
-  onSelect: (tab: HistoryTab) => void;
+  // onSelect: (tab: HistoryTab) => void;
 }
 
 interface HistoryTabberProps extends TabsProps {
@@ -40,12 +43,19 @@ const HistoryTab: React.FC<HistoryTabProps> = ({
   tab,
   currentTabIndex,
   count,
-  onSelect,
 }) => {
   const { setIsRunning } = useWaggleDanceMachineStore();
-  const { goalMap, setGoalMap, goalInputValue, setCurrentTabIndex } =
-    useGoalStore();
-  const goalCount = useMemo(() => Object.keys(goalMap).length, [goalMap]);
+  const {
+    goalMap,
+    setGoalMap,
+    getGoalInputValue,
+    setCurrentTabIndex,
+    prevSelectedGoal,
+  } = useGoalStore();
+  const goalInputValue = useMemo(
+    () => getGoalInputValue(),
+    [getGoalInputValue],
+  );
   const router = useRouter();
   const del = api.goal.delete.useMutation();
   const { refetch } = api.goal.topByUser.useQuery(undefined, {
@@ -55,48 +65,46 @@ const HistoryTab: React.FC<HistoryTabProps> = ({
       console.log("api.goal.topByUser", data);
     },
   });
+
   const closeHandler = async (tab: HistoryTab) => {
+    const newGoalMap = new Map(goalMap);
     setIsRunning(false);
+
+    let goals: Goal[] | undefined = undefined; // tell me about it bruh
     if (!tab.id.startsWith("tempgoal-")) {
-      // skip stubbed new tabs
-      await del.mutateAsync(tab.id); // const tabs = Object.values(historyData).filter((t) => t.id !== tab.id);
+      // real delete on backend
+      await del.mutateAsync(tab.id);
+      goals = (await refetch()).data;
     } else {
-      const newGoalMap = new Map(goalMap);
+      // client side goal delete
 
       newGoalMap.delete(tab.id);
       setGoalMap(newGoalMap);
-      if (goalCount <= 1) {
+      if (count <= 1) {
+        // do not allow deleting the last tab
+        setCurrentTabIndex(0);
         return;
       }
+      goals = Array.from(newGoalMap.values());
     }
-    const goals = (await refetch()).data;
 
-    if (goals?.length ?? 0 === 0) {
-      const id = tab.id;
-      const newGoalMap = new Map<string, HistoryTab>();
-      // id literal gets inserted
-      newGoalMap.set(id, {
-        id,
-        prompt: "",
-        index: 0,
-        tooltip: "",
-        createdAt: new Date(),
-        updatedAt: new Date(),
-        userId: "",
-      });
-
-      setGoalMap(newGoalMap);
-      setCurrentTabIndex(0);
-      return;
-    }
     let index = 0;
+    let prevIndex = undefined;
     for (const goal of goals ?? []) {
-      goalMap.set(goal.id, {
+      newGoalMap.set(goal.id, {
         ...goal,
         index,
       });
+      console.log("goal.id", goal.id, prevSelectedGoal?.id, "index", index);
+      if (goal.id === prevSelectedGoal?.id && !prevIndex) {
+        prevIndex = index;
+      }
       index += 1;
     }
+    console.log("prevIndex", prevIndex);
+    setGoalMap(newGoalMap);
+    prevIndex ? setCurrentTabIndex(prevIndex) : setCurrentTabIndex(0);
+
     (goals?.length ?? 0) === 0 &&
       router.pathname !== "/" &&
       (await router.push("/"));
@@ -107,29 +115,44 @@ const HistoryTab: React.FC<HistoryTabProps> = ({
       sx={{
         width: `${100 / (count + 1)}%`,
       }}
-      color={currentTabIndex === tab.index ? "primary" : "neutral"}
-      variant="outlined"
+      slots={{ root: Stack }}
+      orientation="horizontal"
+      className="flex flex-grow"
     >
-      <IconButton
-        size="sm"
-        color="neutral"
-        variant="plain"
-        onClick={() => {
-          void closeHandler(tab);
-        }}
-      >
-        <Close />
-      </IconButton>
       <Button
-        className="m-0 flex w-full overflow-clip p-0"
+        className="flex-grow overflow-clip"
         size="sm"
-        color="neutral"
-        // eslint-disable-next-line @typescript-eslint/ban-ts-comment
-        // @ts-ignore:next-line
-        // FIXME: relies on undefined behavior to get desired style (weirdly not available otherwise)
-        variant=""
+        sx={{}}
+        color={currentTabIndex === tab.index ? "primary" : "neutral"}
+        startDecorator={
+          <IconButton
+            size="sm"
+            color="neutral"
+            variant="soft"
+            onClick={(e) => {
+              e.stopPropagation();
+              void closeHandler(tab);
+            }}
+          >
+            <Close />
+          </IconButton>
+        }
+        variant="outlined"
         onClick={() => {
-          onSelect(tab);
+          // save currentSelectedTab's prompt
+          const goal = goalMap.get(tab.id);
+          const newGoalMap = new Map(goalMap);
+          newGoalMap.set(tab.id, {
+            id: tab.id ?? goal?.id,
+            prompt: goalInputValue ?? goal?.prompt,
+            index: tab.index,
+            userId: goal?.userId ?? "",
+            tooltip: goal?.tooltip,
+            createdAt: goal?.createdAt ?? new Date(),
+            updatedAt: new Date(),
+          });
+          setGoalMap(newGoalMap);
+          setCurrentTabIndex(tab.index);
         }}
       >
         <Typography
@@ -152,10 +175,10 @@ const HistoryTab: React.FC<HistoryTabProps> = ({
             `${tab.prompt.slice(0, 120)}…`
           )}
         </Typography>
+        <Typography level="body5">
+          {tab.index} | {tab.id.slice(tab.id.length - 4)}
+        </Typography>
       </Button>
-      <Typography level="body5">
-        {tab.index} | {tab.id.slice(tab.id.length - 4)}
-      </Typography>
     </Tab>
   );
 };
@@ -167,11 +190,15 @@ const HistoryTabber: React.FC<HistoryTabberProps> = ({ children }) => {
     setGoalMap,
     currentTabIndex,
     setCurrentTabIndex,
-    goalInputValue,
+    getGoalInputValue,
   } = useGoalStore();
   const entries = useMemo(
     () => (goalMap && goalMap.entries ? Array.from(goalMap.entries()) : []),
     [goalMap],
+  );
+  const goalInputValue = useMemo(
+    () => getGoalInputValue(),
+    [getGoalInputValue],
   );
 
   // Handle tab change
@@ -202,33 +229,21 @@ const HistoryTabber: React.FC<HistoryTabberProps> = ({ children }) => {
             borderRadius: "sm",
             background: "transparent",
             marginTop: -2.5,
-            marginX: -3,
+            marginX: -2.5,
           }}
         >
           <TabList sx={{ background: "transparent" }}>
-            {entries.map(([_key, tab], index) => (
+            {entries.map(([_key, tab], _index) => (
               <HistoryTab
                 key={tab.id}
-                onSelect={() => {
-                  // save currentSelectedTab's prompt
-                  const goal = goalMap.get(tab.id);
-                  const newGoalMap = new Map(goalMap);
-                  newGoalMap.set(tab.id, {
-                    id: tab.id ?? goal?.id,
-                    prompt: goalInputValue ?? goal?.prompt,
-                    index: index,
-                    userId: goal?.userId ?? "",
-                    tooltip: goal?.tooltip,
-                    createdAt: goal?.createdAt ?? new Date(),
-                    updatedAt: new Date(),
-                  });
-                  setGoalMap(newGoalMap);
-                  setCurrentTabIndex(index);
-                }}
                 count={entries.length}
                 tab={tab}
                 currentTabIndex={currentTabIndex}
-              />
+              >
+                {tab.index != entries.length - 1 && (
+                  <Divider orientation="vertical" />
+                )}
+              </HistoryTab>
             ))}
             {entries.length > 0 && (
               <Box className="mt-1 justify-center px-2 align-middle">

@@ -12,10 +12,11 @@ export interface GoalStore {
   goalMap: GoalMap;
   setGoalMap: (newData: GoalMap) => void;
   getSelectedGoal: () => GoalTab | undefined;
+  prevSelectedGoal: GoalTab | undefined;
   initializeHistoryData: (sessionData?: Session | null, historicGoals?: Goal[]) => void;
   currentTabIndex: number;
   setCurrentTabIndex: (newTabIndex: number) => void;
-  goalInputValue: string;
+  getGoalInputValue: () => string;
   setGoalInputValue: (newGoalInputValue: string) => void;
 }
 
@@ -55,6 +56,7 @@ const useGoalStore = create<GoalStore>((set, get) => ({
     const array = Array.from(values);
     return array.find((goal) => goal.index === currentTabIndex);
   },
+  prevSelectedGoal: undefined,
   initializeHistoryData: (sessionData, historicGoals) => {
 
     const id = `tempgoal-${uuid}`
@@ -108,9 +110,25 @@ const useGoalStore = create<GoalStore>((set, get) => ({
     }
   },
   currentTabIndex: 0,
-  setCurrentTabIndex: (newTabIndex) => set({ currentTabIndex: newTabIndex }),
-  goalInputValue: "",
-  setGoalInputValue: (newGoalInputValue) => set({ goalInputValue: newGoalInputValue }),
+  setCurrentTabIndex: (newTabIndex) => {
+    const prevIndex = get().currentTabIndex;
+    const prevGoal = Array.from(get().goalMap.values()).find((goal) => goal.index === prevIndex)
+    set({ prevSelectedGoal: prevGoal, currentTabIndex: newTabIndex })
+  },
+  // FIXME: the usages of Array.from(...) could become a perf issue
+  getGoalInputValue: () => {
+    const prevIndex = get().currentTabIndex
+    return Array.from(get().goalMap.values()).find((goal) => goal.index === prevIndex)?.prompt || ""
+  },
+  setGoalInputValue: (newGoalInputValue) => {
+    const goalMap = get().goalMap;
+    const prevIndex = get().currentTabIndex
+    const goal = Array.from(get().goalMap.values()).find((goal) => goal.index === prevIndex)
+    goal?.id && goalMap.set(goal.id, { ...goal, prompt: newGoalInputValue });
+    set({
+      goalMap,
+    })
+  }
 }));
 
 export default useGoalStore;
