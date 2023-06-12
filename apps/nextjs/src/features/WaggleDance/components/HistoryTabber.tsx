@@ -123,7 +123,7 @@ const HistoryTab: React.FC<HistoryTabProps> = ({
   );
 
   return (
-    <Box sx={{ width: `${100 / goalMap.size + 1}%` }}>
+    <Box sx={{ width: `${100 / goalMap.size}%` }}>
       <Tab
         component={Stack}
         color={currentTabIndex === tab.index ? "primary" : "neutral"}
@@ -249,8 +249,8 @@ const HistoryTabber: React.FC<HistoryTabberProps> = ({ children }) => {
           <TabList
             sx={{
               background: "transparent",
-              overflow: "scroll",
             }}
+            className="flex "
           >
             {entries.map(([_key, tab], _index) => (
               <HistoryTab

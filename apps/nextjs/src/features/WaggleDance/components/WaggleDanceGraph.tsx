@@ -239,7 +239,6 @@ const WaggleDanceGraph = ({}: WaggleDanceGraphProps) => {
                           sx={{
                             backgroundColor: statusColor(n),
                             padding: 0,
-                            overflow: "scroll",
                           }}
                         >
                           <ListItem>
