@@ -160,7 +160,11 @@ const GoalTab: React.FC<GoalTabProps> = ({ tab, currentTabIndex, count }) => {
           }}
         >
           <Typography
-            fontStyle={getGoalInputValue().length > 0 ? "normal" : "italic"}
+            fontStyle={
+              currentTabIndex === tab.index && getGoalInputValue().length > 0
+                ? "normal"
+                : "italic"
+            }
             level="body3"
             noWrap
             className="flex-grow"
