@@ -31,7 +31,7 @@ interface GoalTabProps {
   count: number;
 }
 
-interface GoalTabberProps {
+interface GoalTabsProps {
   children: React.ReactNode;
 }
 
@@ -185,7 +185,7 @@ const GoalTab: React.FC<GoalTabProps> = ({ tab, currentTabIndex, count }) => {
 };
 
 // The main goal tabber component
-const GoalTabs: React.FC<GoalTabberProps> = ({ children }) => {
+const GoalTabs: React.FC<GoalTabsProps> = ({ children }) => {
   const { goalMap, setGoalMap, currentTabIndex, setCurrentTabIndex } =
     useGoalStore();
   const entries = useMemo(
