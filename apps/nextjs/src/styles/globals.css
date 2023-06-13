@@ -5,15 +5,15 @@ a {
   color: var(--joy-palette-primary-500);
 }
 :root {
-  --light-color: rgb(250, 181, 97);
-  --dark-color: rgb(255, 247, 202);
-  --background-color: rgba(35, 23, 3, 0);
+  --light-color: rgb(254, 231, 188);
+  --dark-color: rgb(250, 181, 97);
+  --background-color: rgba(24, 24, 27, 0);
 }
 
 .dark {
-  --light-color: rgb(48, 26, 0);
+  --light-color: rgb(48, 26, 0, 0.9);
   --dark-color: rgb(119, 71, 14);
-  --background-color: rgba(35, 23, 3, 0);
+  --background-color: rgba(35, 23, 3, 0.05);
 }
 
 .bg-honeycomb {
