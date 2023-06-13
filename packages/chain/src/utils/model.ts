@@ -1,4 +1,5 @@
 import { OpenAIEmbeddings } from "langchain/embeddings/openai";
+import { type Embeddings } from "langchain/embeddings/base"
 import { OpenAI } from "langchain/llms/openai";
 
 import { type EmbeddingsCreationProps, type ModelCreationProps } from "./types";
@@ -22,7 +23,7 @@ export const createModel = (creationProps: ModelCreationProps): OpenAI => {
 
 export const createEmbeddings = (
   creationProps: EmbeddingsCreationProps,
-): OpenAIEmbeddings => {
+): Embeddings => {
   return new OpenAIEmbeddings(
     { ...creationProps },
     // {

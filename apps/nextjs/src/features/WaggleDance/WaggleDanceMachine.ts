@@ -56,7 +56,7 @@ export function findNodesWithNoIncomingEdges(dag: DAG | OptionalDAG): DAGNode[] 
 }
 
 export type OptimisticFirstTaskState = {
-  firstTaskState: "not started" | "started" | "done"
+  firstTaskState: "not started" | "started" | "done" | "error"
   taskId?: string
 }
 
@@ -71,10 +71,10 @@ export default class WaggleDanceMachine {
     log: (...args: (string | number | object)[]) => void,
     executionMethod: string,
     isRunning: boolean,
-    abortController: AbortController,
+    abortSignal: AbortSignal,
   ): Promise<WaggleDanceResult | Error> {
     const reviewPrefix = `criticism-${new Date().getUTCMilliseconds()}-`
-    const taskState = { firstTaskState: "not started" as "not started" | "started" | "done" } as OptimisticFirstTaskState;
+    const taskState = { firstTaskState: "not started" as "not started" | "started" | "done" | "error" } as OptimisticFirstTaskState;
 
     let dag: DAG
     let completedTasks: Set<string> = new Set([rootPlanId]);
@@ -85,17 +85,26 @@ export default class WaggleDanceMachine {
       taskState.firstTaskState = "started";
       taskState.taskId = task.id
       // Call the executeTasks function for the given task and update the states accordingly
-      const { completedTasks: newCompletedTasks, taskResults: newTaskResults } = await executeTask(
-        { ...request, task, dag, taskResults, completedTasks, reviewPrefix, executionMethod },
-        maxConcurrency,
-        isRunning,
-        sendChainPacket,
-        log,
-        abortController,
-      )
-      completedTasks = new Set([...newCompletedTasks, ...completedTasks]);
-      taskResults = { ...newTaskResults, ...taskResults };
-      taskState.firstTaskState = "done";
+      if (!abortSignal.aborted) {
+        const { completedTasks: newCompletedTasks, taskResults: newTaskResults } = await executeTask(
+          { ...request, task, dag, taskResults, completedTasks, reviewPrefix, executionMethod },
+          maxConcurrency,
+          isRunning,
+          sendChainPacket,
+          log,
+          abortSignal,
+        )
+        completedTasks = new Set([...newCompletedTasks, ...completedTasks]);
+        taskResults = { ...newTaskResults, ...taskResults };
+        const node = dag.nodes.find(n => task.id == n.id)
+        node ? sendChainPacket({ type: "done", nodeId: task.id, value: JSON.stringify(taskResults) }, node) : console.warn("node not found", task.id)
+        log("taskResults", taskResults);
+        taskState.firstTaskState = "done";
+      } else {
+        console.warn("aborted startFirstTask")
+        taskState.firstTaskState = "error";
+        return
+      }
       // console.error("Error executing the first task:", error);
     };
     if (initDAG.edges.length > 0 && isDonePlanning) {
@@ -109,7 +118,8 @@ export default class WaggleDanceMachine {
 
       dag = await planTasks(request.goal, request.creationProps, initDAG, setDAG, log, sendChainPacket, taskState, updateTaskState, startFirstTask);
       if (dag.nodes[0]) {
-        sendChainPacket({ type: "done", nodeId: rootPlanId, value: "🍯 Return Goal" }, dag.nodes[0])
+        const node = dag.nodes[dag.nodes.length - 1]
+        node && sendChainPacket({ type: "done", nodeId: rootPlanId, value: "🍯 Return Goal" }, node) || console.warn("node not found", rootPlanId)
       } else {
         log("no nodes in dag")
       }
@@ -134,8 +144,7 @@ export default class WaggleDanceMachine {
       );
 
       if (pendingTasks.length === 0) {
-        log("No pending tasks, but goal not reached. DAG:", dag);
-        await sleep(1000);
+        await sleep(1000); // FIXME: observation model instead
         continue;
       }
 
@@ -170,7 +179,7 @@ export default class WaggleDanceMachine {
       } as ExecuteRequestBody;
 
       void (async () => {
-        const executionResponse = await executeTask(executeRequest, maxConcurrency, isRunning, sendChainPacket, log, abortController);
+        const executionResponse = await executeTask(executeRequest, maxConcurrency, isRunning, sendChainPacket, log, abortSignal);
         taskResults = { ...taskResults, ...executionResponse.taskResults };
         for (const taskId of executionResponse.completedTasks) {
           completedTasks.add(taskId);

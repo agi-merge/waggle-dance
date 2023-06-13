@@ -25,7 +25,7 @@ import Table from "@mui/joy/Table";
 
 import DropZoneUploader from "~/features/AddDocuments/DropZoneUploader";
 import Title from "~/features/MainLayout/components/PageTitle";
-import useGoal from "~/stores/goalStore";
+import useGoalStore from "~/stores/goalStore";
 
 type UploadState =
   | { status: "idle" }
@@ -77,20 +77,19 @@ function isValidUrl(url: string) {
 }
 
 type Props = {
-  hideTitleGoal?: boolean;
   onClose?: () => void;
 };
-const AddDocuments = ({ hideTitleGoal, onClose }: Props) => {
+const AddDocuments = ({ onClose }: Props) => {
+  const { getGoalInputValue } = useGoalStore();
   const router = useRouter();
   const [ingestFiles, setIngestFiles] = useState<IngestFiles>({});
   const [ingestUrls, setIngestUrls] = useState<IngestUrls>({});
-  const { goal } = useGoal();
 
   useEffect(() => {
-    if (!goal) {
+    if (!getGoalInputValue()) {
       void router.push("/");
     }
-  }, [goal, router]);
+  }, [getGoalInputValue, router]);
 
   const isAnyFileUploading = useMemo(() => {
     return Object.values(ingestFiles).some(
@@ -153,12 +152,8 @@ const AddDocuments = ({ hideTitleGoal, onClose }: Props) => {
   return (
     <>
       <Title
-        title="🌺 Add Documents & Data"
-        description="
-                Providing up to date and relevant information upfront will
-                ensure better planning and execution by the waggling swarm of
-                bees. You can keep adding documents later as well."
-        hideGoal={hideTitleGoal}
+        title="💰 Documents, Data, and Tools"
+        description="Add websites, documents, and tools to ensure better planning and execution."
       />
       <Stack gap="1rem" className="mt-6">
         <IngestContext.Provider
@@ -262,11 +257,7 @@ const AddDocuments = ({ hideTitleGoal, onClose }: Props) => {
             color="primary"
             href="waggle-dance"
             onClick={() => {
-              if (!hideTitleGoal) {
-                void router.push("/waggle-dance");
-              } else {
-                if (onClose) onClose();
-              }
+              if (onClose) onClose();
             }}
           >
             {onClose ? (

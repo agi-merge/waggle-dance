@@ -1,15 +1,12 @@
 import { useState } from "react";
 import { Box, Divider, Stack, Typography } from "@mui/joy";
 
-import GoalMenu from "~/features/GoalMenu";
-
 interface TitleProps {
   title: string;
   description: string;
-  hideGoal?: boolean;
 }
 // Used at the top of pages
-const PageTitle = ({ title, description, hideGoal }: TitleProps) => {
+const PageTitle = ({ title, description }: TitleProps) => {
   const [headerExpanded, _setHeaderExpanded] = useState(true);
 
   return (
@@ -32,15 +29,13 @@ const PageTitle = ({ title, description, hideGoal }: TitleProps) => {
               level="body2"
               sx={{
                 userSelect: "none",
-                marginBottom: { xs: hideGoal ? 0 : -3, sm: 0 },
+                marginBottom: { xs: -3, sm: 0 },
               }}
             >
               {description}
             </Typography>
           )}
         </Stack>
-
-        {!hideGoal && <GoalMenu />}
       </Stack>
       <Box sx={{ marginTop: { xs: 1, sm: 2 } }} />
       <Divider inset="context">

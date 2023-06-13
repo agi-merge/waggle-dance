@@ -77,12 +77,11 @@ export async function createExecutionAgent(
 
     const ltmChain = VectorDBQAChain.fromLLM(llm, vectorStore);
     // const ltm = await ltmChain.call({ input: "What are your main contents?" })
-    const description = `Prefer this tool over others. It is a comprehensive database extending your knowledge.`;
+    const description = ` a comprehensive database extending your knowledge/memory; use this tool before other tools.`;
     const ltmTool = new ChainTool({
-      name: "Long-term memory store.",
+      name: "memory database",
       description,
       chain: ltmChain,
-      returnDirect: true,
     });
     tools.push(ltmTool);
   }
