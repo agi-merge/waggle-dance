@@ -232,53 +232,52 @@ const GoalTabs: React.FC<GoalTabsProps> = ({ children }) => {
             borderRadius: "sm",
             background: "transparent",
             marginTop: -2.5,
-            marginX: -2.5,
+            marginLeft: -3,
+            marginRight: -2.5,
           }}
           orientation="horizontal"
         >
-          <Box
+          <TabList
             sx={{
               background: "transparent",
               display: "flex flex-shrink",
               flexWrap: "nowrap",
             }}
           >
-            <TabList>
-              {entries.map(([_key, tab], _index) => (
-                <GoalTab
-                  key={tab.id}
-                  count={entries.length}
-                  tab={tab}
-                  currentTabIndex={currentTabIndex}
-                />
-              ))}
-              <IconButton
-                className="flex-end float-start"
-                color="primary"
-                size="md"
-                variant="soft"
-                onClick={() => {
-                  const id = `tempgoal-${v4()}`;
-                  const index = entries.length;
-                  const newGoalMap = new Map(goalMap);
-                  newGoalMap.set(id, {
-                    id,
-                    prompt: "",
-                    index,
-                    tooltip: "",
-                    createdAt: new Date(),
-                    updatedAt: new Date(),
-                    userId: "",
-                  });
+            {entries.map(([_key, tab], _index) => (
+              <GoalTab
+                key={tab.id}
+                count={entries.length}
+                tab={tab}
+                currentTabIndex={currentTabIndex}
+              />
+            ))}
+            <IconButton
+              className="flex-end float-start"
+              color="neutral"
+              size="md"
+              variant="plain"
+              onClick={() => {
+                const id = `tempgoal-${v4()}`;
+                const index = entries.length;
+                const newGoalMap = new Map(goalMap);
+                newGoalMap.set(id, {
+                  id,
+                  prompt: "",
+                  index,
+                  tooltip: "",
+                  createdAt: new Date(),
+                  updatedAt: new Date(),
+                  userId: "",
+                });
 
-                  setGoalMap(newGoalMap);
-                  setCurrentTabIndex(index);
-                }}
-              >
-                <Add />
-              </IconButton>
-            </TabList>
-          </Box>
+                setGoalMap(newGoalMap);
+                setCurrentTabIndex(index);
+              }}
+            >
+              <Add />
+            </IconButton>
+          </TabList>
           <Box className="mx-6 mt-1">{children}</Box>
         </Tabs>
       )}
