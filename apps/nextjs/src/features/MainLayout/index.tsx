@@ -73,7 +73,7 @@ const MainLayout = ({ children, openAIUsage }: Props) => {
   }
   return (
     <div className={`bg-honeycomb ${mode === "dark" ? " dark" : "light"}`}>
-      <div className="max-h-screen min-h-screen overflow-y-auto px-2 pb-2">
+      <div className="h-screen overflow-y-auto px-2 pb-2">
         <Head>
           <title>{app.name}</title>
           <meta name="description" content={app.description} />
