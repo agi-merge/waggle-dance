@@ -28,7 +28,6 @@ const useGoalStore = create(
     setIsLoading: (newState) => set({ isLoading: newState }),
     goalMap: new Map<string, GoalTab>(),
     setGoalMap: (newData) => {
-      console.log("setGoalMap", newData)
       if (newData.size === 0) {
         const goalMap = new Map<string, GoalTab>();
         const id = `tempgoal-${uuid}`
