@@ -1,11 +1,12 @@
 import React, { useMemo } from "react";
 import NextLink from "next/link";
 import { useRouter } from "next/router";
-import { KeyboardArrowRight } from "@mui/icons-material";
+import { KeyboardArrowRight, MoreVert } from "@mui/icons-material";
 import {
   Avatar,
   Box,
   Breadcrumbs,
+  IconButton,
   Link,
   Menu,
   MenuItem,
@@ -47,8 +48,19 @@ const Header = ({}) => {
   const router = useRouter();
   const slug = removeFirstCharIfMatching(router.pathname, "/");
   const { data: session } = useSession();
+
   const [anchorEl, setAnchorEl] = React.useState<null | HTMLElement>(null);
-  const open = Boolean(anchorEl);
+  const isOpen = Boolean(anchorEl);
+
+  const handleOpen = (event: React.MouseEvent<HTMLButtonElement>) => {
+    if (isOpen) {
+      event.preventDefault();
+      setAnchorEl(null);
+      return;
+    }
+
+    setAnchorEl(event.currentTarget);
+  };
 
   const activeIndex = useMemo(() => {
     return Object.keys(routes).findIndex((path) => path === slug);
@@ -63,11 +75,7 @@ const Header = ({}) => {
     const isHighlighted = index <= activeIndex;
     const isLink = index != activeIndex && isHighlighted;
     const isCurrent = index === activeIndex;
-    // const _handleStateChange = () => {
-    //   setGoalInputState(goalState ?? GoalInputState.start);
-    // };
-    // const route = routes[path];
-    // const isHighlighted = goalState <= route.goalState;
+
     const labelElement = isHighlighted ? (
       <Typography
         key={path}
@@ -109,14 +117,6 @@ const Header = ({}) => {
 
   const isHomeSlug = (slug?.length ?? 0) === 0;
 
-  const handleAvatarClick = (event: React.MouseEvent<HTMLButtonElement>) => {
-    setAnchorEl(event.currentTarget);
-  };
-
-  const handleAvatarClose = () => {
-    setAnchorEl(null);
-  };
-
   return (
     <header className="z-10 mx-auto w-full px-5 pt-5">
       <Stack direction="row" className="items-center">
@@ -131,44 +131,47 @@ const Header = ({}) => {
             </Typography>
           </Typography>
         </Stack>
-        <Stack direction="row" spacing="10">
-          {session?.user ? (
-            <Tooltip title={`${session.user.name} has 100 credits`}>
-              <Link>
-                <span onClick={handleAvatarClick}>
-                  <Avatar
-                    className="mr-3"
-                    src={session.user.image || undefined}
-                    alt={session.user.name || undefined}
-                  />
-                </span>
-              </Link>
-            </Tooltip>
-          ) : (
-            <Typography className="p-2">
-              <NextLink href="/auth/signin">Sign in/up</NextLink>
-            </Typography>
-          )}
-          <Menu
-            id="basic-menu"
-            anchorEl={anchorEl}
-            open={open}
-            onClose={handleAvatarClose}
-            aria-labelledby="basic-demo-button"
-          >
-            {/* <MenuItem onClick={handleAvatarClose}>😀 Profile</MenuItem>
-            <MenuItem onClick={handleAvatarClose}>🧾 My account</MenuItem> */}
-            <MenuItem
-              onClick={() => {
-                void router.push("/auth/signout");
-                handleAvatarClose();
-              }}
-            >
-              👋 Logout
-            </MenuItem>
-          </Menu>
-          <ThemeToggle />
-        </Stack>
+        <IconButton
+          id="menu-button"
+          aria-controls={isOpen ? "main-menu" : undefined}
+          aria-haspopup="true"
+          aria-expanded={isOpen ? "true" : undefined}
+          variant="outlined"
+          color="neutral"
+          onClick={handleOpen}
+        >
+          <MoreVert />
+        </IconButton>
+        <Menu
+          id="main-menu"
+          variant="outlined"
+          anchorEl={anchorEl}
+          open={isOpen}
+          aria-labelledby="menu-button"
+        >
+          <MenuItem orientation="vertical">
+            <ThemeToggle />
+          </MenuItem>
+          <MenuItem orientation="vertical">
+            {session?.user ? (
+              <Tooltip title={`${session.user.name} has 100 credits`}>
+                <Link>
+                  <span onClick={handleOpen}>
+                    <Avatar
+                      className="mr-3"
+                      src={session.user.image || undefined}
+                      alt={session.user.name || undefined}
+                    />
+                  </span>
+                </Link>
+              </Tooltip>
+            ) : (
+              <Typography className="p-2">
+                <NextLink href="/auth/signin">Sign in/up</NextLink>
+              </Typography>
+            )}
+          </MenuItem>
+        </Menu>
       </Stack>
       {isHomeSlug && (
         <Typography

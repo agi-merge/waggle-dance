@@ -19,9 +19,9 @@ export default function ThemeToggle() {
     <Switch
       checked={mode === "dark"}
       onChange={(event) => setMode(event.target.checked ? "dark" : "light")}
-      // onClick={() => {
-      //   setMode(mode === "light" ? "dark" : "light");
-      // }}
+      onClick={() => {
+        setMode(mode === "light" ? "dark" : "light");
+      }}
       slotProps={{
         input: { "aria-label": "Dark mode" },
         thumb: {
