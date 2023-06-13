@@ -14,7 +14,7 @@ const Alerts = () => {
     <>
       {isDemoAlertOpen && (
         <Box
-          className="my-2"
+          className="mb-6"
           sx={{
             display: "flex",
             gap: 2,
