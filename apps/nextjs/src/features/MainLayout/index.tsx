@@ -2,10 +2,14 @@ import React, { useEffect, useMemo, useState } from "react";
 import Head from "next/head";
 import { useRouter } from "next/router";
 import { Card, LinearProgress, Sheet, useColorScheme } from "@mui/joy";
+import { useSession } from "next-auth/react";
 
+import { api } from "~/utils/api";
 import { type CombinedResponse } from "~/utils/openAIUsageAPI";
 import { app } from "~/constants";
 import useApp from "~/stores/appStore";
+import useGoalStore from "~/stores/goalStore";
+import HistoryTabber from "../WaggleDance/components/HistoryTabber";
 import Alerts from "./components/Alerts";
 import Footer from "./components/Footer";
 import Header from "./components/Header";
@@ -19,8 +23,37 @@ type Props = {
 const MainLayout = ({ children, openAIUsage }: Props) => {
   const { mode } = useColorScheme();
   const { isPageLoading } = useApp();
-  const [mounted, setMounted] = useState(false);
+  const { initializeHistoryData } = useGoalStore();
   const router = useRouter();
+  const { goalMap } = useGoalStore();
+  const [mounted, setMounted] = useState(false);
+
+  const { data: sessionData } = useSession();
+  const { data: historicGoals, refetch } = api.goal.topByUser.useQuery(
+    undefined,
+    {
+      refetchOnMount: false,
+      refetchOnWindowFocus: false,
+      onSuccess: (data) => {
+        console.log("Mainlayout goal fetch onSuccess!", data);
+      },
+    },
+  );
+
+  // Initialize history data based on whether the user is logged in or not
+  // If not, the + button will ask the user to log in
+  useEffect(() => {
+    const handleHistoricGoals = async () => {
+      if (sessionData) {
+        initializeHistoryData(sessionData, historicGoals);
+        // avoid spamming errors
+        await refetch();
+      } else if (goalMap.size === 0) {
+        initializeHistoryData(sessionData, historicGoals);
+      }
+    };
+    void handleHistoricGoals();
+  }, [sessionData, goalMap, historicGoals, initializeHistoryData, refetch]);
 
   // necessary for server-side renderingπ
   // because mode is undefined on the server
@@ -32,7 +65,7 @@ const MainLayout = ({ children, openAIUsage }: Props) => {
   }, [isPageLoading]);
 
   const pageOpacity = useMemo(() => {
-    return isPageLoading ? 80 : 100;
+    return isPageLoading ? 50 : 100;
   }, [isPageLoading]);
 
   if (!mounted) {
@@ -61,10 +94,8 @@ const MainLayout = ({ children, openAIUsage }: Props) => {
           />
           <link rel="icon" href="/favicon.ico" />
         </Head>
-        <div className="mx" />
         <Sheet
-          // variant="outlined"
-          className="mx-auto md:max-w-screen-lg xl:max-w-screen-lg"
+          className="mx-auto sm:mt-1 md:mt-2 md:max-w-screen-lg xl:max-w-screen-lg"
           sx={{
             borderRadius: "lg",
             shadowRadius: "xl",
@@ -73,11 +104,6 @@ const MainLayout = ({ children, openAIUsage }: Props) => {
           variant="soft"
         >
           <Header />
-          <LinearProgress
-            thickness={3}
-            sx={{ opacity: progressOpacity }}
-            color="neutral"
-          />
           <Card
             invertedColors
             color="primary"
@@ -88,7 +114,15 @@ const MainLayout = ({ children, openAIUsage }: Props) => {
             }}
           >
             <Alerts />
-            {children}
+            <HistoryTabber>
+              <LinearProgress
+                thickness={3}
+                sx={{ opacity: progressOpacity }}
+                color="neutral"
+              />
+              {children}
+            </HistoryTabber>
+
             {openAIUsage && <OpenAIUsage openAIUsage={openAIUsage} />}
           </Card>
           <Footer />

@@ -25,7 +25,7 @@ function AdvancedSettingsToggle({ children }: { children: React.ReactNode }) {
     <Stack direction="row" gap="0.5rem">
       <Box className="align-start flex flex-shrink">
         <DocsModal>
-          <AddDocuments hideTitleGoal={true} />\
+          <AddDocuments />
         </DocsModal>
       </Box>
       <Divider orientation="vertical" />
@@ -47,7 +47,7 @@ function AdvancedSettingsToggle({ children }: { children: React.ReactNode }) {
           className="m-0 p-0"
           aria-labelledby="basic-demo-button"
         >
-          {isOpen ? "▼" : "▲"} Advanced Settings
+          {isOpen ? "▼" : "▲"} Agent Settings
         </Typography>
       </Link>
       <Menu
@@ -111,6 +111,8 @@ function GoalSettings({}: CardProps) {
           >
             <Option value="gpt-3.5-turbo-0301">gpt-3.5-turbo-0301</Option>
             <Option value="gpt-4-0314">gpt-4-0314</Option>
+            <Option value="gpt-3.5-turbo">gpt-3.5-turbo</Option>
+            <Option value="gpt-4">gpt-4</Option>
           </Select>
         </Box>
       </Stack>

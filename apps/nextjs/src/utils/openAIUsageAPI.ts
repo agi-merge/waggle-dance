@@ -40,6 +40,8 @@ export const getOpenAIUsage = async (startDate: Date): Promise<CombinedResponse>
         "Content-Type": "application/json",
         "Authorization": `Bearer ${process.env.OPENAI_API_KEY}`,
         "OpenAI-Organization": process.env.OPENAI_ORGANIZATION_ID || "",
+        "stale-while-revalidate": "86400",
+        "max-age": "300",
     };
 
     // if this isn't exactly one month, usageData will be something other than usd and mess up calculations

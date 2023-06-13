@@ -43,6 +43,7 @@ const useWaggleDanceMachine = ({
   const { isRunning, setIsRunning, temperatureOption, llmOption, executionMethod } = useWaggleDanceMachineStore();
   const [dag, setDAG] = useState<DAG>(new DAG([], []));
   const [isDonePlanning, setIsDonePlanning] = useState(false);
+  const [taskResults, setTaskResults] = useState<Record<string, TaskState>>({});
   const [logs, setLogs] = useState<LogMessage[]>([]);
   const [chainPackets, setChainPackets] = useState<Record<string, TaskState>>({});
   const [abortController, setAbortController] = useState<AbortController>(new AbortController());
@@ -173,15 +174,16 @@ const useWaggleDanceMachine = ({
     }
   }, [abortController]);
 
-
+  // main entrypoint
   const run = useCallback(async () => {
-    stop();
     setAbortController(new AbortController());
+
     const maxTokens = llmResponseTokenLimit(LLM.smart)
 
     if (!isDonePlanning) {
       setDAG(new DAG(initialNodes(goal, LLM.smart), initialEdges()));
     }
+
     const result = await waggleDanceMachine.run(
       {
         goal,
@@ -202,7 +204,7 @@ const useWaggleDanceMachine = ({
       log,
       executionMethod,
       isRunning,
-      abortController
+      abortController.signal
     );
 
     console.log("waggleDanceMachine.run result", result);
@@ -214,10 +216,12 @@ const useWaggleDanceMachine = ({
 
     console.log("result", result);
     setIsRunning(false);
+    const res = result.results[0] as Record<string, TaskState>;
+    res && setTaskResults(res)
     return result;
   }, [stop, isDonePlanning, waggleDanceMachine, goal, llmOption, temperatureOption, dag, sendChainPacket, log, executionMethod, isRunning, abortController, setIsRunning]);
 
-  return { waggleDanceMachine, dag, graphData, stop, run, setIsDonePlanning, isDonePlanning, logs, taskStates, };
+  return { waggleDanceMachine, dag, graphData, stop, run, setIsDonePlanning, isDonePlanning, logs, taskStates, taskResults };
 };
 
 export default useWaggleDanceMachine;

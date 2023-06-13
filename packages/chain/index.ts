@@ -4,4 +4,4 @@ export * from "./src/utils/prompts";
 export * from "./src/utils/types";
 
 export * from "./src/strategy/createExecutionAgent";
-export * from "./src/strategy/plan";
+export * from "./src/strategy/createPlanningAgent";

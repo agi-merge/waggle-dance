@@ -1,16 +1,16 @@
 // WaggleDance.tsx
-import React, { useEffect } from "react";
+import React, { useEffect, useMemo } from "react";
 import type {
   GetServerSidePropsContext,
   InferGetServerSidePropsType,
 } from "next";
 import { useRouter } from "next/router";
-import { Card } from "@mui/joy";
+import { TabPanel } from "@mui/joy";
 
 import { getOpenAIUsage, type CombinedResponse } from "~/utils/openAIUsageAPI";
 import MainLayout from "~/features/MainLayout";
 import WaggleDanceGraph from "~/features/WaggleDance/components/WaggleDanceGraph";
-import useGoal from "~/stores/goalStore";
+import useGoalStore from "~/stores/goalStore";
 
 export async function getServerSideProps(context: GetServerSidePropsContext) {
   context.res.setHeader(
@@ -35,20 +35,24 @@ export default function WaggleDance({
   openAIUsage,
 }: InferGetServerSidePropsType<typeof getServerSideProps>) {
   const router = useRouter();
-  const { goal } = useGoal();
+  const { goalMap, getGoalInputValue } = useGoalStore();
+  const goals = useMemo(() => Array.from(goalMap.values()), [goalMap]);
 
   useEffect(() => {
     // Redirect if the goal is undefined or empty
-    if (!goal) {
+    if (getGoalInputValue().length ?? 0 == 0) {
       void router.push("/");
     }
-  }, [goal, router]);
+  }, [getGoalInputValue, router]);
 
   return (
     <MainLayout openAIUsage={openAIUsage}>
-      <Card variant="soft" className="mb-3">
-        <WaggleDanceGraph />
-      </Card>
+      {goals.map((tab, index) => (
+        <TabPanel key={tab.id} value={index}>
+          <WaggleDanceGraph />
+        </TabPanel>
+      ))}
+      {goals.length < 1 && <WaggleDanceGraph />}
     </MainLayout>
   );
 }

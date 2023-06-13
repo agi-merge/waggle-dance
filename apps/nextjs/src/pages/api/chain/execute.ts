@@ -34,9 +34,7 @@ const handler = async (req: IncomingMessage, res: NextApiResponse) => {
       taskResults,
       reviewPrefix,
     } = JSON.parse(body) as ExecuteRequestBody;
-    // const encoder = new TextEncoder();
 
-    // Replace the ReadableStream with res.writeHead/write/end
     res.writeHead(200, {
       "Content-Type": "application/octet-stream",
       "Transfer-Encoding": "chunked",

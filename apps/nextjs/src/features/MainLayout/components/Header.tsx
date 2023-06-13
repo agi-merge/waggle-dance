@@ -1,4 +1,5 @@
 import React, { useMemo } from "react";
+import NextLink from "next/link";
 import { useRouter } from "next/router";
 import { KeyboardArrowRight } from "@mui/icons-material";
 import {
@@ -6,6 +7,8 @@ import {
   Box,
   Breadcrumbs,
   Link,
+  Menu,
+  MenuItem,
   Stack,
   Tooltip,
   Typography,
@@ -13,7 +16,6 @@ import {
 import { useSession } from "next-auth/react";
 
 import { app } from "~/constants";
-import useGoal from "~/stores/goalStore";
 import ThemeToggle from "./ThemeToggle";
 
 function removeFirstCharIfMatching(str: string, targetChar: string): string {
@@ -22,7 +24,7 @@ function removeFirstCharIfMatching(str: string, targetChar: string): string {
 
 const routes = {
   "": {
-    path: "" as RoutePath,
+    path: "/" as RoutePath,
     label: "🐝 Start",
   },
   // {
@@ -43,9 +45,10 @@ const routes = {
 type RoutePath = "" | "waggle-dance" | "goal-done";
 const Header = ({}) => {
   const router = useRouter();
-  const { setGoal } = useGoal();
   const slug = removeFirstCharIfMatching(router.pathname, "/");
   const { data: session } = useSession();
+  const [anchorEl, setAnchorEl] = React.useState<null | HTMLElement>(null);
+  const open = Boolean(anchorEl);
 
   const activeIndex = useMemo(() => {
     return Object.keys(routes).findIndex((path) => path === slug);
@@ -89,19 +92,14 @@ const Header = ({}) => {
     return (
       <Box key={path}>
         {isLink ? (
-          <Link
-            onClick={() => {
-              // FIXME: confirmation modal
-              if (path === "") {
-                setGoal("");
-              }
-              void router.replace(path);
-            }}
+          <NextLink
+            href={path}
+            passHref
             color={isCurrent ? "primary" : "neutral"}
             className="cursor-pointer"
           >
             {labelElement}
-          </Link>
+          </NextLink>
         ) : (
           labelElement
         )}
@@ -110,6 +108,14 @@ const Header = ({}) => {
   };
 
   const isHomeSlug = (slug?.length ?? 0) === 0;
+
+  const handleAvatarClick = (event: React.MouseEvent<HTMLButtonElement>) => {
+    setAnchorEl(event.currentTarget);
+  };
+
+  const handleAvatarClose = () => {
+    setAnchorEl(null);
+  };
 
   return (
     <header className="z-10 mx-auto w-full px-5 pt-5">
@@ -129,14 +135,34 @@ const Header = ({}) => {
           {session?.user && (
             <Tooltip title={`${session.user.name} has 100 credits`}>
               <Link>
-                <Avatar
-                  className="mr-3"
-                  src={session.user.image || undefined}
-                  alt={session.user.name || undefined}
-                />
+                <span onClick={handleAvatarClick}>
+                  <Avatar
+                    className="mr-3"
+                    src={session.user.image || undefined}
+                    alt={session.user.name || undefined}
+                  />
+                </span>
               </Link>
             </Tooltip>
           )}
+          <Menu
+            id="basic-menu"
+            anchorEl={anchorEl}
+            open={open}
+            onClose={handleAvatarClose}
+            aria-labelledby="basic-demo-button"
+          >
+            {/* <MenuItem onClick={handleAvatarClose}>😀 Profile</MenuItem>
+            <MenuItem onClick={handleAvatarClose}>🧾 My account</MenuItem> */}
+            <MenuItem
+              onClick={() => {
+                void router.push("/auth/signout");
+                handleAvatarClose();
+              }}
+            >
+              👋 Logout
+            </MenuItem>
+          </Menu>
           <ThemeToggle />
         </Stack>
       </Stack>

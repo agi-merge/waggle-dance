@@ -18,7 +18,7 @@ export default async function executeTask(
     _isRunning: boolean,
     sendChainPacket: (chainPacket: ChainPacket, node: DAGNode) => void,
     log: (...args: (string | number | object)[]) => void,
-    abortController: AbortController,
+    abortSignal: AbortSignal,
 ): Promise<{
     completedTasks: Set<string>;
     taskResults: Record<string, BaseResultType>;
@@ -49,19 +49,24 @@ export default async function executeTask(
                     }
                     return
                 }
+
+                if (abortSignal.aborted) {
+                    sendChainPacket({ type: "error", nodeId: task.id, severity: "fatal", message: "Task has been canceled" }, task)
+                    throw new Error("Aborted")
+                }
+
                 log(`About to execute task ${task.id} -${task.name}...`);
                 sendChainPacket({ type: "starting", nodeId: task.id }, task)
 
                 // Execute each task by making an API request
                 const data = { ...request, task, dag };
-                const signal = abortController.signal;
                 const response = await fetch("/api/chain/execute", {
                     method: "POST",
                     headers: {
                         "Content-Type": "application/json",
                     },
                     body: JSON.stringify(data),
-                    signal,
+                    signal: abortSignal,
                 });
 
                 // Get the response body as a stream

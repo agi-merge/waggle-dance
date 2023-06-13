@@ -19,7 +19,6 @@ import {
   Button,
   Card,
   Divider,
-  Input,
   LinearProgress,
   List,
   ListDivider,
@@ -39,9 +38,8 @@ import ReactMarkdown from "react-markdown";
 import remarkGfm from "remark-gfm";
 import { stringify } from "yaml";
 
-import PageTitle from "~/features/MainLayout/components/PageTitle";
 import AddDocuments from "~/pages/add-documents";
-import useGoal from "~/stores/goalStore";
+import useGoalStore from "~/stores/goalStore";
 import useWaggleDanceMachineState from "~/stores/waggleDanceStore";
 import { rootPlanId } from "../WaggleDanceMachine";
 import useWaggleDanceMachine, {
@@ -49,19 +47,18 @@ import useWaggleDanceMachine, {
 } from "../hooks/useWaggleDanceMachine";
 import DocsModal from "./DocsModal";
 import ForceGraph from "./ForceGraph";
-import TaskChainSelectMenu from "./TaskChainSelectMenu";
 
 type WaggleDanceGraphProps = StackProps;
 // shows the graph, agents, results, general messages and chat input
 const WaggleDanceGraph = ({}: WaggleDanceGraphProps) => {
   const { isRunning, setIsRunning, isAutoStartEnabled, setIsAutoStartEnabled } =
     useWaggleDanceMachineState();
-  const { goal } = useGoal();
-  const { graphData, dag, stop, run, isDonePlanning, logs, taskStates } =
-    useWaggleDanceMachine({
-      goal,
-    });
-  const [chatInput, setChatInput] = useState("");
+  const { getGoalInputValue } = useGoalStore();
+  const { graphData, dag, stop, run, logs, taskStates } = useWaggleDanceMachine(
+    {
+      goal: getGoalInputValue(),
+    },
+  );
   const [runId, setRunId] = useState<Date | null>(null);
 
   // Replace console.log() calls with customLog()
@@ -70,15 +67,13 @@ const WaggleDanceGraph = ({}: WaggleDanceGraphProps) => {
       setRunId(new Date());
       setIsRunning(true);
       void run();
-    } else {
-      setIsRunning(true);
-      stop();
     }
-  }, [stop, run, setIsRunning, isRunning]);
+  }, [run, setIsRunning, isRunning]);
 
-  const handleStop = () => {
+  const handleStop = useCallback(() => {
     setIsRunning(false);
-  };
+    stop();
+  }, [setIsRunning, stop]);
 
   const hasMountedRef = useRef(false);
 
@@ -86,14 +81,14 @@ const WaggleDanceGraph = ({}: WaggleDanceGraphProps) => {
   useEffect(() => {
     if (isAutoStartEnabled) {
       setIsAutoStartEnabled(false);
-      // setTimeout(() => {
-      if (!hasMountedRef.current) {
-        hasMountedRef.current = true;
-        handleStart();
-      }
-      // }, 333);
+      setTimeout(() => {
+        if (!hasMountedRef.current) {
+          hasMountedRef.current = true;
+          handleStart();
+        }
+      }, 0);
     }
-  });
+  }, [handleStart, hasMountedRef, isAutoStartEnabled, setIsAutoStartEnabled]);
 
   const stringifyMax = (value: unknown, max: number) => {
     const json = stringify(value);
@@ -101,40 +96,16 @@ const WaggleDanceGraph = ({}: WaggleDanceGraphProps) => {
   };
 
   const button = (
-    <Stack direction="row" gap="0.1rem" className="flex items-end justify-end">
-      {isRunning && dag.nodes.length > 1 ? (
-        <Tooltip title="Coming soon!" color="info">
-          <Input
-            endDecorator={
-              <Button
-                variant="plain"
-                color="neutral"
-                className="m-0 p-0"
-                onClick={(event) => {
-                  event.preventDefault();
-                  setChatInput("");
-                }}
-              >
-                <Send />
-              </Button>
-            }
-            startDecorator={<TaskChainSelectMenu dag={dag} />}
-            variant="outlined"
-            className="flex-grow"
-            placeholder="Chat → AIs"
-            onKeyUp={(event) => {
-              if (event.key === "Enter") {
-                event.preventDefault();
-                setChatInput("");
-              }
-            }}
-            onChange={(event) => {
-              setChatInput(event.target.value);
-            }}
-            value={chatInput}
-          />
-        </Tooltip>
-      ) : null}
+    <Stack
+      direction="row"
+      gap="0.5rem"
+      className="flex items-center justify-end"
+    >
+      <Box className="items-center justify-center align-top">
+        <DocsModal>
+          <AddDocuments />
+        </DocsModal>
+      </Box>
       <Button
         className="col-end p-2"
         color="primary"
@@ -184,19 +155,6 @@ const WaggleDanceGraph = ({}: WaggleDanceGraphProps) => {
 
   return (
     <Stack gap="1rem">
-      <PageTitle
-        title={!isRunning ? "🐝💃" : isDonePlanning ? "" : "Please 🐝 patient"}
-        description={
-          !isRunning
-            ? "Waggle dancing puts a swarm of language AIs to work to achieve your goal. The AIs split your goal into tasks, complete the tasks, and try to fix mistakes on their own."
-            : !isDonePlanning
-            ? "Planning tasks… this may take a minute… Please do NOT close this page or refresh."
-            : "Done planning. Running tasks… Please do NOT close this page or refresh."
-        }
-      />
-      <DocsModal>
-        <AddDocuments hideTitleGoal={true} />
-      </DocsModal>
       {!isRunning && button}
 
       {dag.nodes.length > 0 && (
@@ -278,7 +236,10 @@ const WaggleDanceGraph = ({}: WaggleDanceGraphProps) => {
                         <Card
                           color={statusColor(n)}
                           variant="soft"
-                          sx={{ backgroundColor: statusColor(n), padding: 0 }}
+                          sx={{
+                            backgroundColor: statusColor(n),
+                            padding: 0,
+                          }}
                         >
                           <ListItem>
                             <ListItemButton sx={{ borderRadius: "md" }}>
