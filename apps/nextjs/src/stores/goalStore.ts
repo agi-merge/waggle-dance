@@ -4,7 +4,7 @@ import { v4 } from "uuid";
 import { create } from "zustand";
 import { persist } from "zustand/middleware";
 import { app } from "~/constants";
-import { type HistoryTab as GoalTab } from "~/features/WaggleDance/components/HistoryTabber";
+import { type GoalTab } from "~/features/WaggleDance/components/GoalTabs";
 
 export type GoalMap = Map<string, GoalTab>;
 

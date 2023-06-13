@@ -11,8 +11,6 @@ import {
   TabList,
   Tabs,
   Typography,
-  type TabProps,
-  type TabsProps,
 } from "@mui/joy";
 import { v4 } from "uuid";
 
@@ -22,28 +20,23 @@ import { api } from "~/utils/api";
 import useGoalStore from "~/stores/goalStore";
 import useWaggleDanceMachineStore from "~/stores/waggleDanceStore";
 
-export type HistoryTab = Goal & {
+export type GoalTab = Goal & {
   index: number;
   tooltip?: string;
 };
 
-interface HistoryTabProps extends TabProps {
-  tab: HistoryTab;
+interface GoalTabProps {
+  tab: GoalTab;
   currentTabIndex: number;
   count: number;
-  // onSelect: (tab: HistoryTab) => void;
 }
 
-interface HistoryTabberProps extends TabsProps {
+interface GoalTabberProps {
   children: React.ReactNode;
 }
 
-// A single history tab inside the main tabber
-const HistoryTab: React.FC<HistoryTabProps> = ({
-  tab,
-  currentTabIndex,
-  count,
-}) => {
+// A single goal tab inside the main tabber
+const GoalTab: React.FC<GoalTabProps> = ({ tab, currentTabIndex, count }) => {
   const { setIsRunning } = useWaggleDanceMachineStore();
   const {
     goalMap,
@@ -55,48 +48,49 @@ const HistoryTab: React.FC<HistoryTabProps> = ({
   const router = useRouter();
   const del = api.goal.delete.useMutation();
 
+  // Function to handle closing a tab
   const closeHandler = useCallback(
-    async (tab: HistoryTab) => {
+    async (tab: GoalTab) => {
       const newGoalMap = new Map(goalMap);
       setIsRunning(false);
 
-      let goals: Goal[] | undefined = undefined;
       if (!tab.id.startsWith("tempgoal-")) {
         // real delete on backend
         await del.mutateAsync(tab.id);
       }
 
-      // client side goal delete
-
+      // client-side goal delete
       newGoalMap.delete(tab.id);
       setGoalMap(newGoalMap);
-      // useGoalStore.setState({ goalMap: newGoalMap });
+
       if (count <= 1) {
         // do not allow deleting the last tab
         setCurrentTabIndex(0);
         return;
       }
-      goals = Array.from(newGoalMap.values());
 
-      let index = 0;
-      let prevIndex = undefined;
-      for (const goal of goals ?? []) {
+      const goals = Array.from(newGoalMap.values());
+
+      // Update the index of the remaining goals
+      goals.forEach((goal, index) => {
         newGoalMap.set(goal.id, {
           ...goal,
           index,
         });
-        if (goal.id === prevSelectedGoal?.id && !prevIndex) {
-          prevIndex = index;
-        }
-        index += 1;
-      }
-      setGoalMap(newGoalMap);
-      // useGoalStore.setState({ goalMap: newGoalMap });
-      prevIndex ? setCurrentTabIndex(prevIndex) : setCurrentTabIndex(0);
+      });
 
-      (goals?.length ?? 0) === 0 &&
-        router.pathname !== "/" &&
-        (await router.push("/"));
+      setGoalMap(newGoalMap);
+
+      // Set the current tab index to the previous one if available, otherwise set it to 0
+      const prevIndex = goals.findIndex(
+        (goal) => goal.id === prevSelectedGoal?.id,
+      );
+      setCurrentTabIndex(prevIndex !== -1 ? prevIndex : 0);
+
+      // Navigate to the home page if there are no goals left
+      if (goals.length === 0 && router.pathname !== "/") {
+        await router.push("/");
+      }
     },
     [
       count,
@@ -110,8 +104,9 @@ const HistoryTab: React.FC<HistoryTabProps> = ({
     ],
   );
 
+  // Render a single goal tab
   return (
-    <Box sx={{ width: `${100 / goalMap.size}%` }}>
+    <Box sx={{ width: `${100 / goalMap.size + 1}%` }}>
       <Tab
         component={Stack}
         color={currentTabIndex === tab.index ? "primary" : "neutral"}
@@ -143,11 +138,8 @@ const HistoryTab: React.FC<HistoryTabProps> = ({
           color="neutral"
           sx={{ marginY: -2, marginX: -1.5 }}
           onClick={() => {
-            // save currentSelectedTab's prompt
             const newGoalMap = new Map(goalMap);
             const goal = newGoalMap.get(tab.id);
-            const goalInputValue = getGoalInputValue();
-            console.log("goalInputValue", goalInputValue);
             newGoalMap.set(tab.id, {
               id: tab.id ?? goal?.id,
               prompt: goal?.prompt ?? "",
@@ -158,7 +150,6 @@ const HistoryTab: React.FC<HistoryTabProps> = ({
               updatedAt: new Date(),
             });
             setGoalMap(newGoalMap);
-            // useGoalStore.setState({ goalMap: newGoalMap });
             setCurrentTabIndex(tab.index);
           }}
         >
@@ -193,8 +184,8 @@ const HistoryTab: React.FC<HistoryTabProps> = ({
   );
 };
 
-// The main tabber component
-const HistoryTabber: React.FC<HistoryTabberProps> = ({ children }) => {
+// The main goal tabber component
+const GoalTabs: React.FC<GoalTabberProps> = ({ children }) => {
   const { goalMap, setGoalMap, currentTabIndex, setCurrentTabIndex } =
     useGoalStore();
   const entries = useMemo(
@@ -216,7 +207,7 @@ const HistoryTabber: React.FC<HistoryTabberProps> = ({ children }) => {
     [goalMap.size, setCurrentTabIndex],
   );
 
-  // 🌍 Render
+  // Render the goal tabber
   return (
     <>
       {entries.length > 0 && (
@@ -242,7 +233,7 @@ const HistoryTabber: React.FC<HistoryTabberProps> = ({ children }) => {
             className="flex "
           >
             {entries.map(([_key, tab], _index) => (
-              <HistoryTab
+              <GoalTab
                 key={tab.id}
                 count={entries.length}
                 tab={tab}
@@ -271,7 +262,6 @@ const HistoryTabber: React.FC<HistoryTabberProps> = ({ children }) => {
                     });
 
                     setGoalMap(newGoalMap);
-                    // useGoalStore.setState({ goalMap: newGoalMap });
                     setCurrentTabIndex(index);
                   }}
                 >
@@ -287,4 +277,4 @@ const HistoryTabber: React.FC<HistoryTabberProps> = ({ children }) => {
   );
 };
 
-export default HistoryTabber;
+export default GoalTabs;

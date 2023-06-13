@@ -9,7 +9,7 @@ import { type CombinedResponse } from "~/utils/openAIUsageAPI";
 import { app } from "~/constants";
 import useApp from "~/stores/appStore";
 import useGoalStore from "~/stores/goalStore";
-import HistoryTabber from "../WaggleDance/components/HistoryTabber";
+import GoalTabs from "../WaggleDance/components/GoalTabs";
 import Alerts from "./components/Alerts";
 import Footer from "./components/Footer";
 import Header from "./components/Header";
@@ -114,14 +114,14 @@ const MainLayout = ({ children, openAIUsage }: Props) => {
             }}
           >
             <Alerts />
-            <HistoryTabber>
+            <GoalTabs>
               <LinearProgress
                 thickness={3}
                 sx={{ opacity: progressOpacity }}
                 color="neutral"
               />
               {children}
-            </HistoryTabber>
+            </GoalTabs>
 
             {openAIUsage && <OpenAIUsage openAIUsage={openAIUsage} />}
           </Card>
