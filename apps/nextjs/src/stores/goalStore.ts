@@ -17,6 +17,7 @@ export interface GoalStore {
   mergeGoals: (sessionData?: Session | null, historicGoals?: Goal[]) => void;
   currentTabIndex: number;
   setCurrentTabIndex: (newTabIndex: number) => void;
+  getSelectedGoal: () => GoalTab | undefined;
   getGoalInputValue: () => string;
   setGoalInputValue: (newGoalInputValue: string) => void;
 }
@@ -35,22 +36,22 @@ const useGoalStore = create(
 
       const id = `tempgoal-${uuid}`
       const now = new Date()
-      debugger;
       // If actual data is passed in then use that
       if (historicGoals && historicGoals.length > 0) {
+        console.log("historicGoals.length", historicGoals.length)
 
         // always have at least one tempGoal
         const goalMap = new Map<string, GoalTab>();
-        // const newTab = {
-        //   id,
-        //   prompt: "",
-        //   index: 0,
-        //   tooltip: "",
-        //   createdAt: now,
-        //   updatedAt: now,
-        //   userId: sessionData.user.id,
-        // } as GoalTab;
-        // goalMap.set(id, newTab)
+        const newTab = {
+          id,
+          prompt: "",
+          index: 0,
+          tooltip: "",
+          createdAt: now,
+          updatedAt: now,
+          userId: sessionData?.user.id,
+        } as GoalTab;
+        goalMap.set(id, newTab)
 
         let index = 0;
         for (const goal of historicGoals) {
@@ -69,7 +70,7 @@ const useGoalStore = create(
         set({
           goalMap
         })
-      } else {
+      } else if (get().goalMap.size === 0) {
         console.log("no historic goals, creating a temp goal")
         const tempGoal = {
           id,
@@ -94,6 +95,13 @@ const useGoalStore = create(
       const prevId = goals[get().currentTabIndex]?.id
       const prevGoal = goals.find((goal) => goal.id === prevId)
       set({ prevSelectedGoal: prevGoal, currentTabIndex: newTabIndex })
+    },
+    getSelectedGoal: () => {
+      const goalMap = new Map(get().goalMap);
+      const goals = Array.from(goalMap.values());
+      const prevId = goals[get().currentTabIndex]?.id;
+      const goal = goals.find((goal) => goal.id === prevId);
+      return goal;
     },
     // FIXME: the usages of Array.from(...) could become a perf issue
     // change to array indexed values 

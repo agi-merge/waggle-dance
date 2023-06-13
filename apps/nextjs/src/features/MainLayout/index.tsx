@@ -32,12 +32,7 @@ const MainLayout = ({ children, openAIUsage }: Props) => {
     refetchOnMount: true,
     refetchOnWindowFocus: false,
     onSuccess: (data) => {
-      // const map = new Map<string, GoalTab>();
-      // setGoalMap(data);
-      console.log("Mainlayout goal fetch onSuccess!", data);
-      if (data.length > 0) {
-        mergeGoals(sessionData, data);
-      }
+      mergeGoals(sessionData, data);
     },
   });
 
