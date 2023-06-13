@@ -106,7 +106,13 @@ const GoalTab: React.FC<GoalTabProps> = ({ tab, currentTabIndex, count }) => {
 
   // Render a single goal tab
   return (
-    <Box sx={{ width: `${100 / goalMap.size + 1}%` }}>
+    <Box
+      sx={{
+        flex: "1 1 auto",
+        maxWidth: `${100 / goalMap.size}%`,
+        minWidth: 0,
+      }}
+    >
       <Tab
         component={Stack}
         color={currentTabIndex === tab.index ? "primary" : "neutral"}
@@ -159,7 +165,7 @@ const GoalTab: React.FC<GoalTabProps> = ({ tab, currentTabIndex, count }) => {
             noWrap
             className="flex-grow"
             textColor="common.white"
-            sx={{ mixBlendMode: "difference" }}
+            sx={{ mixBlendMode: "difference", textOverflow: "ellipsis" }}
           >
             {currentTabIndex === tab.index ? (
               <>
@@ -226,50 +232,49 @@ const GoalTabs: React.FC<GoalTabsProps> = ({ children }) => {
           }}
           orientation="horizontal"
         >
-          <TabList
+          <Box
             sx={{
               background: "transparent",
+              display: "flex flex-shrink",
+              flexWrap: "nowrap",
             }}
-            className="flex "
           >
-            {entries.map(([_key, tab], _index) => (
-              <GoalTab
-                key={tab.id}
-                count={entries.length}
-                tab={tab}
-                currentTabIndex={currentTabIndex}
-              />
-            ))}
-            {entries.length > 0 && (
-              <Box className="float-right flex justify-end align-middle">
-                <IconButton
-                  className="flex-end float-right"
-                  color="primary"
-                  size="md"
-                  variant="soft"
-                  onClick={() => {
-                    const id = `tempgoal-${v4()}`;
-                    const index = entries.length;
-                    const newGoalMap = new Map(goalMap);
-                    newGoalMap.set(id, {
-                      id,
-                      prompt: "",
-                      index,
-                      tooltip: "",
-                      createdAt: new Date(),
-                      updatedAt: new Date(),
-                      userId: "",
-                    });
+            <TabList>
+              {entries.map(([_key, tab], _index) => (
+                <GoalTab
+                  key={tab.id}
+                  count={entries.length}
+                  tab={tab}
+                  currentTabIndex={currentTabIndex}
+                />
+              ))}
+              <IconButton
+                className="flex-end float-start"
+                color="primary"
+                size="md"
+                variant="soft"
+                onClick={() => {
+                  const id = `tempgoal-${v4()}`;
+                  const index = entries.length;
+                  const newGoalMap = new Map(goalMap);
+                  newGoalMap.set(id, {
+                    id,
+                    prompt: "",
+                    index,
+                    tooltip: "",
+                    createdAt: new Date(),
+                    updatedAt: new Date(),
+                    userId: "",
+                  });
 
-                    setGoalMap(newGoalMap);
-                    setCurrentTabIndex(index);
-                  }}
-                >
-                  <Add />
-                </IconButton>
-              </Box>
-            )}
-          </TabList>
+                  setGoalMap(newGoalMap);
+                  setCurrentTabIndex(index);
+                }}
+              >
+                <Add />
+              </IconButton>
+            </TabList>
+          </Box>
           <Box className="mx-6 mt-1">{children}</Box>
         </Tabs>
       )}
