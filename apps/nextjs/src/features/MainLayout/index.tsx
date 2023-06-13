@@ -25,7 +25,7 @@ const MainLayout = ({ children, openAIUsage }: Props) => {
   const { isPageLoading } = useApp();
   const { initializeHistoryData } = useGoalStore();
   const router = useRouter();
-
+  const { goalMap } = useGoalStore();
   const [mounted, setMounted] = useState(false);
 
   const { data: sessionData } = useSession();
@@ -44,15 +44,16 @@ const MainLayout = ({ children, openAIUsage }: Props) => {
   // If not, the + button will ask the user to log in
   useEffect(() => {
     const handleHistoricGoals = async () => {
-      initializeHistoryData(sessionData, historicGoals);
       if (sessionData) {
+        initializeHistoryData(sessionData, historicGoals);
         // avoid spamming errors
         await refetch();
+      } else if (goalMap.size === 0) {
         initializeHistoryData(sessionData, historicGoals);
       }
     };
     void handleHistoricGoals();
-  }, [sessionData, historicGoals, initializeHistoryData, refetch]);
+  }, [sessionData, goalMap, historicGoals, initializeHistoryData, refetch]);
 
   // necessary for server-side renderingπ
   // because mode is undefined on the server

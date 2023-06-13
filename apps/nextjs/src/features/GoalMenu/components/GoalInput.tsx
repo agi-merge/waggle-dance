@@ -1,6 +1,7 @@
 // GoalInput.tsx
 
 import React, { useCallback, useEffect, useState } from "react";
+import router from "next/router";
 import { KeyboardArrowRight } from "@mui/icons-material";
 import {
   Box,
@@ -18,6 +19,7 @@ import { type CardProps } from "@mui/joy/Card";
 import { useSession } from "next-auth/react";
 
 import { api } from "~/utils/api";
+import { app } from "~/constants";
 import useApp from "~/stores/appStore";
 import useGoalStore from "~/stores/goalStore";
 import GoalDoctorModal from "./GoalDoctorModal";
@@ -47,6 +49,7 @@ export default function GoalInput({}: GoalInputProps) {
 
   const { mutate } = api.goal.create.useMutation({
     onSuccess: () => {
+      void router.push(app.routes.waggle);
       console.log("Goal saved!");
     },
     onError: (e) => {
@@ -58,10 +61,9 @@ export default function GoalInput({}: GoalInputProps) {
     (event: React.FormEvent) => {
       event.preventDefault();
       if (sessionData) {
-        void mutate({ prompt: getGoalInputValue() });
+        mutate({ prompt: getGoalInputValue() });
       } else {
-        // hmm
-        // setGoalInputValue(event.target.value as string);
+        void router.push(app.routes.waggle);
       }
     },
     [sessionData, getGoalInputValue, mutate],

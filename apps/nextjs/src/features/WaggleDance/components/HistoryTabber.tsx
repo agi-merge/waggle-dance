@@ -14,7 +14,6 @@ import {
   type TabProps,
   type TabsProps,
 } from "@mui/joy";
-import { useSession } from "next-auth/react";
 import { v4 } from "uuid";
 
 import { type Goal } from "@acme/db";
@@ -53,16 +52,8 @@ const HistoryTab: React.FC<HistoryTabProps> = ({
     setCurrentTabIndex,
     prevSelectedGoal,
   } = useGoalStore();
-  const sessionData = useSession().data;
   const router = useRouter();
   const del = api.goal.delete.useMutation();
-  const { refetch } = api.goal.topByUser.useQuery(undefined, {
-    refetchOnMount: false,
-    refetchOnWindowFocus: false,
-    onSuccess: (data) => {
-      console.log("api.goal.topByUser", data);
-    },
-  });
 
   const closeHandler = useCallback(
     async (tab: HistoryTab) => {
@@ -73,21 +64,19 @@ const HistoryTab: React.FC<HistoryTabProps> = ({
       if (!tab.id.startsWith("tempgoal-")) {
         // real delete on backend
         await del.mutateAsync(tab.id);
-        if (sessionData) {
-          goals = (await refetch()).data;
-        }
-      } else {
-        // client side goal delete
-
-        newGoalMap.delete(tab.id);
-        setGoalMap(newGoalMap);
-        if (count <= 1) {
-          // do not allow deleting the last tab
-          setCurrentTabIndex(0);
-          return;
-        }
-        goals = Array.from(newGoalMap.values());
       }
+
+      // client side goal delete
+
+      newGoalMap.delete(tab.id);
+      setGoalMap(newGoalMap);
+      // useGoalStore.setState({ goalMap: newGoalMap });
+      if (count <= 1) {
+        // do not allow deleting the last tab
+        setCurrentTabIndex(0);
+        return;
+      }
+      goals = Array.from(newGoalMap.values());
 
       let index = 0;
       let prevIndex = undefined;
@@ -102,6 +91,7 @@ const HistoryTab: React.FC<HistoryTabProps> = ({
         index += 1;
       }
       setGoalMap(newGoalMap);
+      // useGoalStore.setState({ goalMap: newGoalMap });
       prevIndex ? setCurrentTabIndex(prevIndex) : setCurrentTabIndex(0);
 
       (goals?.length ?? 0) === 0 &&
@@ -113,12 +103,10 @@ const HistoryTab: React.FC<HistoryTabProps> = ({
       del,
       goalMap,
       prevSelectedGoal?.id,
-      refetch,
       router,
       setCurrentTabIndex,
       setGoalMap,
       setIsRunning,
-      sessionData,
     ],
   );
 
@@ -170,6 +158,7 @@ const HistoryTab: React.FC<HistoryTabProps> = ({
               updatedAt: new Date(),
             });
             setGoalMap(newGoalMap);
+            // useGoalStore.setState({ goalMap: newGoalMap });
             setCurrentTabIndex(tab.index);
           }}
         >
@@ -282,6 +271,7 @@ const HistoryTabber: React.FC<HistoryTabberProps> = ({ children }) => {
                     });
 
                     setGoalMap(newGoalMap);
+                    // useGoalStore.setState({ goalMap: newGoalMap });
                     setCurrentTabIndex(index);
                   }}
                 >
