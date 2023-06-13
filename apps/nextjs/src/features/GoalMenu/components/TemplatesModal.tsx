@@ -33,8 +33,11 @@ export default function BasicModal({ children, open, setOpen }: Props) {
         <Card
           sx={{
             maxWidth: "md",
+            maxHeight: "90%",
             p: 3,
+            m: { xs: 2, sm: 2 },
             boxShadow: "lg",
+            overflow: "scroll",
           }}
         >
           <ModalClose
