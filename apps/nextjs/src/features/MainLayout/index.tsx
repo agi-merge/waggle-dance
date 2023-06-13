@@ -29,31 +29,21 @@ const MainLayout = ({ children, openAIUsage }: Props) => {
   const [mounted, setMounted] = useState(false);
 
   const { data: sessionData } = useSession();
-  const { data: historicGoals, refetch } = api.goal.topByUser.useQuery(
-    undefined,
-    {
-      refetchOnMount: false,
-      refetchOnWindowFocus: false,
-      onSuccess: (data) => {
-        console.log("Mainlayout goal fetch onSuccess!", data);
-      },
+  const { data: historicGoals } = api.goal.topByUser.useQuery(undefined, {
+    refetchOnMount: true,
+    refetchOnWindowFocus: false,
+    onSuccess: (data) => {
+      console.log("Mainlayout goal fetch onSuccess!", data);
     },
-  );
+  });
 
   // Initialize history data based on whether the user is logged in or not
   // If not, the + button will ask the user to log in
   useEffect(() => {
-    const handleHistoricGoals = async () => {
-      if (sessionData) {
-        initializeHistoryData(sessionData, historicGoals);
-        // avoid spamming errors
-        await refetch();
-      } else if (goalMap.size === 0) {
-        initializeHistoryData(sessionData, historicGoals);
-      }
-    };
-    void handleHistoricGoals();
-  }, [sessionData, goalMap, historicGoals, initializeHistoryData, refetch]);
+    if (goalMap.size == 0) {
+      initializeHistoryData(sessionData, historicGoals);
+    }
+  }, [sessionData, goalMap, historicGoals, initializeHistoryData]);
 
   // necessary for server-side renderingπ
   // because mode is undefined on the server

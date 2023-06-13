@@ -24,7 +24,7 @@ export interface GoalStore {
 const uuid = v4();
 const useGoalStore = create(
   persist<GoalStore>((set, get) => ({
-    isLoading: false,
+    isLoading: true,
     setIsLoading: (newState) => set({ isLoading: newState }),
     goalMap: new Map<string, GoalTab>(),
     setGoalMap: (newData) => {

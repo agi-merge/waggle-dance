@@ -40,10 +40,10 @@ export default function WaggleDance({
 
   useEffect(() => {
     // Redirect if the goal is undefined or empty
-    if (getGoalInputValue().length ?? 0 == 0) {
+    if (goalMap.size ?? 0 == 0) {
       void router.push("/");
     }
-  }, [getGoalInputValue, router]);
+  }, [goalMap, router]);
 
   return (
     <MainLayout openAIUsage={openAIUsage}>
