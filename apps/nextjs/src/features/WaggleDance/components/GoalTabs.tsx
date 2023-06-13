@@ -121,73 +121,67 @@ const GoalTab: React.FC<GoalTabProps> = ({ tab, currentTabIndex, count }) => {
         }}
         orientation="horizontal"
         variant="outlined"
-        className="flex flex-grow items-center justify-center"
+        className="flex flex-grow"
+        onClick={() => {
+          const newGoalMap = new Map(goalMap);
+          const goal = newGoalMap.get(tab.id);
+          newGoalMap.set(tab.id, {
+            id: tab.id ?? goal?.id,
+            prompt: goal?.prompt ?? "",
+            index: tab.index,
+            userId: goal?.userId ?? "",
+            tooltip: goal?.tooltip ?? goal?.prompt,
+            createdAt: goal?.createdAt ?? new Date(),
+            updatedAt: new Date(),
+          });
+          setGoalMap(newGoalMap);
+          setCurrentTabIndex(tab.index);
+        }}
       >
-        <Button
-          className="flex-grow overflow-clip"
+        <IconButton
           size="sm"
-          startDecorator={
-            <IconButton
-              size="sm"
-              color="neutral"
-              variant="soft"
-              onClick={(e) => {
-                e.preventDefault();
-                e.stopPropagation();
-                void closeHandler(tab);
-              }}
-            >
-              <Close />
-            </IconButton>
-          }
-          variant="outlined"
           color="neutral"
-          sx={{ marginY: -2, marginX: -1.5 }}
-          onClick={() => {
-            const newGoalMap = new Map(goalMap);
-            const goal = newGoalMap.get(tab.id);
-            newGoalMap.set(tab.id, {
-              id: tab.id ?? goal?.id,
-              prompt: goal?.prompt ?? "",
-              index: tab.index,
-              userId: goal?.userId ?? "",
-              tooltip: goal?.tooltip ?? goal?.prompt,
-              createdAt: goal?.createdAt ?? new Date(),
-              updatedAt: new Date(),
-            });
-            setGoalMap(newGoalMap);
-            setCurrentTabIndex(tab.index);
+          variant="soft"
+          onClick={(e) => {
+            e.preventDefault();
+            e.stopPropagation();
+            void closeHandler(tab);
           }}
         >
-          <Typography
-            fontStyle={
-              currentTabIndex === tab.index && getGoalInputValue().length > 0
-                ? "normal"
-                : "italic"
-            }
-            level="body3"
-            noWrap
-            className="flex-grow"
-            textColor="common.white"
-            sx={{ mixBlendMode: "difference", textOverflow: "ellipsis" }}
-          >
-            {currentTabIndex === tab.index ? (
-              <>
-                {getGoalInputValue().length > 0
-                  ? getGoalInputValue()
-                  : "New Goal"}
-              </>
-            ) : tab.prompt.length < 120 ? (
-              tab.prompt.length > 0 ? (
-                tab.prompt
-              ) : (
-                "New Goal"
-              )
+          <Close />
+        </IconButton>
+        <Typography
+          fontStyle={
+            currentTabIndex === tab.index && getGoalInputValue().length > 0
+              ? "normal"
+              : "italic"
+          }
+          level="body3"
+          noWrap
+          className="flex-grow"
+          textColor="common.white"
+          sx={{
+            mixBlendMode: "difference",
+            textOverflow: "ellipsis",
+            textAlign: "center",
+          }}
+        >
+          {currentTabIndex === tab.index ? (
+            <>
+              {getGoalInputValue().length > 0
+                ? getGoalInputValue()
+                : "New Goal"}
+            </>
+          ) : tab.prompt.length < 120 ? (
+            tab.prompt.length > 0 ? (
+              tab.prompt
             ) : (
-              `${tab.prompt.slice(0, 120)}…`
-            )}
-          </Typography>
-        </Button>
+              "New Goal"
+            )
+          ) : (
+            `${tab.prompt.slice(0, 120)}…`
+          )}
+        </Typography>
       </Tab>
       <Divider orientation="vertical" />
     </Box>
