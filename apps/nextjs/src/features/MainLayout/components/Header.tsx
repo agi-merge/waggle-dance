@@ -132,7 +132,7 @@ const Header = ({}) => {
           </Typography>
         </Stack>
         <Stack direction="row" spacing="10">
-          {session?.user && (
+          {session?.user ? (
             <Tooltip title={`${session.user.name} has 100 credits`}>
               <Link>
                 <span onClick={handleAvatarClick}>
@@ -144,6 +144,10 @@ const Header = ({}) => {
                 </span>
               </Link>
             </Tooltip>
+          ) : (
+            <Typography className="p-2">
+              <NextLink href="/auth/signin">Sign in/up</NextLink>
+            </Typography>
           )}
           <Menu
             id="basic-menu"
