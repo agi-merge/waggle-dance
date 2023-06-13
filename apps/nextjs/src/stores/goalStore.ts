@@ -14,7 +14,7 @@ export interface GoalStore {
   goalMap: GoalMap;
   setGoalMap: (newData: GoalMap) => void;
   prevSelectedGoal: GoalTab | undefined;
-  initializeHistoryData: (sessionData?: Session | null, historicGoals?: Goal[]) => void;
+  mergeGoals: (sessionData?: Session | null, historicGoals?: Goal[]) => void;
   currentTabIndex: number;
   setCurrentTabIndex: (newTabIndex: number) => void;
   getGoalInputValue: () => string;
@@ -28,41 +28,29 @@ const useGoalStore = create(
     setIsLoading: (newState) => set({ isLoading: newState }),
     goalMap: new Map<string, GoalTab>(),
     setGoalMap: (newData) => {
-      if (newData.size === 0) {
-        const goalMap = new Map<string, GoalTab>();
-        const id = `tempgoal-${uuid}`
-        goalMap.set(id, {
-          id,
-          prompt: "",
-          index: 0,
-          tooltip: "",
-          createdAt: new Date(),
-          updatedAt: new Date(),
-          userId: "",
-        } as GoalTab);
-        set({ goalMap });
-      } else {
-        set({ goalMap: newData })
-      }
+      set({ goalMap: newData })
     },
     prevSelectedGoal: undefined,
-    initializeHistoryData: (sessionData, historicGoals) => {
+    mergeGoals: (sessionData, historicGoals) => {
 
       const id = `tempgoal-${uuid}`
+      const now = new Date()
+      debugger;
       // If actual data is passed in then use that
-      if (sessionData && historicGoals) {
+      if (historicGoals && historicGoals.length > 0) {
+
         // always have at least one tempGoal
         const goalMap = new Map<string, GoalTab>();
-        const newTab = {
-          id,
-          prompt: "",
-          index: 0,
-          tooltip: "",
-          createdAt: new Date(),
-          updatedAt: new Date(),
-          userId: "",
-        } as GoalTab;
-        goalMap.set(id, newTab)
+        // const newTab = {
+        //   id,
+        //   prompt: "",
+        //   index: 0,
+        //   tooltip: "",
+        //   createdAt: now,
+        //   updatedAt: now,
+        //   userId: sessionData.user.id,
+        // } as GoalTab;
+        // goalMap.set(id, newTab)
 
         let index = 0;
         for (const goal of historicGoals) {
@@ -71,8 +59,8 @@ const useGoalStore = create(
             index,
             tooltip: goal.prompt,
             prompt: goal.prompt,
-            createdAt: new Date(),
-            updatedAt: new Date(),
+            createdAt: now,
+            updatedAt: now,
             userId: goal.userId,
           });
           index += 1;
@@ -82,14 +70,15 @@ const useGoalStore = create(
           goalMap
         })
       } else {
+        console.log("no historic goals, creating a temp goal")
         const tempGoal = {
           id,
           prompt: "",
           index: 0,
           tooltip: "",
-          createdAt: new Date(),
-          updatedAt: new Date(),
-          userId: "",
+          createdAt: now,
+          updatedAt: now,
+          userId: sessionData?.user.id,
         } as GoalTab;
         const goalMap = new Map<string, GoalTab>();
         goalMap.set(tempGoal.id, tempGoal)

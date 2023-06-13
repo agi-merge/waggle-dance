@@ -23,33 +23,30 @@ type Props = {
 const MainLayout = ({ children, openAIUsage }: Props) => {
   const { mode } = useColorScheme();
   const { isPageLoading } = useApp();
-  const { initializeHistoryData } = useGoalStore();
   const router = useRouter();
-  const { goalMap } = useGoalStore();
+  const { mergeGoals } = useGoalStore();
   const [mounted, setMounted] = useState(false);
 
   const { data: sessionData } = useSession();
-  const { data: historicGoals } = api.goal.topByUser.useQuery(undefined, {
+  const { data: _historicGoals } = api.goal.topByUser.useQuery(undefined, {
     refetchOnMount: true,
     refetchOnWindowFocus: false,
     onSuccess: (data) => {
+      // const map = new Map<string, GoalTab>();
+      // setGoalMap(data);
       console.log("Mainlayout goal fetch onSuccess!", data);
+      if (data.length > 0) {
+        mergeGoals(sessionData, data);
+      }
     },
   });
-
-  // Initialize history data based on whether the user is logged in or not
-  // If not, the + button will ask the user to log in
-  useEffect(() => {
-    if (goalMap.size == 0) {
-      initializeHistoryData(sessionData, historicGoals);
-    }
-  }, [sessionData, goalMap, historicGoals, initializeHistoryData]);
 
   // necessary for server-side renderingπ
   // because mode is undefined on the server
   useEffect(() => {
     setMounted(true);
   }, [router]);
+
   const progressOpacity = useMemo(() => {
     return isPageLoading ? 100 : 0;
   }, [isPageLoading]);
