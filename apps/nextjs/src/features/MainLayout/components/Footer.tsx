@@ -36,7 +36,11 @@ const Footer = () => {
         <ListItem>
           <ListItemButton color="neutral">
             {env.NEXT_PUBLIC_DISCORD_INVITE_URL && (
-              <Link href={env.NEXT_PUBLIC_DISCORD_INVITE_URL} target="_blank">
+              <Link
+                href={env.NEXT_PUBLIC_DISCORD_INVITE_URL}
+                target="_blank"
+                rel="noopener noreferrer"
+              >
                 <Image
                   alt="Discord Invite Icon"
                   fill
@@ -53,6 +57,7 @@ const Footer = () => {
             <Link
               href="https://github.com/agi-merge/waggle-dance"
               target="_blank"
+              rel="noopener noreferrer"
               className={color}
             >
               <GitHub />
@@ -77,6 +82,7 @@ const Footer = () => {
             <Link
               href="https://www.patreon.com/agimerge"
               target="_blank"
+              rel="noopener noreferrer"
               className={color}
             >
               <Image

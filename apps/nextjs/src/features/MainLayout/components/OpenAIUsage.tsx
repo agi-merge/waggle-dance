@@ -18,6 +18,7 @@ const OpenAIUsage = ({ openAIUsage }: { openAIUsage: CombinedResponse }) => {
         className="flex flex-grow"
         color="neutral"
         target="_blank"
+        rel="noopener noreferrer"
         href={app.routes.donate}
       >
         <LinearProgress

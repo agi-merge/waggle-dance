@@ -179,6 +179,7 @@ const Header = ({}) => {
               href="https://wikipedia.org/wiki/Waggle_dance"
               className="font-bold"
               target="_blank"
+              rel="noopener noreferrer"
             >
               wagglin&apos; swarms{" "}
             </a>

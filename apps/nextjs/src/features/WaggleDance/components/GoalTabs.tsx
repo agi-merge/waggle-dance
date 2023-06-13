@@ -145,7 +145,7 @@ const GoalTab: React.FC<GoalTabProps> = ({ tab, currentTabIndex, count }) => {
               prompt: goal?.prompt ?? "",
               index: tab.index,
               userId: goal?.userId ?? "",
-              tooltip: goal?.tooltip,
+              tooltip: goal?.tooltip ?? goal?.prompt,
               createdAt: goal?.createdAt ?? new Date(),
               updatedAt: new Date(),
             });
@@ -241,9 +241,9 @@ const GoalTabs: React.FC<GoalTabberProps> = ({ children }) => {
               />
             ))}
             {entries.length > 0 && (
-              <Box className="flex justify-end align-middle">
+              <Box className="float-right flex justify-end align-middle">
                 <IconButton
-                  className="flex-end"
+                  className="flex-end float-right"
                   color="primary"
                   size="md"
                   variant="soft"

@@ -123,6 +123,7 @@ export default function GoalInput({}: GoalInputProps) {
                     <Link
                       href="https://platform.openai.com/docs/guides/gpt-best-practices"
                       target="_blank"
+                      rel="noopener noreferrer"
                     >
                       follow GPT best practices
                     </Link>
