@@ -2,6 +2,7 @@ import { useCallback, useMemo } from "react";
 import { Add, Close } from "@mui/icons-material";
 import {
   Box,
+  Chip,
   Divider,
   IconButton,
   Stack,
@@ -122,6 +123,12 @@ const GoalTab: React.FC<GoalTabProps> = ({ tab, currentTabIndex }) => {
             `${tab.prompt.slice(0, 120)}…`
           )}
         </Typography>
+
+        {tab.id.startsWith("tempgoal-") && (
+          <Chip size="sm" color="neutral">
+            <Typography level="body5">Unsaved</Typography>
+          </Chip>
+        )}
       </Tab>
       <Divider orientation="vertical" />
     </Box>
