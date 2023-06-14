@@ -2,8 +2,6 @@ import { type Goal } from ".prisma/client";
 import { type Session } from "@acme/auth";
 import { v4 } from "uuid";
 import { create } from "zustand";
-import { persist } from "zustand/middleware";
-import { app } from "~/constants";
 import { type GoalTab } from "~/features/WaggleDance/components/GoalTabs";
 
 export type GoalMap = Map<string, GoalTab>;
@@ -49,7 +47,13 @@ const useGoalStore = create<GoalStore>((set, get) => ({
       userId: "",
     });
 
+
+    const goals = Array.from(newGoalMap.values()).sort((a, b) => a.index - b.index)
+    const prevId = goals[get().currentTabIndex]?.id
+    const prevGoal = goals.find((goal) => goal.id === prevId)
+
     set({
+      prevSelectedGoal: prevGoal,
       goalMap: newGoalMap,
       currentTabIndex: index,
     })
@@ -59,11 +63,14 @@ const useGoalStore = create<GoalStore>((set, get) => ({
     const prevSelectedGoal = get().prevSelectedGoal;
     newGoalMap.delete(tab.id);
 
-    // if (newGoalMap.size == 0) {
-    //   // do not allow deleting the last tab
-    //   set({ currentTabIndex: 0 })
-    //   return;
-    // }
+    // prevent empty tabs
+    if (newGoalMap.size == 0) {
+      set({
+        goalMap: new Map<string, GoalTab>([[baseTab.id, baseTab]]),
+        currentTabIndex: 0,
+      })
+      return;
+    }
 
     const goals = Array.from(newGoalMap.values()).sort((a, b) => a.index - b.index);
 
@@ -108,7 +115,9 @@ const useGoalStore = create<GoalStore>((set, get) => ({
         index += 1;
       }
       console.log("goalMap", goalMap)
+
       set({
+        currentTabIndex: 0,
         goalMap,
       })
     }
