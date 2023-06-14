@@ -21,7 +21,7 @@ export const goalRouter = createTRPCRouter({
     return ctx.prisma.goal.findMany({
       where: { userId },
       orderBy: { updatedAt: 'desc' },
-      take: 20,
+      take: 10,
     });
   }),
 
