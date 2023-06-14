@@ -20,7 +20,6 @@ import { useSession } from "next-auth/react";
 import { v4 } from "uuid";
 
 import { api } from "~/utils/api";
-import { app } from "~/constants";
 import useApp from "~/stores/appStore";
 import useGoalStore from "~/stores/goalStore";
 import GoalDoctorModal from "./GoalDoctorModal";
@@ -40,8 +39,7 @@ const placeholders = ["What's your goal? …Not sure? Check Examples!"];
 type GoalInputProps = CardProps;
 
 export default function GoalInput({}: GoalInputProps) {
-  const { getGoalInputValue, setGoalInputValue, deleteGoal, getSelectedGoal } =
-    useGoalStore();
+  const { getGoalInputValue, setGoalInputValue } = useGoalStore();
   const { isPageLoading } = useApp();
   const [_currentPromptIndex, setCurrentPromptIndex] = useState(0);
   const [currentPlaceholderIndex, setCurrentPlaceholderIndex] = useState(0);

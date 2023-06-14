@@ -1,6 +1,6 @@
 // pages/goal/[tabId].tsx
 
-import React, { useEffect } from "react";
+import React, { useMemo } from "react";
 import type { GetStaticPaths, InferGetStaticPropsType } from "next";
 import { useRouter } from "next/router";
 
@@ -11,7 +11,12 @@ import Title from "~/features/MainLayout/components/PageTitle";
 import WaggleDanceGraph from "~/features/WaggleDance/components/WaggleDanceGraph";
 import useGoalStore from "~/stores/goalStore";
 
-export const getStaticProps = async () => {
+export const getStaticProps = async (): Promise<{
+  props: {
+    openAIUsage: CombinedResponse | null;
+  };
+  revalidate: number;
+}> => {
   const startDate = new Date();
 
   try {
@@ -38,7 +43,7 @@ export const getStaticProps = async () => {
     };
   }
 };
-export const getStaticPaths: GetStaticPaths<{ slug: string }> = async () => {
+export const getStaticPaths: GetStaticPaths<{ slug: string }> = () => {
   return {
     paths: [], //indicates that no page needs be created at build time
     fallback: "blocking", //indicates the type of fallback
@@ -48,25 +53,28 @@ export default function GoalTab({
   openAIUsage,
 }: InferGetStaticPropsType<typeof getStaticProps>) {
   const router = useRouter();
-  const { tabId } = router.query;
+  const { slug } = router.query;
   const { getSelectedGoal } = useGoalStore();
-
-  // useEffect(() => {
-  //   // Redirect if the goal is undefined or empty
-  //   if (!tabId || goalList.length === 0) {
-  //     void router.push("/");
-  //   }
-  // }, [tabId, goalList, router]);
+  const cleanedSlug = useMemo(() => {
+    if (typeof slug === "string") {
+      return slug;
+    } else if (Array.isArray(slug)) {
+      return slug[0];
+    } else {
+      return slug;
+    }
+    return "";
+  }, [slug]) as string;
 
   return (
     <MainLayout openAIUsage={openAIUsage}>
-      {getSelectedGoal()?.userId.trim() === "" ? (
+      {getSelectedGoal(cleanedSlug) ? (
         <>
           <Title title="🐝 Goal solver" description="" />
           <GoalInput />
         </>
       ) : (
-        <WaggleDanceGraph />
+        <WaggleDanceGraph key={cleanedSlug} />
       )}
     </MainLayout>
   );

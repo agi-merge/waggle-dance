@@ -12,6 +12,7 @@ import {
   Tabs,
   Typography,
 } from "@mui/joy";
+import { useSession } from "next-auth/react";
 
 import { type Goal } from "@acme/db";
 
@@ -36,8 +37,7 @@ interface GoalTabsProps {
 // A single goal tab inside the main tabber
 const GoalTab: React.FC<GoalTabProps> = ({ tab, currentTabIndex }) => {
   const { setIsRunning } = useWaggleDanceMachineStore();
-  const { goalList, getGoalInputValue, deleteGoal, setCurrentTabIndex } =
-    useGoalStore();
+  const { goalList, getGoalInputValue, deleteGoal } = useGoalStore();
   const del = api.goal.delete.useMutation();
 
   // Function to handle closing a tab
@@ -135,8 +135,8 @@ const GoalTab: React.FC<GoalTabProps> = ({ tab, currentTabIndex }) => {
 
 // The main goal tabber component
 const GoalTabs: React.FC<GoalTabsProps> = ({ children }) => {
-  const { goalList, newGoal, currentTabIndex, setCurrentTabIndex } =
-    useGoalStore();
+  const { goalList, newGoal, currentTabIndex, selectTab } = useGoalStore();
+  const { data: sessionData } = useSession();
 
   // Handle tab change
   const handleChange = useCallback(
@@ -146,13 +146,12 @@ const GoalTabs: React.FC<GoalTabsProps> = ({ children }) => {
         event?.preventDefault();
         return;
       }
+      selectTab(newValue);
       // Update tab state
-      setCurrentTabIndex(newValue);
-      const currentGoal = goalList[newValue];
-
-      currentGoal && void router.push(`/goal/${currentGoal.id}`);
+      const currentGoal = goalList.sort((a, b) => a.index - b.index)[newValue];
+      currentGoal && void router.replace(`/goal/${currentGoal.id}`);
     },
-    [goalList, setCurrentTabIndex],
+    [goalList, selectTab],
   );
 
   // Render the goal tabber
@@ -194,9 +193,8 @@ const GoalTabs: React.FC<GoalTabsProps> = ({ children }) => {
               size="md"
               variant="plain"
               onClick={() => {
-                const newId = newGoal();
-
-                void router.push(`/goal/${newId}`);
+                const newId = newGoal(sessionData?.user.id ?? "");
+                void router.replace(`/goal/${newId}`);
               }}
             >
               <Add />

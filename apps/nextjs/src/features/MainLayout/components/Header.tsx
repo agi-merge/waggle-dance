@@ -110,7 +110,7 @@ const Header = ({}) => {
     );
   };
 
-  const isHomeSlug = (slug?.length ?? 0) === 0;
+  const isHomeSlug = !slug.includes("tempgoal");
 
   return (
     <header className="z-10 mx-auto w-full px-5 pt-5">
