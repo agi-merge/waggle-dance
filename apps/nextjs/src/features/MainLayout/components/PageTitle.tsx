@@ -29,7 +29,7 @@ const PageTitle = ({ title, description }: TitleProps) => {
               level="body2"
               sx={{
                 userSelect: "none",
-                marginBottom: { xs: -3, sm: 0 },
+                marginBottom: { xs: -1, sm: 0 },
               }}
             >
               {description}
