@@ -9,7 +9,7 @@ export type GoalList = GoalTab[];
 export interface GoalStore {
   goalList: GoalList;
   prevSelectedGoal: GoalTab | undefined;
-  newGoal: () => void;
+  newGoal: () => string;
   deleteGoal: (tab: GoalTab) => void;
   mergeGoals: (sessionData?: Session | null, historicGoals?: Goal[]) => void;
   currentTabIndex: number;
@@ -58,6 +58,8 @@ const useGoalStore = create<GoalStore>((set, get) => ({
       goalList: newGoalList,
       currentTabIndex: newIndex,
     });
+
+    return newGoal.id;
   },
   deleteGoal(tab: GoalTab) {
     const goalList = get().goalList;

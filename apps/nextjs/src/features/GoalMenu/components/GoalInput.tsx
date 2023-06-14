@@ -17,6 +17,7 @@ import {
 } from "@mui/joy";
 import { type CardProps } from "@mui/joy/Card";
 import { useSession } from "next-auth/react";
+import { v4 } from "uuid";
 
 import { api } from "~/utils/api";
 import { app } from "~/constants";
@@ -60,14 +61,20 @@ export default function GoalInput({}: GoalInputProps) {
       console.error("Failed to post!", e.message);
     },
   });
-
   const handleSubmit = useCallback(
     (event: React.FormEvent) => {
       event.preventDefault();
       if (sessionData) {
-        mutate({ prompt: getGoalInputValue() });
+        mutate(
+          { prompt: getGoalInputValue() },
+          {
+            onSuccess: (data) => {
+              void router.push(`/goal/${data.id}`);
+            },
+          },
+        );
       } else {
-        void router.push(app.routes.waggle);
+        void router.push(`/goal/${v4()}`);
       }
     },
     [sessionData, mutate, getGoalInputValue],

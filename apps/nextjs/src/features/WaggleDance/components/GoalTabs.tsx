@@ -1,4 +1,5 @@
 import { useCallback } from "react";
+import router from "next/router";
 import { Add, Close } from "@mui/icons-material";
 import {
   Box,
@@ -75,9 +76,6 @@ const GoalTab: React.FC<GoalTabProps> = ({ tab, currentTabIndex }) => {
         orientation="horizontal"
         variant="outlined"
         className="flex flex-grow"
-        onClick={() => {
-          setCurrentTabIndex(tab.index);
-        }}
       >
         <IconButton
           size="sm"
@@ -150,8 +148,11 @@ const GoalTabs: React.FC<GoalTabsProps> = ({ children }) => {
       }
       // Update tab state
       setCurrentTabIndex(newValue);
+      const currentGoal = goalList[newValue];
+
+      currentGoal && void router.push(`/goal/${currentGoal.id}`);
     },
-    [goalList.length, setCurrentTabIndex],
+    [goalList, setCurrentTabIndex],
   );
 
   // Render the goal tabber
@@ -162,7 +163,6 @@ const GoalTabs: React.FC<GoalTabsProps> = ({ children }) => {
           aria-label="Goal tabs"
           value={currentTabIndex}
           onChange={(event, newValue) => {
-            event?.preventDefault();
             handleChange(event, newValue as number);
           }}
           sx={{
@@ -194,7 +194,9 @@ const GoalTabs: React.FC<GoalTabsProps> = ({ children }) => {
               size="md"
               variant="plain"
               onClick={() => {
-                newGoal();
+                const newId = newGoal();
+
+                void router.push(`/goal/${newId}`);
               }}
             >
               <Add />

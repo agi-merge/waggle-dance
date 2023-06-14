@@ -17,6 +17,7 @@ import {
 import { useSession } from "next-auth/react";
 
 import { app } from "~/constants";
+import useGoalStore from "~/stores/goalStore";
 import ThemeToggle from "./ThemeToggle";
 
 function removeFirstCharIfMatching(str: string, targetChar: string): string {
@@ -46,6 +47,7 @@ const routes = {
 type RoutePath = "" | "waggle-dance" | "goal-done";
 const Header = ({}) => {
   const router = useRouter();
+  const { setCurrentTabIndex } = useGoalStore();
   const slug = removeFirstCharIfMatching(router.pathname, "/");
   const { data: session } = useSession();
 
@@ -73,13 +75,12 @@ const Header = ({}) => {
     activeIndex: number,
   ) => {
     const isHighlighted = index <= activeIndex;
-    const isLink = index != activeIndex && isHighlighted;
+    const isLink = isHighlighted;
     const isCurrent = index === activeIndex;
 
     const labelElement = isHighlighted ? (
       <Typography
         key={path}
-        sx={{ cursor: isCurrent ? "default" : "pointer" }}
         component="span"
         level="body3"
         color={isCurrent ? "primary" : "neutral"}
@@ -100,12 +101,7 @@ const Header = ({}) => {
     return (
       <Box key={path}>
         {isLink ? (
-          <NextLink
-            href={path}
-            passHref
-            color={isCurrent ? "primary" : "neutral"}
-            className="cursor-pointer"
-          >
+          <NextLink href={path} shallow={true}>
             {labelElement}
           </NextLink>
         ) : (
