@@ -9,8 +9,6 @@ import { type GoalTab } from "~/features/WaggleDance/components/GoalTabs";
 export type GoalMap = Map<string, GoalTab>;
 
 export interface GoalStore {
-  isLoading: boolean;
-  setIsLoading: (newState: boolean) => void;
   goalMap: GoalMap;
   prevSelectedGoal: GoalTab | undefined;
   newGoal: () => void;
@@ -35,8 +33,6 @@ const baseTab = {
 
 const useGoalStore = create(
   persist<GoalStore>((set, get) => ({
-    isLoading: true,
-    setIsLoading: (newState) => set({ isLoading: newState }),
     goalMap: new Map<string, GoalTab>([[baseTab.id, baseTab]]),
     prevSelectedGoal: undefined,
     newGoal() {
@@ -114,14 +110,8 @@ const useGoalStore = create(
         }
         console.log("goalMap", goalMap)
         set({
-          isLoading: false,
           goalMap
 
-        })
-      } else if (get().goalMap.size === 0) {
-
-        set({
-          isLoading: false,
         })
       }
     },
