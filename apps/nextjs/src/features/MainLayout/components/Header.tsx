@@ -59,7 +59,7 @@ const Header = ({}) => {
   };
 
   const activeIndex = useMemo(() => {
-    if ((getSelectedGoal()?.userId.trim().length ?? 0) == 0) {
+    if ((getSelectedGoal()?.userId.trim().length ?? 0) === 0) {
       return 0;
     } else {
       return 1;
