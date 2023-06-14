@@ -8,11 +8,6 @@ import GoalInput from "~/features/GoalMenu/components/GoalInput";
 import MainLayout from "~/features/MainLayout";
 import Title from "~/features/MainLayout/components/PageTitle";
 
-export interface Handlers {
-  setGoal: (goal: string) => void;
-  onChange: (goal: string) => void;
-}
-
 export const getStaticProps = async () => {
   const startDate = new Date();
 
