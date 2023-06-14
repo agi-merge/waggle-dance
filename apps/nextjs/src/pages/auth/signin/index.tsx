@@ -7,8 +7,6 @@ import { getProviders, signIn } from "next-auth/react";
 
 import { authOptions } from "@acme/auth";
 
-import { app } from "~/constants";
-
 export default function SignIn({
   providers,
 }: InferGetServerSidePropsType<typeof getServerSideProps>) {
@@ -31,8 +29,8 @@ export async function getServerSideProps(context: GetServerSidePropsContext) {
   // If the user is already logged in, redirect.
   // Note: Make sure not to redirect to the same page
   // To avoid an infinite loop!
-  if (session) {
-    return { redirect: { destination: app.routes.waggle } };
+  if (session && context.resolvedUrl !== "" && context.resolvedUrl !== "/") {
+    return { redirect: { destination: "/" } };
   }
 
   const providers = await getProviders();

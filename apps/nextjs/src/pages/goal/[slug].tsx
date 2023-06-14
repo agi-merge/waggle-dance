@@ -5,7 +5,9 @@ import type { GetStaticPaths, InferGetStaticPropsType } from "next";
 import { useRouter } from "next/router";
 
 import { getOpenAIUsage, type CombinedResponse } from "~/utils/openAIUsageAPI";
+import GoalInput from "~/features/GoalMenu/components/GoalInput";
 import MainLayout from "~/features/MainLayout";
+import Title from "~/features/MainLayout/components/PageTitle";
 import WaggleDanceGraph from "~/features/WaggleDance/components/WaggleDanceGraph";
 import useGoalStore from "~/stores/goalStore";
 
@@ -47,7 +49,7 @@ export default function GoalTab({
 }: InferGetStaticPropsType<typeof getStaticProps>) {
   const router = useRouter();
   const { tabId } = router.query;
-  const { goalList } = useGoalStore();
+  const { getSelectedGoal } = useGoalStore();
 
   // useEffect(() => {
   //   // Redirect if the goal is undefined or empty
@@ -58,7 +60,14 @@ export default function GoalTab({
 
   return (
     <MainLayout openAIUsage={openAIUsage}>
-      <WaggleDanceGraph />
+      {getSelectedGoal()?.userId.trim() === "" ? (
+        <>
+          <Title title="🐝 Goal solver" description="" />
+          <GoalInput />
+        </>
+      ) : (
+        <WaggleDanceGraph />
+      )}
     </MainLayout>
   );
 }

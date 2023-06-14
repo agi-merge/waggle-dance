@@ -29,11 +29,6 @@ const routes = {
     path: "/" as RoutePath,
     label: "🐝 Start",
   },
-  // {
-  //   path: "add-documents",
-  //   label: "🌺 Data ",
-  //   goalState: GoalInputState.refine,
-  // },
   "waggle-dance": {
     path: "waggle-dance" as RoutePath,
     label: "💃 Waggle",
@@ -44,13 +39,12 @@ const routes = {
   },
 };
 
-type RoutePath = "" | "waggle-dance" | "goal-done";
+type RoutePath = "/" | "waggle-dance" | "goal-done";
 const Header = ({}) => {
   const router = useRouter();
-  const { setCurrentTabIndex } = useGoalStore();
   const slug = removeFirstCharIfMatching(router.pathname, "/");
   const { data: session } = useSession();
-
+  const { getSelectedGoal } = useGoalStore();
   const [anchorEl, setAnchorEl] = React.useState<null | HTMLElement>(null);
   const isOpen = Boolean(anchorEl);
 
@@ -65,8 +59,13 @@ const Header = ({}) => {
   };
 
   const activeIndex = useMemo(() => {
-    return Object.keys(routes).findIndex((path) => path === slug);
-  }, [slug]);
+    if ((getSelectedGoal()?.userId.trim().length ?? 0) == 0) {
+      return 0;
+    } else {
+      return 1;
+    }
+    // return Object.keys(routes).findIndex((path) => path === slug);
+  }, [getSelectedGoal]);
 
   const renderBreadcrumbLink = (
     path: RoutePath,

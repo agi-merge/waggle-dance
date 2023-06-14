@@ -51,11 +51,10 @@ export default function GoalInput({}: GoalInputProps) {
   const { data: sessionData } = useSession();
 
   const { mutate } = api.goal.create.useMutation({
-    onSuccess: () => {
-      const selected = getSelectedGoal();
-      selected && deleteGoal(selected);
-      void router.push(app.routes.waggle);
-      console.log("Goal saved!");
+    onSuccess: (data) => {
+      // selected && deleteGoal(selected);
+      void router.push(`/goal/${data?.id}`);
+      // console.log("Goal saved!");
     },
     onError: (e) => {
       console.error("Failed to post!", e.message);
@@ -74,7 +73,7 @@ export default function GoalInput({}: GoalInputProps) {
           },
         );
       } else {
-        void router.push(`/goal/${v4()}`);
+        void router.push(`/goal/tempgoal-${v4()}`);
       }
     },
     [sessionData, mutate, getGoalInputValue],

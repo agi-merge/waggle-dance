@@ -109,7 +109,6 @@ const WaggleDanceGraph = ({}: WaggleDanceGraphProps) => {
       <Button
         className="col-end p-2"
         color="primary"
-        href="waggle-dance"
         onClick={isRunning ? handleStop : handleStart}
       >
         <Stack direction="row" gap="0.5rem" className="items-center">

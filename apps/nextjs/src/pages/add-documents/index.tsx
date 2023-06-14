@@ -255,7 +255,6 @@ const AddDocuments = ({ onClose }: Props) => {
             disabled={isAnyFileUploading}
             className="col-end mt-2"
             color="primary"
-            href="waggle-dance"
             onClick={() => {
               if (onClose) onClose();
             }}

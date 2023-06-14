@@ -10,7 +10,6 @@ export const app = {
   routes: {
     home: "/",
     refine: "/add-documents",
-    waggle: "/waggle-dance",
     done: "/results",
     donate: "https://www.patreon.com/agimerge",
   }
