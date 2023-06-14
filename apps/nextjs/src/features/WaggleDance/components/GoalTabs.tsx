@@ -119,6 +119,7 @@ const GoalTab: React.FC<GoalTabProps> = ({ tab, currentTabIndex, count }) => {
         sx={{
           marginX: 0.5,
         }}
+        gap="0.5rem"
         orientation="horizontal"
         variant="outlined"
         className="flex flex-grow"
