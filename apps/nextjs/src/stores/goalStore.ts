@@ -31,154 +31,124 @@ const baseTab = {
   userId: "",
 } as GoalTab;
 
-const useGoalStore = create(
-  persist<GoalStore>((set, get) => ({
-    goalMap: new Map<string, GoalTab>([[baseTab.id, baseTab]]),
-    prevSelectedGoal: undefined,
-    newGoal() {
-      const goalMap = get().goalMap;
-      const id = `tempgoal-${v4()}`;
-      const index = goalMap.size;
-      const newGoalMap = new Map(goalMap);
-      newGoalMap.set(id, {
-        id,
-        prompt: "",
+const useGoalStore = create<GoalStore>((set, get) => ({
+  goalMap: new Map<string, GoalTab>([[baseTab.id, baseTab]]),
+  prevSelectedGoal: undefined,
+  newGoal() {
+    const goalMap = get().goalMap;
+    const id = `tempgoal-${v4()}`;
+    const index = goalMap.size;
+    const newGoalMap = new Map(goalMap);
+    newGoalMap.set(id, {
+      id,
+      prompt: "",
+      index,
+      tooltip: "",
+      createdAt: new Date(),
+      updatedAt: new Date(),
+      userId: "",
+    });
+
+    set({
+      goalMap: newGoalMap,
+      currentTabIndex: index,
+    })
+  },
+  deleteGoal: (tab: GoalTab) => {
+    const newGoalMap = new Map(get().goalMap);
+    const prevSelectedGoal = get().prevSelectedGoal;
+    newGoalMap.delete(tab.id);
+
+    // if (newGoalMap.size == 0) {
+    //   // do not allow deleting the last tab
+    //   set({ currentTabIndex: 0 })
+    //   return;
+    // }
+
+    const goals = Array.from(newGoalMap.values()).sort((a, b) => a.index - b.index);
+
+    // Update the index of the remaining goals
+    goals.forEach((goal, index) => {
+      newGoalMap.set(goal.id, {
+        ...goal,
         index,
-        tooltip: "",
-        createdAt: new Date(),
-        updatedAt: new Date(),
-        userId: "",
       });
+    });
 
-      set({
-        goalMap: newGoalMap,
-        currentTabIndex: index,
-      })
-    },
-    deleteGoal: (tab: GoalTab) => {
-      const newGoalMap = new Map(get().goalMap);
-      const prevSelectedGoal = get().prevSelectedGoal;
-      newGoalMap.delete(tab.id);
+    // Set the current tab index to the previous one if available, otherwise set it to 0
+    const prevIndex = goals.findIndex(
+      (goal) => goal.id === prevSelectedGoal?.id,
+    );
+    set({
+      goalMap: newGoalMap,
+      currentTabIndex: prevIndex !== -1 ? prevIndex : 0,
+    })
+  },
+  mergeGoals: (sessionData, historicGoals) => {
 
-      // if (newGoalMap.size == 0) {
-      //   // do not allow deleting the last tab
-      //   set({ currentTabIndex: 0 })
-      //   return;
-      // }
+    const now = new Date()
+    // If actual data is passed in then use that
+    if (historicGoals && historicGoals.length > 0) {
+      console.log("historicGoals.length", historicGoals.length)
 
-      const goals = Array.from(newGoalMap.values()).sort((a, b) => a.index - b.index);
+      // always have at least one tempGoal
+      const goalMap = new Map<string, GoalTab>();
 
-      // Update the index of the remaining goals
-      goals.forEach((goal, index) => {
-        newGoalMap.set(goal.id, {
-          ...goal,
+      let index = 0;
+      for (const goal of historicGoals) {
+        goalMap.set(goal.id, {
+          id: goal.id,
           index,
+          tooltip: goal.prompt,
+          prompt: goal.prompt,
+          createdAt: now,
+          updatedAt: now,
+          userId: goal.userId,
         });
-      });
-
-      // Set the current tab index to the previous one if available, otherwise set it to 0
-      const prevIndex = goals.findIndex(
-        (goal) => goal.id === prevSelectedGoal?.id,
-      );
-      set({
-        goalMap: newGoalMap,
-        currentTabIndex: prevIndex !== -1 ? prevIndex : 0,
-      })
-    },
-    mergeGoals: (sessionData, historicGoals) => {
-
-      const now = new Date()
-      // If actual data is passed in then use that
-      if (historicGoals && historicGoals.length > 0) {
-        console.log("historicGoals.length", historicGoals.length)
-
-        // always have at least one tempGoal
-        const goalMap = new Map<string, GoalTab>();
-
-        let index = 0;
-        for (const goal of historicGoals) {
-          goalMap.set(goal.id, {
-            id: goal.id,
-            index,
-            tooltip: goal.prompt,
-            prompt: goal.prompt,
-            createdAt: now,
-            updatedAt: now,
-            userId: goal.userId,
-          });
-          index += 1;
-        }
-        console.log("goalMap", goalMap)
-        set({
-          goalMap
-
-        })
+        index += 1;
       }
-    },
-    currentTabIndex: 0,
-    setCurrentTabIndex: (newTabIndex) => {
-      const goalMap = get().goalMap;
-      const goals = Array.from(goalMap.values()).sort((a, b) => a.index - b.index)
-      const prevId = goals[get().currentTabIndex]?.id
-      const prevGoal = goals.find((goal) => goal.id === prevId)
-      set({ prevSelectedGoal: prevGoal, currentTabIndex: newTabIndex })
-    },
-    getSelectedGoal: () => {
-      const goalMap = new Map(get().goalMap);
-      const goals = Array.from(goalMap.values()).sort((a, b) => a.index - b.index)
-      const prevId = goals[get().currentTabIndex]?.id;
-      const goal = goals.find((goal) => goal.id === prevId);
-      return goal;
-    },
-    // FIXME: the usages of Array.from(...) could become a perf issue
-    // change to array indexed values 
-    getGoalInputValue: () => {
-      const goalMap = new Map(get().goalMap);
-      const goals = Array.from(goalMap.values()).sort((a, b) => a.index - b.index)
-      const prevId = goals[get().currentTabIndex]?.id
-      const prompt = goals.find((goal) => goal.id === prevId)?.prompt || ""
-      return prompt
-    },
-    setGoalInputValue: (newGoalInputValue) => {
-      const goalMap = new Map(get().goalMap);
-      const goals = Array.from(goalMap.values()).sort((a, b) => a.index - b.index)
-      const prevId = goals[get().currentTabIndex]?.id
-      const goal = goals.find((goal) => goal.id === prevId)
-      const newGoal = { ...goal, prompt: newGoalInputValue } as GoalTab
-      goal?.id && goalMap.set(goal.id, newGoal);
-      console.log("setGoalInputValue", newGoalInputValue, newGoal, goalMap)
+      console.log("goalMap", goalMap)
       set({
         goalMap,
       })
     }
-  }), {
-    name: app.localStorageKeys.goal,
-    // see: https://github.com/pmndrs/zustand/blob/main/docs/integrations/persisting-store-data.md#how-do-i-use-it-with-map-and-set
-    storage: {
-      getItem: (name) => {
-        const str = sessionStorage.getItem(name)
-        if (!str) return null;
-        return {
-          // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
-          state: {
-            // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
-            ...JSON.parse(str).state,
-            // eslint-disable-next-line @typescript-eslint/no-unsafe-argument, @typescript-eslint/no-unsafe-member-access
-            goalMap: new Map(JSON.parse(str).state.goalMap),
-          },
-        }
-      },
-      setItem: (name, newValue) => {
-        const str = JSON.stringify({
-          state: {
-            ...newValue.state,
-            goalMap: Array.from(newValue.state.goalMap.entries()),
-          },
-        })
-        sessionStorage.setItem(name, str)
-      },
-      removeItem: (name) => sessionStorage.removeItem(name),
-    },
-  }));
+  },
+  currentTabIndex: 0,
+  setCurrentTabIndex: (newTabIndex) => {
+    const goalMap = get().goalMap;
+    const goals = Array.from(goalMap.values()).sort((a, b) => a.index - b.index)
+    const prevId = goals[get().currentTabIndex]?.id
+    const prevGoal = goals.find((goal) => goal.id === prevId)
+    set({ prevSelectedGoal: prevGoal, currentTabIndex: newTabIndex })
+  },
+  getSelectedGoal: () => {
+    const goalMap = new Map(get().goalMap);
+    const goals = Array.from(goalMap.values()).sort((a, b) => a.index - b.index)
+    const prevId = goals[get().currentTabIndex]?.id;
+    const goal = goals.find((goal) => goal.id === prevId);
+    return goal;
+  },
+  // FIXME: the usages of Array.from(...) could become a perf issue
+  // change to array indexed values 
+  getGoalInputValue: () => {
+    const goalMap = new Map(get().goalMap);
+    const goals = Array.from(goalMap.values()).sort((a, b) => a.index - b.index)
+    const prevId = goals[get().currentTabIndex]?.id
+    const prompt = goals.find((goal) => goal.id === prevId)?.prompt || ""
+    return prompt
+  },
+  setGoalInputValue: (newGoalInputValue) => {
+    const goalMap = new Map(get().goalMap);
+    const goals = Array.from(goalMap.values()).sort((a, b) => a.index - b.index)
+    const prevId = goals[get().currentTabIndex]?.id
+    const goal = goals.find((goal) => goal.id === prevId)
+    const newGoal = { ...goal, prompt: newGoalInputValue } as GoalTab
+    goal?.id && goalMap.set(goal.id, newGoal);
+    console.log("setGoalInputValue", newGoalInputValue, newGoal, goalMap)
+    set({
+      goalMap,
+    })
+  }
+}),);
 
 export default useGoalStore;

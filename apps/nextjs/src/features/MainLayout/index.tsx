@@ -30,6 +30,7 @@ const MainLayout = ({ children, openAIUsage }: Props) => {
   const { data: sessionData } = useSession();
   const { data: _historicGoals } = api.goal.topByUser.useQuery(undefined, {
     refetchOnMount: true,
+    networkMode: "offlineFirst",
     refetchOnWindowFocus: false,
     onSuccess: (data) => {
       mergeGoals(sessionData, data);
