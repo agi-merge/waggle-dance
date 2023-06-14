@@ -39,16 +39,20 @@ const placeholders = ["What's your goal? …Not sure? Check Examples!"];
 type GoalInputProps = CardProps;
 
 export default function GoalInput({}: GoalInputProps) {
-  const { getGoalInputValue, setGoalInputValue } = useGoalStore();
+  const { getGoalInputValue, setGoalInputValue, deleteGoal, getSelectedGoal } =
+    useGoalStore();
   const { isPageLoading } = useApp();
   const [_currentPromptIndex, setCurrentPromptIndex] = useState(0);
   const [currentPlaceholderIndex, setCurrentPlaceholderIndex] = useState(0);
   const [templatesModalOpen, setTemplatesModalOpen] =
     React.useState<boolean>(false);
+
   const { data: sessionData } = useSession();
 
   const { mutate } = api.goal.create.useMutation({
     onSuccess: () => {
+      const selected = getSelectedGoal();
+      selected && deleteGoal(selected);
       void router.push(app.routes.waggle);
       console.log("Goal saved!");
     },
@@ -66,7 +70,7 @@ export default function GoalInput({}: GoalInputProps) {
         void router.push(app.routes.waggle);
       }
     },
-    [sessionData, getGoalInputValue, mutate],
+    [sessionData, mutate, getGoalInputValue],
   );
 
   const handleChange = (event: React.ChangeEvent<HTMLTextAreaElement>) => {
