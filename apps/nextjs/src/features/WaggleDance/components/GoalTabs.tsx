@@ -1,4 +1,4 @@
-import { useCallback, useMemo } from "react";
+import { useCallback } from "react";
 import { Add, Close } from "@mui/icons-material";
 import {
   Box,
@@ -35,7 +35,7 @@ interface GoalTabsProps {
 // A single goal tab inside the main tabber
 const GoalTab: React.FC<GoalTabProps> = ({ tab, currentTabIndex }) => {
   const { setIsRunning } = useWaggleDanceMachineStore();
-  const { goalMap, getGoalInputValue, deleteGoal, setCurrentTabIndex } =
+  const { goalList, getGoalInputValue, deleteGoal, setCurrentTabIndex } =
     useGoalStore();
   const del = api.goal.delete.useMutation();
 
@@ -61,7 +61,7 @@ const GoalTab: React.FC<GoalTabProps> = ({ tab, currentTabIndex }) => {
     <Box
       sx={{
         flex: "1 1 auto",
-        maxWidth: `${100 / goalMap.size}%`,
+        maxWidth: `${100 / goalList.length}%`,
         minWidth: 0,
       }}
     >
@@ -137,34 +137,27 @@ const GoalTab: React.FC<GoalTabProps> = ({ tab, currentTabIndex }) => {
 
 // The main goal tabber component
 const GoalTabs: React.FC<GoalTabsProps> = ({ children }) => {
-  const { goalMap, newGoal, currentTabIndex, setCurrentTabIndex } =
+  const { goalList, newGoal, currentTabIndex, setCurrentTabIndex } =
     useGoalStore();
-  const entries = useMemo(
-    () =>
-      goalMap && goalMap.entries
-        ? Array.from(goalMap.entries()).sort((a, b) => a[1].index - b[1].index)
-        : [],
-    [goalMap],
-  );
 
   // Handle tab change
   const handleChange = useCallback(
     (event: React.SyntheticEvent | null, newValue: number) => {
       // prevent + from being selected
-      if (newValue === goalMap.size) {
+      if (newValue === goalList.length) {
         event?.preventDefault();
         return;
       }
       // Update tab state
       setCurrentTabIndex(newValue);
     },
-    [goalMap.size, setCurrentTabIndex],
+    [goalList.length, setCurrentTabIndex],
   );
 
   // Render the goal tabber
   return (
     <>
-      {entries.length > 0 && (
+      {goalList.length > 0 && (
         <Tabs
           aria-label="Goal tabs"
           value={currentTabIndex}
@@ -188,8 +181,12 @@ const GoalTabs: React.FC<GoalTabsProps> = ({ children }) => {
               flexWrap: "nowrap",
             }}
           >
-            {entries.map(([key, tab], _index) => (
-              <GoalTab key={key} tab={tab} currentTabIndex={currentTabIndex} />
+            {goalList.map((tab) => (
+              <GoalTab
+                key={tab.id}
+                tab={tab}
+                currentTabIndex={currentTabIndex}
+              />
             ))}
             <IconButton
               className="flex-end float-start"

@@ -1,10 +1,6 @@
 // WaggleDance.tsx
-import React, { useEffect, useMemo } from "react";
-import type {
-  GetServerSidePropsContext,
-  InferGetServerSidePropsType,
-} from "next";
-import { useRouter } from "next/router";
+import React from "react";
+import type { InferGetStaticPropsType } from "next";
 import { TabPanel } from "@mui/joy";
 
 import { getOpenAIUsage, type CombinedResponse } from "~/utils/openAIUsageAPI";
@@ -12,48 +8,54 @@ import MainLayout from "~/features/MainLayout";
 import WaggleDanceGraph from "~/features/WaggleDance/components/WaggleDanceGraph";
 import useGoalStore from "~/stores/goalStore";
 
-export async function getServerSideProps(context: GetServerSidePropsContext) {
-  context.res.setHeader(
-    "Cache-Control",
-    "public, s-maxage=300, stale-while-revalidate=300",
-  );
-
+export const getStaticProps = async () => {
   const startDate = new Date();
 
-  const openAIUsage: CombinedResponse | null = await getOpenAIUsage(
-    startDate,
-  ).catch(() => null);
+  try {
+    const openAIUsage: CombinedResponse | null = await getOpenAIUsage(
+      startDate,
+    );
 
-  return {
-    props: {
-      openAIUsage,
-    },
-  };
-}
+    return {
+      props: {
+        // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
+        openAIUsage: JSON.parse(JSON.stringify(openAIUsage)),
+      },
+      // Next.js will attempt to re-generate the page:
+      // - When a request comes in
+      // - At most once every 10 seconds
+      revalidate: 300, // In seconds
+    };
+  } catch (e) {
+    return {
+      props: {
+        openAIUsage: null,
+      },
+      revalidate: 0,
+    };
+  }
+};
 
 export default function WaggleDance({
   openAIUsage,
-}: InferGetServerSidePropsType<typeof getServerSideProps>) {
-  const router = useRouter();
-  const { goalMap } = useGoalStore();
-  const goals = useMemo(() => Array.from(goalMap.values()), [goalMap]);
+}: InferGetStaticPropsType<typeof getStaticProps>) {
+  const { goalList } = useGoalStore();
 
-  useEffect(() => {
-    // Redirect if the goal is undefined or empty
-    if (goalMap.size === 0) {
-      debugger;
-      void router.push("/");
-    }
-  }, [goalMap, router]);
+  // useEffect(() => {
+  //   // Redirect if the goal is undefined or empty
+  //   if (goalMap.size === 0) {
+  //     void router.push("/");
+  //   }
+  // }, [goalMap, router]);
 
   return (
     <MainLayout openAIUsage={openAIUsage}>
-      {goals.map((tab, index) => (
+      {goalList.map((tab, index) => (
         <TabPanel key={tab.id} value={index}>
           <WaggleDanceGraph />
         </TabPanel>
       ))}
-      {goals.length < 1 && <WaggleDanceGraph />}
+      {goalList.length < 1 && <WaggleDanceGraph />}
     </MainLayout>
   );
 }
