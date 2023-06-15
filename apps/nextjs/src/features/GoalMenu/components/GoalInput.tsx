@@ -40,7 +40,7 @@ type GoalInputProps = CardProps;
 export default function GoalInput({}: GoalInputProps) {
   const { getGoalInputValue, setGoalInputValue, upsertGoal, getSelectedGoal } =
     useGoalStore();
-  const { isPageLoading } = useApp();
+  const { isPageLoading, setIsPageLoading } = useApp();
   const [_currentPromptIndex, setCurrentPromptIndex] = useState(0);
   const [currentPlaceholderIndex, setCurrentPlaceholderIndex] = useState(0);
   const [templatesModalOpen, setTemplatesModalOpen] =
@@ -61,6 +61,7 @@ export default function GoalInput({}: GoalInputProps) {
     (event: React.FormEvent) => {
       event.preventDefault();
       if (sessionData?.user.id) {
+        setIsPageLoading(true);
         createGoal(
           { prompt: getGoalInputValue() },
           {
@@ -85,7 +86,14 @@ export default function GoalInput({}: GoalInputProps) {
         }
       }
     },
-    [sessionData, createGoal, getGoalInputValue, getSelectedGoal, upsertGoal],
+    [
+      sessionData?.user.id,
+      setIsPageLoading,
+      createGoal,
+      getGoalInputValue,
+      getSelectedGoal,
+      upsertGoal,
+    ],
   );
 
   const handleChange = (event: React.ChangeEvent<HTMLTextAreaElement>) => {
