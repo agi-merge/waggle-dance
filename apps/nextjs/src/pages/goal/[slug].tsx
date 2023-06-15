@@ -80,7 +80,7 @@ export default function GoalTab({
   const { isRunning } = useWaggleDanceMachineStore();
   const { data: sessionData } = useSession();
   const { slug } = router.query;
-  const { getSelectedGoal, newGoal } = useGoalStore();
+  const { getSelectedGoal, newGoal, goalList } = useGoalStore();
   const cleanedSlug = useMemo(() => {
     if (typeof slug === "string") {
       return slug;
@@ -124,6 +124,10 @@ export default function GoalTab({
         const anySelectedGoal = getSelectedGoal()?.id;
         if (anySelectedGoal) {
           void router.replace(`/goal/${anySelectedGoal}`);
+        } else if (goalList.length ?? 0 !== 0) {
+          void router.replace(`/goal/${goalList?.[0]?.id}`);
+        } else if (savedGoals?.length ?? 0 !== 0) {
+          void router.replace(`/goal/${savedGoals?.[0]?.id}`);
         } else {
           const newId = newGoal();
           void router.replace(`/goal/${newId}`);
@@ -134,6 +138,7 @@ export default function GoalTab({
     cleanedSlug,
     getSelectedGoal,
     newGoal,
+    goalList,
     router,
     savedGoals,
     selectedGoal?.id,
