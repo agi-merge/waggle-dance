@@ -151,7 +151,7 @@ const GoalTab: React.FC<GoalTabProps> = ({ tab }) => {
 // The main goal tabber component
 const GoalTabs: React.FC<GoalTabsProps> = ({ children }) => {
   const { goalList, newGoal, currentTabIndex, selectTab } = useGoalStore();
-
+  const { isRunning } = useWaggleDanceMachineStore();
   // Handle tab change
   const handleChange = useCallback(
     (event: React.SyntheticEvent | null, newValue: number) => {
@@ -189,6 +189,8 @@ const GoalTabs: React.FC<GoalTabsProps> = ({ children }) => {
         >
           <TabList
             sx={{
+              pointerEvents: isRunning ? "none" : "auto",
+              opacity: isRunning ? 0.33 : 1,
               background: "transparent",
               display: "flex flex-shrink",
               flexWrap: "nowrap",
