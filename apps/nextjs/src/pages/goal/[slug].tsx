@@ -77,13 +77,15 @@ export default function GoalTab({
   }, [selectedGoal?.userId]);
 
   useEffect(() => {
-    if (!selectedGoal) {
-      console.log("no selectedGoal but prevGoal", prevSelectedGoal?.id);
-      if (prevSelectedGoal?.id) {
-        void router.replace(`/goal/${prevSelectedGoal?.id}`);
+    if (!selectedGoal?.id) {
+      const anySelectedGoal = getSelectedGoal()?.id;
+      if (anySelectedGoal) {
+        void router.replace(`/goal/${anySelectedGoal}`);
+      } else {
+        void router.replace(`/`);
       }
     }
-  }, [goalList, selectedGoal, prevSelectedGoal?.id, router]);
+  }, [goalList, selectedGoal, prevSelectedGoal?.id, router, getSelectedGoal]);
 
   return (
     <MainLayout openAIUsage={openAIUsage}>

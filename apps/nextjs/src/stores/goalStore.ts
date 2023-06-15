@@ -87,13 +87,13 @@ const useGoalStore = create<GoalStore>((set, get) => ({
     const goalList = get().goalList;
     const tabIndex = goalList.indexOf(tab);
     goalList.splice(tabIndex, 1)
-    const newGoalList = Array.from(goalList) //goalList.filter(goal => goal.id !== tab.id);
+    const prevTab = setCurrentTabIndex(get, tabIndex);
 
     // Prevent empty tabs
-    if (newGoalList.length === 0) {
+    if (goalList.length === 0) {
       set({
         goalList: [baseTab],
-        currentTabIndex: 0,
+        ...prevTab,
       });
       return;
     }
@@ -104,10 +104,10 @@ const useGoalStore = create<GoalStore>((set, get) => ({
     // });
 
     const prevSelectedGoal = get().prevSelectedGoal;
-    const prevIndex = newGoalList.findIndex(goal => goal.id === prevSelectedGoal?.id);
+    const prevIndex = goalList.findIndex(goal => goal.id === prevSelectedGoal?.id);
 
     set({
-      goalList: newGoalList,
+      goalList,
       currentTabIndex: prevIndex !== -1 ? prevIndex : 0,
     });
   },
