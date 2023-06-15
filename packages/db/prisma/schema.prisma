@@ -55,6 +55,7 @@ model User {
   accounts      Account[]
   sessions      Session[]
   goals         Goal[]
+  executions    Execution[]
 }
 
 model VerificationToken {
@@ -70,8 +71,34 @@ model Goal {
   prompt      String
   user        User    @relation(fields: [userId], references: [id])
   userId      String
-  createdAt DateTime    @default(now())
-  updatedAt DateTime    @default(now()) @updatedAt
+  createdAt   DateTime    @default(now())
+  updatedAt   DateTime    @default(now()) @updatedAt
+  executions  Execution[]
+  @@index([userId])
+}
+
+model Result {
+  id          String  @id @default(cuid())
+  execution   Execution @relation(fields: [executionId], references: [id])
+  executionId String
+  value       String
+  createdAt   DateTime    @default(now())
+  updatedAt   DateTime    @default(now()) @updatedAt
+
+  @@index([executionId])
+}
+
+model Execution {
+  id          String  @id @default(cuid())
+  goal        Goal    @relation(fields: [goalId], references: [id])
+  goalId      String
+  user        User    @relation(fields: [userId], references: [id])
+  userId      String
+  graph       Json?
+  results     Result[]
+  createdAt   DateTime    @default(now())
+  updatedAt   DateTime    @default(now()) @updatedAt
 
   @@index([userId])
+  @@index([goalId])
 }
