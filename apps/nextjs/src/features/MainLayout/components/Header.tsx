@@ -21,8 +21,8 @@ import useGoalStore from "~/stores/goalStore";
 import ThemeToggle from "./ThemeToggle";
 
 const routes = {
-  "": {
-    path: "/" as RoutePath,
+  "/goal/new": {
+    path: "/goal/new" as RoutePath,
     label: "🐝 Start",
   },
   "waggle-dance": {
@@ -66,6 +66,9 @@ const Header = ({}) => {
 
   const activeIndex = useMemo(() => {
     console.log("slug", cleanedSlug);
+    if (cleanedSlug === "new") {
+      return 0;
+    }
     if ((getSelectedGoal(cleanedSlug)?.userId.trim().length ?? 0) === 0) {
       return 0;
     } else {

@@ -1,6 +1,7 @@
 import { useCallback } from "react";
+import NextLink from "next/link";
 import router from "next/router";
-import { Add, Close } from "@mui/icons-material";
+import { Add, Close, Cloud } from "@mui/icons-material";
 import {
   Box,
   Chip,
@@ -10,6 +11,7 @@ import {
   Tab,
   TabList,
   Tabs,
+  Tooltip,
   Typography,
 } from "@mui/joy";
 import { useSession } from "next-auth/react";
@@ -30,6 +32,7 @@ interface GoalTabsProps {
 
 // A single goal tab inside the main tabber
 const GoalTab: React.FC<GoalTabProps> = ({ tab }) => {
+  const { data: sessionData } = useSession();
   const { setIsRunning } = useWaggleDanceMachineStore();
   const { goalList, getGoalInputValue, deleteGoal, getSelectedGoal } =
     useGoalStore();
@@ -117,10 +120,26 @@ const GoalTab: React.FC<GoalTabProps> = ({ tab }) => {
           )}
         </Typography>
 
-        {tab.id.startsWith("tempgoal-") && (
-          <Chip size="sm" color="neutral">
-            <Typography level="body5">Unsaved</Typography>
-          </Chip>
+        {tab.id.startsWith("tempgoal-") && tab.prompt.trim() !== "" ? (
+          <Tooltip title="Temporary, will be deleted upon page reload">
+            <Chip size="sm" color="warning" variant="outlined">
+              {sessionData?.user.id ? (
+                <Typography level="body5">Not saved</Typography>
+              ) : (
+                <NextLink href="/auth/signin">
+                  <Typography level="body5">Sign in</Typography>
+                </NextLink>
+              )}
+            </Chip>
+          </Tooltip>
+        ) : tab.userId.trim() !== "" ? (
+          <Tooltip title="Saved to your account">
+            <Chip size="sm" color="neutral" variant="outlined">
+              <Cloud />
+            </Chip>
+          </Tooltip>
+        ) : (
+          <></>
         )}
       </Tab>
       <Divider orientation="vertical" />
@@ -131,7 +150,6 @@ const GoalTab: React.FC<GoalTabProps> = ({ tab }) => {
 // The main goal tabber component
 const GoalTabs: React.FC<GoalTabsProps> = ({ children }) => {
   const { goalList, newGoal, currentTabIndex, selectTab } = useGoalStore();
-  const { data: sessionData } = useSession();
 
   // Handle tab change
   const handleChange = useCallback(
@@ -184,7 +202,7 @@ const GoalTabs: React.FC<GoalTabsProps> = ({ children }) => {
               size="md"
               variant="plain"
               onClick={() => {
-                const newId = newGoal(sessionData?.user.id ?? "");
+                const newId = newGoal();
                 void router.replace(`/goal/${newId}`);
               }}
             >

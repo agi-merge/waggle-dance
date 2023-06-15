@@ -38,14 +38,8 @@ const placeholders = ["What's your goal? …Not sure? Check Examples!"];
 type GoalInputProps = CardProps;
 
 export default function GoalInput({}: GoalInputProps) {
-  const {
-    getGoalInputValue,
-    setGoalInputValue,
-    upsertGoal,
-    deleteGoal,
-    getSelectedGoal,
-    goalList,
-  } = useGoalStore();
+  const { getGoalInputValue, setGoalInputValue, upsertGoal, getSelectedGoal } =
+    useGoalStore();
   const { isPageLoading } = useApp();
   const [_currentPromptIndex, setCurrentPromptIndex] = useState(0);
   const [currentPlaceholderIndex, setCurrentPlaceholderIndex] = useState(0);
@@ -56,11 +50,8 @@ export default function GoalInput({}: GoalInputProps) {
 
   const { mutate } = api.goal.create.useMutation({
     onSuccess: (data) => {
-      const selected = goalList.find((goal) => goal.id);
-      selected && deleteGoal(selected);
-      console.log("goalList: ", goalList, "selected: ", selected);
+      console.log("create goal: ", data);
       void router.push(`/goal/${data?.id}`);
-      // console.log("Goal saved!");
     },
     onError: (e) => {
       console.error("Failed to post!", e.message);
@@ -69,7 +60,7 @@ export default function GoalInput({}: GoalInputProps) {
   const handleSubmit = useCallback(
     (event: React.FormEvent) => {
       event.preventDefault();
-      if (sessionData) {
+      if (sessionData?.user.id) {
         mutate(
           { prompt: getGoalInputValue() },
           {
@@ -81,25 +72,20 @@ export default function GoalInput({}: GoalInputProps) {
                 "goal: ",
                 goal,
               );
-              selectedGoal && deleteGoal(selectedGoal);
-              upsertGoal(goal);
-              void router.push(`/goal/${goal.id}`);
+              upsertGoal(goal, selectedGoal?.id);
+              // void router.push(`/goal/${goal.id}`);
             },
           },
         );
       } else {
-        const id = getSelectedGoal()?.id;
-        id && void router.push(`/goal/${id}}`);
+        const goal = getSelectedGoal();
+        if (goal) {
+          goal.userId = "guest";
+          upsertGoal(goal);
+        }
       }
     },
-    [
-      sessionData,
-      mutate,
-      getGoalInputValue,
-      getSelectedGoal,
-      deleteGoal,
-      upsertGoal,
-    ],
+    [sessionData, mutate, getGoalInputValue, getSelectedGoal, upsertGoal],
   );
 
   const handleChange = (event: React.ChangeEvent<HTMLTextAreaElement>) => {
