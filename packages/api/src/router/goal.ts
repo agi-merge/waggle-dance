@@ -1,6 +1,6 @@
 import { z } from "zod";
 
-import { createTRPCRouter, protectedProcedure, publicProcedure } from "../trpc";
+import { createTRPCRouter, protectedProcedure } from "../trpc";
 
 export const goalRouter = createTRPCRouter({
   // Query all goals
@@ -49,7 +49,7 @@ export const goalRouter = createTRPCRouter({
 
   // Delete an existing goal
   delete: protectedProcedure.input(z.string()).mutation(({ ctx, input }) => {
-    const userId = ctx.session.user.id;
+    // TODO: ensure the user owns this goal
     return ctx.prisma.goal.delete({ where: { id: input } });
   }),
 });
