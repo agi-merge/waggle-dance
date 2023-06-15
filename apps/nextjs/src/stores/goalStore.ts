@@ -8,7 +8,7 @@ export interface GoalStore {
   goalList: GoalTabList;
   prevSelectedGoal: Goal | undefined;
   newGoal: () => string;
-  deleteGoal: (tab: Goal) => void;
+  deleteGoal: (tab: Goal) => string | undefined;
   selectTab: (index: number) => void;
   upsertGoal: (goal: Goal, oldId?: string) => void;
   replaceGoals: (goalList: Goal[]) => void;
@@ -95,16 +95,17 @@ const useGoalStore = create<GoalStore>((set, get) => ({
         goalList: [baseTab],
         ...newSelection,
       });
-      return;
+      return newSelection.prevSelectedGoal?.id ?? get().prevSelectedGoal?.id ?? (goalList[0] && goalList[0].id);
     }
 
     const prevSelectedGoal = get().prevSelectedGoal;
     const prevIndex = goalList.findIndex(goal => goal.id === prevSelectedGoal?.id);
-
+    const currentTabIndex = prevIndex === -1 ? tabIndex : prevIndex;
     set({
       goalList,
-      currentTabIndex: prevIndex !== -1 ? prevIndex : 0,
+      currentTabIndex,
     });
+    return prevSelectedGoal?.id ?? get().prevSelectedGoal?.id ?? (goalList[0] && goalList[0].id);
   },
   selectTab: (index: number) => {
     const goalList = get().goalList;
