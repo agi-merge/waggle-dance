@@ -13,7 +13,10 @@ export const goalRouter = createTRPCRouter({
     .input(z.object({ id: z.string() }))
     .query(({ ctx, input }) => {
       const userId = ctx.session?.user.id;
-      return ctx.prisma.goal.findFirst({ where: { id: input.id, userId: userId }, include: { executions: true } });
+      return ctx.prisma.goal.findFirst({
+        where: { id: input.id, userId },
+        include: { executions: true }
+      });
     }),
 
   // Get top by user - TODO: could expand this to do some proper pagination in the future

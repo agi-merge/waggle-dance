@@ -2,6 +2,8 @@ import { type Goal } from ".prisma/client";
 import { type Execution } from "@acme/db";
 import { v4 } from "uuid";
 import { create } from "zustand";
+import { createJSONStorage, persist } from "zustand/middleware";
+import { app } from "~/constants";
 
 export type GoalPlusExe = Goal & { executions: Execution[] };
 export type GoalTabList = GoalPlusExe[];
@@ -59,127 +61,134 @@ const getNewSelection = (get: () => GoalStore, newTabIndex: number) => {
   };
 }
 
-const useGoalStore = create<GoalStore>((set, get) => ({
-  goalList: [baseTab],
-  prevSelectedGoal: undefined,
-  newGoal() {
-    console.log("newGoal")
-    const goalList = get().goalList;
-    const id = `tempgoal-${v4()}`;
-    const newIndex = goalList.length;
-    const newGoal = {
-      id,
-      prompt: "",
-      index: newIndex,
-      tooltip: "",
-      executions: [],
-      createdAt: new Date(),
-      updatedAt: new Date(),
-      userId: "",
-    } as GoalPlusExe;
-    const newGoalList = [...goalList, newGoal];
+const useGoalStore = create(
+  persist<GoalStore>(
+    (set, get) => ({
+      goalList: [baseTab],
+      prevSelectedGoal: undefined,
+      newGoal() {
+        console.log("newGoal")
+        const goalList = get().goalList;
+        const id = `tempgoal-${v4()}`;
+        const newIndex = goalList.length;
+        const newGoal = {
+          id,
+          prompt: "",
+          index: newIndex,
+          tooltip: "",
+          executions: [],
+          createdAt: new Date(),
+          updatedAt: new Date(),
+          userId: "",
+        } as GoalPlusExe;
+        const newGoalList = [...goalList, newGoal];
 
-    const newSelection = getNewSelection(get, newIndex);
-    set({
-      goalList: newGoalList,
-      ...newSelection,
-    });
+        const newSelection = getNewSelection(get, newIndex);
+        set({
+          goalList: newGoalList,
+          ...newSelection,
+        });
 
-    return newGoal.id;
-  },
-  deleteGoal(tab: Goal) {
-    const goalList = Array.from(get().goalList);
-    const tabIndex = goalList.findIndex((g) => g.id === tab.id);
-    goalList.splice(tabIndex, 1)
-    const newSelection = getNewSelection(get, tabIndex);
+        return newGoal.id;
+      },
+      deleteGoal(tab: Goal) {
+        const goalList = Array.from(get().goalList);
+        const tabIndex = goalList.findIndex((g) => g.id === tab.id);
+        goalList.splice(tabIndex, 1)
+        const newSelection = getNewSelection(get, tabIndex);
 
-    // Prevent empty tabs
-    if (goalList.length === 0) {
-      set({
-        goalList: [baseTab],
-        ...newSelection,
-      });
-      return newSelection.prevSelectedGoal?.id ?? get().prevSelectedGoal?.id ?? (goalList[0] && goalList[0].id);
-    }
+        // Prevent empty tabs
+        if (goalList.length === 0) {
+          set({
+            goalList: [baseTab],
+            currentTabIndex: 0,
+            prevSelectedGoal: undefined,
+          });
+          return newSelection.prevSelectedGoal?.id ?? get().prevSelectedGoal?.id ?? (goalList[0] && goalList[0].id);
+        }
 
-    const prevSelectedGoal = get().prevSelectedGoal;
-    const prevIndex = goalList.findIndex(goal => goal.id === prevSelectedGoal?.id);
-    const currentTabIndex = prevIndex === -1 ? tabIndex : prevIndex;
-    set({
-      goalList,
-      currentTabIndex,
-    });
-    return prevSelectedGoal?.id ?? get().prevSelectedGoal?.id ?? (goalList[0] && goalList[0].id);
-  },
-  selectTab: (index: number) => {
-    const goalList = get().goalList;
-    const tabIndex = getNewSelection(get, index);
-    set({
-      goalList,
-      ...tabIndex,
-    });
-  },
-  upsertGoal(goal: GoalPlusExe, oldId?: string) {
-    const goalList = get().goalList;
-    const tabIndex = goalList.findIndex((g) => g.id === goal.id || g.id === oldId);
-    const newGoalList = Array.from(goalList);
-    if (tabIndex === -1) {
-      newGoalList.push(goal);
-    } else {
-      newGoalList[tabIndex] = goal;
-    }
-    const newSelection = getNewSelection(get, tabIndex);
+        const prevSelectedGoal = get().prevSelectedGoal;
+        const prevIndex = goalList.findIndex(goal => goal.id === prevSelectedGoal?.id);
+        const currentTabIndex = prevIndex === -1 ? tabIndex : prevIndex;
+        set({
+          goalList,
+          currentTabIndex,
+        });
+        return prevSelectedGoal?.id ?? get().prevSelectedGoal?.id ?? (goalList[0] && goalList[0].id);
+      },
+      selectTab: (index: number) => {
+        const goalList = get().goalList;
+        const tabIndex = getNewSelection(get, index);
+        set({
+          goalList,
+          ...tabIndex,
+        });
+      },
+      upsertGoal(goal: GoalPlusExe, oldId?: string) {
+        const goalList = get().goalList;
+        const tabIndex = goalList.findIndex((g) => g.id === goal.id || g.id === oldId);
+        const newGoalList = Array.from(goalList);
+        if (tabIndex === -1) {
+          newGoalList.push(goal);
+        } else {
+          newGoalList[tabIndex] = goal;
+        }
+        const newSelection = getNewSelection(get, tabIndex);
 
-    set({
-      goalList: newGoalList,
-      ...newSelection,
-    });
-  },
-  replaceGoals(historicGoals) {
-    const now = new Date();
+        set({
+          goalList: newGoalList,
+          ...newSelection,
+        });
+      },
+      replaceGoals(historicGoals) {
+        const now = new Date();
 
-    if (historicGoals && historicGoals.length > 0) {
-      const goalList = historicGoals.map((goal) => ({
-        id: goal.id,
-        prompt: goal.prompt,
-        executions: goal.executions,
-        createdAt: now,
-        updatedAt: now,
-        userId: goal.userId,
-      }));
-      const tabIndex = getNewSelection(get, 0);
-      set({
-        goalList,
-        ...tabIndex,
-      });
-    }
-  },
-  currentTabIndex: 0,
-  getSelectedGoal(slug: string | undefined = undefined) {
-    return getCurrentGoal(get, slug);;
-  },
-  getGoalInputValue() {
-    const currentGoal = getCurrentGoal(get)
-    return currentGoal ? currentGoal.prompt : "";
-  },
-  setGoalInputValue(newGoalInputValue) {
-    const goalList = get().goalList;
-    const currentTabIndex = get().currentTabIndex;
-    const currentGoal = getCurrentGoal(get)
+        if (historicGoals && historicGoals.length > 0) {
+          const goalList = historicGoals.map((goal) => ({
+            id: goal.id,
+            prompt: goal.prompt,
+            executions: goal.executions,
+            createdAt: now,
+            updatedAt: now,
+            userId: goal.userId,
+          }));
+          const tabIndex = getNewSelection(get, 0);
+          set({
+            goalList,
+            ...tabIndex,
+          });
+        }
+      },
+      currentTabIndex: 0,
+      getSelectedGoal(slug: string | undefined = undefined) {
+        return getCurrentGoal(get, slug);;
+      },
+      getGoalInputValue() {
+        const currentGoal = getCurrentGoal(get)
+        return currentGoal ? currentGoal.prompt : "";
+      },
+      setGoalInputValue(newGoalInputValue) {
+        const goalList = get().goalList;
+        const currentTabIndex = get().currentTabIndex;
+        const currentGoal = getCurrentGoal(get)
 
-    if (currentGoal) {
-      const newGoal = { ...currentGoal, prompt: newGoalInputValue };
-      const newGoalList = [
-        ...goalList.slice(0, currentTabIndex),
-        newGoal,
-        ...goalList.slice(currentTabIndex + 1),
-      ];
+        if (currentGoal) {
+          const newGoal = { ...currentGoal, prompt: newGoalInputValue };
+          const newGoalList = [
+            ...goalList.slice(0, currentTabIndex),
+            newGoal,
+            ...goalList.slice(currentTabIndex + 1),
+          ];
 
-      set({
-        goalList: newGoalList,
-      });
-    }
-  },
-}));
+          set({
+            goalList: newGoalList,
+          });
+        }
+      },
+    }), {
+    name: app.localStorageKeys.goal,
+    storage: createJSONStorage(() => sessionStorage), // alternatively use: localStorage
+  })
+);
 
 export default useGoalStore;
