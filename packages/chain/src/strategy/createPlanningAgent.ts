@@ -8,13 +8,13 @@ import { type ModelCreationProps } from "../utils/types";
 
 export async function createPlanningAgent(
   creationProps: ModelCreationProps,
-  goal: string,
+  goalId: string,
   signal: AbortSignal,
 ) {
   const llm = createModel(creationProps);
   // const memory = await createMemory(goal);
   // const planPrompt = createPrompt("plan");
-  const prompt = createPrompt("plan", creationProps, goal);
+  const prompt = createPrompt("plan", creationProps, goalId);
   const chain = new LLMChain({
     // memory,
     prompt,

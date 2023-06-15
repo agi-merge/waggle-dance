@@ -8,7 +8,7 @@ import { type BaseResultType } from "~/features/WaggleDance/types";
 
 export interface BaseRequestBody {
   creationProps: ModelCreationProps;
-  goal: string;
+  goalId: string;
 }
 
 export type StrategyRequestBody = BaseRequestBody;

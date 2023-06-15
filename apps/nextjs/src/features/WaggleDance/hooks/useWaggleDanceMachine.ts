@@ -11,9 +11,10 @@ import { dagToGraphData } from "../utils/conversions";
 import useWaggleDanceMachineStore from "~/stores/waggleDanceStore";
 import { env } from "~/env.mjs";
 import { stringify } from "yaml";
+import { type GoalPlusExe } from "~/stores/goalStore";
 
 interface UseWaggleDanceMachineProps {
-  goal: string;
+  goal: GoalPlusExe | undefined;
 }
 
 export type LogMessage = {
@@ -181,12 +182,12 @@ const useWaggleDanceMachine = ({
     const maxTokens = llmResponseTokenLimit(LLM.smart)
 
     if (!isDonePlanning) {
-      setDAG(new DAG(initialNodes(goal, LLM.smart), initialEdges()));
+      setDAG(new DAG(initialNodes(goal?.prompt ?? "", LLM.smart), initialEdges()));
     }
 
     const result = await waggleDanceMachine.run(
       {
-        goal,
+        goalId: goal?.id ?? "",
         creationProps: {
           modelName: llmOption === LLM.smart ? LLM.smart : LLM.fast,
           temperature: temperatureOption === "Stable" ? 0 : temperatureOption === "Balanced" ? 0.4 : 0.9,
@@ -219,7 +220,7 @@ const useWaggleDanceMachine = ({
     const res = result.results[0] as Record<string, TaskState>;
     res && setTaskResults(res)
     return result;
-  }, [stop, isDonePlanning, waggleDanceMachine, goal, llmOption, temperatureOption, dag, sendChainPacket, log, executionMethod, isRunning, abortController, setIsRunning]);
+  }, [isDonePlanning, waggleDanceMachine, goal, llmOption, temperatureOption, dag, sendChainPacket, log, executionMethod, isRunning, abortController, setIsRunning]);
 
   return { waggleDanceMachine, dag, graphData, stop, run, setIsDonePlanning, isDonePlanning, logs, taskStates, taskResults };
 };

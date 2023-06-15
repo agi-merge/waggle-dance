@@ -10,8 +10,9 @@ import { useRouter } from "next/router";
 import { getSession, useSession } from "next-auth/react";
 
 import { appRouter } from "@acme/api";
-import { prisma } from "@acme/db";
+import { prisma, type Execution } from "@acme/db";
 
+import { api } from "~/utils/api";
 import { getOpenAIUsage } from "~/utils/openAIUsageAPI";
 import GoalInput from "~/features/GoalMenu/components/GoalInput";
 import MainLayout from "~/features/MainLayout";
@@ -29,13 +30,19 @@ export const getStaticProps = async ({ params }: GetStaticPropsContext) => {
   try {
     const openAIUsagePromise = getOpenAIUsage(startDate);
     const goalsPromise = caller.goal.topByUser();
-    const [openAIUsage, savedGoals] = await Promise.all([
+    const [openAIUsageSettled, savedGoalsSettled] = await Promise.allSettled([
       openAIUsagePromise,
       goalsPromise,
     ]);
-    if (!savedGoals.find((goal) => goal.id === slug)) {
-      return { notFound: true };
-    }
+    // if (!savedGoals.find((goal) => goal.id === slug)) {
+    //   return { notFound: true };
+    // }
+    const savedGoals =
+      savedGoalsSettled.status === "fulfilled" ? savedGoalsSettled.value : null;
+    const openAIUsage =
+      openAIUsageSettled.status === "fulfilled"
+        ? openAIUsageSettled.value
+        : null;
     return {
       props: {
         // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
@@ -48,6 +55,7 @@ export const getStaticProps = async ({ params }: GetStaticPropsContext) => {
       revalidate: 10, // In seconds
     };
   } catch (e) {
+    console.error(e);
     return {
       props: {
         openAIUsage: null,
@@ -89,14 +97,22 @@ export default function GoalTab({
     [getSelectedGoal, cleanedSlug],
   );
 
+  const { mutate: createExecution } = api.goal.createExecution.useMutation({
+    onSuccess: (data: Execution) => {
+      console.log("createExecution: ", data);
+      void router.push(`/goal/${data.goalId}`);
+    },
+    onError: (e) => {
+      console.error("Failed to post!", e.message);
+    },
+  });
+
   const state = useMemo(() => {
     if (cleanedSlug === "new") {
       return "input";
     }
-    return selectedGoal?.userId && selectedGoal?.userId.trim().length > 0
-      ? "graph"
-      : "input";
-  }, [cleanedSlug, selectedGoal?.userId]);
+    return selectedGoal?.executions?.length ?? 0 > 0 ? "graph" : "input";
+  }, [cleanedSlug, selectedGoal?.executions?.length]);
 
   useEffect(() => {
     if (cleanedSlug === "new") {

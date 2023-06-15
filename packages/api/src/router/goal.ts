@@ -1,6 +1,6 @@
 import { z } from "zod";
 
-import { createTRPCRouter, protectedProcedure } from "../trpc";
+import { createTRPCRouter, protectedProcedure, publicProcedure } from "../trpc";
 
 export const goalRouter = createTRPCRouter({
   // Query all goals
@@ -9,22 +9,36 @@ export const goalRouter = createTRPCRouter({
   // }),
 
   // Query a single goal by id
-  // byId: publicProcedure
-  //   .input(z.object({ id: z.string() }))
-  //   .query(({ ctx, input }) => {
-  //     const userId = ctx.session?.user.id;
-  //     return ctx.prisma.goal.findFirst({ where: { id: input.id, userId: userId } });
-  //   }),
+  byId: publicProcedure
+    .input(z.object({ id: z.string() }))
+    .query(({ ctx, input }) => {
+      const userId = ctx.session?.user.id;
+      return ctx.prisma.goal.findFirst({ where: { id: input.id, userId: userId }, include: { executions: true } });
+    }),
 
   // Get top by user - TODO: could expand this to do some proper pagination in the future
   topByUser: protectedProcedure.query(({ ctx }) => {
     const userId = ctx.session.user.id;
     return ctx.prisma.goal.findMany({
       where: { userId },
+      include: { executions: true },
       orderBy: { updatedAt: 'asc' },
       take: 10,
     });
   }),
+
+  createExecution: protectedProcedure
+    .input(z.object({ goalId: z.string().nonempty() }))
+    .mutation(({ ctx, input }) => {
+      const { goalId } = input;
+      const userId = ctx.session.user.id;
+      return ctx.prisma.execution.create({
+        data: {
+          userId,
+          goalId,
+        }
+      });
+    }),
 
   // Create a new goal
   create: protectedProcedure
@@ -37,18 +51,17 @@ export const goalRouter = createTRPCRouter({
       const { prompt } = input;
       const userId = ctx.session.user.id;
 
-      // TODO: Additional validation/biz logic can go here if needed
-
       return ctx.prisma.goal.create({
         data: {
           prompt,
           userId,
-        }
+        },
+        include: { executions: true },
       });
     }),
 
   // Delete an existing goal
-  delete: protectedProcedure.input(z.string()).mutation(({ ctx, input }) => {
+  delete: protectedProcedure.input(z.string().nonempty()).mutation(({ ctx, input }) => {
     // TODO: ensure the user owns this goal
     return ctx.prisma.goal.delete({ where: { id: input } });
   }),

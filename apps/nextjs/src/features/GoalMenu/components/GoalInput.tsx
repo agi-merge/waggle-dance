@@ -48,7 +48,7 @@ export default function GoalInput({}: GoalInputProps) {
 
   const { data: sessionData } = useSession();
 
-  const { mutate } = api.goal.create.useMutation({
+  const { mutate: createGoal } = api.goal.create.useMutation({
     onSuccess: (data) => {
       console.log("create goal: ", data);
       void router.push(`/goal/${data?.id}`);
@@ -61,7 +61,7 @@ export default function GoalInput({}: GoalInputProps) {
     (event: React.FormEvent) => {
       event.preventDefault();
       if (sessionData?.user.id) {
-        mutate(
+        createGoal(
           { prompt: getGoalInputValue() },
           {
             onSuccess: (goal) => {
@@ -85,7 +85,7 @@ export default function GoalInput({}: GoalInputProps) {
         }
       }
     },
-    [sessionData, mutate, getGoalInputValue, getSelectedGoal, upsertGoal],
+    [sessionData, createGoal, getGoalInputValue, getSelectedGoal, upsertGoal],
   );
 
   const handleChange = (event: React.ChangeEvent<HTMLTextAreaElement>) => {

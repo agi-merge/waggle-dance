@@ -73,7 +73,7 @@ model Goal {
   userId      String
   createdAt   DateTime    @default(now())
   updatedAt   DateTime    @default(now()) @updatedAt
-  executions  Execution[]
+  executions  Execution[] @relation(fields: [])
   @@index([userId])
 }
 
@@ -88,6 +88,12 @@ model Result {
   @@index([executionId])
 }
 
+enum ExecutionState {
+  EXECUTING
+  SUCCEEDED
+  FAILED
+}
+
 model Execution {
   id          String  @id @default(cuid())
   goal        Goal    @relation(fields: [goalId], references: [id])
@@ -96,8 +102,9 @@ model Execution {
   userId      String
   graph       Json?
   results     Result[]
-  createdAt   DateTime    @default(now())
-  updatedAt   DateTime    @default(now()) @updatedAt
+  state       ExecutionState @default(EXECUTING)
+  createdAt   DateTime       @default(now())
+  updatedAt   DateTime       @default(now()) @updatedAt
 
   @@index([userId])
   @@index([goalId])

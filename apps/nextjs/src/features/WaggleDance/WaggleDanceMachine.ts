@@ -116,7 +116,7 @@ export default class WaggleDanceMachine {
         taskState.firstTaskState = state;
       };
 
-      dag = await planTasks(request.goal, request.creationProps, initDAG, setDAG, log, sendChainPacket, taskState, updateTaskState, startFirstTask);
+      dag = await planTasks(request.goalId, request.creationProps, initDAG, setDAG, log, sendChainPacket, taskState, updateTaskState, startFirstTask);
       if (dag.nodes[0]) {
         const node = dag.nodes[dag.nodes.length - 1]
         node && sendChainPacket({ type: "done", nodeId: rootPlanId, value: "🍯 Return Goal" }, node) || console.warn("node not found", rootPlanId)
@@ -129,7 +129,7 @@ export default class WaggleDanceMachine {
     }
     // prepend our initial nodes to the DAG
     const planDAG = new DAG(
-      [...initialNodes(request.goal, request.creationProps.modelName), ...dag.nodes],
+      [...initialNodes(request.goalId, request.creationProps.modelName), ...dag.nodes],
       // connect our initial nodes to the DAG: gotta find them and create edges
       [...initialEdges(), ...dag.edges, ...findNodesWithNoIncomingEdges(dag).map((node) => new DAGEdgeClass(rootPlanId, node.id))],
     )

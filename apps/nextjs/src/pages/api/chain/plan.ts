@@ -20,13 +20,14 @@ const handler = async (req: NextRequest) => {
   try {
     const {
       creationProps,
-      goal,
+      goalId,
     } = await req.json() as StrategyRequestBody;
 
     // req.signal.onabort = () => {
     //   console.warn("abort plan request");
     //   abortController.abort();
     // };
+
     const encoder = new TextEncoder()
     const stream = new ReadableStream({
       async start(controller) {
@@ -40,7 +41,7 @@ const handler = async (req: NextRequest) => {
         creationProps.callbacks = callbacks;
         console.log("about to planChain");
 
-        const _planResult = await createPlanningAgent(creationProps, goal, req.signal);
+        const _planResult = await createPlanningAgent(creationProps, goalId, req.signal);
         controller.close();
       },
 

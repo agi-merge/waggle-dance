@@ -69,7 +69,7 @@ const Header = ({}) => {
     if (cleanedSlug === "new") {
       return 0;
     }
-    if ((getSelectedGoal(cleanedSlug)?.userId.trim().length ?? 0) === 0) {
+    if ((getSelectedGoal(cleanedSlug)?.executions.length ?? 0) === 0) {
       return 0;
     } else {
       return 1;
@@ -122,7 +122,7 @@ const Header = ({}) => {
     );
   };
 
-  const isHomeSlug = slug?.includes("tempgoal-") ?? false;
+  const isHomeSlug = activeIndex === 0;
 
   return (
     <header className="z-10 mx-auto w-full px-5 pt-0">

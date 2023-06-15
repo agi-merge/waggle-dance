@@ -6,6 +6,8 @@ import { stringify } from "yaml"
 import { type NextApiRequest, type NextApiResponse } from "next";
 import { getServerSession } from "@acme/auth";
 import { type IncomingMessage } from "http";
+import { appRouter } from "@acme/api";
+import { prisma } from "@acme/db";
 
 export const config = {
   api: {
@@ -27,7 +29,7 @@ const handler = async (req: IncomingMessage, res: NextApiResponse) => {
   try {
     const {
       creationProps,
-      goal,
+      goalId,
       task,
       dag,
       executionMethod,
@@ -69,7 +71,10 @@ const handler = async (req: IncomingMessage, res: NextApiResponse) => {
     creationProps.callbacks = callbacks;
     const idMinusCriticize = task.id.startsWith("criticize-") && task.id.slice(0, "criticize-".length)
     const result = idMinusCriticize && taskResults[idMinusCriticize]
-    const exeResult = await createExecutionAgent(creationProps, goal, stringify(task), stringify(dag), stringify(executionMethod), stringify(result), reviewPrefix, session?.user.id)
+    const api = appRouter.createCaller({ session, prisma });
+    const goal = await api.goal.byId({ id: goalId })
+    if (!goal?.prompt.length) throw new Error("No goal prompt found");
+    const exeResult = await createExecutionAgent(creationProps, goal?.prompt, stringify(task), stringify(dag), stringify(executionMethod), stringify(result), reviewPrefix, session?.user.id)
 
     console.log("exeResult", exeResult);
     res.end();

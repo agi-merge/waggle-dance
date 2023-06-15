@@ -1,8 +1,10 @@
 import { type Goal } from ".prisma/client";
+import { type Execution } from "@acme/db";
 import { v4 } from "uuid";
 import { create } from "zustand";
 
-export type GoalTabList = Goal[];
+export type GoalPlusExe = Goal & { executions: Execution[] };
+export type GoalTabList = GoalPlusExe[];
 
 export interface GoalStore {
   goalList: GoalTabList;
@@ -10,10 +12,10 @@ export interface GoalStore {
   newGoal: () => string;
   deleteGoal: (tab: Goal) => string | undefined;
   selectTab: (index: number) => void;
-  upsertGoal: (goal: Goal, oldId?: string) => void;
-  replaceGoals: (goalList: Goal[]) => void;
+  upsertGoal: (goal: GoalPlusExe, oldId?: string) => void;
+  replaceGoals: (goalList: GoalPlusExe[]) => void;
   currentTabIndex: number;
-  getSelectedGoal: (slug?: string | undefined) => Goal | undefined;
+  getSelectedGoal: (slug?: string | undefined) => GoalPlusExe | undefined;
   getGoalInputValue: () => string;
   setGoalInputValue: (newGoalInputValue: string) => void;
 }
@@ -23,16 +25,17 @@ const baseTab = {
   prompt: "",
   index: 0,
   tooltip: "",
+  executions: [],
   createdAt: new Date(),
   updatedAt: new Date(),
   userId: "",
-} as Goal;
+} as GoalPlusExe;
 
 // Helper function to get the current goal
 // If a slug is provided, it will return the goal with that slug
 // Otherwise, it will return the goal at the currentTabIndex
 // If the slug is invalid, it will return undefined
-const getCurrentGoal = (get: () => GoalStore, slug?: string): Goal | undefined => {
+const getCurrentGoal = (get: () => GoalStore, slug?: string): GoalPlusExe | undefined => {
   const goalList = get().goalList;
   if (slug) {
     const currentGoal = goalList.find(goal => goal.id === slug);
@@ -69,10 +72,11 @@ const useGoalStore = create<GoalStore>((set, get) => ({
       prompt: "",
       index: newIndex,
       tooltip: "",
+      executions: [],
       createdAt: new Date(),
       updatedAt: new Date(),
       userId: "",
-    };
+    } as GoalPlusExe;
     const newGoalList = [...goalList, newGoal];
 
     const newSelection = getNewSelection(get, newIndex);
@@ -85,7 +89,7 @@ const useGoalStore = create<GoalStore>((set, get) => ({
   },
   deleteGoal(tab: Goal) {
     const goalList = Array.from(get().goalList);
-    const tabIndex = goalList.indexOf(tab);
+    const tabIndex = goalList.findIndex((g) => g.id === tab.id);
     goalList.splice(tabIndex, 1)
     const newSelection = getNewSelection(get, tabIndex);
 
@@ -115,7 +119,7 @@ const useGoalStore = create<GoalStore>((set, get) => ({
       ...tabIndex,
     });
   },
-  upsertGoal(goal: Goal, oldId?: string) {
+  upsertGoal(goal: GoalPlusExe, oldId?: string) {
     const goalList = get().goalList;
     const tabIndex = goalList.findIndex((g) => g.id === goal.id || g.id === oldId);
     const newGoalList = Array.from(goalList);
@@ -138,6 +142,7 @@ const useGoalStore = create<GoalStore>((set, get) => ({
       const goalList = historicGoals.map((goal) => ({
         id: goal.id,
         prompt: goal.prompt,
+        executions: goal.executions,
         createdAt: now,
         updatedAt: now,
         userId: goal.userId,
