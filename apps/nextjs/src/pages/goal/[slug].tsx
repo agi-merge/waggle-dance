@@ -90,10 +90,6 @@ export default function GoalTab({
   return (
     <MainLayout openAIUsage={openAIUsage}>
       <>
-        {(selectedGoal?.userId &&
-          selectedGoal.userId.trim().length > 0 &&
-          selectedGoal.userId) ||
-          "N/A"}
         {state === "input" ? (
           <>
             <Title title="🐝 Goal solver" description="" />

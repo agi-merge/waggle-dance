@@ -42,7 +42,7 @@ const routes = {
 type RoutePath = "/" | "waggle-dance" | "goal-done";
 const Header = ({}) => {
   const router = useRouter();
-  const slug = removeFirstCharIfMatching(router.pathname, "/");
+  const { slug } = router.query;
   const { data: session } = useSession();
   const { getSelectedGoal } = useGoalStore();
   const [anchorEl, setAnchorEl] = React.useState<null | HTMLElement>(null);
@@ -57,15 +57,26 @@ const Header = ({}) => {
 
     setAnchorEl(event.currentTarget);
   };
+  const cleanedSlug = useMemo(() => {
+    if (typeof slug === "string") {
+      return slug;
+    } else if (Array.isArray(slug)) {
+      return slug[0];
+    } else {
+      return slug;
+    }
+    return "";
+  }, [slug]) as string;
 
   const activeIndex = useMemo(() => {
-    if ((getSelectedGoal()?.userId.trim().length ?? 0) === 0) {
+    console.log("slug", cleanedSlug);
+    if ((getSelectedGoal(cleanedSlug)?.userId.trim().length ?? 0) === 0) {
       return 0;
     } else {
       return 1;
     }
     // return Object.keys(routes).findIndex((path) => path === slug);
-  }, [getSelectedGoal]);
+  }, [getSelectedGoal, slug]);
 
   const renderBreadcrumbLink = (
     path: RoutePath,

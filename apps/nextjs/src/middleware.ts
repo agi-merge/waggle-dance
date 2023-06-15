@@ -5,9 +5,8 @@ import { v4 } from 'uuid';
 
 export function middleware(request: NextRequest) {
     const url = request.nextUrl.clone()
-    if (url.pathname === '/') {
-        const id = `tempgoal-${v4()}`
-        url.pathname = `/goal/${`${id}`}}`
+    if (url.pathname === '/' || url.pathname === '') {
+        url.pathname = `/goal/`
         return NextResponse.redirect(url)
     }
 }
