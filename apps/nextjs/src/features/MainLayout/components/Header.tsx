@@ -69,7 +69,11 @@ const Header = ({}) => {
     if (cleanedSlug === "new") {
       return 0;
     }
-    if ((getSelectedGoal(cleanedSlug)?.executions.length ?? 0) === 0) {
+    const selectedGoal = getSelectedGoal(cleanedSlug);
+    if (
+      (selectedGoal?.executions.length ?? 0) === 0 &&
+      (selectedGoal?.userId ?? "") === ""
+    ) {
       return 0;
     } else {
       return 1;

@@ -111,8 +111,11 @@ export default function GoalTab({
     if (cleanedSlug === "new") {
       return "input";
     }
-    return selectedGoal?.executions?.length ?? 0 > 0 ? "graph" : "input";
-  }, [cleanedSlug, selectedGoal?.executions?.length]);
+    return (selectedGoal?.executions?.length ?? 0 > 0) ||
+      (selectedGoal?.userId.trim().length ?? 0 !== 0)
+      ? "graph"
+      : "input";
+  }, [cleanedSlug, selectedGoal?.executions?.length, selectedGoal?.userId]);
 
   useEffect(() => {
     if (cleanedSlug === "new") {
