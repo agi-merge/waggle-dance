@@ -33,7 +33,10 @@
   },
   "globalEnv": [
     "CI",
-    "DATABASE_URL",
+    "POSTGRES_URL",
+    "POSTGRES_PRISMA_URL",
+    "POSTGRES_URL_NON_POOLING",
+    "PRISMA_GENERATE_DATAPROXY",
     "DISCORD_ID",
     "DISCORD_SECRET",
     "GITHUB_ID",

@@ -1,4 +1,4 @@
-import { type Goal } from ".prisma/client";
+import { type Goal } from "@acme/db";
 import { type Execution } from "@acme/db";
 import { v4 } from "uuid";
 import { create } from "zustand";
