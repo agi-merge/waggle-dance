@@ -23,7 +23,9 @@ const PageTitle = ({ title, description }: TitleProps) => {
         gap="1rem"
       >
         <Stack direction="column" className="flex w-full">
-          <Typography level="h4">{title}</Typography>
+          <Typography level="h4" fontSize={{ xs: "14pt", sm: "18pt" }}>
+            {title}
+          </Typography>
           {headerExpanded && (
             <Typography
               level="body2"

@@ -4,23 +4,24 @@ import { createTRPCRouter, protectedProcedure, publicProcedure } from "../trpc";
 
 export const goalRouter = createTRPCRouter({
   // Query all goals
-  all: publicProcedure.query(({ ctx }) => {
-    return ctx.prisma.goal.findMany({ orderBy: { id: "desc" } });
-  }),
+  // all: publicProcedure.query(({ ctx }) => {
+  //   return ctx.prisma.goal.findMany({ orderBy: { id: "desc" } });
+  // }),
 
   // Query a single goal by id
-  byId: publicProcedure
-    .input(z.object({ id: z.string() }))
-    .query(({ ctx, input }) => {
-      return ctx.prisma.goal.findFirst({ where: { id: input.id } });
-    }),
+  // byId: publicProcedure
+  //   .input(z.object({ id: z.string() }))
+  //   .query(({ ctx, input }) => {
+  //     const userId = ctx.session?.user.id;
+  //     return ctx.prisma.goal.findFirst({ where: { id: input.id, userId: userId } });
+  //   }),
 
   // Get top by user - TODO: could expand this to do some proper pagination in the future
   topByUser: protectedProcedure.query(({ ctx }) => {
     const userId = ctx.session.user.id;
     return ctx.prisma.goal.findMany({
       where: { userId },
-      orderBy: { updatedAt: 'desc' },
+      orderBy: { updatedAt: 'asc' },
       take: 10,
     });
   }),
@@ -48,6 +49,7 @@ export const goalRouter = createTRPCRouter({
 
   // Delete an existing goal
   delete: protectedProcedure.input(z.string()).mutation(({ ctx, input }) => {
+    const userId = ctx.session.user.id;
     return ctx.prisma.goal.delete({ where: { id: input } });
   }),
 });

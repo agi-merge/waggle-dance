@@ -20,10 +20,6 @@ import { app } from "~/constants";
 import useGoalStore from "~/stores/goalStore";
 import ThemeToggle from "./ThemeToggle";
 
-function removeFirstCharIfMatching(str: string, targetChar: string): string {
-  return str && str.length > 0 && str[0] === targetChar ? str.slice(1) : str;
-}
-
 const routes = {
   "": {
     path: "/" as RoutePath,
@@ -76,7 +72,7 @@ const Header = ({}) => {
       return 1;
     }
     // return Object.keys(routes).findIndex((path) => path === slug);
-  }, [getSelectedGoal, slug]);
+  }, [cleanedSlug, getSelectedGoal]);
 
   const renderBreadcrumbLink = (
     path: RoutePath,
@@ -93,6 +89,7 @@ const Header = ({}) => {
         key={path}
         component="span"
         level="body3"
+        fontSize={{ xs: "7pt", sm: "9pt" }}
         color={isCurrent ? "primary" : "neutral"}
         className={isHighlighted ? "font-bold" : ""}
       >
@@ -102,6 +99,7 @@ const Header = ({}) => {
       <Typography
         key={path}
         level="body3"
+        fontSize={{ xs: "7pt", sm: "9pt" }}
         color="neutral"
         className="cursor-default opacity-50"
       >
@@ -121,11 +119,15 @@ const Header = ({}) => {
     );
   };
 
-  const isHomeSlug = !slug.includes("tempgoal");
+  const isHomeSlug = slug?.includes("tempgoal-") ?? false;
 
   return (
-    <header className="z-10 mx-auto w-full px-5 pt-5">
-      <Stack direction="row" className="items-center">
+    <header className="z-10 mx-auto w-full px-5 pt-0">
+      <Stack
+        direction="row"
+        className="items-center"
+        sx={{ paddingTop: { xs: 1, sm: 3 } }}
+      >
         <Stack className="flex-grow pl-2 pr-5">
           <Typography
             fontSize={{ xs: "15pt", sm: "24pt" }}
@@ -181,7 +183,13 @@ const Header = ({}) => {
       </Stack>
       {isHomeSlug && (
         <Typography
-          className="pl-2 pt-3"
+          sx={{
+            margin: { xs: 0, sm: 0.5 },
+            paddingTop: { xs: 0.5, sm: 1 },
+            paddingLeft: { xs: 1, sm: 1 },
+            paddingBottom: 0,
+            marginBottom: { xs: -2, sm: 1 },
+          }}
           level="body2"
           fontSize={{ xs: "8pt", sm: "10pt" }}
           color="neutral"

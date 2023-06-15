@@ -23,7 +23,7 @@ const MainLayout = ({ children, openAIUsage }: Props) => {
   const { mode } = useColorScheme();
   const { isPageLoading } = useApp();
   const router = useRouter();
-  const { mergeGoals } = useGoalStore();
+  const { replaceGoals } = useGoalStore();
   const [mounted, setMounted] = useState(false);
 
   const { data: _historicGoals } = api.goal.topByUser.useQuery(undefined, {
@@ -31,7 +31,7 @@ const MainLayout = ({ children, openAIUsage }: Props) => {
     networkMode: "offlineFirst",
     refetchOnWindowFocus: false,
     onSuccess: (data) => {
-      mergeGoals(data);
+      replaceGoals(data);
     },
   });
 

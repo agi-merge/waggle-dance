@@ -12,7 +12,6 @@ export interface GoalStore {
   selectTab: (index: number) => void;
   upsertGoal: (goal: Goal) => void;
   replaceGoals: (goalList: Goal[]) => void;
-  mergeGoals: (historicGoals?: Goal[]) => void;
   currentTabIndex: number;
   getSelectedGoal: (slug?: string | undefined) => Goal | undefined;
   getGoalInputValue: () => string;
@@ -47,7 +46,7 @@ const getCurrentGoal = (get: () => GoalStore, slug?: string): Goal | undefined =
   }
 };
 
-const setCurrentTabIndex = (get: () => GoalStore, newTabIndex: number) => {
+const getNewSelection = (get: () => GoalStore, newTabIndex: number) => {
   const goalList = get().goalList;
   const prevSelectedGoal = goalList[get().currentTabIndex];
 
@@ -75,7 +74,7 @@ const useGoalStore = create<GoalStore>((set, get) => ({
     };
     const newGoalList = [...goalList, newGoal];
 
-    const tabIndex = setCurrentTabIndex(get, newIndex);
+    const tabIndex = getNewSelection(get, newIndex);
     set({
       goalList: newGoalList,
       ...tabIndex,
@@ -87,7 +86,7 @@ const useGoalStore = create<GoalStore>((set, get) => ({
     const goalList = get().goalList;
     const tabIndex = goalList.indexOf(tab);
     goalList.splice(tabIndex, 1)
-    const prevTab = setCurrentTabIndex(get, tabIndex);
+    const prevTab = getNewSelection(get, tabIndex);
 
     // Prevent empty tabs
     if (goalList.length === 0) {
@@ -113,35 +112,11 @@ const useGoalStore = create<GoalStore>((set, get) => ({
   },
   selectTab: (index: number) => {
     const goalList = get().goalList;
-    const tabIndex = setCurrentTabIndex(get, index);
+    const tabIndex = getNewSelection(get, index);
     set({
       goalList,
       ...tabIndex,
     });
-  },
-  mergeGoals(savedGoals) {
-    // const now = new Date();
-    const goalList = get().goalList;
-    if (savedGoals && savedGoals.length > 0) {
-
-      const combinedGoals = [...savedGoals]
-      const goalIds = new Set(savedGoals.map((goal) => goal.id));
-
-      for (const goal of goalList) {
-        goalIds.has(goal.id) && combinedGoals.push(goal)
-      }
-
-      // const newGoalList = Array.from(goalList).map((goal, index) => {
-      //   // if (goal) {
-      //   //   index = (goal).index
-      //   // }
-      //   return { ...goal, index, tooltip: goal.prompt }
-      // });
-
-      set({
-        goalList: combinedGoals,
-      });
-    }
   },
   upsertGoal(goal: Goal) {
     const goalList = get().goalList;
@@ -161,19 +136,17 @@ const useGoalStore = create<GoalStore>((set, get) => ({
     const now = new Date();
 
     if (historicGoals && historicGoals.length > 0) {
-      const goalList = historicGoals.map((goal, index) => ({
+      const goalList = historicGoals.map((goal) => ({
         id: goal.id,
-        index,
-        tooltip: goal.prompt,
         prompt: goal.prompt,
         createdAt: now,
         updatedAt: now,
         userId: goal.userId,
       }));
-
+      const tabIndex = getNewSelection(get, 0);
       set({
-        currentTabIndex: 0,
         goalList,
+        ...tabIndex,
       });
     }
   },

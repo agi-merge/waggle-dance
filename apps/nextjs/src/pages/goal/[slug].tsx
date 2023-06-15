@@ -3,6 +3,10 @@
 import React, { useEffect, useMemo } from "react";
 import type { GetStaticPaths, InferGetStaticPropsType } from "next";
 import { useRouter } from "next/router";
+import { getSession } from "next-auth/react";
+
+import { appRouter } from "@acme/api";
+import { prisma, type Goal } from "@acme/db";
 
 import { getOpenAIUsage, type CombinedResponse } from "~/utils/openAIUsageAPI";
 import GoalInput from "~/features/GoalMenu/components/GoalInput";
@@ -14,20 +18,26 @@ import useGoalStore from "~/stores/goalStore";
 export const getStaticProps = async (): Promise<{
   props: {
     openAIUsage: CombinedResponse | null;
+    savedGoals: Goal[] | null;
   };
   revalidate: number;
 }> => {
   const startDate = new Date();
+  const session = await getSession();
 
+  const caller = appRouter.createCaller({ session, prisma });
   try {
-    const openAIUsage: CombinedResponse | null = await getOpenAIUsage(
-      startDate,
-    );
-
+    const openAIUsagePromise = getOpenAIUsage(startDate);
+    const goalsPromise = caller.goal.topByUser();
+    const [openAIUsage, savedGoals] = await Promise.all([
+      openAIUsagePromise,
+      goalsPromise,
+    ]);
     return {
       props: {
         // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
         openAIUsage: JSON.parse(JSON.stringify(openAIUsage)),
+        savedGoals,
       },
       // Next.js will attempt to re-generate the page:
       // - When a request comes in
@@ -38,8 +48,9 @@ export const getStaticProps = async (): Promise<{
     return {
       props: {
         openAIUsage: null,
+        savedGoals: null,
       },
-      revalidate: 0,
+      revalidate: 1,
     };
   }
 };
@@ -49,12 +60,14 @@ export const getStaticPaths: GetStaticPaths<{ slug: string }> = () => {
     fallback: "blocking", //indicates the type of fallback
   };
 };
+
 export default function GoalTab({
   openAIUsage,
+  savedGoals,
 }: InferGetStaticPropsType<typeof getStaticProps>) {
   const router = useRouter();
   const { slug } = router.query;
-  const { getSelectedGoal, prevSelectedGoal, goalList } = useGoalStore();
+  const { getSelectedGoal } = useGoalStore();
   const cleanedSlug = useMemo(() => {
     if (typeof slug === "string") {
       return slug;
@@ -77,15 +90,17 @@ export default function GoalTab({
   }, [selectedGoal?.userId]);
 
   useEffect(() => {
-    if (!selectedGoal?.id) {
+    if (!selectedGoal?.id && cleanedSlug !== selectedGoal?.id) {
       const anySelectedGoal = getSelectedGoal()?.id;
       if (anySelectedGoal) {
         void router.replace(`/goal/${anySelectedGoal}`);
+      } else if (savedGoals && savedGoals[0]) {
+        void router.replace(`/goal/${savedGoals[0].id}`);
       } else {
-        void router.replace(`/`);
+        void router.replace(`/goal/new`);
       }
     }
-  }, [goalList, selectedGoal, prevSelectedGoal?.id, router, getSelectedGoal]);
+  }, [cleanedSlug, getSelectedGoal, router, savedGoals, selectedGoal?.id]);
 
   return (
     <MainLayout openAIUsage={openAIUsage}>
@@ -96,7 +111,10 @@ export default function GoalTab({
             <GoalInput />
           </>
         ) : (
-          <WaggleDanceGraph key={cleanedSlug} />
+          <>
+            <Title title="💃 Waggling!" description="" />
+            <WaggleDanceGraph key={cleanedSlug} />
+          </>
         )}
       </>
     </MainLayout>

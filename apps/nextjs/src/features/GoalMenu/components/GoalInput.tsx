@@ -58,6 +58,7 @@ export default function GoalInput({}: GoalInputProps) {
     onSuccess: (data) => {
       const selected = goalList.find((goal) => goal.id);
       selected && deleteGoal(selected);
+      console.log("goalList: ", goalList, "selected: ", selected);
       void router.push(`/goal/${data?.id}`);
       // console.log("Goal saved!");
     },
