@@ -17,7 +17,6 @@ import {
 } from "@mui/joy";
 import { type CardProps } from "@mui/joy/Card";
 import { useSession } from "next-auth/react";
-import { v4 } from "uuid";
 
 import { api } from "~/utils/api";
 import useApp from "~/stores/appStore";
@@ -39,7 +38,14 @@ const placeholders = ["What's your goal? …Not sure? Check Examples!"];
 type GoalInputProps = CardProps;
 
 export default function GoalInput({}: GoalInputProps) {
-  const { getGoalInputValue, setGoalInputValue } = useGoalStore();
+  const {
+    getGoalInputValue,
+    setGoalInputValue,
+    upsertGoal,
+    deleteGoal,
+    getSelectedGoal,
+    goalList,
+  } = useGoalStore();
   const { isPageLoading } = useApp();
   const [_currentPromptIndex, setCurrentPromptIndex] = useState(0);
   const [currentPlaceholderIndex, setCurrentPlaceholderIndex] = useState(0);
@@ -50,7 +56,8 @@ export default function GoalInput({}: GoalInputProps) {
 
   const { mutate } = api.goal.create.useMutation({
     onSuccess: (data) => {
-      // selected && deleteGoal(selected);
+      const selected = goalList.find((goal) => goal.id);
+      selected && deleteGoal(selected);
       void router.push(`/goal/${data?.id}`);
       // console.log("Goal saved!");
     },
@@ -65,16 +72,33 @@ export default function GoalInput({}: GoalInputProps) {
         mutate(
           { prompt: getGoalInputValue() },
           {
-            onSuccess: (data) => {
-              void router.push(`/goal/${data.id}`);
+            onSuccess: (goal) => {
+              const selectedGoal = getSelectedGoal();
+              console.log(
+                "saved goal, selectedGoal: ",
+                selectedGoal,
+                "goal: ",
+                goal,
+              );
+              selectedGoal && deleteGoal(selectedGoal);
+              upsertGoal(goal);
+              void router.push(`/goal/${goal.id}`);
             },
           },
         );
       } else {
-        void router.push(`/goal/tempgoal-${v4()}`);
+        const id = getSelectedGoal()?.id;
+        id && void router.push(`/goal/${id}}`);
       }
     },
-    [sessionData, mutate, getGoalInputValue],
+    [
+      sessionData,
+      mutate,
+      getGoalInputValue,
+      getSelectedGoal,
+      deleteGoal,
+      upsertGoal,
+    ],
   );
 
   const handleChange = (event: React.ChangeEvent<HTMLTextAreaElement>) => {

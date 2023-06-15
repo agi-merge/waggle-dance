@@ -1,6 +1,6 @@
 // pages/goal/[tabId].tsx
 
-import React, { useMemo } from "react";
+import React, { useEffect, useMemo } from "react";
 import type { GetStaticPaths, InferGetStaticPropsType } from "next";
 import { useRouter } from "next/router";
 
@@ -54,7 +54,7 @@ export default function GoalTab({
 }: InferGetStaticPropsType<typeof getStaticProps>) {
   const router = useRouter();
   const { slug } = router.query;
-  const { getSelectedGoal } = useGoalStore();
+  const { getSelectedGoal, prevSelectedGoal, goalList } = useGoalStore();
   const cleanedSlug = useMemo(() => {
     if (typeof slug === "string") {
       return slug;
@@ -65,17 +65,42 @@ export default function GoalTab({
     }
     return "";
   }, [slug]) as string;
+  const selectedGoal = useMemo(
+    () => getSelectedGoal(cleanedSlug),
+    [getSelectedGoal, cleanedSlug],
+  );
+
+  const state = useMemo(() => {
+    return selectedGoal?.userId && selectedGoal?.userId.trim().length > 0
+      ? "graph"
+      : "input";
+  }, [selectedGoal?.userId]);
+
+  useEffect(() => {
+    if (!selectedGoal) {
+      console.log("no selectedGoal but prevGoal", prevSelectedGoal?.id);
+      if (prevSelectedGoal?.id) {
+        void router.replace(`/goal/${prevSelectedGoal?.id}`);
+      }
+    }
+  }, [goalList, selectedGoal, prevSelectedGoal?.id, router]);
 
   return (
     <MainLayout openAIUsage={openAIUsage}>
-      {getSelectedGoal(cleanedSlug) ? (
-        <>
-          <Title title="🐝 Goal solver" description="" />
-          <GoalInput />
-        </>
-      ) : (
-        <WaggleDanceGraph key={cleanedSlug} />
-      )}
+      <>
+        {(selectedGoal?.userId &&
+          selectedGoal.userId.trim().length > 0 &&
+          selectedGoal.userId) ||
+          "N/A"}
+        {state === "input" ? (
+          <>
+            <Title title="🐝 Goal solver" description="" />
+            <GoalInput />
+          </>
+        ) : (
+          <WaggleDanceGraph key={cleanedSlug} />
+        )}
+      </>
     </MainLayout>
   );
 }

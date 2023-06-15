@@ -2,7 +2,6 @@ import React, { useEffect, useMemo, useState } from "react";
 import Head from "next/head";
 import { useRouter } from "next/router";
 import { Card, LinearProgress, Sheet, useColorScheme } from "@mui/joy";
-import { useSession } from "next-auth/react";
 
 import { api } from "~/utils/api";
 import { type CombinedResponse } from "~/utils/openAIUsageAPI";
@@ -27,13 +26,12 @@ const MainLayout = ({ children, openAIUsage }: Props) => {
   const { mergeGoals } = useGoalStore();
   const [mounted, setMounted] = useState(false);
 
-  const { data: sessionData } = useSession();
   const { data: _historicGoals } = api.goal.topByUser.useQuery(undefined, {
     refetchOnMount: true,
     networkMode: "offlineFirst",
     refetchOnWindowFocus: false,
     onSuccess: (data) => {
-      mergeGoals(sessionData, data);
+      mergeGoals(data);
     },
   });
 

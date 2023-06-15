@@ -1,20 +1,20 @@
 import { type Goal } from ".prisma/client";
-import { type Session } from "@acme/auth";
 import { v4 } from "uuid";
 import { create } from "zustand";
-import { type GoalTab } from "~/features/WaggleDance/components/GoalTabs";
 
-export type GoalList = GoalTab[];
+export type GoalTabList = Goal[];
 
 export interface GoalStore {
-  goalList: GoalList;
-  prevSelectedGoal: GoalTab | undefined;
+  goalList: GoalTabList;
+  prevSelectedGoal: Goal | undefined;
   newGoal: (userId: string) => string;
-  deleteGoal: (tab: GoalTab) => void;
+  deleteGoal: (tab: Goal) => void;
   selectTab: (index: number) => void;
-  mergeGoals: (sessionData?: Session | null, historicGoals?: Goal[]) => void;
+  upsertGoal: (goal: Goal) => void;
+  replaceGoals: (goalList: Goal[]) => void;
+  mergeGoals: (historicGoals?: Goal[]) => void;
   currentTabIndex: number;
-  getSelectedGoal: (slug?: string | undefined) => GoalTab | undefined;
+  getSelectedGoal: (slug?: string | undefined) => Goal | undefined;
   getGoalInputValue: () => string;
   setGoalInputValue: (newGoalInputValue: string) => void;
 }
@@ -27,9 +27,13 @@ const baseTab = {
   createdAt: new Date(),
   updatedAt: new Date(),
   userId: "",
-} as GoalTab;
+} as Goal;
 
-const getCurrentGoal = (get: () => GoalStore, slug?: string): GoalTab | undefined => {
+// Helper function to get the current goal
+// If a slug is provided, it will return the goal with that slug
+// Otherwise, it will return the goal at the currentTabIndex
+// If the slug is invalid, it will return undefined
+const getCurrentGoal = (get: () => GoalStore, slug?: string): Goal | undefined => {
   const goalList = get().goalList;
   if (slug) {
     const currentGoal = goalList.find(goal => goal.id === slug);
@@ -39,7 +43,7 @@ const getCurrentGoal = (get: () => GoalStore, slug?: string): GoalTab | undefine
     return currentGoal;
   } else {
     const currentTabIndex = get().currentTabIndex;
-    return goalList.sort((a, b) => a.index - b.index)[currentTabIndex];
+    return goalList[currentTabIndex];
   }
 };
 
@@ -56,7 +60,7 @@ const setCurrentTabIndex = (get: () => GoalStore, newTabIndex: number) => {
 const useGoalStore = create<GoalStore>((set, get) => ({
   goalList: [baseTab],
   prevSelectedGoal: undefined,
-  newGoal(userId: string) {
+  newGoal() {
     const goalList = get().goalList;
     const id = `tempgoal-${v4()}`;
     const newIndex = goalList.length;
@@ -67,7 +71,7 @@ const useGoalStore = create<GoalStore>((set, get) => ({
       tooltip: "",
       createdAt: new Date(),
       updatedAt: new Date(),
-      userId,
+      userId: "",
     };
     const newGoalList = [...goalList, newGoal];
 
@@ -79,9 +83,10 @@ const useGoalStore = create<GoalStore>((set, get) => ({
 
     return newGoal.id;
   },
-  deleteGoal(tab: GoalTab) {
+  deleteGoal(tab: Goal) {
     const goalList = get().goalList;
-    goalList.splice(tab.index, 1)
+    const tabIndex = goalList.indexOf(tab);
+    goalList.splice(tabIndex, 1)
     const newGoalList = Array.from(goalList) //goalList.filter(goal => goal.id !== tab.id);
 
     // Prevent empty tabs
@@ -94,9 +99,9 @@ const useGoalStore = create<GoalStore>((set, get) => ({
     }
 
     // Update the index of the remaining goals
-    goalList.forEach((goal, index) => {
-      goal.index = index;
-    });
+    // goalList.forEach((goal, index) => {
+    //   goal.index = index;
+    // });
 
     const prevSelectedGoal = get().prevSelectedGoal;
     const prevIndex = newGoalList.findIndex(goal => goal.id === prevSelectedGoal?.id);
@@ -114,7 +119,45 @@ const useGoalStore = create<GoalStore>((set, get) => ({
       ...tabIndex,
     });
   },
-  mergeGoals(sessionData, historicGoals) {
+  mergeGoals(savedGoals) {
+    // const now = new Date();
+    const goalList = get().goalList;
+    if (savedGoals && savedGoals.length > 0) {
+
+      const combinedGoals = [...savedGoals]
+      const goalIds = new Set(savedGoals.map((goal) => goal.id));
+
+      for (const goal of goalList) {
+        goalIds.has(goal.id) && combinedGoals.push(goal)
+      }
+
+      // const newGoalList = Array.from(goalList).map((goal, index) => {
+      //   // if (goal) {
+      //   //   index = (goal).index
+      //   // }
+      //   return { ...goal, index, tooltip: goal.prompt }
+      // });
+
+      set({
+        goalList: combinedGoals,
+      });
+    }
+  },
+  upsertGoal(goal: Goal) {
+    const goalList = get().goalList;
+    const tabIndex = goalList.findIndex((g) => g.id === goal.id);
+    const newGoalList = Array.from(goalList);
+    if (tabIndex === -1) {
+      newGoalList.push(goal);
+    } else {
+      newGoalList[tabIndex] = goal;
+    }
+
+    set({
+      goalList: newGoalList,
+    });
+  },
+  replaceGoals(historicGoals) {
     const now = new Date();
 
     if (historicGoals && historicGoals.length > 0) {
@@ -136,9 +179,7 @@ const useGoalStore = create<GoalStore>((set, get) => ({
   },
   currentTabIndex: 0,
   getSelectedGoal(slug: string | undefined = undefined) {
-    const currentGoal = getCurrentGoal(get, slug);
-
-    return currentGoal;
+    return getCurrentGoal(get, slug);;
   },
   getGoalInputValue() {
     const currentGoal = getCurrentGoal(get)

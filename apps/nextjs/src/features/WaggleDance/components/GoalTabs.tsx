@@ -20,14 +20,8 @@ import { api } from "~/utils/api";
 import useGoalStore from "~/stores/goalStore";
 import useWaggleDanceMachineStore from "~/stores/waggleDanceStore";
 
-export type GoalTab = Goal & {
-  index: number;
-  tooltip?: string;
-};
-
 interface GoalTabProps {
-  tab: GoalTab;
-  currentTabIndex: number;
+  tab: Goal;
 }
 
 interface GoalTabsProps {
@@ -35,14 +29,15 @@ interface GoalTabsProps {
 }
 
 // A single goal tab inside the main tabber
-const GoalTab: React.FC<GoalTabProps> = ({ tab, currentTabIndex }) => {
+const GoalTab: React.FC<GoalTabProps> = ({ tab }) => {
   const { setIsRunning } = useWaggleDanceMachineStore();
-  const { goalList, getGoalInputValue, deleteGoal } = useGoalStore();
+  const { goalList, getGoalInputValue, deleteGoal, getSelectedGoal } =
+    useGoalStore();
   const del = api.goal.delete.useMutation();
 
   // Function to handle closing a tab
   const closeHandler = useCallback(
-    async (tab: GoalTab) => {
+    async (tab: Goal) => {
       setIsRunning(false);
       if (!tab.id.startsWith("tempgoal-")) {
         // real delete on backend
@@ -68,7 +63,7 @@ const GoalTab: React.FC<GoalTabProps> = ({ tab, currentTabIndex }) => {
     >
       <Tab
         component={Stack}
-        color={currentTabIndex === tab.index ? "primary" : "neutral"}
+        color={getSelectedGoal()?.id === tab.id ? "primary" : "neutral"}
         sx={{
           marginX: 0.5,
         }}
@@ -91,7 +86,7 @@ const GoalTab: React.FC<GoalTabProps> = ({ tab, currentTabIndex }) => {
         </IconButton>
         <Typography
           fontStyle={
-            currentTabIndex === tab.index && getGoalInputValue().length > 0
+            getSelectedGoal()?.id === tab.id && getGoalInputValue().length > 0
               ? "normal"
               : "italic"
           }
@@ -105,7 +100,7 @@ const GoalTab: React.FC<GoalTabProps> = ({ tab, currentTabIndex }) => {
             textAlign: "center",
           }}
         >
-          {currentTabIndex === tab.index ? (
+          {getSelectedGoal()?.id === tab.id ? (
             <>
               {getGoalInputValue().length > 0
                 ? getGoalInputValue()
@@ -148,7 +143,7 @@ const GoalTabs: React.FC<GoalTabsProps> = ({ children }) => {
       }
       selectTab(newValue);
       // Update tab state
-      const currentGoal = goalList.sort((a, b) => a.index - b.index)[newValue];
+      const currentGoal = goalList[newValue];
       currentGoal && void router.replace(`/goal/${currentGoal.id}`);
     },
     [goalList, selectTab],
@@ -181,11 +176,7 @@ const GoalTabs: React.FC<GoalTabsProps> = ({ children }) => {
             }}
           >
             {goalList.map((tab) => (
-              <GoalTab
-                key={tab.id}
-                tab={tab}
-                currentTabIndex={currentTabIndex}
-              />
+              <GoalTab key={tab.id} tab={tab} />
             ))}
             <IconButton
               className="flex-end float-start"
