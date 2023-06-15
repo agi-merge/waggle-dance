@@ -18,6 +18,7 @@ import MainLayout from "~/features/MainLayout";
 import Title from "~/features/MainLayout/components/PageTitle";
 import WaggleDanceGraph from "~/features/WaggleDance/components/WaggleDanceGraph";
 import useGoalStore from "~/stores/goalStore";
+import useWaggleDanceMachineStore from "~/stores/waggleDanceStore";
 
 export const getStaticProps = async ({ params }: GetStaticPropsContext) => {
   const startDate = new Date();
@@ -68,6 +69,7 @@ export default function GoalTab({
   savedGoals,
 }: InferGetStaticPropsType<typeof getStaticProps>) {
   const router = useRouter();
+  const { isRunning } = useWaggleDanceMachineStore();
   const { data: sessionData } = useSession();
   const { slug } = router.query;
   const { getSelectedGoal, newGoal } = useGoalStore();
@@ -133,7 +135,14 @@ export default function GoalTab({
           </>
         ) : (
           <>
-            <Title title="💃 Waggling!" description="" />
+            <Title
+              title={isRunning ? "💃 Waggling!" : "💃"}
+              description={
+                isRunning
+                  ? "Please 🐝 patient. Planning may take several minutes to fully complete."
+                  : "Press start/resume to waggle or add data."
+              }
+            />
             <WaggleDanceGraph key={cleanedSlug} />
           </>
         )}
