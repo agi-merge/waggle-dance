@@ -52,8 +52,7 @@ const GoalTab: React.FC<GoalTabProps> = ({ tab, index }) => {
         }
       }
       const prevId = deleteGoal(tab);
-      (prevId && void router.replace(`/goal/${prevId}`)) ||
-        void router.push("/");
+      prevId ? void router.replace(`/goal/${prevId}`) : void router.push("/");
     },
     [del, deleteGoal, setIsRunning],
   );
