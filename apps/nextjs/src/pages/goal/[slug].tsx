@@ -107,9 +107,7 @@ export default function GoalTab({
 
   useEffect(() => {
     if (cleanedSlug === "new") {
-      // const newId = newGoal();
-      // console.log("new slug", newId, cleanedSlug, selectedGoal?.id);
-      // void router.replace(`/goal/${newId}`);
+      // do nothing
     } else {
       if (!selectedGoal?.id && cleanedSlug !== selectedGoal?.id) {
         const anySelectedGoal = getSelectedGoal()?.id;
@@ -155,7 +153,12 @@ export default function GoalTab({
                   : "Press start/resume to waggle or add data."
               }
             />
-            <WaggleDanceGraph key={cleanedSlug} />
+
+            <WaggleDanceGraph
+              key={cleanedSlug}
+              savedGoals={savedGoals}
+              selectedGoal={selectedGoal}
+            />
           </>
         )}
       </>

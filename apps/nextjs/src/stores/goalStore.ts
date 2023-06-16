@@ -6,13 +6,12 @@ import { createJSONStorage, persist } from "zustand/middleware";
 import { app } from "~/constants";
 
 export type GoalPlusExe = Goal & { executions: Execution[], results: Result[] };
-export type GoalTabList = GoalPlusExe[];
 
 export interface GoalStore {
-  goalList: GoalTabList;
+  goalList: GoalPlusExe[];
   prevSelectedGoal: Goal | undefined;
   newGoal: () => string;
-  deleteGoal: (tab: Goal) => string | undefined;
+  deleteGoal: (tab: Goal) => { prevId: string | undefined, goalList: GoalPlusExe[] } | undefined;
   selectTab: (index: number) => void;
   upsertGoal: (goal: GoalPlusExe, oldId?: string) => void;
   replaceGoals: (goalList: GoalPlusExe[]) => void;
@@ -106,7 +105,7 @@ const useGoalStore = create(
             currentTabIndex: 0,
             prevSelectedGoal: undefined,
           });
-          return newSelection.prevSelectedGoal?.id ?? get().prevSelectedGoal?.id ?? (goalList[0] && goalList[0].id);
+          return { prevId: newSelection.prevSelectedGoal?.id ?? get().prevSelectedGoal?.id ?? (goalList[0] && goalList[0].id), goalList: [baseTab] };
         }
 
         const prevSelectedGoal = get().prevSelectedGoal;
@@ -116,7 +115,7 @@ const useGoalStore = create(
           goalList,
           currentTabIndex,
         });
-        return prevSelectedGoal?.id ?? get().prevSelectedGoal?.id ?? (goalList[0] && goalList[0].id);
+        return { prevId: prevSelectedGoal?.id ?? get().prevSelectedGoal?.id ?? (goalList[0] && goalList[0].id), goalList }
       },
       selectTab: (index: number) => {
         const goalList = get().goalList;

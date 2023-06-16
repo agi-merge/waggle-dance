@@ -47,9 +47,15 @@ import useWaggleDanceMachine, {
 import DocsModal from "./DocsModal";
 import ForceGraph from "./ForceGraph";
 
-type WaggleDanceGraphProps = StackProps;
+type WaggleDanceGraphProps = {
+  savedGoals: GoalPlusExe[] | null;
+  selectedGoal: GoalPlusExe | undefined;
+} & StackProps;
 // shows the graph, agents, results, general messages and chat input
-const WaggleDanceGraph = ({}: WaggleDanceGraphProps) => {
+const WaggleDanceGraph = ({
+  savedGoals,
+  selectedGoal,
+}: WaggleDanceGraphProps) => {
   const { isRunning, setIsRunning, isAutoStartEnabled, setIsAutoStartEnabled } =
     useWaggleDanceMachineState();
   const { getSelectedGoal } = useGoalStore();
