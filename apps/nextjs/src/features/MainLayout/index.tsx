@@ -3,11 +3,9 @@ import Head from "next/head";
 import { useRouter } from "next/router";
 import { Card, LinearProgress, Sheet, useColorScheme } from "@mui/joy";
 
-import { api } from "~/utils/api";
 import { type CombinedResponse } from "~/utils/openAIUsageAPI";
 import { app } from "~/constants";
 import useApp from "~/stores/appStore";
-import useGoalStore from "~/stores/goalStore";
 import GoalTabs from "../WaggleDance/components/GoalTabs";
 import Alerts from "./components/Alerts";
 import Footer from "./components/Footer";
@@ -23,17 +21,7 @@ const MainLayout = ({ children, openAIUsage }: Props) => {
   const { mode } = useColorScheme();
   const { isPageLoading } = useApp();
   const router = useRouter();
-  const { replaceGoals } = useGoalStore();
   const [mounted, setMounted] = useState(false);
-
-  const { data: _historicGoals } = api.goal.topByUser.useQuery(undefined, {
-    refetchOnMount: true,
-    networkMode: "offlineFirst",
-    refetchOnWindowFocus: false,
-    onSuccess: (data) => {
-      replaceGoals(data);
-    },
-  });
 
   // necessary for server-side renderingπ
   // because mode is undefined on the server
