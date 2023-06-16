@@ -24,6 +24,7 @@ import useWaggleDanceMachineStore from "~/stores/waggleDanceStore";
 
 interface GoalTabProps {
   tab: Goal;
+  index: number;
 }
 
 interface GoalTabsProps {
@@ -31,7 +32,7 @@ interface GoalTabsProps {
 }
 
 // A single goal tab inside the main tabber
-const GoalTab: React.FC<GoalTabProps> = ({ tab }) => {
+const GoalTab: React.FC<GoalTabProps> = ({ tab, index }) => {
   const { data: sessionData } = useSession();
   const { setIsRunning } = useWaggleDanceMachineStore();
   const { goalList, getGoalInputValue, deleteGoal, getSelectedGoal } =
@@ -67,6 +68,7 @@ const GoalTab: React.FC<GoalTabProps> = ({ tab }) => {
       }}
     >
       <Tab
+        tabIndex={index}
         component={Stack}
         color={getSelectedGoal()?.id === tab.id ? "primary" : "neutral"}
         sx={{
@@ -197,8 +199,8 @@ const GoalTabs: React.FC<GoalTabsProps> = ({ children }) => {
               flexWrap: "nowrap",
             }}
           >
-            {goalList.map((tab) => (
-              <GoalTab key={tab.id} tab={tab} />
+            {goalList.map((tab, index) => (
+              <GoalTab key={tab.id} tab={tab} index={index} />
             ))}
             <IconButton
               className="flex-end float-start"
