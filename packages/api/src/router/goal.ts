@@ -79,7 +79,7 @@ export const goalRouter = createTRPCRouter({
           prompt,
           userId,
         },
-        include: { executions: true },
+        include: { executions: true, results: true },
       });
     }),
 
