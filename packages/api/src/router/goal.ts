@@ -15,7 +15,7 @@ export const goalRouter = createTRPCRouter({
       const userId = ctx.session?.user.id;
       return ctx.prisma.goal.findFirst({
         where: { id: input.id, userId },
-        include: { executions: true }
+        include: { executions: true, results: true }
       });
     }),
 
@@ -24,7 +24,7 @@ export const goalRouter = createTRPCRouter({
     const userId = ctx.session.user.id;
     return ctx.prisma.goal.findMany({
       where: { userId },
-      include: { executions: true },
+      include: { executions: true, results: true },
       orderBy: { updatedAt: 'asc' },
       take: 10,
     });
