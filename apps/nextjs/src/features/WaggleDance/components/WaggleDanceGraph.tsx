@@ -36,6 +36,7 @@ import {
 } from "@mui/joy";
 import ReactMarkdown from "react-markdown";
 import remarkGfm from "remark-gfm";
+import { stringify } from "yaml";
 
 import AddDocuments from "~/pages/add-documents";
 import useGoalStore from "~/stores/goalStore";
@@ -98,7 +99,7 @@ const WaggleDanceGraph = ({
   }, [handleStart, hasMountedRef, isAutoStartEnabled, setIsAutoStartEnabled]);
 
   const stringifyMax = (value: unknown, max: number) => {
-    const json = JSON.stringify(value);
+    const json = stringify(value);
     return json && json.length < max ? json : `${json.slice(0, max)}…`;
   };
 
