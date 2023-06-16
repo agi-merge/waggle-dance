@@ -50,8 +50,9 @@ export const goalRouter = createTRPCRouter({
       return ctx.prisma.result.create({
         data: {
           execution: {
-            connect: {
-              id: goalId,
+            connectOrCreate: {
+              where: { id: goalId },
+              create: { goalId, userId: ctx.session.user.id, graph: value },
             }
           },
           value
