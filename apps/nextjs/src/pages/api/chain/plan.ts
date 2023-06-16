@@ -97,7 +97,7 @@ export default async function PlanStream(req: NextRequest) {
     }
 
     const all = { stack, message, status };
-    console.error(all);
+    console.error("plan error", all);
     const errorPacket = { type: "error", nodeId, severity: "fatal", message: JSON.stringify(all) };
     return new Response(JSON.stringify(errorPacket), {
       headers: {

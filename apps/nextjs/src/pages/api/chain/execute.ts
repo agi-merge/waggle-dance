@@ -75,9 +75,16 @@ const handler = async (req: IncomingMessage, res: NextApiResponse) => {
     const result = idMinusCriticize && taskResults[idMinusCriticize]
     const exeResult = await createExecutionAgent(creationProps, goal, goalId, stringify(task), stringify(dag), stringify(executionMethod), stringify(result), reviewPrefix, session?.user.id)
 
-    const caller = appRouter.createCaller({ session, prisma });
-    const createResult = await caller.goal.createResult({ goalId, value: exeResult })
-    console.log("exeResult", exeResult, "createResult", createResult);
+    if (session?.user.id) {
+      try {
+        const caller = appRouter.createCaller({ session, prisma });
+        const createResult = await caller.goal.createResult({ goalId, value: exeResult })
+        console.log("exeResult", exeResult, "createResult", createResult);
+      } catch (error) {
+        // ignore
+        console.error(error);
+      }
+    }
     res.json(exeResult);
     res.end();
   } catch (e) {
@@ -95,7 +102,7 @@ const handler = async (req: IncomingMessage, res: NextApiResponse) => {
     }
 
     const all = { stack, message, status };
-    console.error(all);
+    console.error("execute error", all);
     const errorPacket = { type: "error", nodeId: "catch-all", severity: "fatal", message: JSON.stringify(all) };
     if (!res.headersSent) {
       res.writeHead(500, {

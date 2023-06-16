@@ -18,7 +18,7 @@ export default async function planTasks(
     taskState: OptimisticFirstTaskState,
     abortSignal: AbortSignal,
     updateTaskState?: (state: "not started" | "started" | "done") => void,
-    startFirstTask?: (task: DAGNode) => Promise<void>,
+    startFirstTask?: (task: DAGNode, dag: DAG) => Promise<void>,
 ): Promise<DAG> {
     const data = { goal, goalId, creationProps };
     const res = await fetch("/api/chain/plan", {
@@ -87,7 +87,7 @@ export default async function planTasks(
                         const firstNode = validNodes[0]
                         if (startFirstTask && taskState.firstTaskState === "not started" && firstNode && validNodes.length > 0) { // would be 0, but params can be cut off
                             updateTaskState && updateTaskState("started");
-                            void startFirstTask(firstNode);
+                            void startFirstTask(firstNode, partialDAG);
                         }
                     }
                 }
