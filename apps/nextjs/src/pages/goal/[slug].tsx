@@ -148,7 +148,7 @@ export default function GoalTab({
         ) : (
           <>
             <Title
-              title={isRunning ? "💃 Waggling!" : "💃"}
+              title={isRunning ? "💃 Waggling!" : "💃 Waggle"}
               description={
                 isRunning
                   ? "Please 🐝 patient. Planning may take several minutes to fully complete."
