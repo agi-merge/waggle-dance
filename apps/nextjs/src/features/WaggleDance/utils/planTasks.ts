@@ -16,6 +16,7 @@ export default async function planTasks(
     log: (...args: (string | number | object)[]) => void,
     sendChainPacket: (chainPacket: ChainPacket, node: DAGNode) => void,
     taskState: OptimisticFirstTaskState,
+    abortSignal: AbortSignal,
     updateTaskState?: (state: "not started" | "started" | "done") => void,
     startFirstTask?: (task: DAGNode) => Promise<void>,
 ): Promise<DAG> {
@@ -24,6 +25,7 @@ export default async function planTasks(
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(data),
+        signal: abortSignal,
     });
 
     if (!res.ok) {
@@ -54,6 +56,7 @@ export default async function planTasks(
         let result;
         while ((result = await reader.read()) && !result.done) {
             const chunk = new TextDecoder().decode(result.value);
+            if (abortSignal.aborted) break;
             chunks += chunk;
             try {
                 const yaml = parse(chunks) as unknown;
