@@ -42,7 +42,11 @@ const useWaggleDanceMachine = ({
 }: UseWaggleDanceMachineProps) => {
   const [waggleDanceMachine] = useState(new WaggleDanceMachine());
   const { isRunning, setIsRunning, temperatureOption, llmOption, executionMethod } = useWaggleDanceMachineStore();
-  const [dag, setDAG] = useState<DAG>(new DAG([], []));
+  const graph = goal?.executions.find(e => {
+    const dag = e.graph as DAG | null
+    return dag !== null && dag.nodes?.length > 0
+  })?.graph as DAG | null
+  const [dag, setDAG] = useState<DAG>(graph ?? new DAG([], []));
   const [isDonePlanning, setIsDonePlanning] = useState(false);
   const [taskResults, setTaskResults] = useState<Record<string, TaskState>>({});
   const [logs, setLogs] = useState<LogMessage[]>([]);

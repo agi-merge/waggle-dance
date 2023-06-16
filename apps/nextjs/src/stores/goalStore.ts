@@ -1,11 +1,11 @@
-import { type Goal } from "@acme/db";
+import { type Result, type Goal } from "@acme/db";
 import { type Execution } from "@acme/db";
 import { v4 } from "uuid";
 import { create } from "zustand";
 import { createJSONStorage, persist } from "zustand/middleware";
 import { app } from "~/constants";
 
-export type GoalPlusExe = Goal & { executions: Execution[] };
+export type GoalPlusExe = Goal & { executions: Execution[], results: Result[] };
 export type GoalTabList = GoalPlusExe[];
 
 export interface GoalStore {
@@ -28,6 +28,7 @@ const baseTab = {
   index: 0,
   tooltip: "",
   executions: [],
+  results: [],
   createdAt: new Date(),
   updatedAt: new Date(),
   userId: "",
@@ -77,6 +78,7 @@ const useGoalStore = create(
           index: newIndex,
           tooltip: "",
           executions: [],
+          results: [],
           createdAt: new Date(),
           updatedAt: new Date(),
           userId: "",
@@ -148,6 +150,7 @@ const useGoalStore = create(
             id: goal.id,
             prompt: goal.prompt,
             executions: goal.executions,
+            results: goal.results,
             createdAt: now,
             updatedAt: now,
             userId: goal.userId,

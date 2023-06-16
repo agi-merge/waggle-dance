@@ -15,12 +15,6 @@ export const config = {
 export default async function PlanStream(req: NextRequest) {
   console.log("plan request")
   const nodeId = rootPlanId; // maybe goal.slice(0, 5)
-
-  // const abortController = new AbortController();
-
-
-  // const session = await getSession();
-
   try {
     const {
       creationProps,
@@ -28,10 +22,9 @@ export default async function PlanStream(req: NextRequest) {
       goalId,
     } = await req.json() as StrategyRequestBody;
 
-    // req.signal.onabort = () => {
-    //   console.warn("abort plan request");
-    //   abortController.abort();
-    // };
+    req.signal.onabort = () => {
+      console.error("aborted plan request");
+    };
 
     const encoder = new TextEncoder()
     const stream = new ReadableStream({
@@ -52,26 +45,16 @@ export default async function PlanStream(req: NextRequest) {
           body: JSON.stringify({ goalId: goalId }),
           headers: {
             "Content-Type": "application/json",
+            "Cookie": req.headers.get("cookie") || '',
           },
         });
         const results = await Promise.allSettled([planResultPromise, createExecutionPromise]);
-        const [result, exe] = results;
-        console.error("result", result.status === "fulfilled" ? result.value : "rejected", "exe", exe.status === "fulfilled" ? exe.value.ok : "rejected");
-        // console.log("planResultPromise resolved", { result });
+        const [_planResult, _saveExecutionResult] = results;
         controller.close();
       },
 
       cancel() {
         console.warn("cancel plan request");
-        // const all = { message: "request canceled", status: 500 };
-        // console.error(all);
-        // const errorPacket = { type: "error", nodeId, severity: "fatal", message: JSON.stringify(all) };
-        // return new Response(JSON.stringify(errorPacket), {
-        //   headers: {
-        //     "Content-Type": "application/json",
-        //   },
-        //   status: 500,
-        // })
       },
     });
 

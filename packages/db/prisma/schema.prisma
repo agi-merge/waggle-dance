@@ -65,15 +65,16 @@ model VerificationToken {
 
   @@unique([identifier, token])
 }
+
 model Goal {
   id          String   @id @default(cuid())
   prompt      String
-  user        User     @relation(fields: [userId], references: [id])
+  user        User     @relation(fields: [userId], references: [id], onDelete: Cascade)
   userId      String
   createdAt   DateTime   @default(now())
   updatedAt   DateTime   @default(now()) @updatedAt
-  executions  Execution[] @relation(fields: [])
-  results     Result[]    @relation(fields: [])
+  executions  Execution[]
+  results     Result[]
 
   @@index([userId])
 }
@@ -86,9 +87,9 @@ enum ExecutionState {
 
 model Execution {
   id          String  @id @default(cuid())
-  goal        Goal    @relation(fields: [goalId], references: [id])
+  goal        Goal    @relation(fields: [goalId], references: [id], onDelete: Cascade)
   goalId      String
-  user        User    @relation(fields: [userId], references: [id])
+  user        User    @relation(fields: [userId], references: [id], onDelete: Cascade)
   userId      String
   graph       Json?
   results     Result[]
@@ -102,9 +103,9 @@ model Execution {
 
 model Result {
   id          String     @id @default(cuid())
-  goal        Goal       @relation(fields: [goalId], references: [id])
+  goal        Goal       @relation(fields: [goalId], references: [id], onDelete: Cascade)
   goalId      String
-  execution   Execution  @relation(fields: [executionId], references: [id])
+  execution   Execution  @relation(fields: [executionId], references: [id], onDelete: Cascade)
   executionId String
   value       String
   createdAt   DateTime   @default(now())

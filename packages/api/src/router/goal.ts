@@ -44,15 +44,17 @@ export const goalRouter = createTRPCRouter({
     }),
 
   createResult: protectedProcedure
-    .input(z.object({ goalId: z.string().nonempty(), value: z.string().nonempty() }))
+    .input(z.object({ goalId: z.string().nonempty(), value: z.string().nonempty(), graph: z.any() }))
     .mutation(({ ctx, input }) => {
-      const { goalId, value } = input;
+      // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
+      const { goalId, value, graph } = input;
       return ctx.prisma.result.create({
         data: {
           execution: {
             connectOrCreate: {
               where: { id: goalId },
-              create: { goalId, userId: ctx.session.user.id, graph: value },
+              // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
+              create: { goalId, userId: ctx.session.user.id, graph },
             }
           },
           goal: { connect: { id: goalId } },
