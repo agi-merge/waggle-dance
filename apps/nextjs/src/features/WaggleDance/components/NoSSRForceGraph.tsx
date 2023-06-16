@@ -109,11 +109,11 @@ const renderNodeCanvasObject = (
 ) => {
   const label = separateWords((node as { name: string }).name);
 
-  const fontSize = ctx.canvas.width / 200 / globalScale;
+  const fontSize = ctx.canvas.width / 100 / globalScale;
   ctx.font = `${fontSize}px Monospace`;
 
   // Set the maximum width for text wrapping
-  const maxWidth = ctx.canvas.width / 20 / globalScale;
+  const maxWidth = ctx.canvas.width / 10 / globalScale;
   const lines = wrapText(String(label), maxWidth, ctx) || [];
 
   // Calculate the width and height of the wrapped text
@@ -220,7 +220,7 @@ const NoSSRForceGraph: React.FC<ForceGraphProps> = ({ data }) => {
         width={containerWidth}
         height={containerWidth / (4 / 3)}
         dagMode={dagMode}
-        dagLevelDistance={(containerWidth / 200) ** 2}
+        dagLevelDistance={containerWidth / 20}
         // TODO: gotta come back to this one
         // eslint-disable-next-line @typescript-eslint/ban-ts-comment
         // @ts-ignore
@@ -250,13 +250,12 @@ const NoSSRForceGraph: React.FC<ForceGraphProps> = ({ data }) => {
         linkDirectionalArrowLength={3}
         linkDirectionalArrowRelPos={0.5}
         nodeCanvasObject={renderNodeCanvasObject}
-        nodeCanvasObjectMode={() => "after"}
         linkCurvature={0}
-        d3AlphaDecay={0.04}
-        d3VelocityDecay={0.7}
+        d3AlphaDecay={1}
+        d3VelocityDecay={1}
         onEngineTick={() => {
           fgRef.current?.zoomToFit(0, containerWidth / 20);
-          fgRef.current?.d3ReheatSimulation();
+          // fgRef.current?.d3ReheatSimulation();
         }}
         onDagError={(loopNodeIds) => {
           console.error(`DAG error: ${loopNodeIds}`);

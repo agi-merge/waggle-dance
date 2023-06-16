@@ -167,7 +167,7 @@ const useWaggleDanceMachine = ({
 
   useEffect(() => {
     setGraphData(dagToGraphData(dag, taskStates));
-  }, [dag, taskStates]);
+  }, [dag, taskStates, setGraphData]);
 
   const stop = useCallback(() => {
     if (!abortController.signal.aborted) {
