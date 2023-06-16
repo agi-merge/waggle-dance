@@ -24,6 +24,7 @@ export default async function PlanStream(req: NextRequest) {
   try {
     const {
       creationProps,
+      goal,
       goalId,
     } = await req.json() as StrategyRequestBody;
 
@@ -45,7 +46,7 @@ export default async function PlanStream(req: NextRequest) {
         creationProps.callbacks = callbacks;
         console.log("about to planChain");
 
-        const planResultPromise = createPlanningAgent(creationProps, goalId, req.signal);
+        const planResultPromise = createPlanningAgent(creationProps, goal, goalId, req.signal);
         // const caller = appRouter.createCaller({ session, prisma });
         // const createExecutionPromise = caller.goal.createExecution({ goalId })
         const createExecutionPromise = fetch(`${process.env.NEXTAUTH_URL}/api/chain/createGoalExecution`, {

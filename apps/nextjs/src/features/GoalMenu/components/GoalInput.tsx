@@ -81,8 +81,10 @@ export default function GoalInput({}: GoalInputProps) {
       } else {
         const goal = getSelectedGoal();
         if (goal) {
+          // this makes the state update to be able to waggle
           goal.userId = "guest";
           upsertGoal(goal);
+          router.reload();
         }
       }
     },

@@ -66,6 +66,7 @@ export const createPrompt = (
   type: ChainType,
   creationProps?: ModelCreationProps,
   goal?: string,
+  goalId?: string,
   task?: string,
   dag?: string,
   result?: string,

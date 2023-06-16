@@ -19,8 +19,7 @@ export default async function planTasks(
     updateTaskState?: (state: "not started" | "started" | "done") => void,
     startFirstTask?: (task: DAGNode) => Promise<void>,
 ): Promise<DAG> {
-    debugger;
-    const data = { goalId, goal, creationProps };
+    const data = { goal, goalId, creationProps };
     const res = await fetch("/api/chain/plan", {
         method: "POST",
         headers: { "Content-Type": "application/json" },

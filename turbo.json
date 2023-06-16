@@ -34,9 +34,6 @@
   "globalEnv": [
     "CI",
     "POSTGRES_URL",
-    "POSTGRES_PRISMA_URL",
-    "POSTGRES_URL_NON_POOLING",
-    "POSTGRES_REGION",
     "DISCORD_ID",
     "DISCORD_SECRET",
     "GITHUB_ID",
