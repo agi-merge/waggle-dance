@@ -65,17 +65,19 @@ model VerificationToken {
 
   @@unique([identifier, token])
 }
-
 model Goal {
-  id          String  @id @default(cuid())
+  id          String   @id @default(cuid())
   prompt      String
-  user        User    @relation(fields: [userId], references: [id])
+  user        User     @relation(fields: [userId], references: [id])
   userId      String
-  createdAt   DateTime    @default(now())
-  updatedAt   DateTime    @default(now()) @updatedAt
+  createdAt   DateTime   @default(now())
+  updatedAt   DateTime   @default(now()) @updatedAt
   executions  Execution[] @relation(fields: [])
+  results     Result[]    @relation(fields: [])
+
   @@index([userId])
 }
+
 enum ExecutionState {
   EXECUTING
   SUCCEEDED
@@ -99,13 +101,16 @@ model Execution {
 }
 
 model Result {
-  id          String  @id @default(cuid())
-  execution   Execution @relation(fields: [executionId], references: [id])
+  id          String     @id @default(cuid())
+  goal        Goal       @relation(fields: [goalId], references: [id])
+  goalId      String
+  execution   Execution  @relation(fields: [executionId], references: [id])
   executionId String
   value       String
-  createdAt   DateTime    @default(now())
-  updatedAt   DateTime    @default(now()) @updatedAt
+  createdAt   DateTime   @default(now())
+  updatedAt   DateTime   @default(now()) @updatedAt
 
   @@index([executionId])
+  @@index([goalId])
 }
 

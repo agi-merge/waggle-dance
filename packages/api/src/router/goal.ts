@@ -1,6 +1,6 @@
 import { z } from "zod";
 
-import { createTRPCRouter, protectedProcedure, publicProcedure } from "../trpc";
+import { createTRPCRouter, protectedProcedure } from "../trpc";
 
 export const goalRouter = createTRPCRouter({
   // Query all goals
@@ -9,7 +9,7 @@ export const goalRouter = createTRPCRouter({
   // }),
 
   // Query a single goal by id
-  byId: publicProcedure
+  byId: protectedProcedure
     .input(z.object({ id: z.string() }))
     .query(({ ctx, input }) => {
       const userId = ctx.session?.user.id;
@@ -55,6 +55,7 @@ export const goalRouter = createTRPCRouter({
               create: { goalId, userId: ctx.session.user.id, graph: value },
             }
           },
+          goal: { connect: { id: goalId } },
           value
         }
       });

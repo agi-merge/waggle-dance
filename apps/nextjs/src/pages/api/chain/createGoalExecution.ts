@@ -22,11 +22,9 @@ export default async function createGoalExecution(req: NextApiRequest, res: Next
 
     const caller = appRouter.createCaller({ session, prisma });
     const exe = await caller.goal.createExecution({ goalId });
-    res.writeHead(200, { "Content-Type": "application/json" });
-    res.end(res.json(exe));
+    res.status(200).json(exe);
   } catch (error) {
     console.error("createGoalExecution error", error);
-    res.writeHead(500, { "Content-Type": "application/json" });
-    res.end(JSON.stringify({ error: (error as { message: string }).message }));
+    res.status(500).json({ error: (error as { message: string }).message });
   }
 }
