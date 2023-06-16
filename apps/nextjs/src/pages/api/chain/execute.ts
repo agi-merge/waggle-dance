@@ -15,6 +15,7 @@ export const config = {
   },
   runtime: "nodejs",
 };
+
 const handler = async (req: IncomingMessage, res: NextApiResponse) => {
   const session = await getServerSession({
     req: req as unknown as NextApiRequest,

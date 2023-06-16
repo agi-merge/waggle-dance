@@ -12,10 +12,14 @@ export const config = {
   runtime: "edge",
 };
 
-const handler = async (req: NextRequest) => {
+export default async function PlanStream(req: NextRequest) {
+  console.log("plan request")
   const nodeId = rootPlanId; // maybe goal.slice(0, 5)
 
   // const abortController = new AbortController();
+
+
+  // const session = await getSession();
 
   try {
     const {
@@ -41,7 +45,20 @@ const handler = async (req: NextRequest) => {
         creationProps.callbacks = callbacks;
         console.log("about to planChain");
 
-        const _planResult = await createPlanningAgent(creationProps, goalId, req.signal);
+        const planResultPromise = createPlanningAgent(creationProps, goalId, req.signal);
+        // const caller = appRouter.createCaller({ session, prisma });
+        // const createExecutionPromise = caller.goal.createExecution({ goalId })
+        const createExecutionPromise = fetch(`${process.env.NEXTAUTH_URL}/api/chain/proxy`, {
+          method: "POST",
+          body: JSON.stringify({ goalId: goalId }),
+          headers: {
+            "Content-Type": "application/json",
+          },
+        });
+        const promises = await Promise.all([planResultPromise, createExecutionPromise]);
+        const [result, exe] = promises;
+        console.error("result", result, "exe", exe);
+        // console.log("planResultPromise resolved", { result });
         controller.close();
       },
 
@@ -91,5 +108,3 @@ const handler = async (req: NextRequest) => {
     })
   }
 };
-
-export default handler;

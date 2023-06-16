@@ -8,7 +8,7 @@ import { initialNodes, initialEdges, findNodesWithNoIncomingEdges, rootPlanId, t
 
 // Request the execution plan (DAG) from the API
 export default async function planTasks(
-    goal: string,
+    goalId: string,
     creationProps: ModelCreationProps,
     dag: DAG,
     setDAG: (dag: DAG) => void,
@@ -18,7 +18,7 @@ export default async function planTasks(
     updateTaskState?: (state: "not started" | "started" | "done") => void,
     startFirstTask?: (task: DAGNode) => Promise<void>,
 ): Promise<DAG> {
-    const data = { goal, creationProps };
+    const data = { goalId, creationProps };
     const res = await fetch("/api/chain/plan", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
@@ -36,7 +36,8 @@ export default async function planTasks(
         throw new Error(`No stream: ${res.statusText} `);
     } else {
         log(`started planning!`);
-        initialNode = initialNodes(goal, creationProps.modelName)[0]
+        // FIXME: this needs to be updated to lookup prompt from id
+        initialNode = initialNodes(goalId, creationProps.modelName)[0]
         if (initialNode) {
             sendChainPacket({ type: "working", nodeId: rootPlanId }, initialNode)
         } else {
@@ -63,7 +64,8 @@ export default async function planTasks(
                     if (validNodes?.length) {
                         const hookupEdges = findNodesWithNoIncomingEdges(optDag).map((node) => new DAGEdgeClass(rootPlanId, node.id))
                         const partialDAG = new DAG(
-                            [...initialNodes(goal, creationProps.modelName), ...validNodes],
+                            // FIXME: this needs to be updated to lookup prompt from id
+                            [...initialNodes(goalId, creationProps.modelName), ...validNodes],
                             // connect our initial nodes to the DAG: gotta find them and create edges
                             [...initialEdges(), ...validEdges ?? [], ...hookupEdges],
                             // optDag?.init ?? initialCond,
