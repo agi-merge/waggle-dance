@@ -185,9 +185,16 @@ const useWaggleDanceMachine = ({
       setDAG(new DAG(initialNodes(goal?.prompt ?? "", LLM.smart), initialEdges()));
     }
 
+    const prompt = goal?.prompt
+    const goalId = goal?.id
+    if (!prompt || !goalId) {
+      throw new Error("Goal not set");
+    }
+
     const result = await waggleDanceMachine.run(
       {
-        goalId: goal?.id ?? "",
+        goal: prompt ?? "",
+        goalId: goalId ?? "",
         creationProps: {
           modelName: llmOption === LLM.smart ? LLM.smart : LLM.fast,
           temperature: temperatureOption === "Stable" ? 0 : temperatureOption === "Balanced" ? 0.4 : 0.9,
