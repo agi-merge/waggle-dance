@@ -4,20 +4,13 @@ import { appRouter } from "@acme/api";
 import { type NextApiResponse, type NextApiRequest } from "next";
 import { type StrategyRequestBody } from "./types";
 
-export const config = { runtime: "nodejs", regions: [process.env.POSTGRES_REGION || "pdx-1"] }
+export const config = { runtime: "nodejs", regions: ["pdx-1"] } // TODO: figure out a way to make this use process.env.POSTGRES_REGION
 
 // since PrismaClient is not accessible in edge, and plans save Executions to the database,
 // we use this nodejs proxy that is co-located in the same region as the database
 export default async function createExecution(req: NextApiRequest, res: NextApiResponse) {
 
   const session = await getServerSession({ req, res });
-
-  if (!session) {
-    console.error("No session found");
-    res.writeHead(401);
-    res.end(JSON.stringify({ error: "Unauthorized" }));
-    return;
-  }
 
   const {
     goalId,

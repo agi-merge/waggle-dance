@@ -21,6 +21,7 @@ import {
 export async function createExecutionAgent(
   creationProps: ModelCreationProps,
   goal: string,
+  goalId: string,
   task: string,
   dag: string,
   executionMethod: string,

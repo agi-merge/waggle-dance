@@ -193,8 +193,8 @@ const useWaggleDanceMachine = ({
 
     const result = await waggleDanceMachine.run(
       {
-        goal: prompt ?? "",
-        goalId: goalId ?? "",
+        goal: prompt,
+        goalId,
         creationProps: {
           modelName: llmOption === LLM.smart ? LLM.smart : LLM.fast,
           temperature: temperatureOption === "Stable" ? 0 : temperatureOption === "Balanced" ? 0.4 : 0.9,

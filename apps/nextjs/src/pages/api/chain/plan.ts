@@ -48,7 +48,7 @@ export default async function PlanStream(req: NextRequest) {
         const planResultPromise = createPlanningAgent(creationProps, goalId, req.signal);
         // const caller = appRouter.createCaller({ session, prisma });
         // const createExecutionPromise = caller.goal.createExecution({ goalId })
-        const createExecutionPromise = fetch(`${process.env.NEXTAUTH_URL}/api/chain/proxy`, {
+        const createExecutionPromise = fetch(`${process.env.NEXTAUTH_URL}/api/chain/createGoalExecution`, {
           method: "POST",
           body: JSON.stringify({ goalId: goalId }),
           headers: {

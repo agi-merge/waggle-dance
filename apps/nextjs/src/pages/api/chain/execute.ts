@@ -30,6 +30,7 @@ const handler = async (req: IncomingMessage, res: NextApiResponse) => {
   try {
     const {
       creationProps,
+      goal,
       goalId,
       task,
       dag,
@@ -72,12 +73,12 @@ const handler = async (req: IncomingMessage, res: NextApiResponse) => {
     creationProps.callbacks = callbacks;
     const idMinusCriticize = task.id.startsWith("criticize-") && task.id.slice(0, "criticize-".length)
     const result = idMinusCriticize && taskResults[idMinusCriticize]
-    const api = appRouter.createCaller({ session, prisma });
-    const goal = await api.goal.byId({ id: goalId })
-    if (!goal?.prompt.length) throw new Error("No goal prompt found");
-    const exeResult = await createExecutionAgent(creationProps, goal?.prompt, stringify(task), stringify(dag), stringify(executionMethod), stringify(result), reviewPrefix, session?.user.id)
+    const exeResult = await createExecutionAgent(creationProps, goal, goalId, stringify(task), stringify(dag), stringify(executionMethod), stringify(result), reviewPrefix, session?.user.id)
 
-    console.log("exeResult", exeResult);
+    const caller = appRouter.createCaller({ session, prisma });
+    const createResult = await caller.goal.createResult({ goalId, value: exeResult })
+    console.log("exeResult", exeResult, "createResult", createResult);
+    res.json(exeResult);
     res.end();
   } catch (e) {
     let message;

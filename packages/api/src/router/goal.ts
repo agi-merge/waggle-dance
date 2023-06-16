@@ -43,6 +43,22 @@ export const goalRouter = createTRPCRouter({
       });
     }),
 
+  createResult: protectedProcedure
+    .input(z.object({ goalId: z.string().nonempty(), value: z.string().nonempty() }))
+    .mutation(({ ctx, input }) => {
+      const { goalId, value } = input;
+      return ctx.prisma.result.create({
+        data: {
+          execution: {
+            connect: {
+              id: goalId,
+            }
+          },
+          value
+        }
+      });
+    }),
+
   // Create a new goal
   create: protectedProcedure
     .input(

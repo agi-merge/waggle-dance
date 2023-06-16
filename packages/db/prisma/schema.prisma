@@ -78,18 +78,6 @@ model Goal {
   executions  Execution[] @relation(fields: [])
   @@index([userId])
 }
-
-model Result {
-  id          String  @id @default(cuid())
-  execution   Execution @relation(fields: [executionId], references: [id])
-  executionId String
-  value       String
-  createdAt   DateTime    @default(now())
-  updatedAt   DateTime    @default(now()) @updatedAt
-
-  @@index([executionId])
-}
-
 enum ExecutionState {
   EXECUTING
   SUCCEEDED
@@ -111,3 +99,15 @@ model Execution {
   @@index([userId])
   @@index([goalId])
 }
+
+model Result {
+  id          String  @id @default(cuid())
+  execution   Execution @relation(fields: [executionId], references: [id])
+  executionId String
+  value       String
+  createdAt   DateTime    @default(now())
+  updatedAt   DateTime    @default(now()) @updatedAt
+
+  @@index([executionId])
+}
+
