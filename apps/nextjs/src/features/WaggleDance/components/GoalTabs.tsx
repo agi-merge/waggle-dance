@@ -51,8 +51,17 @@ const GoalTab: React.FC<GoalTabProps> = ({ tab, index }) => {
           // an ignorable data corruption
         }
       }
-      const prevId = deleteGoal(tab);
-      prevId ? void router.replace(`/goal/${prevId}`) : void router.push("/");
+      const result = deleteGoal(tab);
+      if (result) {
+        const { prevId, goalList } = result;
+        if (goalList && goalList[0]) {
+          void router.push(`/goal/${goalList[0].id}`);
+        } else {
+          prevId
+            ? void router.replace(`/goal/${prevId}`)
+            : void router.push("/");
+        }
+      }
     },
     [del, deleteGoal, setIsRunning],
   );
