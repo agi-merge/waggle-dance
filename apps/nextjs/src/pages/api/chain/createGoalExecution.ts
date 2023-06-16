@@ -8,17 +8,25 @@ export const config = { runtime: "nodejs", regions: ["pdx-1"] } // TODO: figure 
 
 // since PrismaClient is not accessible in edge, and plans save Executions to the database,
 // we use this nodejs proxy that is co-located in the same region as the database
-export default async function createExecution(req: NextApiRequest, res: NextApiResponse) {
+export default async function createGoalExecution(req: NextApiRequest, res: NextApiResponse) {
 
-  const session = await getServerSession({ req, res });
+  try {
+    const session = await getServerSession({ req, res });
 
-  const {
-    goalId,
-  } = req.body as StrategyRequestBody;
+    if (!session?.user.id) {
+      throw new Error("no user id");
+    }
+    const {
+      goalId,
+    } = req.body as StrategyRequestBody;
 
-  const caller = appRouter.createCaller({ session, prisma });
-  const createExecutionPromise = caller.goal.createExecution({ goalId })
-  const exe = await createExecutionPromise;
-  res.writeHead(200);
-  res.end(res.json(exe));
+    const caller = appRouter.createCaller({ session, prisma });
+    const exe = await caller.goal.createExecution({ goalId });
+    res.writeHead(200, { "Content-Type": "application/json" });
+    res.end(res.json(exe));
+  } catch (error) {
+    console.error("createGoalExecution error", error);
+    res.writeHead(500, { "Content-Type": "application/json" });
+    res.end(JSON.stringify({ error: (error as { message: string }).message }));
+  }
 }

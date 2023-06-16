@@ -10,9 +10,8 @@ import { useRouter } from "next/router";
 import { getSession, useSession } from "next-auth/react";
 
 import { appRouter } from "@acme/api";
-import { prisma, type Execution } from "@acme/db";
+import { prisma } from "@acme/db";
 
-import { api } from "~/utils/api";
 import { getOpenAIUsage } from "~/utils/openAIUsageAPI";
 import GoalInput from "~/features/GoalMenu/components/GoalInput";
 import MainLayout from "~/features/MainLayout";
@@ -21,10 +20,9 @@ import WaggleDanceGraph from "~/features/WaggleDance/components/WaggleDanceGraph
 import useGoalStore from "~/stores/goalStore";
 import useWaggleDanceMachineStore from "~/stores/waggleDanceStore";
 
-export const getStaticProps = async ({ params }: GetStaticPropsContext) => {
+export const getStaticProps = async ({}: GetStaticPropsContext) => {
   const startDate = new Date();
   const session = await getSession();
-  const { slug } = params ?? { slug: null };
 
   const caller = appRouter.createCaller({ session, prisma });
   try {
@@ -96,16 +94,6 @@ export default function GoalTab({
     () => getSelectedGoal(cleanedSlug),
     [getSelectedGoal, cleanedSlug],
   );
-
-  const { mutate: createExecution } = api.goal.createExecution.useMutation({
-    onSuccess: (data: Execution) => {
-      console.log("createExecution: ", data);
-      void router.push(`/goal/${data.goalId}`);
-    },
-    onError: (e) => {
-      console.error("Failed to post!", e.message);
-    },
-  });
 
   const state = useMemo(() => {
     if (cleanedSlug === "new") {

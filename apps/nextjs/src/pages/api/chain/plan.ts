@@ -47,8 +47,6 @@ export default async function PlanStream(req: NextRequest) {
         console.log("about to planChain");
 
         const planResultPromise = createPlanningAgent(creationProps, goal, goalId, req.signal);
-        // const caller = appRouter.createCaller({ session, prisma });
-        // const createExecutionPromise = caller.goal.createExecution({ goalId })
         const createExecutionPromise = fetch(`${process.env.NEXTAUTH_URL}/api/chain/createGoalExecution`, {
           method: "POST",
           body: JSON.stringify({ goalId: goalId }),
@@ -56,9 +54,9 @@ export default async function PlanStream(req: NextRequest) {
             "Content-Type": "application/json",
           },
         });
-        const promises = await Promise.all([planResultPromise, createExecutionPromise]);
-        const [result, exe] = promises;
-        console.error("result", result, "exe", exe);
+        const results = await Promise.allSettled([planResultPromise, createExecutionPromise]);
+        const [result, exe] = results;
+        console.error("result", result.status === "fulfilled" ? result.value : "rejected", "exe", exe.status === "fulfilled" ? exe.value.ok : "rejected");
         // console.log("planResultPromise resolved", { result });
         controller.close();
       },
