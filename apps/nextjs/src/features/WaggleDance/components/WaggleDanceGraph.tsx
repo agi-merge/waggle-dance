@@ -153,11 +153,14 @@ const WaggleDanceGraph = ({
     }
   };
 
+  const results = useMemo(
+    () => taskStates.filter((n) => !!n.result),
+    [taskStates],
+  );
+
   const progress = useMemo(() => {
-    return (
-      (taskStates.filter((n) => !!n.result).length / taskStates.length) * 100
-    );
-  }, [taskStates]);
+    return (results.length / taskStates.length) * 100;
+  }, [results.length, taskStates.length]);
 
   return (
     <Stack gap="1rem">

@@ -46,9 +46,17 @@ const useWaggleDanceMachine = ({
     const dag = e.graph as DAG | null
     return dag !== null && dag.nodes?.length > 0
   })?.graph as DAG | null
+  const results = useMemo(() => {
+    return goal?.results?.map(r => { return { status: "dummy", result: r.value, packets: [] as ChainPacket[] } as TaskState })
+  }, [goal?.results]);
+  // map results to Record<string, TaskState>
+  // correct Typescript:
+  const resultsMap = useMemo(() => results?.reduce((acc: Record<string, TaskState>, cur: TaskState) => {
+    return { ...acc, [cur.id]: cur }
+  }, {} as Record<string, TaskState>), [results]);
   const [dag, setDAG] = useState<DAG>(graph ?? new DAG([], []));
   const [isDonePlanning, setIsDonePlanning] = useState(false);
-  const [taskResults, setTaskResults] = useState<Record<string, TaskState>>({});
+  const [taskResults, setTaskResults] = useState<Record<string, TaskState>>(resultsMap ?? {});
   const [logs, setLogs] = useState<LogMessage[]>([]);
   const [chainPackets, setChainPackets] = useState<Record<string, TaskState>>({});
   const [abortController, setAbortController] = useState<AbortController>(new AbortController());
