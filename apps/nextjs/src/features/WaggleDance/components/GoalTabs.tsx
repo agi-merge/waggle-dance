@@ -1,6 +1,6 @@
-import { useCallback } from "react";
+import { useCallback, useEffect } from "react";
 import NextLink from "next/link";
-import router from "next/router";
+import router, { useRouter } from "next/router";
 import { Add, Close, Cloud } from "@mui/icons-material";
 import {
   Box,
@@ -153,8 +153,15 @@ const GoalTab: React.FC<GoalTabProps> = ({ tab, index }) => {
 
 // The main goal tabber component
 const GoalTabs: React.FC<GoalTabsProps> = ({ children }) => {
+  const router = useRouter();
   const { goalList, newGoal, currentTabIndex, selectTab } = useGoalStore();
   const { isRunning } = useWaggleDanceMachineStore();
+
+  useEffect(() => {
+    const ids = goalList.map((g) => g.id);
+    ids.forEach((id) => void router.prefetch(`/goal/${id}`));
+  }, [goalList, router]);
+
   // Handle tab change
   const handleChange = useCallback(
     (event: React.SyntheticEvent | null, newValue: number) => {
@@ -168,7 +175,7 @@ const GoalTabs: React.FC<GoalTabsProps> = ({ children }) => {
       const currentGoal = goalList[newValue];
       currentGoal && void router.replace(`/goal/${currentGoal.id}`);
     },
-    [goalList, selectTab],
+    [goalList, router, selectTab],
   );
 
   // Render the goal tabber
