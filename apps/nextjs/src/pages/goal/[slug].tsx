@@ -154,11 +154,7 @@ export default function GoalTab({
               }
             />
 
-            <WaggleDanceGraph
-              key={cleanedSlug}
-              savedGoals={savedGoals}
-              selectedGoal={selectedGoal}
-            />
+            <WaggleDanceGraph key={cleanedSlug} selectedGoal={selectedGoal} />
           </>
         )}
       </>
