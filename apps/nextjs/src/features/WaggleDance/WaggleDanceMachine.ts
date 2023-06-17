@@ -81,7 +81,7 @@ export default class WaggleDanceMachine {
     let taskResults: Record<string, BaseResultType> = {};
     const maxConcurrency = request.creationProps.maxConcurrency ?? 4;
 
-    const startFirstTask = async (task: DAGNode) => {
+    const startFirstTask = async (task: DAGNode, dag: DAG) => {
       taskState.firstTaskState = "started";
       taskState.taskId = task.id
       // Call the executeTasks function for the given task and update the states accordingly
@@ -116,7 +116,7 @@ export default class WaggleDanceMachine {
         taskState.firstTaskState = state;
       };
 
-      dag = await planTasks(request.goal, request.creationProps, initDAG, setDAG, log, sendChainPacket, taskState, updateTaskState, startFirstTask);
+      dag = await planTasks(request.goal, request.goalId, request.creationProps, initDAG, setDAG, log, sendChainPacket, taskState, abortSignal, updateTaskState, startFirstTask);
       if (dag.nodes[0]) {
         const node = dag.nodes[dag.nodes.length - 1]
         node && sendChainPacket({ type: "done", nodeId: rootPlanId, value: "🍯 Return Goal" }, node) || console.warn("node not found", rootPlanId)

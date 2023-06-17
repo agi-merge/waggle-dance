@@ -6,6 +6,7 @@ import React, {
   useState,
 } from "react";
 import {
+  BugReport,
   Edit,
   Lan,
   ListAlt,
@@ -38,25 +39,26 @@ import ReactMarkdown from "react-markdown";
 import remarkGfm from "remark-gfm";
 import { stringify } from "yaml";
 
-import AddDocuments from "~/pages/add-documents";
-import useGoalStore from "~/stores/goalStore";
+import GoalSettings from "~/features/GoalMenu/components/GoalSettings";
+import { type GoalPlusExe } from "~/stores/goalStore";
 import useWaggleDanceMachineState from "~/stores/waggleDanceStore";
 import { rootPlanId } from "../WaggleDanceMachine";
 import useWaggleDanceMachine, {
   type TaskState,
 } from "../hooks/useWaggleDanceMachine";
-import DocsModal from "./DocsModal";
 import ForceGraph from "./ForceGraph";
 
-type WaggleDanceGraphProps = StackProps;
+type WaggleDanceGraphProps = {
+  selectedGoal: GoalPlusExe | undefined;
+} & StackProps;
 // shows the graph, agents, results, general messages and chat input
-const WaggleDanceGraph = ({}: WaggleDanceGraphProps) => {
+const WaggleDanceGraph = ({ selectedGoal }: WaggleDanceGraphProps) => {
   const { isRunning, setIsRunning, isAutoStartEnabled, setIsAutoStartEnabled } =
     useWaggleDanceMachineState();
-  const { getGoalInputValue } = useGoalStore();
+
   const { graphData, dag, stop, run, logs, taskStates } = useWaggleDanceMachine(
     {
-      goal: getGoalInputValue(),
+      goal: selectedGoal,
     },
   );
   const [runId, setRunId] = useState<Date | null>(null);
@@ -102,9 +104,7 @@ const WaggleDanceGraph = ({}: WaggleDanceGraphProps) => {
       className="flex items-center justify-end"
     >
       <Box className="items-center justify-center align-top">
-        <DocsModal>
-          <AddDocuments />
-        </DocsModal>
+        <GoalSettings />
       </Box>
       <Button
         className="col-end p-2"
@@ -146,16 +146,17 @@ const WaggleDanceGraph = ({}: WaggleDanceGraphProps) => {
     }
   };
 
+  const results = useMemo(
+    () => taskStates.filter((n) => !!n.result),
+    [taskStates],
+  );
+
   const progress = useMemo(() => {
-    return (
-      (taskStates.filter((n) => !!n.result).length / taskStates.length) * 100
-    );
-  }, [taskStates]);
+    return (results.length / taskStates.length) * 100;
+  }, [results.length, taskStates.length]);
 
   return (
     <Stack gap="1rem">
-      {!isRunning && button}
-
       {dag.nodes.length > 0 && (
         <Tabs
           size="sm"
@@ -166,20 +167,34 @@ const WaggleDanceGraph = ({}: WaggleDanceGraphProps) => {
           sx={{ borderRadius: "sm" }}
         >
           <TabList variant="outlined" color="primary">
-            <Tab>
+            <Tab value={0}>
               <ListAlt />
               <Typography className="px-1">Tasks</Typography>
             </Tab>
-            <Tab>
-              <Science />
-              <Typography>Logs</Typography>
+            <Tab
+              value={1}
+              disabled={dag.nodes.length < 2}
+              sx={{ opacity: dag.nodes.length < 2 ? 0.2 : 1 }}
+            >
+              <Lan />
+              <Typography className="px-1">Graph</Typography>
             </Tab>
-            {dag.nodes.length > 2 && (
-              <Tab>
-                <Lan />
-                <Typography className="px-1">Graph</Typography>
-              </Tab>
-            )}
+            <Tab
+              value={2}
+              disabled={results.length < 1}
+              sx={{ opacity: results.length < 1 ? 0.2 : 1 }}
+            >
+              <Science />
+              <Typography>Results</Typography>
+            </Tab>
+            <Tab
+              value={3}
+              disabled={logs.length < 1}
+              sx={{ opacity: logs.length < 1 ? 0.2 : 1 }}
+            >
+              <BugReport />
+              <Typography>Debug Logs</Typography>
+            </Tab>
           </TabList>
           {taskStates.length > 0 && (
             <>
@@ -350,8 +365,36 @@ const WaggleDanceGraph = ({}: WaggleDanceGraphProps) => {
                     ))}
                 </List>
               </TabPanel>
+
               <TabPanel
                 value={1}
+                className="min-h-90 w-full items-center overflow-y-scroll"
+                sx={{ padding: { xs: 0, sm: 2 } }}
+              >
+                <ForceGraph data={graphData} />
+              </TabPanel>
+
+              <TabPanel
+                value={2}
+                className=" relative max-h-96 w-full overflow-y-scroll p-4"
+              >
+                <List
+                  className="absolute left-0 top-0 mt-3"
+                  sx={{
+                    marginX: { xs: -2, sm: 0 },
+                  }}
+                  aria-label="Results List"
+                >
+                  {taskStates
+                    .filter((t) => t.result)
+                    .map((t) => (
+                      <Box key={t.id}>{t.result}</Box>
+                    ))}
+                </List>
+              </TabPanel>
+
+              <TabPanel
+                value={3}
                 className=" relative max-h-96 w-full overflow-y-scroll p-4"
               >
                 <List
@@ -393,20 +436,11 @@ const WaggleDanceGraph = ({}: WaggleDanceGraphProps) => {
                   ))}
                 </List>
               </TabPanel>
-              {dag.nodes.length > 2 && (
-                <TabPanel
-                  value={2}
-                  className="min-h-90 w-full items-center overflow-y-scroll"
-                  sx={{ padding: { xs: 0, sm: 2 } }}
-                >
-                  <ForceGraph data={graphData} />
-                </TabPanel>
-              )}
             </>
           )}
         </Tabs>
       )}
-      {isRunning && button}
+      {button}
     </Stack>
   );
 };

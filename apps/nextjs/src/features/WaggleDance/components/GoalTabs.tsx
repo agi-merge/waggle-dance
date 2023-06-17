@@ -1,6 +1,6 @@
-import { useCallback } from "react";
+import { useCallback, useEffect } from "react";
 import NextLink from "next/link";
-import router from "next/router";
+import router, { useRouter } from "next/router";
 import { Add, Close, Cloud } from "@mui/icons-material";
 import {
   Box,
@@ -24,6 +24,7 @@ import useWaggleDanceMachineStore from "~/stores/waggleDanceStore";
 
 interface GoalTabProps {
   tab: Goal;
+  index: number;
 }
 
 interface GoalTabsProps {
@@ -31,7 +32,7 @@ interface GoalTabsProps {
 }
 
 // A single goal tab inside the main tabber
-const GoalTab: React.FC<GoalTabProps> = ({ tab }) => {
+const GoalTab: React.FC<GoalTabProps> = ({ tab, index }) => {
   const { data: sessionData } = useSession();
   const { setIsRunning } = useWaggleDanceMachineStore();
   const { goalList, getGoalInputValue, deleteGoal, getSelectedGoal } =
@@ -50,7 +51,17 @@ const GoalTab: React.FC<GoalTabProps> = ({ tab }) => {
           // an ignorable data corruption
         }
       }
-      deleteGoal(tab);
+      const result = deleteGoal(tab);
+      if (result) {
+        const { prevId, goalList } = result;
+        if (goalList && goalList[0]) {
+          void router.push(`/goal/${goalList[0].id}`);
+        } else {
+          prevId
+            ? void router.replace(`/goal/${prevId}`)
+            : void router.push("/");
+        }
+      }
     },
     [del, deleteGoal, setIsRunning],
   );
@@ -65,6 +76,7 @@ const GoalTab: React.FC<GoalTabProps> = ({ tab }) => {
       }}
     >
       <Tab
+        tabIndex={index}
         component={Stack}
         color={getSelectedGoal()?.id === tab.id ? "primary" : "neutral"}
         sx={{
@@ -149,7 +161,14 @@ const GoalTab: React.FC<GoalTabProps> = ({ tab }) => {
 
 // The main goal tabber component
 const GoalTabs: React.FC<GoalTabsProps> = ({ children }) => {
+  const router = useRouter();
   const { goalList, newGoal, currentTabIndex, selectTab } = useGoalStore();
+  const { isRunning } = useWaggleDanceMachineStore();
+
+  useEffect(() => {
+    const ids = goalList.map((g) => g.id);
+    ids.forEach((id) => void router.prefetch(`/goal/${id}`));
+  }, [goalList, router]);
 
   // Handle tab change
   const handleChange = useCallback(
@@ -164,7 +183,7 @@ const GoalTabs: React.FC<GoalTabsProps> = ({ children }) => {
       const currentGoal = goalList[newValue];
       currentGoal && void router.replace(`/goal/${currentGoal.id}`);
     },
-    [goalList, selectTab],
+    [goalList, router, selectTab],
   );
 
   // Render the goal tabber
@@ -188,13 +207,15 @@ const GoalTabs: React.FC<GoalTabsProps> = ({ children }) => {
         >
           <TabList
             sx={{
+              pointerEvents: isRunning ? "none" : "auto",
+              opacity: isRunning ? 0.33 : 1,
               background: "transparent",
               display: "flex flex-shrink",
               flexWrap: "nowrap",
             }}
           >
-            {goalList.map((tab) => (
-              <GoalTab key={tab.id} tab={tab} />
+            {goalList.map((tab, index) => (
+              <GoalTab key={tab.id} tab={tab} index={index} />
             ))}
             <IconButton
               className="flex-end float-start"

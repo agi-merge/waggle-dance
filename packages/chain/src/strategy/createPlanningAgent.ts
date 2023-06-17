@@ -9,12 +9,13 @@ import { type ModelCreationProps } from "../utils/types";
 export async function createPlanningAgent(
   creationProps: ModelCreationProps,
   goal: string,
+  goalId: string,
   signal: AbortSignal,
 ) {
   const llm = createModel(creationProps);
   // const memory = await createMemory(goal);
   // const planPrompt = createPrompt("plan");
-  const prompt = createPrompt("plan", creationProps, goal);
+  const prompt = createPrompt("plan", creationProps, goal, goalId);
   const chain = new LLMChain({
     // memory,
     prompt,
@@ -27,7 +28,7 @@ export async function createPlanningAgent(
       signal
     }),
   ]);
-  const dag = call?.response ? (call.response as string) : "";
+  const dag = call?.response ? (call.response as string) : "error";
 
   return dag;
 }

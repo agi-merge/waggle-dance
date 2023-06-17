@@ -79,7 +79,7 @@ Waggle Dance can be deployed using Docker or manually using Node.js. Configurati
 
 - [Node JS LTS](https://nodejs.org/en)
 - [pnpm](https://pnpm.io/installation)
-- Turbo - `pnpm add turbo --global`
+- Turbo - `pnpm add turbo --global` or use `npx turbo` in place of `turbo` below.
 
 ### Run Development build
 
@@ -111,7 +111,7 @@ pnpm db:push
 This is a t3 stack. [You can check the boilerplate documentation](/docs/create-t3-boilerplate.md)
 
 ```bash
-pnpm dev
+turbo dev
 ```
 
 ## 📂 Core Files/Folders
@@ -130,18 +130,18 @@ Linting is run on each build and can fail builds.
 To get a full list of linting errors run:
 
 ```bash
-pnpm lint
+turbo lint
 ```
 
 Some of these may be able to be auto-fixed with:
 
 ```bash
-pnpm lint:fix
+turbo lint:fix
 ```
 
 for the rest, you will need to open the associated file and fix the errors yourself. Limit `ts-ignore` for extreme cases.
 
-As a best practice, run `pnpm lint` before starting a feature and after finishing a feature and fix any errors before sending a `PR`.
+As a best practice, run `turbo lint` before starting a feature and after finishing a feature and fix any errors before sending a `PR`.
 
 ## 📚 Helpful Docs
 

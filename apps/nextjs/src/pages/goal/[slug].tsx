@@ -18,23 +18,29 @@ import MainLayout from "~/features/MainLayout";
 import Title from "~/features/MainLayout/components/PageTitle";
 import WaggleDanceGraph from "~/features/WaggleDance/components/WaggleDanceGraph";
 import useGoalStore from "~/stores/goalStore";
+import useWaggleDanceMachineStore from "~/stores/waggleDanceStore";
 
-export const getStaticProps = async ({ params }: GetStaticPropsContext) => {
+export const getStaticProps = async ({}: GetStaticPropsContext) => {
   const startDate = new Date();
   const session = await getSession();
-  const { slug } = params ?? { slug: null };
 
   const caller = appRouter.createCaller({ session, prisma });
   try {
     const openAIUsagePromise = getOpenAIUsage(startDate);
     const goalsPromise = caller.goal.topByUser();
-    const [openAIUsage, savedGoals] = await Promise.all([
+    const [openAIUsageSettled, savedGoalsSettled] = await Promise.allSettled([
       openAIUsagePromise,
       goalsPromise,
     ]);
-    if (!savedGoals.find((goal) => goal.id === slug)) {
-      return { notFound: true };
-    }
+    // if (!savedGoals.find((goal) => goal.id === slug)) {
+    //   return { notFound: true };
+    // }
+    const savedGoals =
+      savedGoalsSettled.status === "fulfilled" ? savedGoalsSettled.value : null;
+    const openAIUsage =
+      openAIUsageSettled.status === "fulfilled"
+        ? openAIUsageSettled.value
+        : null;
     return {
       props: {
         // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
@@ -47,6 +53,7 @@ export const getStaticProps = async ({ params }: GetStaticPropsContext) => {
       revalidate: 10, // In seconds
     };
   } catch (e) {
+    console.error(e);
     return {
       props: {
         openAIUsage: null,
@@ -68,9 +75,10 @@ export default function GoalTab({
   savedGoals,
 }: InferGetStaticPropsType<typeof getStaticProps>) {
   const router = useRouter();
+  const { isRunning } = useWaggleDanceMachineStore();
   const { data: sessionData } = useSession();
   const { slug } = router.query;
-  const { getSelectedGoal, newGoal } = useGoalStore();
+  const { getSelectedGoal, newGoal, goalList } = useGoalStore();
   const cleanedSlug = useMemo(() => {
     if (typeof slug === "string") {
       return slug;
@@ -91,21 +99,24 @@ export default function GoalTab({
     if (cleanedSlug === "new") {
       return "input";
     }
-    return selectedGoal?.userId && selectedGoal?.userId.trim().length > 0
+    return (selectedGoal?.executions?.length ?? 0 > 0) ||
+      (selectedGoal?.userId.trim().length ?? 0 !== 0)
       ? "graph"
       : "input";
-  }, [cleanedSlug, selectedGoal?.userId]);
+  }, [cleanedSlug, selectedGoal?.executions?.length, selectedGoal?.userId]);
 
   useEffect(() => {
     if (cleanedSlug === "new") {
-      // const newId = newGoal();
-      // console.log("new slug", newId, cleanedSlug, selectedGoal?.id);
-      // void router.replace(`/goal/${newId}`);
+      // do nothing
     } else {
       if (!selectedGoal?.id && cleanedSlug !== selectedGoal?.id) {
         const anySelectedGoal = getSelectedGoal()?.id;
         if (anySelectedGoal) {
           void router.replace(`/goal/${anySelectedGoal}`);
+        } else if (goalList.length ?? 0 !== 0) {
+          void router.replace(`/goal/${goalList?.[0]?.id}`);
+        } else if (savedGoals?.length ?? 0 !== 0) {
+          void router.replace(`/goal/${savedGoals?.[0]?.id}`);
         } else {
           const newId = newGoal();
           void router.replace(`/goal/${newId}`);
@@ -116,6 +127,7 @@ export default function GoalTab({
     cleanedSlug,
     getSelectedGoal,
     newGoal,
+    goalList,
     router,
     savedGoals,
     selectedGoal?.id,
@@ -133,8 +145,16 @@ export default function GoalTab({
           </>
         ) : (
           <>
-            <Title title="💃 Waggling!" description="" />
-            <WaggleDanceGraph key={cleanedSlug} />
+            <Title
+              title={isRunning ? "💃 Waggling!" : "💃 Waggle"}
+              description={
+                isRunning
+                  ? "Please 🐝 patient. Planning may take several minutes to fully complete."
+                  : "Press start/resume to waggle or add data."
+              }
+            />
+
+            <WaggleDanceGraph key={cleanedSlug} selectedGoal={selectedGoal} />
           </>
         )}
       </>

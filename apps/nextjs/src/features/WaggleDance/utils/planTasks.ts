@@ -9,20 +9,23 @@ import { initialNodes, initialEdges, findNodesWithNoIncomingEdges, rootPlanId, t
 // Request the execution plan (DAG) from the API
 export default async function planTasks(
     goal: string,
+    goalId: string,
     creationProps: ModelCreationProps,
     dag: DAG,
     setDAG: (dag: DAG) => void,
     log: (...args: (string | number | object)[]) => void,
     sendChainPacket: (chainPacket: ChainPacket, node: DAGNode) => void,
     taskState: OptimisticFirstTaskState,
+    abortSignal: AbortSignal,
     updateTaskState?: (state: "not started" | "started" | "done") => void,
-    startFirstTask?: (task: DAGNode) => Promise<void>,
+    startFirstTask?: (task: DAGNode, dag: DAG) => Promise<void>,
 ): Promise<DAG> {
-    const data = { goal, creationProps };
+    const data = { goal, goalId, creationProps };
     const res = await fetch("/api/chain/plan", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(data),
+        signal: abortSignal,
     });
 
     if (!res.ok) {
@@ -53,6 +56,7 @@ export default async function planTasks(
         let result;
         while ((result = await reader.read()) && !result.done) {
             const chunk = new TextDecoder().decode(result.value);
+            if (abortSignal.aborted) break;
             chunks += chunk;
             try {
                 const yaml = parse(chunks) as unknown;
@@ -83,7 +87,7 @@ export default async function planTasks(
                         const firstNode = validNodes[0]
                         if (startFirstTask && taskState.firstTaskState === "not started" && firstNode && validNodes.length > 0) { // would be 0, but params can be cut off
                             updateTaskState && updateTaskState("started");
-                            void startFirstTask(firstNode);
+                            void startFirstTask(firstNode, partialDAG);
                         }
                     }
                 }

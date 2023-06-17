@@ -40,7 +40,7 @@ type GoalInputProps = CardProps;
 export default function GoalInput({}: GoalInputProps) {
   const { getGoalInputValue, setGoalInputValue, upsertGoal, getSelectedGoal } =
     useGoalStore();
-  const { isPageLoading } = useApp();
+  const { isPageLoading, setIsPageLoading } = useApp();
   const [_currentPromptIndex, setCurrentPromptIndex] = useState(0);
   const [currentPlaceholderIndex, setCurrentPlaceholderIndex] = useState(0);
   const [templatesModalOpen, setTemplatesModalOpen] =
@@ -48,7 +48,7 @@ export default function GoalInput({}: GoalInputProps) {
 
   const { data: sessionData } = useSession();
 
-  const { mutate } = api.goal.create.useMutation({
+  const { mutate: createGoal } = api.goal.create.useMutation({
     onSuccess: (data) => {
       console.log("create goal: ", data);
       void router.push(`/goal/${data?.id}`);
@@ -61,7 +61,8 @@ export default function GoalInput({}: GoalInputProps) {
     (event: React.FormEvent) => {
       event.preventDefault();
       if (sessionData?.user.id) {
-        mutate(
+        setIsPageLoading(true);
+        createGoal(
           { prompt: getGoalInputValue() },
           {
             onSuccess: (goal) => {
@@ -80,12 +81,21 @@ export default function GoalInput({}: GoalInputProps) {
       } else {
         const goal = getSelectedGoal();
         if (goal) {
+          // this makes the state update to be able to waggle
           goal.userId = "guest";
           upsertGoal(goal);
+          router.reload();
         }
       }
     },
-    [sessionData, mutate, getGoalInputValue, getSelectedGoal, upsertGoal],
+    [
+      sessionData?.user.id,
+      setIsPageLoading,
+      createGoal,
+      getGoalInputValue,
+      getSelectedGoal,
+      upsertGoal,
+    ],
   );
 
   const handleChange = (event: React.ChangeEvent<HTMLTextAreaElement>) => {

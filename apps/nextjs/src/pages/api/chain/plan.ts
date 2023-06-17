@@ -12,21 +12,20 @@ export const config = {
   runtime: "edge",
 };
 
-const handler = async (req: NextRequest) => {
+export default async function PlanStream(req: NextRequest) {
+  console.log("plan request")
   const nodeId = rootPlanId; // maybe goal.slice(0, 5)
-
-  // const abortController = new AbortController();
-
   try {
     const {
       creationProps,
       goal,
+      goalId,
     } = await req.json() as StrategyRequestBody;
 
-    // req.signal.onabort = () => {
-    //   console.warn("abort plan request");
-    //   abortController.abort();
-    // };
+    req.signal.onabort = () => {
+      console.error("aborted plan request");
+    };
+
     const encoder = new TextEncoder()
     const stream = new ReadableStream({
       async start(controller) {
@@ -40,21 +39,22 @@ const handler = async (req: NextRequest) => {
         creationProps.callbacks = callbacks;
         console.log("about to planChain");
 
-        const _planResult = await createPlanningAgent(creationProps, goal, req.signal);
+        const planResultPromise = createPlanningAgent(creationProps, goal, goalId, req.signal);
+        const createExecutionPromise = fetch(`${process.env.NEXTAUTH_URL}/api/chain/createGoalExecution`, {
+          method: "POST",
+          body: JSON.stringify({ goalId: goalId }),
+          headers: {
+            "Content-Type": "application/json",
+            "Cookie": req.headers.get("cookie") || '',
+          },
+        });
+        const results = await Promise.allSettled([planResultPromise, createExecutionPromise]);
+        const [_planResult, _saveExecutionResult] = results;
         controller.close();
       },
 
       cancel() {
         console.warn("cancel plan request");
-        // const all = { message: "request canceled", status: 500 };
-        // console.error(all);
-        // const errorPacket = { type: "error", nodeId, severity: "fatal", message: JSON.stringify(all) };
-        // return new Response(JSON.stringify(errorPacket), {
-        //   headers: {
-        //     "Content-Type": "application/json",
-        //   },
-        //   status: 500,
-        // })
       },
     });
 
@@ -80,7 +80,7 @@ const handler = async (req: NextRequest) => {
     }
 
     const all = { stack, message, status };
-    console.error(all);
+    console.error("plan error", all);
     const errorPacket = { type: "error", nodeId, severity: "fatal", message: JSON.stringify(all) };
     return new Response(JSON.stringify(errorPacket), {
       headers: {
@@ -90,5 +90,3 @@ const handler = async (req: NextRequest) => {
     })
   }
 };
-
-export default handler;

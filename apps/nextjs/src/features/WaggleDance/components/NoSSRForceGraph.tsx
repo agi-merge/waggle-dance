@@ -45,17 +45,7 @@ interface ForceGraphRef {
   d3ReheatSimulation: () => void;
 }
 
-function separateWords(input: string): string {
-  return input;
-  // .replace(/([a-z])([A-Z])/g, "$1 $2") // Separate camelCase and PascalCase
-  // .replace(/([A-Z])([A-Z][a-z])/g, "$1 $2") // Separate consecutive uppercase letters in PascalCase
-  // .replace(/_([a-zA-Z])/g, " $1") // Separate snake_case
-  // .replace(/([a-zA-Z])(\d+)/g, "$1 $2") // Separate words followed by numbers
-  // .replace(/(\d+)([a-zA-Z])/g, "$1 $2"); // Separate numbers followed by words
-}
-
 // Example usage:
-console.log(separateWords("camelCase"));
 function wrapText(
   text: string,
   maxWidth: number,
@@ -107,60 +97,26 @@ const renderNodeCanvasObject = (
   ctx: CanvasRenderingContext2D,
   globalScale: number,
 ) => {
-  const label = separateWords((node as { name: string }).name);
+  const label = (node as { name: string }).name;
 
-  const fontSize = ctx.canvas.width / 200 / globalScale;
+  const fontSize = ctx.canvas.width / 100 / globalScale;
   ctx.font = `${fontSize}px Monospace`;
 
   // Set the maximum width for text wrapping
-  const maxWidth = ctx.canvas.width / 20 / globalScale;
-  const lines = wrapText(String(label), maxWidth, ctx) || [];
+  const maxWidth = ctx.canvas.width / 15 / globalScale;
+  const lines =
+    wrapText(
+      String(label.slice(0, Math.min(30, label.length))),
+      maxWidth,
+      ctx,
+    ) || [];
 
-  // Calculate the width and height of the wrapped text
-  const textWidth = Math.max(
-    ...lines.map((line) => ctx.measureText(line ?? "?").width),
-  );
+  // Calculate the height of the wrapped text
   const textHeight = fontSize * lines.length;
 
   // Set the background color based on the node color
-  const backgroundColor = (node as { color: string }).color || "white";
+  const backgroundColor = (node as { color: string }).color || "grey";
   ctx.fillStyle = backgroundColor;
-
-  function drawRoundedRect(
-    ctx: CanvasRenderingContext2D,
-    x: number,
-    y: number,
-    width: number,
-    height: number,
-    radius: number,
-  ) {
-    ctx.beginPath();
-    ctx.moveTo(x + radius, y);
-    ctx.lineTo(x + width - radius, y);
-    ctx.quadraticCurveTo(x + width, y, x + width, y + radius);
-    ctx.lineTo(x + width, y + height - radius);
-    ctx.quadraticCurveTo(x + width, y + height, x + width - radius, y + height);
-    ctx.lineTo(x + radius, y + height);
-    ctx.quadraticCurveTo(x, y + height, x, y + height - radius);
-    ctx.lineTo(x, y + radius);
-    ctx.quadraticCurveTo(x, y, x + radius, y);
-    ctx.closePath();
-    ctx.fill();
-  }
-
-  const paddingX = 20 / globalScale;
-  const paddingY = 20 / globalScale;
-  // Replace the ctx.ellipse method with the drawRoundedRect function
-  drawRoundedRect(
-    ctx,
-    // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
-    node.x! - textWidth / 2 - paddingX / 2,
-    // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
-    node.y! - textHeight / 2 - paddingY / 2,
-    textWidth + paddingX,
-    textHeight + paddingY,
-    1,
-  );
 
   // Calculate the text color based on the background color
   const isDark = isColorDark(backgroundColor);
@@ -174,7 +130,7 @@ const renderNodeCanvasObject = (
 
   // Draw the wrapped text
   ctx.textAlign = "center";
-  ctx.textBaseline = "middle";
+  ctx.textBaseline = "bottom";
   ctx.fillStyle = textColor;
   lines.forEach((line, index) => {
     ctx.fillText(
@@ -220,7 +176,7 @@ const NoSSRForceGraph: React.FC<ForceGraphProps> = ({ data }) => {
         width={containerWidth}
         height={containerWidth / (4 / 3)}
         dagMode={dagMode}
-        dagLevelDistance={(containerWidth / 200) ** 2}
+        dagLevelDistance={containerWidth / 20}
         // TODO: gotta come back to this one
         // eslint-disable-next-line @typescript-eslint/ban-ts-comment
         // @ts-ignore
@@ -250,13 +206,18 @@ const NoSSRForceGraph: React.FC<ForceGraphProps> = ({ data }) => {
         linkDirectionalArrowLength={3}
         linkDirectionalArrowRelPos={0.5}
         nodeCanvasObject={renderNodeCanvasObject}
+        nodeRelSize={9}
         nodeCanvasObjectMode={() => "after"}
         linkCurvature={0}
-        d3AlphaDecay={0.04}
-        d3VelocityDecay={0.7}
+        d3AlphaDecay={1}
+        nodeAutoColorBy={"status"}
+        d3VelocityDecay={1}
         onEngineTick={() => {
-          fgRef.current?.zoomToFit(0, containerWidth / 20);
-          fgRef.current?.d3ReheatSimulation();
+          fgRef.current?.zoomToFit(0, containerWidth / 40);
+          // fgRef.current?.d3ReheatSimulation();
+        }}
+        onEngineStop={() => {
+          fgRef.current?.zoomToFit(0, containerWidth / 40);
         }}
         onDagError={(loopNodeIds) => {
           console.error(`DAG error: ${loopNodeIds}`);

@@ -2,10 +2,12 @@
 
 import { type ExecuteRequestBody } from "./types";
 import { createExecutionAgent } from "@acme/chain";
-import { stringify } from "yaml"
+import { stringify } from "yaml";
 import { type NextApiRequest, type NextApiResponse } from "next";
 import { getServerSession } from "@acme/auth";
 import { type IncomingMessage } from "http";
+import { appRouter } from "@acme/api";
+import { prisma } from "@acme/db";
 
 export const config = {
   api: {
@@ -13,6 +15,7 @@ export const config = {
   },
   runtime: "nodejs",
 };
+
 const handler = async (req: IncomingMessage, res: NextApiResponse) => {
   const session = await getServerSession({
     req: req as unknown as NextApiRequest,
@@ -24,10 +27,12 @@ const handler = async (req: IncomingMessage, res: NextApiResponse) => {
     bodyChunks.push(chunk);
   }
   const body = Buffer.concat(bodyChunks).toString();
+
   try {
     const {
       creationProps,
       goal,
+      goalId,
       task,
       dag,
       executionMethod,
@@ -39,39 +44,48 @@ const handler = async (req: IncomingMessage, res: NextApiResponse) => {
       "Content-Type": "application/octet-stream",
       "Transfer-Encoding": "chunked",
     });
-    // const writePacket = (packet: ChainPacket) => {
-    //   res.write(JSON.stringify(packet) + "\n");
-    // };
+    const customBuffer = Buffer.alloc(0);
+
     const inlineCallback = {
       handleLLMNewToken(token: string) {
+        customBuffer.write(token);
         res.write(token);
       },
 
-      // handleLLMStart: (llm: { name: string }, _prompts: string[]) => {
-      //   console.debug("handleLLMStart", { llm });
-      //   writePacket({ type: "handleLLMStart", nodeId, llm });
-      // },
-      // handleChainStart: (chain: { name: string }) => {
-      //   console.debug("handleChainStart", { chain });
-      //   writePacket({ type: "handleChainStart", nodeId, chain });
-      // },
-      // handleAgentAction: (action: AgentAction) => {
-      //   console.debug("handleAgentAction", action);
-      //   writePacket({ type: "handleAgentAction", nodeId, action });
-      // },
-      // handleToolStart: (tool: { name: string }) => {
-      //   console.debug("handleToolStart", { tool });
-      //   writePacket({ type: "handleToolStart", nodeId, tool });
-      // },
+      handleChainError(err: Error, runId: string, parentRunId?: string) {
+        console.error("handleChainError", { err, runId, parentRunId });
+      },
     };
 
     const callbacks = [inlineCallback];
     creationProps.callbacks = callbacks;
-    const idMinusCriticize = task.id.startsWith("criticize-") && task.id.slice(0, "criticize-".length)
-    const result = idMinusCriticize && taskResults[idMinusCriticize]
-    const exeResult = await createExecutionAgent(creationProps, goal, stringify(task), stringify(dag), stringify(executionMethod), stringify(result), reviewPrefix, session?.user.id)
 
-    console.log("exeResult", exeResult);
+    const idMinusCriticize = task.id.startsWith("criticize-") ? task.id.slice("criticize-".length) : null;
+    const result = idMinusCriticize ? taskResults[idMinusCriticize] : null;
+    const exeResult = await createExecutionAgent(
+      creationProps,
+      goal,
+      goalId,
+      stringify(task),
+      stringify(dag),
+      stringify(executionMethod),
+      stringify(result),
+      reviewPrefix,
+      session?.user.id
+    );
+    const value = customBuffer.toString();
+    if (session?.user.id) {
+      try {
+        const caller = appRouter.createCaller({ session, prisma });
+        const createResultOptions = { goalId, value: value.length > 0 ? value : exeResult, graph: dag };
+        console.log("createResultOptions", createResultOptions);
+        const _createResult = await caller.goal.createResult(createResultOptions);
+        console.log("_createResult", _createResult);
+      } catch (error) {
+        // ignore
+        console.error(error);
+      }
+    }
     res.end();
   } catch (e) {
     let message;
@@ -88,7 +102,7 @@ const handler = async (req: IncomingMessage, res: NextApiResponse) => {
     }
 
     const all = { stack, message, status };
-    console.error(all);
+    console.error("execute error", all);
     const errorPacket = { type: "error", nodeId: "catch-all", severity: "fatal", message: JSON.stringify(all) };
     if (!res.headersSent) {
       res.writeHead(500, {

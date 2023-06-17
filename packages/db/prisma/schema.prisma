@@ -6,8 +6,8 @@ generator client {
 }
 
 datasource db {
-  provider     = "postgresql"
-  url          = env("DATABASE_URL")
+  provider = "postgresql"
+  url = env("DATABASE_URL")
   relationMode = "prisma"
 }
 
@@ -55,6 +55,7 @@ model User {
   accounts      Account[]
   sessions      Session[]
   goals         Goal[]
+  executions    Execution[]
 }
 
 model VerificationToken {
@@ -66,12 +67,51 @@ model VerificationToken {
 }
 
 model Goal {
-  id          String  @id @default(cuid())
+  id          String   @id @default(cuid())
   prompt      String
-  user        User    @relation(fields: [userId], references: [id])
+  user        User     @relation(fields: [userId], references: [id], onDelete: Cascade)
   userId      String
-  createdAt DateTime    @default(now())
-  updatedAt DateTime    @default(now()) @updatedAt
+  createdAt   DateTime   @default(now())
+  updatedAt   DateTime   @default(now()) @updatedAt
+  executions  Execution[]
+  results     Result[]
 
   @@index([userId])
 }
+
+enum ExecutionState {
+  EXECUTING
+  SUCCEEDED
+  FAILED
+}
+
+model Execution {
+  id          String  @id @default(cuid())
+  goal        Goal    @relation(fields: [goalId], references: [id], onDelete: Cascade)
+  goalId      String
+  user        User    @relation(fields: [userId], references: [id], onDelete: Cascade)
+  userId      String
+  graph       Json?
+  results     Result[]
+  state       ExecutionState @default(EXECUTING)
+  createdAt   DateTime       @default(now())
+  updatedAt   DateTime       @default(now()) @updatedAt
+
+  @@index([userId])
+  @@index([goalId])
+}
+
+model Result {
+  id          String     @id @default(cuid())
+  goal        Goal       @relation(fields: [goalId], references: [id], onDelete: Cascade)
+  goalId      String
+  execution   Execution  @relation(fields: [executionId], references: [id], onDelete: Cascade)
+  executionId String
+  value       String
+  createdAt   DateTime   @default(now())
+  updatedAt   DateTime   @default(now()) @updatedAt
+
+  @@index([executionId])
+  @@index([goalId])
+}
+

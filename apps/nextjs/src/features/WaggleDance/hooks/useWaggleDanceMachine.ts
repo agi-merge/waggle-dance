@@ -11,9 +11,10 @@ import { dagToGraphData } from "../utils/conversions";
 import useWaggleDanceMachineStore from "~/stores/waggleDanceStore";
 import { env } from "~/env.mjs";
 import { stringify } from "yaml";
+import { type GoalPlusExe } from "~/stores/goalStore";
 
 interface UseWaggleDanceMachineProps {
-  goal: string;
+  goal: GoalPlusExe | undefined;
 }
 
 export type LogMessage = {
@@ -41,9 +42,21 @@ const useWaggleDanceMachine = ({
 }: UseWaggleDanceMachineProps) => {
   const [waggleDanceMachine] = useState(new WaggleDanceMachine());
   const { isRunning, setIsRunning, temperatureOption, llmOption, executionMethod } = useWaggleDanceMachineStore();
-  const [dag, setDAG] = useState<DAG>(new DAG([], []));
+  const graph = goal?.executions.find(e => {
+    const dag = e.graph as DAG | null
+    return dag !== null && dag.nodes?.length > 0
+  })?.graph as DAG | null
+  const results = useMemo(() => {
+    return goal?.results?.map(r => { return { status: "dummy", result: r.value, packets: [] as ChainPacket[] } as TaskState })
+  }, [goal?.results]);
+  // map results to Record<string, TaskState>
+  // correct Typescript:
+  const resultsMap = useMemo(() => results?.reduce((acc: Record<string, TaskState>, cur: TaskState) => {
+    return { ...acc, [cur.id]: cur }
+  }, {} as Record<string, TaskState>), [results]);
+  const [dag, setDAG] = useState<DAG>(graph ?? new DAG([], []));
   const [isDonePlanning, setIsDonePlanning] = useState(false);
-  const [taskResults, setTaskResults] = useState<Record<string, TaskState>>({});
+  const [taskResults, setTaskResults] = useState<Record<string, TaskState>>(resultsMap ?? {});
   const [logs, setLogs] = useState<LogMessage[]>([]);
   const [chainPackets, setChainPackets] = useState<Record<string, TaskState>>({});
   const [abortController, setAbortController] = useState<AbortController>(new AbortController());
@@ -166,7 +179,7 @@ const useWaggleDanceMachine = ({
 
   useEffect(() => {
     setGraphData(dagToGraphData(dag, taskStates));
-  }, [dag, taskStates]);
+  }, [dag, taskStates, setGraphData]);
 
   const stop = useCallback(() => {
     if (!abortController.signal.aborted) {
@@ -176,17 +189,25 @@ const useWaggleDanceMachine = ({
 
   // main entrypoint
   const run = useCallback(async () => {
-    setAbortController(new AbortController());
+    const abortController = new AbortController()
+    setAbortController(abortController);
 
     const maxTokens = llmResponseTokenLimit(LLM.smart)
 
     if (!isDonePlanning) {
-      setDAG(new DAG(initialNodes(goal, LLM.smart), initialEdges()));
+      setDAG(new DAG(initialNodes(goal?.prompt ?? "", LLM.smart), initialEdges()));
+    }
+
+    const prompt = goal?.prompt
+    const goalId = goal?.id
+    if (!prompt || !goalId) {
+      throw new Error("Goal not set");
     }
 
     const result = await waggleDanceMachine.run(
       {
-        goal,
+        goal: prompt,
+        goalId,
         creationProps: {
           modelName: llmOption === LLM.smart ? LLM.smart : LLM.fast,
           temperature: temperatureOption === "Stable" ? 0 : temperatureOption === "Balanced" ? 0.4 : 0.9,
@@ -219,7 +240,7 @@ const useWaggleDanceMachine = ({
     const res = result.results[0] as Record<string, TaskState>;
     res && setTaskResults(res)
     return result;
-  }, [stop, isDonePlanning, waggleDanceMachine, goal, llmOption, temperatureOption, dag, sendChainPacket, log, executionMethod, isRunning, abortController, setIsRunning]);
+  }, [isDonePlanning, waggleDanceMachine, goal, llmOption, temperatureOption, dag, sendChainPacket, log, executionMethod, isRunning, abortController, setIsRunning]);
 
   return { waggleDanceMachine, dag, graphData, stop, run, setIsDonePlanning, isDonePlanning, logs, taskStates, taskResults };
 };
