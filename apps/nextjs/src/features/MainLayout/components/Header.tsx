@@ -181,7 +181,7 @@ const Header = ({}) => {
               </Tooltip>
             ) : (
               <Typography className="p-2">
-                <NextLink href="/auth/signin">Sign in/up</NextLink>
+                <NextLink href="/api/auth/signin">Sign in/up</NextLink>
               </Typography>
             )}
           </MenuItem>

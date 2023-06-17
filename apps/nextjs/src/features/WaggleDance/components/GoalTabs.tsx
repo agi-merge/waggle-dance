@@ -138,7 +138,7 @@ const GoalTab: React.FC<GoalTabProps> = ({ tab, index }) => {
               {sessionData?.user.id ? (
                 <Typography level="body5">Not saved</Typography>
               ) : (
-                <NextLink href="/auth/signin">
+                <NextLink href="/api/auth/signin">
                   <Typography level="body5">Sign in</Typography>
                 </NextLink>
               )}

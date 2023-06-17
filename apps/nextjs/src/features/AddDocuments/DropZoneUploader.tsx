@@ -92,7 +92,7 @@ export default function DropZoneUploader({ sx, ...props }: DropZoneProps) {
       return uploadResponse;
     } else {
       console.error(response);
-      void router.push("/auth/signin");
+      void router.push("/api/auth/signin");
       throw new Error(response.statusText);
     }
   };
