@@ -3,6 +3,7 @@
 import { create } from "zustand";
 import { persist, createJSONStorage } from "zustand/middleware";
 import { app } from "~/constants";
+import { LLM } from "@acme/chain/src/utils/types";
 
 export interface WaggleDanceMachineStore {
   isRunning: boolean;
@@ -28,7 +29,7 @@ const useWaggleDanceMachineStore = create(
       setExecutionMethod: (newValue) => set({ executionMethod: newValue }),
       temperatureOption: "Stable",
       setTemperatureOption: (newValue) => set({ temperatureOption: newValue }),
-      llmOption: "gpt-4-0613",
+      llmOption: LLM.fast,
       setLLMOption: (newValue) => set({ llmOption: newValue }),
     }),
     {
