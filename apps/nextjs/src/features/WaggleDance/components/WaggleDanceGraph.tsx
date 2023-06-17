@@ -39,14 +39,13 @@ import ReactMarkdown from "react-markdown";
 import remarkGfm from "remark-gfm";
 import { stringify } from "yaml";
 
-import AddDocuments from "~/pages/add-documents";
+import GoalSettings from "~/features/GoalMenu/components/GoalSettings";
 import { type GoalPlusExe } from "~/stores/goalStore";
 import useWaggleDanceMachineState from "~/stores/waggleDanceStore";
 import { rootPlanId } from "../WaggleDanceMachine";
 import useWaggleDanceMachine, {
   type TaskState,
 } from "../hooks/useWaggleDanceMachine";
-import DocsModal from "./DocsModal";
 import ForceGraph from "./ForceGraph";
 
 type WaggleDanceGraphProps = {
@@ -56,11 +55,6 @@ type WaggleDanceGraphProps = {
 const WaggleDanceGraph = ({ selectedGoal }: WaggleDanceGraphProps) => {
   const { isRunning, setIsRunning, isAutoStartEnabled, setIsAutoStartEnabled } =
     useWaggleDanceMachineState();
-
-  const selectedExecution = useMemo(
-    () => selectedGoal?.executions?.[0],
-    [selectedGoal?.executions],
-  );
 
   const { graphData, dag, stop, run, logs, taskStates } = useWaggleDanceMachine(
     {
@@ -110,9 +104,7 @@ const WaggleDanceGraph = ({ selectedGoal }: WaggleDanceGraphProps) => {
       className="flex items-center justify-end"
     >
       <Box className="items-center justify-center align-top">
-        <DocsModal>
-          <AddDocuments />
-        </DocsModal>
+        <GoalSettings />
       </Box>
       <Button
         className="col-end p-2"
@@ -165,8 +157,6 @@ const WaggleDanceGraph = ({ selectedGoal }: WaggleDanceGraphProps) => {
 
   return (
     <Stack gap="1rem">
-      {!isRunning && button}
-
       {dag.nodes.length > 0 && (
         <Tabs
           size="sm"
@@ -450,7 +440,7 @@ const WaggleDanceGraph = ({ selectedGoal }: WaggleDanceGraphProps) => {
           )}
         </Tabs>
       )}
-      {isRunning && button}
+      {button}
     </Stack>
   );
 };
