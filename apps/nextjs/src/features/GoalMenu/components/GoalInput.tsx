@@ -74,7 +74,6 @@ export default function GoalInput({}: GoalInputProps) {
                 goal,
               );
               upsertGoal(goal, selectedGoal?.id);
-              // void router.push(`/goal/${goal.id}`);
             },
           },
         );
