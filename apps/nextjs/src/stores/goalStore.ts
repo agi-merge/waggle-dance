@@ -61,7 +61,7 @@ const getNewSelection = (get: () => GoalStore, newTabIndex: number) => {
   };
 }
 
-const useGoalStore = create(
+const useGoalStore = (name?: string) => create(
   persist<GoalStore>(
     (set, get) => ({
       goalList: [baseTab],
@@ -188,9 +188,9 @@ const useGoalStore = create(
         }
       },
     }), {
-    name: app.localStorageKeys.goal,
+    name: name ?? app.localStorageKeys.goal,
     storage: createJSONStorage(() => sessionStorage), // alternatively use: localStorage
   })
-);
+)();
 
 export default useGoalStore;
