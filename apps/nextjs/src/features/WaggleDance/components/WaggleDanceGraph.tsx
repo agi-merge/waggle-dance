@@ -335,7 +335,7 @@ const WaggleDanceGraph = ({ selectedGoal }: WaggleDanceGraphProps) => {
                             </ListItemButton>
                           </ListItem>
 
-                          {n.status === "working" && (
+                          {isRunning && n.status === "working" && (
                             <LinearProgress thickness={1} />
                           )}
                           <Card

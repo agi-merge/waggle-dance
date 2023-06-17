@@ -12,6 +12,7 @@ import useWaggleDanceMachineStore from "~/stores/waggleDanceStore";
 import { env } from "~/env.mjs";
 import { stringify } from "yaml";
 import { type GoalPlusExe } from "~/stores/goalStore";
+import { type WaggleDanceResult } from "../types";
 
 interface UseWaggleDanceMachineProps {
   goal: GoalPlusExe | undefined;
@@ -204,43 +205,53 @@ const useWaggleDanceMachine = ({
       throw new Error("Goal not set");
     }
 
-    const result = await waggleDanceMachine.run(
-      {
-        goal: prompt,
-        goalId,
-        creationProps: {
-          modelName: llmOption === LLM.smart ? LLM.smart : LLM.fast,
-          temperature: temperatureOption === "Stable" ? 0 : temperatureOption === "Balanced" ? 0.4 : 0.9,
-          maxTokens,
-          maxConcurrency: 4,
-          frequencyPenalty: 0.4,
-          topP: 0.95,
-          streaming: true,
-          verbose: env.NEXT_PUBLIC_LANGCHAIN_VERBOSE === "true",
+    let result: WaggleDanceResult | Error;
+    try {
+      result = await waggleDanceMachine.run(
+        {
+          goal: prompt,
+          goalId,
+          creationProps: {
+            modelName: llmOption === LLM.smart ? LLM.smart : LLM.fast,
+            temperature: temperatureOption === "Stable" ? 0 : temperatureOption === "Balanced" ? 0.4 : 0.9,
+            maxTokens,
+            maxConcurrency: 4,
+            frequencyPenalty: 0.4,
+            topP: 0.95,
+            streaming: true,
+            verbose: env.NEXT_PUBLIC_LANGCHAIN_VERBOSE === "true",
+          },
         },
-      },
-      [dag, setDAG],
-      [isDonePlanning, setIsDonePlanning],
-      sendChainPacket,
-      log,
-      executionMethod,
-      isRunning,
-      abortController.signal
-    );
+        [dag, setDAG],
+        [isDonePlanning, setIsDonePlanning],
+        sendChainPacket,
+        log,
+        executionMethod,
+        isRunning,
+        abortController.signal
+      );
+    } catch (error) {
+      if (error instanceof Error) {
+        result = error;
+      } else {
+        result = new Error(`Unknown error ${JSON.stringify(error)}`);
+      }
+    }
 
     console.log("waggleDanceMachine.run result", result);
+
+    setIsRunning(false);
 
     if (result instanceof Error) {
       console.error("Error in WaggleDanceMachine's run:", result);
       return;
+    } else {
+      console.log("result", result);
+      const res = result.results[0] as Record<string, TaskState>;
+      res && setTaskResults(res)
+      return result;
     }
-
-    console.log("result", result);
-    setIsRunning(false);
-    const res = result.results[0] as Record<string, TaskState>;
-    res && setTaskResults(res)
-    return result;
-  }, [isDonePlanning, waggleDanceMachine, goal, llmOption, temperatureOption, dag, sendChainPacket, log, executionMethod, isRunning, abortController, setIsRunning]);
+  }, [isDonePlanning, waggleDanceMachine, goal, llmOption, temperatureOption, dag, sendChainPacket, log, executionMethod, isRunning, setIsRunning]);
 
   return { waggleDanceMachine, dag, graphData, stop, run, setIsDonePlanning, isDonePlanning, logs, taskStates, taskResults };
 };
