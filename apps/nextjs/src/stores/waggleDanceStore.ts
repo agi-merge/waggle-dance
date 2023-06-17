@@ -23,7 +23,7 @@ const useWaggleDanceMachineStore = create(
     (set, _get) => ({
       isRunning: false,
       setIsRunning: (newState) => set({ isRunning: newState }),
-      isAutoStartEnabled: false,
+      isAutoStartEnabled: true,
       setIsAutoStartEnabled: (newState) => set({ isAutoStartEnabled: newState }),
       executionMethod: "Faster, less accurate",
       setExecutionMethod: (newValue) => set({ executionMethod: newValue }),
@@ -35,6 +35,10 @@ const useWaggleDanceMachineStore = create(
     {
       name: app.localStorageKeys.waggleDance,
       storage: createJSONStorage(() => sessionStorage), // alternatively use: localStorage
+      partialize: (state: WaggleDanceMachineStore) =>
+        Object.fromEntries(
+          Object.entries(state).filter(([key]) => !['isRunning'].includes(key))
+        ) as WaggleDanceMachineStore,
     }
   )
 )
