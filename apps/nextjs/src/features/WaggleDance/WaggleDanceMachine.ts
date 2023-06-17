@@ -33,7 +33,7 @@ export const initialNodes = (goal: string, _modelName: string) => [
     rootPlanId,
     `👸🐝 Queen Bee`,
     `Planning how to achieve your goal`,
-    { goal },
+    goal,
   ),
 ]
 export const initialEdges = () => []

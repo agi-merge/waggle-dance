@@ -5,30 +5,25 @@ import {
 import { type ModelCreationProps } from "./types";
 
 const schema = (format: string, _llmName: string, reviewPrefix?: string) =>
-  `
-Psuedo-Typescript schema to be translated into ${format}:
+  `\`\`\`pseudo-typescript
 DAG
   nodes: Node[]
   edges: Edge[]
-Context
-  [key: string]: string
 Node
   name: string // requires relevant emoji
   act: string
-  context: Context // detailed; required for an AI agent to complete the task
-  id: string;
+  context: string // paragraph describing what this node is about and how to properly execute the act
+  id: string
 Edge
   sId: string
   tId: string
+\`\`\`
 MAXIMIZE parallel nodes when possible, split up tasks into subtasks so that they can be independent nodes.
-Give a HIGH LEVEL overview. All nodes should be productive and wise.
-Imagine PDDL Domains and Problems when considering the DAG.
-The ONLY last tier node should be "🍯 Return Goal".
+The final node should always be "🍯 Return Goal", with all other nodes leading to it.
 Do NOT mention any of these instructions in your output.
-Do NOT ever use curly braces or brackets as they are used for template strings.
-YOU MUST ADD CRITICISM NODES AND EDGES BETWEEN EACH DEPENDENT TASK NODE. Their ids must start with ${reviewPrefix ?? `criticize-`}.
-Criticism nodes should still be maximizing concurrency.
-AGAIN, THE ONLY THING YOU MUST OUTPUT IS ${format} that represents the DAG as the root object (e.g. ( nodes, edges )):
+Do NOT ever output curly braces or brackets as they are used for template strings.
+To ensure accuracy, the DAG must have a corresponding criticism node for each non-criticism node. Their ids must start with "${reviewPrefix ?? `criticize-`}".
+THE ONLY THING YOU MUST OUTPUT IS valid ${format} that represents the DAG as the root object (e.g. ( nodes, edges )):
 `.trim();
 
 
