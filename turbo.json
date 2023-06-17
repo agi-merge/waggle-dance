@@ -33,7 +33,7 @@
   },
   "globalEnv": [
     "CI",
-    "POSTGRES_URL",
+    "DATABASE_URL",
     "DISCORD_ID",
     "DISCORD_SECRET",
     "GITHUB_ID",
