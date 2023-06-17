@@ -55,7 +55,6 @@ function separateWords(input: string): string {
 }
 
 // Example usage:
-console.log(separateWords("camelCase"));
 function wrapText(
   text: string,
   maxWidth: number,
