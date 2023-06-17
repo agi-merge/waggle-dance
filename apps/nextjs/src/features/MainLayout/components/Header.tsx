@@ -65,7 +65,6 @@ const Header = ({}) => {
   }, [slug]) as string;
 
   const activeIndex = useMemo(() => {
-    console.log("slug", cleanedSlug);
     if (cleanedSlug === "new") {
       return 0;
     }
