@@ -13,7 +13,7 @@ Node
   name: string // requires relevant emoji
   act: string
   context: string // paragraph describing what this node is about and how to properly execute the act
-  id: string
+  id: uuid
 Edge
   sId: string
   tId: string
