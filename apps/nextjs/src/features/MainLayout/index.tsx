@@ -27,9 +27,7 @@ const MainLayout = ({ children, openAIUsage }: Props) => {
   const [mounted, setMounted] = useState(false);
 
   const { data: _historicGoals } = api.goal.topByUser.useQuery(undefined, {
-    refetchOnMount: true,
     networkMode: "offlineFirst",
-    refetchOnWindowFocus: false,
     onSuccess: (data) => {
       replaceGoals(data);
     },

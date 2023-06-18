@@ -157,6 +157,7 @@ const WaggleDanceGraph = ({ selectedGoal }: WaggleDanceGraphProps) => {
 
   return (
     <Stack gap="1rem">
+      {button}
       {dag.nodes.length > 0 && (
         <Tabs
           size="sm"
@@ -386,7 +387,7 @@ const WaggleDanceGraph = ({ selectedGoal }: WaggleDanceGraphProps) => {
                   aria-label="Results List"
                 >
                   {taskStates
-                    .filter((t) => t.result)
+                    .filter((t) => !!t.result)
                     .map((t) => (
                       <Box key={t.id}>{t.result}</Box>
                     ))}
@@ -440,7 +441,7 @@ const WaggleDanceGraph = ({ selectedGoal }: WaggleDanceGraphProps) => {
           )}
         </Tabs>
       )}
-      {button}
+      {dag.nodes.length > 0 && button}
     </Stack>
   );
 };

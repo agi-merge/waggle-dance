@@ -136,7 +136,7 @@ const GoalTab: React.FC<GoalTabProps> = ({ tab, index }) => {
           <Tooltip title="Temporary, will be deleted upon page reload">
             <Chip size="sm" color="warning" variant="outlined">
               {sessionData?.user.id ? (
-                <Typography level="body5">Not saved</Typography>
+                <Typography level="body5">Draft</Typography>
               ) : (
                 <NextLink href="/api/auth/signin">
                   <Typography level="body5">Sign in</Typography>
@@ -147,7 +147,7 @@ const GoalTab: React.FC<GoalTabProps> = ({ tab, index }) => {
         ) : tab.userId.trim() !== "" ? (
           <Tooltip title="Saved to your account">
             <Chip size="sm" color="neutral" variant="outlined">
-              <Cloud />
+              <Cloud sx={{ marginBottom: "0.1rem" }} />
             </Chip>
           </Tooltip>
         ) : (
