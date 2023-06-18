@@ -56,7 +56,7 @@ export default async function planTasks(
         let result;
         while ((result = await reader.read()) && !result.done) {
             const chunk = new TextDecoder().decode(result.value);
-            if (abortSignal.aborted) break;
+            if (abortSignal.aborted) throw new Error("Signal aborted");
             chunks += chunk;
             try {
                 const packets = parse(chunks) as Partial<ChainPacket>[];
