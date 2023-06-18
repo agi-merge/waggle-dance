@@ -79,7 +79,14 @@ export type RawChainPacket = {
   p: ChainPacket;
 }
 
+export type ChainValues = Record<string, unknown>;
+
 export type ChainPacket =
+  // server-side only
+  | { type: "handleLLMNewToken", token: string }
+  | { type: "handleLLMError", err: unknown, runId: string, parentRunId?: string }
+  | { type: "handleChainEnd", outputs: ChainValues, runId: string, parentRunId?: string }
+  | { type: "handleAgentAction", action: { log: string, tool: string, toolInput: string } }
   // our callbacks
   | { type: "done", nodeId: string, value: string }
   | { type: "error"; nodeId: string, severity: "warn" | "human" | "fatal", message: string }

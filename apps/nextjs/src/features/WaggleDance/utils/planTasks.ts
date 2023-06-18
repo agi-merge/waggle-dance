@@ -59,9 +59,17 @@ export default async function planTasks(
             if (abortSignal.aborted) break;
             chunks += chunk;
             try {
-                const yaml = parse(chunks) as unknown;
-                if (yaml && yaml as OptionalDAG) {
-                    const optDag = yaml as OptionalDAG
+                const packets = parse(chunks) as Partial<ChainPacket>[];
+                // reduce packets to a single concatenated string of tokens
+                const tokens = packets.reduce((prev, curr) => {
+                    if (curr.type === "handleLLMNewToken" && curr.token) {
+                        return prev + curr.token;
+                    }
+                    return prev;
+                }, "");
+                const yaml = parse(tokens) as Partial<DAG>;
+                if (yaml && yaml) {
+                    const optDag = yaml;
                     const validNodes = optDag.nodes?.filter((n) => n.name.length > 0 && n.act.length > 0 && n.id.length > 0 && n.context);
                     const validEdges = optDag.edges?.filter((n) => n.sId.length > 0 && n.tId.length > 0);
                     if (validNodes?.length) {

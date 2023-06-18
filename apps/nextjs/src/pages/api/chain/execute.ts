@@ -54,6 +54,7 @@ const handler = async (req: IncomingMessage, res: NextApiResponse) => {
 
       handleChainError(err: Error, runId: string, parentRunId?: string) {
         console.error("handleChainError", { err, runId, parentRunId });
+        res.write(stringify([{ type: "handleChainError", err: err.message, runId, parentRunId }]));
       },
     };
 

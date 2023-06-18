@@ -4,6 +4,7 @@ import { type ChainPacket } from "@acme/chain";
 import { type ExecuteRequestBody } from "~/pages/api/chain/types";
 import { type DAGNode } from "../DAG";
 import { type BaseResultType } from "../types";
+import { parse } from "yaml";
 
 // A utility function to wait for a specified amount of time (ms)
 export function sleep(ms: number): Promise<void> {
@@ -89,11 +90,20 @@ export default async function executeTask(
                             // Decode response data
                             // Process response data and store packets in completedTasksSet and taskResults
                             // const packet = parse(buffer)
+                            const packets = parse(buffer) as Partial<ChainPacket>[];
+                            // reduce packets to a single concatenated string of tokens
+                            const tokens = packets.reduce((prev, curr) => {
+                                if (curr.type === "handleLLMNewToken" && curr.token) {
+                                    return prev + curr.token;
+                                }
+                                return prev;
+                            }, "");
 
                             completedTasksSet.add(task.id);
-                            taskResults[task.id] = buffer;
-                            const packet = { type: "done", nodeId: task.id, value: buffer } as ChainPacket
-                            log(`Stream ended, raw buffer for ${task.id}: ${buffer}`, "packet", packet)
+                            taskResults[task.id] = tokens;
+                            const packet = { type: "done", nodeId: task.id, value: tokens } as ChainPacket
+                            log(`Stream ended, raw buffer for ${task.id}: ${tokens}`, "packet", packet)
+                            debugger;
                             sendChainPacket(packet, task)
                             return packet;
                         } else if (value.length) {

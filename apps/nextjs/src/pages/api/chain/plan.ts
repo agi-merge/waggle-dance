@@ -1,9 +1,10 @@
 // api/chain/plan.ts
 
-import { createPlanningAgent } from "@acme/chain";
+import { type ChainValues, createPlanningAgent } from "@acme/chain";
 import { type StrategyRequestBody } from "./types";
 import { type NextRequest } from "next/server";
 import { rootPlanId } from "~/features/WaggleDance/WaggleDanceMachine";
+import { stringify } from "yaml";
 
 export const config = {
   api: {
@@ -31,8 +32,24 @@ export default async function PlanStream(req: NextRequest) {
       async start(controller) {
         const inlineCallback = {
           handleLLMNewToken(token: string) {
-            controller.enqueue(encoder.encode(token));
+            const packet = { type: "handleLLMNewToken", token }
+            controller.enqueue(encoder.encode(stringify([packet])));
           },
+
+          handleChainError(err: Error, runId: string, parentRunId?: string) {
+            console.error("handleChainError", { err, runId, parentRunId });
+            controller.enqueue(encoder.encode(stringify([{ type: "handleChainError", err: err.message, runId, parentRunId }])));
+          },
+
+          handleChainEnd(outputs: ChainValues, runId: string, parentRunId?: string) {
+            controller.enqueue(encoder.encode(stringify([{ type: "handleChainEnd", outputs, runId, parentRunId }])));
+          },
+
+          handleAgentAction(action: { log: string, tool: string, toolInput: string },
+            runId: string,
+            parentRunId?: string) {
+            controller.enqueue(encoder.encode(stringify([{ type: "handleAgentAction", action, runId, parentRunId }])));
+          }
         };
 
         const callbacks = [inlineCallback];
