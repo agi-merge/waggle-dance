@@ -70,8 +70,10 @@ const useWaggleDanceMachine = ({
       case "handleAgentAction":
         return TaskStatus.working;
       case "done":
+      case "handleChainEnd":
         return TaskStatus.done;
       case "error":
+      case "handleChainError":
         return TaskStatus.error;
       case "working":
         return TaskStatus.working;

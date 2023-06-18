@@ -101,7 +101,7 @@ export async function createExecutionAgent(
 
   let executor;
   console.log("executionMethod", executionMethod);
-  if (executionMethod?.startsWith("Fast") ?? true) {
+  if (executionMethod?.startsWith("Fast") ?? true) { // FIXME: no stringly typed
     executor = await initializeAgentExecutorWithOptions(tools, llm, {
       agentType: "chat-conversational-react-description",
       streaming: true,

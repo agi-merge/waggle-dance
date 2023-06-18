@@ -1,7 +1,7 @@
 // api/chain/execute.ts
 
 import { type ExecuteRequestBody } from "./types";
-import { createExecutionAgent } from "@acme/chain";
+import { type ChainValues, createExecutionAgent, type ChainPacket } from "@acme/chain";
 import { stringify } from "yaml";
 import { type NextApiRequest, type NextApiResponse } from "next";
 import { getServerSession } from "@acme/auth";
@@ -44,18 +44,28 @@ const handler = async (req: IncomingMessage, res: NextApiResponse) => {
       "Content-Type": "application/octet-stream",
       "Transfer-Encoding": "chunked",
     });
-    const customBuffer = Buffer.alloc(0);
 
     const inlineCallback = {
       handleLLMNewToken(token: string) {
-        customBuffer.write(token);
-        res.write(token);
+        const packet = { type: "handleLLMNewToken", token }
+        res.write(stringify([packet]));
       },
 
       handleChainError(err: Error, runId: string, parentRunId?: string) {
         console.error("handleChainError", { err, runId, parentRunId });
         res.write(stringify([{ type: "handleChainError", err: err.message, runId, parentRunId }]));
       },
+
+      handleChainEnd(outputs: ChainValues, runId: string, parentRunId?: string) {
+        const packet: ChainPacket = { type: "handleChainEnd", nodeId: goalId, outputs, runId, parentRunId }
+        res.write(stringify([packet]));
+      },
+
+      handleAgentAction(action: { log: string, tool: string, toolInput: string },
+        runId: string,
+        parentRunId?: string) {
+        res.write(stringify([{ type: "handleAgentAction", action, runId, parentRunId }]));
+      }
     };
 
     const callbacks = [inlineCallback];
@@ -74,11 +84,11 @@ const handler = async (req: IncomingMessage, res: NextApiResponse) => {
       reviewPrefix,
       session?.user.id
     );
-    const value = customBuffer.toString();
+
     if (session?.user.id) {
       try {
         const caller = appRouter.createCaller({ session, prisma });
-        const createResultOptions = { goalId, value: value.length > 0 ? value : exeResult, graph: dag };
+        const createResultOptions = { goalId, value: exeResult, graph: dag };
         console.log("createResultOptions", createResultOptions);
         const _createResult = await caller.goal.createResult(createResultOptions);
         console.log("_createResult", _createResult);

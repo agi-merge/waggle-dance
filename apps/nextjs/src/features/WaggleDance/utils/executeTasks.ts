@@ -82,7 +82,8 @@ export default async function executeTask(
 
                 // Read the stream data and process based on response
                 const reader = stream.getReader();
-                let buffer = ""
+                let tokens = "";
+                let buffer = Buffer.alloc(0);
                 try {
                     while (true) {
                         const { done, value } = await reader.read();
@@ -90,15 +91,14 @@ export default async function executeTask(
                             // Decode response data
                             // Process response data and store packets in completedTasksSet and taskResults
                             // const packet = parse(buffer)
-                            const packets = parse(buffer) as Partial<ChainPacket>[];
-                            // reduce packets to a single concatenated string of tokens
-                            const tokens = packets.reduce((prev, curr) => {
-                                if (curr.type === "handleLLMNewToken" && curr.token) {
-                                    return prev + curr.token;
+                            // Process buffer to extract tokens, update concatenatedTokens, and process packets
+                            const packets = parse(buffer.toString()) as Partial<ChainPacket>[];
+                            packets.forEach((packet) => {
+                                if (packet.type === "handleLLMNewToken" && packet.token) {
+                                    tokens += packet.token;
                                 }
-                                return prev;
-                            }, "");
-
+                            });
+                            debugger;
                             completedTasksSet.add(task.id);
                             taskResults[task.id] = tokens;
                             const packet = { type: "done", nodeId: task.id, value: tokens } as ChainPacket
@@ -107,21 +107,7 @@ export default async function executeTask(
                             sendChainPacket(packet, task)
                             return packet;
                         } else if (value.length) {
-                            // buffer.set(value, buffer.length);
-                            const data = decoder.decode(value);
-                            buffer += data
-                            // const jsonLines = decodeText(value);
-                            // console.log("jsonLines", jsonLines)
-                            // const lastNewLineIndex = jsonLines.lastIndexOf("\n");
-                            // buffer += lastNewLineIndex === jsonLines.length - 1 ? jsonLines : jsonLines.slice(0, lastNewLineIndex + 1);
-
-                            // try {
-                            //     const packet = parse(buffer) as ChainPacket;
-                            //     log("packet", packet)
-                            //     sendChainPacket(packet, task);
-                            // } catch {
-                            //     // normal, do nothing
-                            // }
+                            buffer = Buffer.concat([buffer, Buffer.from(value)]);
                         }
                     }
                 } catch (error) {

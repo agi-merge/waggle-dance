@@ -2,7 +2,7 @@
 
 import { type ChainPacket, type ModelCreationProps } from "@acme/chain";
 import { parse } from "yaml";
-import DAG, { type OptionalDAG, DAGEdgeClass, type DAGNode } from "../DAG";
+import DAG, { DAGEdgeClass, type DAGNode } from "../DAG";
 import { initialNodes, initialEdges, findNodesWithNoIncomingEdges, rootPlanId, type OptimisticFirstTaskState } from "../WaggleDanceMachine";
 
 
@@ -47,6 +47,7 @@ export default async function planTasks(
             throw new Error("No initial node")
         }
     }
+
     async function streamToString(stream: ReadableStream<Uint8Array>): Promise<string> {
         let chunks = "" as string;
         const reader = stream.getReader();
