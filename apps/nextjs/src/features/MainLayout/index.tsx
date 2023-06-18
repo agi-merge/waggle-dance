@@ -28,6 +28,7 @@ const MainLayout = ({ children, openAIUsage }: Props) => {
 
   const { data: _historicGoals } = api.goal.topByUser.useQuery(undefined, {
     networkMode: "offlineFirst",
+    refetchOnWindowFocus: false,
     onSuccess: (data) => {
       replaceGoals(data);
     },
