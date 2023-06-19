@@ -2,7 +2,8 @@
 
 import { type ChainPacket, type ModelCreationProps } from "@acme/chain";
 import { parse } from "yaml";
-import DAG, { DAGEdgeClass, type DAGNode } from "../DAG";
+import DAG from "../DAG";
+import { DAGEdgeClass, type DAGNode } from "../DAG";
 import { initialNodes, initialEdges, findNodesWithNoIncomingEdges, rootPlanId, type OptimisticFirstTaskState } from "../WaggleDanceMachine";
 
 
@@ -47,65 +48,76 @@ export default async function planTasks(
             throw new Error("No initial node")
         }
     }
+    let buffer = Buffer.alloc(0);
+    const bufferWindowDuration = 500;
+    let parseInterval: ReturnType<typeof setInterval> | null = null;
 
+    function parseBuffer() {
+        try {
+            const packets = parse(buffer.toString()) as Partial<ChainPacket>[];
+            let tokens = "";
+            packets.forEach((packet) => {
+                if (packet.type === "handleLLMNewToken" && packet.token) {
+                    tokens += packet.token;
+                }
+            });
+            const yaml = parse(tokens) as Partial<DAG>;
+            if (yaml && yaml) {
+                const optDag = yaml;
+                const validNodes = optDag.nodes?.filter((n) => n.name.length > 0 && n.act.length > 0 && n.id.length > 0 && n.context);
+                const validEdges = optDag.edges?.filter((n) => n.sId.length > 0 && n.tId.length > 0);
+                if (validNodes?.length) {
+                    const hookupEdges = findNodesWithNoIncomingEdges(optDag).map((node) => new DAGEdgeClass(rootPlanId, node.id))
+                    const partialDAG = new DAG(
+                        [...initialNodes(goal, creationProps.modelName), ...validNodes],
+                        // connect our initial nodes to the DAG: gotta find them and create edges
+                        [...initialEdges(), ...validEdges ?? [], ...hookupEdges],
+                        // optDag?.init ?? initialCond,
+                        // optDag?.goal ?? initialCond,
+                    );
+                    const diffNodesCount = partialDAG.nodes.length - dag.nodes.length
+                    const newEdgesCount = partialDAG.edges.length - dag.edges.length
+                    if (diffNodesCount || newEdgesCount) {
+                        // FIXME: this gets called 4x for some reason
+                        // if (newEdgesCount) {
+                        //     log("newEdgesCount", newEdgesCount)
+                        // } else {
+                        //     log("diffNodesCount", diffNodesCount)
+                        // }
+                        setDAG(partialDAG)
+                    }
+                    const firstNode = validNodes[0]
+                    if (startFirstTask && taskState.firstTaskState === "not started" && firstNode && validNodes.length > 0) { // would be 0, but params can be cut off
+                        updateTaskState && updateTaskState("started");
+                        void startFirstTask(firstNode, partialDAG);
+                    }
+                }
+            }
+
+        } catch (error) {
+            console.error(error)
+            // normal, do nothing
+        }
+    }
     async function streamToString(stream: ReadableStream<Uint8Array>): Promise<string> {
-        let chunks = "" as string;
         const reader = stream.getReader();
 
-        updateTaskState && updateTaskState("not started")
+        updateTaskState && updateTaskState("not started");
+
+        parseInterval = setInterval(() => {
+            parseBuffer();
+        }, bufferWindowDuration);
 
         let result;
         while ((result = await reader.read()) && !result.done) {
-            const chunk = new TextDecoder().decode(result.value);
             if (abortSignal.aborted) throw new Error("Signal aborted");
-            chunks += chunk;
-            try {
-                const packets = parse(chunks) as Partial<ChainPacket>[];
-                // reduce packets to a single concatenated string of tokens
-                const tokens = packets.reduce((prev, curr) => {
-                    if (curr.type === "handleLLMNewToken" && curr.token) {
-                        return prev + curr.token;
-                    }
-                    return prev;
-                }, "");
-                const yaml = parse(tokens) as Partial<DAG>;
-                if (yaml && yaml) {
-                    const optDag = yaml;
-                    const validNodes = optDag.nodes?.filter((n) => n.name.length > 0 && n.act.length > 0 && n.id.length > 0 && n.context);
-                    const validEdges = optDag.edges?.filter((n) => n.sId.length > 0 && n.tId.length > 0);
-                    if (validNodes?.length) {
-                        const hookupEdges = findNodesWithNoIncomingEdges(optDag).map((node) => new DAGEdgeClass(rootPlanId, node.id))
-                        const partialDAG = new DAG(
-                            [...initialNodes(goal, creationProps.modelName), ...validNodes],
-                            // connect our initial nodes to the DAG: gotta find them and create edges
-                            [...initialEdges(), ...validEdges ?? [], ...hookupEdges],
-                            // optDag?.init ?? initialCond,
-                            // optDag?.goal ?? initialCond,
-                        );
-                        const diffNodesCount = partialDAG.nodes.length - dag.nodes.length
-                        const newEdgesCount = partialDAG.edges.length - dag.edges.length
-                        if (diffNodesCount || newEdgesCount) {
-                            // FIXME: this gets called 4x for some reason
-                            // if (newEdgesCount) {
-                            //     log("newEdgesCount", newEdgesCount)
-                            // } else {
-                            //     log("diffNodesCount", diffNodesCount)
-                            // }
-                            setDAG(partialDAG)
-                        }
-                        const firstNode = validNodes[0]
-                        if (startFirstTask && taskState.firstTaskState === "not started" && firstNode && validNodes.length > 0) { // would be 0, but params can be cut off
-                            updateTaskState && updateTaskState("started");
-                            void startFirstTask(firstNode, partialDAG);
-                        }
-                    }
-                }
-            } catch {
-                // normal, do nothing
-            }
+            buffer = Buffer.concat([buffer, Buffer.from(result.value)]);
         }
 
-        return chunks;
+        clearInterval(parseInterval); // Clear the interval when the stream is done
+        parseBuffer(); // Parse any remaining data after the stream ends
+
+        return buffer.toString();
     }
 
     // Convert the ReadableStream<Uint8Array> to a string
