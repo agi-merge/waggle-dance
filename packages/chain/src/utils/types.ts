@@ -3,6 +3,7 @@
 import { type OpenAIEmbeddingsParams } from "langchain/embeddings/openai";
 import { type BaseLLMParams } from "langchain/llms/base";
 import { type OpenAIInput } from "langchain/llms/openai";
+import { type AgentAction, type AgentFinish, type LLMResult } from "langchain/schema";
 
 const TEXT_EMBEDDING_ADA = "text-embedding-ada-002";
 const GPT_35_TURBO = "gpt-3.5-turbo-0613";
@@ -83,14 +84,23 @@ export type ChainValues = Record<string, unknown>;
 
 export type ChainPacket =
   // server-side only
-  | { type: "handleLLMNewToken", nodeId: string, token: string }
-  | { type: "handleLLMError", nodeId: string, err: unknown, runId: string, parentRunId?: string }
-  | { type: "handleChainEnd", nodeId: string, outputs: ChainValues, runId: string, parentRunId?: string }
-  | { type: "handleAgentAction", nodeId: string, action: { log: string, tool: string, toolInput: string } }
+  | { type: "handleLLMStart", llm: { name: string; }, prompts: string[], runId: string, parentRunId?: string | undefined, extraParams?: Record<string, unknown> | undefined }
+  | { type: "handleLLMNewToken", token: string }
+  | { type: "handleLLMEnd", output: LLMResult, runId?: string, parentRunId?: string }
+  | { type: "handleLLMError", err: unknown, runId: string, parentRunId?: string }
+  | { type: "handleChainEnd", outputs: ChainValues, runId: string, parentRunId?: string }
+  | { type: "handleChainError", err: unknown, runId: string, parentRunId?: string }
+  | { type: "handleChainStart", chain: { name: string }, inputs: ChainValues, runId: string, parentRunId?: string }
+  | { type: "handleToolEnd", output: string, runId: string, parentRunId?: string }
+  | { type: "handleToolError", err: unknown, runId: string, parentRunId?: string }
+  | { type: "handleToolStart", tool: { name: string }, input: string, runId: string, parentRunId?: string }
+  | { type: "handleAgentAction", action: AgentAction, runId: string, parentRunId?: string }
+  | { type: "handleAgentEnd", action: AgentFinish, runId: string, parentRunId?: string }
+  | { type: "handleText", text: string, runId: string, parentRunId?: string }
   // our callbacks
-  | { type: "done", nodeId: string, value: string }
-  | { type: "error"; nodeId: string, severity: "warn" | "human" | "fatal", message: string }
-  | { type: "requestHumanInput"; nodeId: string, reason: string }
+  | { type: "done", value: string }
+  | { type: "error"; severity: "warn" | "human" | "fatal", message: string }
+  | { type: "requestHumanInput"; reason: string }
   // client-side only
   | { type: "starting"; nodeId: string }
   | { type: "working"; nodeId: string };

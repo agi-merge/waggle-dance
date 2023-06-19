@@ -31,13 +31,12 @@ const executeBaseSchema = (format: string, _llmName: string) =>
   `
 Psuedo-Typescript schema to be translated into ${format}:
 type ChainPacket =
-| type: "done", nodeId: string, value: string
-| type: "error"; nodeId: string, severity: "warn" | "human" | "fatal", message: string
-| type: "requestHumanInput"; nodeId: string, reason: string
+| type: "done"; value: string
+| type: "error"; severity: "warn" | "human" | "fatal", message: string
+| type: "requestHumanInput"; reason: string
 example
 p:
   - type: "xyz"
-  - nodeId: string,
   … others
 
 When outputting URLs, ensure that they do not HTTP 4xx+ using a Web Browser Tool.
