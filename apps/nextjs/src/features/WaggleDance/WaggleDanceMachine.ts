@@ -117,9 +117,9 @@ export default class WaggleDanceMachine {
       };
 
       dag = await planTasks(request.goal, request.goalId, request.creationProps, initDAG, setDAG, log, sendChainPacket, taskState, abortSignal, updateTaskState, startFirstTask);
-      if (dag && dag.nodes && dag.nodes[0]) {
-        const node = dag.nodes[dag.nodes.length - 1]
-        node && sendChainPacket({ type: "done", value: "Planned an execution graph." }, node) || console.warn("node not found", rootPlanId)
+      if (dag && dag.nodes) {
+        const node = dag.nodes[0] || dag.nodes.find(n => n.id == rootPlanId);
+        node && sendChainPacket({ type: "done", value: "Planned an execution graph." }, node) || log("no root node to sendChainPacket")
       } else {
         log("no nodes in dag")
         throw new Error("no nodes in dag")
