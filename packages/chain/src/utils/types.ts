@@ -4,7 +4,7 @@ import { type OpenAIEmbeddingsParams } from "langchain/embeddings/openai";
 import { type BaseLLMParams } from "langchain/llms/base";
 import { type OpenAIInput } from "langchain/llms/openai";
 import { type AgentAction, type AgentFinish, type LLMResult } from "langchain/schema";
-import { type Serialized } from "langchain/dist/load/serializable";
+import { type Serialized } from "langchain/load/serializable";
 
 const TEXT_EMBEDDING_ADA = "text-embedding-ada-002";
 const GPT_35_TURBO = "gpt-3.5-turbo-0613";

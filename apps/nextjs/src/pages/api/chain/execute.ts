@@ -9,8 +9,8 @@ import { type IncomingMessage } from "http";
 import { appRouter } from "@acme/api";
 import { prisma } from "@acme/db";
 import { type AgentAction, type AgentFinish, type LLMResult } from "langchain/schema";
-import { type Serialized } from "langchain/dist/load/serializable";
-import { BaseCallbackHandler } from "langchain/dist/callbacks";
+import { type Serialized } from "langchain/load/serializable";
+import { BaseCallbackHandler } from "langchain/callbacks";
 
 export const config = {
   api: {
