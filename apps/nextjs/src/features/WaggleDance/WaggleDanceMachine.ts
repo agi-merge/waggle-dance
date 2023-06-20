@@ -82,6 +82,7 @@ export default class WaggleDanceMachine {
     const maxConcurrency = request.creationProps.maxConcurrency ?? 4;
 
     const startFirstTask = async (task: DAGNode, dag: DAG) => {
+      log("speed optimization: we are able to execute the first task while still planning.")
       taskState.firstTaskState = "started";
       taskState.taskId = task.id
       // Call the executeTasks function for the given task and update the states accordingly
