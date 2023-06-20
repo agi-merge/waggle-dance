@@ -49,10 +49,8 @@ export default async function planTasks(
         }
     }
     let buffer = Buffer.alloc(0);
-    const bufferWindowDuration = 500;
-    let parseInterval: ReturnType<typeof setInterval> | null = null;
     let tokens = "";
-    function parseBuffer() {
+    function parseBuffer(): DAG | undefined {
         try {
             // Parse the buffer and get the packets
             const newPackets = parse(buffer.toString()) as Partial<ChainPacket>[];
@@ -80,12 +78,13 @@ export default async function planTasks(
                     const newEdgesCount = partialDAG.edges.length - dag.edges.length
                     if (diffNodesCount || newEdgesCount) {
                         // FIXME: this gets called 4x for some reason
-                        // if (newEdgesCount) {
-                        //     log("newEdgesCount", newEdgesCount)
-                        // } else {
-                        //     log("diffNodesCount", diffNodesCount)
-                        // }
+                        if (newEdgesCount) {
+                            log("newEdgesCount", newEdgesCount)
+                        } else {
+                            log("diffNodesCount", diffNodesCount)
+                        }
                         setDAG(partialDAG)
+                        return partialDAG
                     }
                     const firstNode = validNodes[0]
                     if (startFirstTask && taskState.firstTaskState === "not started" && firstNode && validNodes.length > 0) { // would be 0, but params can be cut off
@@ -100,16 +99,10 @@ export default async function planTasks(
         }
     }
 
-    async function streamToString(stream: ReadableStream<Uint8Array>): Promise<string> {
+    async function streamToString(stream: ReadableStream<Uint8Array>): Promise<string | DAG> {
         const reader = stream.getReader();
 
         updateTaskState && updateTaskState("not started");
-
-        parseInterval = setInterval(() => {
-            if (!abortSignal.aborted) {
-                parseBuffer();
-            }
-        }, bufferWindowDuration);
 
         let result;
         while ((result = await reader.read()) && !result.done) {
@@ -132,21 +125,22 @@ export default async function planTasks(
             }
         }
 
-        clearInterval(parseInterval); // Clear the interval when the stream is done
-        parseBuffer(); // Parse any remaining data after the stream ends
-
-        return buffer.toString();
+        return tokens
     }
 
     // Convert the ReadableStream<Uint8Array> to a string
     const dagYamlString = await streamToString(stream);
 
-    log("dagYamlString", dagYamlString);
     try {
-        const dag = parse(dagYamlString) as unknown;
-        // log("dag", stringify(dag))
+        let dag: DAG;
+        if (typeof dagYamlString === "string") {
+            dag = parse(dagYamlString) as DAG;
+        } else {
+            dag = dagYamlString;
+        }
+
         // TODO: if this fails, spin up a ConstitutionChain w/ return type reinforcement
-        return dag as DAG;
+        return dag;
     } catch (error) {
         console.error(error);
         throw new Error(`Error parsing DAG: ${error}`);
