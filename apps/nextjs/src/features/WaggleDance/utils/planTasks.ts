@@ -96,7 +96,6 @@ export default async function planTasks(
             }
 
         } catch (error) {
-            console.error(error)
             // normal, do nothing
         }
     }
