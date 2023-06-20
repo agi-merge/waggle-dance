@@ -98,12 +98,10 @@ export default async function executeTask(
                                     tokens += packet.token;
                                 }
                             });
-                            debugger;
                             completedTasksSet.add(task.id);
                             taskResults[task.id] = tokens;
                             const packet = { type: "done", nodeId: task.id, value: tokens } as ChainPacket
                             log(`Stream ended, raw buffer for ${task.id}: ${tokens}`, "packet", packet)
-                            debugger;
                             sendChainPacket(packet, task)
                             return packet;
                         } else if (value.length) {
