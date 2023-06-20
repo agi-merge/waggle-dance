@@ -4,6 +4,7 @@ import { type OpenAIEmbeddingsParams } from "langchain/embeddings/openai";
 import { type BaseLLMParams } from "langchain/llms/base";
 import { type OpenAIInput } from "langchain/llms/openai";
 import { type AgentAction, type AgentFinish, type LLMResult } from "langchain/schema";
+import { type Serialized } from "langchain/dist/load/serializable";
 
 const TEXT_EMBEDDING_ADA = "text-embedding-ada-002";
 const GPT_35_TURBO = "gpt-3.5-turbo-0613";
@@ -84,16 +85,16 @@ export type ChainValues = Record<string, unknown>;
 
 export type ChainPacket =
   // server-side only
-  | { type: "handleLLMStart", llm: { name: string; }, prompts: string[], runId: string, parentRunId?: string | undefined, extraParams?: Record<string, unknown> | undefined }
+  | { type: "handleLLMStart", llm: Serialized, prompts: string[], runId: string, parentRunId?: string | undefined, extraParams?: Record<string, unknown> | undefined }
   | { type: "token", token: string } // handleLLMNewToken (shorted on purpose)
   | { type: "handleLLMEnd", output: LLMResult, runId?: string, parentRunId?: string }
   | { type: "handleLLMError", err: unknown, runId: string, parentRunId?: string }
   | { type: "handleChainEnd", outputs: ChainValues, runId: string, parentRunId?: string }
   | { type: "handleChainError", err: unknown, runId: string, parentRunId?: string }
-  | { type: "handleChainStart", chain: { name: string }, inputs: ChainValues, runId: string, parentRunId?: string }
+  | { type: "handleChainStart", chain: Serialized, inputs: ChainValues, runId: string, parentRunId?: string }
   | { type: "handleToolEnd", output: string, runId: string, parentRunId?: string }
   | { type: "handleToolError", err: unknown, runId: string, parentRunId?: string }
-  | { type: "handleToolStart", tool: { name: string }, input: string, runId: string, parentRunId?: string }
+  | { type: "handleToolStart", tool: Serialized, input: string, runId: string, parentRunId?: string }
   | { type: "handleAgentAction", action: AgentAction, runId: string, parentRunId?: string }
   | { type: "handleAgentEnd", action: AgentFinish, runId: string, parentRunId?: string }
   | { type: "handleText", text: string, runId: string, parentRunId?: string }

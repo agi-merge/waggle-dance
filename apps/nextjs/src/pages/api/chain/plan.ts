@@ -1,9 +1,8 @@
 // api/chain/plan.ts
 
-import { type ChainValues, createPlanningAgent, type ChainPacket } from "@acme/chain";
+import { createPlanningAgent, type ChainPacket } from "@acme/chain";
 import { type StrategyRequestBody } from "./types";
 import { type NextRequest } from "next/server";
-import { rootPlanId } from "~/features/WaggleDance/WaggleDanceMachine";
 import { stringify } from "yaml";
 
 export const config = {
@@ -15,7 +14,6 @@ export const config = {
 
 export default async function PlanStream(req: NextRequest) {
   console.log("plan request")
-  const nodeId = rootPlanId; // maybe goal.slice(0, 5)
   try {
     const {
       creationProps,
@@ -36,14 +34,25 @@ export default async function PlanStream(req: NextRequest) {
             controller.enqueue(encoder.encode(stringify([packet])));
           },
 
-          handleChainError(err: Error, runId: string, parentRunId?: string) {
-            console.error("handleChainError", { err, runId, parentRunId });
-            const packet: ChainPacket = { type: "handleChainError", err: err.message, runId, parentRunId }
+          handleChainError(err: unknown, runId: string, parentRunId?: string) {
+            let errorMessage = "";
+            if (err instanceof Error) {
+              errorMessage = err.message;
+            } else {
+              errorMessage = String(err);
+            }
+            const packet: ChainPacket = { type: "handleChainError", err: errorMessage, runId, parentRunId }
             controller.enqueue(encoder.encode(stringify([packet])));
           },
 
-          handleLLMError(err: any, runId: string, parentRunId?: string | undefined): void | Promise<void> {
-            const packet: ChainPacket = { type: "handleLLMError", err: err.message, runId, parentRunId }
+          handleLLMError(err: unknown, runId: string, parentRunId?: string | undefined): void | Promise<void> {
+            let errorMessage = "";
+            if (err instanceof Error) {
+              errorMessage = err.message;
+            } else {
+              errorMessage = String(err);
+            }
+            const packet: ChainPacket = { type: "handleLLMError", err: errorMessage, runId, parentRunId }
             controller.enqueue(encoder.encode(stringify([packet])));
           },
         };

@@ -79,7 +79,6 @@ export default async function executeTask(
                     sendChainPacket({ type: "working", nodeId: task.id }, task)
                     log(`Task ${task.id} -${task.name} stream began!`);
                 }
-                const decoder = new TextDecoder()
 
                 // Read the stream data and process based on response
                 const reader = stream.getReader();

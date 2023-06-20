@@ -1,7 +1,7 @@
 // utils/planTasks.ts
 
 import { type ChainPacket, type ModelCreationProps } from "@acme/chain";
-import { parse, parseDocument } from "yaml";
+import { parse } from "yaml";
 import DAG from "../DAG";
 import { DAGEdgeClass, type DAGNode } from "../DAG";
 import { initialNodes, initialEdges, findNodesWithNoIncomingEdges, rootPlanId, type OptimisticFirstTaskState } from "../WaggleDanceMachine";
