@@ -131,16 +131,6 @@ const useWaggleDanceMachine = ({
         // log(`Warning: node ${chainPacket.nodeId} not found in the dag during state update`);
         return;
       } else {
-        const newChainPackets = {
-          ...chainPackets,
-          [chainPacket.nodeId]: {
-            ...node,
-            status: TaskStatus.idle,
-            result: null,
-            packets: [chainPacket],
-          },
-        };
-        console.log("newChainPackets1", newChainPackets)
         setChainPackets((prevChainPackets) => ({
           ...prevChainPackets,
           [chainPacket.nodeId]: {
@@ -150,7 +140,6 @@ const useWaggleDanceMachine = ({
             packets: [chainPacket],
           },
         }));
-        console.log("After setChainPackets:", chainPackets);
       }
     } else {
       const updatedTask = {
@@ -159,17 +148,10 @@ const useWaggleDanceMachine = ({
         result: chainPacket.type === "done" ? chainPacket.value : chainPacket.type === "error" ? chainPacket.message : null,
         packets: [...existingTask.packets, chainPacket],
       } as TaskState;
-
-      const newChainPackets = {
-        ...chainPackets,
-        [chainPacket.nodeId]: updatedTask,
-      };
-      console.log("newChainPackets", newChainPackets)
       setChainPackets((prevChainPackets) => ({
         ...prevChainPackets,
         [chainPacket.nodeId]: updatedTask,
       }));
-      console.log("After setChainPackets:", chainPackets);
     }
   }, [chainPackets, setChainPackets]);
 
