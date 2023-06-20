@@ -105,7 +105,7 @@ const handler = async (req: IncomingMessage, res: NextApiResponse) => {
     console.error("execute error", all);
     const errorPacket = { type: "error", nodeId: "catch-all", severity: "fatal", message: JSON.stringify(all) };
     if (!res.headersSent) {
-      res.writeHead(500, {
+      res.writeHead(status, {
         "Content-Type": "application/json",
         "Transfer-Encoding": "chunked",
       });
