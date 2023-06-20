@@ -21,6 +21,7 @@ import { useSession } from "next-auth/react";
 import { api } from "~/utils/api";
 import useApp from "~/stores/appStore";
 import useGoalStore from "~/stores/goalStore";
+import useWaggleDanceMachineStore from "~/stores/waggleDanceStore";
 import GoalDoctorModal from "./GoalDoctorModal";
 import GoalSettings from "./GoalSettings";
 import TemplatesModal from "./TemplatesModal";
@@ -40,11 +41,11 @@ type GoalInputProps = CardProps;
 export default function GoalInput({}: GoalInputProps) {
   const { getGoalInputValue, setGoalInputValue, upsertGoal, getSelectedGoal } =
     useGoalStore();
+  const { setIsAutoStartEnabled } = useWaggleDanceMachineStore();
   const { isPageLoading, setIsPageLoading } = useApp();
   const [_currentPromptIndex, setCurrentPromptIndex] = useState(0);
   const [currentPlaceholderIndex, setCurrentPlaceholderIndex] = useState(0);
-  const [templatesModalOpen, setTemplatesModalOpen] =
-    React.useState<boolean>(false);
+  const [templatesModalOpen, setTemplatesModalOpen] = useState<boolean>(false);
 
   const { data: sessionData } = useSession();
 
@@ -57,11 +58,13 @@ export default function GoalInput({}: GoalInputProps) {
       console.error("Failed to post!", e.message);
     },
   });
+
   const handleSubmit = useCallback(
     (event: React.FormEvent) => {
       event.preventDefault();
+      setIsPageLoading(true);
+      setIsAutoStartEnabled(true);
       if (sessionData?.user.id) {
-        setIsPageLoading(true);
         createGoal(
           { prompt: getGoalInputValue() },
           {
@@ -88,8 +91,9 @@ export default function GoalInput({}: GoalInputProps) {
       }
     },
     [
-      sessionData?.user.id,
       setIsPageLoading,
+      setIsAutoStartEnabled,
+      sessionData?.user.id,
       createGoal,
       getGoalInputValue,
       getSelectedGoal,

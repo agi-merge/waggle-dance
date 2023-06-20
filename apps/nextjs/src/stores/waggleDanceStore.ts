@@ -23,7 +23,7 @@ const useWaggleDanceMachineStore = create(
     (set, _get) => ({
       isRunning: false,
       setIsRunning: (newState) => set({ isRunning: newState }),
-      isAutoStartEnabled: true,
+      isAutoStartEnabled: false,
       setIsAutoStartEnabled: (newState) => set({ isAutoStartEnabled: newState }),
       executionMethod: "Faster, less accurate",
       setExecutionMethod: (newValue) => set({ executionMethod: newValue }),
