@@ -27,7 +27,7 @@ function isGoalReached(dag: DAG, completedTasks: Set<string>): boolean {
   return dag.nodes.every((node) => completedTasks.has(node.id));
 }
 export const initialCond = { predicate: "", context: {} }
-export const rootPlanId = `👸-${uuidv4()}`
+export const rootPlanId = `👸🐝`
 export const initialNodes = (goal: string, _modelName: string) => [
   new DAGNodeClass(
     rootPlanId,
@@ -73,7 +73,7 @@ export default class WaggleDanceMachine {
     isRunning: boolean,
     abortSignal: AbortSignal,
   ): Promise<WaggleDanceResult | Error> {
-    const reviewPrefix = `criticism-${new Date().getUTCMilliseconds()}-`
+    const reviewPrefix = `criticize-`
     const taskState = { firstTaskState: "not started" as "not started" | "started" | "done" | "error" } as OptimisticFirstTaskState;
 
     let dag: DAG
@@ -118,9 +118,16 @@ export default class WaggleDanceMachine {
       };
 
       dag = await planTasks(request.goal, request.goalId, request.creationProps, initDAG, setDAG, log, sendChainPacket, taskState, abortSignal, updateTaskState, startFirstTask);
+      // debugger;
+      const hookupEdges = findNodesWithNoIncomingEdges(dag).map((node) => new DAGEdgeClass(rootPlanId, node.id))
+      dag = new DAG(
+        [...initialNodes(request.goal, request.creationProps.modelName), ...dag.nodes],
+        // connect our initial nodes to the DAG: gotta find them and create edges
+        [...initialEdges(), ...dag.edges ?? [], ...hookupEdges],
+      );
       if (dag && dag.nodes) {
-        const node = dag.nodes[0] || dag.nodes.find(n => n.id == rootPlanId);
-        node && sendChainPacket({ type: "done", value: "Planned an execution graph." }, node) || log("no root node to sendChainPacket")
+        const rootNode = dag.nodes.find(n => n.id == rootPlanId)
+        rootNode && sendChainPacket({ type: "done", value: "Planned an execution graph." }, rootNode) || log("no root node to sendChainPacket")
       } else {
         log("no nodes in dag")
         throw new Error("no nodes in dag")
@@ -130,16 +137,10 @@ export default class WaggleDanceMachine {
       log("done planning");
     }
     // prepend our initial nodes to the DAG
-    const planDAG = new DAG(
-      [...initialNodes(request.goal, request.creationProps.modelName), ...dag.nodes],
-      // connect our initial nodes to the DAG: gotta find them and create edges
-      [...initialEdges(), ...dag.edges, ...findNodesWithNoIncomingEdges(dag).map((node) => new DAGEdgeClass(rootPlanId, node.id))],
-    )
-    setDAG(planDAG);
 
-    const toDoNodes = Array.from(planDAG.nodes)
+    const toDoNodes = Array.from(dag.nodes)
     // Continue executing tasks and updating DAG until the goal is reached
-    while (!isGoalReached(planDAG, completedTasks)) {
+    while (!isGoalReached(dag, completedTasks)) {
       if (abortSignal.aborted) throw new Error("Signal aborted");
 
       // console.group("WaggleDanceMachine.run")
@@ -153,7 +154,7 @@ export default class WaggleDanceMachine {
       }
 
       const relevantPendingTasks = pendingTasks.filter((task) =>
-        !(taskState.firstTaskState === "started" && task.id === taskState.taskId) && !(completedTasks.has(task.id)) && planDAG.edges
+        !(taskState.firstTaskState === "started" && task.id === taskState.taskId) && !(completedTasks.has(task.id)) && dag.edges
           .filter((edge) => edge.tId === task.id)
           .every((edge) => completedTasks.has(edge.sId)),
       );
@@ -176,7 +177,7 @@ export default class WaggleDanceMachine {
       const executeRequest = {
         ...request,
         task,
-        dag: planDAG,
+        dag,
         completedTasks: completedTasks,
         executionMethod,
         taskResults,
