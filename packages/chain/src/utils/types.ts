@@ -85,7 +85,7 @@ export type ChainValues = Record<string, unknown>;
 export type ChainPacket =
   // server-side only
   | { type: "handleLLMStart", llm: { name: string; }, prompts: string[], runId: string, parentRunId?: string | undefined, extraParams?: Record<string, unknown> | undefined }
-  | { type: "handleLLMNewToken", token: string }
+  | { type: "token", token: string } // handleLLMNewToken (shorted on purpose)
   | { type: "handleLLMEnd", output: LLMResult, runId?: string, parentRunId?: string }
   | { type: "handleLLMError", err: unknown, runId: string, parentRunId?: string }
   | { type: "handleChainEnd", outputs: ChainValues, runId: string, parentRunId?: string }

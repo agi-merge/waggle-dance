@@ -57,7 +57,7 @@ export default async function planTasks(
             const packets = parse(buffer.toString()) as Partial<ChainPacket>[];
             let tokens = "";
             packets.forEach((packet) => {
-                if (packet.type === "handleLLMNewToken" && packet.token) {
+                if (packet.type === "token" && packet.token) {
                     tokens += packet.token;
                 }
             });

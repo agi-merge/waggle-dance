@@ -63,7 +63,7 @@ const useWaggleDanceMachine = ({
   const [abortController, setAbortController] = useState<AbortController>(new AbortController());
   const mapPacketTypeToStatus = (packetType: string): TaskStatus => {
     switch (packetType) {
-      case "handleLLMNewToken":
+      case "token":
       case "handleLLMStart":
       case "handleChainStart":
       case "handleToolStart":

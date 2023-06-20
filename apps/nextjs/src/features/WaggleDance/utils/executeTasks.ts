@@ -95,7 +95,7 @@ export default async function executeTask(
                             // Process buffer to extract tokens, update concatenatedTokens, and process packets
                             const packets = parse(buffer.toString()) as Partial<ChainPacket>[];
                             packets.forEach((packet) => {
-                                if (packet.type === "handleLLMNewToken" && packet.token) {
+                                if (packet.type === "token" && packet.token) {
                                     tokens += packet.token;
                                 }
                             });
