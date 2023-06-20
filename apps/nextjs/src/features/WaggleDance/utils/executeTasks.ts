@@ -116,7 +116,7 @@ export default async function executeTask(
                         errMessage = JSON.stringify(error)
                     }
                     const message = `Error while reading the stream or processing the response data for task ${task.id} -${task.name}: ${errMessage}`
-                    const errorPacket = { type: "error", nodeId: task.id, severity: "fatal", message } as ChainPacket
+                    const errorPacket: ChainPacket = { type: "error", severity: "fatal", message }
                     sendChainPacket(errorPacket, task)
                     log(`Error while reading the stream or processing the response data for task ${task.id} -${task.name}: ${errMessage}`)
                     return errorPacket;
