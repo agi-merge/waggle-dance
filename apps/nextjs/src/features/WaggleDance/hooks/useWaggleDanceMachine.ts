@@ -73,7 +73,9 @@ const useWaggleDanceMachine = ({
       case "handleChainEnd":
         return TaskStatus.done;
       case "error":
+      case "handleLLMError":
       case "handleChainError":
+      case "handleToolError":
         return TaskStatus.error;
       case "working":
         return TaskStatus.working;

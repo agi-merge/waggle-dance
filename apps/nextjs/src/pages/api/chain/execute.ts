@@ -193,14 +193,14 @@ const handler = async (req: IncomingMessage, res: NextApiResponse) => {
 
     const all = { stack, message, status };
     console.error("execute error", all);
-    const errorPacket = { type: "error", nodeId: "catch-all", severity: "fatal", message: JSON.stringify(all) };
+    const errorPacket: ChainPacket = { type: "error", severity: "fatal", message: JSON.stringify(all) };
     if (!res.headersSent) {
       res.writeHead(status, {
-        "Content-Type": "application/json",
+        "Content-Type": "application/yaml",
         "Transfer-Encoding": "chunked",
       });
     }
-    res.end(JSON.stringify(errorPacket))
+    res.end(stringify(errorPacket))
   }
 };
 

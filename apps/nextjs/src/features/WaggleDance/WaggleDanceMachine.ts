@@ -122,6 +122,7 @@ export default class WaggleDanceMachine {
         node && sendChainPacket({ type: "done", value: "Planned an execution graph." }, node) || console.warn("node not found", rootPlanId)
       } else {
         log("no nodes in dag")
+        throw new Error("no nodes in dag")
       }
 
       setIsDonePlanning(true);

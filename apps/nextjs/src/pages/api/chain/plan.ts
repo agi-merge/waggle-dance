@@ -1,6 +1,6 @@
 // api/chain/plan.ts
 
-import { type ChainValues, createPlanningAgent } from "@acme/chain";
+import { type ChainValues, createPlanningAgent, type ChainPacket } from "@acme/chain";
 import { type StrategyRequestBody } from "./types";
 import { type NextRequest } from "next/server";
 import { rootPlanId } from "~/features/WaggleDance/WaggleDanceMachine";
@@ -32,24 +32,20 @@ export default async function PlanStream(req: NextRequest) {
       async start(controller) {
         const inlineCallback = {
           handleLLMNewToken(token: string) {
-            const packet = { type: "handleLLMNewToken", token }
+            const packet: ChainPacket = { type: "token", token }
             controller.enqueue(encoder.encode(stringify([packet])));
           },
 
           handleChainError(err: Error, runId: string, parentRunId?: string) {
             console.error("handleChainError", { err, runId, parentRunId });
-            controller.enqueue(encoder.encode(stringify([{ type: "handleChainError", err: err.message, runId, parentRunId }])));
+            const packet: ChainPacket = { type: "handleChainError", err: err.message, runId, parentRunId }
+            controller.enqueue(encoder.encode(stringify([packet])));
           },
 
-          handleChainEnd(outputs: ChainValues, runId: string, parentRunId?: string) {
-            controller.enqueue(encoder.encode(stringify([{ type: "handleChainEnd", outputs, runId, parentRunId }])));
+          handleLLMError(err: any, runId: string, parentRunId?: string | undefined): void | Promise<void> {
+            const packet: ChainPacket = { type: "handleLLMError", err: err.message, runId, parentRunId }
+            controller.enqueue(encoder.encode(stringify([packet])));
           },
-
-          handleAgentAction(action: { log: string, tool: string, toolInput: string },
-            runId: string,
-            parentRunId?: string) {
-            controller.enqueue(encoder.encode(stringify([{ type: "handleAgentAction", action, runId, parentRunId }])));
-          }
         };
 
         const callbacks = [inlineCallback];
@@ -98,10 +94,10 @@ export default async function PlanStream(req: NextRequest) {
 
     const all = { stack, message, status };
     console.error("plan error", all);
-    const errorPacket = { type: "error", nodeId, severity: "fatal", message: JSON.stringify(all) };
-    return new Response(JSON.stringify(errorPacket), {
+    const errorPacket: ChainPacket = { type: "error", severity: "fatal", message: JSON.stringify(all) };
+    return new Response(stringify(errorPacket), {
       headers: {
-        "Content-Type": "application/json",
+        "Content-Type": "application/yaml",
       },
       status,
     })
