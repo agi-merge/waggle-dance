@@ -34,6 +34,7 @@ export default async function executeTask(
     try {
         // Keep looping while there are tasks in the task queue
         while (taskQueue.length > 0) {
+            if (abortSignal.aborted) throw new Error("Signal aborted");
 
             // Execute the valid pairs of {task, dag} concurrently, storing the execution request promises in executeTaskPromises array
             const executeTaskPromise = async () => {
@@ -85,7 +86,7 @@ export default async function executeTask(
                 let tokens = "";
                 let buffer = Buffer.alloc(0);
                 try {
-                    while (true) {
+                    while (true && !abortSignal.aborted) {
                         const { done, value } = await reader.read();
                         if (done) {
                             // Decode response data

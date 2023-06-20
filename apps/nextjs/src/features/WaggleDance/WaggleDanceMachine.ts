@@ -138,6 +138,8 @@ export default class WaggleDanceMachine {
     const toDoNodes = Array.from(planDAG.nodes)
     // Continue executing tasks and updating DAG until the goal is reached
     while (!isGoalReached(planDAG, completedTasks)) {
+      if (abortSignal.aborted) throw new Error("Signal aborted");
+
       // console.group("WaggleDanceMachine.run")
       const pendingTasks = toDoNodes.filter(
         (node) => !completedTasks.has(node.id),

@@ -105,13 +105,17 @@ export default async function planTasks(
         updateTaskState && updateTaskState("not started");
 
         parseInterval = setInterval(() => {
-            parseBuffer();
+            if (!abortSignal.aborted) {
+                parseBuffer();
+            }
         }, bufferWindowDuration);
 
         let result;
         while ((result = await reader.read()) && !result.done) {
-            if (abortSignal.aborted) throw new Error("Signal aborted");
             buffer = Buffer.concat([buffer, Buffer.from(result.value)]);
+            if (abortSignal.aborted) {
+                throw new Error("Signal aborted");
+            }
         }
 
         clearInterval(parseInterval); // Clear the interval when the stream is done
