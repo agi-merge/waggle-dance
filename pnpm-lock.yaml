@@ -129,8 +129,8 @@ importers:
         specifier: ^3.2.0
         version: 3.2.0
       langchain:
-        specifier: ^0.0.91
-        version: 0.0.91(@aws-sdk/client-s3@3.353.0)(@pinecone-database/pinecone@0.1.6)(@upstash/redis@1.21.0)(d3-dsv@2.0.0)(mammoth@1.6.0)(pdf-parse@1.1.1)(playwright@1.35.1)
+        specifier: ^0.0.96
+        version: 0.0.96(@aws-sdk/client-s3@3.353.0)(@pinecone-database/pinecone@0.1.6)(@upstash/redis@1.21.0)(d3-dsv@2.0.0)(mammoth@1.6.0)(pdf-parse@1.1.1)(playwright@1.35.1)
       mammoth:
         specifier: ^1.6.0
         version: 1.6.0
@@ -2713,7 +2713,7 @@ packages:
   /@types/keyv@3.1.4:
     resolution: {integrity: sha512-BQ5aZNSCpj7D6K2ksrRCTmKRLEpnPvWDiLPfoGyhZ++8YtiK9d/3DBKPJgry359X/P1PfruyYwvnvwFjuEiEIg==}
     dependencies:
-      '@types/node': 18.16.18
+      '@types/node': 20.3.1
     dev: false
 
   /@types/mdast@3.0.11:
@@ -2732,6 +2732,11 @@ packages:
 
   /@types/node@18.16.18:
     resolution: {integrity: sha512-/aNaQZD0+iSBAGnvvN2Cx92HqE5sZCPZtx2TsK+4nvV23fFe09jVDvpArXr2j9DnYlzuU9WuoykDDc6wqvpNcw==}
+    dev: true
+
+  /@types/node@20.3.1:
+    resolution: {integrity: sha512-EhcH/wvidPy1WeML3TtYFGR83UzjxeWRen9V402T8aUGYsCHOmfoisV3ZSg03gAFIbLq8TnWOJ0f4cALtnSEUg==}
+    dev: false
 
   /@types/parse-json@4.0.0:
     resolution: {integrity: sha512-//oorEZjL6sbPcKUaCdIGlIUeH26mgzimjBB77G6XRgnDl/L5wOnpyBGRe/Mmf5CVW3PwEBE1NjiMZ/ssFh4wA==}
@@ -2772,7 +2777,7 @@ packages:
   /@types/responselike@1.0.0:
     resolution: {integrity: sha512-85Y2BjiufFzaMIlvJDvTTB8Fxl2xfLo4HgmHzVBz08w4wDePCTjYw66PdrolO0kzli3yam/YCgRufyo1DdQVTA==}
     dependencies:
-      '@types/node': 18.16.18
+      '@types/node': 20.3.1
     dev: false
 
   /@types/retry@0.12.0:
@@ -2796,7 +2801,6 @@ packages:
 
   /@types/uuid@9.0.2:
     resolution: {integrity: sha512-kNnC1GFBLuhImSnV7w4njQkUiJi0ZXUycu1rUaouPqiKlXkh77JKgdRnTAp1x5eBwcIwbtI+3otwzuIDEuDoxQ==}
-    dev: true
 
   /@typescript-eslint/eslint-plugin@5.60.0(@typescript-eslint/parser@5.60.0)(eslint@8.43.0)(typescript@5.1.3):
     resolution: {integrity: sha512-78B+anHLF1TI8Jn/cD0Q00TBYdMgjdOn980JfAVa9yw5sop8nyTfVOQAv6LWywkOGLclDBtv5z3oxN4w7jxyNg==}
@@ -3321,6 +3325,11 @@ packages:
     engines: {node: '>= 6'}
     dev: true
 
+  /camelcase@6.3.0:
+    resolution: {integrity: sha512-Gmy6FhYlCY7uOElZUSbxo2UCDH8owEk996gkbrpsgGtrJLM3J7jGxl9Ic7Qwwj4ivOE5AWZWRMecDdF7hqGjFA==}
+    engines: {node: '>=10'}
+    dev: false
+
   /caniuse-lite@1.0.30001505:
     resolution: {integrity: sha512-jaAOR5zVtxHfL0NjZyflVTtXm3D3J9P15zSJ7HmQF8dSKGA6tqzQq+0ZI3xkjyQj46I4/M0K2GbMpcAFOcbr3A==}
 
@@ -3450,6 +3459,11 @@ packages:
 
   /comma-separated-tokens@2.0.3:
     resolution: {integrity: sha512-Fu4hJdvzeylCfQPp9SGWidpzrMs7tTrlu6Vb8XGaRGck8QSNZJJp538Wrb60Lax4fPwR64ViY468OIUTbRlGZg==}
+    dev: false
+
+  /commander@10.0.1:
+    resolution: {integrity: sha512-y4Mg2tXshplEbSGzx7amzPwKKOCGuoSRP/CjEdwwk0FOGlUbq6lKuoyDZTNZkmxHdJtp54hdfY/JUrdL7Xfdug==}
+    engines: {node: '>=14'}
     dev: false
 
   /commander@2.20.3:
@@ -3864,6 +3878,11 @@ packages:
         optional: true
     dependencies:
       ms: 2.1.2
+
+  /decamelize@5.0.1:
+    resolution: {integrity: sha512-VfxadyCECXgQlkoEAjeghAr5gY3Hf+IKjKb+X8tGVDtveCjN+USwprd2q3QXBR9T1+x2DG0XZF5/w+7HAtSaXA==}
+    engines: {node: '>=10'}
+    dev: false
 
   /decode-named-character-reference@1.0.2:
     resolution: {integrity: sha512-O8x12RzrUF8xyVcY0KJowWsmaJxQbmy0/EtnNtHRpsOcT7dFk5W598coHqBVpmWo1oQQfsCqfCmkZN5DJrZVdg==}
@@ -5406,8 +5425,8 @@ packages:
     engines: {node: '>=6'}
     dev: false
 
-  /langchain@0.0.91(@aws-sdk/client-s3@3.353.0)(@pinecone-database/pinecone@0.1.6)(@upstash/redis@1.21.0)(d3-dsv@2.0.0)(mammoth@1.6.0)(pdf-parse@1.1.1)(playwright@1.35.1):
-    resolution: {integrity: sha512-oCilhNDZDSt8rdvnuVv5J3BIZ1FwCccdqdO6xHddiCko26UkAJ+wKRWmV8YQOYUDZzoRjp4ogDIifETfhfb30w==}
+  /langchain@0.0.96(@aws-sdk/client-s3@3.353.0)(@pinecone-database/pinecone@0.1.6)(@upstash/redis@1.21.0)(d3-dsv@2.0.0)(mammoth@1.6.0)(pdf-parse@1.1.1)(playwright@1.35.1):
+    resolution: {integrity: sha512-m1d0IWjwZK+D19uBfgmfp5sUTxJXcjJb/YuIyn2cGNmXGqOH2r2cl0TUnhuFKxTXpMTXgTywd7MYF5U5/qkNTQ==}
     engines: {node: '>=18'}
     peerDependencies:
       '@aws-sdk/client-dynamodb': ^3.310.0
@@ -5418,6 +5437,7 @@ packages:
       '@getmetal/metal-sdk': '*'
       '@getzep/zep-js': ^0.3.1
       '@gomomento/sdk': ^1.23.0
+      '@google-cloud/storage': ^6.10.1
       '@huggingface/inference': ^1.5.1
       '@opensearch-project/opensearch': '*'
       '@pinecone-database/pinecone': '*'
@@ -5437,7 +5457,7 @@ packages:
       cohere-ai: ^5.0.2
       d3-dsv: ^2.0.0
       epub2: ^3.0.1
-      faiss-node: ^0.2.0
+      faiss-node: ^0.2.1
       google-auth-library: ^8.8.0
       hnswlib-node: ^1.4.2
       html-to-text: ^9.0.5
@@ -5455,6 +5475,7 @@ packages:
       replicate: ^0.9.0
       srt-parser-2: ^1.2.2
       typeorm: ^0.3.12
+      typesense: ^1.5.3
       weaviate-ts-client: ^1.0.0
     peerDependenciesMeta:
       '@aws-sdk/client-dynamodb':
@@ -5472,6 +5493,8 @@ packages:
       '@getzep/zep-js':
         optional: true
       '@gomomento/sdk':
+        optional: true
+      '@google-cloud/storage':
         optional: true
       '@huggingface/inference':
         optional: true
@@ -5547,6 +5570,8 @@ packages:
         optional: true
       typeorm:
         optional: true
+      typesense:
+        optional: true
       weaviate-ts-client:
         optional: true
     dependencies:
@@ -5556,11 +5581,14 @@ packages:
       '@upstash/redis': 1.21.0
       ansi-styles: 5.2.0
       binary-extensions: 2.2.0
+      camelcase: 6.3.0
       d3-dsv: 2.0.0
+      decamelize: 5.0.1
       expr-eval: 2.0.2
       flat: 5.0.2
       js-tiktoken: 1.0.7
       jsonpointer: 5.0.1
+      langchainplus-sdk: 0.0.11
       mammoth: 1.6.0
       ml-distance: 4.0.1
       object-hash: 3.0.0
@@ -5576,6 +5604,17 @@ packages:
     transitivePeerDependencies:
       - debug
       - encoding
+    dev: false
+
+  /langchainplus-sdk@0.0.11:
+    resolution: {integrity: sha512-bEovYVJZq88LYznDfK+ohNVd0lqQ1DMgE/A/8ZkqsiyaRuEjvIQj4PLc0VQ8htWPBljrfTu8oS7g+SGWYTZfNw==}
+    hasBin: true
+    dependencies:
+      '@types/uuid': 9.0.2
+      commander: 10.0.1
+      p-queue: 6.6.2
+      p-retry: 4.6.2
+      uuid: 9.0.0
     dev: false
 
   /language-subtag-registry@0.3.22:

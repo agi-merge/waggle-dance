@@ -31,7 +31,7 @@ export async function createMemory(
     case "motorhead":
       const memory: MotorheadMemory = new MotorheadMemory({
         sessionId: hash(goal), //FIXME:
-        motorheadURL: process.env.MEMORY_URL ?? "http://localhost:8080",
+        url: process.env.MEMORY_URL ?? "http://localhost:8080",
         inputKey,
       });
       await memory?.init(); // loads previous state from Motörhead 🤘
