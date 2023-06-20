@@ -1,7 +1,7 @@
 // utils/planTasks.ts
 
 import { type ChainPacket, type ModelCreationProps } from "@acme/chain";
-import { parse } from "yaml";
+import { parse, parseDocument } from "yaml";
 import DAG from "../DAG";
 import { DAGEdgeClass, type DAGNode } from "../DAG";
 import { initialNodes, initialEdges, findNodesWithNoIncomingEdges, rootPlanId, type OptimisticFirstTaskState } from "../WaggleDanceMachine";
@@ -51,18 +51,21 @@ export default async function planTasks(
     let buffer = Buffer.alloc(0);
     const bufferWindowDuration = 500;
     let parseInterval: ReturnType<typeof setInterval> | null = null;
-
+    let tokens = "";
     function parseBuffer() {
         try {
-            const packets = parse(buffer.toString()) as Partial<ChainPacket>[];
-            let tokens = "";
-            packets.forEach((packet) => {
+            // Parse the buffer and get the packets
+            const newPackets = parse(buffer.toString()) as Partial<ChainPacket>[];
+            // Find the token packets and accumulate the tokens
+            newPackets.forEach((packet) => {
                 if (packet.type === "token" && packet.token) {
                     tokens += packet.token;
                 }
             });
+            // finally, parse the tokens into a DAG
             const yaml = parse(tokens) as Partial<DAG>;
             if (yaml && yaml) {
+                console.log(yaml)
                 const optDag = yaml;
                 const validNodes = optDag.nodes?.filter((n) => n.name.length > 0 && n.act.length > 0 && n.id.length > 0 && n.context);
                 const validEdges = optDag.edges?.filter((n) => n.sId.length > 0 && n.tId.length > 0);
@@ -72,8 +75,6 @@ export default async function planTasks(
                         [...initialNodes(goal, creationProps.modelName), ...validNodes],
                         // connect our initial nodes to the DAG: gotta find them and create edges
                         [...initialEdges(), ...validEdges ?? [], ...hookupEdges],
-                        // optDag?.init ?? initialCond,
-                        // optDag?.goal ?? initialCond,
                     );
                     const diffNodesCount = partialDAG.nodes.length - dag.nodes.length
                     const newEdgesCount = partialDAG.edges.length - dag.edges.length
@@ -99,6 +100,7 @@ export default async function planTasks(
             // normal, do nothing
         }
     }
+
     async function streamToString(stream: ReadableStream<Uint8Array>): Promise<string> {
         const reader = stream.getReader();
 
@@ -112,9 +114,22 @@ export default async function planTasks(
 
         let result;
         while ((result = await reader.read()) && !result.done) {
-            buffer = Buffer.concat([buffer, Buffer.from(result.value)]);
             if (abortSignal.aborted) {
                 throw new Error("Signal aborted");
+            }
+            const newData = Buffer.from(result.value);
+            const lineBreakIndex = newData.lastIndexOf("\n");
+
+            // Only store complete lines in the buffer and parse the partial line
+            if (lineBreakIndex !== -1) {
+                const completeLine = newData.subarray(0, lineBreakIndex + 1);
+                const partialLine = newData.subarray(lineBreakIndex + 1);
+
+                buffer = Buffer.concat([buffer, completeLine]);
+                parseBuffer(); // Parse the data immediately after receiving a complete line
+                buffer = partialLine; // Store the remaining partial line in the buffer
+            } else {
+                buffer = Buffer.concat([buffer, newData]);
             }
         }
 
