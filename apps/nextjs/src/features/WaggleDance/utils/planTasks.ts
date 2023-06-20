@@ -63,7 +63,6 @@ export default async function planTasks(
             // finally, parse the tokens into a DAG
             const yaml = parse(tokens) as Partial<DAG>;
             if (yaml && yaml) {
-                console.log(yaml)
                 const optDag = yaml;
                 const validNodes = optDag.nodes?.filter((n) => n.name.length > 0 && n.act.length > 0 && n.id.length > 0 && n.context);
                 const validEdges = optDag.edges?.filter((n) => n.sId.length > 0 && n.tId.length > 0);
@@ -77,20 +76,14 @@ export default async function planTasks(
                     const diffNodesCount = partialDAG.nodes.length - dag.nodes.length
                     const newEdgesCount = partialDAG.edges.length - dag.edges.length
                     if (diffNodesCount || newEdgesCount) {
-                        // FIXME: this gets called 4x for some reason
-                        if (newEdgesCount) {
-                            log("newEdgesCount", newEdgesCount)
-                        } else {
-                            log("diffNodesCount", diffNodesCount)
-                        }
                         setDAG(partialDAG)
-                        return partialDAG
                     }
                     const firstNode = validNodes[0]
                     if (startFirstTask && taskState.firstTaskState === "not started" && firstNode && validNodes.length > 0) { // would be 0, but params can be cut off
                         updateTaskState && updateTaskState("started");
                         void startFirstTask(firstNode, partialDAG);
                     }
+                    return partialDAG
                 }
             }
 
