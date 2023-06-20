@@ -55,9 +55,8 @@ const handler = async (req: IncomingMessage, res: NextApiResponse) => {
         res.write(stringify([packet]));
       },
 
-      handleLLMNewToken(token: string) {
-        const packet: ChainPacket = { type: "token", token }
-        res.write(stringify([packet]));
+      handleLLMNewToken(_token: string) {
+        // do nothing, streaming all tokens would be too noisy
       },
 
       /**
