@@ -2,6 +2,7 @@ import { type ChainPacket } from "@acme/chain";
 import { type ExecuteRequestBody } from "~/pages/api/chain/types";
 import { type DAGNodeClass, type DAGNode } from "../DAG";
 import { parse, stringify } from "yaml";
+import { readResponseStream } from "./readResponseStream";
 
 export function sleep(ms: number): Promise<void> {
     return new Promise((resolve) => setTimeout(resolve, ms));
@@ -23,30 +24,6 @@ async function fetchTaskData(
     });
 
     return response;
-}
-
-async function readResponseStream(stream: ReadableStream<Uint8Array>, abortSignal: AbortSignal): Promise<Buffer | undefined> {
-    const reader = stream.getReader();
-    let buffer = Buffer.alloc(0);
-
-    try {
-        while (!abortSignal.aborted) {
-            const { done, value } = await reader.read();
-            if (value && value.length > 0) {
-                buffer = Buffer.concat([buffer, Buffer.from(value)]);
-            }
-            if (done) {
-                return buffer;
-            }
-        }
-    } catch (error) {
-        // Handle errors while reading the stream or processing the response data
-        throw error;
-    } finally {
-        reader.releaseLock();
-    }
-
-    return undefined;
 }
 
 function processResponseBuffer(task: DAGNode, buffer: Buffer): ChainPacket {
