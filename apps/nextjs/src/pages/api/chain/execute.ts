@@ -50,16 +50,6 @@ const handler = async (req: IncomingMessage, res: NextApiResponse) => {
 
     const inlineCallback = BaseCallbackHandler.fromMethods({
 
-      handleLLMStart(llm: Serialized, _prompts: string[], _runId: string, _parentRunId?: string | undefined, _extraParams?: Record<string, unknown> | undefined): void | Promise<void> {
-        const packet: ChainPacket = { type: "handleLLMStart", llm }
-        res.write(stringify([packet]));
-        console.log("handleLLMStart");
-      },
-
-      handleLLMNewToken(_token: string) {
-        // do nothing, streaming all tokens would be too noisy
-      },
-
       /**
        * Called if an LLM/ChatModel run encounters an error
        */
@@ -74,29 +64,6 @@ const handler = async (req: IncomingMessage, res: NextApiResponse) => {
         res.write(stringify([packet]));
         console.error("handleLLMError", packet);
       },
-
-      handleLLMEnd(output: LLMResult, _runId: string, _parentRunId?: string | undefined): void | Promise<void> {
-        const packet: ChainPacket = { type: "handleLLMEnd", output }
-        res.write(stringify([packet]));
-      },
-      /**
-       * Called at the start of a Chat Model run, with the prompt(s)
-       * and the run ID.
-       */
-      // handleChatModelStart?(llm: {
-      //   name: string;
-      // }, messages: BaseChatMessage[][], _runId: string, _parentRunId?: string | undefined, extraParams?: Record<string, unknown> | undefined): void | Promise<void>;
-      /**
-       * Called at the start of a Chain run, with the chain name and inputs
-       * and the run ID.
-       */
-      handleChainStart(chain: Serialized, _inputs: ChainValues, _runId: string, _parentRunId?: string | undefined): void | Promise<void> {
-        const packet: ChainPacket = { type: "handleChainStart", chain }
-        res.write(stringify([packet]));
-      },
-      /**
-       * Called if a Chain run encounters an error
-       */
       handleChainError(err: unknown, _runId: string, _parentRunId?: string | undefined): void | Promise<void> {
         let errorMessage = "";
         if (err instanceof Error) {
@@ -107,14 +74,6 @@ const handler = async (req: IncomingMessage, res: NextApiResponse) => {
         const packet: ChainPacket = { type: "handleChainError", err: errorMessage }
         res.write(stringify([packet]));
         console.error("handleChainError", packet);
-      },
-      /**
-       * Called at the end of a Chain run, with the outputs and the run ID.
-       */
-      handleChainEnd(outputs: ChainValues, _runId: string, _parentRunId?: string) {
-        const packet: ChainPacket = { type: "handleChainEnd", outputs }
-        res.write(stringify([packet]));
-        console.log("handleChainEnd");
       },
       /**
        * Called at the start of a Tool run, with the tool name and input
@@ -144,12 +103,6 @@ const handler = async (req: IncomingMessage, res: NextApiResponse) => {
       handleToolEnd(output: string, _runId: string, _parentRunId?: string | undefined): void | Promise<void> {
         const packet: ChainPacket = { type: "handleToolEnd", output, }
         res.write(stringify([packet]));
-        console.log("handleToolEnd");
-      },
-      handleText(text: string, _runId: string, _parentRunId?: string | undefined): void | Promise<void> {
-        const packet: ChainPacket = { type: "handleText", text, }
-        res.write(stringify([packet]));
-        console.log("handleText", packet);
       },
       /**
        * Called when an agent is about to execute an action,
@@ -166,7 +119,6 @@ const handler = async (req: IncomingMessage, res: NextApiResponse) => {
       handleAgentEnd(action: AgentFinish, _runId: string, _parentRunId?: string | undefined): void | Promise<void> {
         const packet: ChainPacket = { type: "handleAgentEnd", action, }
         res.write(stringify([packet]));
-        console.log("handleAgentEnd", packet);
       }
     });
 
