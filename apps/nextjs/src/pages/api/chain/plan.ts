@@ -71,6 +71,7 @@ export default async function PlanStream(req: NextRequest) {
             "Content-Type": "application/json",
             "Cookie": req.headers.get("cookie") || '',
           },
+          signal: req.signal,
         });
         const results = await Promise.allSettled([planResultPromise, createExecutionPromise]);
         const [_planResult, _saveExecutionResult] = results;
