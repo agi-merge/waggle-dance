@@ -3,13 +3,11 @@ import React, {
   createContext,
   useCallback,
   useContext,
-  useEffect,
   useMemo,
   useRef,
   useState,
   type KeyboardEvent,
 } from "react";
-import { useRouter } from "next/router";
 import { CheckCircle, KeyboardArrowRight } from "@mui/icons-material";
 import {
   Box,
@@ -25,7 +23,6 @@ import Table from "@mui/joy/Table";
 
 import DropZoneUploader from "~/features/AddDocuments/DropZoneUploader";
 import Title from "~/features/MainLayout/components/PageTitle";
-import useGoalStore from "~/stores/goalStore";
 
 type UploadState =
   | { status: "idle" }
