@@ -39,7 +39,7 @@ export default async function PlanStream(req: NextRequest) {
             if (err instanceof Error) {
               errorMessage = err.message;
             } else {
-              errorMessage = String(err);
+              errorMessage = stringify(err);
             }
             const packet: ChainPacket = { type: "handleChainError", err: errorMessage }
             controller.enqueue(encoder.encode(stringify([packet])));
@@ -51,7 +51,7 @@ export default async function PlanStream(req: NextRequest) {
             if (err instanceof Error) {
               errorMessage = err.message;
             } else {
-              errorMessage = String(err);
+              errorMessage = stringify(err);
             }
             const packet: ChainPacket = { type: "handleLLMError", err: errorMessage }
             controller.enqueue(encoder.encode(stringify([packet])));
@@ -105,7 +105,7 @@ export default async function PlanStream(req: NextRequest) {
 
     const all = { stack, message, status };
     console.error("plan error", all);
-    const errorPacket: ChainPacket = { type: "error", severity: "fatal", message: JSON.stringify(all) };
+    const errorPacket: ChainPacket = { type: "error", severity: "fatal", message: stringify(all) };
     return new Response(stringify([errorPacket]), {
       headers: {
         "Content-Type": "application/yaml",

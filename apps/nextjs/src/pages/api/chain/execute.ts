@@ -68,7 +68,7 @@ const handler = async (req: IncomingMessage, res: NextApiResponse) => {
         if (err instanceof Error) {
           errorMessage = err.message;
         } else {
-          errorMessage = String(err);
+          errorMessage = stringify(err);
         }
         const packet: ChainPacket = { type: "handleLLMError", err: errorMessage }
         res.write(stringify([packet]));
@@ -102,7 +102,7 @@ const handler = async (req: IncomingMessage, res: NextApiResponse) => {
         if (err instanceof Error) {
           errorMessage = err.message;
         } else {
-          errorMessage = String(err);
+          errorMessage = stringify(err);
         }
         const packet: ChainPacket = { type: "handleChainError", err: errorMessage }
         res.write(stringify([packet]));
@@ -132,7 +132,7 @@ const handler = async (req: IncomingMessage, res: NextApiResponse) => {
         if (err instanceof Error) {
           errorMessage = err.message;
         } else {
-          errorMessage = String(err);
+          errorMessage = stringify(err);
         }
         const packet: ChainPacket = { type: "handleToolError", err: errorMessage }
         res.write(stringify([packet]));
@@ -209,14 +209,14 @@ const handler = async (req: IncomingMessage, res: NextApiResponse) => {
       status = 500;
       stack = e.stack;
     } else {
-      message = String(e);
+      message = stringify(e);
       status = 500;
       stack = "";
     }
 
     const all = { stack, message, status };
     console.error("execute error", all);
-    const errorPacket: ChainPacket = { type: "error", severity: "fatal", message: JSON.stringify(all) };
+    const errorPacket: ChainPacket = { type: "error", severity: "fatal", message: stringify(all) };
     if (!res.headersSent) {
       res.writeHead(status, {
         "Content-Type": "application/yaml",
