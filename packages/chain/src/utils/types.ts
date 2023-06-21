@@ -96,7 +96,7 @@ export type ChainPacket =
   | { type: "handleToolError", err: unknown, }
   | { type: "handleToolStart", tool: Serialized, input: string, }
   | { type: "handleAgentAction", action: AgentAction, }
-  | { type: "handleAgentEnd", returnValues: unknown }
+  | { type: "handleAgentEnd", value: string }
   | { type: "handleText", text: string, }
   // our callbacks
   | { type: "done", value: string }

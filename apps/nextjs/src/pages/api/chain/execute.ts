@@ -123,7 +123,8 @@ const handler = async (req: IncomingMessage, res: NextApiResponse) => {
        * with the final output and the run ID.
        */
       handleAgentEnd(action: AgentFinish, _runId: string, _parentRunId?: string | undefined): void | Promise<void> {
-        const packet: ChainPacket = { type: "handleAgentEnd", returnValues: action.returnValues && action.returnValues["output"] as unknown }
+        const value = stringify(action.returnValues && action.returnValues["output"])
+        const packet: ChainPacket = { type: "handleAgentEnd", value }
         res.write(stringify([packet]));
       }
     });
