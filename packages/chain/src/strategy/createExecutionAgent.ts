@@ -27,9 +27,10 @@ export async function createExecutionAgent(creation: {
   executionMethod: string,
   result: string,
   reviewPrefix: string,
+  abortSignal: AbortSignal,
   namespace?: string,
 }) {
-  const { creationProps, goal, task, dag, executionMethod, result, reviewPrefix, namespace } = creation;
+  const { creationProps, goal, task, dag, executionMethod, result, reviewPrefix, abortSignal, namespace } = creation;
   const callbacks = creationProps.callbacks;
   creationProps.callbacks = undefined;
   const llm = createModel(creationProps);
@@ -98,8 +99,6 @@ export async function createExecutionAgent(creation: {
     );
   }
 
-  const controller = new AbortController();
-
   let executor;
   console.log("executionMethod", executionMethod);
   if (executionMethod?.startsWith("Fast") ?? true) { // FIXME: no stringly typed
@@ -118,7 +117,7 @@ export async function createExecutionAgent(creation: {
   }
 
 
-  const call = await executor.call({ input: formattedPrompt, chat_history, signal: controller.signal }, callbacks);
+  const call = await executor.call({ input: formattedPrompt, chat_history, signal: abortSignal ?? undefined }, callbacks);
 
   const response = call?.output ? (call.output as string) : "";
 

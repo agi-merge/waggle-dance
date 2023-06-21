@@ -175,6 +175,10 @@ const handler = async (req: IncomingMessage, res: NextApiResponse) => {
 
     const idMinusCriticize = task.id.startsWith("criticize-") ? task.id.slice("criticize-".length) : null;
     const result = idMinusCriticize ? taskResults[idMinusCriticize] : null;
+    const abortController = new AbortController();
+    req.once("close", () => {
+      abortController.abort();
+    });
     const exeResult = await createExecutionAgent({
       creationProps,
       goal,
@@ -184,6 +188,7 @@ const handler = async (req: IncomingMessage, res: NextApiResponse) => {
       executionMethod: stringify(executionMethod),
       result: stringify(result),
       reviewPrefix,
+      abortSignal: abortController.signal,
       namespace: session?.user.id
     });
 
