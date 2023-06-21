@@ -50,9 +50,10 @@ const handler = async (req: IncomingMessage, res: NextApiResponse) => {
 
     const inlineCallback = BaseCallbackHandler.fromMethods({
 
-      handleLLMStart(llm: Serialized, prompts: string[], runId: string, parentRunId?: string | undefined, extraParams?: Record<string, unknown> | undefined): void | Promise<void> {
-        const packet: ChainPacket = { type: "handleLLMStart", llm, prompts, runId, parentRunId, extraParams }
+      handleLLMStart(llm: Serialized, _prompts: string[], _runId: string, _parentRunId?: string | undefined, _extraParams?: Record<string, unknown> | undefined): void | Promise<void> {
+        const packet: ChainPacket = { type: "handleLLMStart", llm }
         res.write(stringify([packet]));
+        console.log("handleLLMStart");
       },
 
       handleLLMNewToken(_token: string) {
@@ -62,19 +63,20 @@ const handler = async (req: IncomingMessage, res: NextApiResponse) => {
       /**
        * Called if an LLM/ChatModel run encounters an error
        */
-      handleLLMError(err: unknown, runId: string, parentRunId?: string | undefined): void | Promise<void> {
+      handleLLMError(err: unknown, _runId: string, _parentRunId?: string | undefined): void | Promise<void> {
         let errorMessage = "";
         if (err instanceof Error) {
           errorMessage = err.message;
         } else {
           errorMessage = String(err);
         }
-        const packet: ChainPacket = { type: "handleLLMError", err: errorMessage, runId, parentRunId }
+        const packet: ChainPacket = { type: "handleLLMError", err: errorMessage }
         res.write(stringify([packet]));
+        console.error("handleLLMError", packet);
       },
 
-      handleLLMEnd(output: LLMResult, runId: string, parentRunId?: string | undefined): void | Promise<void> {
-        const packet: ChainPacket = { type: "handleLLMEnd", output, runId, parentRunId }
+      handleLLMEnd(output: LLMResult, _runId: string, _parentRunId?: string | undefined): void | Promise<void> {
+        const packet: ChainPacket = { type: "handleLLMEnd", output }
         res.write(stringify([packet]));
       },
       /**
@@ -83,82 +85,88 @@ const handler = async (req: IncomingMessage, res: NextApiResponse) => {
        */
       // handleChatModelStart?(llm: {
       //   name: string;
-      // }, messages: BaseChatMessage[][], runId: string, parentRunId?: string | undefined, extraParams?: Record<string, unknown> | undefined): void | Promise<void>;
+      // }, messages: BaseChatMessage[][], _runId: string, _parentRunId?: string | undefined, extraParams?: Record<string, unknown> | undefined): void | Promise<void>;
       /**
        * Called at the start of a Chain run, with the chain name and inputs
        * and the run ID.
        */
-      handleChainStart(chain: Serialized, inputs: ChainValues, runId: string, parentRunId?: string | undefined): void | Promise<void> {
-        const packet: ChainPacket = { type: "handleChainStart", chain, inputs, runId, parentRunId }
+      handleChainStart(chain: Serialized, _inputs: ChainValues, _runId: string, _parentRunId?: string | undefined): void | Promise<void> {
+        const packet: ChainPacket = { type: "handleChainStart", chain }
         res.write(stringify([packet]));
       },
       /**
        * Called if a Chain run encounters an error
        */
-      handleChainError(err: unknown, runId: string, parentRunId?: string | undefined): void | Promise<void> {
+      handleChainError(err: unknown, _runId: string, _parentRunId?: string | undefined): void | Promise<void> {
         let errorMessage = "";
         if (err instanceof Error) {
           errorMessage = err.message;
         } else {
           errorMessage = String(err);
         }
-        const packet: ChainPacket = { type: "handleChainError", err: errorMessage, runId, parentRunId }
+        const packet: ChainPacket = { type: "handleChainError", err: errorMessage }
         res.write(stringify([packet]));
+        console.error("handleChainError", packet);
       },
       /**
        * Called at the end of a Chain run, with the outputs and the run ID.
        */
-      handleChainEnd(outputs: ChainValues, runId: string, parentRunId?: string) {
-        const packet: ChainPacket = { type: "handleChainEnd", outputs, runId, parentRunId }
+      handleChainEnd(outputs: ChainValues, _runId: string, _parentRunId?: string) {
+        const packet: ChainPacket = { type: "handleChainEnd", outputs }
         res.write(stringify([packet]));
+        console.log("handleChainEnd");
       },
       /**
        * Called at the start of a Tool run, with the tool name and input
        * and the run ID.
        */
-      handleToolStart(tool: Serialized, input: string, runId: string, parentRunId?: string | undefined): void | Promise<void> {
-        const packet: ChainPacket = { type: "handleToolStart", tool, input, runId, parentRunId }
+      handleToolStart(tool: Serialized, input: string, _runId: string, _parentRunId?: string | undefined): void | Promise<void> {
+        const packet: ChainPacket = { type: "handleToolStart", tool, input }
         res.write(stringify([packet]));
       },
       /**
        * Called if a Tool run encounters an error
        */
-      handleToolError(err: unknown, runId: string, parentRunId?: string | undefined): void | Promise<void> {
+      handleToolError(err: unknown, _runId: string, _parentRunId?: string | undefined): void | Promise<void> {
         let errorMessage = "";
         if (err instanceof Error) {
           errorMessage = err.message;
         } else {
           errorMessage = String(err);
         }
-        const packet: ChainPacket = { type: "handleToolError", err: errorMessage, runId, parentRunId }
+        const packet: ChainPacket = { type: "handleToolError", err: errorMessage }
         res.write(stringify([packet]));
+        console.error("handleToolError", packet);
       },
       /**
        * Called at the end of a Tool run, with the tool output and the run ID.
        */
-      handleToolEnd(output: string, runId: string, parentRunId?: string | undefined): void | Promise<void> {
-        const packet: ChainPacket = { type: "handleToolEnd", output, runId, parentRunId }
+      handleToolEnd(output: string, _runId: string, _parentRunId?: string | undefined): void | Promise<void> {
+        const packet: ChainPacket = { type: "handleToolEnd", output, }
         res.write(stringify([packet]));
+        console.log("handleToolEnd");
       },
-      handleText(text: string, runId: string, parentRunId?: string | undefined): void | Promise<void> {
-        const packet: ChainPacket = { type: "handleText", text, runId, parentRunId }
+      handleText(text: string, _runId: string, _parentRunId?: string | undefined): void | Promise<void> {
+        const packet: ChainPacket = { type: "handleText", text, }
         res.write(stringify([packet]));
+        console.log("handleText", packet);
       },
       /**
        * Called when an agent is about to execute an action,
        * with the action and the run ID.
        */
-      handleAgentAction(action: AgentAction, runId: string, parentRunId?: string | undefined): void | Promise<void> {
-        const packet: ChainPacket = { type: "handleAgentAction", action, runId, parentRunId }
+      handleAgentAction(action: AgentAction, _runId: string, _parentRunId?: string | undefined): void | Promise<void> {
+        const packet: ChainPacket = { type: "handleAgentAction", action, }
         res.write(stringify([packet]));
       },
       /**
        * Called when an agent finishes execution, before it exits.
        * with the final output and the run ID.
        */
-      handleAgentEnd(action: AgentFinish, runId: string, parentRunId?: string | undefined): void | Promise<void> {
-        const packet: ChainPacket = { type: "handleAgentEnd", action, runId, parentRunId }
+      handleAgentEnd(action: AgentFinish, _runId: string, _parentRunId?: string | undefined): void | Promise<void> {
+        const packet: ChainPacket = { type: "handleAgentEnd", action, }
         res.write(stringify([packet]));
+        console.log("handleAgentEnd", packet);
       }
     });
 
@@ -167,25 +175,25 @@ const handler = async (req: IncomingMessage, res: NextApiResponse) => {
 
     const idMinusCriticize = task.id.startsWith("criticize-") ? task.id.slice("criticize-".length) : null;
     const result = idMinusCriticize ? taskResults[idMinusCriticize] : null;
-    const exeResult = await createExecutionAgent(
+    const exeResult = await createExecutionAgent({
       creationProps,
       goal,
       goalId,
-      stringify(task),
-      stringify(dag),
-      stringify(executionMethod),
-      stringify(result),
+      task: stringify(task),
+      dag: stringify(dag),
+      executionMethod: stringify(executionMethod),
+      result: stringify(result),
       reviewPrefix,
-      session?.user.id
-    );
+      namespace: session?.user.id
+    });
 
     if (session?.user.id) {
       try {
         const caller = appRouter.createCaller({ session, prisma });
         const createResultOptions = { goalId, value: exeResult, graph: dag };
-        console.log("createResultOptions", createResultOptions);
-        const _createResult = await caller.goal.createResult(createResultOptions);
-        console.log("_createResult", _createResult);
+        const createResult = await caller.goal.createResult(createResultOptions);
+        const donePacket: ChainPacket = { type: "done", value: stringify(createResult) }
+        res.write(stringify(donePacket))
       } catch (error) {
         // ignore
         console.error(error);
@@ -215,7 +223,7 @@ const handler = async (req: IncomingMessage, res: NextApiResponse) => {
         "Transfer-Encoding": "chunked",
       });
     }
-    res.end(stringify(errorPacket))
+    res.end(stringify([errorPacket]))
   }
 };
 

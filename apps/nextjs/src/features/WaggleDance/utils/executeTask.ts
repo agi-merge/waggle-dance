@@ -82,27 +82,35 @@ export default async function executeTask(
 
                 // Read the stream data and process based on response
                 const reader = stream.getReader();
-                let tokens = "";
                 let buffer = Buffer.alloc(0);
                 try {
-                    while (true && !abortSignal.aborted) {
+                    while (!abortSignal.aborted) {
                         const { done, value } = await reader.read();
                         if (done) {
-                            // Decode response data
-                            // Process response data and store packets in completedTasksSet and taskResults
-                            // const packet = parse(buffer)
-                            // Process buffer to extract tokens, update concatenatedTokens, and process packets
-                            const packets = parse(buffer.toString()) as Partial<ChainPacket>[];
-                            packets.forEach((packet) => {
-                                if (packet.type === "token" && packet.token) {
-                                    tokens += packet.token;
+                            value && (buffer = Buffer.concat([buffer, Buffer.from(value)]));
+                            debugger;
+                            const packets = parse(buffer.toString()) as ChainPacket[];
+                            let packet = packets.findLast((packet) => { packet.type === "handleAgentEnd" || packet.type === "done" });
+                            // debugger
+                            if (!packet) {
+                                packet = packets.findLast((packet) => { packet.type === "error" || packet.type === "handleChainError" || packet.type === "handleToolError" || packet.type === "handleLLMError" });
+                            } else {
+                                completedTasksSet.add(task.id);
+                                if (packet.type === "handleAgentEnd") {
+                                    taskResults[task.id] = packet.action?.returnValues;
+                                } else if (packet.type === "done") {
+                                    taskResults[task.id] = packet.value;
                                 }
-                            });
-                            completedTasksSet.add(task.id);
-                            taskResults[task.id] = tokens;
-                            const packet = { type: "done", nodeId: task.id, value: tokens } as ChainPacket
-                            log(`Stream ended, raw buffer for ${task.id}: ${tokens}`, "packet", packet)
-                            sendChainPacket(packet, task)
+                            }
+
+                            if (!packet) {
+                                debugger
+                                sendChainPacket({ type: "error", severity: "fatal", message: "No exe result packet found" }, task)
+                            } else {
+                                debugger
+                                log(`Stream ended for ${task.id}}`, "packet", packet)
+                                sendChainPacket(packet, task)
+                            }
                             return packet;
                         } else if (value.length) {
                             buffer = Buffer.concat([buffer, Buffer.from(value)]);
@@ -132,6 +140,7 @@ export default async function executeTask(
             await sleep(500);
         }
     } catch (error) {
+        sendChainPacket({ type: "error", severity: "fatal", message: String(error) }, task);
         throw error;
     }
 

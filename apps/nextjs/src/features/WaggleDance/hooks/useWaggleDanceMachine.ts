@@ -132,7 +132,7 @@ const useWaggleDanceMachine = ({
     const existingTask = chainPackets[node.id];
     if (!existingTask) {
       if (!node) {
-        // log(`Warning: node ${chainPacket.nodeId} not found in the dag during state update`);
+        log(`Warning: node not found in the dag during chain packet update: ${chainPacket.type}`);
         return;
       } else {
         setChainPackets((prevChainPackets) => ({
@@ -157,7 +157,7 @@ const useWaggleDanceMachine = ({
         [node.id]: updatedTask,
       }));
     }
-  }, [chainPackets, setChainPackets]);
+  }, [chainPackets, setChainPackets, log]);
 
   const [graphData, setGraphData] = useState<GraphData>({
     nodes: [],

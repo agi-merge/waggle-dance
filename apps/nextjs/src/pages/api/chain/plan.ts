@@ -34,26 +34,28 @@ export default async function PlanStream(req: NextRequest) {
             controller.enqueue(encoder.encode(stringify([packet])));
           },
 
-          handleChainError(err: unknown, runId: string, parentRunId?: string) {
+          handleChainError(err: unknown, _runId: string, _parentRunId?: string) {
             let errorMessage = "";
             if (err instanceof Error) {
               errorMessage = err.message;
             } else {
               errorMessage = String(err);
             }
-            const packet: ChainPacket = { type: "handleChainError", err: errorMessage, runId, parentRunId }
+            const packet: ChainPacket = { type: "handleChainError", err: errorMessage }
             controller.enqueue(encoder.encode(stringify([packet])));
+            console.log("handleChainError", packet);
           },
 
-          handleLLMError(err: unknown, runId: string, parentRunId?: string | undefined): void | Promise<void> {
+          handleLLMError(err: unknown, _runId: string, _parentRunId?: string | undefined): void | Promise<void> {
             let errorMessage = "";
             if (err instanceof Error) {
               errorMessage = err.message;
             } else {
               errorMessage = String(err);
             }
-            const packet: ChainPacket = { type: "handleLLMError", err: errorMessage, runId, parentRunId }
+            const packet: ChainPacket = { type: "handleLLMError", err: errorMessage }
             controller.enqueue(encoder.encode(stringify([packet])));
+            console.log("handleLLMError", packet);
           },
         };
 
@@ -104,7 +106,7 @@ export default async function PlanStream(req: NextRequest) {
     const all = { stack, message, status };
     console.error("plan error", all);
     const errorPacket: ChainPacket = { type: "error", severity: "fatal", message: JSON.stringify(all) };
-    return new Response(stringify(errorPacket), {
+    return new Response(stringify([errorPacket]), {
       headers: {
         "Content-Type": "application/yaml",
       },

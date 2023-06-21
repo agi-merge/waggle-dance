@@ -85,19 +85,19 @@ export type ChainValues = Record<string, unknown>;
 
 export type ChainPacket =
   // server-side only
-  | { type: "handleLLMStart", llm: Serialized, prompts: string[], runId: string, parentRunId?: string | undefined, extraParams?: Record<string, unknown> | undefined }
+  | { type: "handleLLMStart", llm: Serialized }
   | { type: "token", token: string } // handleLLMNewToken (shorted on purpose)
-  | { type: "handleLLMEnd", output: LLMResult, runId?: string, parentRunId?: string }
-  | { type: "handleLLMError", err: unknown, runId: string, parentRunId?: string }
-  | { type: "handleChainEnd", outputs: ChainValues, runId: string, parentRunId?: string }
-  | { type: "handleChainError", err: unknown, runId: string, parentRunId?: string }
-  | { type: "handleChainStart", chain: Serialized, inputs: ChainValues, runId: string, parentRunId?: string }
-  | { type: "handleToolEnd", output: string, runId: string, parentRunId?: string }
-  | { type: "handleToolError", err: unknown, runId: string, parentRunId?: string }
-  | { type: "handleToolStart", tool: Serialized, input: string, runId: string, parentRunId?: string }
-  | { type: "handleAgentAction", action: AgentAction, runId: string, parentRunId?: string }
-  | { type: "handleAgentEnd", action: AgentFinish, runId: string, parentRunId?: string }
-  | { type: "handleText", text: string, runId: string, parentRunId?: string }
+  | { type: "handleLLMEnd", output: LLMResult }
+  | { type: "handleLLMError", err: unknown, }
+  | { type: "handleChainEnd", outputs: ChainValues, }
+  | { type: "handleChainError", err: unknown, }
+  | { type: "handleChainStart", chain: Serialized }
+  | { type: "handleToolEnd", output: string, }
+  | { type: "handleToolError", err: unknown, }
+  | { type: "handleToolStart", tool: Serialized, input: string, }
+  | { type: "handleAgentAction", action: AgentAction, }
+  | { type: "handleAgentEnd", action: AgentFinish, }
+  | { type: "handleText", text: string, }
   // our callbacks
   | { type: "done", value: string }
   | { type: "error"; severity: "warn" | "human" | "fatal", message: string }

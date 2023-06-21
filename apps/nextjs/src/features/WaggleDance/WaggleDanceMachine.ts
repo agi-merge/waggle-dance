@@ -17,10 +17,9 @@ import {
   type WaggleDanceResult,
   type IsDonePlanningState,
 } from "./types";
-import executeTask, { sleep } from "./utils/executeTasks";
+import executeTask, { sleep } from "./utils/executeTask";
 import planTasks from "./utils/planTasks"
 import { type ChainPacket } from "@acme/chain";
-import { v4 as uuidv4 } from 'uuid';
 
 // Check if every node is included in the completedTasks set
 function isGoalReached(dag: DAG, completedTasks: Set<string>): boolean {
@@ -98,7 +97,11 @@ export default class WaggleDanceMachine {
         completedTasks = new Set([...newCompletedTasks, ...completedTasks]);
         taskResults = { ...newTaskResults, ...taskResults };
         const node = dag.nodes.find(n => task.id == n.id)
-        node ? sendChainPacket({ type: "done", value: JSON.stringify(taskResults) }, node) : console.warn("node not found", task.id)
+        if (!node) {
+          throw new Error("no node to sendChainPacket")
+        } else {
+          sendChainPacket({ type: "done", value: JSON.stringify(taskResults) }, node)
+        }
         log("taskResults", taskResults);
         taskState.firstTaskState = "done";
       } else {

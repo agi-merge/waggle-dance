@@ -18,7 +18,7 @@ import { initializeAgentExecutorWithOptions } from "langchain/agents";
 import {
   BaseMemory,
 } from "langchain/memory";
-export async function createExecutionAgent(
+export async function createExecutionAgent(creation: {
   creationProps: ModelCreationProps,
   goal: string,
   goalId: string,
@@ -28,7 +28,8 @@ export async function createExecutionAgent(
   result: string,
   reviewPrefix: string,
   namespace?: string,
-) {
+}) {
+  const { creationProps, goal, task, dag, executionMethod, result, reviewPrefix, namespace } = creation;
   const callbacks = creationProps.callbacks;
   creationProps.callbacks = undefined;
   const llm = createModel(creationProps);

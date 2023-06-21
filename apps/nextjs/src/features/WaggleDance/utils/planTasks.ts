@@ -62,7 +62,7 @@ export default async function planTasks(
             });
             // finally, parse the tokens into a DAG
             const yaml = parse(tokens) as Partial<DAG>;
-            if (yaml && yaml) {
+            if (yaml && yaml.nodes && yaml.nodes.length > 0) {
                 const optDag = yaml;
                 const validNodes = optDag.nodes?.filter((n) => n.name.length > 0 && n.act.length > 0 && n.id.length > 0 && n.context);
                 const validEdges = optDag.edges?.filter((n) => n.sId.length > 0 && n.tId.length > 0);
