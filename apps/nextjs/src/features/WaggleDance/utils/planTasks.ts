@@ -1,8 +1,8 @@
 // utils/planTasks.ts
 
 import { type ChainPacket, type ModelCreationProps } from "@acme/chain";
-import { parse } from "yaml";
-import DAG from "../DAG";
+import { parse, stringify } from "yaml";
+import DAG, { type DAGNodeClass } from "../DAG";
 import { DAGEdgeClass, type DAGNode } from "../DAG";
 import { initialNodes, initialEdges, findNodesWithNoIncomingEdges, rootPlanId, type OptimisticFirstTaskState } from "../WaggleDanceMachine";
 
@@ -15,7 +15,7 @@ export default async function planTasks(
     dag: DAG,
     setDAG: (dag: DAG) => void,
     log: (...args: (string | number | object)[]) => void,
-    sendChainPacket: (chainPacket: ChainPacket, node: DAGNode) => void,
+    sendChainPacket: (chainPacket: ChainPacket, node: DAGNode | DAGNodeClass) => void,
     taskState: OptimisticFirstTaskState,
     abortSignal: AbortSignal,
     updateTaskState?: (state: "not started" | "started" | "done") => void,
@@ -35,7 +35,7 @@ export default async function planTasks(
     }
     // Get the response body as a stream
     const stream = res.body;
-    let initialNode: DAGNode | undefined
+    let initialNode: DAGNode | DAGNodeClass | undefined
     if (!stream) {
         throw new Error(`No stream: ${res.statusText} `);
     } else {
@@ -121,21 +121,59 @@ export default async function planTasks(
         return tokens
     }
 
-    // Convert the ReadableStream<Uint8Array> to a string
-    const dagYamlString = await streamToString(stream);
 
-    try {
-        let dag: DAG;
-        if (typeof dagYamlString === "string") {
-            dag = parse(dagYamlString) as DAG;
-        } else {
-            dag = dagYamlString;
+    async function parseDAG(stream: ReadableStream<Uint8Array>): Promise<DAG> {
+        // Convert the ReadableStream<Uint8Array> to a string
+        const dagYamlString = await streamToString(stream);
+
+        try {
+            let dag: DAG;
+            if (typeof dagYamlString === "string") {
+                dag = parse(dagYamlString) as DAG;
+            } else {
+                dag = dagYamlString;
+            }
+
+            // TODO: if this fails, spin up a ConstitutionChain w/ return type reinforcement
+            return dag;
+        } catch (error) {
+            console.error(error);
+            console.log("yaml", dagYamlString);
+
+            try {
+                // Attempt to fix formatting errors if parsing failed initially
+                const fixedYamlString = fixYamlFormattingWithError(dagYamlString as string);
+                const fixedDag: DAG = parse(fixedYamlString) as DAG;
+                return fixedDag;
+            } catch (innerError) {
+                console.error(innerError);
+                throw new Error(`Error parsing DAG: ${error}`);
+            }
         }
-
-        // TODO: if this fails, spin up a ConstitutionChain w/ return type reinforcement
-        return dag;
-    } catch (error) {
-        console.error(error);
-        throw new Error(`Error parsing DAG: ${error}`);
     }
+
+    return await parseDAG(stream);
+
+}
+
+
+function fixYamlIssues(yamlString: string): string {
+    return yamlString.split('\n')
+        .map((line: string): string => {
+            const match: RegExpMatchArray | null = line.match(/^( *)(\w+): ?(.*)?$/);
+            if (match) {
+                const [, indentation, key, value] = match;
+                const trimmedValue: string = (value || '').trim();
+                return `${indentation}${key}: ${trimmedValue}`;
+            }
+            return line;
+        })
+        .join('\n');
+}
+
+function fixYamlFormattingWithError(yamlString: string): string {
+    const fixedYamlIssues: string = fixYamlIssues(yamlString);
+    const yamlData: unknown = parse(fixedYamlIssues);
+    const fixedYamlString: string = stringify(yamlData, { indent: 2 });
+    return fixedYamlString;
 }

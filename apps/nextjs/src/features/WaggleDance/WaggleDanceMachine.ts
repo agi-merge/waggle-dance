@@ -66,27 +66,28 @@ export default class WaggleDanceMachine {
     request: BaseRequestBody,
     [initDAG, setDAG]: GraphDataState,
     [isDonePlanning, setIsDonePlanning]: IsDonePlanningState,
-    sendChainPacket: (chainPacket: ChainPacket, node: DAGNode) => void,
+    sendChainPacket: (chainPacket: ChainPacket, node: DAGNode | DAGNodeClass) => void,
     log: (...args: (string | number | object)[]) => void,
     executionMethod: string,
     isRunning: boolean,
     abortSignal: AbortSignal,
   ): Promise<WaggleDanceResult | Error> {
     const reviewPrefix = `criticize-`
-    const taskState = { firstTaskState: "not started" as "not started" | "started" | "done" | "error" } as OptimisticFirstTaskState;
+    const optimisticFirstTaskState = { firstTaskState: "not started" as "not started" | "started" | "done" | "error" } as OptimisticFirstTaskState;
 
     let dag: DAG
-    let completedTasks: Set<string> = new Set([rootPlanId]);
-    let taskResults: Record<string, BaseResultType> = {};
+    const completedTasks: Set<string> = new Set([rootPlanId]);
+    const taskResults: Record<string, BaseResultType> = {};
     const maxConcurrency = request.creationProps.maxConcurrency ?? 4;
 
-    const startFirstTask = async (task: DAGNode, dag: DAG) => {
+    const startFirstTask = async (task: DAGNode | DAGNodeClass, dag: DAG) => {
       log("speed optimization: we are able to execute the first task while still planning.")
-      taskState.firstTaskState = "started";
-      taskState.taskId = task.id
+      optimisticFirstTaskState.firstTaskState = "started";
+      optimisticFirstTaskState.taskId = task.id
+      completedTasks.add(task.id); // calling this pre-emptively allows our logic for regular tasks to remain simple.
       // Call the executeTasks function for the given task and update the states accordingly
       if (!abortSignal.aborted) {
-        const { completedTasks: newCompletedTasks, taskResults: newTaskResults } = await executeTask(
+        const result = await executeTask(
           { ...request, task, dag, taskResults, completedTasks, reviewPrefix, executionMethod },
           maxConcurrency,
           isRunning,
@@ -94,19 +95,26 @@ export default class WaggleDanceMachine {
           log,
           abortSignal,
         )
-        completedTasks = new Set([...newCompletedTasks, ...completedTasks]);
-        taskResults = { ...newTaskResults, ...taskResults };
-        const node = dag.nodes.find(n => task.id == n.id)
+        taskResults[task.id] = result;
+        const node = dag.nodes.find(n => task.id === n.id)
         if (!node) {
+          optimisticFirstTaskState.firstTaskState = "error";
           throw new Error("no node to sendChainPacket")
         } else {
-          sendChainPacket({ type: "done", value: JSON.stringify(taskResults) }, node)
+          if (!result) {
+            sendChainPacket({ type: "error", severity: "warn", message: "no task result" }, node)
+            optimisticFirstTaskState.firstTaskState = "error";
+            return;
+          } else {
+            debugger
+            sendChainPacket({ type: "done", value: String(result) }, node)
+          }
         }
         log("taskResults", taskResults);
-        taskState.firstTaskState = "done";
+        optimisticFirstTaskState.firstTaskState = "done";
       } else {
         console.warn("aborted startFirstTask")
-        taskState.firstTaskState = "error";
+        optimisticFirstTaskState.firstTaskState = "error";
         return
       }
       // console.error("Error executing the first task:", error);
@@ -117,11 +125,10 @@ export default class WaggleDanceMachine {
     } else {
       setIsDonePlanning(false);
       const updateTaskState = (state: "not started" | "started" | "done") => {
-        taskState.firstTaskState = state;
+        optimisticFirstTaskState.firstTaskState = state;
       };
 
-      dag = await planTasks(request.goal, request.goalId, request.creationProps, initDAG, setDAG, log, sendChainPacket, taskState, abortSignal, updateTaskState, startFirstTask);
-      // debugger;
+      dag = await planTasks(request.goal, request.goalId, request.creationProps, initDAG, setDAG, log, sendChainPacket, optimisticFirstTaskState, abortSignal, updateTaskState, startFirstTask);
       const hookupEdges = findNodesWithNoIncomingEdges(dag).map((node) => new DAGEdgeClass(rootPlanId, node.id))
       dag = new DAG(
         [...initialNodes(request.goal, request.creationProps.modelName), ...dag.nodes],
@@ -129,8 +136,11 @@ export default class WaggleDanceMachine {
         [...initialEdges(), ...dag.edges ?? [], ...hookupEdges],
       );
       if (dag && dag.nodes) {
-        const rootNode = dag.nodes.find(n => n.id == rootPlanId)
-        rootNode && sendChainPacket({ type: "done", value: "Planned an execution graph." }, rootNode) || log("no root node to sendChainPacket")
+        const rootNode = dag.nodes.find(n => n.id === rootPlanId)
+        if (!rootNode) {
+          throw new Error("no root node")
+        }
+        sendChainPacket({ type: "done", value: "Planned an execution graph." }, rootNode)
       } else {
         log("no nodes in dag")
         throw new Error("no nodes in dag")
@@ -151,32 +161,30 @@ export default class WaggleDanceMachine {
         (node) => !completedTasks.has(node.id),
       );
 
-      if (pendingTasks.length === 0) {
+      if (pendingTasks.length === 0 || optimisticFirstTaskState.firstTaskState === "started") {
         await sleep(1000); // FIXME: observation model instead
         continue;
       }
 
-      const relevantPendingTasks = pendingTasks.filter((task) =>
-        !(taskState.firstTaskState === "started" && task.id === taskState.taskId) && !(completedTasks.has(task.id)) && dag.edges
-          .filter((edge) => edge.tId === task.id)
-          .every((edge) => completedTasks.has(edge.sId)),
+      const pendingCurrentDagLayerTasks = pendingTasks.filter((task) =>
+        dag.edges.filter((edge) => edge.tId === task.id).every((edge) => completedTasks.has(edge.sId)),
       );
 
-      if (relevantPendingTasks.length === 0) {
+      if (pendingCurrentDagLayerTasks.length === 0) {
         if (pendingTasks.length === 0 && toDoNodes.length === 0) {
           throw new Error("No pending tasks, and no executable tasks, but goal not reached.")
         }
-        console.log("waiting for tasks to complete")
-        await sleep(1000);
-        // throw new Error("No relevantPendingTasks tasks, but goal not reached.");
       }
-      if (relevantPendingTasks.length > 0) {
-        log("relevantPendingTasks", relevantPendingTasks.map((task) => task.name))
+      if (pendingCurrentDagLayerTasks.length > 0) {
+        log("relevantPendingTasks", pendingCurrentDagLayerTasks.map((task) => task.name))
       }
 
-      const task = relevantPendingTasks.splice(0, 1)[0] // pop first task
+      const task = pendingCurrentDagLayerTasks.splice(0, 1)[0] // pop first task
+      if (!task) {
+        throw new Error("no task")
+      }
       // task && pendingTasks.splice(pendingTasks.indexOf(task), 1) // remove from pending tasks
-      task && toDoNodes.splice(toDoNodes.indexOf(task), 1) // remove from toDoNodes
+      toDoNodes.splice(toDoNodes.indexOf(task), 1) // remove from toDoNodes
       const executeRequest = {
         ...request,
         task,
@@ -187,15 +195,10 @@ export default class WaggleDanceMachine {
       } as ExecuteRequestBody;
 
       void (async () => {
-        const executionResponse = await executeTask(executeRequest, maxConcurrency, isRunning, sendChainPacket, log, abortSignal);
-        taskResults = { ...taskResults, ...executionResponse.taskResults };
-        for (const taskId of executionResponse.completedTasks) {
-          completedTasks.add(taskId);
-        }
+        const exeResult = await executeTask(executeRequest, maxConcurrency, isRunning, sendChainPacket, log, abortSignal);
+        taskResults[executeRequest.task.id] = exeResult;
+        completedTasks.add(executeRequest.task.id);
       })()
-
-
-      await sleep(1000);
     }
 
     console.log("WaggleDanceMachine.run: completedTasks", completedTasks)

@@ -4,7 +4,7 @@ import { useCallback, useEffect, useMemo, useState } from "react";
 
 import { type ChainPacket, LLM, llmResponseTokenLimit } from "@acme/chain";
 
-import DAG, { type DAGNode } from "../DAG";
+import DAG, { type DAGNodeClass, type DAGNode } from "../DAG";
 import WaggleDanceMachine, { initialEdges, initialNodes } from "../WaggleDanceMachine";
 import { type GraphData } from "../components/ForceGraph";
 import { dagToGraphData } from "../utils/conversions";
@@ -128,7 +128,11 @@ const useWaggleDanceMachine = ({
     return taskStates;
   }, [chainPackets, dag.nodes]);
 
-  const sendChainPacket = useCallback((chainPacket: ChainPacket, node: DAGNode) => {
+  const sendChainPacket = useCallback((chainPacket: ChainPacket, node: DAGNode | DAGNodeClass) => {
+    if (!node || !node.id) {
+      debugger
+      throw new Error("wtf");
+    }
     const existingTask = chainPackets[node.id];
     if (!existingTask) {
       if (!node) {
@@ -198,7 +202,7 @@ const useWaggleDanceMachine = ({
           goal: prompt,
           goalId,
           creationProps: {
-            modelName: llmOption === LLM.smart ? LLM.smart : LLM.fast,
+            modelName: llmOption === LLM.smart ? LLM.smart : LLM.fast, // FIXME: use settings properly instead of fast/smart only
             temperature: temperatureOption === "Stable" ? 0 : temperatureOption === "Balanced" ? 0.4 : 0.9,
             maxTokens,
             maxConcurrency: 4,

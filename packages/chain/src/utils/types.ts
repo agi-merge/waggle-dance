@@ -3,7 +3,7 @@
 import { type OpenAIEmbeddingsParams } from "langchain/embeddings/openai";
 import { type BaseLLMParams } from "langchain/llms/base";
 import { type OpenAIInput } from "langchain/llms/openai";
-import { type AgentAction, type AgentFinish } from "langchain/schema";
+import { type AgentAction } from "langchain/schema";
 import { type Serialized } from "langchain/load/serializable";
 
 const TEXT_EMBEDDING_ADA = "text-embedding-ada-002";
@@ -85,7 +85,7 @@ export type ChainValues = Record<string, unknown>;
 
 export type ChainPacket =
   // server-side only
-  | { type: "handleLLMStart", llm: Serialized }
+  | { type: "handleLLMStart" }
   | { type: "token", token: string } // handleLLMNewToken (shorted on purpose)
   | { type: "handleLLMEnd", output: string }
   | { type: "handleLLMError", err: unknown, }
@@ -96,7 +96,7 @@ export type ChainPacket =
   | { type: "handleToolError", err: unknown, }
   | { type: "handleToolStart", tool: Serialized, input: string, }
   | { type: "handleAgentAction", action: AgentAction, }
-  | { type: "handleAgentEnd", action: AgentFinish, }
+  | { type: "handleAgentEnd", returnValues: unknown }
   | { type: "handleText", text: string, }
   // our callbacks
   | { type: "done", value: string }

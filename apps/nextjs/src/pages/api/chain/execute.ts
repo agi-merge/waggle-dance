@@ -1,14 +1,14 @@
 // api/chain/execute.ts
 
 import { type ExecuteRequestBody } from "./types";
-import { type ChainValues, createExecutionAgent, type ChainPacket } from "@acme/chain";
+import { createExecutionAgent, type ChainPacket } from "@acme/chain";
 import { stringify } from "yaml";
 import { type NextApiRequest, type NextApiResponse } from "next";
 import { getServerSession } from "@acme/auth";
 import { type IncomingMessage } from "http";
 import { appRouter } from "@acme/api";
 import { prisma } from "@acme/db";
-import { type AgentAction, type AgentFinish, type LLMResult } from "langchain/schema";
+import { type AgentAction, type AgentFinish } from "langchain/schema";
 import { type Serialized } from "langchain/load/serializable";
 import { BaseCallbackHandler } from "langchain/callbacks";
 
@@ -49,7 +49,10 @@ const handler = async (req: IncomingMessage, res: NextApiResponse) => {
     });
 
     const inlineCallback = BaseCallbackHandler.fromMethods({
-
+      handleLLMStart(): void | Promise<void> {
+        const packet: ChainPacket = { type: "handleLLMStart" }
+        res.write(stringify([packet]));
+      },
       /**
        * Called if an LLM/ChatModel run encounters an error
        */
@@ -64,6 +67,9 @@ const handler = async (req: IncomingMessage, res: NextApiResponse) => {
         res.write(stringify([packet]));
         console.error("handleLLMError", packet);
       },
+      /**
+       * Called if a Chain run encounters an error
+       */
       handleChainError(err: unknown, _runId: string, _parentRunId?: string | undefined): void | Promise<void> {
         let errorMessage = "";
         if (err instanceof Error) {
@@ -117,7 +123,7 @@ const handler = async (req: IncomingMessage, res: NextApiResponse) => {
        * with the final output and the run ID.
        */
       handleAgentEnd(action: AgentFinish, _runId: string, _parentRunId?: string | undefined): void | Promise<void> {
-        const packet: ChainPacket = { type: "handleAgentEnd", action, }
+        const packet: ChainPacket = { type: "handleAgentEnd", returnValues: action.returnValues && action.returnValues["output"] as unknown }
         res.write(stringify([packet]));
       }
     });
@@ -148,15 +154,14 @@ const handler = async (req: IncomingMessage, res: NextApiResponse) => {
       try {
         const caller = appRouter.createCaller({ session, prisma });
         const createResultOptions = { goalId, value: exeResult, graph: dag };
-        const createResult = await caller.goal.createResult(createResultOptions);
-        const donePacket: ChainPacket = { type: "done", value: stringify(createResult) }
-        res.write(stringify(donePacket))
+        const _createResult = await caller.goal.createResult(createResultOptions);
       } catch (error) {
         // ignore
         console.error(error);
       }
     }
-    res.end();
+    const donePacket: ChainPacket = { type: "done", value: exeResult }
+    res.end(stringify([donePacket]));
   } catch (e) {
     let message;
     let status: number;
