@@ -130,8 +130,7 @@ const useWaggleDanceMachine = ({
 
   const sendChainPacket = useCallback((chainPacket: ChainPacket, node: DAGNode | DAGNodeClass) => {
     if (!node || !node.id) {
-      debugger
-      throw new Error("wtf");
+      throw new Error("a node does not exist to receive data");
     }
     const existingTask = chainPackets[node.id];
     if (!existingTask) {
