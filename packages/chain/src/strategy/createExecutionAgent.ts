@@ -29,7 +29,7 @@ export async function createExecutionAgent(creation: {
   reviewPrefix: string,
   abortSignal: AbortSignal,
   namespace?: string,
-}) {
+}): Promise<string | Error> {
   const { creationProps, goal, task, dag, executionMethod, result, reviewPrefix, abortSignal, namespace } = creation;
   const callbacks = creationProps.callbacks;
   creationProps.callbacks = undefined;
@@ -105,7 +105,8 @@ export async function createExecutionAgent(creation: {
     executor = await initializeAgentExecutorWithOptions(tools, llm, {
       agentType: "chat-conversational-react-description",
       streaming: true,
-      returnIntermediateSteps: false,
+      returnIntermediateSteps: true,
+      maxIterations: 25,
       memory,
       ...creationProps,
     });
@@ -116,11 +117,13 @@ export async function createExecutionAgent(creation: {
     });
   }
 
+  try {
+    const call = await executor.call({ input: formattedPrompt, chat_history, signal: abortSignal }, callbacks);
 
-  const call = await executor.call({ input: formattedPrompt, chat_history, signal: abortSignal ?? undefined }, callbacks);
+    const response = call?.output ? (call.output as string) : "";
 
-  const response = call?.output ? (call.output as string) : "";
-
-  console.log("finished task, got response", stringify(response));
-  return response;
+    return response;
+  } catch (error) {
+    return error as Error
+  }
 }

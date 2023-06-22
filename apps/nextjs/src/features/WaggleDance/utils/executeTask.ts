@@ -55,35 +55,29 @@ export default async function executeTask(
 ): Promise<string> {
     const { task } = request;
 
-    try {
-        if (abortSignal.aborted) throw new Error("Signal aborted");
+    if (abortSignal.aborted) throw new Error("Signal aborted");
 
-        log(`About to execute task ${task.id} -${task.name}...`);
-        sendChainPacket({ type: "starting", nodeId: task.id }, task);
+    log(`About to execute task ${task.id} -${task.name}...`);
+    sendChainPacket({ type: "starting", nodeId: task.id }, task);
 
-        const response = await fetchTaskData(request, task, abortSignal);
-        const stream = response.body;
-        if (!response.ok || !stream) {
-            throw new Error(`No stream: ${response.statusText} `);
-        }
+    const response = await fetchTaskData(request, task, abortSignal);
+    const stream = response.body;
+    if (!response.ok || !stream) {
+        throw new Error(`No stream: ${response.statusText} `);
+    }
 
-        sendChainPacket({ type: "working", nodeId: task.id }, task);
-        log(`Task ${task.id} -${task.name} stream began!`);
+    sendChainPacket({ type: "working", nodeId: task.id }, task);
+    log(`Task ${task.id} -${task.name} stream began!`);
 
-        const buffer = await readResponseStream(stream, abortSignal);
-        if (!buffer) {
-            throw new Error(`No buffer: ${response.statusText} `);
-        }
-        const packet = processResponseBuffer(task, buffer);
+    const buffer = await readResponseStream(stream, abortSignal);
+    if (!buffer) {
+        throw new Error(`No buffer: ${response.statusText} `);
+    }
+    const packet = processResponseBuffer(task, buffer);
 
-        if (packet.type === "handleAgentEnd" || packet.type === "done") {
-            return stringify(packet.value);
-        } else {
-            throw new Error(`Error retrieving task result ${task.id} -${task.name}: ${stringify(packet)}`);
-        }
-    } catch (error) {
-        const message = stringify(error);
-        sendChainPacket({ type: "error", severity: "fatal", message }, task);
-        return message;
+    if (packet.type === "handleAgentEnd" || packet.type === "done") {
+        return stringify(packet.value);
+    } else {
+        throw new Error(`Error retrieving task result ${task.id} -${task.name}: ${stringify(packet)}`);
     }
 }

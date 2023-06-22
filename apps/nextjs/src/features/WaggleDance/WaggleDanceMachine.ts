@@ -50,7 +50,6 @@ export function findNodesWithNoIncomingEdges(dag: DAG | OptionalDAG): DAGNode[] 
       nodesWithNoIncomingEdges.push(node);
     }
   }
-
   return nodesWithNoIncomingEdges;
 }
 
@@ -87,14 +86,21 @@ export default class WaggleDanceMachine {
       completedTasks.add(task.id); // calling this pre-emptively allows our logic for regular tasks to remain simple.
       // Call the executeTasks function for the given task and update the states accordingly
       if (!abortSignal.aborted) {
-        const result = await executeTask(
-          { ...request, task, dag, taskResults, completedTasks, reviewPrefix, executionMethod },
-          maxConcurrency,
-          isRunning,
-          sendChainPacket,
-          log,
-          abortSignal,
-        )
+        let result;
+        try {
+          result = await executeTask(
+            { ...request, task, dag, taskResults, completedTasks, reviewPrefix, executionMethod },
+            maxConcurrency,
+            isRunning,
+            sendChainPacket,
+            log,
+            abortSignal,
+          )
+        } catch (error) {
+          sendChainPacket({ type: "error", severity: "warn", message: String(error) }, task)
+          optimisticFirstTaskState.firstTaskState = "error";
+          return;
+        }
         taskResults[task.id] = result;
         const node = dag.nodes.find(n => task.id === n.id)
         if (!node) {
@@ -105,12 +111,11 @@ export default class WaggleDanceMachine {
             sendChainPacket({ type: "error", severity: "warn", message: "no task result" }, node)
             optimisticFirstTaskState.firstTaskState = "error";
             return;
-          } else {
-            debugger
-            sendChainPacket({ type: "done", value: String(result) }, node)
+          } else if (typeof result === "string") {
+            sendChainPacket({ type: "done", value: result }, node)
           }
         }
-        log("taskResults", taskResults);
+        log("optimistic first task succeeded", result);
         optimisticFirstTaskState.firstTaskState = "done";
       } else {
         console.warn("aborted startFirstTask")
@@ -133,20 +138,20 @@ export default class WaggleDanceMachine {
       dag = new DAG(
         [...initialNodes(request.goal, request.creationProps.modelName), ...dag.nodes],
         // connect our initial nodes to the DAG: gotta find them and create edges
-        [...initialEdges(), ...dag.edges ?? [], ...hookupEdges],
+        [...initialEdges(), ...(dag.edges ?? []), ...hookupEdges],
       );
       if (dag && dag.nodes) {
         const rootNode = dag.nodes.find(n => n.id === rootPlanId)
         if (!rootNode) {
           throw new Error("no root node")
         }
-        sendChainPacket({ type: "done", value: "Planned an execution graph." }, rootNode)
+        sendChainPacket({ type: "done", value: `Planned an execution graph with ${dag.nodes.length} tasks and ${dag.edges.length} edges.` }, rootNode);
+        setIsDonePlanning(true);;
       } else {
         log("no nodes in dag")
         throw new Error("no nodes in dag")
       }
 
-      setIsDonePlanning(true);
       log("done planning");
     }
     // prepend our initial nodes to the DAG
@@ -195,8 +200,15 @@ export default class WaggleDanceMachine {
       } as ExecuteRequestBody;
 
       void (async () => {
-        const exeResult = await executeTask(executeRequest, maxConcurrency, isRunning, sendChainPacket, log, abortSignal);
-        taskResults[executeRequest.task.id] = exeResult;
+        let result;
+        try {
+          result = await executeTask(executeRequest, maxConcurrency, isRunning, sendChainPacket, log, abortSignal);
+
+        } catch (error) {
+          sendChainPacket({ type: "error", severity: "warn", message: String(error) }, task)
+          return;
+        }
+        taskResults[executeRequest.task.id] = result;
         completedTasks.add(executeRequest.task.id);
       })()
     }

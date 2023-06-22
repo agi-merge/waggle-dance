@@ -151,6 +151,12 @@ const handler = async (req: IncomingMessage, res: NextApiResponse) => {
       namespace: session?.user.id
     });
 
+    if (exeResult instanceof Error) {
+      const errorPacket: ChainPacket = { type: "error", severity: "fatal", message: String(exeResult) };
+      res.end(stringify([errorPacket]));
+      return;
+    }
+
     if (session?.user.id) {
       try {
         const caller = appRouter.createCaller({ session, prisma });
