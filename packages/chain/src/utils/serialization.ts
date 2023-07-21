@@ -2,7 +2,7 @@ type Constructor<T> = new (...args: unknown[]) => T;
 
 /* Check whether array is of the specified type */
 export const isArrayOfType = <T>(
-  arr: unknown[] | unknown,
+  arr: unknown[],
   type: Constructor<T> | string,
 ): arr is T[] => {
   return (

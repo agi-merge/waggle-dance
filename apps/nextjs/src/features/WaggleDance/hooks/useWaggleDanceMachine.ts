@@ -224,7 +224,7 @@ const useWaggleDanceMachine = ({
       res && setTaskResults(res)
       return result;
     }
-  }, [agentSettings, isDonePlanning, goal?.prompt, goal?.id, setIsRunning, waggleDanceMachine, dag, sendChainPacket, log, isRunning]);
+  }, [isDonePlanning, goal?.prompt, goal?.id, setIsRunning, waggleDanceMachine, agentSettings, dag, sendChainPacket, log, isRunning, abortController.signal]);
 
   return { waggleDanceMachine, dag, graphData, stop, run, setIsDonePlanning, isDonePlanning, logs, taskStates, taskResults };
 };

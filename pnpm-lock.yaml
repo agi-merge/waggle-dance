@@ -135,8 +135,8 @@ importers:
         specifier: ^3.2.0
         version: 3.2.0
       langchain:
-        specifier: ^0.0.100
-        version: 0.0.100(@aws-sdk/client-s3@3.353.0)(@pinecone-database/pinecone@0.1.6)(@upstash/redis@1.21.0)(d3-dsv@2.0.0)(mammoth@1.6.0)(pdf-parse@1.1.1)(playwright@1.35.1)
+        specifier: ^0.0.114
+        version: 0.0.114(@aws-sdk/client-s3@3.353.0)(@pinecone-database/pinecone@0.1.6)(@upstash/redis@1.21.0)(d3-dsv@2.0.0)(mammoth@1.6.0)(pdf-parse@1.1.1)(playwright@1.35.1)
       mammoth:
         specifier: ^1.6.0
         version: 1.6.0
@@ -442,13 +442,20 @@ packages:
       '@jridgewell/trace-mapping': 0.3.18
     dev: false
 
-  /@anthropic-ai/sdk@0.4.4:
-    resolution: {integrity: sha512-Z/39nQi1sSUCeLII3lsAbL1u+0JF6cR2XmUEX9sLH0VtxmIjY6cjOUYjCkYh4oapTxOkhAFnVSAFJ6cxml2qXg==}
+  /@anthropic-ai/sdk@0.5.7:
+    resolution: {integrity: sha512-0uLvrn24D9ehe8KXBFKohmdvMdhPk8jGYGaROOZo46fgbHKSTEOkEv1zmbYw4fAiF/qdPDBNav+8zfW0iD2WOg==}
     dependencies:
-      '@fortaine/fetch-event-source': 3.0.6
-      cross-fetch: 3.1.6
+      '@types/node': 18.16.18
+      '@types/node-fetch': 2.6.4
+      abort-controller: 3.0.0
+      agentkeepalive: 4.3.0
+      digest-fetch: 1.3.0
+      form-data-encoder: 1.7.2
+      formdata-node: 4.4.1
+      node-fetch: 2.6.11
     transitivePeerDependencies:
       - encoding
+      - supports-color
     dev: false
 
   /@aws-crypto/crc32@3.0.0:
@@ -1758,11 +1765,6 @@ packages:
     resolution: {integrity: sha512-sa6lr+lQQB1Iif2xyWZmcCbReV3dj6m0CNXw5xbDwKO4BPeZxz+G+Vy9zWdzhaKpjmK6Ap2wIn1x79XVcvMRtQ==}
     dev: false
 
-  /@fortaine/fetch-event-source@3.0.6:
-    resolution: {integrity: sha512-621GAuLMvKtyZQ3IA6nlDWhV1V/7PGOTNIGLUifxt0KzM+dZIweJ6F3XvQF3QnqeNfS1N7WQ0Kil1Di/lhChEw==}
-    engines: {node: '>=16.15'}
-    dev: false
-
   /@humanwhocodes/config-array@0.11.10:
     resolution: {integrity: sha512-KVVjQmNUepDVGXNuoRRdmmEjruj0KfiGSbS8LVc12LMsWDQzRXJ0qdhN8L8uUigKpfEHRhlaQFY0ib1tnUbNeQ==}
     engines: {node: '>=10.10.0'}
@@ -2731,9 +2733,15 @@ packages:
     resolution: {integrity: sha512-iiUgKzV9AuaEkZqkOLDIvlQiL6ltuZd9tGcW3gwpnX8JbuiuhFlEGmmFXEXkN50Cvq7Os88IY2v0dkDqXYWVgA==}
     dev: false
 
+  /@types/node-fetch@2.6.4:
+    resolution: {integrity: sha512-1ZX9fcN4Rvkvgv4E6PAY5WXUFWFcRWxZa3EW83UjycOB9ljJCedb2CupIP4RZMEwF/M3eTcCihbBRgwtGbg5Rg==}
+    dependencies:
+      '@types/node': 18.16.18
+      form-data: 3.0.1
+    dev: false
+
   /@types/node@18.16.18:
     resolution: {integrity: sha512-/aNaQZD0+iSBAGnvvN2Cx92HqE5sZCPZtx2TsK+4nvV23fFe09jVDvpArXr2j9DnYlzuU9WuoykDDc6wqvpNcw==}
-    dev: true
 
   /@types/node@20.4.2:
     resolution: {integrity: sha512-Dd0BYtWgnWJKwO1jkmTrzofjK2QXXcai0dmtzvIBhcA+RsG5h8R3xlyta0kGOZRNfL9GuRtb1knmPEhQrePCEw==}
@@ -3029,6 +3037,13 @@ packages:
     engines: {node: '>=10.0.0'}
     dev: false
 
+  /abort-controller@3.0.0:
+    resolution: {integrity: sha512-h8lQ8tacZYnR3vNQTgibj+tODHI5/+l06Au2Pcriv/Gmet0eaj4TwWH41sO9wnHDiQsEj19q0drzdWdeAHtweg==}
+    engines: {node: '>=6.5'}
+    dependencies:
+      event-target-shim: 5.0.1
+    dev: false
+
   /accessor-fn@1.5.0:
     resolution: {integrity: sha512-dml7D96DY/K5lt4Ra2jMnpL9Bhw5HEGws4p1OAIxFFj9Utd/RxNfEO3T3f0QIWFNwQU7gNxH9snUfqF/zNkP/w==}
     engines: {node: '>=12'}
@@ -3081,6 +3096,17 @@ packages:
       super-three: 0.147.1
       three-bmfont-text: github.com/dmarcos/three-bmfont-text/21d017046216e318362c48abd1a48bddfb6e0733
       webvr-polyfill: 0.10.12
+    transitivePeerDependencies:
+      - supports-color
+    dev: false
+
+  /agentkeepalive@4.3.0:
+    resolution: {integrity: sha512-7Epl1Blf4Sy37j4v9f9FjICCh4+KAQOyXgHEwlyBiAQLbhKdq/i2QQU3amQalS/wPhdPzDXPL5DMR5bkn+YeWg==}
+    engines: {node: '>= 8.0.0'}
+    dependencies:
+      debug: 4.3.4
+      depd: 2.0.0
+      humanize-ms: 1.2.1
     transitivePeerDependencies:
       - supports-color
     dev: false
@@ -3280,6 +3306,10 @@ packages:
   /balanced-match@1.0.2:
     resolution: {integrity: sha512-3oSeUO0TMV67hN1AmbXsK4yaqU7tjiHlbxRDZOpH0KW9+CeX4bRAaX0Anxt0tx2MrpRpWwQaPwIlISEJhYU5Pw==}
 
+  /base-64@0.1.0:
+    resolution: {integrity: sha512-Y5gU45svrR5tI2Vt/X9GPd3L0HNIKzGu202EjxrXMpuc2V2CiKgemAbUUsqYmZJvPtCXoUKjNZwBJzsNScUbXA==}
+    dev: false
+
   /base64-js@1.5.1:
     resolution: {integrity: sha512-AKpaYlHn8t4SVbOHCy+b5+KKgvR4vrsD8vbvrbiQJps7fKDTkjkDry6ji0rUJjC0kzbNePLwzxq8iypo41qeWA==}
     dev: false
@@ -3452,6 +3482,10 @@ packages:
     resolution: {integrity: sha512-shx7oQ0Awen/BRIdkjkvz54PnEEI/EjwXDSIZp86/KKdbafHh1Df/RYGBhn4hbe2+uKC9FnT5UCEdyPz3ai9hQ==}
     dev: false
 
+  /charenc@0.0.2:
+    resolution: {integrity: sha512-yrLQ/yVUFXkzg7EDQsPieE/53+0RlaWTs+wBrvW36cyilJ2SaDWfl4Yj7MtLTXleV9uEKefbAGUPv2/iWSooRA==}
+    dev: false
+
   /cheerio-select@2.1.0:
     resolution: {integrity: sha512-9v9kG0LvzrlcungtnJtpGNxY+fzECQKhK4EGJX2vByejiMX84MFNQw4UxPJl3bFbTMw+Dfs37XaIkCwTZfLh4g==}
     dependencies:
@@ -3617,6 +3651,10 @@ packages:
       path-key: 3.1.1
       shebang-command: 2.0.0
       which: 2.0.2
+
+  /crypt@0.0.2:
+    resolution: {integrity: sha512-mCxBlsHFYh9C+HVpiEacem8FEBnMXgU9gy4zmNC+SXAZNB/1idgp/aulFJ4FgCi7GPEVbfyng092GqL2k2rmow==}
+    dev: false
 
   /crypto-js@4.1.1:
     resolution: {integrity: sha512-o2JlM7ydqd3Qk9CA0L4NL6mTzU2sdx96a+oOfPu8Mkl/PK51vSyoi8/rQ8NknZtk44vq15lmhAj9CIAGwgeWKw==}
@@ -4043,6 +4081,11 @@ packages:
     engines: {node: '>=0.4.0'}
     dev: false
 
+  /depd@2.0.0:
+    resolution: {integrity: sha512-g7nH6P6dyDioJogAAGprGpCtVImJhpPk/roCzdb3fIh61/s/nPsfR6onyMwkCAR/OlC3yBC0lESvUoQEAssIrw==}
+    engines: {node: '>= 0.8'}
+    dev: false
+
   /dequal@2.0.3:
     resolution: {integrity: sha512-0je+qPKHEMohvfRTCEo3CrPG6cAzAYgmzKyxRiYSSDkS6eGJdyVJm7WaYA5ECaAD9wLB2T4EEeymA5aFVcYXCA==}
     engines: {node: '>=6'}
@@ -4067,6 +4110,13 @@ packages:
   /diff@5.1.0:
     resolution: {integrity: sha512-D+mk+qE8VC/PAUrlAU34N+VfXev0ghe5ywmpqrawphmVZc1bEfn56uo9qpyGp1p4xpzOHkSW4ztBd6L7Xx4ACw==}
     engines: {node: '>=0.3.1'}
+    dev: false
+
+  /digest-fetch@1.3.0:
+    resolution: {integrity: sha512-CGJuv6iKNM7QyZlM2T3sPAdZWd/p9zQiRNS9G+9COUCwzWFTs0Xp8NF5iePx7wtvhDykReiRRrSeNb4oMmB8lA==}
+    dependencies:
+      base-64: 0.1.0
+      md5: 2.3.0
     dev: false
 
   /dingbat-to-unicode@1.0.1:
@@ -4609,6 +4659,11 @@ packages:
     resolution: {integrity: sha512-kVscqXk4OCp68SZ0dkgEKVi6/8ij300KBWTJq32P/dYeWTSwK41WyTxalN1eRmA5Z9UU/LX9D7FWSmV9SAYx6g==}
     engines: {node: '>=0.10.0'}
 
+  /event-target-shim@5.0.1:
+    resolution: {integrity: sha512-i/2XbnSz/uxRCU6+NdVJgKWDTM427+MqYbkQzD321DuCQJUqOuJKIA0IM2+W2xtYHdKOmZ4dR6fExsd4SXL+WQ==}
+    engines: {node: '>=6'}
+    dev: false
+
   /eventemitter3@4.0.7:
     resolution: {integrity: sha512-8guHBZCwKnFhYdHr2ysuRWErTwhoN2X8XELRlrRwpmfeY2jjuUN4taQMsULKUVo1K4DvZl+0pgfyoysHxvmvEw==}
     dev: false
@@ -4787,6 +4842,19 @@ packages:
       lodash-es: 4.17.21
     dev: false
 
+  /form-data-encoder@1.7.2:
+    resolution: {integrity: sha512-qfqtYan3rxrnCk1VYaA4H+Ms9xdpPqvLZa6xmMgFvhO32x7/3J/ExcTd6qpxM0vH2GdMI+poehyBZvqfMTto8A==}
+    dev: false
+
+  /form-data@3.0.1:
+    resolution: {integrity: sha512-RHkBKtLWUVwd7SqRIvCZMEvAMoGUp0XU+seQiZejj0COz3RI3hWP4sCv3gZWWLjJTd7rGwcsF5eKZGii0r/hbg==}
+    engines: {node: '>= 6'}
+    dependencies:
+      asynckit: 0.4.0
+      combined-stream: 1.0.8
+      mime-types: 2.1.35
+    dev: false
+
   /form-data@4.0.0:
     resolution: {integrity: sha512-ETEklSGi5t0QMZuiXoA/Q6vcnxcLQP5vdugSpuAyi6SVGi2clPPp+xgEhuMaHC+zGgn31Kd235W35f7Hykkaww==}
     engines: {node: '>= 6'}
@@ -4794,6 +4862,14 @@ packages:
       asynckit: 0.4.0
       combined-stream: 1.0.8
       mime-types: 2.1.35
+    dev: false
+
+  /formdata-node@4.4.1:
+    resolution: {integrity: sha512-0iirZp3uVDjVGt9p49aTaqjk84TrglENEDuqfdlZQ1roC9CWlPk6Avf8EEnZNcAqPonwkG35x4n3ww/1THYAeQ==}
+    engines: {node: '>= 12.20'}
+    dependencies:
+      node-domexception: 1.0.0
+      web-streams-polyfill: 4.0.0-beta.3
     dev: false
 
   /formidable@2.1.1:
@@ -5112,6 +5188,12 @@ packages:
   /human-signals@4.3.1:
     resolution: {integrity: sha512-nZXjEF2nbo7lIw3mgYjItAfgQXog3OjJogSbKa2CQIIvSGWcKgeJnQlNXip6NglNzYH45nSRiEVimMvYL8DDqQ==}
     engines: {node: '>=14.18.0'}
+    dev: false
+
+  /humanize-ms@1.2.1:
+    resolution: {integrity: sha512-Fl70vYtsAFb/C06PTS9dZBo7ihau+Tu/DNCk/OyHhea07S+aeMWpFFkUaXRa8fI+ScZbEI8dfSxwY7gxZ9SAVQ==}
+    dependencies:
+      ms: 2.1.3
     dev: false
 
   /iconv-lite@0.4.24:
@@ -5523,23 +5605,28 @@ packages:
     engines: {node: '>=6'}
     dev: false
 
-  /langchain@0.0.100(@aws-sdk/client-s3@3.353.0)(@pinecone-database/pinecone@0.1.6)(@upstash/redis@1.21.0)(d3-dsv@2.0.0)(mammoth@1.6.0)(pdf-parse@1.1.1)(playwright@1.35.1):
-    resolution: {integrity: sha512-bWwVwDcT2aMUW4BipgnxgkMGj8TSReXbbiuCsesyhFCRqAvlu2f2gqqgy/PKskPA7lX8fSW8/vfUFhdfkZTt1Q==}
+  /langchain@0.0.114(@aws-sdk/client-s3@3.353.0)(@pinecone-database/pinecone@0.1.6)(@upstash/redis@1.21.0)(d3-dsv@2.0.0)(mammoth@1.6.0)(pdf-parse@1.1.1)(playwright@1.35.1):
+    resolution: {integrity: sha512-GBnawSUlfBIrLfgnBWTfOAVkHZlf1YDbj0TEx28zJc6JaV+2+vmDN+ejXH6Ho681DGPNloJocqz7UPOxswHcWg==}
     engines: {node: '>=18'}
     peerDependencies:
       '@aws-sdk/client-dynamodb': ^3.310.0
+      '@aws-sdk/client-kendra': ^3.352.0
       '@aws-sdk/client-lambda': ^3.310.0
       '@aws-sdk/client-s3': ^3.310.0
       '@aws-sdk/client-sagemaker-runtime': ^3.310.0
+      '@aws-sdk/client-sfn': ^3.310.0
       '@clickhouse/client': ^0.0.14
+      '@elastic/elasticsearch': ^8.4.0
       '@getmetal/metal-sdk': '*'
-      '@getzep/zep-js': ^0.3.1
+      '@getzep/zep-js': ^0.4.1
       '@gomomento/sdk': ^1.23.0
+      '@google-ai/generativelanguage': ^0.2.1
       '@google-cloud/storage': ^6.10.1
       '@huggingface/inference': ^1.5.1
       '@notionhq/client': ^2.2.5
       '@opensearch-project/opensearch': '*'
       '@pinecone-database/pinecone': '*'
+      '@planetscale/database': ^1.8.0
       '@qdrant/js-client-rest': ^1.2.0
       '@supabase/postgrest-js': ^1.1.1
       '@supabase/supabase-js': ^2.10.0
@@ -5552,15 +5639,17 @@ packages:
       apify-client: ^2.7.1
       axios: '*'
       cheerio: ^1.0.0-rc.12
-      chromadb: ^1.5.2
+      chromadb: ^1.5.3
       cohere-ai: ^5.0.2
       d3-dsv: ^2.0.0
       epub2: ^3.0.1
       faiss-node: ^0.2.1
-      google-auth-library: ^8.8.0
+      firebase-admin: ^11.9.0
+      google-auth-library: ^8.9.0
       hnswlib-node: ^1.4.2
       html-to-text: ^9.0.5
       ignore: ^5.2.0
+      ioredis: ^5.3.2
       mammoth: '*'
       mongodb: ^5.2.0
       mysql2: ^3.3.3
@@ -5568,11 +5657,13 @@ packages:
       pdf-parse: 1.1.1
       peggy: ^3.0.2
       pg: ^8.11.0
+      pg-copy-streams: ^6.0.5
       pickleparser: ^0.1.0
       playwright: ^1.32.1
       puppeteer: ^19.7.2
       redis: ^4.6.4
-      replicate: ^0.9.0
+      replicate: ^0.12.3
+      sonix-speech-recognition: ^2.1.1
       srt-parser-2: ^1.2.2
       typeorm: ^0.3.12
       typesense: ^1.5.3
@@ -5581,19 +5672,27 @@ packages:
     peerDependenciesMeta:
       '@aws-sdk/client-dynamodb':
         optional: true
+      '@aws-sdk/client-kendra':
+        optional: true
       '@aws-sdk/client-lambda':
         optional: true
       '@aws-sdk/client-s3':
         optional: true
       '@aws-sdk/client-sagemaker-runtime':
         optional: true
+      '@aws-sdk/client-sfn':
+        optional: true
       '@clickhouse/client':
+        optional: true
+      '@elastic/elasticsearch':
         optional: true
       '@getmetal/metal-sdk':
         optional: true
       '@getzep/zep-js':
         optional: true
       '@gomomento/sdk':
+        optional: true
+      '@google-ai/generativelanguage':
         optional: true
       '@google-cloud/storage':
         optional: true
@@ -5604,6 +5703,8 @@ packages:
       '@opensearch-project/opensearch':
         optional: true
       '@pinecone-database/pinecone':
+        optional: true
+      '@planetscale/database':
         optional: true
       '@qdrant/js-client-rest':
         optional: true
@@ -5639,6 +5740,8 @@ packages:
         optional: true
       faiss-node:
         optional: true
+      firebase-admin:
+        optional: true
       google-auth-library:
         optional: true
       hnswlib-node:
@@ -5646,6 +5749,8 @@ packages:
       html-to-text:
         optional: true
       ignore:
+        optional: true
+      ioredis:
         optional: true
       mammoth:
         optional: true
@@ -5661,6 +5766,8 @@ packages:
         optional: true
       pg:
         optional: true
+      pg-copy-streams:
+        optional: true
       pickleparser:
         optional: true
       playwright:
@@ -5670,6 +5777,8 @@ packages:
       redis:
         optional: true
       replicate:
+        optional: true
+      sonix-speech-recognition:
         optional: true
       srt-parser-2:
         optional: true
@@ -5682,7 +5791,7 @@ packages:
       weaviate-ts-client:
         optional: true
     dependencies:
-      '@anthropic-ai/sdk': 0.4.4
+      '@anthropic-ai/sdk': 0.5.7
       '@aws-sdk/client-s3': 3.353.0
       '@pinecone-database/pinecone': 0.1.6
       '@upstash/redis': 1.21.0
@@ -5696,7 +5805,7 @@ packages:
       js-tiktoken: 1.0.7
       js-yaml: 4.1.0
       jsonpointer: 5.0.1
-      langchainplus-sdk: 0.0.15
+      langsmith: 0.0.13
       mammoth: 1.6.0
       ml-distance: 4.0.1
       object-hash: 3.0.0
@@ -5713,10 +5822,11 @@ packages:
     transitivePeerDependencies:
       - debug
       - encoding
+      - supports-color
     dev: false
 
-  /langchainplus-sdk@0.0.15:
-    resolution: {integrity: sha512-CWaTylvR2d17rErPqgLCBiAnY3UJMdV4c27itvL0CB0eurYnZspa75u3Xl4frmbMy0nhN2N94jWCnrAZX4YDjg==}
+  /langsmith@0.0.13:
+    resolution: {integrity: sha512-8DyRUxC6U+r6NiM0Jn6DP6R9Y+Fu8VmsOSRcKXZpgwa6LXxCaNV9GyHvdmTSOwJkhUjMS/9Zl0g29VODBKmfXQ==}
     hasBin: true
     dependencies:
       '@types/uuid': 9.0.2
@@ -5872,6 +5982,14 @@ packages:
 
   /markdown-table@3.0.3:
     resolution: {integrity: sha512-Z1NL3Tb1M9wH4XESsCDEksWoKTdlUafKc4pt0GRwjUyXaCFZ+dc3g2erqB6zm3szA2IUSi7VnPI+o/9jnxh9hw==}
+    dev: false
+
+  /md5@2.3.0:
+    resolution: {integrity: sha512-T1GITYmFaKuO91vxyoQMFETst+O71VUPEU3ze5GNzDm0OWdP8v1ziTaAEPUr/3kLsY3Sftgz242A1SetQiDL7g==}
+    dependencies:
+      charenc: 0.0.2
+      crypt: 0.0.2
+      is-buffer: 1.1.6
     dev: false
 
   /mdast-util-definitions@5.1.2:
@@ -6487,6 +6605,11 @@ packages:
       minimist: 1.2.8
       new-array: 1.0.0
       xhr-request: 1.1.0
+    dev: false
+
+  /node-domexception@1.0.0:
+    resolution: {integrity: sha512-/jKZoMpw0F8GRwl4/eLROPA3cfcXtLApP0QzLmUT/HuPCZWyB7IY9ZrMeKw2O/nFIqPQB3PVM9aYm0F312AXDQ==}
+    engines: {node: '>=10.5.0'}
     dev: false
 
   /node-ensure@0.0.0:
@@ -8228,6 +8351,11 @@ packages:
     dependencies:
       glob-to-regexp: 0.4.1
       graceful-fs: 4.2.11
+    dev: false
+
+  /web-streams-polyfill@4.0.0-beta.3:
+    resolution: {integrity: sha512-QW95TCTaHmsYfHDybGMwO5IJIM93I/6vTRk+daHTWFPhwh+C8Cg7j7XyKrwrj8Ib6vYXe0ocYNrmzY4xAAN6ug==}
+    engines: {node: '>= 14'}
     dev: false
 
   /webidl-conversions@3.0.1:
