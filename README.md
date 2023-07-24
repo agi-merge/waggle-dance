@@ -1,12 +1,21 @@
-# Waggle🐝💃Dance
-
-[![Deploy with Vercel](https://vercel.com/button)](https://vercel.com/new/clone?repository-url=https%3A%2F%2Fgithub.com%2Fagi-merge%2Fwaggle-dance&env=OPENAI_API_KEY&project-name=waggle-dance&repository-name=waggle-dance)
-![License](https://img.shields.io/badge/license-MIT-green)
-![CI](https://github.com/agi-merge/waggle-dance/actions/workflows/ci.yml/badge.svg?event=push)
+<h1 align="center">Waggle🐝💃Dance</h1>
 
 **Waggle Dance** is an experimental concurrent LLM agent goal solver powered by [Langchain.js](https://github.com/hwchase17/langchainjs). It is a [MIT-licensed](/LICENSE) T3, Next.js, monorepo.
+<div align="center">
+
+![License](https://img.shields.io/badge/license-MIT-green)
+![CI](https://github.com/agi-merge/waggle-dance/actions/workflows/ci.yml/badge.svg?event=push)
+[![Deploy with Vercel](https://vercel.com/button)](https://vercel.com/new/clone?repository-url=https%3A%2F%2Fgithub.com%2Fagi-merge%2Fwaggle-dance&env=OPENAI_API_KEY&project-name=waggle-dance&repository-name=waggle-dance)
+</div>
+
+<div align="center">
+
+[![Join our Discord server!](https://invidget.switchblade.xyz/Rud2fR3hAX)](http://discord.gg/2FB8wDG)
+
 
 https://github.com/agi-merge/waggle-dance/assets/906671/1f868edc-0ada-4576-9798-95dbbae6ffb2
+</div>
+
 
 ## Table of Contents
 
