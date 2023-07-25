@@ -12,7 +12,8 @@
 
 [![Join our Discord server!](https://invidget.switchblade.xyz/Rud2fR3hAX)](http://discord.gg/Rud2fR3hAX)
 
-
+## Inferenced goal-solving graph of agents
+Concurrent execution of independent tasks, adversarial (review) agents, tools, and more:
 https://github.com/agi-merge/waggle-dance/assets/906671/1f868edc-0ada-4576-9798-95dbbae6ffb2
 </div>
 
