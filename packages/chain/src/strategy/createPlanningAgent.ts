@@ -25,7 +25,7 @@ export async function createPlanningAgent(
   const [call] = await Promise.all([
     // prompt.format({ goal, schema: "string[]" }),
     chain.call({
-      signal
+      signal,
     }),
   ]);
   const dag = call?.response ? (call.response as string) : "error";

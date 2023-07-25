@@ -27,7 +27,7 @@ export type ReviewResult = {
 export type BaseResultType = JsonValue | void;
 export interface WaggleDanceResult {
   results: Record<string, BaseResultType>;
-  completedTasks: Set<string>
+  completedTasks: Set<string>;
 }
 
 export type GraphDataState = [DAG, Dispatch<SetStateAction<DAG>>];

@@ -42,10 +42,10 @@ import { stringify } from "yaml";
 import GoalSettings from "~/features/GoalMenu/components/GoalSettings";
 import { type GoalPlusExe } from "~/stores/goalStore";
 import useWaggleDanceMachineState from "~/stores/waggleDanceStore";
-import { rootPlanId } from "../WaggleDanceMachine";
 import useWaggleDanceMachine, {
   type TaskState,
 } from "../hooks/useWaggleDanceMachine";
+import { rootPlanId } from "../WaggleDanceMachine";
 import ForceGraph from "./ForceGraph";
 
 type WaggleDanceGraphProps = {

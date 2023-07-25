@@ -1,3 +1,4 @@
+import { type IncomingMessage } from "http";
 import { type NextApiRequest, type NextApiResponse } from "next";
 import { PineconeClient } from "@pinecone-database/pinecone";
 import { PlaywrightWebBaseLoader } from "langchain/document_loaders/web/playwright";
@@ -6,10 +7,9 @@ import { PineconeStore } from "langchain/vectorstores/pinecone";
 
 import { getServerSession } from "@acme/auth";
 import { createEmbeddings } from "@acme/chain";
+import { LLM } from "@acme/chain/src/utils/llms";
 
 import { env } from "~/env.mjs";
-import { type IncomingMessage } from "http";
-import { LLM } from "@acme/chain/src/utils/llms";
 
 export const config = {
   runtime: "nodejs",
@@ -97,7 +97,6 @@ const handler = async (req: IncomingMessage, res: NextApiResponse) => {
           namespace: userId, // TODO: goal-username
         },
       );
-
 
       const uploadResponse: URLIngestResponse = {
         count: docs.length,

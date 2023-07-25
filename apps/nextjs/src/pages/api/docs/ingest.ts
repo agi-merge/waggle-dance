@@ -16,10 +16,10 @@ import { PineconeStore } from "langchain/vectorstores/pinecone";
 
 import { getServerSession } from "@acme/auth";
 import { createEmbeddings } from "@acme/chain";
+import { LLM } from "@acme/chain/src/utils/llms";
 
 import { env } from "~/env.mjs";
 import { uploadObject } from "./store";
-import { LLM } from "@acme/chain/src/utils/llms";
 
 export const config = {
   api: {

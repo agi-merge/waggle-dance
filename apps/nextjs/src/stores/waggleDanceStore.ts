@@ -1,9 +1,16 @@
 // stores/waggleDanceStore.ts
 
 import { create } from "zustand";
-import { persist, createJSONStorage } from "zustand/middleware";
+import { createJSONStorage, persist } from "zustand/middleware";
+
+import {
+  AgentPromptingMethod,
+  LLM_ALIASES,
+  Temperature,
+  type LLM,
+} from "@acme/chain/src/utils/llms";
+
 import { app } from "~/constants";
-import { LLM_ALIASES, Temperature, AgentPromptingMethod, type LLM } from "@acme/chain/src/utils/llms";
 
 export interface AgentSettings {
   modelName: LLM;
@@ -22,8 +29,11 @@ export interface WaggleDanceMachineStore {
   setIsRunning: (newState: boolean) => void;
   isAutoStartEnabled: boolean;
   setIsAutoStartEnabled: (newState: boolean) => void;
-  agentSettings: Record<'plan' | 'review' | 'execute', AgentSettings>;
-  setAgentSettings: (type: 'plan' | 'review' | 'execute', newValue: Partial<AgentSettings>) => void;
+  agentSettings: Record<"plan" | "review" | "execute", AgentSettings>;
+  setAgentSettings: (
+    type: "plan" | "review" | "execute",
+    newValue: Partial<AgentSettings>,
+  ) => void;
 }
 
 const useWaggleDanceMachineStore = create(
@@ -32,28 +42,45 @@ const useWaggleDanceMachineStore = create(
       isRunning: false,
       setIsRunning: (newState) => set({ isRunning: newState }),
       isAutoStartEnabled: false,
-      setIsAutoStartEnabled: (newState) => set({ isAutoStartEnabled: newState }),
+      setIsAutoStartEnabled: (newState) =>
+        set({ isAutoStartEnabled: newState }),
       agentSettings: {
-        plan: { modelName: LLM_ALIASES["smart"], temperature: Temperature.Stable, agentPromptingMethod: AgentPromptingMethod.ZeroShotReAct, maxConcurrency: 1 },
-        review: { modelName: LLM_ALIASES["fast"], temperature: Temperature.Stable, agentPromptingMethod: AgentPromptingMethod.ChatZeroShotReAct, maxConcurrency: 2 },
-        execute: { modelName: LLM_ALIASES["fast-large"], temperature: Temperature.Balanced, agentPromptingMethod: AgentPromptingMethod.ChatConversationalReAct, maxConcurrency: 4 },
-      },
-      setAgentSettings: (type, newValue) => set((state) => ({
-        agentSettings: {
-          ...state.agentSettings,
-          [type]: { ...state.agentSettings[type], ...newValue },
+        plan: {
+          modelName: LLM_ALIASES["smart"],
+          temperature: Temperature.Stable,
+          agentPromptingMethod: AgentPromptingMethod.ZeroShotReAct,
+          maxConcurrency: 1,
         },
-      })),
+        review: {
+          modelName: LLM_ALIASES["fast"],
+          temperature: Temperature.Stable,
+          agentPromptingMethod: AgentPromptingMethod.ChatZeroShotReAct,
+          maxConcurrency: 2,
+        },
+        execute: {
+          modelName: LLM_ALIASES["fast-large"],
+          temperature: Temperature.Balanced,
+          agentPromptingMethod: AgentPromptingMethod.ChatConversationalReAct,
+          maxConcurrency: 4,
+        },
+      },
+      setAgentSettings: (type, newValue) =>
+        set((state) => ({
+          agentSettings: {
+            ...state.agentSettings,
+            [type]: { ...state.agentSettings[type], ...newValue },
+          },
+        })),
     }),
     {
       name: app.localStorageKeys.waggleDance,
       storage: createJSONStorage(() => sessionStorage), // alternatively use: localStorage
       partialize: (state: WaggleDanceMachineStore) =>
         Object.fromEntries(
-          Object.entries(state).filter(([key]) => !['isRunning'].includes(key))
+          Object.entries(state).filter(([key]) => !["isRunning"].includes(key)),
         ) as WaggleDanceMachineStore,
-    }
-  )
-)
+    },
+  ),
+);
 
 export default useWaggleDanceMachineStore;

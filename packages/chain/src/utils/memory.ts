@@ -1,3 +1,4 @@
+import { PineconeClient } from "@pinecone-database/pinecone";
 import Hex from "crypto-js/enc-hex";
 import sha256 from "crypto-js/sha256";
 import { OpenAI } from "langchain/llms/openai";
@@ -5,17 +6,17 @@ import {
   BufferMemory,
   ConversationSummaryMemory,
   MotorheadMemory,
+  VectorStoreRetrieverMemory,
   type BaseChatMemory,
   type BaseMemory,
 } from "langchain/memory";
 import { RedisChatMessageHistory } from "langchain/stores/message/redis";
 import { UpstashRedisChatMessageHistory } from "langchain/stores/message/upstash_redis";
 import { MemoryVectorStore } from "langchain/vectorstores/memory";
-import { createEmbeddings } from "./model";
-import { VectorStoreRetrieverMemory } from "langchain/memory";
-import { PineconeClient } from "@pinecone-database/pinecone";
 import { PineconeStore } from "langchain/vectorstores/pinecone";
+
 import { LLM, LLM_ALIASES, TEMPERATURE_VALUES } from "./llms";
+import { createEmbeddings } from "./model";
 
 function hash(str: string): string {
   const hash = sha256(str);
@@ -40,13 +41,11 @@ export async function createMemory(
     case "buffer":
       return new BufferMemory({
         inputKey,
-        returnMessages: true
+        returnMessages: true,
       });
 
     case "vector":
-
       if (namespace) {
-
         if (process.env.PINECONE_API_KEY === undefined)
           throw new Error("No pinecone api key found");
         if (process.env.PINECONE_ENVIRONMENT === undefined)
@@ -61,10 +60,10 @@ export async function createMemory(
         const pineconeIndex = client.Index(process.env.PINECONE_INDEX);
 
         const embeddings = createEmbeddings({ modelName: LLM.embeddings });
-        const vectorStore = await PineconeStore.fromExistingIndex(
-          embeddings,
-          { pineconeIndex, namespace }
-        );
+        const vectorStore = await PineconeStore.fromExistingIndex(embeddings, {
+          pineconeIndex,
+          namespace,
+        });
 
         const vectorMemory = new VectorStoreRetrieverMemory({
           // 1 is how many documents to return, you might want to return more, eg. 4
@@ -72,10 +71,11 @@ export async function createMemory(
           memoryKey: "chat_history",
         });
 
-
         return vectorMemory;
       } else {
-        const vectorStore = new MemoryVectorStore(createEmbeddings({ modelName: LLM.embeddings }));
+        const vectorStore = new MemoryVectorStore(
+          createEmbeddings({ modelName: LLM.embeddings }),
+        );
         return new VectorStoreRetrieverMemory({
           // 1 is how many documents to return, you might want to return more, eg. 4
           vectorStoreRetriever: vectorStore.asRetriever(4),
@@ -86,7 +86,10 @@ export async function createMemory(
     case "conversation":
       return new ConversationSummaryMemory({
         inputKey,
-        llm: new OpenAI({ modelName: LLM_ALIASES["fast-large"], temperature: 0 }),
+        llm: new OpenAI({
+          modelName: LLM_ALIASES["fast-large"],
+          temperature: 0,
+        }),
       });
     case "redis":
       return new BufferMemory({
@@ -102,15 +105,18 @@ export async function createMemory(
       const url = process.env.MEMORY_REST_API_URL ?? "";
       const token = process.env.MEMORY_REST_API_TOKEN ?? "";
       if (url?.length === 0 ?? false) {
-        throw new Error("No memory rest api url found")
+        throw new Error("No memory rest api url found");
       }
       if (token?.length === 0 ?? false) {
-        throw new Error("No memory rest api key found")
+        throw new Error("No memory rest api key found");
       }
 
       return new ConversationSummaryMemory({
         inputKey,
-        llm: new OpenAI({ modelName: LLM_ALIASES["fast-large"], temperature: TEMPERATURE_VALUES.Stable }),
+        llm: new OpenAI({
+          modelName: LLM_ALIASES["fast-large"],
+          temperature: TEMPERATURE_VALUES.Stable,
+        }),
         chatHistory: new UpstashRedisChatMessageHistory({
           sessionId: new Date().toISOString(), // FIXME: Or some other unique identifier for the conversation
           sessionTTL: 3600, // 1 hour, omit this parameter to make sessions never expire
@@ -118,7 +124,7 @@ export async function createMemory(
             url,
             token,
           },
-        })
+        }),
       });
     // return new BufferMemory({
 

@@ -1,5 +1,5 @@
-import { z } from "zod";
 import { v4 as uuidv4 } from "uuid";
+import { z } from "zod";
 
 import { createTRPCRouter, protectedProcedure } from "../trpc";
 
@@ -16,7 +16,7 @@ export const goalRouter = createTRPCRouter({
       const userId = ctx.session?.user.id;
       return ctx.prisma.goal.findFirst({
         where: { id: input.id, userId },
-        include: { executions: true, results: true }
+        include: { executions: true, results: true },
       });
     }),
 
@@ -26,7 +26,7 @@ export const goalRouter = createTRPCRouter({
     return ctx.prisma.goal.findMany({
       where: { userId },
       include: { executions: true, results: true },
-      orderBy: { updatedAt: 'asc' },
+      orderBy: { updatedAt: "asc" },
       take: 10,
     });
   }),
@@ -52,7 +52,13 @@ export const goalRouter = createTRPCRouter({
     }),
 
   createResult: protectedProcedure
-    .input(z.object({ goalId: z.string().nonempty(), value: z.string().nonempty(), graph: z.any() }))
+    .input(
+      z.object({
+        goalId: z.string().nonempty(),
+        value: z.string().nonempty(),
+        graph: z.any(),
+      }),
+    )
     .mutation(({ ctx, input }) => {
       // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
       const { goalId, value, graph } = input;
@@ -60,15 +66,21 @@ export const goalRouter = createTRPCRouter({
       return ctx.prisma.result.create({
         data: {
           execution: {
-            connectOrCreate: { // Result can be created without an execution, because of the optimistic first task execution
+            connectOrCreate: {
+              // Result can be created without an execution, because of the optimistic first task execution
               where: { id: goalId },
               // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
-              create: { goalId, userId: ctx.session.user.id, graph, uniqueToken },
-            }
+              create: {
+                goalId,
+                userId: ctx.session.user.id,
+                graph,
+                uniqueToken,
+              },
+            },
           },
           goal: { connect: { id: goalId } },
-          value
-        }
+          value,
+        },
       });
     }),
 
@@ -93,8 +105,10 @@ export const goalRouter = createTRPCRouter({
     }),
 
   // Delete an existing goal
-  delete: protectedProcedure.input(z.string().nonempty()).mutation(({ ctx, input }) => {
-    // TODO: ensure the user owns this goal
-    return ctx.prisma.goal.delete({ where: { id: input } });
-  }),
+  delete: protectedProcedure
+    .input(z.string().nonempty())
+    .mutation(({ ctx, input }) => {
+      // TODO: ensure the user owns this goal
+      return ctx.prisma.goal.delete({ where: { id: input } });
+    }),
 });

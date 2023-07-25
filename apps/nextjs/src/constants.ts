@@ -11,8 +11,10 @@ export const app = {
   },
   routes: {
     home: "/",
-    goal: (id: string): string => { return `/goal/${id}` },
+    goal: (id: string): string => {
+      return `/goal/${id}`;
+    },
     refine: "/add-documents",
     donate: "https://www.patreon.com/agimerge",
-  }
+  },
 };

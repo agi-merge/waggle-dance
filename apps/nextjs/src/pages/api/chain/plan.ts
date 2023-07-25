@@ -1,9 +1,11 @@
 // api/chain/plan.ts
 
-import { createPlanningAgent, type ChainPacket } from "@acme/chain";
-import { type PlanRequestBody } from "./types";
 import { type NextRequest } from "next/server";
 import { stringify } from "yaml";
+
+import { createPlanningAgent, type ChainPacket } from "@acme/chain";
+
+import { type PlanRequestBody } from "./types";
 
 export const config = {
   api: {
@@ -13,47 +15,58 @@ export const config = {
 };
 
 export default async function PlanStream(req: NextRequest) {
-  console.log("plan request")
+  console.log("plan request");
   try {
-    const {
-      creationProps,
-      goal,
-      goalId,
-    } = await req.json() as PlanRequestBody;
+    const { creationProps, goal, goalId } =
+      (await req.json()) as PlanRequestBody;
 
     req.signal.onabort = () => {
       console.error("aborted plan request");
     };
 
-    const encoder = new TextEncoder()
+    const encoder = new TextEncoder();
     const stream = new ReadableStream({
       async start(controller) {
         const inlineCallback = {
           handleLLMNewToken(token: string) {
-            const packet: ChainPacket = { type: "token", token }
+            const packet: ChainPacket = { type: "token", token };
             controller.enqueue(encoder.encode(stringify([packet])));
           },
 
-          handleChainError(err: unknown, _runId: string, _parentRunId?: string) {
+          handleChainError(
+            err: unknown,
+            _runId: string,
+            _parentRunId?: string,
+          ) {
             let errorMessage = "";
             if (err instanceof Error) {
               errorMessage = err.message;
             } else {
               errorMessage = stringify(err);
             }
-            const packet: ChainPacket = { type: "handleChainError", err: errorMessage }
+            const packet: ChainPacket = {
+              type: "handleChainError",
+              err: errorMessage,
+            };
             controller.enqueue(encoder.encode(stringify([packet])));
             console.log("handleChainError", packet);
           },
 
-          handleLLMError(err: unknown, _runId: string, _parentRunId?: string | undefined): void | Promise<void> {
+          handleLLMError(
+            err: unknown,
+            _runId: string,
+            _parentRunId?: string | undefined,
+          ): void | Promise<void> {
             let errorMessage = "";
             if (err instanceof Error) {
               errorMessage = err.message;
             } else {
               errorMessage = stringify(err);
             }
-            const packet: ChainPacket = { type: "handleLLMError", err: errorMessage }
+            const packet: ChainPacket = {
+              type: "handleLLMError",
+              err: errorMessage,
+            };
             controller.enqueue(encoder.encode(stringify([packet])));
             console.log("handleLLMError", packet);
           },
@@ -63,17 +76,28 @@ export default async function PlanStream(req: NextRequest) {
         creationProps.callbacks = callbacks;
         console.log("about to planChain");
 
-        const planResultPromise = createPlanningAgent(creationProps, goal, goalId, req.signal);
-        const createExecutionPromise = fetch(`${process.env.NEXTAUTH_URL}/api/chain/createGoalExecution`, {
-          method: "POST",
-          body: JSON.stringify({ goalId: goalId }),
-          headers: {
-            "Content-Type": "application/json",
-            "Cookie": req.headers.get("cookie") || '',
+        const planResultPromise = createPlanningAgent(
+          creationProps,
+          goal,
+          goalId,
+          req.signal,
+        );
+        const createExecutionPromise = fetch(
+          `${process.env.NEXTAUTH_URL}/api/chain/createGoalExecution`,
+          {
+            method: "POST",
+            body: JSON.stringify({ goalId: goalId }),
+            headers: {
+              "Content-Type": "application/json",
+              Cookie: req.headers.get("cookie") || "",
+            },
+            signal: req.signal,
           },
-          signal: req.signal,
-        });
-        const results = await Promise.allSettled([planResultPromise, createExecutionPromise]);
+        );
+        const results = await Promise.allSettled([
+          planResultPromise,
+          createExecutionPromise,
+        ]);
         const [_planResult, _saveExecutionResult] = results;
         controller.close();
       },
@@ -89,7 +113,6 @@ export default async function PlanStream(req: NextRequest) {
         "Transfer-Encoding": "chunked",
       },
     });
-
   } catch (e) {
     let message;
     let status: number;
@@ -106,12 +129,16 @@ export default async function PlanStream(req: NextRequest) {
 
     const all = { stack, message, status };
     console.error("plan error", all);
-    const errorPacket: ChainPacket = { type: "error", severity: "fatal", message: stringify(all) };
+    const errorPacket: ChainPacket = {
+      type: "error",
+      severity: "fatal",
+      message: stringify(all),
+    };
     return new Response(stringify([errorPacket]), {
       headers: {
         "Content-Type": "application/yaml",
       },
       status,
-    })
+    });
   }
-};
+}

@@ -1,16 +1,19 @@
 <h1 align="center">Waggle🐝💃Dance</h1>
 
-**Waggle Dance** is a *highly experimental* adversarial-cooperative multi-agent goal solver powered by [Langchain.js](https://github.com/hwchase17/langchainjs). It is a [MIT-licensed](/LICENSE) T3, Next.js, monorepo. Yeah, it's a little cargo-culty. Join Discord or submit a PR to help improve the architecture!
+**Waggle Dance** is a _highly experimental_ adversarial-cooperative multi-agent goal solver powered by [Langchain.js](https://github.com/hwchase17/langchainjs). It is a [MIT-licensed](/LICENSE) T3, Next.js, monorepo. Yeah, it's a little cargo-culty. Join Discord or submit a PR to help improve the architecture!
+
 <div align="center">
 
 ![License](https://img.shields.io/badge/license-MIT-green)
 ![CI](https://github.com/agi-merge/waggle-dance/actions/workflows/ci.yml/badge.svg?event=push)
+
 </div>
 
 <div align="center">
 
 <a href="https://vercel.com/new/clone?repository-url=https%3A%2F%2Fgithub.com%2Fagi-merge%2Fwaggle-dance&env=OPENAI_API_KEY&project-name=waggle-dance&repository-name=waggle-dance" alt="Deploy with Vercel"><img src="https://vercel.com/button" height="60" /></a>
 <img src="https://invidget.switchblade.xyz/Rud2fR3hAX" height="60" />
+
 </div>
 
 <div align="center">
@@ -19,7 +22,6 @@
 <img src="https://github.com/agi-merge/waggle-dance/assets/906671/2ec63223-111d-403c-8307-8230e2aabb00" height="320" />
 
 </div>
-
 
 ## Table of Contents
 

@@ -1,17 +1,14 @@
+import { extendTheme } from "@mui/joy/styles";
 
-import { extendTheme } from '@mui/joy/styles';
-
-
-declare module '@mui/joy/styles' {
+declare module "@mui/joy/styles" {
   // No custom tokens found, you can skip the theme augmentation.
 }
 
-
 const theme = extendTheme({
-  "colorSchemes": {
-    "light": {
-      "palette": {
-        "warning": {
+  colorSchemes: {
+    light: {
+      palette: {
+        warning: {
           "50": "#ecfeff",
           "100": "#cffafe",
           "200": "#a5f3fc",
@@ -21,9 +18,9 @@ const theme = extendTheme({
           "600": "#0891b2",
           "700": "#0e7490",
           "800": "#155e75",
-          "900": "#164e63"
+          "900": "#164e63",
         },
-        "primary": {
+        primary: {
           "50": "#fff7ed",
           "100": "#ffedd5",
           "200": "#fed7aa",
@@ -33,13 +30,13 @@ const theme = extendTheme({
           "600": "#ea580c",
           "700": "#c2410c",
           "800": "#9a3412",
-          "900": "#7c2d12"
-        }
+          "900": "#7c2d12",
+        },
       },
     },
-    "dark": {
-      "palette": {
-        "neutral": {
+    dark: {
+      palette: {
+        neutral: {
           "50": "#fafafa",
           "100": "#f4f4f5",
           "200": "#e4e4e7",
@@ -49,9 +46,9 @@ const theme = extendTheme({
           "600": "#52525b",
           "700": "#3f3f46",
           "800": "#27272a",
-          "900": "#18181b"
+          "900": "#18181b",
         },
-        "warning": {
+        warning: {
           "50": "#fdf4ff",
           "100": "#fae8ff",
           "200": "#f5d0fe",
@@ -61,9 +58,9 @@ const theme = extendTheme({
           "600": "#c026d3",
           "700": "#a21caf",
           "800": "#86198f",
-          "900": "#701a75"
+          "900": "#701a75",
         },
-        "info": {
+        info: {
           "50": "#ecfeff",
           "100": "#cffafe",
           "200": "#a5f3fc",
@@ -73,9 +70,9 @@ const theme = extendTheme({
           "600": "#0891b2",
           "700": "#0e7490",
           "800": "#155e75",
-          "900": "#164e63"
+          "900": "#164e63",
         },
-        "primary": {
+        primary: {
           "50": "#fffbeb",
           "100": "#fef3c7",
           "200": "#fde68a",
@@ -85,11 +82,11 @@ const theme = extendTheme({
           "600": "#d97706",
           "700": "#b45309",
           "800": "#92400e",
-          "900": "#78350f"
-        }
-      }
-    }
-  }
-})
+          "900": "#78350f",
+        },
+      },
+    },
+  },
+});
 
 export default theme;

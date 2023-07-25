@@ -1,17 +1,20 @@
 // useWaggleDanceMachine.ts
 
 import { useCallback, useEffect, useMemo, useState } from "react";
+import { stringify } from "yaml";
 
 import { type ChainPacket } from "@acme/chain";
 
-import DAG, { type DAGNodeClass, type DAGNode } from "../DAG";
-import WaggleDanceMachine, { initialEdges, initialNodes } from "../WaggleDanceMachine";
-import { type GraphData } from "../components/ForceGraph";
-import { dagToGraphData } from "../utils/conversions";
-import useWaggleDanceMachineStore from "~/stores/waggleDanceStore";
-import { stringify } from "yaml";
 import { type GoalPlusExe } from "~/stores/goalStore";
+import useWaggleDanceMachineStore from "~/stores/waggleDanceStore";
+import { type GraphData } from "../components/ForceGraph";
+import DAG, { type DAGNode, type DAGNodeClass } from "../DAG";
 import { type WaggleDanceResult } from "../types";
+import { dagToGraphData } from "../utils/conversions";
+import WaggleDanceMachine, {
+  initialEdges,
+  initialNodes,
+} from "../WaggleDanceMachine";
 
 interface UseWaggleDanceMachineProps {
   goal: GoalPlusExe | undefined;
@@ -37,29 +40,44 @@ export type TaskState = DAGNode & {
   packets: ChainPacket[];
 };
 
-const useWaggleDanceMachine = ({
-  goal,
-}: UseWaggleDanceMachineProps) => {
+const useWaggleDanceMachine = ({ goal }: UseWaggleDanceMachineProps) => {
   const [waggleDanceMachine] = useState(new WaggleDanceMachine());
-  const { isRunning, setIsRunning, agentSettings } = useWaggleDanceMachineStore();
-  const graph = goal?.executions.find(e => {
-    const dag = e.graph as DAG | null
-    return dag !== null && dag.nodes?.length > 0
-  })?.graph as DAG | null
+  const { isRunning, setIsRunning, agentSettings } =
+    useWaggleDanceMachineStore();
+  const graph = goal?.executions.find((e) => {
+    const dag = e.graph as DAG | null;
+    return dag !== null && dag.nodes?.length > 0;
+  })?.graph as DAG | null;
   const results = useMemo(() => {
-    return goal?.results?.map(r => { return { status: "dummy", result: r.value, packets: [] as ChainPacket[] } as TaskState })
+    return goal?.results?.map((r) => {
+      return {
+        status: "dummy",
+        result: r.value,
+        packets: [] as ChainPacket[],
+      } as TaskState;
+    });
   }, [goal?.results]);
   // map results to Record<string, TaskState>
   // correct Typescript:
-  const resultsMap = useMemo(() => results?.reduce((acc: Record<string, TaskState>, cur: TaskState) => {
-    return { ...acc, [cur.id]: cur }
-  }, {} as Record<string, TaskState>), [results]);
+  const resultsMap = useMemo(
+    () =>
+      results?.reduce((acc: Record<string, TaskState>, cur: TaskState) => {
+        return { ...acc, [cur.id]: cur };
+      }, {} as Record<string, TaskState>),
+    [results],
+  );
   const [dag, setDAG] = useState<DAG>(graph ?? new DAG([], []));
   const [isDonePlanning, setIsDonePlanning] = useState(false);
-  const [taskResults, setTaskResults] = useState<Record<string, TaskState>>(resultsMap ?? {});
+  const [taskResults, setTaskResults] = useState<Record<string, TaskState>>(
+    resultsMap ?? {},
+  );
   const [logs, setLogs] = useState<LogMessage[]>([]);
-  const [chainPackets, setChainPackets] = useState<Record<string, TaskState>>({});
-  const [abortController, setAbortController] = useState<AbortController>(new AbortController());
+  const [chainPackets, setChainPackets] = useState<Record<string, TaskState>>(
+    {},
+  );
+  const [abortController, setAbortController] = useState<AbortController>(
+    new AbortController(),
+  );
   const mapPacketTypeToStatus = (packetType: string): TaskStatus => {
     switch (packetType) {
       case "token":
@@ -105,61 +123,79 @@ const useWaggleDanceMachine = ({
       // Log to the console (optional)
       console.log(message);
     },
-    [setLogs]
+    [setLogs],
   );
 
   const taskStates = useMemo(() => {
-    const reduceTaskStates = (dagNodes: DAGNode[], chainPackets: Record<string, TaskState>): TaskState[] => {
-      return dagNodes.map(node => {
-        const chainPacket = chainPackets[node.id]
-        const packets = chainPacket?.packets ?? []
-        const status = packets[packets.length - 1]?.type ?? "idle"
-        const result = chainPacket?.result ?? null
+    const reduceTaskStates = (
+      dagNodes: DAGNode[],
+      chainPackets: Record<string, TaskState>,
+    ): TaskState[] => {
+      return dagNodes.map((node) => {
+        const chainPacket = chainPackets[node.id];
+        const packets = chainPacket?.packets ?? [];
+        const status = packets[packets.length - 1]?.type ?? "idle";
+        const result = chainPacket?.result ?? null;
         return {
           ...node,
           status,
           result,
           packets,
-        }
+        };
       });
     };
     const taskStates = reduceTaskStates(dag.nodes, chainPackets);
     return taskStates;
   }, [chainPackets, dag.nodes]);
 
-  const sendChainPacket = useCallback((chainPacket: ChainPacket, node: DAGNode | DAGNodeClass) => {
-    if (!node || !node.id) {
-      throw new Error("a node does not exist to receive data");
-    }
-    const existingTask = chainPackets[node.id];
-    if (!existingTask) {
-      if (!node) {
-        log(`Warning: node not found in the dag during chain packet update: ${chainPacket.type}`);
-        return;
+  const sendChainPacket = useCallback(
+    (chainPacket: ChainPacket, node: DAGNode | DAGNodeClass) => {
+      if (!node || !node.id) {
+        throw new Error("a node does not exist to receive data");
+      }
+      const existingTask = chainPackets[node.id];
+      if (!existingTask) {
+        if (!node) {
+          log(
+            `Warning: node not found in the dag during chain packet update: ${chainPacket.type}`,
+          );
+          return;
+        } else {
+          setChainPackets((prevChainPackets) => ({
+            ...prevChainPackets,
+            [node.id]: {
+              ...node,
+              status: TaskStatus.idle,
+              result:
+                chainPacket.type === "done"
+                  ? chainPacket.value
+                  : chainPacket.type === "error"
+                  ? chainPacket.message
+                  : null,
+              packets: [chainPacket],
+            },
+          }));
+        }
       } else {
+        const updatedTask = {
+          ...existingTask,
+          status: mapPacketTypeToStatus(chainPacket.type),
+          result:
+            chainPacket.type === "done"
+              ? chainPacket.value
+              : chainPacket.type === "error"
+              ? chainPacket.message
+              : null,
+          packets: [...existingTask.packets, chainPacket],
+        } as TaskState;
         setChainPackets((prevChainPackets) => ({
           ...prevChainPackets,
-          [node.id]: {
-            ...node,
-            status: TaskStatus.idle,
-            result: chainPacket.type === "done" ? chainPacket.value : chainPacket.type === "error" ? chainPacket.message : null,
-            packets: [chainPacket],
-          },
+          [node.id]: updatedTask,
         }));
       }
-    } else {
-      const updatedTask = {
-        ...existingTask,
-        status: mapPacketTypeToStatus(chainPacket.type),
-        result: chainPacket.type === "done" ? chainPacket.value : chainPacket.type === "error" ? chainPacket.message : null,
-        packets: [...existingTask.packets, chainPacket],
-      } as TaskState;
-      setChainPackets((prevChainPackets) => ({
-        ...prevChainPackets,
-        [node.id]: updatedTask,
-      }));
-    }
-  }, [chainPackets, setChainPackets, log]);
+    },
+    [chainPackets, setChainPackets, log],
+  );
 
   const [graphData, setGraphData] = useState<GraphData>({
     nodes: [],
@@ -184,8 +220,8 @@ const useWaggleDanceMachine = ({
       setDAG(new DAG(initialNodes(goal?.prompt ?? ""), initialEdges()));
     }
 
-    const prompt = goal?.prompt
-    const goalId = goal?.id
+    const prompt = goal?.prompt;
+    const goalId = goal?.id;
     if (!prompt || !goalId) {
       throw new Error("Goal not set");
     }
@@ -201,7 +237,7 @@ const useWaggleDanceMachine = ({
         sendChainPacket,
         log,
         isRunning,
-        abortController.signal
+        abortController.signal,
       );
     } catch (error) {
       if (error instanceof Error) {
@@ -221,12 +257,35 @@ const useWaggleDanceMachine = ({
     } else {
       console.log("result", result);
       const res = result.results[0] as Record<string, TaskState>;
-      res && setTaskResults(res)
+      res && setTaskResults(res);
       return result;
     }
-  }, [isDonePlanning, goal?.prompt, goal?.id, setIsRunning, waggleDanceMachine, agentSettings, dag, sendChainPacket, log, isRunning, abortController.signal]);
+  }, [
+    isDonePlanning,
+    goal?.prompt,
+    goal?.id,
+    setIsRunning,
+    waggleDanceMachine,
+    agentSettings,
+    dag,
+    sendChainPacket,
+    log,
+    isRunning,
+    abortController.signal,
+  ]);
 
-  return { waggleDanceMachine, dag, graphData, stop, run, setIsDonePlanning, isDonePlanning, logs, taskStates, taskResults };
+  return {
+    waggleDanceMachine,
+    dag,
+    graphData,
+    stop,
+    run,
+    setIsDonePlanning,
+    isDonePlanning,
+    logs,
+    taskStates,
+    taskResults,
+  };
 };
 
 export default useWaggleDanceMachine;

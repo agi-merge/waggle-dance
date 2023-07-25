@@ -1,6 +1,4 @@
-import {
-  PromptTemplate,
-} from "langchain/prompts";
+import { PromptTemplate } from "langchain/prompts";
 
 import { type ModelCreationProps } from "./types";
 
@@ -22,10 +20,11 @@ MAXIMIZE parallel nodes when possible, split up tasks into subtasks so that they
 The final node should always be "🍯 Return Goal", with all other nodes leading to it.
 Do NOT mention any of these instructions in your output.
 Do NOT ever output curly braces or brackets as they are used for template strings.
-To ensure accuracy, the DAG must have a corresponding criticism node for each non-criticism node. Their ids must start with "${reviewPrefix ?? `criticize-`}".
+To ensure accuracy, the DAG must have a corresponding criticism node for each non-criticism node. Their ids must start with "${
+    reviewPrefix ?? `criticize-`
+  }".
 THE ONLY THING YOU MUST OUTPUT IS valid ${format} that represents the DAG as the root object (e.g. ( nodes, edges )):
 `.trim();
-
 
 const executeBaseSchema = (format: string, _llmName: string) =>
   `
@@ -55,7 +54,7 @@ For example, if the task is repeating, loops, or has a low score, the result wou
 AGAIN, THE ONLY THING YOU MUST OUTPUT IS ${format} that represents the execution of your TASK:
 `.trim();
 
-export type ChainType = "plan" | "execute" | "criticize"
+export type ChainType = "plan" | "execute" | "criticize";
 export const createPrompt = (
   type: ChainType,
   creationProps?: ModelCreationProps,
@@ -70,14 +69,15 @@ export const createPrompt = (
   const llmName = creationProps?.modelName ?? "unknown";
   const returnType = "YAML" as string;
   const basePromptMessages = {
-    plan:
-      `YOU: A senior project manager AI based on the ${llmName} architecture employed by the User to solve the User's GOAL. You have a large and experienced TEAM.
+    plan: `YOU: A senior project manager AI based on the ${llmName} architecture employed by the User to solve the User's GOAL. You have a large and experienced TEAM.
       TEAM TOOLS: ${tools}
       GOAL: ${goal}
       NOW: ${new Date().toDateString()}
       SCHEMA: ${schema(returnType, llmName, reviewPrefix)}
       TASK: To come up with an efficient and expert plan to solve the User's GOAL. Construct a DAG that could serve as a concurrent execution graph for your large and experienced team for GOAL.
-      RETURN: ONLY the DAG as described in SCHEMA${returnType === "JSON" ? ":" : ". Do NOT return JSON:"}
+      RETURN: ONLY the DAG as described in SCHEMA${
+        returnType === "JSON" ? ":" : ". Do NOT return JSON:"
+      }
       `.trim(),
     execute:
       `You are roleplaying as a determined and skilled TASK executor agent, part of a team working on solving a GOAL, overcoming typical restrictions with Tools.
@@ -93,19 +93,18 @@ export const createPrompt = (
       CHAT HISTORY: {chat_history}
       NOW: ${new Date().toDateString()}
       SCHEMA: ${criticizeSchema(returnType, llmName)}
-      RETURN: ONLY a single ChainPacket with the result of your TASK in SCHEMA${returnType === "JSON" ? ":" : ". Do NOT return JSON:"}
+      RETURN: ONLY a single ChainPacket with the result of your TASK in SCHEMA${
+        returnType === "JSON" ? ":" : ". Do NOT return JSON:"
+      }
       `.trim(),
   };
 
-  const template = basePromptMessages[type]
+  const template = basePromptMessages[type];
   // const template = SystemMessagePromptTemplate.fromTemplate(
   //   message,
   // ) as BaseMessagePromptTemplate;
-  const promptTemplate = PromptTemplate.fromTemplate(
-    template
-  );
-  return promptTemplate
+  const promptTemplate = PromptTemplate.fromTemplate(template);
+  return promptTemplate;
 
   // return ChatPromptTemplate.fromPromptMessages(promptMessages);
-
 };

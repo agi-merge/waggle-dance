@@ -8,6 +8,6 @@ export interface AppState {
 const useApp = create<AppState>((set) => ({
   isPageLoading: false,
   setIsPageLoading: (newState) => set({ isPageLoading: newState }),
-}))
+}));
 
 export default useApp;

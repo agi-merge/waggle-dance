@@ -40,7 +40,10 @@ export class OptionalDAG {
   readonly nodes?: DAGNode[];
   readonly edges?: DAGEdge[];
 
-  constructor(nodes?: DAGNode[], edges?: DAGEdge[]/*, init?: Cond, goal?: Cond*/) {
+  constructor(
+    nodes?: DAGNode[],
+    edges?: DAGEdge[] /*, init?: Cond, goal?: Cond*/,
+  ) {
     this.nodes = nodes;
     this.edges = edges;
   }
@@ -49,7 +52,7 @@ export default class DAG {
   readonly nodes: DAGNode[];
   readonly edges: DAGEdge[];
 
-  constructor(nodes: DAGNode[], edges: DAGEdge[]/*, init: Cond, goal: Cond*/) {
+  constructor(nodes: DAGNode[], edges: DAGEdge[] /*, init: Cond, goal: Cond*/) {
     this.nodes = nodes;
     this.edges = edges;
   }
