@@ -1,6 +1,6 @@
 <h1 align="center">Waggle🐝💃Dance</h1>
 
-**Waggle Dance** is an experimental concurrent LLM agent goal solver powered by [Langchain.js](https://github.com/hwchase17/langchainjs). It is a [MIT-licensed](/LICENSE) T3, Next.js, monorepo. Yeah, it's a little cargo-culty. Join Discord or submit a PR to help improve the architecture!
+**Waggle Dance** is a *highly experimental* adversarial-cooperative multi-agent goal solver powered by [Langchain.js](https://github.com/hwchase17/langchainjs). It is a [MIT-licensed](/LICENSE) T3, Next.js, monorepo. Yeah, it's a little cargo-culty. Join Discord or submit a PR to help improve the architecture!
 <div align="center">
 
 ![License](https://img.shields.io/badge/license-MIT-green)
