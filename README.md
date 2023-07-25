@@ -10,7 +10,7 @@
 
 <div align="center">
 
-[![Join our Discord server!](https://invidget.switchblade.xyz/Rud2fR3hAX)](http://discord.gg/2FB8wDG)
+[![Join our Discord server!](https://invidget.switchblade.xyz/Rud2fR3hAX)](http://discord.gg/Rud2fR3hAX)
 
 
 https://github.com/agi-merge/waggle-dance/assets/906671/1f868edc-0ada-4576-9798-95dbbae6ffb2
