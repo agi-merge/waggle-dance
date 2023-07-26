@@ -15,6 +15,7 @@ export function dagToGraphData(dag: DAG, taskStates: TaskState[]): GraphData {
       name: node.name,
       act: node.act,
       context: node.context,
+      params: node.params,
       status: taskStates.find((taskState) => taskState.id === node.id)?.status, // FIXME: nested O(n)
     };
   });

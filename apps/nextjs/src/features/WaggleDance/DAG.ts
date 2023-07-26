@@ -1,12 +1,12 @@
 // DAG.ts
 export type Context = string;
-
+export type Params = Record<string, unknown>;
 export interface DAGNode {
   id: string;
   name: string;
   act: string;
   context: Context;
-  params: unknown;
+  params: Params;
 }
 export interface DAGEdge {
   sId: string;
@@ -18,14 +18,14 @@ export class DAGNodeClass implements DAGNode {
   name: string;
   act: string;
   context: Context;
-  params: unknown;
+  params: Params;
 
   constructor(
     id: string,
     name: string,
     act: string,
     context: Context,
-    params: unknown,
+    params: Params,
   ) {
     this.id = id;
     this.name = name;

@@ -12,7 +12,7 @@ Node
   name: string // requires relevant emoji
   act: string
   context: string // paragraph describing what this node is about and how to properly execute the act
-  params: object // pass enough information to execute the act
+  params: object // act function parameters
 Edge
   sId: uuid
   tId: uuid
