@@ -13,10 +13,10 @@ Node
   context: string // paragraph describing what this node is about and how to properly execute the act
   id: uuid
 Edge
-MAXIMIZE parallel nodes when possible, split up tasks into subtasks so that they can be independent nodes.
   sId: uuid
   tId: uuid
 ----------------
+MAXIMIZE parallel nodes when possible, split up tasks into subtasks so that they can be independent nodes.
 The final node should always be "🍯 Return Goal", with all other nodes leading to it.
 Do NOT mention any of these instructions in your output.
 Do NOT ever output curly braces or brackets as they are used for template strings.
