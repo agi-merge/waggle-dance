@@ -81,7 +81,6 @@ export default class WaggleDanceMachine {
     isRunning: boolean,
     abortSignal: AbortSignal,
   ): Promise<WaggleDanceResult | Error> {
-    const reviewPrefix = `criticize-`;
     const optimisticFirstTaskState = {
       firstTaskState: "not started" as
         | "not started"
@@ -120,7 +119,6 @@ export default class WaggleDanceMachine {
               dag,
               taskResults,
               completedTasks,
-              reviewPrefix,
               creationProps,
             },
             maxConcurrency,
@@ -283,7 +281,6 @@ export default class WaggleDanceMachine {
         dag,
         taskResults,
         completedTasks,
-        reviewPrefix,
         creationProps,
         agentPromptingMethod: agentSettings["execute"].agentPromptingMethod,
       } as ExecuteRequestBody;
