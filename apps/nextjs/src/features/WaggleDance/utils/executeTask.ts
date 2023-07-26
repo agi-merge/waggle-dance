@@ -11,16 +11,14 @@ export function sleep(ms: number): Promise<void> {
 
 async function fetchTaskData(
   request: ExecuteRequestBody,
-  task: DAGNode,
   abortSignal: AbortSignal,
 ): Promise<Response> {
-  const data = { ...request, task, dag: request.dag };
   const response = await fetch("/api/agent/execute", {
     method: "POST",
     headers: {
       "Content-Type": "application/json",
     },
-    body: JSON.stringify(data),
+    body: JSON.stringify(request),
     signal: abortSignal,
   });
 
@@ -64,7 +62,7 @@ export default async function executeTask(
   log(`About to execute task ${task.id} -${task.name}...`);
   sendChainPacket({ type: "starting", nodeId: task.id }, task);
 
-  const response = await fetchTaskData(request, task, abortSignal);
+  const response = await fetchTaskData(request, abortSignal);
   const stream = response.body;
   if (!response.ok || !stream) {
     throw new Error(`No stream: ${response.statusText} `);
