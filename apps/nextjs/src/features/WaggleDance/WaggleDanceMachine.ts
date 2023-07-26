@@ -131,7 +131,11 @@ export default class WaggleDanceMachine {
           );
         } catch (error) {
           sendChainPacket(
-            { type: "error", severity: "warn", message: String(error) },
+            {
+              type: "error",
+              severity: "warn",
+              message: JSON.stringify(error, Object.getOwnPropertyNames(error)),
+            },
             task,
           );
           optimisticFirstTaskState.firstTaskState = "error";
@@ -201,7 +205,11 @@ export default class WaggleDanceMachine {
       } catch (error) {
         if (initNodes[0]) {
           sendChainPacket(
-            { type: "error", severity: "fatal", message: String(error) },
+            {
+              type: "error",
+              severity: "fatal",
+              message: JSON.stringify(error, Object.getOwnPropertyNames(error)),
+            },
             initNodes[0],
           );
           return error as Error;
@@ -301,7 +309,11 @@ export default class WaggleDanceMachine {
           );
         } catch (error) {
           sendChainPacket(
-            { type: "error", severity: "warn", message: String(error) },
+            {
+              type: "error",
+              severity: "warn",
+              message: JSON.stringify(error, Object.getOwnPropertyNames(error)),
+            },
             task,
           );
           return;
