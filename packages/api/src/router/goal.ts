@@ -69,10 +69,11 @@ export const goalRouter = createTRPCRouter({
             connectOrCreate: {
               // Result can be created without an execution, because of the optimistic first task execution
               where: { id: goalId },
-              // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
+
               create: {
                 goalId,
                 userId: ctx.session.user.id,
+                // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
                 graph,
                 uniqueToken,
               },

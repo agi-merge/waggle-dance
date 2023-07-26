@@ -2,8 +2,10 @@
 
 import { parse, stringify } from "yaml";
 
-import { type ChainPacket, type ModelCreationProps } from "@acme/chain";
-
+import {
+  type ChainPacket,
+  type ModelCreationProps,
+} from "../../../../../../packages/agent";
 import DAG, { DAGEdgeClass, type DAGNode, type DAGNodeClass } from "../DAG";
 import {
   findNodesWithNoIncomingEdges,
@@ -31,7 +33,7 @@ export default async function planTasks(
   startFirstTask?: (task: DAGNode, dag: DAG) => Promise<void>,
 ): Promise<DAG> {
   const data = { goal, goalId, creationProps };
-  const res = await fetch("/api/chain/plan", {
+  const res = await fetch("/api/agent/plan", {
     method: "POST",
     headers: { "Content-Type": "application/json" },
     body: JSON.stringify(data),

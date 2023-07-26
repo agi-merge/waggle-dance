@@ -5,5 +5,5 @@ packages:
   - packages/api
   - packages/auth
   - packages/db
-  - packages/chain
+  - packages/agent
   - packages/config/*

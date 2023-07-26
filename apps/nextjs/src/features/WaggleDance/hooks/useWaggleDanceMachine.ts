@@ -3,10 +3,9 @@
 import { useCallback, useEffect, useMemo, useState } from "react";
 import { stringify } from "yaml";
 
-import { type ChainPacket } from "@acme/chain";
-
 import { type GoalPlusExe } from "~/stores/goalStore";
 import useWaggleDanceMachineStore from "~/stores/waggleDanceStore";
+import { type ChainPacket } from "../../../../../../packages/agent";
 import { type GraphData } from "../components/ForceGraph";
 import DAG, { type DAGNode, type DAGNodeClass } from "../DAG";
 import { type WaggleDanceResult } from "../types";

@@ -123,7 +123,7 @@ turbo dev
 - `./packages/db/prisma`: [Database](#database) schema and migrations.
 - `./apps/nextjs/src`: Next.js app source code.
 - `./apps/nextjs/pages/api`: Next.js API routes.
-- `./packages/chain/src`: Model chain business logic and backend services.
+- `./packages/agent/src`: Agent business logic and backend services.
 
 ## 🦑 Linting
 

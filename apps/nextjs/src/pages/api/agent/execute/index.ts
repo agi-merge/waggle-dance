@@ -1,4 +1,4 @@
-// api/chain/execute.ts
+// api/agent/execute/index.ts
 
 import { type IncomingMessage } from "http";
 import { type NextApiRequest, type NextApiResponse } from "next";
@@ -9,10 +9,13 @@ import { stringify } from "yaml";
 
 import { appRouter } from "@acme/api";
 import { getServerSession } from "@acme/auth";
-import { createExecutionAgent, type ChainPacket } from "@acme/chain";
 import { prisma } from "@acme/db";
 
-import { type ExecuteRequestBody } from "./types";
+import {
+  createExecutionAgent,
+  type ChainPacket,
+} from "../../../../../../../packages/agent";
+import { type ExecuteRequestBody } from "../types";
 
 export const config = {
   api: {

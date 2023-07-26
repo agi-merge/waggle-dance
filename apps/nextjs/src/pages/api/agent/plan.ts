@@ -1,10 +1,12 @@
-// api/chain/plan.ts
+// api/agent/plan.ts
 
 import { type NextRequest } from "next/server";
 import { stringify } from "yaml";
 
-import { createPlanningAgent, type ChainPacket } from "@acme/chain";
-
+import {
+  createPlanningAgent,
+  type ChainPacket,
+} from "../../../../../../packages/agent";
 import { type PlanRequestBody } from "./types";
 
 export const config = {
@@ -83,7 +85,7 @@ export default async function PlanStream(req: NextRequest) {
           req.signal,
         );
         const createExecutionPromise = fetch(
-          `${process.env.NEXTAUTH_URL}/api/chain/createGoalExecution`,
+          `${process.env.NEXTAUTH_URL}/api/agent/execute/save`,
           {
             method: "POST",
             body: JSON.stringify({ goalId: goalId }),

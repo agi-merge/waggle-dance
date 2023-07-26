@@ -1,8 +1,7 @@
 import { parse, stringify } from "yaml";
 
-import { type ChainPacket } from "@acme/chain";
-
-import { type ExecuteRequestBody } from "~/pages/api/chain/types";
+import { type ExecuteRequestBody } from "~/pages/api/agent/types";
+import { type ChainPacket } from "../../../../../../packages/agent";
 import { type DAGNode, type DAGNodeClass } from "../DAG";
 import { readResponseStream } from "./readResponseStream";
 
@@ -16,7 +15,7 @@ async function fetchTaskData(
   abortSignal: AbortSignal,
 ): Promise<Response> {
   const data = { ...request, task, dag: request.dag };
-  const response = await fetch("/api/chain/execute", {
+  const response = await fetch("/api/agent/execute", {
     method: "POST",
     headers: {
       "Content-Type": "application/json",

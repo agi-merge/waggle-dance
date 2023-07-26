@@ -19,15 +19,14 @@ import Stack from "@mui/joy/Stack";
 import Typography from "@mui/joy/Typography";
 import { useSession } from "next-auth/react";
 
+import DocsModal from "~/features/WaggleDance/components/DocsModal";
+import AddDocuments from "~/pages/add-documents";
+import useWaggleDanceMachineStore from "~/stores/waggleDanceStore";
 import {
   AgentPromptingMethod,
   LLM,
   Temperature,
-} from "@acme/chain/src/utils/llms";
-
-import DocsModal from "~/features/WaggleDance/components/DocsModal";
-import AddDocuments from "~/pages/add-documents";
-import useWaggleDanceMachineStore from "~/stores/waggleDanceStore";
+} from "../../../../../../packages/agent/src/utils/llms";
 
 function AdvancedSettingsToggle({ children }: { children: React.ReactNode }) {
   const [isOpen, setIsOpen] = React.useState(false);

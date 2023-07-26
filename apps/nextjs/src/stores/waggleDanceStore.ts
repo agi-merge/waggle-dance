@@ -3,14 +3,13 @@
 import { create } from "zustand";
 import { createJSONStorage, persist } from "zustand/middleware";
 
+import { app } from "~/constants";
 import {
   AgentPromptingMethod,
   LLM_ALIASES,
   Temperature,
   type LLM,
-} from "@acme/chain/src/utils/llms";
-
-import { app } from "~/constants";
+} from "../../../../packages/agent/src/utils/llms";
 
 export interface AgentSettings {
   modelName: LLM;

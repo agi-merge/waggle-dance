@@ -44,15 +44,15 @@ importers:
 
   apps/nextjs:
     dependencies:
+      '@acme/agent':
+        specifier: ^0.1.0
+        version: link:../../packages/agent
       '@acme/api':
         specifier: ^0.1.0
         version: link:../../packages/api
       '@acme/auth':
         specifier: ^0.1.0
         version: link:../../packages/auth
-      '@acme/chain':
-        specifier: ^0.1.0
-        version: link:../../packages/chain
       '@acme/db':
         specifier: ^0.1.0
         version: link:../../packages/db
@@ -232,6 +232,40 @@ importers:
         specifier: ^5.1.6
         version: 5.1.6
 
+  packages/agent:
+    dependencies:
+      cheerio:
+        specifier: 1.0.0-rc.12
+        version: 1.0.0-rc.12
+      net:
+        specifier: ^1.0.2
+        version: 1.0.2
+      redis:
+        specifier: ^4.6.6
+        version: 4.6.6
+      serpapi:
+        specifier: ^1.1.1
+        version: 1.1.1
+      tls:
+        specifier: ^0.0.1
+        version: 0.0.1
+      yaml:
+        specifier: ^2.3.1
+        version: 2.3.1
+    devDependencies:
+      '@acme/eslint-config':
+        specifier: ^0.1.0
+        version: link:../config/eslint
+      '@types/crypto-js':
+        specifier: ^4.1.1
+        version: 4.1.1
+      eslint:
+        specifier: ^8.45.0
+        version: 8.45.0
+      typescript:
+        specifier: ^5.1.6
+        version: 5.1.6
+
   packages/api:
     dependencies:
       '@acme/auth':
@@ -287,40 +321,6 @@ importers:
       '@acme/eslint-config':
         specifier: ^0.1.0
         version: link:../config/eslint
-      eslint:
-        specifier: ^8.45.0
-        version: 8.45.0
-      typescript:
-        specifier: ^5.1.6
-        version: 5.1.6
-
-  packages/chain:
-    dependencies:
-      cheerio:
-        specifier: 1.0.0-rc.12
-        version: 1.0.0-rc.12
-      net:
-        specifier: ^1.0.2
-        version: 1.0.2
-      redis:
-        specifier: ^4.6.6
-        version: 4.6.6
-      serpapi:
-        specifier: ^1.1.1
-        version: 1.1.1
-      tls:
-        specifier: ^0.0.1
-        version: 0.0.1
-      yaml:
-        specifier: ^2.3.1
-        version: 2.3.1
-    devDependencies:
-      '@acme/eslint-config':
-        specifier: ^0.1.0
-        version: link:../config/eslint
-      '@types/crypto-js':
-        specifier: ^4.1.1
-        version: 4.1.1
       eslint:
         specifier: ^8.45.0
         version: 8.45.0

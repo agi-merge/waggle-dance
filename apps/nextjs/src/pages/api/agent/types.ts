@@ -1,16 +1,15 @@
-// api/chain/types.ts
-
-import { type ModelCreationProps } from "@acme/chain";
-import {
-  TEMPERATURE_VALUES,
-  type AgentPromptingMethod,
-} from "@acme/chain/src/utils/llms";
+// api/agent/types.ts
 
 import { env } from "~/env.mjs";
 import type DAG from "~/features/WaggleDance/DAG";
 import { type DAGNode } from "~/features/WaggleDance/DAG";
 import { type BaseResultType } from "~/features/WaggleDance/types";
 import { type AgentSettings } from "~/stores/waggleDanceStore";
+import { type ModelCreationProps } from "../../../../../../packages/agent";
+import {
+  TEMPERATURE_VALUES,
+  type AgentPromptingMethod,
+} from "../../../../../../packages/agent/src/utils/llms";
 
 export function mapAgentSettingsToCreationProps(
   agentSettings: AgentSettings,

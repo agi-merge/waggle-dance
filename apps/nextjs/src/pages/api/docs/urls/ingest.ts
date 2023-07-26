@@ -6,10 +6,10 @@ import { RecursiveCharacterTextSplitter } from "langchain/text_splitter";
 import { PineconeStore } from "langchain/vectorstores/pinecone";
 
 import { getServerSession } from "@acme/auth";
-import { createEmbeddings } from "@acme/chain";
-import { LLM } from "@acme/chain/src/utils/llms";
 
 import { env } from "~/env.mjs";
+import { createEmbeddings } from "../../../../../../../packages/agent";
+import { LLM } from "../../../../../../../packages/agent/src/utils/llms";
 
 export const config = {
   runtime: "nodejs",
