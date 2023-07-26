@@ -38,6 +38,7 @@ export const initialNodes = (goal: string) => [
     `👸🐝 Queen Bee`,
     `Planning how to achieve your goal`,
     goal,
+    { returnEarlyIf: "If the goal is trivial, return the solved trivial goal" },
   ),
 ];
 export const initialEdges = () => [];

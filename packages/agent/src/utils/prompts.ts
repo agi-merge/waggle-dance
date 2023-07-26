@@ -8,10 +8,11 @@ DAG
   nodes: Node[]
   edges: Edge[]
 Node
+  id: uuid
   name: string // requires relevant emoji
   act: string
   context: string // paragraph describing what this node is about and how to properly execute the act
-  id: uuid
+  params: object // pass enough information to execute the act
 Edge
   sId: uuid
   tId: uuid
