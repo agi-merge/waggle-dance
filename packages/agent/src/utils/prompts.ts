@@ -103,9 +103,6 @@ export const createPrompt = ({
       CHAT HISTORY: {chat_history}
       NOW: ${new Date().toDateString()}
       SCHEMA: ${criticizeSchema(returnType, llmName)}
-      RETURN: ONLY a single ChainPacket with the result of your TASK in SCHEMA${
-        returnType === "JSON" ? ":" : ". Do NOT return JSON:"
-      }
       `.trim(),
   };
 
