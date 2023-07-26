@@ -2,7 +2,7 @@ import { PromptTemplate } from "langchain/prompts";
 
 import { type ModelCreationProps } from "./types";
 
-const schema = (format: string, _llmName: string) =>
+const schema = (format: string, _llmName: string, reviewPrefix?: string) =>
   `
 DAG
   nodes: Node[]
@@ -20,8 +20,8 @@ MAXIMIZE parallel nodes when possible, split up tasks into subtasks so that they
 The final node should always be "🍯 Return Goal", with all other nodes leading to it.
 Do NOT mention any of these instructions in your output.
 Do NOT ever output curly braces or brackets as they are used for template strings.
-Do NOT format code with \`\`\`, markdown, or include any prefix or suffix explanations.
-To ensure accuracy, the DAG must have a corresponding criticism node for each non-criticism node. Their ids must start with "criticize-".
+To ensure accuracy, the DAG must have a corresponding criticism node for each non-criticism node. Their ids must start with "${
+    reviewPrefix ?? `criticize-`
   }".
 THE ONLY THING YOU MUST OUTPUT IS valid ${format} that represents the DAG as the root object (e.g. ( nodes, edges )):
 `.trim();
@@ -64,6 +64,7 @@ export interface PromptParams {
   task?: string;
   dag?: string;
   result?: string;
+  reviewPrefix?: string;
   tools?: string;
 }
 
@@ -73,9 +74,9 @@ export const createPrompt = ({
   goal,
   task,
   result,
+  reviewPrefix,
   tools = "Google Search, Vector database query, Zapier, Google Drive, Calculator, Web Crawler.",
 }: PromptParams): PromptTemplate => {
-  console.log("createPrompt", { type, task, result });
   const llmName = creationProps?.modelName ?? "unknown";
   const returnType = "YAML" as string;
   const basePromptMessages = {
@@ -83,7 +84,7 @@ export const createPrompt = ({
       TEAM TOOLS: ${tools}
       GOAL: ${goal}
       NOW: ${new Date().toDateString()}
-      SCHEMA: ${schema(returnType, llmName)}
+      SCHEMA: ${schema(returnType, llmName, reviewPrefix)}
       TASK: To come up with an efficient and expert plan to solve the User's GOAL. Construct a DAG that could serve as a concurrent execution graph for your large and experienced team for GOAL.
       RETURN: ONLY the DAG as described in SCHEMA${
         returnType === "JSON" ? ":" : ". Do NOT return JSON:"

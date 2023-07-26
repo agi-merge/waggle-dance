@@ -46,6 +46,7 @@ const handler = async (req: IncomingMessage, res: NextApiResponse) => {
       agentPromptingMethod,
       dag,
       taskResults,
+      reviewPrefix,
     } = JSON.parse(body) as ExecuteRequestBody;
 
     res.writeHead(200, {
@@ -193,6 +194,7 @@ const handler = async (req: IncomingMessage, res: NextApiResponse) => {
       task: stringify(task),
       dag: stringify(dag),
       result: stringify(result),
+      reviewPrefix,
       abortSignal: abortController.signal,
       namespace: session?.user.id,
     });

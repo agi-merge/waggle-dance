@@ -32,6 +32,7 @@ export async function createExecutionAgent(creation: {
   task: string;
   dag: string;
   result: string;
+  reviewPrefix: string;
   abortSignal: AbortSignal;
   namespace?: string;
 }): Promise<string | Error> {
@@ -42,6 +43,7 @@ export async function createExecutionAgent(creation: {
     task,
     dag,
     result,
+    reviewPrefix,
     abortSignal,
     namespace,
   } = creation;
@@ -50,7 +52,8 @@ export async function createExecutionAgent(creation: {
   const llm = createModel(creationProps);
   const embeddings = createEmbeddings({ modelName: LLM.embeddings });
   const taskObj = parse(task) as { id: string };
-  const isReview = taskObj.id.startsWith("criticize-");
+  const isReview =
+    taskObj.id.startsWith(reviewPrefix) || taskObj.id.startsWith("criticize-");
   const prompt = createPrompt({
     type: isReview ? "criticize" : "execute",
     creationProps,
@@ -58,6 +61,7 @@ export async function createExecutionAgent(creation: {
     task,
     dag,
     result,
+    reviewPrefix,
   });
   const memory = await createMemory(goal);
   let chat_history = {};

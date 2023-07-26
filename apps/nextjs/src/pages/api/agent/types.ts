@@ -39,4 +39,5 @@ export interface ExecuteRequestBody extends BaseRequestBody {
   taskResults: Record<string, BaseResultType>;
   dag: DAG;
   agentPromptingMethod: AgentPromptingMethod;
+  reviewPrefix: string;
 }
