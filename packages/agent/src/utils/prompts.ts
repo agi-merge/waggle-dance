@@ -55,17 +55,28 @@ AGAIN, THE ONLY THING YOU MUST OUTPUT IS ${format} that represents the execution
 `.trim();
 
 export type ChainType = "plan" | "execute" | "criticize";
-export const createPrompt = (
-  type: ChainType,
-  creationProps?: ModelCreationProps,
-  goal?: string,
-  goalId?: string,
-  task?: string,
-  dag?: string,
-  result?: string,
-  reviewPrefix?: string,
+
+export interface PromptParams {
+  type: ChainType;
+  creationProps?: ModelCreationProps;
+  goal?: string;
+  goalId?: string;
+  task?: string;
+  dag?: string;
+  result?: string;
+  reviewPrefix?: string;
+  tools?: string;
+}
+
+export const createPrompt = ({
+  type,
+  creationProps,
+  goal,
+  task,
+  result,
+  reviewPrefix,
   tools = "Google Search, Vector database query, Zapier, Google Drive, Calculator, Web Crawler.",
-): PromptTemplate => {
+}: PromptParams): PromptTemplate => {
   const llmName = creationProps?.modelName ?? "unknown";
   const returnType = "YAML" as string;
   const basePromptMessages = {

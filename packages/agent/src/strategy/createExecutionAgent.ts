@@ -54,15 +54,15 @@ export async function createExecutionAgent(creation: {
   const taskObj = parse(task) as { id: string };
   const isReview =
     taskObj.id.startsWith(reviewPrefix) || taskObj.id.startsWith("criticize-");
-  const prompt = createPrompt(
-    isReview ? "criticize" : "execute",
+  const prompt = createPrompt({
+    type: isReview ? "criticize" : "execute",
     creationProps,
     goal,
     task,
     dag,
     result,
     reviewPrefix,
-  );
+  });
   const memory = await createMemory(goal);
   let chat_history = {};
   if (memory instanceof BaseMemory) {

@@ -15,7 +15,7 @@ export async function createPlanningAgent(
   const llm = createModel(creationProps);
   // const memory = await createMemory(goal);
   // const planPrompt = createPrompt("plan");
-  const prompt = createPrompt("plan", creationProps, goal, goalId);
+  const prompt = createPrompt({ type: "plan", creationProps, goal, goalId });
   const chain = new LLMChain({
     // memory,
     prompt,
