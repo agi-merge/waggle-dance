@@ -279,7 +279,8 @@ export default class WaggleDanceMachine {
 
       const task = pendingCurrentDagLayerTasks.splice(0, 1)[0]; // pop first task
       if (!task) {
-        throw new Error("no task");
+        await sleep(100); // wait for tasks to end
+        continue;
       }
       toDoNodes.splice(toDoNodes.indexOf(task), 1); // remove from toDoNodes
 
