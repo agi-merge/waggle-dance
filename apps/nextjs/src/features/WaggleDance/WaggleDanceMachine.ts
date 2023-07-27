@@ -115,7 +115,7 @@ export default class WaggleDanceMachine {
               goal,
               goalId,
               agentPromptingMethod:
-                agentSettings["execute"].agentPromptingMethod,
+                agentSettings["execute"].agentPromptingMethod!,
               task,
               dag,
               taskResults,
@@ -296,7 +296,7 @@ export default class WaggleDanceMachine {
         completedTasks,
         reviewPrefix,
         creationProps,
-        agentPromptingMethod: agentSettings["execute"].agentPromptingMethod,
+        agentPromptingMethod: agentSettings["execute"].agentPromptingMethod!,
       } as ExecuteRequestBody;
 
       void (async () => {

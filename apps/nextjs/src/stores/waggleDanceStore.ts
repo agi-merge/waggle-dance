@@ -14,7 +14,7 @@ import {
 export interface AgentSettings {
   modelName: LLM;
   temperature: Temperature;
-  agentPromptingMethod: AgentPromptingMethod;
+  agentPromptingMethod: AgentPromptingMethod | null;
   // see: https://platform.openai.com/docs/api-reference/chat/create
   topP?: number | undefined;
   maxConcurrency: number;
@@ -45,9 +45,9 @@ const useWaggleDanceMachineStore = create(
         set({ isAutoStartEnabled: newState }),
       agentSettings: {
         plan: {
-          modelName: LLM_ALIASES["smart"],
+          modelName: LLM_ALIASES["fast"],
           temperature: Temperature.Stable,
-          agentPromptingMethod: AgentPromptingMethod.ZeroShotReAct,
+          agentPromptingMethod: null,
           maxConcurrency: 1,
         },
         review: {
@@ -58,8 +58,8 @@ const useWaggleDanceMachineStore = create(
         },
         execute: {
           modelName: LLM_ALIASES["fast-large"],
-          temperature: Temperature.Balanced,
-          agentPromptingMethod: AgentPromptingMethod.ChatConversationalReAct,
+          temperature: Temperature.Stable,
+          agentPromptingMethod: AgentPromptingMethod.ChatZeroShotReAct,
           maxConcurrency: 4,
         },
       },

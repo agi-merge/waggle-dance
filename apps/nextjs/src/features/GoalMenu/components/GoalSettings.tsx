@@ -146,24 +146,29 @@ function GoalSettings({}: CardProps) {
                 </Option>
               ))}
             </Select>
-            <Typography level="body3">
-              Prompting Method for{" "}
-              {type.charAt(0).toUpperCase() + type.slice(1)}
-            </Typography>
-            <Select
-              value={agentSettings[type].agentPromptingMethod}
-              onChange={(_, value) => {
-                value &&
-                  setAgentSettings(type, { agentPromptingMethod: value });
-              }}
-              disabled={!session}
-            >
-              {Object.values(AgentPromptingMethod).map((method) => (
-                <Option key={method} value={method}>
-                  {method}
-                </Option>
-              ))}
-            </Select>
+            {type !== "plan" && (
+              <>
+                <Typography level="body3">
+                  Prompting Method for{" "}
+                  {type.charAt(0).toUpperCase() + type.slice(1)}
+                </Typography>
+
+                <Select
+                  value={agentSettings[type].agentPromptingMethod}
+                  onChange={(_, value) => {
+                    value &&
+                      setAgentSettings(type, { agentPromptingMethod: value });
+                  }}
+                  disabled={!session}
+                >
+                  {Object.values(AgentPromptingMethod).map((method) => (
+                    <Option key={method} value={method}>
+                      {method}
+                    </Option>
+                  ))}
+                </Select>
+              </>
+            )}
           </TabPanel>
         ))}
       </Tabs>
