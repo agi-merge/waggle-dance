@@ -79,7 +79,7 @@ export default class WaggleDanceMachine {
     ) => void,
     log: (...args: (string | number | object)[]) => void,
     isRunning: boolean,
-    abortSignal: AbortSignal,
+    abortController: AbortController,
   ): Promise<WaggleDanceResult | Error> {
     const reviewPrefix = `criticize-`;
     const optimisticFirstTaskState = {
@@ -103,7 +103,7 @@ export default class WaggleDanceMachine {
       optimisticFirstTaskState.taskId = task.id;
       completedTasks.add(task.id); // calling this pre-emptively allows our logic for regular tasks to remain simple.
       // Call the executeTasks function for the given task and update the states accordingly
-      if (!abortSignal.aborted) {
+      if (!abortController.signal.aborted) {
         let result;
         try {
           const creationProps = mapAgentSettingsToCreationProps(
@@ -127,7 +127,7 @@ export default class WaggleDanceMachine {
             isRunning,
             sendChainPacket,
             log,
-            abortSignal,
+            abortController.signal,
           );
         } catch (error) {
           sendChainPacket(
@@ -153,6 +153,7 @@ export default class WaggleDanceMachine {
               node,
             );
             optimisticFirstTaskState.firstTaskState = "error";
+            abortController.abort();
             return;
           } else if (typeof result === "string") {
             sendChainPacket({ type: "done", value: result }, node);
@@ -163,6 +164,7 @@ export default class WaggleDanceMachine {
       } else {
         console.warn("aborted startFirstTask");
         optimisticFirstTaskState.firstTaskState = "error";
+        abortController.abort();
         return;
       }
       // console.error("Error executing the first task:", error);
@@ -190,7 +192,7 @@ export default class WaggleDanceMachine {
           log,
           sendChainPacket,
           optimisticFirstTaskState,
-          abortSignal,
+          abortController.signal,
           updateTaskState,
           startFirstTask,
         );
@@ -240,7 +242,7 @@ export default class WaggleDanceMachine {
     const toDoNodes = Array.from(dag.nodes);
     // Continue executing tasks and updating DAG until the goal is reached
     while (!isGoalReached(dag, completedTasks)) {
-      if (abortSignal.aborted) throw new Error("Signal aborted");
+      if (abortController.signal.aborted) throw new Error("Signal aborted");
 
       // console.group("WaggleDanceMachine.run")
       const pendingTasks = toDoNodes.filter(
@@ -305,7 +307,7 @@ export default class WaggleDanceMachine {
             isRunning,
             sendChainPacket,
             log,
-            abortSignal,
+            abortController.signal,
           );
         } catch (error) {
           sendChainPacket(
@@ -316,6 +318,7 @@ export default class WaggleDanceMachine {
             },
             task,
           );
+          abortController.abort();
           return;
         }
         taskResults[executeRequest.task.id] = result;

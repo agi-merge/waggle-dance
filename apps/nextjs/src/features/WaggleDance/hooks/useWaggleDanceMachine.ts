@@ -213,7 +213,11 @@ const useWaggleDanceMachine = ({ goal }: UseWaggleDanceMachineProps) => {
 
   // main entrypoint
   const run = useCallback(async () => {
-    setAbortController(new AbortController());
+    const ac = new AbortController();
+    if (!abortController.signal.aborted) {
+      abortController.abort();
+    }
+    setAbortController(ac);
 
     if (!isDonePlanning) {
       setDAG(new DAG(initialNodes(goal?.prompt ?? ""), initialEdges()));
@@ -236,7 +240,7 @@ const useWaggleDanceMachine = ({ goal }: UseWaggleDanceMachineProps) => {
         sendChainPacket,
         log,
         isRunning,
-        abortController.signal,
+        ac,
       );
     } catch (error) {
       if (error instanceof Error) {
@@ -249,6 +253,9 @@ const useWaggleDanceMachine = ({ goal }: UseWaggleDanceMachineProps) => {
     console.log("waggleDanceMachine.run result", result);
 
     setIsRunning(false);
+    if (!ac.signal.aborted) {
+      ac.abort();
+    }
 
     if (result instanceof Error) {
       console.error("Error in WaggleDanceMachine's run:", result);
@@ -270,7 +277,7 @@ const useWaggleDanceMachine = ({ goal }: UseWaggleDanceMachineProps) => {
     sendChainPacket,
     log,
     isRunning,
-    abortController.signal,
+    abortController,
   ]);
 
   return {
