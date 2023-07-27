@@ -6,7 +6,6 @@ import { useRouter } from "next/router";
 import { Card, LinearProgress, Sheet, useColorScheme } from "@mui/joy";
 
 import { api } from "~/utils/api";
-import { type CombinedResponse } from "~/utils/openAIUsageAPI";
 import { app } from "~/constants";
 import useApp from "~/stores/appStore";
 import useGoalStore from "~/stores/goalStore";
@@ -14,14 +13,12 @@ import GoalTabs from "../WaggleDance/components/GoalTabs";
 import Alerts from "./components/Alerts";
 import Footer from "./components/Footer";
 import Header from "./components/Header";
-import OpenAIUsage from "./components/OpenAIUsage";
 
 type Props = {
   children: React.ReactNode;
-  openAIUsage?: CombinedResponse | null; // Add this prop
 };
 
-const MainLayout = ({ children, openAIUsage }: Props) => {
+const MainLayout = ({ children }: Props) => {
   const { mode } = useColorScheme();
   const { isPageLoading } = useApp();
   const router = useRouter();
@@ -110,8 +107,6 @@ const MainLayout = ({ children, openAIUsage }: Props) => {
               />
               {children}
             </GoalTabs>
-
-            {openAIUsage && <OpenAIUsage openAIUsage={openAIUsage} />}
           </Card>
           <Footer />
         </Sheet>

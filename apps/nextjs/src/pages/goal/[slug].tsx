@@ -1,19 +1,17 @@
 // pages/goal/[slug].tsx
 
-import React, { useEffect, useMemo } from "react";
+import { useEffect, useMemo } from "react";
 import type {
   GetStaticPaths,
   GetStaticPropsContext,
   InferGetStaticPropsType,
 } from "next";
 import { useRouter } from "next/router";
-import { get } from "@vercel/edge-config";
 import { getSession, useSession } from "next-auth/react";
 
 import { appRouter } from "@acme/api";
 import { prisma } from "@acme/db";
 
-import { type CombinedResponse } from "~/utils/openAIUsageAPI";
 import { app } from "~/constants";
 import GoalInput from "~/features/GoalMenu/components/GoalInput";
 import MainLayout from "~/features/MainLayout";
@@ -27,25 +25,16 @@ export const getStaticProps = async ({}: GetStaticPropsContext) => {
 
   const caller = appRouter.createCaller({ session, prisma });
   try {
-    const openAIUsagePromise = get("openAIUsage");
     const goalsPromise = caller.goal.topByUser();
-    const [openAIUsageSettled, savedGoalsSettled] = await Promise.allSettled([
-      openAIUsagePromise,
-      goalsPromise,
-    ]);
+    const [savedGoalsSettled] = await Promise.allSettled([goalsPromise]);
     // if (!savedGoals.find((goal) => goal.id === slug)) {
     //   return { notFound: true };
     // }
     const savedGoals =
       savedGoalsSettled.status === "fulfilled" ? savedGoalsSettled.value : null;
-    const openAIUsage =
-      openAIUsageSettled.status === "fulfilled"
-        ? (openAIUsageSettled.value as CombinedResponse)
-        : null;
 
     return {
       props: {
-        openAIUsage,
         savedGoals,
       },
     };
@@ -53,7 +42,6 @@ export const getStaticProps = async ({}: GetStaticPropsContext) => {
     console.error(e);
     return {
       props: {
-        openAIUsage: null,
         savedGoals: null,
       },
     };
@@ -67,7 +55,6 @@ export const getStaticPaths: GetStaticPaths<{ slug: string }> = () => {
 };
 
 export default function GoalTab({
-  openAIUsage,
   savedGoals,
 }: InferGetStaticPropsType<typeof getStaticProps>) {
   const router = useRouter();
@@ -138,7 +125,7 @@ export default function GoalTab({
   ]);
 
   return (
-    <MainLayout openAIUsage={openAIUsage}>
+    <MainLayout>
       <>
         {state === "input" ? (
           <>
