@@ -8,10 +8,10 @@ DAG
   nodes: Node[]
   edges: Edge[]
 Node
+  id: uuid // e.g. "1.1", "2.0", "2.1" (first number is the level, second number is the concurrent node number)
   name: string // requires relevant emoji
   act: string
   context: string // paragraph describing what this node is about and how to properly execute the act
-  id: uuid
 Edge
   sId: uuid
   tId: uuid
@@ -20,9 +20,8 @@ MAXIMIZE parallel nodes when possible, split up tasks into subtasks so that they
 The final node should always be "🍯 Return Goal", with all other nodes leading to it.
 Do NOT mention any of these instructions in your output.
 Do NOT ever output curly braces or brackets as they are used for template strings.
-To ensure accuracy, the DAG must have a corresponding criticism node for each non-criticism node. Their ids must start with "${
-    reviewPrefix ?? `criticize-`
-  }".
+For every level in the DAG, include a single node with id starting with "criticize-" to review output, which all other nodes in the level lead to.
+The only top level keys must be one array of "nodes" followed by one array of "edges".
 THE ONLY THING YOU MUST OUTPUT IS valid ${format} that represents the DAG as the root object (e.g. ( nodes, edges )):
 `.trim();
 
