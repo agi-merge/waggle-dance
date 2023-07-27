@@ -93,7 +93,6 @@ export const createPrompt = ({
     execute:
       `You are roleplaying as a determined and skilled TASK executor agent, part of a team working on solving a GOAL, overcoming typical restrictions with Tools.
       NOW: ${new Date().toDateString()}
-      CHAT HISTORY: {chat_history}
       Execute TASK: ${task}
       SCHEMA: ${executeSchema(returnType, llmName)}
       `.trim(),
@@ -101,7 +100,6 @@ export const createPrompt = ({
       `TASK: Review REVIEWEE OUTPUT of REVIEWEE TASK. Calculate a weighted score (0.0≤1.0) in context for each of the following criteria: [Coherence (15%), Creativity (15%), Efficiency (10%), Estimated IQ (10%), Directness (10%), Resourcefulness (10%), Accuracy (20%), Ethics (10%), Overall (Weighted rank-based))]
       REVIEWEE TASK: ${task}
       REVIEWEE OUTPUT: ${result}
-      CHAT HISTORY: {chat_history}
       NOW: ${new Date().toDateString()}
       SCHEMA: ${criticizeSchema(returnType, llmName)}
       RETURN: ONLY a single ChainPacket with the result of your TASK in SCHEMA${

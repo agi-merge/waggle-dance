@@ -8,11 +8,10 @@ import {
 import { VectorDBQAChain } from "langchain/chains";
 import { type Tool } from "langchain/dist/tools/base";
 import { PlanAndExecuteAgentExecutor } from "langchain/experimental/plan_and_execute";
-import { BaseMemory } from "langchain/memory";
 import { ChainTool, SerpAPI } from "langchain/tools";
 import { WebBrowser } from "langchain/tools/webbrowser";
 import { PineconeStore } from "langchain/vectorstores/pinecone";
-import { parse, stringify } from "yaml";
+import { parse } from "yaml";
 
 import {
   AgentPromptingMethod,
@@ -32,7 +31,6 @@ export async function createExecutionAgent(creation: {
   task: string;
   dag: string;
   result: string;
-  reviewPrefix: string;
   abortSignal: AbortSignal;
   namespace?: string;
 }): Promise<string | Error> {
@@ -43,7 +41,6 @@ export async function createExecutionAgent(creation: {
     task,
     dag,
     result,
-    reviewPrefix,
     abortSignal,
     namespace,
   } = creation;
@@ -52,8 +49,7 @@ export async function createExecutionAgent(creation: {
   const llm = createModel(creationProps);
   const embeddings = createEmbeddings({ modelName: LLM.embeddings });
   const taskObj = parse(task) as { id: string };
-  const isReview =
-    taskObj.id.startsWith(reviewPrefix) || taskObj.id.startsWith("criticize-");
+  const isReview = taskObj.id.startsWith("criticize-");
   const prompt = createPrompt({
     type: isReview ? "criticize" : "execute",
     creationProps,
@@ -61,24 +57,9 @@ export async function createExecutionAgent(creation: {
     task,
     dag,
     result,
-    reviewPrefix,
   });
   const memory = await createMemory(goal);
-  let chat_history = {};
-  if (memory instanceof BaseMemory) {
-    try {
-      chat_history = await memory?.loadMemoryVariables({
-        input: `What memories are most relevant to solving task: ${task} within the context of ${goal}?`,
-      });
-    } catch (error) {
-      console.error(error);
-      // chat_history = (await memory?.loadMemoryVariables({ input: `What memories are most relevant to solving task: ${task} within the context of ${goal}?`, chat_history: '', signal: '' }))
-    }
-  } else if (memory && memory["chatHistory"]) {
-    chat_history = memory["chatHistory"];
-  }
   const formattedPrompt = await prompt.format({
-    chat_history: stringify(chat_history),
     format: "YAML",
   });
 
@@ -139,9 +120,9 @@ export async function createExecutionAgent(creation: {
     };
 
     // Only include the memory parameter for "chat-conversational-react-description" agent type
-    if (agentType === "chat-conversational-react-description") {
-      options.memory = memory;
-    }
+    // if (agentType === "chat-conversational-react-description") {
+    //   options.memory = memory;
+    // }
 
     executor = await initializeAgentExecutorWithOptions(tools, llm, options);
   } else {
@@ -153,7 +134,7 @@ export async function createExecutionAgent(creation: {
 
   try {
     const call = await executor.call(
-      { input: formattedPrompt, chat_history, signal: abortSignal },
+      { input: formattedPrompt, signal: abortSignal },
       callbacks,
     );
 
