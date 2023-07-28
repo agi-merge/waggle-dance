@@ -288,21 +288,37 @@ const WaggleDanceGraph = ({ selectedGoal }: WaggleDanceGraphProps) => {
                                     </Typography>
                                   </Stack>
                                 </Box>
-                                <Typography
-                                  level="body2"
+                                <Stack
                                   className="text-wrap p-2"
-                                  textColor="common.white"
-                                  style={{
-                                    overflowWrap: "break-word",
-                                  }}
                                   sx={{
                                     xs: { width: "80%" },
                                     width: "70%",
                                     mixBlendMode: "difference",
                                   }}
                                 >
-                                  {n.act}
-                                  {" ( "}
+                                  <Typography
+                                    level="body2"
+                                    textColor="common.white"
+                                    style={{
+                                      overflowWrap: "break-word",
+                                    }}
+                                  >
+                                    {n.act}
+                                    {" ("}
+                                    <Typography
+                                      fontFamily="monospace"
+                                      level="body3"
+                                      className="text-wrap"
+                                      color="primary"
+                                      style={{
+                                        overflowWrap: "break-word",
+                                        width: "100%",
+                                      }}
+                                    >
+                                      {n.params}
+                                    </Typography>
+                                    {")"}
+                                  </Typography>
                                   <Typography
                                     fontFamily="monospace"
                                     level="body3"
@@ -315,25 +331,7 @@ const WaggleDanceGraph = ({ selectedGoal }: WaggleDanceGraphProps) => {
                                   >
                                     {stringifyMax(n.context, 200)}
                                   </Typography>
-
-                                  {")"}
-
-                                  {" ( "}
-                                  <Typography
-                                    fontFamily="monospace"
-                                    level="body3"
-                                    className="text-wrap"
-                                    color="neutral"
-                                    style={{
-                                      overflowWrap: "break-word",
-                                      width: "80%",
-                                    }}
-                                  >
-                                    {n.params}
-                                  </Typography>
-
-                                  {")"}
-                                </Typography>
+                                </Stack>
                                 <Stack gap="0.3rem">
                                   <Tooltip title="Chat">
                                     <Send />
