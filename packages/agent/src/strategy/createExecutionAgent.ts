@@ -58,7 +58,7 @@ export async function createExecutionAgent(creation: {
     dag,
     result,
   });
-  const memory = await createMemory(goal);
+  const _memory = await createMemory(goal);
   const formattedPrompt = await prompt.format({
     format: "YAML",
   });
