@@ -6,6 +6,7 @@ export interface DAGNode {
   name: string;
   act: string;
   context: Context;
+  params: string | null;
 }
 export interface DAGEdge {
   sId: string;
@@ -17,12 +18,20 @@ export class DAGNodeClass implements DAGNode {
   name: string;
   act: string;
   context: Context;
+  params: string | null;
 
-  constructor(id: string, name: string, act: string, context: Context) {
+  constructor(
+    id: string,
+    name: string,
+    act: string,
+    context: Context,
+    params: string | null,
+  ) {
     this.id = id;
     this.name = name;
     this.act = act;
     this.context = context;
+    this.params = params;
   }
 }
 

@@ -1,10 +1,4 @@
-import React, {
-  useCallback,
-  useEffect,
-  useMemo,
-  useRef,
-  useState,
-} from "react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import {
   BugReport,
   Edit,
@@ -320,6 +314,22 @@ const WaggleDanceGraph = ({ selectedGoal }: WaggleDanceGraphProps) => {
                                     }}
                                   >
                                     {stringifyMax(n.context, 200)}
+                                  </Typography>
+
+                                  {")"}
+
+                                  {" ( "}
+                                  <Typography
+                                    fontFamily="monospace"
+                                    level="body3"
+                                    className="text-wrap"
+                                    color="neutral"
+                                    style={{
+                                      overflowWrap: "break-word",
+                                      width: "80%",
+                                    }}
+                                  >
+                                    {n.params}
                                   </Typography>
 
                                   {")"}

@@ -38,6 +38,7 @@ export const initialNodes = (goal: string) => [
     `👸🐝 Queen Bee`,
     `Planning how to achieve your goal`,
     goal,
+    null,
   ),
 ];
 export const initialEdges = () => [];
