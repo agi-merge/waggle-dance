@@ -177,8 +177,8 @@ const handler = async (req: IncomingMessage, res: NextApiResponse) => {
     const callbacks = [inlineCallback];
     creationProps.callbacks = callbacks;
 
-    const idMinusCriticize = task.id.startsWith("criticize-")
-      ? task.id.slice("criticize-".length)
+    const idMinusCriticize = task.id.endsWith("-criticize")
+      ? task.id.slice(0, task.id.length - "-criticize".length)
       : null;
     const result = idMinusCriticize ? taskResults[idMinusCriticize] : null;
     const abortController = new AbortController();
