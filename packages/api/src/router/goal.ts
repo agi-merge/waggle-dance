@@ -22,13 +22,20 @@ export const goalRouter = createTRPCRouter({
       });
     }),
 
-  // Get top by user - TODO: could expand this to do some proper pagination in the future
+  // Get top by user - TODO: https://trpc.io/docs/v10/useInfiniteQuery#example-procedure
   topByUser: protectedProcedure.query(({ ctx }) => {
     const userId = ctx.session.user.id;
     return ctx.prisma.goal.findMany({
       where: { userId },
-      include: { executions: true, results: true },
       orderBy: { updatedAt: "asc" },
+      include: {
+        executions: {
+          orderBy: { updatedAt: "desc" }, // doesnt work as expected?
+        },
+        results: {
+          orderBy: { updatedAt: "desc" },
+        },
+      },
       take: 10,
     });
   }),
