@@ -1,6 +1,8 @@
 import { v4 as uuidv4 } from "uuid";
 import { z } from "zod";
 
+import { ExecutionState } from "@acme/db";
+
 import { createTRPCRouter, protectedProcedure } from "../trpc";
 
 export const goalRouter = createTRPCRouter({
@@ -57,11 +59,12 @@ export const goalRouter = createTRPCRouter({
         goalId: z.string().nonempty(),
         value: z.string().nonempty(),
         graph: z.any(),
+        state: z.nativeEnum(ExecutionState).optional(),
       }),
     )
     .mutation(({ ctx, input }) => {
       // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
-      const { goalId, value, graph } = input;
+      const { goalId, value, graph, state } = input;
       const uniqueToken = uuidv4();
       return ctx.prisma.result.create({
         data: {
@@ -75,6 +78,7 @@ export const goalRouter = createTRPCRouter({
                 userId: ctx.session.user.id,
                 // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
                 graph,
+                state,
                 uniqueToken,
               },
             },
@@ -101,7 +105,14 @@ export const goalRouter = createTRPCRouter({
           prompt,
           userId,
         },
-        include: { executions: true, results: true },
+        include: {
+          executions: {
+            orderBy: { updatedAt: "desc" },
+          },
+          results: {
+            orderBy: { updatedAt: "desc" },
+          },
+        },
       });
     }),
 
