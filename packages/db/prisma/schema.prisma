@@ -81,9 +81,10 @@ model Goal {
 }
 
 enum ExecutionState {
+  PENDING
   EXECUTING
-  SUCCEEDED
-  FAILED
+  DONE
+  ERROR
 }
 
 model Execution {
@@ -94,7 +95,7 @@ model Execution {
   userId      String
   graph       Json?
   results     Result[]
-  state       ExecutionState @default(EXECUTING)
+  state       ExecutionState @default(PENDING)
   createdAt   DateTime       @default(now())
   updatedAt   DateTime       @default(now()) @updatedAt
   uniqueToken String
