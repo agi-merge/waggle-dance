@@ -6,6 +6,9 @@
 
 ![License](https://img.shields.io/badge/license-MIT-green)
 ![CI](https://github.com/agi-merge/waggle-dance/actions/workflows/ci.yml/badge.svg?event=push)
+[![Public Deployment](https://img.shields.io/badge/Official%20Website-waggledance.ai-blue?style=flat&logo=world&logoColor=white)](https://waggledance.ai)
+[![Join Discord Server](https://dcbadge.vercel.app/api/server/Rud2fR3hAX?style=flat)](https://discord.com/invite/Rud2fR3hAX)
+[![GitHub Repo stars](https://img.shields.io/github/stars/agi-merge/waggle-dance?style=social)](https://github.com/agi-merge/waggle-dance)
 
 </div>
 
