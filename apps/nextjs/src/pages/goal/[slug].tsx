@@ -23,6 +23,14 @@ import useWaggleDanceMachineStore from "~/stores/waggleDanceStore";
 export const getStaticProps = async ({}: GetStaticPropsContext) => {
   const session = await getSession();
 
+  if (!session?.user.id) {
+    return {
+      props: {
+        savedGoals: null,
+      },
+    };
+  }
+
   const caller = appRouter.createCaller({ session, prisma });
   try {
     const goalsPromise = caller.goal.topByUser();
