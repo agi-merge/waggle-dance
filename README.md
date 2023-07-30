@@ -27,11 +27,9 @@ It is inspired by [Auto-GPT](https://github.com/Significant-Gravitas/Auto-GPT), 
 
 ## Table of Contents
 
-- [Overview](#-overview)
-- [Use Case Milestones](#-use-case-milestones)
-- [Core Files/Folders](#-core-filesfolders)
+- [Overview](#-main-features)
 - [Contribute and Help](#contribute-and-help)
-- [How to Run](#%EF%B8%8F-how-to-run)
+- [How to Run](#running-locally-and-development)
 - [Linting](#-linting)
 - [CICD](#%EF%B8%8F-cicd)
 - [Contribute](#contribute)
@@ -45,35 +43,24 @@ It is inspired by [Auto-GPT](https://github.com/Significant-Gravitas/Auto-GPT), 
 
 - Highly concurrent execution graph. Some sub-tasks are not dependent, and can be run concurrently.
 - Adversarial agents that review results
-- [Free Public deployment](https://waggledance.ai)
-- Agent data connections, e.g. GitHub, Google Drive, Databases, etc.
 - Vector database for long-term memory
-- Tools, e.g. Zapier, Web Search, Code-improvement, etc.\*
-- Templates and sharing\*
 
 ## 📍 Roadmap
 
-- Tree of thought
-- See more: [Project Roadmap](https://github.com/orgs/agi-merge/projects/1/views/1)
+[Project Roadmap](https://github.com/orgs/agi-merge/projects/1/views/1)
 
-## 🪦 Use Case Milestones
+- Agent data connections, e.g. GitHub, Google Drive, Databases, etc.
+- Local LLMs / removing strict dependence on OpenAI
+- Tree of thought and other execution methods
+- Desktop and mobile apps
+- Consider removing langchain
+- Improved architecture for running agents
+- More tools
+- More data connectors
+- Templates and sharing
+- See more:
 
-As of June 6, 2023, these are not yet achieved.
-
-- Create a statistically likely to be successful Hacker News post title suggestion. Determine the most successful types of Show HN titles in the last three months, with a special focus on AI produts.
-- Upload [x format document] report of multi-family housing in the [y metro] area, citing reliable sources and
-- Convert [x simple library] from [y language] to [z language]
-- Develop and create a pull request for [x feature] to the project at [y git url]
-
-## 🛠️ Contribute and help
-
-To help the project you can:
-
-- [insert HN, indiehackers, twitter, gh, discord, sponsor].
-- If you have technological skills and want to contribute to development, have a look at the open issues. If you are new you can have a look at the good-first-issue and help-wanted labels.
-- If you don't have technological skills you can still help improving documentation or add examples or share your user-stories with our community, any help and contribution is welcome!
-
-## 🏃 Running Locally and Developing
+## 🏃 Running Locally and Development
 
 Waggle Dance can be deployed using Docker or manually using Node.js. Configuration of `.env` vars is required.
 
@@ -86,12 +73,6 @@ Waggle Dance can be deployed using Docker or manually using Node.js. Configurati
 - [Node JS LTS](https://nodejs.org/en)
 - [pnpm](https://pnpm.io/installation)
 - Turbo - `pnpm add turbo --global` or use `npx turbo` in place of `turbo` below.
-
-### Run Development build
-
-```bash
-turbo dev
-```
 
 ### ⚙️ Environment
 
@@ -114,18 +95,11 @@ pnpm db:push
 
 ### Run Development
 
-This is a t3 stack. [You can check the boilerplate documentation](/docs/create-t3-boilerplate.md)
+This is a T3 stack. [You can check the boilerplate documentation](/docs/create-t3-boilerplate.md)
 
 ```bash
 turbo dev
 ```
-
-## 📂 Core Files/Folders
-
-- `./packages/db/prisma`: [Database](#database) schema and migrations.
-- `./apps/nextjs/src`: Next.js app source code.
-- `./apps/nextjs/pages/api`: Next.js API routes.
-- `./packages/agent/src`: Agent business logic and backend services.
 
 ## 🦑 Linting
 
@@ -148,6 +122,14 @@ turbo lint:fix
 for the rest, you will need to open the associated file and fix the errors yourself. Limit `ts-ignore` for extreme cases.
 
 As a best practice, run `turbo lint` before starting a feature and after finishing a feature and fix any errors before sending a `PR`.
+
+## 🛠️ Contribute and help
+
+To help the project you can:
+
+- [insert HN, indiehackers, twitter, gh, discord, sponsor].
+- If you have technological skills and want to contribute to development, have a look at the open issues. If you are new you can have a look at the good-first-issue and help-wanted labels.
+- If you don't have technological skills you can still help improving documentation or add examples or share your user-stories with our community, any help and contribution is welcome!
 
 ## 📚 Helpful Docs
 
