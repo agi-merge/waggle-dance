@@ -53,6 +53,7 @@ It is inspired by [Auto-GPT](https://github.com/Significant-Gravitas/Auto-GPT), 
 - Local LLMs / removing strict dependence on OpenAI
 - Tree of thought and other execution methods
 - Desktop and mobile apps
+- Migrate to from Next.js Pages structure to App structure
 - Consider removing langchain
 - Improved architecture for running agents
 - More tools
