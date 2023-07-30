@@ -1,30 +1,29 @@
 <h1 align="center">Waggle🐝💃Dance</h1>
 
-**Waggle Dance** is a _highly experimental_ adversarial-cooperative multi-agent goal solver powered by [Langchain.js](https://github.com/hwchase17/langchainjs). It is a [MIT-licensed](/LICENSE) T3, Next.js, monorepo. Yeah, it's a little cargo-culty. Join Discord or submit a PR to help improve the architecture!
-
 <div align="center">
 
 ![License](https://img.shields.io/badge/license-MIT-green)
 ![CI](https://github.com/agi-merge/waggle-dance/actions/workflows/ci.yml/badge.svg?event=push)
-[![Public Deployment](https://img.shields.io/badge/Official%20Website-waggledance.ai-blue?style=flat&logo=world&logoColor=white)](https://waggledance.ai)
+[![Public Deployment](https://img.shields.io/badge/Demo-waggledance.ai-blue?style=flat&logo=world&logoColor=white)](https://waggledance.ai)
+<a href="https://vercel.com/new/clone?repository-url=https%3A%2F%2Fgithub.com%2Fagi-merge%2Fwaggle-dance&env=OPENAI_API_KEY&project-name=waggle-dance&repository-name=waggle-dance" alt="Deploy with Vercel"><img src="https://vercel.com/button" height="20" /></a>
+<br/>
 [![Join Discord Server](https://dcbadge.vercel.app/api/server/Rud2fR3hAX?style=flat)](https://discord.com/invite/Rud2fR3hAX)
 [![GitHub Repo stars](https://img.shields.io/github/stars/agi-merge/waggle-dance?style=social)](https://github.com/agi-merge/waggle-dance)
 
 </div>
+<h2></h2>
 
-<div align="center">
+**Waggle Dance** is a _highly experimental™️_ adversarial-cooperative multi-agent goal solver, currently powered by [Langchain.js](https://github.com/hwchase17/langchainjs).
 
-<a href="https://vercel.com/new/clone?repository-url=https%3A%2F%2Fgithub.com%2Fagi-merge%2Fwaggle-dance&env=OPENAI_API_KEY&project-name=waggle-dance&repository-name=waggle-dance" alt="Deploy with Vercel"><img src="https://vercel.com/button" height="60" /></a>
-<img src="https://invidget.switchblade.xyz/Rud2fR3hAX" height="60" />
+Waggle Dance takes a goal and passes it to a Planner Agent which streams an execution graph for sub-tasks. Each sub-task is executed as concurrently as possible by Execution Agents. To reduce poor results and hallucinations, sub-results are reviewed by Criticism Agents. Eventually, the Human in the loop (you!) will be able to chat with individual Agents, and provide course-corrections if needed.
 
-</div>
+It is inspired by [Auto-GPT](https://github.com/Significant-Gravitas/Auto-GPT), and has a lot in common with [gpt-researcher](https://github.com/assafelovic/gpt-researcher).
 
 <div align="center">
 
 <img src="https://github.com/agi-merge/waggle-dance/assets/906671/1f868edc-0ada-4576-9798-95dbbae6ffb2" height="320" />
-<img src="https://github.com/agi-merge/waggle-dance/assets/906671/2ec63223-111d-403c-8307-8230e2aabb00" height="320" />
 
-</div>
+</div> 
 
 ## Table of Contents
 
