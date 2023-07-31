@@ -1,22 +1,14 @@
-import { useState } from "react";
+import { type ReactNode } from "react";
 import { Box, Divider, Stack, Typography } from "@mui/joy";
 
 interface TitleProps {
   title: string;
-  description: string;
+  children?: ReactNode | null;
 }
 // Used at the top of pages
-const PageTitle = ({ title, description }: TitleProps) => {
-  const [headerExpanded, _setHeaderExpanded] = useState(true);
-
+const PageTitle = ({ title, children }: TitleProps) => {
   return (
-    <Stack
-      className="flex flex-grow"
-      onClick={(e) => {
-        e.preventDefault();
-        //_setHeaderExpanded(!headerExpanded);
-      }}
-    >
+    <Stack className="flex flex-grow">
       <Stack
         direction={{ xs: "column-reverse", sm: "row" }}
         className="flex"
@@ -26,20 +18,10 @@ const PageTitle = ({ title, description }: TitleProps) => {
           <Typography level="h4" fontSize={{ xs: "14pt", sm: "18pt" }}>
             {title}
           </Typography>
-          {headerExpanded && (
-            <Typography
-              level="body2"
-              sx={{
-                userSelect: "none",
-                marginBottom: { xs: -1, sm: 0 },
-              }}
-            >
-              {description}
-            </Typography>
-          )}
+          {children}
         </Stack>
       </Stack>
-      <Box sx={{ marginTop: { xs: 1, sm: 2 } }} />
+      {children && <Box sx={{ marginTop: { xs: 1, sm: 2 } }} />}
       <Divider inset="context">
         <Typography className="w-1/2 text-center" level="body3">
           ~

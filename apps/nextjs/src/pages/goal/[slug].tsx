@@ -7,6 +7,7 @@ import type {
   InferGetStaticPropsType,
 } from "next";
 import { useRouter } from "next/router";
+import { Stack, Typography } from "@mui/joy";
 import { getSession, useSession } from "next-auth/react";
 
 import { appRouter } from "@acme/api";
@@ -137,19 +138,27 @@ export default function GoalTab({
       <>
         {state === "input" ? (
           <>
-            <Title title="🐝 Goal solver" description="" />
+            <Title title="🐝 Goal solver" />
             <GoalInput />
           </>
         ) : (
           <>
-            <Title
-              title={isRunning ? "💃 Waggling!" : "💃 Waggle"}
-              description={
-                isRunning
-                  ? "Please 🐝 patient. Planning may take several minutes to fully complete."
-                  : "Press start/resume to waggle or add data."
-              }
-            />
+            <Title title={isRunning ? "💃 Waggling!" : "💃 Waggle"}>
+              <Stack direction="row">
+                <Typography
+                  level="body2"
+                  sx={{
+                    userSelect: "none",
+                    marginBottom: { xs: -1, sm: 0 },
+                  }}
+                >
+                  {isRunning
+                    ? "Please 🐝 patient. Planning may take several minutes to fully complete."
+                    : "Press start/resume to waggle or add data."}
+                </Typography>
+                <Typography className="flex-row">Yo</Typography>
+              </Stack>
+            </Title>
 
             <WaggleDanceGraph key={cleanedSlug} selectedGoal={selectedGoal} />
           </>

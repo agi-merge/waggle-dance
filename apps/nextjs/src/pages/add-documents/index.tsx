@@ -140,10 +140,19 @@ const AddDocuments = ({ onClose }: Props) => {
 
   return (
     <>
-      <Title
-        title="💰 Documents, Data, and Tools"
-        description="Add websites, documents, and tools to ensure better planning and execution."
-      />
+      <Title title="💰 Documents, Data, and Tools">
+        <Typography
+          level="body2"
+          sx={{
+            userSelect: "none",
+            marginBottom: { xs: -1, sm: 0 },
+          }}
+        >
+          {
+            "Add websites, documents, and tools to ensure better planning and execution."
+          }
+        </Typography>
+      </Title>
       <Stack gap="1rem" className="mt-6">
         <IngestContext.Provider
           value={{

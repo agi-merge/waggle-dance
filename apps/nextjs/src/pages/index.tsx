@@ -7,7 +7,7 @@ import Title from "~/features/MainLayout/components/PageTitle";
 export default function Home() {
   return (
     <MainLayout>
-      <Title title="🐝 Goal solver" description="" />
+      <Title title="🐝 Goal solver" />
       <GoalInput />
     </MainLayout>
   );
