@@ -1,9 +1,10 @@
+// features/WaggleDance/utils/executeTask.ts
+
 import { parse, stringify } from "yaml";
 
 import { type ExecuteRequestBody } from "~/pages/api/agent/types";
 import { type ChainPacket } from "../../../../../../packages/agent";
 import { type DAGNode, type DAGNodeClass } from "../DAG";
-import { readResponseStream } from "./readResponseStream";
 
 export function sleep(ms: number): Promise<void> {
   return new Promise((resolve) => setTimeout(resolve, ms));
@@ -11,24 +12,22 @@ export function sleep(ms: number): Promise<void> {
 
 async function fetchTaskData(
   request: ExecuteRequestBody,
-  task: DAGNode,
   abortSignal: AbortSignal,
 ): Promise<Response> {
-  const data = { ...request, task, dag: request.dag };
   const response = await fetch("/api/agent/execute", {
     method: "POST",
     headers: {
       "Content-Type": "application/json",
     },
-    body: JSON.stringify(data),
+    body: JSON.stringify(request),
     signal: abortSignal,
   });
 
   return response;
 }
 
-function processResponseBuffer(task: DAGNode, buffer: Buffer): ChainPacket {
-  const packets = parse(buffer.toString()) as ChainPacket[];
+function processResponseBuffer(tokens: string): Partial<ChainPacket> {
+  const packets = parse(tokens) as Partial<ChainPacket>[];
   const packet = packets.findLast(
     (packet) =>
       packet.type === "handleAgentEnd" ||
@@ -37,11 +36,11 @@ function processResponseBuffer(task: DAGNode, buffer: Buffer): ChainPacket {
       packet.type === "handleChainError" ||
       packet.type === "handleToolError" ||
       packet.type === "handleLLMError",
-  );
-
-  if (!packet) {
-    throw new Error("No exe result packet found");
-  }
+  ) ?? {
+    type: "error",
+    severity: "fatal",
+    message: "No exe result packet found",
+  }; // Use Nullish Coalescing to provide a default value
 
   return packet;
 }
@@ -64,7 +63,7 @@ export default async function executeTask(
   log(`About to execute task ${task.id} -${task.name}...`);
   sendChainPacket({ type: "starting", nodeId: task.id }, task);
 
-  const response = await fetchTaskData(request, task, abortSignal);
+  const response = await fetchTaskData(request, abortSignal);
   const stream = response.body;
   if (!response.ok || !stream) {
     throw new Error(`No stream: ${response.statusText} `);
@@ -73,11 +72,35 @@ export default async function executeTask(
   sendChainPacket({ type: "working", nodeId: task.id }, task);
   log(`Task ${task.id} -${task.name} stream began!`);
 
-  const buffer = await readResponseStream(stream, abortSignal);
-  if (!buffer) {
+  let buffer = Buffer.alloc(0);
+  let tokens = "";
+
+  const reader = stream.getReader();
+  let result;
+  while ((result = await reader.read()) && !result.done) {
+    if (abortSignal.aborted) {
+      throw new Error("Signal aborted");
+    }
+    const newData = Buffer.from(result.value);
+    const lineBreakIndex = newData.lastIndexOf("\n");
+
+    // Only store complete lines in the buffer and parse the partial line
+    if (lineBreakIndex !== -1) {
+      const completeLine = newData.subarray(0, lineBreakIndex + 1);
+      const partialLine = newData.subarray(lineBreakIndex + 1);
+
+      buffer = Buffer.concat([buffer, completeLine]);
+      tokens += buffer.toString();
+      buffer = partialLine; // Store the remaining partial line in the buffer
+    } else {
+      buffer = Buffer.concat([buffer, newData]);
+    }
+  }
+
+  if (!tokens || !tokens.length) {
     throw new Error(`No buffer: ${response.statusText} `);
   }
-  const packet = processResponseBuffer(task, buffer);
+  const packet = processResponseBuffer(tokens);
 
   if (packet.type === "handleAgentEnd" || packet.type === "done") {
     return stringify(packet.value);
