@@ -114,7 +114,6 @@ export async function createExecutionAgent(creation: {
     const options: InitializeAgentExecutorOptions = {
       agentType,
       streaming: true,
-      maxIterations: 25,
       returnIntermediateSteps: false,
       ...creationProps,
     };
