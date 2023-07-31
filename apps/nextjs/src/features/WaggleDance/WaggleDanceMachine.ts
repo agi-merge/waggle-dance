@@ -36,7 +36,7 @@ export const initialNodes = (goal: string) => [
   new DAGNodeClass(
     rootPlanId,
     `👸🐝 Queen Bee`,
-    `Planning how to achieve your goal`,
+    `Plan initial strategy to help achieve your goal`,
     goal,
     null,
   ),
