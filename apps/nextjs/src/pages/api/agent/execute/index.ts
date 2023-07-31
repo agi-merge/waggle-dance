@@ -1,4 +1,4 @@
-// api/agent/plan.ts
+// api/agent/execute/index.ts
 
 import { type NextRequest } from "next/server";
 import { stringify } from "yaml";
@@ -35,7 +35,7 @@ async function fetchExecute(
 
 // A thin edge proxy that calls a full-fat serverless endpoint. On Vercel, nodejs functions cannot be streamed, only edge.
 export default async function ExecuteStream(req: NextRequest) {
-  console.log("plan request");
+  console.log("execute request");
   try {
     const body = (await req.json()) as ExecuteRequestBody;
 
@@ -43,9 +43,11 @@ export default async function ExecuteStream(req: NextRequest) {
       console.error("aborted plan request");
     };
 
-    const stream = (await fetchExecute(body, req.signal)).body;
+    const response = await fetchExecute(body, req.signal);
+    const { readable, writable } = new TransformStream<Uint8Array>();
+    void response.body?.pipeTo(writable);
 
-    return new Response(stream, {
+    return new Response(readable, {
       headers: {
         "Content-Type": "application/octet-stream",
         "Transfer-Encoding": "chunked",
