@@ -22,7 +22,6 @@ import { api } from "~/utils/api";
 import { app } from "~/constants";
 import useApp from "~/stores/appStore";
 import useGoalStore from "~/stores/goalStore";
-import useWaggleDanceMachineStore from "~/stores/waggleDanceStore";
 import GoalDoctorModal from "./GoalDoctorModal";
 import GoalSettings from "./GoalSettings";
 import TemplatesModal from "./TemplatesModal";
@@ -42,7 +41,6 @@ type GoalInputProps = CardProps;
 export default function GoalInput({}: GoalInputProps) {
   const { getGoalInputValue, setGoalInputValue, upsertGoal, getSelectedGoal } =
     useGoalStore();
-  const { setIsAutoStartEnabled } = useWaggleDanceMachineStore();
   const { isPageLoading, setIsPageLoading } = useApp();
   const [_currentPromptIndex, setCurrentPromptIndex] = useState(0);
   const [currentPlaceholderIndex, setCurrentPlaceholderIndex] = useState(0);
@@ -64,7 +62,7 @@ export default function GoalInput({}: GoalInputProps) {
     (event: React.FormEvent) => {
       event.preventDefault();
       setIsPageLoading(true);
-      setIsAutoStartEnabled(true);
+      // setIsAutoStartEnabled(true);
       if (sessionData?.user.id) {
         createGoal(
           { prompt: getGoalInputValue() },
@@ -92,7 +90,6 @@ export default function GoalInput({}: GoalInputProps) {
     },
     [
       setIsPageLoading,
-      setIsAutoStartEnabled,
       sessionData?.user.id,
       createGoal,
       getGoalInputValue,
