@@ -117,7 +117,7 @@ export default function GoalInput({}: GoalInputProps) {
 
   return (
     <form onSubmit={handleSubmit} className="mt-6 space-y-2">
-      <FormControl>
+      <FormControl disabled={isPageLoading}>
         <Textarea
           autoFocus
           id="goalTextarea"
