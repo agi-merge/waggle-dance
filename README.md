@@ -42,7 +42,7 @@ It is inspired by [Auto-GPT](https://github.com/Significant-Gravitas/Auto-GPT), 
 
 ## 📍 Roadmap
 
-[Project Roadmap](https://github.com/orgs/agi-merge/projects/1/views/1)
+[Project Roadmap Board](https://github.com/orgs/agi-merge/projects/1/views/1)
 
 - Agent data connections, e.g. GitHub, Google Drive, Databases, etc.
 - Local LLMs / removing strict dependence on OpenAI
