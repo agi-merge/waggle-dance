@@ -21,7 +21,9 @@
   <a href="#open-core">Open Core</a>
 </p>
 
-**Waggle Dance** is a _highly experimental™️_ adversarial-cooperative multi-agent goal solver, currently powered by [Langchain.js](https://github.com/hwchase17/langchainjs).
+**Waggle Dance** is a _highly experimental™️_ adversarial-cooperative multi-agent goal solver.
+
+Check
 
 Waggle Dance takes a goal and passes it to a Planner Agent which streams an execution graph for sub-tasks. Each sub-task is executed as concurrently as possible by Execution Agents. To reduce poor results and hallucinations, sub-results are reviewed by Criticism Agents. Eventually, the Human in the loop (you!) will be able to chat with individual Agents, and provide course-corrections if needed.
 
@@ -29,7 +31,7 @@ It is inspired by [Auto-GPT](https://github.com/Significant-Gravitas/Auto-GPT), 
 
 <div align="center">
 
-<img src="https://github.com/agi-merge/waggle-dance/assets/906671/1f868edc-0ada-4576-9798-95dbbae6ffb2" height="320" />
+<img src="https://github.com/agi-merge/waggle-dance/assets/906671/1f868edc-0ada-4576-9798-95dbbae6ffb2" height="480" />
 
 </div>
 
