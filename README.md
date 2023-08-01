@@ -2,7 +2,7 @@
 
 <div align="center">
 
-![License](https://img.shields.io/badge/license-MIT-green)
+[![License](https://img.shields.io/badge/license-MIT-green)](LICENSE)
 ![CI](https://github.com/agi-merge/waggle-dance/actions/workflows/ci.yml/badge.svg?event=push)
 [![Public Deployment](https://img.shields.io/badge/Demo-waggledance.ai-blue?style=flat&logo=world&logoColor=white)](https://waggledance.ai)
 <a href="https://vercel.com/new/clone?repository-url=https%3A%2F%2Fgithub.com%2Fagi-merge%2Fwaggle-dance&env=OPENAI_API_KEY&project-name=waggle-dance&repository-name=waggle-dance" alt="Deploy with Vercel"><img src="https://vercel.com/button" height="20" /></a>
@@ -13,12 +13,12 @@
 </div>
 
 <p align="center">
-  <a href="https://www.waggledance.ai">Demo<a> |
-  <a href="#highlighted-features"> Features</a> |
-  <a href="#📍-roadmap">Roadmap</a> |
-  <a href="#🛠️-contribute-and-help">Contribute</a> |
-  <a href="#🏃-running-locally-and-development">Run Locally</a> |
-  <a href="#open-core">Open Core</a>
+  <a href="https://www.waggledance.ai">🍯 Demo<a> |
+  <a href="#🦚-highlighted-features">🦚Features</a> |
+  <a href="#📍-roadmap">📍Roadmap</a> |
+  <a href="#🛠️-contribute-and-help">🛠️Contribute</a> |
+  <a href="#🏃-running-locally-and-development">🏃Run Locally</a> |
+  <a href="#🌺-open-core">🌺Open Core</a>
 </p>
 
 **Waggle Dance** is a _highly experimental™️_ adversarial-cooperative multi-agent goal solver.
@@ -35,7 +35,7 @@ It is inspired by [Auto-GPT](https://github.com/Significant-Gravitas/Auto-GPT), 
 
 </div>
 
-# Highlighted Features
+# 🦚 Highlighted Features
 
 - Highly concurrent execution graph. Some sub-task branches are not dependent, and can run concurrently.
 - Adversarial agents that review results.
@@ -56,7 +56,6 @@ It is inspired by [Auto-GPT](https://github.com/Significant-Gravitas/Auto-GPT), 
 - More tools
 - More data connectors
 - Templates and sharing
-- See more:
 
 ## 🏃 Running Locally and Development
 
