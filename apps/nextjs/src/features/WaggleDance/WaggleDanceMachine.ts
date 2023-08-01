@@ -5,10 +5,7 @@
 // It starts by generating an execution DAG and then executes the tasks concurrently.
 // When a task completes, a new dependent review task should be added to the DAG to ensure quality results.
 
-import {
-  mapAgentSettingsToCreationProps,
-  type ExecuteRequestBody,
-} from "~/pages/api/agent/types";
+import { mapAgentSettingsToCreationProps } from "~/pages/api/agent/types";
 import { type AgentSettings } from "~/stores/waggleDanceStore";
 import { type ChainPacket } from "../../../../../packages/agent";
 import DAG, {
@@ -110,18 +107,20 @@ export default class WaggleDanceMachine {
             agentSettings["execute"],
           );
 
+          const executeRequest = {
+            goal,
+            goalId,
+            agentPromptingMethod:
+              agentSettings["execute"].agentPromptingMethod!,
+            task,
+            dag,
+            taskResults,
+            completedTasks,
+            creationProps,
+          };
+
           result = await executeTask(
-            {
-              goal,
-              goalId,
-              agentPromptingMethod:
-                agentSettings["execute"].agentPromptingMethod!,
-              task,
-              dag,
-              taskResults,
-              completedTasks,
-              creationProps,
-            },
+            executeRequest,
             maxConcurrency,
             isRunning,
             sendChainPacket,
@@ -286,16 +285,17 @@ export default class WaggleDanceMachine {
       const creationProps = mapAgentSettingsToCreationProps(
         agentSettings["execute"],
       );
+
       const executeRequest = {
         goal,
         goalId,
+        agentPromptingMethod: agentSettings["execute"].agentPromptingMethod!,
         task,
         dag,
         taskResults,
         completedTasks,
         creationProps,
-        agentPromptingMethod: agentSettings["execute"].agentPromptingMethod!,
-      } as ExecuteRequestBody;
+      };
 
       void (async () => {
         let result;
