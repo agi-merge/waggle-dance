@@ -1,6 +1,5 @@
 // api/agent/execute/run.ts
 
-import { type IncomingMessage } from "http";
 import { type NextApiRequest, type NextApiResponse } from "next";
 import { BaseCallbackHandler } from "langchain/callbacks";
 import { type Serialized } from "langchain/load/serializable";
@@ -24,15 +23,9 @@ export const config = {
     bodyParser: false,
   },
   runtime: "nodejs",
-  regions: ["pdx-1"], // TODO: figure out a way to make this use process.env
 };
 
-const handler = async (req: IncomingMessage, res: NextApiResponse) => {
-  const session = await getServerSession({
-    req: req as unknown as NextApiRequest,
-    res,
-  });
-
+const handler = async (req: NextApiRequest, res: NextApiResponse) => {
   const bodyChunks = [];
   for await (const chunk of req) {
     bodyChunks.push(chunk);
@@ -49,6 +42,11 @@ const handler = async (req: IncomingMessage, res: NextApiResponse) => {
       dag,
       taskResults,
     } = JSON.parse(body) as ExecuteRequestBody;
+
+    const session = await getServerSession({
+      req: req as unknown as NextApiRequest,
+      res,
+    });
 
     res.writeHead(200, {
       "Content-Type": "application/octet-stream",
@@ -194,7 +192,7 @@ const handler = async (req: IncomingMessage, res: NextApiResponse) => {
       agentPromptingMethod,
       task: stringify(task),
       dag: stringify(dag),
-      result: stringify(result),
+      result: String(result),
       abortSignal: abortController.signal,
       namespace: session?.user.id,
     });
@@ -208,7 +206,7 @@ const handler = async (req: IncomingMessage, res: NextApiResponse) => {
           Object.getOwnPropertyNames(exeResult),
         ),
       };
-      void createResult(goalId, String(exeResult), dag, "ERROR");
+      void createResult(goalId, String(exeResult), dag, "ERROR", session);
       res.end(stringify([errorPacket]));
     } else {
       const lastNode = dag.nodes[dag.nodes.length - 1];
@@ -218,6 +216,7 @@ const handler = async (req: IncomingMessage, res: NextApiResponse) => {
         exeResult,
         dag,
         isLastNode ? "DONE" : "EXECUTING",
+        session,
       );
       const donePacket: ChainPacket = { type: "done", value: exeResult };
       res.end(stringify([donePacket]));
@@ -263,20 +262,24 @@ async function createResult(
   session?: Session | null,
 ) {
   if (session?.user.id) {
-    try {
-      const caller = appRouter.createCaller({ session, prisma });
-      const createResultOptions = {
-        goalId,
-        value: exeResult,
-        graph: dag,
-        state,
-      };
-      const createResult = await caller.goal.createResult(createResultOptions);
-      console.log("createResult", createResult);
-    } catch (error) {
-      // ignore
-      console.error(error);
-    }
+    const caller = appRouter.createCaller({ session, prisma });
+    const createResultOptions = {
+      goalId,
+      value: exeResult,
+      graph: dag,
+      state,
+    };
+    2;
+    const createResult = await caller.goal.createResult(createResultOptions);
+    console.log("createResult", createResult);
+  } else {
+    console.warn(
+      `no userId ${
+        session !== null
+          ? "but session is not null. did you forget to pass cookies?"
+          : ""
+      }`,
+    );
   }
 }
 

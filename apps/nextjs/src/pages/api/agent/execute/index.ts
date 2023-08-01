@@ -12,10 +12,6 @@ export const config = {
 export default async function ExecuteStream(req: NextRequest) {
   try {
     const body = (await req.json()) as ExecuteRequestBody;
-    const abortController = new AbortController();
-    req.signal.onabort = () => {
-      console.error("aborted execute request");
-    };
 
     const stream = new ReadableStream({
       async start(controller) {
@@ -24,10 +20,11 @@ export default async function ExecuteStream(req: NextRequest) {
           {
             method: "POST",
             headers: {
+              Cookie: req.headers.get("cookie") || "", // pass cookie so session logic still works
               "Content-Type": "application/json",
             },
             body: JSON.stringify(body),
-            signal: abortController.signal,
+            signal: req.signal,
           },
         );
 

@@ -91,7 +91,7 @@ export default async function PlanStream(req: NextRequest) {
             body: JSON.stringify({ goalId: goalId }),
             headers: {
               "Content-Type": "application/json",
-              Cookie: req.headers.get("cookie") || "",
+              Cookie: req.headers.get("cookie") || "", // pass cookie so session logic still works
             },
             signal: req.signal,
           },
