@@ -2,7 +2,7 @@ import { PromptTemplate } from "langchain/prompts";
 
 import { type ModelCreationProps } from "./types";
 
-export const finalId = "🍯";
+export const finalId = "goal-🍯";
 const schema = (format: string, _llmName: string) =>
   `
 DAG
