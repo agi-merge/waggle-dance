@@ -27,14 +27,14 @@ const MainLayout = ({ children }: Props) => {
 
   const { data: _historicGoals } = api.goal.topByUser.useQuery(undefined, {
     networkMode: "offlineFirst",
-    refetchOnWindowFocus: false,
+    staleTime: 60000,
+    refetchInterval: 60000,
     onSuccess: (data) => {
       const selectedGoal = getSelectedGoal();
+      replaceGoals(data);
       if (selectedGoal && selectedGoal.executions.length > 0) {
         const route = app.routes.goal(selectedGoal.id); // avoid an error when replacing route to same route
         router.route !== route && void router.replace(route);
-      } else {
-        replaceGoals(data);
       }
     },
   });

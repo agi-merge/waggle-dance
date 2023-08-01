@@ -173,16 +173,22 @@ const useGoalStore = (name?: string) =>
         replaceGoals(historicGoals) {
           const now = new Date();
 
+          const drafts = get().goalList.filter((goal) =>
+            goal.id.startsWith(draftGoalPrefix),
+          );
+
           if (historicGoals && historicGoals.length > 0) {
-            const goalList = historicGoals.map((goal) => ({
-              id: goal.id,
-              prompt: goal.prompt,
-              executions: goal.executions,
-              results: goal.results,
-              createdAt: now,
-              updatedAt: now,
-              userId: goal.userId,
-            }));
+            const goalList = historicGoals
+              .map((goal) => ({
+                id: goal.id,
+                prompt: goal.prompt,
+                executions: goal.executions,
+                results: goal.results,
+                createdAt: now,
+                updatedAt: now,
+                userId: goal.userId,
+              }))
+              .concat(drafts);
             const tabIndex = getNewSelection(get, 0);
             set({
               goalList,
