@@ -1,12 +1,16 @@
 // pages/goal/[slug].tsx
 
 import { useEffect, useMemo } from "react";
-import type { GetServerSideProps, InferGetServerSidePropsType } from "next";
+import type {
+  GetServerSidePropsContext,
+  InferGetServerSidePropsType,
+} from "next";
 import { useRouter } from "next/router";
 import { Stack, Typography } from "@mui/joy";
-import { getSession, useSession } from "next-auth/react";
+import { useSession } from "next-auth/react";
 
 import { appRouter } from "@acme/api";
+import { getServerSession } from "@acme/auth";
 import { prisma } from "@acme/db";
 
 import { app } from "~/constants";
@@ -18,8 +22,10 @@ import WaggleDanceGraph from "~/features/WaggleDance/components/WaggleDanceGraph
 import useGoalStore from "~/stores/goalStore";
 import useWaggleDanceMachineStore from "~/stores/waggleDanceStore";
 
-export const getServerSideProps = async ({}: GetServerSideProps) => {
-  const session = await getSession();
+export const getServerSideProps = async (
+  context: GetServerSidePropsContext,
+) => {
+  const session = await getServerSession(context);
 
   if (!session?.user.id) {
     return {
