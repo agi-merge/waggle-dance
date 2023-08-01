@@ -11,7 +11,15 @@
 [![GitHub Repo stars](https://img.shields.io/github/stars/agi-merge/waggle-dance?style=social)](https://github.com/agi-merge/waggle-dance)
 
 </div>
-<h2></h2>
+
+<p align="center">
+  <a href="https://www.waggledance.ai">Demo<a> |
+  <a href="#highlighted-features"> Features</a> |
+  <a href="#📍-roadmap">Roadmap</a> |
+  <a href="#🛠️-contribute-and-help">Contribute</a> |
+  <a href="#🏃-running-locally-and-development">Run Locally</a> |
+  <a href="#open-core">Open Core</a>
+</p>
 
 **Waggle Dance** is a _highly experimental™️_ adversarial-cooperative multi-agent goal solver, currently powered by [Langchain.js](https://github.com/hwchase17/langchainjs).
 
@@ -23,27 +31,14 @@ It is inspired by [Auto-GPT](https://github.com/Significant-Gravitas/Auto-GPT), 
 
 <img src="https://github.com/agi-merge/waggle-dance/assets/906671/1f868edc-0ada-4576-9798-95dbbae6ffb2" height="320" />
 
-</div> 
+</div>
 
-## Table of Contents
+# Highlighted Features
 
-- [Overview](#-main-features)
-- [Contribute and Help](#contribute-and-help)
-- [How to Run](#running-locally-and-development)
-- [Linting](#-linting)
-- [CICD](#%EF%B8%8F-cicd)
-- [Contribute](#contribute)
-- [Benchmarks](#-benchmarks)
-- [Helpful Docs](#helpful-docs)
-- [Citations](#citations)
-- [Special Thanks](#special-thanks)
-- [Open Core](#open-core)
-
-# Main Features
-
-- Highly concurrent execution graph. Some sub-tasks are not dependent, and can be run concurrently.
-- Adversarial agents that review results
-- Vector database for long-term memory
+- Highly concurrent execution graph. Some sub-task branches are not dependent, and can run concurrently.
+- Adversarial agents that review results.
+- Vector database for long-term memory.
+- Explainable UI: Graph visualizer, sub-task (agent) results, agent logs and events.
 
 ## 📍 Roadmap
 
