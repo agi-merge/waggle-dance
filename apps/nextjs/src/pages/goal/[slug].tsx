@@ -1,16 +1,12 @@
 // pages/goal/[slug].tsx
 
 import { useEffect, useMemo } from "react";
-import type {
-  GetServerSidePropsContext,
-  InferGetServerSidePropsType,
-} from "next";
+import type { GetStaticPaths, InferGetStaticPropsType } from "next";
 import { useRouter } from "next/router";
 import { Stack, Typography } from "@mui/joy";
-import { useSession } from "next-auth/react";
+import { getSession, useSession } from "next-auth/react";
 
 import { appRouter } from "@acme/api";
-import { getServerSession } from "@acme/auth";
 import { prisma } from "@acme/db";
 
 import { app } from "~/constants";
@@ -22,15 +18,14 @@ import WaggleDanceGraph from "~/features/WaggleDance/components/WaggleDanceGraph
 import useGoalStore from "~/stores/goalStore";
 import useWaggleDanceMachineStore from "~/stores/waggleDanceStore";
 
-export const getServerSideProps = async (
-  context: GetServerSidePropsContext,
-) => {
-  const session = await getServerSession(context);
+export const getStaticProps = async () => {
+  const session = await getSession();
 
   if (!session?.user.id) {
     return {
       props: {
         savedGoals: null,
+        revalidate: 1,
       },
     };
   }
@@ -48,6 +43,7 @@ export const getServerSideProps = async (
     return {
       props: {
         savedGoals,
+        revalidate: 10,
       },
     };
   } catch (e) {
@@ -55,14 +51,21 @@ export const getServerSideProps = async (
     return {
       props: {
         savedGoals: null,
+        revalidate: 1,
       },
     };
   }
 };
+export const getStaticPaths: GetStaticPaths<{ slug: string }> = () => {
+  return {
+    paths: [], //indicates that no page needs be created at build time
+    fallback: "blocking", //indicates the type of fallback
+  };
+};
 
 export default function GoalTab({
   savedGoals,
-}: InferGetServerSidePropsType<typeof getServerSideProps>) {
+}: InferGetStaticPropsType<typeof getStaticProps>) {
   const router = useRouter();
   const { isRunning } = useWaggleDanceMachineStore();
   const { data: sessionData } = useSession();
@@ -76,6 +79,7 @@ export default function GoalTab({
     } else {
       return slug;
     }
+    return "";
   }, [slug]) as string;
 
   const selectedGoal = useMemo(
@@ -94,7 +98,7 @@ export default function GoalTab({
   }, [cleanedSlug, selectedGoal?.executions?.length, selectedGoal?.userId]);
 
   useEffect(() => {
-    if (cleanedSlug === "new") {
+    if (!router.isReady || cleanedSlug === "new") {
       // do nothing
     } else {
       // if the slug is not the same as the selected goal, then we need to update the selected goal
