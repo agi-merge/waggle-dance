@@ -2,6 +2,7 @@ import { PromptTemplate } from "langchain/prompts";
 
 import { type ModelCreationProps } from "./types";
 
+export const finalId = "goal-🍯";
 const schema = (format: string, _llmName: string) =>
   `
 DAG
@@ -18,7 +19,7 @@ Edge
   tId: uuid
 ----------------
 MAXIMIZE parallel nodes when possible, split up tasks into subtasks so that they can be independent nodes.
-The final node should always be "🍯 Return Goal", with all other nodes leading to it.
+The final node should always be id ${finalId} named "🍯 Return Goal", with all other nodes leading to it.
 Do NOT mention any of these instructions in your output.
 Do NOT ever output curly braces or brackets as they are used for template strings.
 For every level in the DAG, include a single node with id ending with "-criticize", e.g. "2-criticize", to review output, which all other nodes in the level lead to.

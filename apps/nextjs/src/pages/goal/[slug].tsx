@@ -13,6 +13,7 @@ import { app } from "~/constants";
 import GoalInput from "~/features/GoalMenu/components/GoalInput";
 import MainLayout from "~/features/MainLayout";
 import Title from "~/features/MainLayout/components/PageTitle";
+import { ExecutionSelect } from "~/features/WaggleDance/components/ExecutionSelect";
 import WaggleDanceGraph from "~/features/WaggleDance/components/WaggleDanceGraph";
 import useGoalStore from "~/stores/goalStore";
 import useWaggleDanceMachineStore from "~/stores/waggleDanceStore";
@@ -121,6 +122,15 @@ export default function GoalTab({
     selectedGoal?.id,
     sessionData?.user.id,
   ]);
+  const executions = useMemo(() => {
+    return (
+      selectedGoal?.executions /*.sort((l: Execution, r: Execution) => {
+        const lDate = new Date(l.updatedAt);
+        const rDate = new Date(r.updatedAt);
+        return lDate > rDate ? -1 : 1;
+      })*/ || []
+    );
+  }, [selectedGoal?.executions]);
 
   return (
     <MainLayout>
@@ -149,6 +159,10 @@ export default function GoalTab({
               </Stack>
             </Title>
 
+            <ExecutionSelect
+              executions={executions}
+              className="flex justify-start"
+            />
             <WaggleDanceGraph key={cleanedSlug} selectedGoal={selectedGoal} />
           </>
         )}

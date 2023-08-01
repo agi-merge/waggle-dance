@@ -8,11 +8,13 @@ import { type AgentAction, type AgentFinish } from "langchain/schema";
 import { stringify } from "yaml";
 
 import { appRouter } from "@acme/api";
-import { getServerSession } from "@acme/auth";
-import { prisma } from "@acme/db";
+import { getServerSession, type Session } from "@acme/auth";
+import { prisma, type ExecutionState } from "@acme/db";
 
+import type DAG from "~/features/WaggleDance/DAG";
 import {
   createExecutionAgent,
+  finalId,
   type ChainPacket,
 } from "../../../../../../../packages/agent";
 import { type ExecuteRequestBody } from "../types";
@@ -201,26 +203,25 @@ const handler = async (req: IncomingMessage, res: NextApiResponse) => {
       const errorPacket: ChainPacket = {
         type: "error",
         severity: "fatal",
-        message: String(exeResult),
+        message: JSON.stringify(
+          exeResult,
+          Object.getOwnPropertyNames(exeResult),
+        ),
       };
+      void createResult(goalId, String(exeResult), dag, "ERROR");
       res.end(stringify([errorPacket]));
-      return;
+    } else {
+      const lastNode = dag.nodes[dag.nodes.length - 1];
+      const isLastNode = lastNode?.id == finalId;
+      void createResult(
+        goalId,
+        exeResult,
+        dag,
+        isLastNode ? "DONE" : "EXECUTING",
+      );
+      const donePacket: ChainPacket = { type: "done", value: exeResult };
+      res.end(stringify([donePacket]));
     }
-
-    if (session?.user.id) {
-      try {
-        const caller = appRouter.createCaller({ session, prisma });
-        const createResultOptions = { goalId, value: exeResult, graph: dag };
-        const _createResult = await caller.goal.createResult(
-          createResultOptions,
-        );
-      } catch (error) {
-        // ignore
-        console.error(error);
-      }
-    }
-    const donePacket: ChainPacket = { type: "done", value: exeResult };
-    res.end(stringify([donePacket]));
   } catch (e) {
     let message;
     let status: number;
@@ -253,5 +254,30 @@ const handler = async (req: IncomingMessage, res: NextApiResponse) => {
     req.removeAllListeners();
   }
 };
+
+async function createResult(
+  goalId: string,
+  exeResult: string,
+  dag: DAG,
+  state: ExecutionState | undefined,
+  session?: Session | null,
+) {
+  if (session?.user.id) {
+    try {
+      const caller = appRouter.createCaller({ session, prisma });
+      const createResultOptions = {
+        goalId,
+        value: exeResult,
+        graph: dag,
+        state,
+      };
+      const createResult = await caller.goal.createResult(createResultOptions);
+      console.log("createResult", createResult);
+    } catch (error) {
+      // ignore
+      console.error(error);
+    }
+  }
+}
 
 export default handler;
