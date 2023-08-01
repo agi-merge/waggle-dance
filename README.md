@@ -123,11 +123,14 @@ As a best practice, run `turbo lint` before starting a feature and after finishi
 
 ## 🛠️ Contribute and help
 
-To help the project you can:
+- Devs: [CONTRIBUTING.md](CONTRIBUTING.md)
+- If you are not technical, you can still help improving documentation or add examples or share your user-stories with our community; any help or contribution is welcome!
 
-- [insert HN, indiehackers, twitter, gh, discord, sponsor].
-- If you have technological skills and want to contribute to development, have a look at the open issues. If you are new you can have a look at the good-first-issue and help-wanted labels.
-- If you don't have technological skills you can still help improving documentation or add examples or share your user-stories with our community, any help and contribution is welcome!
+## Contributors
+
+<a href="https://github.com/tooljet/tooljet/graphs/contributors">
+  <img src="https://contrib.rocks/image?repo=agi-merge/waggle-dance&max=100&columns=5" />
+</a>
 
 ## 📚 Helpful Docs
 
