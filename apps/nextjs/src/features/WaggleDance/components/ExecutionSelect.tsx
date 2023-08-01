@@ -1,5 +1,6 @@
 import * as React from "react";
 import { useMemo } from "react";
+import { FormControl, FormLabel } from "@mui/joy";
 import Box from "@mui/joy/Box";
 import Chip from "@mui/joy/Chip";
 import Option from "@mui/joy/Option";
@@ -38,7 +39,7 @@ export const ExecutionSelect: React.FC<ExecutionSelectProps> = ({
               return `${node.name}`;
             }
           }, "") ?? ""
-        ).slice(0, 50)}…`,
+        ).slice(0, 50)}… `,
     );
   }, [executions]);
 
@@ -61,13 +62,8 @@ export const ExecutionSelect: React.FC<ExecutionSelectProps> = ({
         <>
           <Box>
             <Typography>{names[i]}</Typography>
-            <Typography startDecorator={<Typography>Created</Typography>}>
-              {timeAgo(execution.createdAt)}
-            </Typography>
-            <Typography startDecorator={<Typography>Updated</Typography>}>
-              {timeAgo(execution.updatedAt)}
-            </Typography>
           </Box>
+
           <Chip
             size="sm"
             variant="outlined"
@@ -82,6 +78,11 @@ export const ExecutionSelect: React.FC<ExecutionSelectProps> = ({
             }}
           >
             {execution.state}
+            <Typography
+              level="body4"
+              color="primary"
+              startDecorator={timeAgo(execution.updatedAt)}
+            ></Typography>
           </Chip>
         </>
       );
@@ -110,8 +111,31 @@ export const ExecutionSelect: React.FC<ExecutionSelectProps> = ({
   );
 
   return (
-    <Select defaultValue={selectedExecution?.id} onChange={handleChange}>
-      {options}
-    </Select>
+    <FormControl>
+      {executions.length !== 0 && (
+        <>
+          <FormLabel
+            id="select-execution-label"
+            htmlFor="select-execution-button"
+          >
+            Previous Goal Executions
+          </FormLabel>
+          <Select
+            defaultValue={selectedExecution?.id}
+            onChange={handleChange}
+            placeholder={<Typography>Select Past Execution</Typography>}
+            slotProps={{
+              button: {
+                id: "select-execution-button",
+                "aria-labelledby":
+                  "select-execution-label select-execution-button",
+              },
+            }}
+          >
+            {options}
+          </Select>
+        </>
+      )}
+    </FormControl>
   );
 };
