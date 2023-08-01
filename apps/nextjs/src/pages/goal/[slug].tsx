@@ -1,11 +1,7 @@
 // pages/goal/[slug].tsx
 
 import { useEffect, useMemo } from "react";
-import type {
-  GetStaticPaths,
-  GetStaticPropsContext,
-  InferGetStaticPropsType,
-} from "next";
+import type { GetServerSideProps, InferGetServerSidePropsType } from "next";
 import { useRouter } from "next/router";
 import { Stack, Typography } from "@mui/joy";
 import { getSession, useSession } from "next-auth/react";
@@ -21,7 +17,7 @@ import WaggleDanceGraph from "~/features/WaggleDance/components/WaggleDanceGraph
 import useGoalStore from "~/stores/goalStore";
 import useWaggleDanceMachineStore from "~/stores/waggleDanceStore";
 
-export const getStaticProps = async ({}: GetStaticPropsContext) => {
+export const getServerSideProps = async ({}: GetServerSideProps) => {
   const session = await getSession();
 
   if (!session?.user.id) {
@@ -56,16 +52,10 @@ export const getStaticProps = async ({}: GetStaticPropsContext) => {
     };
   }
 };
-export const getStaticPaths: GetStaticPaths<{ slug: string }> = () => {
-  return {
-    paths: [], //indicates that no page needs be created at build time
-    fallback: "blocking", //indicates the type of fallback
-  };
-};
 
 export default function GoalTab({
   savedGoals,
-}: InferGetStaticPropsType<typeof getStaticProps>) {
+}: InferGetServerSidePropsType<typeof getServerSideProps>) {
   const router = useRouter();
   const { isRunning } = useWaggleDanceMachineStore();
   const { data: sessionData } = useSession();
@@ -79,7 +69,6 @@ export default function GoalTab({
     } else {
       return slug;
     }
-    return "";
   }, [slug]) as string;
 
   const selectedGoal = useMemo(
