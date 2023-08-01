@@ -67,6 +67,6 @@ git push origin feature/your-feature-name
 
 ## 📃 License
 
-By contributing to Waggle🐝💃Dance, you agree that your contributions will be licensed under the [Project License] TODO: license.
+By contributing to Waggle🐝💃Dance, you agree that your contributions will be licensed under the MIT license.
 
 We appreciate your contributions and support in making Waggle🐝💃Dance better! Together, let's build an amazing open-source community.

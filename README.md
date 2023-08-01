@@ -128,7 +128,7 @@ As a best practice, run `turbo lint` before starting a feature and after finishi
 
 ## Contributors
 
-<a href="https://github.com/tooljet/tooljet/graphs/contributors">
+<a href="https://github.com/agi-merge/waggle-dance/graphs/contributors">
   <img src="https://contrib.rocks/image?repo=agi-merge/waggle-dance&max=100&columns=5" />
 </a>
 
