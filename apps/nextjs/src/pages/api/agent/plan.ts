@@ -22,9 +22,7 @@ export default async function PlanStream(req: NextRequest) {
     const { creationProps, goal, goalId } =
       (await req.json()) as PlanRequestBody;
 
-    req.signal.onabort = () => {
-      console.error("aborted plan request");
-    };
+    const abortController = new AbortController();
 
     const encoder = new TextEncoder();
     const stream = new ReadableStream({
@@ -82,7 +80,7 @@ export default async function PlanStream(req: NextRequest) {
           creationProps,
           goal,
           goalId,
-          req.signal,
+          abortController.signal,
         );
         const createExecutionPromise = fetch(
           `${process.env.NEXTAUTH_URL}/api/agent/execute/save`,
@@ -93,7 +91,7 @@ export default async function PlanStream(req: NextRequest) {
               "Content-Type": "application/json",
               Cookie: req.headers.get("cookie") || "", // pass cookie so session logic still works
             },
-            signal: req.signal,
+            signal: abortController.signal,
           },
         );
         const results = await Promise.allSettled([
@@ -105,6 +103,7 @@ export default async function PlanStream(req: NextRequest) {
       },
 
       cancel() {
+        abortController.abort();
         console.warn("cancel plan request");
       },
     });

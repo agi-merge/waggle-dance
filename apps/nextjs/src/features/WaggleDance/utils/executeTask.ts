@@ -66,7 +66,9 @@ export default async function executeTask(
   const response = await fetchTaskData(request, abortSignal);
   const stream = response.body;
   if (!response.ok || !stream) {
-    throw new Error(`No stream: ${response.statusText} `);
+    throw new Error(
+      `No stream. Response: ${response.statusText}. Is stream locked: ${stream?.locked}`,
+    );
   }
 
   sendChainPacket({ type: "working", nodeId: task.id }, task);

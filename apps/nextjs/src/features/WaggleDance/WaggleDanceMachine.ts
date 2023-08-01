@@ -143,6 +143,7 @@ export default class WaggleDanceMachine {
         const node = dag.nodes.find((n) => task.id === n.id);
         if (!node) {
           optimisticFirstTaskState.firstTaskState = "error";
+          abortController.abort();
           throw new Error("no node to sendChainPacket");
         } else {
           if (!result) {

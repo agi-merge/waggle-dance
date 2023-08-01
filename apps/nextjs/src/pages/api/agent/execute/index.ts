@@ -10,9 +10,10 @@ export const config = {
 };
 
 export default async function ExecuteStream(req: NextRequest) {
+  const abortController = new AbortController();
+
   try {
     const body = (await req.json()) as ExecuteRequestBody;
-
     const stream = new ReadableStream({
       async start(controller) {
         const response = await fetch(
@@ -24,7 +25,7 @@ export default async function ExecuteStream(req: NextRequest) {
               "Content-Type": "application/json",
             },
             body: JSON.stringify(body),
-            signal: req.signal,
+            signal: abortController.signal,
           },
         );
 
@@ -36,7 +37,7 @@ export default async function ExecuteStream(req: NextRequest) {
         if (reader) {
           while (true) {
             const { done, value } = await reader.read();
-            if (done) {
+            if (done || abortController.signal.aborted) {
               break;
             }
             if (value) {
@@ -50,6 +51,9 @@ export default async function ExecuteStream(req: NextRequest) {
 
       cancel() {
         console.warn("cancel execute request");
+        if (!abortController.signal.aborted) {
+          abortController.abort();
+        }
       },
     });
 
@@ -60,6 +64,9 @@ export default async function ExecuteStream(req: NextRequest) {
       },
     });
   } catch (e) {
+    if (!abortController.signal.aborted) {
+      abortController.abort();
+    }
     let message;
     let status: number;
     let stack;
