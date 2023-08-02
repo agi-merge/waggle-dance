@@ -197,54 +197,50 @@ const GoalTabs: React.FC<GoalTabsProps> = ({ children }) => {
 
   // Render the goal tabber
   return (
-    <>
-      {goalList.length > 0 && (
-        <Tabs
-          aria-label="Goal tabs"
-          value={currentTabIndex}
-          onChange={(event, newValue) => {
-            handleChange(event, newValue as number);
+    <Tabs
+      aria-label="Goal tabs"
+      value={currentTabIndex}
+      onChange={(event, newValue) => {
+        handleChange(event, newValue as number);
+      }}
+      sx={{
+        borderRadius: "sm",
+        background: "transparent",
+        marginTop: -2.5,
+        marginLeft: -3,
+        marginRight: -2.5,
+      }}
+      orientation="horizontal"
+    >
+      <TabList
+        sx={{
+          pointerEvents: isRunning ? "none" : "auto",
+          opacity: isRunning ? 0.33 : 1,
+          background: "transparent",
+          display: "flex flex-shrink",
+          flexWrap: "nowrap",
+        }}
+      >
+        {goalList.map((tab, index) => (
+          <GoalTab key={tab.id} tab={tab} index={index} />
+        ))}
+        <IconButton
+          className="flex-end float-start"
+          color="neutral"
+          size="md"
+          variant="plain"
+          onClick={() => {
+            const newId = newGoal();
+            void router.replace(app.routes.goal(newId), undefined, {
+              shallow: true,
+            });
           }}
-          sx={{
-            borderRadius: "sm",
-            background: "transparent",
-            marginTop: -2.5,
-            marginLeft: -3,
-            marginRight: -2.5,
-          }}
-          orientation="horizontal"
         >
-          <TabList
-            sx={{
-              pointerEvents: isRunning ? "none" : "auto",
-              opacity: isRunning ? 0.33 : 1,
-              background: "transparent",
-              display: "flex flex-shrink",
-              flexWrap: "nowrap",
-            }}
-          >
-            {goalList.map((tab, index) => (
-              <GoalTab key={tab.id} tab={tab} index={index} />
-            ))}
-            <IconButton
-              className="flex-end float-start"
-              color="neutral"
-              size="md"
-              variant="plain"
-              onClick={() => {
-                const newId = newGoal();
-                void router.replace(app.routes.goal(newId), undefined, {
-                  shallow: true,
-                });
-              }}
-            >
-              <Add />
-            </IconButton>
-          </TabList>
-          <Box className="mx-6 mt-1">{children}</Box>
-        </Tabs>
-      )}
-    </>
+          <Add />
+        </IconButton>
+      </TabList>
+      <Box className="mx-6 mt-1">{children}</Box>
+    </Tabs>
   );
 };
 
