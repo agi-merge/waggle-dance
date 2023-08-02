@@ -44,6 +44,7 @@ export default function GoalTab() {
   );
   useEffect(
     () => {
+      console.log("savedGoals", savedGoals);
       replaceGoals(savedGoals);
     },
     // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -77,27 +78,19 @@ export default function GoalTab() {
           const anySelectedGoal = getSelectedGoal()?.id;
           // if there is a selected goal, then we should redirect to that goal
           if (anySelectedGoal) {
-            void router.replace(app.routes.goal(anySelectedGoal), undefined, {
-              shallow: true,
-            });
+            void router.replace(app.routes.goal(anySelectedGoal));
           } else if (savedGoals?.[0]?.id) {
             // if there is a goal in the in-memory list, then we should redirect to that goal
             const firstGoalId = savedGoals?.[0]?.id;
-            void router.replace(app.routes.goal(firstGoalId), undefined, {
-              shallow: true,
-            });
+            void router.replace(app.routes.goal(firstGoalId));
           } else if (savedGoals?.[0]) {
             // if there is a goal in the database, then we should redirect to that goal
             const savedGoalId = savedGoals?.[0]?.id;
-            void router.replace(app.routes.goal(savedGoalId), undefined, {
-              shallow: true,
-            });
+            void router.replace(app.routes.goal(savedGoalId));
           } else {
             // otherwise, we should create a new goal
             const newId = newGoal();
-            void router.replace(app.routes.goal(newId), undefined, {
-              shallow: true,
-            });
+            void router.replace(app.routes.goal(newId));
           }
         }
       }
