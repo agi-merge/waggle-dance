@@ -113,7 +113,6 @@ export async function createExecutionAgent(creation: {
     const agentType = getAgentPromptingMethodValue(agentPromptingMethod);
     const options: InitializeAgentExecutorOptions = {
       agentType,
-      streaming: true,
       returnIntermediateSteps: false,
       ...creationProps,
     };
