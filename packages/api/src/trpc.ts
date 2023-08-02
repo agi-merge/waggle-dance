@@ -127,3 +127,33 @@ const enforceUserIsAuthed = t.middleware(({ ctx, next }) => {
  * @see https://trpc.io/docs/procedures
  */
 export const protectedProcedure = t.procedure.use(enforceUserIsAuthed);
+
+/**
+ * Reusable middleware that checks if a user is logged in before running the
+ * procedure. If the user is not logged in, it sets the user to null.
+ */
+const checkUserIsAuthed = t.middleware(({ ctx, next }) => {
+  if (!ctx.session?.user) {
+    return next({
+      ctx: {
+        // infers the `session` as non-nullable
+        session: { ...ctx.session },
+      },
+    });
+  }
+  return next({
+    ctx: {
+      // infers the `session` as non-nullable
+      session: ctx.session,
+    },
+  });
+});
+
+/**
+ * Optional Protected (authed) procedure
+ *
+ * If you want a query or mutation to be accessible to both logged in and not logged in users, use
+ * this. It checks the session and sets ctx.session.user to null if not
+ * authenticated
+ */
+export const optionalProtectedProcedure = t.procedure.use(checkUserIsAuthed);

@@ -3,7 +3,11 @@ import { z } from "zod";
 
 import { ExecutionState } from "@acme/db";
 
-import { createTRPCRouter, protectedProcedure } from "../trpc";
+import {
+  createTRPCRouter,
+  optionalProtectedProcedure,
+  protectedProcedure,
+} from "../trpc";
 
 export const goalRouter = createTRPCRouter({
   // Query all goals
@@ -32,9 +36,11 @@ export const goalRouter = createTRPCRouter({
       });
     }),
 
-  // Get top by user - TODO: https://trpc.io/docs/v10/useInfiniteQuery#example-procedure
-  topByUser: protectedProcedure.query(({ ctx }) => {
-    const userId = ctx.session.user.id;
+  topByUser: optionalProtectedProcedure.query(({ ctx }) => {
+    const userId = ctx.session.user?.id;
+    if (!userId) {
+      return [];
+    }
     return ctx.prisma.goal.findMany({
       where: { userId },
       orderBy: { updatedAt: "asc" },
