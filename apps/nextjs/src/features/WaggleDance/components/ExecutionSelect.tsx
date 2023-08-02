@@ -14,19 +14,17 @@ import timeAgo from "../utils/timeAgo";
 import { rootPlanId } from "../WaggleDanceMachine";
 
 interface ExecutionSelectProps extends SelectProps<Execution> {
-  executions: Execution[];
+  executions: Execution[] | undefined;
 }
 
 export const ExecutionSelect: React.FC<ExecutionSelectProps> = ({
   executions,
 }) => {
-  const [selectedExecution, setSelectedExecution] = React.useState(
-    executions[0],
-  );
-
+  const [selectedExecution, setSelectedExecution] =
+    React.useState<Execution | null>((executions && executions[0]) || null);
   // for each execution, create a comma concat'd name from its node names
   const names = useMemo(() => {
-    return executions.map(
+    return executions?.map(
       (e) =>
         `${(
           (e?.graph as unknown as DAG)?.nodes?.reduce((acc, node) => {
@@ -61,7 +59,7 @@ export const ExecutionSelect: React.FC<ExecutionSelectProps> = ({
       return (
         <>
           <Box>
-            <Typography>{names[i]}</Typography>
+            <Typography>{names && names[i]}</Typography>
           </Box>
 
           <Chip
@@ -92,7 +90,7 @@ export const ExecutionSelect: React.FC<ExecutionSelectProps> = ({
 
   const options = useMemo(
     () =>
-      executions.map((execution, i) => {
+      executions?.map((execution, i) => {
         const lab = label(execution, i);
         return (
           <Option
@@ -112,7 +110,7 @@ export const ExecutionSelect: React.FC<ExecutionSelectProps> = ({
 
   return (
     <FormControl>
-      {executions.length !== 0 && (
+      {executions && executions.length && (
         <>
           <FormLabel
             id="select-execution-label"
