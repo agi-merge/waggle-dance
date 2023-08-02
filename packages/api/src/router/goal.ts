@@ -115,7 +115,7 @@ export const goalRouter = createTRPCRouter({
     }),
 
   // Create a new goal
-  create: protectedProcedure
+  create: optionalProtectedProcedure
     .input(
       z.object({
         prompt: z.string().nonempty(),
@@ -123,7 +123,11 @@ export const goalRouter = createTRPCRouter({
     )
     .mutation(({ ctx, input }) => {
       const { prompt } = input;
-      const userId = ctx.session.user.id;
+      const userId = ctx.session.user?.id;
+
+      if (!userId) {
+        throw new Error("User not authenticated");
+      }
 
       return ctx.prisma.goal.create({
         data: {
@@ -142,10 +146,15 @@ export const goalRouter = createTRPCRouter({
     }),
 
   // Delete an existing goal
-  delete: protectedProcedure
+  delete: optionalProtectedProcedure
     .input(z.string().nonempty())
     .mutation(({ ctx, input }) => {
-      // TODO: ensure the user owns this goal
-      return ctx.prisma.goal.delete({ where: { id: input } });
+      const userId = ctx.session.user?.id;
+
+      if (!userId) {
+        throw new Error("User not authenticated");
+      }
+
+      return ctx.prisma.goal.delete({ where: { id: input, userId } });
     }),
 });
