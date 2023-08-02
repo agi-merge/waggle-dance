@@ -59,6 +59,7 @@ export const env = createEnv({
   client: {
     NEXT_PUBLIC_APP_VERSION: z.string().optional(),
     NEXT_PUBLIC_DISCORD_INVITE_URL: z.string().url().optional(),
+    NEXT_PUBLIC_LANGCHAIN_API_URL: z.string().url().optional(),
     NEXT_PUBLIC_LANGCHAIN_VERBOSE: z.string().optional(),
   },
   /**
@@ -94,5 +95,6 @@ export const env = createEnv({
     EDGE_CONFIG: process.env.EDGE_CONFIG,
     EDGE_CONFIG_WRITE: process.env.EDGE_CONFIG_WRITE,
     VERCEL_ACCESS_TOKEN: process.env.VERCEL_ACCESS_TOKEN,
+    NEXT_PUBLIC_LANGCHAIN_API_URL: process.env.NEXT_PUBLIC_LANGCHAIN_API_URL,
   },
 });

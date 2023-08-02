@@ -10,6 +10,9 @@ export const createModel = (creationProps: ModelCreationProps): OpenAI => {
     {
       ...creationProps,
     },
+    {
+      basePath: creationProps.basePath,
+    },
     // {
     //   basePath: "https://oai.hconeai.com/v1", // TODO: move this to .env
     //   baseOptions: {

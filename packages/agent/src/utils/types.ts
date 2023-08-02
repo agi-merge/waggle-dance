@@ -31,7 +31,8 @@ type OpenAIKeyProvider = {
 export interface ModelCreationProps
   extends Partial<OpenAIInput>,
     BaseLLMParams,
-    OpenAIKeyProvider {
+    OpenAIKeyProvider,
+    OpenAIConfigurationParameters {
   verbose?: boolean;
 }
 

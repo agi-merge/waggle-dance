@@ -22,6 +22,7 @@ export function mapAgentSettingsToCreationProps(
     maxConcurrency: agentSettings.maxConcurrency,
     frequencyPenalty: agentSettings.frequencyPenalty,
     streaming: true,
+    basePath: env.NEXT_PUBLIC_LANGCHAIN_API_URL,
     verbose: env.NEXT_PUBLIC_LANGCHAIN_VERBOSE === "true",
   };
 }
