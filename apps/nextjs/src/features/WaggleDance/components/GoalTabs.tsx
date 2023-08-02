@@ -62,7 +62,9 @@ const GoalTab: React.FC<GoalTabProps> = ({ tab, index }) => {
           void router.push(app.routes.goal(goalList[0].id));
         } else {
           prevId
-            ? void router.replace(app.routes.goal(prevId))
+            ? void router.replace(app.routes.goal(prevId), undefined, {
+                shallow: true,
+              })
             : void router.push(app.routes.home);
         }
       }
@@ -185,7 +187,10 @@ const GoalTabs: React.FC<GoalTabsProps> = ({ children }) => {
       selectTab(newValue);
       // Update tab state
       const currentGoal = goalList[newValue];
-      currentGoal && void router.replace(app.routes.goal(currentGoal.id));
+      currentGoal &&
+        void router.replace(app.routes.goal(currentGoal.id), undefined, {
+          shallow: true,
+        });
     },
     [goalList, router, selectTab],
   );
@@ -228,7 +233,9 @@ const GoalTabs: React.FC<GoalTabsProps> = ({ children }) => {
               variant="plain"
               onClick={() => {
                 const newId = newGoal();
-                void router.replace(app.routes.goal(newId));
+                void router.replace(app.routes.goal(newId), undefined, {
+                  shallow: true,
+                });
               }}
             >
               <Add />
