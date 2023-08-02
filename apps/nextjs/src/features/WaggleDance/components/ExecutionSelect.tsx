@@ -20,8 +20,9 @@ interface ExecutionSelectProps extends SelectProps<Execution> {
 export const ExecutionSelect: React.FC<ExecutionSelectProps> = ({
   executions,
 }) => {
-  const [selectedExecution, setSelectedExecution] =
-    React.useState<Execution | null>((executions && executions[0]) || null);
+  const [selectedExecution, setSelectedExecution] = React.useState<
+    Execution | null | undefined
+  >((executions && executions[0]) || null);
   // for each execution, create a comma concat'd name from its node names
   const names = useMemo(() => {
     return executions?.map(

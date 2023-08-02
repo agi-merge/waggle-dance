@@ -19,7 +19,7 @@ export default function GoalTab() {
   const { isRunning } = useWaggleDanceMachineStore();
   const { replaceGoals, getSelectedGoal, newGoal } = useGoalStore();
 
-  const [savedGoals, suspense] = api.goal.topByUser.useSuspenseQuery(
+  const [savedGoals, _suspense] = api.goal.topByUser.useSuspenseQuery(
     undefined,
     {
       refetchOnMount: false,
