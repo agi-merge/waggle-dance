@@ -5,10 +5,8 @@ import Head from "next/head";
 import { useRouter } from "next/router";
 import { Card, LinearProgress, Sheet, useColorScheme } from "@mui/joy";
 
-import { api } from "~/utils/api";
 import { app } from "~/constants";
 import useApp from "~/stores/appStore";
-import useGoalStore from "~/stores/goalStore";
 import GoalTabs from "../WaggleDance/components/GoalTabs";
 import Alerts from "./components/Alerts";
 import Footer from "./components/Footer";
@@ -22,22 +20,7 @@ const MainLayout = ({ children }: Props) => {
   const { mode } = useColorScheme();
   const { isPageLoading } = useApp();
   const router = useRouter();
-  const { replaceGoals, getSelectedGoal } = useGoalStore();
   const [mounted, setMounted] = useState(false);
-
-  const { data: _historicGoals } = api.goal.topByUser.useQuery(undefined, {
-    networkMode: "offlineFirst",
-    staleTime: 60000,
-    refetchInterval: 60000,
-    onSuccess: (data) => {
-      const selectedGoal = getSelectedGoal();
-      replaceGoals(data);
-      if (selectedGoal && selectedGoal.executions.length > 0) {
-        const route = app.routes.goal(selectedGoal.id); // avoid an error when replacing route to same route
-        router.route !== route && void router.replace(route);
-      }
-    },
-  });
 
   // necessary for server-side renderingπ
   // because mode is undefined on the server

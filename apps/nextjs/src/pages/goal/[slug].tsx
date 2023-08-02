@@ -1,14 +1,10 @@
 // pages/goal/[slug].tsx
-
-import { useEffect, useMemo } from "react";
-import type { GetStaticPaths, InferGetStaticPropsType } from "next";
+import { Suspense, useEffect, useMemo } from "react";
 import { useRouter } from "next/router";
 import { Stack, Typography } from "@mui/joy";
-import { getSession, useSession } from "next-auth/react";
+import { CircularProgress } from "@mui/material";
 
-import { appRouter } from "@acme/api";
-import { prisma } from "@acme/db";
-
+import { api } from "~/utils/api";
 import { app } from "~/constants";
 import GoalInput from "~/features/GoalMenu/components/GoalInput";
 import MainLayout from "~/features/MainLayout";
@@ -18,60 +14,20 @@ import WaggleDanceGraph from "~/features/WaggleDance/components/WaggleDanceGraph
 import useGoalStore from "~/stores/goalStore";
 import useWaggleDanceMachineStore from "~/stores/waggleDanceStore";
 
-export const getStaticProps = async () => {
-  const session = await getSession();
-
-  if (!session?.user.id) {
-    return {
-      props: {
-        savedGoals: null,
-        revalidate: 1,
-      },
-    };
-  }
-
-  const caller = appRouter.createCaller({ session, prisma });
-  try {
-    const goalsPromise = caller.goal.topByUser();
-    const [savedGoalsSettled] = await Promise.allSettled([goalsPromise]);
-    // if (!savedGoals.find((goal) => goal.id === slug)) {
-    //   return { notFound: true };
-    // }
-    const savedGoals =
-      savedGoalsSettled.status === "fulfilled" ? savedGoalsSettled.value : null;
-
-    return {
-      props: {
-        savedGoals,
-        revalidate: 10,
-      },
-    };
-  } catch (e) {
-    console.error(e);
-    return {
-      props: {
-        savedGoals: null,
-        revalidate: 1,
-      },
-    };
-  }
-};
-export const getStaticPaths: GetStaticPaths<{ slug: string }> = () => {
-  return {
-    paths: [], //indicates that no page needs be created at build time
-    fallback: "blocking", //indicates the type of fallback
-  };
-};
-
-export default function GoalTab({
-  savedGoals,
-}: InferGetStaticPropsType<typeof getStaticProps>) {
+export default function GoalTab() {
   const router = useRouter();
   const { isRunning } = useWaggleDanceMachineStore();
-  const { data: sessionData } = useSession();
-  const { slug } = router.query;
-  const { getSelectedGoal, newGoal, goalList } = useGoalStore();
+  const { replaceGoals, getSelectedGoal, newGoal } = useGoalStore();
+
+  const [savedGoals, suspense] = api.goal.topByUser.useSuspenseQuery(
+    undefined,
+    {
+      refetchOnMount: false,
+    },
+  );
+
   const cleanedSlug = useMemo(() => {
+    const { slug } = router.query;
     if (typeof slug === "string") {
       return slug;
     } else if (Array.isArray(slug)) {
@@ -80,15 +36,23 @@ export default function GoalTab({
       return slug;
     }
     return "";
-  }, [slug]) as string;
+  }, [router.query]) as string;
 
   const selectedGoal = useMemo(
     () => getSelectedGoal(cleanedSlug),
     [getSelectedGoal, cleanedSlug],
   );
+  useEffect(
+    () => {
+      console.log("savedGoals", savedGoals);
+      replaceGoals(savedGoals);
+    },
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+    [savedGoals],
+  );
 
   const state = useMemo(() => {
-    if (cleanedSlug === "new") {
+    if (cleanedSlug === "" || cleanedSlug === "/") {
       return "input";
     }
     return (selectedGoal?.executions?.length ?? 0 > 0) ||
@@ -96,51 +60,46 @@ export default function GoalTab({
       ? "graph"
       : "input";
   }, [cleanedSlug, selectedGoal?.executions?.length, selectedGoal?.userId]);
-
-  useEffect(() => {
-    if (!router.isReady || cleanedSlug === "new") {
-      // do nothing
-    } else {
-      // if the slug is not the same as the selected goal, then we need to update the selected goal
-      if (!selectedGoal?.id && cleanedSlug !== selectedGoal?.id) {
-        const anySelectedGoal = getSelectedGoal()?.id;
-        // if there is a selected goal, then we should redirect to that goal
-        if (anySelectedGoal) {
-          void router.replace(app.routes.goal(anySelectedGoal));
-        } else if (goalList?.[0]?.id) {
-          // if there is a goal in the in-memory list, then we should redirect to that goal
-          const firstGoalId = goalList?.[0]?.id;
-          void router.replace(app.routes.goal(firstGoalId));
-        } else if (savedGoals?.[0]) {
-          // if there is a goal in the database, then we should redirect to that goal
-          const savedGoalId = savedGoals?.[0]?.id;
-          void router.replace(app.routes.goal(savedGoalId));
-        } else {
-          // otherwise, we should create a new goal
-          const newId = newGoal();
-          void router.replace(app.routes.goal(newId));
+  useEffect(
+    () => {
+      if (!router.isReady || cleanedSlug === "new") {
+        // do nothing
+      } else {
+        if (selectedGoal && selectedGoal.executions.length > 0) {
+          const route = app.routes.goal(selectedGoal.id); // avoid an error when replacing route to same route
+          if (router.route !== route) {
+            // Only replace route if it's different from the current route
+            void router.replace(route);
+          }
+          return;
+        }
+        // if the slug is not the same as the selected goal, then we need to update the selected goal
+        if (!selectedGoal?.id && cleanedSlug !== selectedGoal?.id) {
+          const anySelectedGoal = getSelectedGoal()?.id;
+          // if there is a selected goal, then we should redirect to that goal
+          if (anySelectedGoal) {
+            void router.replace(app.routes.goal(anySelectedGoal));
+          } else if (savedGoals?.[0]?.id) {
+            // if there is a goal in the in-memory list, then we should redirect to that goal
+            const firstGoalId = savedGoals?.[0]?.id;
+            void router.replace(app.routes.goal(firstGoalId));
+          } else if (savedGoals?.[0]) {
+            // if there is a goal in the database, then we should redirect to that goal
+            const savedGoalId = savedGoals?.[0]?.id;
+            void router.replace(app.routes.goal(savedGoalId));
+          } else {
+            // otherwise, we should create a new goal
+            const newId = newGoal();
+            void router.replace(app.routes.goal(newId));
+          }
         }
       }
-    }
-  }, [
-    cleanedSlug,
-    getSelectedGoal,
-    newGoal,
-    goalList,
-    router,
-    savedGoals,
-    selectedGoal?.id,
-    sessionData?.user.id,
-  ]);
-  const executions = useMemo(() => {
-    return (
-      selectedGoal?.executions /*.sort((l: Execution, r: Execution) => {
-        const lDate = new Date(l.updatedAt);
-        const rDate = new Date(r.updatedAt);
-        return lDate > rDate ? -1 : 1;
-      })*/ || []
-    );
-  }, [selectedGoal?.executions]);
+    },
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+    [savedGoals, selectedGoal?.id],
+  );
+
+  const executions = selectedGoal?.executions;
 
   return (
     <MainLayout>
@@ -169,11 +128,13 @@ export default function GoalTab({
               </Stack>
             </Title>
 
-            <ExecutionSelect
-              executions={executions}
-              className="flex justify-start"
-            />
-            <WaggleDanceGraph key={cleanedSlug} selectedGoal={selectedGoal} />
+            <Suspense fallback={<CircularProgress></CircularProgress>}>
+              <ExecutionSelect
+                executions={executions}
+                className="flex justify-start"
+              />
+              <WaggleDanceGraph key={cleanedSlug} selectedGoal={selectedGoal} />
+            </Suspense>
           </>
         )}
       </>
