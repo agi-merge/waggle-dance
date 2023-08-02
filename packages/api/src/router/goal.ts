@@ -18,7 +18,17 @@ export const goalRouter = createTRPCRouter({
       const userId = ctx.session?.user.id;
       return ctx.prisma.goal.findFirst({
         where: { id: input.id, userId },
-        include: { executions: true, results: true },
+        include: {
+          executions: {
+            take: 10,
+            orderBy: { updatedAt: "desc" }, // doesnt work as expected?
+          },
+          results: {
+            take: 100,
+            orderBy: { updatedAt: "desc" },
+          },
+        },
+        take: 10,
       });
     }),
 
@@ -30,9 +40,11 @@ export const goalRouter = createTRPCRouter({
       orderBy: { updatedAt: "asc" },
       include: {
         executions: {
+          take: 10,
           orderBy: { updatedAt: "desc" }, // doesnt work as expected?
         },
         results: {
+          take: 100,
           orderBy: { updatedAt: "desc" },
         },
       },
