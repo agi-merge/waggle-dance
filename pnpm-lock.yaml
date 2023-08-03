@@ -146,9 +146,6 @@ importers:
       next-auth:
         specifier: ^4.22.3
         version: 4.22.3(next@13.4.12)(react-dom@18.2.0)(react@18.2.0)
-      next-superjson-plugin:
-        specifier: ^0.5.9
-        version: 0.5.9(next@13.4.12)(superjson@1.9.1)
       pdf-parse:
         specifier: ^1.1.1
         version: 1.1.1
@@ -6529,17 +6526,6 @@ packages:
       react: 18.2.0
       react-dom: 18.2.0(react@18.2.0)
       uuid: 8.3.2
-    dev: false
-
-  /next-superjson-plugin@0.5.9(next@13.4.12)(superjson@1.9.1):
-    resolution: {integrity: sha512-xEU+SvrSDk8PGAQ2TrJM/OhkZBcWjWWqSjpUtlxTAI9ovTjKBxxQumcFt7oXzoBLJsRtq0BWTHrcnzL/9izXPQ==}
-    peerDependencies:
-      next: ^13
-      superjson: ^1
-    dependencies:
-      hoist-non-react-statics: 3.3.2
-      next: 13.4.12(@babel/core@7.22.9)(react-dom@18.2.0)(react@18.2.0)
-      superjson: 1.9.1
     dev: false
 
   /next@13.4.12(@babel/core@7.22.9)(react-dom@18.2.0)(react@18.2.0):
