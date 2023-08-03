@@ -1,6 +1,7 @@
 // GoalSettings.tsx
 
 import React, { type SyntheticEvent } from "react";
+import { ClickAwayListener } from "@mui/base";
 import {
   Divider,
   Link,
@@ -44,33 +45,40 @@ function AdvancedSettingsToggle({ children }: { children: React.ReactNode }) {
         </DocsModal>
       </Box>
       <Divider orientation="vertical" />
-      <Link
-        className="m-0 mt-0 p-0"
-        onClick={(event) => {
-          setAnchorEl(event.currentTarget);
-          setIsOpen(!isOpen);
-        }}
-        aria-haspopup="true"
-        aria-controls={isOpen ? "basic-menu" : undefined}
-        aria-expanded={isOpen ? "true" : undefined}
-      >
-        <Typography
-          level="body-sm"
-          className="m-0 p-0"
-          aria-labelledby="basic-demo-button"
+      <>
+        <Link
+          className="m-0 mt-0 p-0"
+          onClick={(event) => {
+            event.preventDefault();
+            setAnchorEl(event.currentTarget);
+            setIsOpen(!isOpen);
+          }}
+          aria-haspopup="menu"
+          id="agent-settings-button"
+          aria-controls={"agent-settings-menu"}
+          aria-expanded={isOpen}
         >
-          {isOpen ? "▼" : "▲"} Agent Settings
-        </Typography>
-      </Link>
-      <Menu
-        anchorEl={anchorEl}
-        open={isOpen}
-        onClose={handleClose}
-        placement="top-start"
-        className="w-64"
-      >
-        {children}
-      </Menu>
+          <Typography level="body-sm" className="m-0 p-0">
+            {isOpen ? "▼" : "▲"} Agent Settings
+          </Typography>
+        </Link>
+        {isOpen && (
+          <ClickAwayListener onClickAway={handleClose}>
+            <Menu
+              autoFocus
+              aria-labelledby="agent-settings-button"
+              id="agent-settings-menu"
+              anchorEl={anchorEl}
+              open={isOpen}
+              onClose={handleClose}
+              placement="top-start"
+              className="w-64"
+            >
+              {children}
+            </Menu>
+          </ClickAwayListener>
+        )}
+      </>
     </Stack>
   );
 }
