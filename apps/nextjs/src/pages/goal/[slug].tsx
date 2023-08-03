@@ -117,7 +117,7 @@ export default function GoalTab() {
             <Title title={isRunning ? "💃 Waggling!" : "💃 Waggle"}>
               <Stack direction="row">
                 <Typography
-                  level="body2"
+                  level="body-lg"
                   sx={{
                     userSelect: "none",
                     marginBottom: { xs: -1, sm: 0 },

@@ -144,10 +144,10 @@ export default function GoalInput({}: GoalInputProps) {
                   open={templatesModalOpen}
                   setOpen={setTemplatesModalOpen}
                 >
-                  <Typography color="neutral" level="h5" className="px-5">
+                  <Typography color="neutral" level="title-lg" className="px-5">
                     Examples
                   </Typography>
-                  <Typography level="body2" className="px-5 pb-2">
+                  <Typography level="body-md" className="px-5 pb-2">
                     For better results, try to{" "}
                     <Link
                       href="https://platform.openai.com/docs/guides/gpt-best-practices"
@@ -174,7 +174,7 @@ export default function GoalInput({}: GoalInputProps) {
                               }}
                             >
                               <Typography
-                                level="body2"
+                                level="body-sm"
                                 className="flex flex-grow flex-row justify-center"
                               >
                                 {prompt}
@@ -187,7 +187,7 @@ export default function GoalInput({}: GoalInputProps) {
                 </TemplatesModal>
                 <Divider orientation="vertical" />
                 <GoalDoctorModal>
-                  <Typography color="info">Coming soon!</Typography>
+                  <Typography color="neutral">Coming soon!</Typography>
                 </GoalDoctorModal>
                 <Divider orientation="vertical" />
                 <GoalSettings />

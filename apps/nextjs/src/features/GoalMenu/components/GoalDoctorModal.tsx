@@ -1,5 +1,5 @@
 import * as React from "react";
-import { Card, Link } from "@mui/joy";
+import { Card, Link, Tooltip } from "@mui/joy";
 import Modal from "@mui/joy/Modal";
 import ModalClose from "@mui/joy/ModalClose";
 
@@ -9,16 +9,17 @@ type Props = {
 export default function BasicModal({ children }: Props) {
   const [open, setOpen] = React.useState<boolean>(false);
   return (
-    <React.Fragment>
-      <Link
-        variant="plain"
-        color="neutral"
-        level="body4"
-        className="flex-shrink"
-        onClick={() => setOpen(true)}
-      >
-        🌺 Refine Goal
-      </Link>
+    <>
+      <Tooltip title="Coming soon" variant="soft" color="neutral">
+        <Link
+          variant="plain"
+          level="body-sm"
+          className="flex-shrink"
+          onClick={() => setOpen(true)}
+        >
+          🌺 Refine Goal
+        </Link>
+      </Tooltip>
       <Modal
         aria-labelledby="modal-title"
         aria-describedby="modal-desc"
@@ -50,6 +51,6 @@ export default function BasicModal({ children }: Props) {
           {children}
         </Card>
       </Modal>
-    </React.Fragment>
+    </>
   );
 }

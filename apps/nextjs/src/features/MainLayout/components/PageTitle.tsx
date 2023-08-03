@@ -23,7 +23,7 @@ const PageTitle = ({ title, children }: TitleProps) => {
       </Stack>
       {children && <Box sx={{ marginTop: { xs: 1, sm: 2 } }} />}
       <Divider inset="context">
-        <Typography className="w-1/2 text-center" level="body3">
+        <Typography className="w-1/2 text-center" level="body-md">
           ~
         </Typography>
       </Divider>

@@ -142,7 +142,7 @@ const AddDocuments = ({ onClose }: Props) => {
     <>
       <Title title="💰 Documents, Data, and Tools">
         <Typography
-          level="body2"
+          level="body-lg"
           sx={{
             userSelect: "none",
             marginBottom: { xs: -1, sm: 0 },
@@ -240,8 +240,8 @@ const AddDocuments = ({ onClose }: Props) => {
           Service connectors and Tools
         </Typography>
         <Card className="mt-2 p-2" variant="outlined">
-          <Typography className="mt-6" level="body3">
-            <Typography level="body2" color="info">
+          <Typography className="mt-6" level="body-md">
+            <Typography level="body-lg" variant="soft" color="neutral">
               Coming soon:
             </Typography>{" "}
             Use waggledance.ai to automatically automate your life w/ Zapier,

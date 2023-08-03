@@ -56,7 +56,7 @@ export default function FileUploadStatus({
       </AspectRatio>
       <CardContent>
         <Typography fontSize="sm">{name}</Typography>
-        <Typography level="body3">{formatBytes(size)}</Typography>
+        <Typography level="body-md">{formatBytes(size)}</Typography>
 
         <Box sx={{ display: "flex", alignItems: "center", gap: 1 }}>
           <Typography fontSize="xs">

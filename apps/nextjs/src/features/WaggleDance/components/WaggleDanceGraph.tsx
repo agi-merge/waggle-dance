@@ -103,6 +103,7 @@ const WaggleDanceGraph = ({ selectedGoal }: WaggleDanceGraphProps) => {
       <Button
         className="col-end p-2"
         color="primary"
+        variant="soft"
         onClick={isRunning ? handleStop : handleStart}
       >
         <Stack direction="row" gap="0.5rem" className="items-center">
@@ -127,18 +128,14 @@ const WaggleDanceGraph = ({ selectedGoal }: WaggleDanceGraphProps) => {
         return "success";
       case "error":
         return "danger";
-      case "running":
-        return "info";
       case "idle":
         return "neutral";
       case "starting":
         return "primary";
       case "working":
-        return "info";
+        return "primary";
       case "stopped":
         return "warning";
-      default:
-        return "primary";
     }
   };
 
@@ -160,10 +157,11 @@ const WaggleDanceGraph = ({ selectedGoal }: WaggleDanceGraphProps) => {
           key={runId?.toString()}
           aria-label="Waggle Dance Status and Results"
           defaultValue={0}
-          variant="outlined"
+          variant="plain"
+          color="neutral"
           sx={{ borderRadius: "sm" }}
         >
-          <TabList variant="outlined" color="primary">
+          <TabList tabFlex={"auto"}>
             <Tab value={0}>
               <ListAlt />
               <Typography className="px-1">Tasks</Typography>
@@ -196,7 +194,8 @@ const WaggleDanceGraph = ({ selectedGoal }: WaggleDanceGraphProps) => {
             <>
               <Tooltip
                 title={`${progress.toFixed(0)}% through planned tasks.`}
-                color="info"
+                variant="soft"
+                color="neutral"
               >
                 <LinearProgress
                   determinate={true}
@@ -246,13 +245,17 @@ const WaggleDanceGraph = ({ selectedGoal }: WaggleDanceGraphProps) => {
                         <Card
                           color={statusColor(n)}
                           variant="soft"
+                          invertedColors={n.status === "working"}
                           sx={{
                             backgroundColor: statusColor(n),
                             padding: 0,
                           }}
                         >
                           <ListItem>
-                            <ListItemButton sx={{ borderRadius: "md" }}>
+                            <ListItemButton
+                              sx={{ borderRadius: "md" }}
+                              disabled={n.status === ""}
+                            >
                               <ListItemContent
                                 className="flex w-96"
                                 sx={{ backgroundColor: statusColor(n) }}
@@ -272,14 +275,14 @@ const WaggleDanceGraph = ({ selectedGoal }: WaggleDanceGraphProps) => {
                                     }}
                                   >
                                     <Typography
-                                      level="body1"
+                                      level="body-lg"
                                       className="text-wrap flex p-1"
                                       color="primary"
                                     >
                                       {n.name}
                                     </Typography>
                                     <Typography
-                                      level="body4"
+                                      level="body-sm"
                                       className="text-wrap flex p-1"
                                       color="neutral"
                                       fontFamily="monospace"
@@ -297,7 +300,7 @@ const WaggleDanceGraph = ({ selectedGoal }: WaggleDanceGraphProps) => {
                                   }}
                                 >
                                   <Typography
-                                    level="body2"
+                                    level="body-lg"
                                     textColor="common.white"
                                     style={{
                                       overflowWrap: "break-word",
@@ -307,7 +310,7 @@ const WaggleDanceGraph = ({ selectedGoal }: WaggleDanceGraphProps) => {
                                     {" ("}
                                     <Typography
                                       fontFamily="monospace"
-                                      level="body3"
+                                      level="body-md"
                                       className="text-wrap"
                                       color="primary"
                                       style={{
@@ -321,7 +324,7 @@ const WaggleDanceGraph = ({ selectedGoal }: WaggleDanceGraphProps) => {
                                   </Typography>
                                   <Typography
                                     fontFamily="monospace"
-                                    level="body3"
+                                    level="body-md"
                                     className="text-wrap"
                                     color="neutral"
                                     style={{
@@ -348,26 +351,22 @@ const WaggleDanceGraph = ({ selectedGoal }: WaggleDanceGraphProps) => {
                           {isRunning && n.status === "working" && (
                             <LinearProgress thickness={1} />
                           )}
-                          <Card
-                            className="justify-start text-start"
-                            sx={{
-                              padding: "-1rem",
-                            }}
-                          >
-                            <Typography level="h6">
+                          <Card className="justify-start text-start">
+                            <Typography level="title-lg">
                               {n.result ? <>Result: </> : <>Status: </>}
-                              <Typography color={statusColor(n)} level="body2">
-                                {isRunning
-                                  ? n.status
-                                  : n.status === "working" ||
-                                    n.status === "starting" ||
-                                    n.status === "waiting"
-                                  ? "stopped"
-                                  : n.status}
-                              </Typography>
+                            </Typography>
+
+                            <Typography color={statusColor(n)} level="body-lg">
+                              {isRunning
+                                ? n.status
+                                : n.status === "working" ||
+                                  n.status === "starting" ||
+                                  n.status === "waiting"
+                                ? "stopped"
+                                : n.status}
                             </Typography>
                             {n.result && (
-                              <Typography level="body4" className="pt-2">
+                              <Typography level="body-sm" className="pt-2">
                                 <ReactMarkdown remarkPlugins={[remarkGfm]}>
                                   {n.result}
                                 </ReactMarkdown>
@@ -429,8 +428,9 @@ const WaggleDanceGraph = ({ selectedGoal }: WaggleDanceGraphProps) => {
                         >
                           <Typography
                             fontFamily="Monospace"
-                            color="info"
-                            level="body3"
+                            variant="soft"
+                            color="neutral"
+                            level="body-md"
                           >
                             {log.timestamp.toISOString().split("T")[1]}
                           </Typography>

@@ -2,7 +2,6 @@
 
 import React, { type SyntheticEvent } from "react";
 import {
-  Card,
   Divider,
   Link,
   Menu,
@@ -46,7 +45,6 @@ function AdvancedSettingsToggle({ children }: { children: React.ReactNode }) {
       </Box>
       <Divider orientation="vertical" />
       <Link
-        id="basic-demo-button"
         className="m-0 mt-0 p-0"
         onClick={(event) => {
           setAnchorEl(event.currentTarget);
@@ -57,7 +55,7 @@ function AdvancedSettingsToggle({ children }: { children: React.ReactNode }) {
         aria-expanded={isOpen ? "true" : undefined}
       >
         <Typography
-          level="body4"
+          level="body-sm"
           className="m-0 p-0"
           aria-labelledby="basic-demo-button"
         >
@@ -65,13 +63,13 @@ function AdvancedSettingsToggle({ children }: { children: React.ReactNode }) {
         </Typography>
       </Link>
       <Menu
-        id="basic-menu"
         anchorEl={anchorEl}
         open={isOpen}
         onClose={handleClose}
         placement="top-start"
+        className="w-64"
       >
-        <Card className="min-h-fit">{children}</Card>
+        {children}
       </Menu>
     </Stack>
   );
@@ -99,13 +97,12 @@ function GoalSettings({}: CardProps) {
   return (
     <AdvancedSettingsToggle>
       <Tabs
-        variant="outlined"
         defaultValue={0}
         value={currentTabIndex}
         onChange={handleChange}
         aria-label="Settings for plan, execute, and review agents"
       >
-        <TabList>
+        <TabList tabFlex="auto">
           {types.map((type, i) => (
             <Tab key={type} value={i}>
               {type.charAt(0).toUpperCase() + type.slice(1)}
@@ -114,7 +111,7 @@ function GoalSettings({}: CardProps) {
         </TabList>
         {types.map((type, i) => (
           <TabPanel key={type} value={i}>
-            <Typography level="body3">
+            <Typography level="title-md">
               Model for {type.charAt(0).toUpperCase() + type.slice(1)}
             </Typography>
             <Select
@@ -130,7 +127,7 @@ function GoalSettings({}: CardProps) {
                 </Option>
               ))}
             </Select>
-            <Typography level="body3">
+            <Typography level="body-md">
               Temperature for {type.charAt(0).toUpperCase() + type.slice(1)}
             </Typography>
             <Select
@@ -148,7 +145,7 @@ function GoalSettings({}: CardProps) {
             </Select>
             {type !== "plan" && (
               <>
-                <Typography level="body3">
+                <Typography level="body-md">
                   Prompting Method for{" "}
                   {type.charAt(0).toUpperCase() + type.slice(1)}
                 </Typography>
@@ -173,7 +170,7 @@ function GoalSettings({}: CardProps) {
         ))}
       </Tabs>
       {!session && (
-        <Typography level="body3" sx={{ p: 1, textAlign: "center" }}>
+        <Typography level="body-md" sx={{ p: 1, textAlign: "center" }}>
           <Link href="/api/auth/signin">Log in to change settings</Link>
         </Typography>
       )}

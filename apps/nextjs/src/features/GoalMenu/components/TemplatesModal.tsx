@@ -12,13 +12,12 @@ export default function BasicModal({ children, open, setOpen }: Props) {
   return (
     <React.Fragment>
       <Box className="flex justify-center">
-        <Tooltip title="View some example goals for inspiration" color="info">
-          <Link
-            variant="plain"
-            color="neutral"
-            level="body4"
-            onClick={() => setOpen(true)}
-          >
+        <Tooltip
+          title="View some example goals for inspiration"
+          variant="soft"
+          color="neutral"
+        >
+          <Link variant="plain" level="body-sm" onClick={() => setOpen(true)}>
             🤔 Examples
           </Link>
         </Tooltip>

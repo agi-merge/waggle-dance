@@ -80,20 +80,14 @@ const GoalTab: React.FC<GoalTabProps> = ({ tab, index }) => {
       }}
     >
       <Tab
-        tabIndex={index}
+        value={index}
         component={Stack}
         color={getSelectedGoal()?.id === tab.id ? "primary" : "neutral"}
-        sx={{
-          marginX: 0.5,
-        }}
-        gap="0.5rem"
+        variant="plain"
         orientation="horizontal"
-        variant="outlined"
-        className="flex flex-grow"
       >
         <IconButton
           size="sm"
-          color="neutral"
           variant="soft"
           onClick={(e) => {
             e.preventDefault();
@@ -104,17 +98,10 @@ const GoalTab: React.FC<GoalTabProps> = ({ tab, index }) => {
           <Close />
         </IconButton>
         <Typography
-          fontStyle={
-            getSelectedGoal()?.id === tab.id && getGoalInputValue().length > 0
-              ? "normal"
-              : "italic"
-          }
-          level="body3"
+          level={getSelectedGoal()?.id === tab.id ? "title-sm" : "body-sm"}
           noWrap
-          className="flex-grow"
-          textColor="common.white"
+          className="m-1 flex-grow p-1"
           sx={{
-            mixBlendMode: "difference",
             textOverflow: "ellipsis",
             textAlign: "center",
           }}
@@ -137,13 +124,13 @@ const GoalTab: React.FC<GoalTabProps> = ({ tab, index }) => {
         </Typography>
 
         {tab.id.startsWith(draftGoalPrefix) && tab.prompt.trim() !== "" ? (
-          <Tooltip title="Temporary, will be deleted upon page reload">
-            <Chip size="sm" color="warning" variant="outlined">
+          <Tooltip title="Temporary, will be deleted when you leave.">
+            <Chip size="sm" variant="outlined">
               {sessionData?.user.id ? (
-                <Typography level="body5">Draft</Typography>
+                <Typography level="body-xs">Draft</Typography>
               ) : (
                 <NextLink href="/api/auth/signin">
-                  <Typography level="body5">Sign in</Typography>
+                  <Typography level="body-xs">Sign in</Typography>
                 </NextLink>
               )}
             </Chip>
@@ -201,7 +188,7 @@ const GoalTabs: React.FC<GoalTabsProps> = ({ children }) => {
       sx={{
         borderRadius: "sm",
         background: "transparent",
-        marginTop: -2.5,
+        marginTop: -2.1,
         marginLeft: -3,
         marginRight: -2.5,
       }}
@@ -215,6 +202,7 @@ const GoalTabs: React.FC<GoalTabsProps> = ({ children }) => {
           display: "flex flex-shrink",
           flexWrap: "nowrap",
         }}
+        tabFlex={"auto"}
       >
         {goalList.map((tab, index) => (
           <GoalTab key={tab.id} tab={tab} index={index} />

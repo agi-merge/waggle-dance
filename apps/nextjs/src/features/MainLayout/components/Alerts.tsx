@@ -6,7 +6,7 @@ import usePreferences from "~/stores/preferencesStore";
 
 const Alerts = () => {
   const { isDemoAlertOpen, setIsDemoAlertOpen } = usePreferences();
-  const color = "info";
+  const color = "neutral";
   const title = "Limited Demo";
   const description = "MVP 1 Complete! OTW -> MVP 2.";
   const icon = <Warning />;

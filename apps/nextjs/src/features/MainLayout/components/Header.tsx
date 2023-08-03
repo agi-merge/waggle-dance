@@ -77,7 +77,7 @@ const Header = ({}) => {
             level={isHomeSlug ? "h3" : "h4"}
           >
             waggle🐝<Typography>💃dance</Typography>
-            <Typography level="body5" className="pl-2">
+            <Typography level="body-xs" className="pl-2">
               {app.version}
             </Typography>
           </Typography>
@@ -132,12 +132,12 @@ const Header = ({}) => {
             paddingLeft: { xs: 1, sm: 1 },
             paddingBottom: 1,
           }}
-          level="body2"
+          level="body-lg"
           fontSize={{ xs: "8pt", sm: "10pt" }}
           color="neutral"
         >
           Automate boring, complex tasks with the help of{" "}
-          <Tooltip title="I swear it is a thing" color="info">
+          <Tooltip title="I swear it is a thing" variant="soft" color="neutral">
             <a
               href="https://wikipedia.org/wiki/Waggle_dance"
               className="font-bold"

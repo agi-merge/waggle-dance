@@ -11,11 +11,15 @@ export default function BasicModal({ children }: Props) {
   return (
     <React.Fragment>
       <Box className="flex justify-center">
-        <Tooltip title="Add relevant documents and data" color="info">
+        <Tooltip
+          title="Add relevant documents and data"
+          variant="soft"
+          color="neutral"
+        >
           <Link
             variant="plain"
             color="primary"
-            level="body4"
+            level="body-sm"
             className="flex-shrink"
             onClick={() => setOpen(true)}
           >

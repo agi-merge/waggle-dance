@@ -53,7 +53,7 @@ export const ExecutionSelect: React.FC<ExecutionSelectProps> = ({
     (execution: Execution, i: number) => {
       const colors = {
         PENDING: "neutral",
-        EXECUTING: "info",
+        EXECUTING: "warning",
         DONE: "success",
         ERROR: "danger",
       } as const;
@@ -78,7 +78,7 @@ export const ExecutionSelect: React.FC<ExecutionSelectProps> = ({
           >
             {execution.state}
             <Typography
-              level="body4"
+              level="body-sm"
               color="primary"
               startDecorator={timeAgo(execution.updatedAt)}
             ></Typography>
