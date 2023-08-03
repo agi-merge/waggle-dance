@@ -25,7 +25,7 @@ export default async function createGoalExecution(
     const { goalId } = req.body as ExecuteRequestBody;
 
     const caller = appRouter.createCaller({ session, prisma });
-    const exe = await caller.goal.createExecution({ goalId });
+    const exe = await caller.execution.create({ goalId });
     res.status(200).json(exe);
   } catch (error) {
     console.error("createGoalExecution error", error);

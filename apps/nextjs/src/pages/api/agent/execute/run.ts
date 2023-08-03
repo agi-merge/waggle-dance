@@ -1,9 +1,9 @@
 // api/agent/execute/run.ts
 
-import { type NextApiRequest, type NextApiResponse } from "next";
 import { BaseCallbackHandler } from "langchain/callbacks";
 import { type Serialized } from "langchain/load/serializable";
 import { type AgentAction, type AgentFinish } from "langchain/schema";
+import { type NextApiRequest, type NextApiResponse } from "next";
 import { stringify } from "yaml";
 
 import { appRouter } from "@acme/api";
@@ -270,7 +270,7 @@ async function createResult(
       state,
     };
     2;
-    const createResult = await caller.goal.createResult(createResultOptions);
+    const createResult = await caller.result.create(createResultOptions);
     console.log("createResult", createResult);
   } else {
     console.warn(
