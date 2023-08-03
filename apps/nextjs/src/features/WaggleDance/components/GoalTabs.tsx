@@ -16,6 +16,7 @@ import {
   Tooltip,
   Typography,
 } from "@mui/joy";
+import { type BoxProps } from "@mui/joy/Box";
 import { useSession } from "next-auth/react";
 
 import { type Goal } from "@acme/db";
@@ -25,7 +26,7 @@ import { app } from "~/constants";
 import useGoalStore, { draftGoalPrefix } from "~/stores/goalStore";
 import useWaggleDanceMachineStore from "~/stores/waggleDanceStore";
 
-interface GoalTabProps {
+interface GoalTabProps extends BoxProps {
   tab: Goal;
   index: number;
 }
@@ -35,7 +36,7 @@ interface GoalTabsProps {
 }
 
 // A single goal tab inside the main tabber
-const GoalTab: React.FC<GoalTabProps> = ({ tab, index }) => {
+const GoalTab: React.FC<GoalTabProps> = ({ tab, index, key }) => {
   const { data: sessionData } = useSession();
   const { setIsRunning } = useWaggleDanceMachineStore();
   const { goalList, getGoalInputValue, deleteGoal, getSelectedGoal } =
@@ -73,6 +74,7 @@ const GoalTab: React.FC<GoalTabProps> = ({ tab, index }) => {
   // Render a single goal tab
   return (
     <Box
+      key={key}
       sx={{
         flex: "1 1 auto",
         maxWidth: `${100 / goalList.length}%`,

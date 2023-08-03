@@ -242,7 +242,7 @@ const WaggleDanceGraph = ({ selectedGoal }: WaggleDanceGraphProps) => {
                       return 1;
                     })
                     .map((n) => (
-                      <Box key={`${n.id}-${n.name}`}>
+                      <Box key={n.id}>
                         <Card
                           color={statusColor(n)}
                           variant="soft"
@@ -420,7 +420,7 @@ const WaggleDanceGraph = ({ selectedGoal }: WaggleDanceGraphProps) => {
                   aria-label="Log List"
                 >
                   {logs.map((log) => (
-                    <Box key={log.timestamp.toString()}>
+                    <Box key={`${log.timestamp.toString()}-${log.message}`}>
                       <ListItem className="overflow-x-scroll">
                         <Stack
                           direction="row"
