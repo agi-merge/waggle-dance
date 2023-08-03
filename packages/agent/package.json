@@ -13,8 +13,8 @@
   "dependencies": {
     "cheerio": "1.0.0-rc.12",
     "net": "^1.0.2",
-    "redis": "^4.6.6",
-    "serpapi": "^1.1.1",
+    "redis": "^4.6.7",
+    "serpapi": "^2.0.0",
     "tls": "^0.0.1",
     "yaml": "^2.3.1"
   },
