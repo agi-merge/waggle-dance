@@ -37,6 +37,7 @@ import GoalSettings from "~/features/GoalMenu/components/GoalSettings";
 import { type GoalPlusExe } from "~/stores/goalStore";
 import useWaggleDanceMachineState from "~/stores/waggleDanceStore";
 import useWaggleDanceMachine, {
+  TaskStatus,
   type TaskState,
 } from "../hooks/useWaggleDanceMachine";
 import { rootPlanId } from "../WaggleDanceMachine";
@@ -227,16 +228,16 @@ const WaggleDanceGraph = ({ selectedGoal }: WaggleDanceGraphProps) => {
                       if (a.status === b.status) {
                         return a.id.localeCompare(b.id) || 1;
                       }
-                      if (a.status === "done") return -1;
-                      if (b.status === "done") return 1;
-                      if (a.status === "error") return -1;
-                      if (b.status === "error") return 1;
-                      if (a.status === "working") return -1;
-                      if (b.status === "working") return 1;
-                      if (a.status === "starting") return -1;
-                      if (b.status === "starting") return 1;
-                      if (a.status === "idle") return -1;
-                      if (b.status === "idle") return 1;
+                      if (a.status === TaskStatus.done) return -1;
+                      if (b.status === TaskStatus.done) return 1;
+                      if (a.status === TaskStatus.error) return -1;
+                      if (b.status === TaskStatus.error) return 1;
+                      if (a.status === TaskStatus.working) return -1;
+                      if (b.status === TaskStatus.working) return 1;
+                      if (a.status === TaskStatus.starting) return -1;
+                      if (b.status === TaskStatus.starting) return 1;
+                      if (a.status === TaskStatus.idle) return -1;
+                      if (b.status === TaskStatus.idle) return 1;
                       // unhandled use alphabetical
                       return 1;
                     })
@@ -245,7 +246,7 @@ const WaggleDanceGraph = ({ selectedGoal }: WaggleDanceGraphProps) => {
                         <Card
                           color={statusColor(n)}
                           variant="soft"
-                          invertedColors={n.status === "working"}
+                          invertedColors={n.status === TaskStatus.working}
                           sx={{
                             backgroundColor: statusColor(n),
                             padding: 0,
@@ -254,7 +255,7 @@ const WaggleDanceGraph = ({ selectedGoal }: WaggleDanceGraphProps) => {
                           <ListItem>
                             <ListItemButton
                               sx={{ borderRadius: "md" }}
-                              disabled={n.status === ""}
+                              disabled={n.status === TaskStatus.idle}
                             >
                               <ListItemContent
                                 className="flex w-96"
@@ -348,7 +349,7 @@ const WaggleDanceGraph = ({ selectedGoal }: WaggleDanceGraphProps) => {
                             </ListItemButton>
                           </ListItem>
 
-                          {isRunning && n.status === "working" && (
+                          {isRunning && n.status === TaskStatus.working && (
                             <LinearProgress thickness={1} />
                           )}
                           <Card className="justify-start text-start">
@@ -359,9 +360,9 @@ const WaggleDanceGraph = ({ selectedGoal }: WaggleDanceGraphProps) => {
                             <Typography color={statusColor(n)} level="body-lg">
                               {isRunning
                                 ? n.status
-                                : n.status === "working" ||
-                                  n.status === "starting" ||
-                                  n.status === "waiting"
+                                : n.status === TaskStatus.working ||
+                                  n.status === TaskStatus.starting ||
+                                  n.status === TaskStatus.wait
                                 ? "stopped"
                                 : n.status}
                             </Typography>

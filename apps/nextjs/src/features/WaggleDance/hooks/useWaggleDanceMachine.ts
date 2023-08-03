@@ -27,14 +27,15 @@ export type LogMessage = {
 
 export enum TaskStatus {
   idle = "idle",
+  starting = "starting",
   working = "working",
   done = "done",
-  wait = "wait",
+  wait = "wait", // for human?
   error = "error",
 }
 
 export type TaskState = DAGNode & {
-  status: string;
+  status: TaskStatus;
   result: string | null;
   packets: ChainPacket[];
 };
@@ -50,7 +51,7 @@ const useWaggleDanceMachine = ({ goal }: UseWaggleDanceMachineProps) => {
   const results = useMemo(() => {
     return goal?.results?.map((r) => {
       return {
-        status: "dummy",
+        status: "done",
         result: r.value,
         packets: [] as ChainPacket[],
       } as TaskState;
@@ -60,9 +61,12 @@ const useWaggleDanceMachine = ({ goal }: UseWaggleDanceMachineProps) => {
   // correct Typescript:
   const resultsMap = useMemo(
     () =>
-      results?.reduce((acc: Record<string, TaskState>, cur: TaskState) => {
-        return { ...acc, [cur.id]: cur };
-      }, {} as Record<string, TaskState>),
+      results?.reduce(
+        (acc: Record<string, TaskState>, cur: TaskState) => {
+          return { ...acc, [cur.id]: cur };
+        },
+        {} as Record<string, TaskState>,
+      ),
     [results],
   );
   const [dag, setDAG] = useState<DAG>(graph ?? new DAG([], []));
@@ -77,7 +81,11 @@ const useWaggleDanceMachine = ({ goal }: UseWaggleDanceMachineProps) => {
   const [abortController, setAbortController] = useState<AbortController>(
     new AbortController(),
   );
-  const mapPacketTypeToStatus = (packetType: string): TaskStatus => {
+
+  // takes a ChainPacket type and maps it to an appropriate TaskStatus, or idle if it does not match or is undefined
+  const mapPacketTypeToStatus = (
+    packetType: ChainPacket["type"] | undefined,
+  ): TaskStatus => {
     switch (packetType) {
       case "token":
       case "handleLLMStart":
@@ -133,7 +141,7 @@ const useWaggleDanceMachine = ({ goal }: UseWaggleDanceMachineProps) => {
       return dagNodes.map((node) => {
         const chainPacket = chainPackets[node.id];
         const packets = chainPacket?.packets ?? [];
-        const status = packets[packets.length - 1]?.type ?? "idle";
+        const status = mapPacketTypeToStatus(packets[packets.length - 1]?.type);
         const result = chainPacket?.result ?? null;
         return {
           ...node,
