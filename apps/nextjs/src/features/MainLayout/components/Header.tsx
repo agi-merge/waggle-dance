@@ -47,7 +47,7 @@ const Header = ({}) => {
   }, [slug]) as string;
 
   const activeIndex = useMemo(() => {
-    if (cleanedSlug === "new") {
+    if (cleanedSlug === "" || cleanedSlug === "/") {
       return 0;
     }
     const selectedGoal = getSelectedGoal(cleanedSlug);

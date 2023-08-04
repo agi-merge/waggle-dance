@@ -1,3 +1,4 @@
+import { TRPCError } from "@trpc/server";
 import { z } from "zod";
 
 import {
@@ -67,7 +68,7 @@ export const goalRouter = createTRPCRouter({
       const userId = ctx.session.user?.id;
 
       if (!userId) {
-        throw new Error("User not authenticated");
+        throw new TRPCError({ code: "UNAUTHORIZED" });
       }
 
       return ctx.prisma.goal.create({
@@ -93,7 +94,7 @@ export const goalRouter = createTRPCRouter({
       const userId = ctx.session.user?.id;
 
       if (!userId) {
-        throw new Error("User not authenticated");
+        throw new TRPCError({ code: "UNAUTHORIZED" });
       }
 
       return ctx.prisma.goal.delete({ where: { id: input, userId } });

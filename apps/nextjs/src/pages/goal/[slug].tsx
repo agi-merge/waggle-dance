@@ -64,7 +64,7 @@ export default function GoalTab() {
   }, [cleanedSlug, selectedGoal?.executions?.length, selectedGoal?.userId]);
   useEffect(
     () => {
-      if (!router.isReady || cleanedSlug === "new") {
+      if (!router.isReady || cleanedSlug === "" || cleanedSlug === "/") {
         // do nothing
       } else {
         if (selectedGoal && selectedGoal.executions.length > 0) {

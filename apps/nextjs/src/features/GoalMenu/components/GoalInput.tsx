@@ -16,7 +16,7 @@ import {
   Typography,
 } from "@mui/joy";
 import { type CardProps } from "@mui/joy/Card";
-import { useSession } from "next-auth/react";
+import { TRPCClientError } from "@trpc/client";
 
 import { api } from "~/utils/api";
 import { app } from "~/constants";
@@ -46,51 +46,53 @@ export default function GoalInput({}: GoalInputProps) {
   const [currentPlaceholderIndex, setCurrentPlaceholderIndex] = useState(0);
   const [templatesModalOpen, setTemplatesModalOpen] = useState<boolean>(false);
 
-  const { data: sessionData } = useSession();
+  // const { data: sessionData } = useSession();
 
-  const { mutate: createGoal } = api.goal.create.useMutation({
-    onSuccess: (data) => {
-      console.log("create goal: ", data);
-      void router.push(app.routes.goal(data.id));
-    },
-    onError: (e) => {
-      console.error("Failed to post!", e.message);
-    },
-  });
+  const { mutate: createGoal } = api.goal.create.useMutation({});
 
   const handleSubmit = useCallback(
     (event: React.FormEvent) => {
       event.preventDefault();
       setIsPageLoading(true);
+      const selectedGoal = getSelectedGoal();
       // setIsAutoStartEnabled(true);
-      if (sessionData?.user.id) {
-        createGoal(
-          { prompt: getGoalInputValue() },
-          {
-            onSuccess: (goal) => {
-              const selectedGoal = getSelectedGoal();
-              console.log(
-                "saved goal, selectedGoal: ",
-                selectedGoal,
-                "goal: ",
-                goal,
-              );
-              upsertGoal(goal, selectedGoal?.id);
-            },
+      // this saves the goal to the database and routes to the goal page
+      // unless the user is not logged in, in which case it routes to the goal page
+      createGoal(
+        { prompt: getGoalInputValue() },
+        {
+          onSuccess: (goal) => {
+            console.log(
+              "saved goal, selectedGoal: ",
+              selectedGoal,
+              "goal: ",
+              goal,
+            );
+            upsertGoal(goal, selectedGoal?.id);
+            void router.push(app.routes.goal(goal.id));
           },
-        );
-      } else {
-        const goal = getSelectedGoal();
-        if (goal) {
-          // this makes the state update to be able to waggle
-          goal.userId = "guest";
-          upsertGoal(goal);
-        }
-      }
+          onError: (e) => {
+            type HTTPStatusy = { httpStatus: number };
+            if (e instanceof TRPCClientError) {
+              const data = e.data as HTTPStatusy;
+              // route for anonymous users
+              if (data.httpStatus === 401 && selectedGoal) {
+                // this is a bit of terrible code that makes the state update to be able to waggle
+                selectedGoal.userId = "guest";
+                upsertGoal(selectedGoal);
+                void router.push(app.routes.goal(selectedGoal.id), undefined, {
+                  shallow: true,
+                });
+              }
+            } else {
+              setIsPageLoading(false);
+            }
+          },
+        },
+      );
     },
     [
       setIsPageLoading,
-      sessionData?.user.id,
       createGoal,
       getGoalInputValue,
       getSelectedGoal,
