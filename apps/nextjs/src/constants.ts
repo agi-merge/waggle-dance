@@ -12,7 +12,9 @@ export const app = {
   routes: {
     home: "/",
     goal: (id: string, execution?: string): string => {
-      return `/goal/${id}${execution ? `/${execution}` : ""}}`;
+      const path = `/goal/${id}/${execution ? `${execution}` : ""}`;
+      console.debug("path", path);
+      return path;
     },
     refine: "/add-documents",
     donate: "https://www.patreon.com/agimerge",
