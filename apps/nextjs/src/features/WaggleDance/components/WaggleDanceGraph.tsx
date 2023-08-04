@@ -278,7 +278,7 @@ const WaggleDanceGraph = ({ selectedGoal }: WaggleDanceGraphProps) => {
                         <ListItemDecorator
                           color={statusColor(n)}
                           sx={{
-                            width: { xs: "100%", sm: "16rem" },
+                            width: { xs: "100%", sm: "10rem" },
                             height: "100%",
                             flexDirection: { xs: "row-reverse", sm: "column" },
                             textAlign: "end",
