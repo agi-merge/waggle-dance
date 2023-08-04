@@ -1,4 +1,10 @@
-import { useCallback, useEffect, useMemo, useRef, useState } from "react";
+import React, {
+  useCallback,
+  useEffect,
+  useMemo,
+  useRef,
+  useState,
+} from "react";
 import {
   BugReport,
   Edit,
@@ -14,12 +20,13 @@ import {
   Button,
   Card,
   Divider,
+  IconButton,
   LinearProgress,
   List,
   ListDivider,
   ListItem,
-  ListItemButton,
   ListItemContent,
+  ListItemDecorator,
   Stack,
   Tab,
   TabList,
@@ -33,6 +40,7 @@ import ReactMarkdown from "react-markdown";
 import remarkGfm from "remark-gfm";
 import { stringify } from "yaml";
 
+import { api } from "~/utils/api";
 import GoalSettings from "~/features/GoalMenu/components/GoalSettings";
 import { type GoalPlusExe } from "~/stores/goalStore";
 import useWaggleDanceMachineState from "~/stores/waggleDanceStore";
@@ -58,14 +66,65 @@ const WaggleDanceGraph = ({ selectedGoal }: WaggleDanceGraphProps) => {
   );
   const [runId, setRunId] = useState<Date | null>(null);
 
+  const sortedTaskStates = useMemo(() => {
+    return taskStates.sort((a: TaskState, b: TaskState) => {
+      if (a.id === rootPlanId) {
+        return -1;
+      }
+      if (b.id === rootPlanId) {
+        return 1;
+      }
+      if (a.status === b.status) {
+        return a.id.localeCompare(b.id) || 1;
+      }
+      if (a.status === TaskStatus.done) return -1;
+      if (b.status === TaskStatus.done) return 1;
+      if (a.status === TaskStatus.error) return -1;
+      if (b.status === TaskStatus.error) return 1;
+      if (a.status === TaskStatus.working) return -1;
+      if (b.status === TaskStatus.working) return 1;
+      if (a.status === TaskStatus.starting) return -1;
+      if (b.status === TaskStatus.starting) return 1;
+      if (a.status === TaskStatus.idle) return -1;
+      if (b.status === TaskStatus.idle) return 1;
+      // unhandled use alphabetical
+      return 1;
+    });
+  }, [taskStates]);
+
+  const { mutate: createExecution } = api.execution.create.useMutation({
+    onSuccess: (data) => {
+      console.log("create goal: ", data);
+      // void router.push(app.routes.goal(data.id));
+    },
+    onError: (e) => {
+      console.error("Failed to post!", e.message);
+    },
+  });
+
+  // const createExecutionPromise = fetch(
+  //   `${process.env.NEXTAUTH_URL}/api/agent/execute/save`,
+  //   {
+  //     method: "POST",
+  //     body: JSON.stringify({ goalId: goalId }),
+  //     headers: {
+  //       "Content-Type": "application/json",
+  //       Cookie: req.headers.get("cookie") || "", // pass cookie so session logic still works
+  //     },
+  //     signal: abortController.signal,
+  //   },
+  // );
   // Replace console.log() calls with customLog()
   const handleStart = useCallback(() => {
     if (!isRunning) {
-      setRunId(new Date());
-      setIsRunning(true);
-      void run();
+      if (selectedGoal) {
+        setRunId(new Date());
+        setIsRunning(true);
+        createExecution({ goalId: selectedGoal.id });
+        void run();
+      }
     }
-  }, [run, setIsRunning, isRunning]);
+  }, [isRunning, selectedGoal, setIsRunning, createExecution, run]);
 
   const handleStop = useCallback(() => {
     setIsRunning(false);
@@ -124,19 +183,15 @@ const WaggleDanceGraph = ({ selectedGoal }: WaggleDanceGraphProps) => {
   );
 
   const statusColor = (n: TaskState) => {
-    switch (n.status.toLocaleLowerCase()) {
-      case "done":
+    switch (n.status) {
+      case TaskStatus.done:
         return "success";
-      case "error":
+      case TaskStatus.error:
         return "danger";
-      case "idle":
+      case (TaskStatus.idle, TaskStatus.wait):
         return "neutral";
-      case "starting":
+      case (TaskStatus.starting, TaskStatus.working):
         return "primary";
-      case "working":
-        return "primary";
-      case "stopped":
-        return "warning";
     }
   };
 
@@ -210,174 +265,148 @@ const WaggleDanceGraph = ({ selectedGoal }: WaggleDanceGraphProps) => {
                 value={0}
                 className=" relative max-h-96 w-full overflow-y-scroll p-4"
               >
-                <List
-                  aria-label="Task list"
-                  className="absolute left-0 top-0 mt-3"
-                  sx={{
-                    marginX: { xs: -2, sm: 0 },
-                  }}
-                >
-                  {taskStates
-                    .sort((a: TaskState, b: TaskState) => {
-                      if (a.id === rootPlanId) {
-                        return -1;
-                      }
-                      if (b.id === rootPlanId) {
-                        return 1;
-                      }
-                      if (a.status === b.status) {
-                        return a.id.localeCompare(b.id) || 1;
-                      }
-                      if (a.status === TaskStatus.done) return -1;
-                      if (b.status === TaskStatus.done) return 1;
-                      if (a.status === TaskStatus.error) return -1;
-                      if (b.status === TaskStatus.error) return 1;
-                      if (a.status === TaskStatus.working) return -1;
-                      if (b.status === TaskStatus.working) return 1;
-                      if (a.status === TaskStatus.starting) return -1;
-                      if (b.status === TaskStatus.starting) return 1;
-                      if (a.status === TaskStatus.idle) return -1;
-                      if (b.status === TaskStatus.idle) return 1;
-                      // unhandled use alphabetical
-                      return 1;
-                    })
-                    .map((n) => (
-                      <Box key={n.id}>
-                        <Card
+                <List aria-label="Task list" size="sm" className="">
+                  {sortedTaskStates.map((n, i) => (
+                    <React.Fragment key={n.id}>
+                      <ListItem
+                        sx={{
+                          width: { xs: "100%", sm: "auto" },
+                          flexDirection: { xs: "column", sm: "row" },
+                        }}
+                      >
+                        <ListItemDecorator
                           color={statusColor(n)}
-                          variant="soft"
-                          invertedColors={n.status === TaskStatus.working}
                           sx={{
-                            backgroundColor: statusColor(n),
-                            padding: 0,
+                            width: { xs: "100%", sm: "16rem" },
+                            height: "100%",
+                            flexDirection: { xs: "row-reverse", sm: "column" },
+                            textAlign: "end",
+                            alignItems: "end",
+                            alignSelf: "start",
+                            paddingRight: { xs: "inherit", sm: "0.5rem" },
+                            marginRight: { xs: "inherit", sm: "-0.25rem" },
+                            marginTop: { xs: "inherit", sm: "0.25rem" },
+                            marginBottom: { xs: "-0.5rem", sm: "inherit" },
+                            paddingBottom: { xs: "1rem", sm: "inherit" },
                           }}
+                          size="sm"
+                          variant="soft"
+                          component={Card}
                         >
-                          <ListItem>
-                            <ListItemButton
-                              sx={{ borderRadius: "md" }}
-                              disabled={n.status === TaskStatus.idle}
+                          <Stack
+                            direction={{ xs: "row", sm: "column" }}
+                            gap={{ xs: "0.5rem", sm: "0.25rem" }}
+                            alignItems={{ xs: "center", sm: "flex-end" }}
+                          >
+                            <Typography level="title-md" color="primary">
+                              {n.name}
+                            </Typography>
+                            <Typography
+                              level="title-sm"
+                              color="neutral"
+                              fontFamily="monospace"
                             >
-                              <ListItemContent
-                                className="flex w-96"
-                                sx={{ backgroundColor: statusColor(n) }}
+                              id:{" "}
+                              <Typography level="body-sm">{n.id}</Typography>
+                            </Typography>
+                            <Stack gap="0.3rem" direction="row">
+                              <Tooltip title="Chat">
+                                <IconButton size="sm">
+                                  <Send />
+                                </IconButton>
+                              </Tooltip>
+                              <Divider orientation="vertical" />
+                              <Tooltip title="Edit">
+                                <IconButton size="sm">
+                                  <Edit />
+                                </IconButton>
+                              </Tooltip>
+                            </Stack>
+                          </Stack>
+                        </ListItemDecorator>
+                        <ListItemContent sx={{ width: "100%" }}>
+                          <Card
+                            variant="soft"
+                            component={Stack}
+                            direction="column"
+                            className=" min-w-full"
+                          >
+                            <Stack className="text-wrap p-4" gap={1}>
+                              <Typography
+                                level="title-sm"
+                                style={{
+                                  overflowWrap: "break-word",
+                                }}
                               >
-                                <Box
-                                  sx={{
-                                    xs: { width: "20%" },
-                                    width: "30%",
-                                  }}
-                                  className="min-h-24 overflow-auto p-2"
-                                >
-                                  <Stack
-                                    direction="column"
-                                    gap="0.25rem"
-                                    style={{
-                                      overflowWrap: "break-word",
-                                    }}
-                                  >
-                                    <Typography
-                                      level="body-lg"
-                                      className="text-wrap flex p-1"
-                                      color="primary"
-                                    >
-                                      {n.name}
-                                    </Typography>
-                                    <Typography
-                                      level="body-sm"
-                                      className="text-wrap flex p-1"
-                                      color="neutral"
-                                      fontFamily="monospace"
-                                    >
-                                      id: {n.id}
-                                    </Typography>
-                                  </Stack>
-                                </Box>
-                                <Stack
-                                  className="text-wrap p-2"
-                                  sx={{
-                                    xs: { width: "80%" },
-                                    width: "70%",
-                                    mixBlendMode: "difference",
+                                {n.act}
+                                <Typography
+                                  fontFamily="monospace"
+                                  level="body-sm"
+                                  className="text-wrap"
+                                  style={{
+                                    overflowWrap: "break-word",
+                                    width: "100%",
                                   }}
                                 >
-                                  <Typography
-                                    level="body-lg"
-                                    textColor="common.white"
-                                    style={{
-                                      overflowWrap: "break-word",
-                                    }}
-                                  >
-                                    {n.act}
-                                    {" ("}
-                                    <Typography
-                                      fontFamily="monospace"
-                                      level="body-md"
-                                      className="text-wrap"
-                                      color="primary"
-                                      style={{
-                                        overflowWrap: "break-word",
-                                        width: "100%",
-                                      }}
-                                    >
-                                      {n.params}
-                                    </Typography>
-                                    {")"}
-                                  </Typography>
-                                  <Typography
-                                    fontFamily="monospace"
-                                    level="body-md"
-                                    className="text-wrap"
-                                    color="neutral"
-                                    style={{
-                                      overflowWrap: "break-word",
-                                      width: "80%",
-                                    }}
-                                  >
-                                    {stringifyMax(n.context, 200)}
-                                  </Typography>
-                                </Stack>
-                                <Stack gap="0.3rem">
-                                  <Tooltip title="Chat">
-                                    <Send />
-                                  </Tooltip>
-                                  <Divider />
-                                  <Tooltip title="Edit">
-                                    <Edit />
-                                  </Tooltip>
-                                </Stack>
-                              </ListItemContent>
-                            </ListItemButton>
-                          </ListItem>
-
-                          {isRunning && n.status === TaskStatus.working && (
-                            <LinearProgress thickness={1} />
-                          )}
-                          <Card className="justify-start text-start">
-                            <Typography level="title-lg">
-                              {n.result ? <>Result: </> : <>Status: </>}
-                            </Typography>
-
-                            <Typography color={statusColor(n)} level="body-lg">
-                              {isRunning
-                                ? n.status
-                                : n.status === TaskStatus.working ||
-                                  n.status === TaskStatus.starting ||
-                                  n.status === TaskStatus.wait
-                                ? "stopped"
-                                : n.status}
-                            </Typography>
-                            {n.result && (
-                              <Typography level="body-sm" className="pt-2">
-                                <ReactMarkdown remarkPlugins={[remarkGfm]}>
-                                  {n.result}
-                                </ReactMarkdown>
+                                  {" ("}
+                                  {n.params}
+                                  {")"}
+                                </Typography>
                               </Typography>
+                              <Divider inset="context" />
+                              <Typography
+                                level="body-sm"
+                                className="text-wrap"
+                                color="neutral"
+                                style={{
+                                  overflowWrap: "break-word",
+                                }}
+                              >
+                                {stringifyMax(n.context, 200)}
+                              </Typography>
+                            </Stack>
+
+                            {isRunning && n.status === TaskStatus.working && (
+                              <LinearProgress thickness={1} />
                             )}
+                            <Card
+                              className="justify-start p-1 text-start"
+                              component={Stack}
+                              direction={"column"}
+                            >
+                              <Typography level="title-lg">
+                                {n.result ? <>Result: </> : <>Status: </>}
+                                <Typography
+                                  color={statusColor(n)}
+                                  level="body-md"
+                                >
+                                  {isRunning
+                                    ? n.status
+                                    : n.status === TaskStatus.working ||
+                                      n.status === TaskStatus.starting ||
+                                      n.status === TaskStatus.wait
+                                    ? "stopped"
+                                    : n.status}
+                                </Typography>
+                              </Typography>
+
+                              {n.result && (
+                                <Typography level="body-sm" className="pt-2">
+                                  <ReactMarkdown remarkPlugins={[remarkGfm]}>
+                                    {n.result}
+                                  </ReactMarkdown>
+                                </Typography>
+                              )}
+                            </Card>
                           </Card>
-                        </Card>
-                        <ListDivider inset="gutter" />
-                      </Box>
-                    ))}
+                        </ListItemContent>
+                        {/* </ListItemButton> */}
+                      </ListItem>
+                      {i !== sortedTaskStates.length - 1 && (
+                        <ListDivider inset="gutter" sx={{ margin: 1.5 }} />
+                      )}
+                    </React.Fragment>
+                  ))}
                 </List>
               </TabPanel>
 
