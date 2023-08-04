@@ -62,27 +62,40 @@ export const ExecutionSelect: React.FC<ExecutionSelectProps> = ({
           <Box>
             <Typography>{names && names[i]}</Typography>
           </Box>
-
-          <Chip
-            size="sm"
-            variant="outlined"
-            color={colors[execution.state]}
+          <Box
             sx={{
               ml: "auto",
-              borderRadius: "2px",
-              minHeight: "20px",
-              paddingInline: "4px",
-              fontSize: "xs",
-              bgcolor: `${colors[execution.state]}.softBg`,
             }}
           >
-            {execution.state}
-            <Typography
-              level="body-sm"
-              color="primary"
-              startDecorator={timeAgo(execution.updatedAt)}
-            ></Typography>
-          </Chip>
+            <Chip
+              size="sm"
+              variant="outlined"
+              color={colors[execution.state]}
+              sx={{
+                ml: "auto",
+                borderRadius: "2px",
+                paddingInline: "4px",
+                fontSize: "xs",
+                bgcolor: `${colors[execution.state]}.softBg`,
+              }}
+            >
+              {timeAgo(execution.updatedAt)}
+            </Chip>
+            <Chip
+              size="sm"
+              variant="outlined"
+              color={colors[execution.state]}
+              sx={{
+                ml: "auto",
+                borderRadius: "2px",
+                paddingInline: "4px",
+                fontSize: "xs",
+                bgcolor: `${colors[execution.state]}.softBg`,
+              }}
+            >
+              {execution.state}
+            </Chip>
+          </Box>
         </>
       );
     },
