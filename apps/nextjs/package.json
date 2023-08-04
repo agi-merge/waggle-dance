@@ -24,7 +24,6 @@
     "@fontsource/public-sans": "^5.0.6",
     "@mui/icons-material": "^5.14.3",
     "@mui/joy": "5.0.0-beta.0",
-    "@mui/material": "^5.14.3",
     "@pinecone-database/pinecone": "^0.1.6",
     "@react-hook/resize-observer": "^1.2.6",
     "@t3-oss/env-nextjs": "^0.6.0",
@@ -57,7 +56,6 @@
     "superjson": "1.13.1",
     "swr": "^2.2.0",
     "use-debounce": "^9.0.4",
-    "utils": "link:@mui/material/utils",
     "yaml": "^2.3.1",
     "zod": "^3.21.4",
     "zustand": "^4.4.0"

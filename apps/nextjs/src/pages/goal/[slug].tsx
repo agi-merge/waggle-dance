@@ -1,7 +1,7 @@
 // pages/goal/[slug].tsx
 import { Suspense, useEffect, useMemo } from "react";
 import { useRouter } from "next/router";
-import { CircularProgress } from "@mui/material";
+import { CircularProgress } from "@mui/joy";
 
 import { api } from "~/utils/api";
 import { app } from "~/constants";

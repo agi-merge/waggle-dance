@@ -74,9 +74,6 @@ importers:
       '@mui/joy':
         specifier: 5.0.0-beta.0
         version: 5.0.0-beta.0(@emotion/react@11.11.1)(@emotion/styled@11.11.0)(@types/react@18.2.18)(react-dom@18.2.0)(react@18.2.0)
-      '@mui/material':
-        specifier: ^5.14.3
-        version: 5.14.3(@emotion/react@11.11.1)(@emotion/styled@11.11.0)(@types/react@18.2.18)(react-dom@18.2.0)(react@18.2.0)
       '@pinecone-database/pinecone':
         specifier: ^0.1.6
         version: 0.1.6
@@ -173,9 +170,6 @@ importers:
       use-debounce:
         specifier: ^9.0.4
         version: 9.0.4(react@18.2.0)
-      utils:
-        specifier: link:@mui/material/utils
-        version: link:@mui/material/utils
       yaml:
         specifier: ^2.3.1
         version: 2.3.1
