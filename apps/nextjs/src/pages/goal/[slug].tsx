@@ -1,7 +1,6 @@
 // pages/goal/[slug].tsx
 import { Suspense, useEffect, useMemo } from "react";
 import { useRouter } from "next/router";
-import { Stack, Typography } from "@mui/joy";
 import { CircularProgress } from "@mui/material";
 
 import { api } from "~/utils/api";
@@ -119,16 +118,7 @@ export default function GoalTab() {
         ) : (
           <>
             {!isRunning && (
-              <Title title={isRunning ? "💃 Waggling!" : "💃 Waggle"}>
-                <Stack direction="row">
-                  <Typography level="body-lg">
-                    {isRunning
-                      ? "Please 🐝 patient. Planning may take several minutes to fully complete."
-                      : "Press start/resume to waggle or add data."}
-                  </Typography>
-                  <Typography className="flex-row">Yo</Typography>
-                </Stack>
-              </Title>
+              <Title title={isRunning ? "💃 Waggling!" : "💃 Waggle"}></Title>
             )}
 
             <Suspense fallback={<CircularProgress></CircularProgress>}>
