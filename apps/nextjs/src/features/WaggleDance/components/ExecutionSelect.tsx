@@ -111,7 +111,7 @@ export const ExecutionSelect: React.FC<ExecutionSelectProps> = ({
 
   return (
     <FormControl>
-      {executions && executions.length && (
+      {(executions?.length ?? 0) > 0 && (
         <>
           <FormLabel
             id="select-execution-label"
