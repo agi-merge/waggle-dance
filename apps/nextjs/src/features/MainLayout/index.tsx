@@ -78,6 +78,7 @@ const MainLayout = ({ children }: Props) => {
             variant="outlined"
             className="-m-2 p-0"
             sx={{
+              borderRadius: "0",
               opacity: pageOpacity,
             }}
           >

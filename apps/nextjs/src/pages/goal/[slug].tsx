@@ -6,13 +6,13 @@ import { CircularProgress } from "@mui/material";
 
 import { api } from "~/utils/api";
 import { app } from "~/constants";
-import GoalInput from "~/features/GoalMenu/components/GoalInput";
 import MainLayout from "~/features/MainLayout";
 import Title from "~/features/MainLayout/components/PageTitle";
 import { ExecutionSelect } from "~/features/WaggleDance/components/ExecutionSelect";
 import WaggleDanceGraph from "~/features/WaggleDance/components/WaggleDanceGraph";
 import useGoalStore from "~/stores/goalStore";
 import useWaggleDanceMachineStore from "~/stores/waggleDanceStore";
+import { HomeContent } from "..";
 
 export default function GoalTab() {
   const router = useRouter();
@@ -108,28 +108,21 @@ export default function GoalTab() {
     <MainLayout>
       <>
         {state === "input" ? (
-          <>
-            <Title title="🐝 Goal solver" />
-            <GoalInput />
-          </>
+          <HomeContent />
         ) : (
           <>
-            <Title title={isRunning ? "💃 Waggling!" : "💃 Waggle"}>
-              <Stack direction="row">
-                <Typography
-                  level="body-lg"
-                  sx={{
-                    userSelect: "none",
-                    marginBottom: { xs: -1, sm: 0 },
-                  }}
-                >
-                  {isRunning
-                    ? "Please 🐝 patient. Planning may take several minutes to fully complete."
-                    : "Press start/resume to waggle or add data."}
-                </Typography>
-                <Typography className="flex-row">Yo</Typography>
-              </Stack>
-            </Title>
+            {!isRunning && (
+              <Title title={isRunning ? "💃 Waggling!" : "💃 Waggle"}>
+                <Stack direction="row">
+                  <Typography level="body-lg">
+                    {isRunning
+                      ? "Please 🐝 patient. Planning may take several minutes to fully complete."
+                      : "Press start/resume to waggle or add data."}
+                  </Typography>
+                  <Typography className="flex-row">Yo</Typography>
+                </Stack>
+              </Title>
+            )}
 
             <Suspense fallback={<CircularProgress></CircularProgress>}>
               <ExecutionSelect

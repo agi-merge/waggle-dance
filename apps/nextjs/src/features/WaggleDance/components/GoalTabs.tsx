@@ -188,11 +188,11 @@ const GoalTabs: React.FC<GoalTabsProps> = ({ children }) => {
         handleChange(event, newValue as number);
       }}
       sx={{
-        borderRadius: "sm",
+        borderRadius: "0",
         background: "transparent",
-        marginTop: -2.1,
-        marginLeft: -3,
-        marginRight: -2.5,
+        marginTop: -2,
+        marginLeft: -2,
+        marginRight: -2,
       }}
       orientation="horizontal"
     >
@@ -203,6 +203,7 @@ const GoalTabs: React.FC<GoalTabsProps> = ({ children }) => {
           background: "transparent",
           display: "flex flex-shrink",
           flexWrap: "nowrap",
+          borderRadius: "0",
         }}
         tabFlex={"auto"}
       >

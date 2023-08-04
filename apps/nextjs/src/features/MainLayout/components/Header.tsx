@@ -68,20 +68,18 @@ const Header = ({}) => {
     <header className="z-10 mx-auto w-full px-5 pb-2 pt-0">
       <Stack
         direction="row"
-        className="items-center"
-        sx={{ paddingTop: { xs: 1, sm: 3 } }}
+        sx={{ paddingTop: { xs: 1, sm: 3 }, paddingBottom: { xs: 1, sm: 3 } }}
       >
-        <Stack className="flex-grow pl-2 pr-5">
-          <Typography
-            fontSize={{ xs: "15pt", sm: "24pt" }}
-            level={isHomeSlug ? "h3" : "h4"}
-          >
-            waggle🐝<Typography>💃dance</Typography>
-            <Typography level="body-xs" className="pl-2">
-              {app.version}
-            </Typography>
+        <Typography
+          className="flex-grow"
+          fontSize={{ xs: "15pt", sm: "24pt" }}
+          level={isHomeSlug ? "h3" : "h4"}
+        >
+          waggle🐝<Typography>💃dance</Typography>
+          <Typography level="body-xs" className="pl-2">
+            {app.version}
           </Typography>
-        </Stack>
+        </Typography>
         <IconButton
           id="menu-button"
           aria-controls={isOpen ? "main-menu" : undefined}
@@ -124,32 +122,6 @@ const Header = ({}) => {
           </MenuItem>
         </Menu>
       </Stack>
-      {isHomeSlug && (
-        <Typography
-          sx={{
-            margin: { xs: 0, sm: 0.5 },
-            paddingTop: { xs: 0.5, sm: 1 },
-            paddingLeft: { xs: 1, sm: 1 },
-            paddingBottom: 1,
-          }}
-          level="body-lg"
-          fontSize={{ xs: "8pt", sm: "10pt" }}
-          color="neutral"
-        >
-          Automate boring, complex tasks with the help of{" "}
-          <Tooltip title="I swear it is a thing" variant="soft" color="neutral">
-            <a
-              href="https://wikipedia.org/wiki/Waggle_dance"
-              className="font-bold"
-              target="_blank"
-              rel="noopener noreferrer"
-            >
-              wagglin&apos; swarms{" "}
-            </a>
-          </Tooltip>
-          of large language model agents
-        </Typography>
-      )}
     </header>
   );
 };
