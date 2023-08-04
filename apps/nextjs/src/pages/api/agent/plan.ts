@@ -82,23 +82,9 @@ export default async function PlanStream(req: NextRequest) {
           goalId,
           abortController.signal,
         );
-        const createExecutionPromise = fetch(
-          `${process.env.NEXTAUTH_URL}/api/agent/execute/save`,
-          {
-            method: "POST",
-            body: JSON.stringify({ goalId: goalId }),
-            headers: {
-              "Content-Type": "application/json",
-              Cookie: req.headers.get("cookie") || "", // pass cookie so session logic still works
-            },
-            signal: abortController.signal,
-          },
-        );
-        const results = await Promise.allSettled([
-          planResultPromise,
-          createExecutionPromise,
-        ]);
-        const [_planResult, _saveExecutionResult] = results;
+        const results = await Promise.allSettled([planResultPromise]);
+        const [planResult] = results;
+        console.debug("plan result", planResult.status);
         controller.close();
       },
 

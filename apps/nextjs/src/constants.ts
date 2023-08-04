@@ -11,8 +11,8 @@ export const app = {
   },
   routes: {
     home: "/",
-    goal: (id: string): string => {
-      return `/goal/${id}`;
+    goal: (id: string, execution?: string): string => {
+      return `/goal/${id}${execution ? `/${execution}` : ""}}`;
     },
     refine: "/add-documents",
     donate: "https://www.patreon.com/agimerge",

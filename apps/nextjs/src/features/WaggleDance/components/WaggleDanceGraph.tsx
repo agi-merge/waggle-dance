@@ -5,6 +5,7 @@ import React, {
   useRef,
   useState,
 } from "react";
+import router from "next/router";
 import {
   BugReport,
   Edit,
@@ -40,7 +41,10 @@ import ReactMarkdown from "react-markdown";
 import remarkGfm from "remark-gfm";
 import { stringify } from "yaml";
 
+import { type Execution } from "@acme/db";
+
 import { api } from "~/utils/api";
+import { app } from "~/constants";
 import GoalSettings from "~/features/GoalMenu/components/GoalSettings";
 import { type GoalPlusExe } from "~/stores/goalStore";
 import useWaggleDanceMachineState from "~/stores/waggleDanceStore";
@@ -59,12 +63,13 @@ const WaggleDanceGraph = ({ selectedGoal }: WaggleDanceGraphProps) => {
   const { isRunning, setIsRunning, isAutoStartEnabled, setIsAutoStartEnabled } =
     useWaggleDanceMachineState();
 
+  const [execution, setExecution] = useState<Execution | undefined>(undefined);
+
   const { graphData, dag, stop, run, logs, taskStates } = useWaggleDanceMachine(
     {
       goal: selectedGoal,
     },
   );
-  const [runId, setRunId] = useState<Date | null>(null);
 
   const sortedTaskStates = useMemo(() => {
     return taskStates.sort((a: TaskState, b: TaskState) => {
@@ -94,34 +99,30 @@ const WaggleDanceGraph = ({ selectedGoal }: WaggleDanceGraphProps) => {
 
   const { mutate: createExecution } = api.execution.create.useMutation({
     onSuccess: (data) => {
-      console.log("create goal: ", data);
-      // void router.push(app.routes.goal(data.id));
+      console.log("create execution: ", data);
+      setExecution(data);
+      selectedGoal &&
+        void router.push(app.routes.goal(selectedGoal.id, execution?.id));
+      if (!selectedGoal || !execution) {
+        console.error(
+          `no goal(${selectedGoal?.id}) or execution: ${execution}`,
+        );
+      }
     },
     onError: (e) => {
+      setExecution(undefined);
       console.error("Failed to post!", e.message);
     },
   });
 
-  // const createExecutionPromise = fetch(
-  //   `${process.env.NEXTAUTH_URL}/api/agent/execute/save`,
-  //   {
-  //     method: "POST",
-  //     body: JSON.stringify({ goalId: goalId }),
-  //     headers: {
-  //       "Content-Type": "application/json",
-  //       Cookie: req.headers.get("cookie") || "", // pass cookie so session logic still works
-  //     },
-  //     signal: abortController.signal,
-  //   },
-  // );
-  // Replace console.log() calls with customLog()
   const handleStart = useCallback(() => {
     if (!isRunning) {
       if (selectedGoal) {
-        setRunId(new Date());
         setIsRunning(true);
         createExecution({ goalId: selectedGoal.id });
         void run();
+      } else {
+        console.error("no goal selected");
       }
     }
   }, [isRunning, selectedGoal, setIsRunning, createExecution, run]);
@@ -210,7 +211,7 @@ const WaggleDanceGraph = ({ selectedGoal }: WaggleDanceGraphProps) => {
       {dag.nodes.length > 0 && (
         <Tabs
           size="sm"
-          key={runId?.toString()}
+          key={execution?.id}
           aria-label="Waggle Dance Status and Results"
           defaultValue={0}
           variant="plain"
