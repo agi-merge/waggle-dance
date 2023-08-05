@@ -324,6 +324,7 @@ const WaggleDanceGraph = ({ selectedGoal }: WaggleDanceGraphProps) => {
                         </ListItemDecorator>
                         <ListItemContent sx={{ width: "100%" }}>
                           <Card
+                            size="sm"
                             variant="soft"
                             component={Stack}
                             direction="column"
@@ -368,6 +369,7 @@ const WaggleDanceGraph = ({ selectedGoal }: WaggleDanceGraphProps) => {
                               <LinearProgress thickness={1} />
                             )}
                             <Card
+                              size="sm"
                               className="justify-start p-1 text-start"
                               component={Stack}
                               direction={"column"}
