@@ -72,11 +72,16 @@ const WaggleDanceGraph = ({
     executions && executions[0],
   );
 
-  const { graphData, dag, stop, run, logs, taskStates } = useWaggleDanceMachine(
-    {
-      goal: selectedGoal,
-    },
-  );
+  const {
+    graphData,
+    dag,
+    stop,
+    run: startWaggleDance,
+    logs,
+    taskStates,
+  } = useWaggleDanceMachine({
+    goal: selectedGoal,
+  });
 
   const sortedTaskStates = useMemo(() => {
     return taskStates.sort((a: TaskState, b: TaskState) => {
@@ -108,8 +113,18 @@ const WaggleDanceGraph = ({
     onSuccess: (data) => {
       console.log("create execution: ", data);
       setExecution(data);
-      selectedGoal &&
-        void router.push(app.routes.goal(selectedGoal.id, execution?.id));
+      if (selectedGoal) {
+        void (async () => {
+          console.log("replace route");
+          await router.replace(
+            app.routes.goal(selectedGoal.id, execution?.id),
+            undefined,
+            { shallow: true },
+          );
+          await startWaggleDance();
+        })();
+      }
+
       if (!selectedGoal || !execution) {
         console.error(
           `no goal(${selectedGoal?.id}) or execution: ${execution}`,
@@ -127,12 +142,11 @@ const WaggleDanceGraph = ({
       if (selectedGoal) {
         setIsRunning(true);
         createExecution({ goalId: selectedGoal.id });
-        void run();
       } else {
         console.error("no goal selected");
       }
     }
-  }, [isRunning, selectedGoal, setIsRunning, createExecution, run]);
+  }, [isRunning, selectedGoal, setIsRunning, createExecution]);
 
   const handleStop = useCallback(() => {
     setIsRunning(false);
@@ -159,43 +173,56 @@ const WaggleDanceGraph = ({
     return json && json.length < max ? json : `${json.slice(0, max)}…`;
   };
   const button = (
-    <Stack
-      direction="row"
-      gap="0.5rem"
-      className="flex items-center justify-end"
-      component={Card}
-    >
-      <ExecutionSelect
-        executions={executions}
-        sx={{ width: { xs: "18rem", sm: "20rem", md: "24rem", lg: "28rem" } }}
-      />
-      <Box className="items-center justify-center align-top">
-        <GoalSettings />
-      </Box>
-      <Button
-        className="col-end p-2"
-        color="primary"
+    <Card variant="outlined" size="sm" sx={{ p: 0, m: 0 }} color="primary">
+      <Stack
+        direction={{ xs: "column", sm: "row" }}
+        gap="0.5rem"
+        className="max-w-screen flex items-center justify-end"
+        component={Card}
         variant="soft"
-        onClick={isRunning ? handleStop : handleStart}
+        invertedColors={true}
+        color="primary"
       >
-        <Stack
-          direction={{ xs: "row", sm: "column" }}
-          gap="0.5rem"
-          className="items-center"
+        <ExecutionSelect
+          executions={executions}
+          sx={{
+            width: { xs: "18rem", sm: "20rem", md: "24rem", lg: "28rem" },
+          }}
+        />
+        <Box
+          component={Stack}
+          direction="row"
+          sx={{ alignItems: "center", pl: 1.5 }}
+          gap={1}
+          variant="plain"
+          invertedColors={true}
         >
-          {isRunning ? (
-            <>
-              Pause <Pause />
-            </>
-          ) : (
-            <>
-              {dag.nodes.length > 0 ? "Resume" : "Start"}
-              <PlayArrow />
-            </>
-          )}
-        </Stack>
-      </Button>
-    </Stack>
+          <Box className="items-center justify-center align-top">
+            <GoalSettings />
+          </Box>
+          <Button
+            size="lg"
+            className="col-end"
+            color="primary"
+            variant="soft"
+            onClick={isRunning ? handleStop : handleStart}
+            endDecorator={isRunning ? <Pause /> : <PlayArrow />}
+          >
+            <Stack
+              direction={{ xs: "row", sm: "column" }}
+              gap="0.5rem"
+              className="items-center"
+            >
+              {isRunning ? (
+                <>Pause</>
+              ) : (
+                <>{dag.nodes.length > 0 ? "Resume" : "Start"}</>
+              )}
+            </Stack>
+          </Button>
+        </Box>
+      </Stack>
+    </Card>
   );
 
   const statusColor = (n: TaskState) => {
@@ -289,7 +316,10 @@ const WaggleDanceGraph = ({
                           sx={{
                             width: { xs: "100%", sm: "10rem" },
                             height: "100%",
-                            flexDirection: { xs: "row-reverse", sm: "column" },
+                            flexDirection: {
+                              xs: "row",
+                              sm: "column",
+                            },
                             textAlign: "end",
                             alignItems: "end",
                             alignSelf: "start",
@@ -490,7 +520,7 @@ const WaggleDanceGraph = ({
           )}
         </Tabs>
       )}
-      {button}
+      <Box className="sticky bottom-2 right-0 w-full justify-end">{button}</Box>
     </Stack>
   );
 };
