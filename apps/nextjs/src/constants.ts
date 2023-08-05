@@ -12,7 +12,7 @@ export const app = {
   routes: {
     home: "/",
     goal: (id: string, execution?: string): string => {
-      const path = `/goal/${id}/${execution ? `${execution}` : ""}`;
+      const path = `/goal/${id}/${execution ? `execution/${execution}` : ""}`;
       console.debug("path", path);
       return path;
     },
