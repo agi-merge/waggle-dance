@@ -1,6 +1,6 @@
 import * as React from "react";
 import { useCallback, useMemo, useState } from "react";
-import { FormControl, FormLabel, Tooltip } from "@mui/joy";
+import { FormControl, FormLabel, Stack, Tooltip } from "@mui/joy";
 import Box from "@mui/joy/Box";
 import Chip from "@mui/joy/Chip";
 import Option from "@mui/joy/Option";
@@ -15,10 +15,12 @@ import { rootPlanId } from "../WaggleDanceMachine";
 
 interface ExecutionSelectProps extends SelectProps<Execution> {
   executions: Execution[] | undefined;
+  showDisabled?: boolean | undefined;
 }
 
 export const ExecutionSelect: React.FC<ExecutionSelectProps> = ({
   executions,
+  showDisabled,
 }) => {
   const [selectedExecution, setSelectedExecution] = useState<
     Execution | null | undefined
@@ -111,38 +113,46 @@ export const ExecutionSelect: React.FC<ExecutionSelectProps> = ({
   );
 
   return (
-    <FormControl>
-      <Box>
-        <FormLabel
-          id="select-execution-label"
-          htmlFor="select-execution-button"
-        >
-          Previous Waggles
-        </FormLabel>
-        <Select
-          disabled={(executions?.length ?? 0) === 0}
-          defaultValue={selectedExecution?.id}
-          onChange={handleChange}
-          placeholder={<Typography>Select Waggle</Typography>}
-          slotProps={{
-            button: {
-              id: "select-execution-button",
-              "aria-labelledby":
-                "select-execution-label select-execution-button",
-            },
-            listbox: {
-              sx: {
-                maxHeight: 240,
-                minWidth: "100%",
-                maxWidth: "100%",
-                overflow: "auto",
-              },
-            },
-          }}
-        >
-          {options}
-        </Select>
-      </Box>
-    </FormControl>
+    <>
+      {showDisabled && (
+        <FormControl>
+          <Stack direction={"row"}>
+            <FormLabel
+              sx={{
+                fontSize: "xs",
+                maxWidth: "4rem",
+              }}
+              id="select-execution-label"
+              htmlFor="select-execution-button"
+            >
+              Previous Waggles
+            </FormLabel>
+            <Select
+              disabled={(executions?.length ?? 0) === 0}
+              defaultValue={selectedExecution?.id}
+              onChange={handleChange}
+              placeholder={<Typography>Select Waggle</Typography>}
+              slotProps={{
+                button: {
+                  id: "select-execution-button",
+                  "aria-labelledby":
+                    "select-execution-label select-execution-button",
+                },
+                listbox: {
+                  sx: {
+                    maxHeight: 240,
+                    minWidth: "100%",
+                    maxWidth: "100%",
+                    overflow: "auto",
+                  },
+                },
+              }}
+            >
+              {options}
+            </Select>
+          </Stack>
+        </FormControl>
+      )}
+    </>
   );
 };
