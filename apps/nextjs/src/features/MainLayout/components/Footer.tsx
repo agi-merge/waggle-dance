@@ -14,9 +14,7 @@ import { env } from "~/env.mjs";
 
 const Footer = () => {
   return (
-    <footer className="sticky-footer flex w-full pb-2 pt-10">
-      {/* <Sheet className="w-full">
-        <Card> */}
+    <footer className="sticky bottom-0 mb-2 mt-4 flex w-full">
       <List
         orientation="horizontal"
         sx={{
@@ -25,8 +23,7 @@ const Footer = () => {
           boxShadow: "sm",
           flexGrow: 0,
           mx: "auto",
-          "--ListItemDecorator-size": "48px",
-          "--ListItem-paddingY": "1rem",
+          my: "0.5rem",
         }}
       >
         <ListItem>
