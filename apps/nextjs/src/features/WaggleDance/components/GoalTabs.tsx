@@ -215,9 +215,8 @@ const GoalTabs: React.FC<GoalTabsProps> = ({ children }) => {
               2,
             )} + var(--Header-height, 0px))`,
             pointerEvents: isRunning ? "none" : "auto",
-            opacity: isRunning ? 0.33 : 1,
             borderRadius: "0",
-            display: isRunning ? "none" : "flex flex-shrink",
+            display: "flex flex-shrink",
             flexWrap: "nowrap",
             top: "0",
             zIndex: 10,
@@ -225,6 +224,7 @@ const GoalTabs: React.FC<GoalTabsProps> = ({ children }) => {
             overflow: "auto hidden",
             alignSelf: "flex-start",
             scrollSnapType: "inline",
+            backgroundColor: theme.palette.background.level1,
           })}
         >
           {goalList.map((tab, index) => (
