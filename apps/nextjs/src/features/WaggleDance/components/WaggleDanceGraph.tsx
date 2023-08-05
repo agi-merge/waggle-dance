@@ -238,14 +238,9 @@ const WaggleDanceGraph = ({
             variant="outlined"
             sx={{
               borderRadius: "0",
-              display: "flex flex-shrink",
               flexWrap: "nowrap",
               top: "calc(-1 * (var(--main-paddingTop, 0px) - var(--Header-height, 0px)))",
-              zIndex: 10,
               width: "100%",
-              overflow: "auto hidden",
-              alignSelf: "flex-start",
-              scrollSnapType: "inline",
             }}
           >
             <Tab value={0}>
