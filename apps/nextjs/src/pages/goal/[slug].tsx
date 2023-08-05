@@ -122,10 +122,7 @@ export default function GoalTab() {
             )}
 
             <Suspense fallback={<CircularProgress></CircularProgress>}>
-              <ExecutionSelect
-                executions={executions}
-                className="flex justify-start"
-              />
+              <ExecutionSelect executions={executions} />
               <WaggleDanceGraph key={cleanedSlug} selectedGoal={selectedGoal} />
             </Suspense>
           </>
