@@ -13,7 +13,7 @@ export const app = {
     home: "/",
     goal: (id: string, execution?: string): string => {
       const path = `/goal/${id}/${execution ? `execution/${execution}` : ""}`;
-      console.debug("path", path);
+      console.debug("generating path", path);
       return path;
     },
     refine: "/add-documents",
