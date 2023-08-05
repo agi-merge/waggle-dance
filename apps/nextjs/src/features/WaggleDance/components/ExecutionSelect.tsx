@@ -76,7 +76,7 @@ export const ExecutionSelect: React.FC<ExecutionSelectProps> = ({
               size="sm"
               variant="solid"
               color="neutral"
-              sx={{ borderRadius: "2px", fontSize: "sm" }}
+              sx={{ borderRadius: "2px", fontSize: { xs: "xs", sm: "sm" } }}
             >
               {timeAgo(execution.updatedAt)}
             </Chip>
@@ -86,7 +86,7 @@ export const ExecutionSelect: React.FC<ExecutionSelectProps> = ({
               color={colors[execution.state]}
               sx={{
                 borderRadius: "2px",
-                fontSize: "sm",
+                fontSize: { xs: "xs", sm: "sm" },
                 bgcolor: `${colors[execution.state]}.softBg`,
               }}
             >
