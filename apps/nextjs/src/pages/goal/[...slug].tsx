@@ -1,7 +1,7 @@
 // pages/goal/[slug].tsx
 import { Suspense, useEffect, useMemo } from "react";
 import { useRouter } from "next/router";
-import { CircularProgress } from "@mui/joy";
+import { Card, CircularProgress } from "@mui/joy";
 
 import { api } from "~/utils/api";
 import { app } from "~/constants";
@@ -29,6 +29,7 @@ export default function GoalTab() {
 
   const cleanedSlug = useMemo(() => {
     const { slug } = router.query;
+    console.log("cleanedSlug", slug);
     if (typeof slug === "string") {
       return slug;
     } else if (Array.isArray(slug)) {
@@ -36,7 +37,6 @@ export default function GoalTab() {
     } else {
       return slug;
     }
-    return "";
   }, [router.query]) as string;
 
   const selectedGoal = useMemo(
@@ -62,9 +62,11 @@ export default function GoalTab() {
   }, [cleanedSlug, selectedGoal?.executions?.length, selectedGoal?.userId]);
   useEffect(
     () => {
-      if (!router.isReady || cleanedSlug === "" || cleanedSlug === "/") {
+      if (!router.isReady) {
         // do nothing
       } else {
+        console.log("this useEffect routing");
+        debugger;
         if (selectedGoal && selectedGoal.executions.length > 0) {
           const route = app.routes.goal(selectedGoal.id); // avoid an error when replacing route to same route
           if (router.route !== route) {
@@ -107,7 +109,11 @@ export default function GoalTab() {
     [savedGoals, selectedGoal?.id],
   );
 
-  const executions = selectedGoal?.executions;
+  // q: is this smart? a: yes, it's smart because it's a memoized value and will only change when the selected goal changes
+  const executions = useMemo(
+    () => selectedGoal?.executions,
+    [selectedGoal?.executions],
+  );
 
   return (
     <MainLayout>
@@ -117,7 +123,9 @@ export default function GoalTab() {
         ) : (
           <>
             {!isRunning && (
-              <Title title={isRunning ? "💃 Waggling!" : "💃 Waggle"}></Title>
+              <Title title={isRunning ? "💃 Waggling!" : "💃 Waggle"}>
+                <Card>{selectedGoal.prompt}</Card>
+              </Title>
             )}
 
             <Suspense fallback={<CircularProgress></CircularProgress>}>
