@@ -194,8 +194,6 @@ const WaggleDanceGraph = ({
           direction="row"
           sx={{ alignItems: "center", pl: 1.5 }}
           gap={1}
-          variant="plain"
-          invertedColors={true}
         >
           <Box className="items-center justify-center align-top">
             <GoalSettings />
@@ -243,7 +241,7 @@ const WaggleDanceGraph = ({
     [taskStates],
   );
 
-  const progress = useMemo(() => {
+  const _progress = useMemo(() => {
     return (results.length / taskStates.length) * 100;
   }, [results.length, taskStates.length]);
 

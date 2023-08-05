@@ -27,8 +27,8 @@ export const ExecutionSelect = ({
   const [selectedExecution, setSelectedExecution] = useState<
     Execution | null | undefined
   >((executions && executions[0]) || null);
-  const [isOpen, setIsOpen] = React.useState(false);
-  const [anchorEl, setAnchorEl] = React.useState<null | HTMLElement>(null);
+  const [_isOpen, setIsOpen] = React.useState(false);
+  const [_anchorEl, setAnchorEl] = React.useState<null | HTMLElement>(null);
   const names = useMemo(() => {
     return executions?.map((e) => {
       // Cast the graph to DAG and get the nodes
