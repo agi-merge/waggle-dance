@@ -210,19 +210,22 @@ const GoalTabs: React.FC<GoalTabsProps> = ({ children }) => {
           sticky="top"
           variant="outlined"
           tabFlex={"auto"}
-          sx={{
+          sx={(theme) => ({
+            "--main-paddingTop": `calc(${theme.spacing(
+              2,
+            )} + var(--Header-height, 0px))`,
             pointerEvents: isRunning ? "none" : "auto",
             opacity: isRunning ? 0.33 : 1,
             borderRadius: "0",
             display: isRunning ? "none" : "flex flex-shrink",
             flexWrap: "nowrap",
-            top: "calc(-1 * (var(--main-paddingTop, 0px) - var(--Header-height, 0px)))",
+            top: "0",
             zIndex: 10,
             width: "100%",
             overflow: "auto hidden",
             alignSelf: "flex-start",
             scrollSnapType: "inline",
-          }}
+          })}
         >
           {goalList.map((tab, index) => (
             <GoalTab key={tab.id} tab={tab} index={index} />

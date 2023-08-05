@@ -3,7 +3,13 @@
 import React, { useEffect, useMemo, useState } from "react";
 import Head from "next/head";
 import { useRouter } from "next/router";
-import { Card, LinearProgress, Sheet, useColorScheme } from "@mui/joy";
+import {
+  Card,
+  GlobalStyles,
+  LinearProgress,
+  Sheet,
+  useColorScheme,
+} from "@mui/joy";
 
 import { app } from "~/constants";
 import useApp from "~/stores/appStore";
@@ -62,6 +68,14 @@ const MainLayout = ({ children }: Props) => {
           />
           <link rel="icon" href="/favicon.ico" />
         </Head>
+
+        <GlobalStyles
+          styles={(theme) => ({
+            ":root": {
+              "--Header-height": "52px",
+            },
+          })}
+        />
         <Sheet
           className="mx-auto sm:mt-1 md:mt-2 md:max-w-screen-lg xl:max-w-screen-lg"
           sx={{

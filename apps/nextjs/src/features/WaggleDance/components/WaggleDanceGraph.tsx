@@ -214,19 +214,33 @@ const WaggleDanceGraph = ({
   }, [results.length, taskStates.length]);
 
   return (
-    <Stack gap="1rem">
-      {button}
+    <Stack gap="1rem" sx={{ mx: -3 }}>
       {dag.nodes.length > 0 && (
         <Tabs
           size="sm"
           key={execution?.id}
           aria-label="Waggle Dance Status and Results"
           defaultValue={0}
-          variant="plain"
+          variant="soft"
           color="neutral"
-          sx={{ borderRadius: "sm" }}
+          sx={{ borderRadius: "0", m: 0, p: 0 }}
         >
-          <TabList tabFlex={"auto"}>
+          <TabList
+            sticky="top"
+            tabFlex={"auto"}
+            variant="outlined"
+            sx={{
+              borderRadius: "0",
+              display: "flex flex-shrink",
+              flexWrap: "nowrap",
+              top: "calc(-1 * (var(--main-paddingTop, 0px) - var(--Header-height, 0px)))",
+              zIndex: 10,
+              width: "100%",
+              overflow: "auto hidden",
+              alignSelf: "flex-start",
+              scrollSnapType: "inline",
+            }}
+          >
             <Tab value={0}>
               <ListAlt />
               <Typography className="px-1">Tasks</Typography>
@@ -255,21 +269,9 @@ const WaggleDanceGraph = ({
               <BugReport />
             </Tab>
           </TabList>
+
           {taskStates.length > 0 && (
             <>
-              <Tooltip
-                title={`${progress.toFixed(0)}% through planned tasks.`}
-                variant="soft"
-                color="neutral"
-              >
-                <LinearProgress
-                  determinate={true}
-                  value={progress}
-                  thickness={3}
-                  className="mx-3 -mt-0.5"
-                />
-              </Tooltip>
-
               <TabPanel value={0} className="w-full overflow-y-scroll p-4">
                 <List aria-label="Task list" size="sm" className="">
                   {sortedTaskStates.map((n, i) => (
@@ -292,7 +294,7 @@ const WaggleDanceGraph = ({
                             paddingRight: { xs: "inherit", sm: "0.5rem" },
                             marginRight: { xs: "inherit", sm: "-0.25rem" },
                             marginTop: { xs: "inherit", sm: "0.25rem" },
-                            marginBottom: { xs: "-0.5rem", sm: "inherit" },
+                            marginBottom: { xs: "-0.75rem", sm: "inherit" },
                             paddingBottom: { xs: "1rem", sm: "inherit" },
                           }}
                           size="sm"
@@ -332,13 +334,12 @@ const WaggleDanceGraph = ({
                         </ListItemDecorator>
                         <ListItemContent sx={{ width: "100%" }}>
                           <Card
-                            size="sm"
                             variant="soft"
                             component={Stack}
                             direction="column"
-                            className=" min-w-full"
+                            className="min-w-full"
                           >
-                            <Stack className="text-wrap p-4" gap={1}>
+                            <Stack className="text-wrap" gap={1.5}>
                               <Typography
                                 level="title-sm"
                                 style={{
@@ -374,7 +375,7 @@ const WaggleDanceGraph = ({
                             </Stack>
 
                             {isRunning && n.status === TaskStatus.working && (
-                              <LinearProgress thickness={1} />
+                              <LinearProgress thickness={2} />
                             )}
                             <Card
                               size="sm"
@@ -487,7 +488,7 @@ const WaggleDanceGraph = ({
           )}
         </Tabs>
       )}
-      {dag.nodes.length > 0 && button}
+      {button}
     </Stack>
   );
 };
