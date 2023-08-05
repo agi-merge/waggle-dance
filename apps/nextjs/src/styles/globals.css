@@ -18,7 +18,8 @@ a {
 
 .bg-honeycomb {
   @apply h-full w-full;
-  background: radial-gradient(
+  background:
+    radial-gradient(
         circle farthest-side at 0% 50%,
         var(--light-color) 23.5%,
         var(--background-color) 0
