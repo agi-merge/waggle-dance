@@ -86,7 +86,7 @@ const GoalTab: React.FC<GoalTabProps> = ({ tab, index, key }) => {
       <Tab
         value={index}
         component={Stack}
-        color={getSelectedGoal()?.id === tab.id ? "primary" : "neutral"}
+        color={"neutral"}
         variant="plain"
         orientation="horizontal"
       >
