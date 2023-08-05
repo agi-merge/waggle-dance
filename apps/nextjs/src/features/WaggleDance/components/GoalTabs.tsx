@@ -186,52 +186,97 @@ const GoalTabs: React.FC<GoalTabsProps> = ({ children }) => {
 
   // Render the goal tabber
   return (
-    <Tabs
-      aria-label="Goal tabs"
-      value={currentTabIndex}
-      onChange={(event, newValue) => {
-        handleChange(event, newValue as number);
-      }}
+    <Box
       sx={{
-        borderRadius: "0",
-        background: "transparent",
-        marginTop: -2,
-        marginLeft: -2,
-        marginRight: -2,
+        flex: 1,
+        width: "100%",
       }}
-      orientation="horizontal"
     >
-      <TabList
-        sx={{
-          pointerEvents: isRunning ? "none" : "auto",
-          opacity: isRunning ? 0.33 : 1,
-          background: "transparent",
-          display: "flex flex-shrink",
-          flexWrap: "nowrap",
-          borderRadius: "0",
+      <Tabs
+        aria-label="Goal tabs"
+        value={currentTabIndex}
+        onChange={(event, newValue) => {
+          handleChange(event, newValue as number);
         }}
-        tabFlex={"auto"}
+        variant="soft"
+        sx={{
+          borderRadius: "0",
+          marginTop: -2,
+          marginLeft: -2,
+          marginRight: -2,
+        }}
       >
-        {goalList.map((tab, index) => (
-          <GoalTab key={tab.id} tab={tab} index={index} />
-        ))}
-        <IconButton
-          className="flex-end float-start"
-          color="neutral"
-          size="md"
-          variant="plain"
-          onClick={() => {
-            const newId = newGoal();
-            void router.replace(app.routes.goal(newId), undefined, {
-              shallow: true,
-            });
+        <Box
+          sx={{
+            "--_shadow-height": "16px",
+            height: 0,
+            position: "sticky",
+            top: "calc(48px - var(--main-paddingTop, 0px) + var(--Header-height, 0px) - (var(--_shadow-height) / 2))",
+            zIndex: 1,
+            "&::before": {
+              content: '""',
+              display: "block",
+              position: "relative",
+              zIndex: 1,
+              height: "var(--_shadow-height)",
+              background:
+                "radial-gradient(closest-side, rgba(0 0 0 / 0.12), transparent 100%)",
+            },
           }}
+        />
+        <TabList
+          sticky="top"
+          variant="outlined"
+          tabFlex={"auto"}
+          sx={(theme) => ({
+            pointerEvents: isRunning ? "none" : "auto",
+            opacity: isRunning ? 0.33 : 1,
+            borderRadius: "0",
+            display: "flex flex-shrink",
+            flexWrap: "nowrap",
+            top: "calc(-1 * (var(--main-paddingTop, 0px) - var(--Header-height, 0px)))",
+            zIndex: 10,
+            width: "100%",
+            overflow: "auto hidden",
+            alignSelf: "flex-start",
+            scrollSnapType: "inline",
+            "&::after": {
+              pointerEvents: "none",
+              display: { xs: "block", sm: "none" },
+              content: '""',
+              position: "sticky",
+              top: 0,
+              width: 40,
+              flex: "none",
+              zIndex: 1,
+              right: 0,
+              borderBottom: "1px solid transparent",
+              background: `linear-gradient(to left, ${theme.vars.palette.background.body}, rgb(0 0 0 / 0))`,
+              backgroundClip: "content-box",
+            },
+          })}
         >
-          <Add />
-        </IconButton>
-      </TabList>
-      <Box className="mx-6 mt-1">{children}</Box>
-    </Tabs>
+          {goalList.map((tab, index) => (
+            <GoalTab key={tab.id} tab={tab} index={index} />
+          ))}
+          <IconButton
+            className="flex-end float-start"
+            color="neutral"
+            size="md"
+            variant="plain"
+            onClick={() => {
+              const newId = newGoal();
+              void router.replace(app.routes.goal(newId), undefined, {
+                shallow: true,
+              });
+            }}
+          >
+            <Add />
+          </IconButton>
+        </TabList>
+        <Box className="mx-6 mt-1">{children}</Box>
+      </Tabs>
+    </Box>
   );
 };
 

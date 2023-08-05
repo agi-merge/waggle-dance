@@ -262,10 +262,7 @@ const WaggleDanceGraph = ({ selectedGoal }: WaggleDanceGraphProps) => {
                 />
               </Tooltip>
 
-              <TabPanel
-                value={0}
-                className=" relative max-h-96 w-full overflow-y-scroll p-4"
-              >
+              <TabPanel value={0} className="w-full overflow-y-scroll p-4">
                 <List aria-label="Task list" size="sm" className="">
                   {sortedTaskStates.map((n, i) => (
                     <React.Fragment key={n.id}>
@@ -419,10 +416,7 @@ const WaggleDanceGraph = ({ selectedGoal }: WaggleDanceGraphProps) => {
                 <ForceGraph data={graphData} />
               </TabPanel>
 
-              <TabPanel
-                value={2}
-                className=" relative max-h-96 w-full overflow-y-scroll p-4"
-              >
+              <TabPanel value={2} className="w-full overflow-y-scroll p-4">
                 <List
                   className="absolute left-0 top-0 mt-3"
                   sx={{
@@ -438,10 +432,7 @@ const WaggleDanceGraph = ({ selectedGoal }: WaggleDanceGraphProps) => {
                 </List>
               </TabPanel>
 
-              <TabPanel
-                value={3}
-                className=" relative max-h-96 w-full overflow-y-scroll p-4"
-              >
+              <TabPanel value={3} className="w-full overflow-y-scroll p-4">
                 <List
                   className="absolute left-0 top-0 mt-3"
                   sx={{
