@@ -53,17 +53,24 @@ import useWaggleDanceMachine, {
   type TaskState,
 } from "../hooks/useWaggleDanceMachine";
 import { rootPlanId } from "../WaggleDanceMachine";
+import { ExecutionSelect } from "./ExecutionSelect";
 import ForceGraph from "./ForceGraph";
 
 type WaggleDanceGraphProps = {
-  selectedGoal: GoalPlusExe | undefined;
+  selectedGoal: GoalPlusExe;
+  executions: Execution[] | undefined;
 } & StackProps;
 // shows the graph, agents, results, general messages and chat input
-const WaggleDanceGraph = ({ selectedGoal }: WaggleDanceGraphProps) => {
+const WaggleDanceGraph = ({
+  selectedGoal,
+  executions,
+}: WaggleDanceGraphProps) => {
   const { isRunning, setIsRunning, isAutoStartEnabled, setIsAutoStartEnabled } =
     useWaggleDanceMachineState();
 
-  const [execution, setExecution] = useState<Execution | undefined>(undefined);
+  const [execution, setExecution] = useState<Execution | undefined>(
+    executions && executions[0],
+  );
 
   const { graphData, dag, stop, run, logs, taskStates } = useWaggleDanceMachine(
     {
@@ -151,13 +158,14 @@ const WaggleDanceGraph = ({ selectedGoal }: WaggleDanceGraphProps) => {
     const json = stringify(value);
     return json && json.length < max ? json : `${json.slice(0, max)}…`;
   };
-
   const button = (
     <Stack
       direction="row"
       gap="0.5rem"
       className="flex items-center justify-end"
+      component={Card}
     >
+      <ExecutionSelect executions={executions} />
       <Box className="items-center justify-center align-top">
         <GoalSettings />
       </Box>

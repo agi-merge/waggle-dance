@@ -7,7 +7,6 @@ import { api } from "~/utils/api";
 import { app } from "~/constants";
 import MainLayout from "~/features/MainLayout";
 import Title from "~/features/MainLayout/components/PageTitle";
-import { ExecutionSelect } from "~/features/WaggleDance/components/ExecutionSelect";
 import WaggleDanceGraph from "~/features/WaggleDance/components/WaggleDanceGraph";
 import useGoalStore from "~/stores/goalStore";
 import useWaggleDanceMachineStore from "~/stores/waggleDanceStore";
@@ -113,7 +112,7 @@ export default function GoalTab() {
   return (
     <MainLayout>
       <>
-        {state === "input" ? (
+        {state === "input" || !selectedGoal ? (
           <HomeContent />
         ) : (
           <>
@@ -122,8 +121,11 @@ export default function GoalTab() {
             )}
 
             <Suspense fallback={<CircularProgress></CircularProgress>}>
-              <ExecutionSelect executions={executions} />
-              <WaggleDanceGraph key={cleanedSlug} selectedGoal={selectedGoal} />
+              <WaggleDanceGraph
+                key={cleanedSlug}
+                selectedGoal={selectedGoal}
+                executions={executions}
+              />
             </Suspense>
           </>
         )}
