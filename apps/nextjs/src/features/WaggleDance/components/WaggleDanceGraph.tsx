@@ -165,7 +165,10 @@ const WaggleDanceGraph = ({
       className="flex items-center justify-end"
       component={Card}
     >
-      <ExecutionSelect executions={executions} />
+      <ExecutionSelect
+        executions={executions}
+        sx={{ width: { xs: "18rem", sm: "20rem", md: "24rem", lg: "28rem" } }}
+      />
       <Box className="items-center justify-center align-top">
         <GoalSettings />
       </Box>
@@ -175,7 +178,11 @@ const WaggleDanceGraph = ({
         variant="soft"
         onClick={isRunning ? handleStop : handleStart}
       >
-        <Stack direction="row" gap="0.5rem" className="items-center">
+        <Stack
+          direction={{ xs: "row", sm: "column" }}
+          gap="0.5rem"
+          className="items-center"
+        >
           {isRunning ? (
             <>
               Pause <Pause />
