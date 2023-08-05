@@ -1,10 +1,11 @@
 import * as React from "react";
 import { useCallback, useMemo, useState } from "react";
+import { ClickAwayListener } from "@mui/base";
 import { FormControl, FormLabel, Stack, Tooltip } from "@mui/joy";
-import Box from "@mui/joy/Box";
+import Box, { type BoxProps } from "@mui/joy/Box";
 import Chip from "@mui/joy/Chip";
 import Option from "@mui/joy/Option";
-import Select, { type SelectProps } from "@mui/joy/Select";
+import Select from "@mui/joy/Select";
 import Typography from "@mui/joy/Typography";
 
 import { type Execution } from "@acme/db";
@@ -13,19 +14,21 @@ import type DAG from "../DAG";
 import timeAgo from "../utils/timeAgo";
 import { rootPlanId } from "../WaggleDanceMachine";
 
-interface ExecutionSelectProps extends SelectProps<Execution> {
+type ExecutionSelectProps = BoxProps & {
   executions: Execution[] | undefined;
   showDisabled?: boolean | undefined;
-}
+};
 
-export const ExecutionSelect: React.FC<ExecutionSelectProps> = ({
+export const ExecutionSelect = ({
   executions,
   showDisabled,
-}) => {
+  ...props
+}: ExecutionSelectProps) => {
   const [selectedExecution, setSelectedExecution] = useState<
     Execution | null | undefined
   >((executions && executions[0]) || null);
-
+  const [isOpen, setIsOpen] = React.useState(false);
+  const [anchorEl, setAnchorEl] = React.useState<null | HTMLElement>(null);
   const names = useMemo(() => {
     return executions?.map((e) => {
       // Cast the graph to DAG and get the nodes
@@ -44,6 +47,11 @@ export const ExecutionSelect: React.FC<ExecutionSelectProps> = ({
       }, "");
     });
   }, [executions]);
+
+  const handleClose = () => {
+    setAnchorEl(null);
+    setIsOpen(false);
+  };
 
   const handleChange = (event: React.SyntheticEvent | null) => {
     const target = event?.target as HTMLInputElement;
@@ -69,9 +77,17 @@ export const ExecutionSelect: React.FC<ExecutionSelectProps> = ({
             enterNextDelay={500}
             followCursor={true}
           >
-            <Typography noWrap>{names && names[i]}</Typography>
+            <Typography
+              sx={{ textOverflow: "ellipsis", overflowWrap: "break-word" }}
+            >
+              {names && names[i]}
+            </Typography>
           </Tooltip>
-          <Box sx={{ ml: "auto", minWidth: "fit-content" }}>
+          <Box
+            sx={{ ml: "auto", minWidth: "fit-content" }}
+            component={Stack}
+            direction={{ xs: "column", sm: "row" }}
+          >
             <Chip
               size="sm"
               variant="solid"
@@ -113,46 +129,50 @@ export const ExecutionSelect: React.FC<ExecutionSelectProps> = ({
   );
 
   return (
-    <>
-      {showDisabled && (
-        <FormControl>
-          <Stack direction={"row"}>
-            <FormLabel
-              sx={{
-                fontSize: "xs",
-                maxWidth: "4rem",
-              }}
-              id="select-execution-label"
-              htmlFor="select-execution-button"
-            >
-              Previous Waggles
-            </FormLabel>
-            <Select
-              disabled={(executions?.length ?? 0) === 0}
-              defaultValue={selectedExecution?.id}
-              onChange={handleChange}
-              placeholder={<Typography>Select Waggle</Typography>}
-              slotProps={{
-                button: {
-                  id: "select-execution-button",
-                  "aria-labelledby":
-                    "select-execution-label select-execution-button",
-                },
-                listbox: {
-                  sx: {
-                    maxHeight: 240,
-                    minWidth: "100%",
-                    maxWidth: "100%",
-                    overflow: "auto",
-                  },
-                },
-              }}
-            >
-              {options}
-            </Select>
-          </Stack>
-        </FormControl>
-      )}
-    </>
+    <Box {...props}>
+      {showDisabled ||
+        ((executions?.length ?? 0) > 0 && (
+          <FormControl>
+            <ClickAwayListener onClickAway={handleClose}>
+              <Stack direction="row">
+                <FormLabel
+                  sx={{
+                    fontSize: "xs",
+                    maxWidth: "4rem",
+                  }}
+                  id="select-execution-label"
+                  htmlFor="select-execution-button"
+                >
+                  <Typography level="body-xs">Previous Waggles</Typography>
+                </FormLabel>
+
+                <Select
+                  disabled={(executions?.length ?? 0) === 0}
+                  defaultValue={selectedExecution?.id || null}
+                  onChange={handleChange}
+                  placeholder={<Typography>Select Waggle</Typography>}
+                  slotProps={{
+                    button: {
+                      id: "select-execution-button",
+                      "aria-labelledby":
+                        "select-execution-label select-execution-button",
+                    },
+                    listbox: {
+                      sx: {
+                        maxHeight: "50vdh",
+                        minWidth: "100%",
+                        maxWidth: "100%",
+                        overflow: "auto",
+                      },
+                    },
+                  }}
+                >
+                  {options}
+                </Select>
+              </Stack>
+            </ClickAwayListener>
+          </FormControl>
+        ))}
+    </Box>
   );
 };
