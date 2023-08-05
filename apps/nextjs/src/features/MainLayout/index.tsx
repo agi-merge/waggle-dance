@@ -4,6 +4,7 @@ import React, { useEffect, useMemo, useState } from "react";
 import Head from "next/head";
 import { useRouter } from "next/router";
 import {
+  Box,
   Card,
   GlobalStyles,
   LinearProgress,
@@ -46,8 +47,14 @@ const MainLayout = ({ children }: Props) => {
     return null;
   }
   return (
-    <div className={`bg-honeycomb ${mode === "dark" ? " dark" : "light"}`}>
-      <div className="h-screen overflow-y-auto px-2 pb-2">
+    <Box
+      className={`bg-honeycomb ${mode === "dark" ? " dark" : "light"}`}
+      sx={{
+        overflow: "clip",
+        height: "calc(100dvh - env(safe-area-inset-bottom))",
+      }}
+    >
+      <Box className="h-screen overflow-y-auto px-2 pb-2">
         <Head>
           <title>{app.name}</title>
           <meta name="description" content={app.description} />
@@ -57,14 +64,14 @@ const MainLayout = ({ children }: Props) => {
           />
           <meta
             name="viewport"
-            content="initial-scale=1, width=device-width, viewport-fit=cover"
+            content="initial-scale=1, viewport-fit=cover width=device-width height=device-height"
           />
           <meta name="mobile-web-app-capable" content="yes" />
           <meta name="apple-mobile-web-app-capable" content="yes" />
           <meta name="apple-mobile-web-app-title" content={app.name} />
           <meta
             name="apple-mobile-web-app-status-bar-style"
-            content={mode === "dark" ? "black" : "default"}
+            content={mode === "dark" ? "black-translucent" : "default"}
           />
           <link rel="icon" href="/favicon.ico" />
         </Head>
@@ -108,8 +115,8 @@ const MainLayout = ({ children }: Props) => {
           </Card>
           <Footer />
         </Sheet>
-      </div>
-    </div>
+      </Box>
+    </Box>
   );
 };
 
