@@ -206,33 +206,15 @@ const GoalTabs: React.FC<GoalTabsProps> = ({ children }) => {
           marginRight: -2,
         }}
       >
-        <Box
-          sx={{
-            "--_shadow-height": "16px",
-            height: 0,
-            position: "sticky",
-            top: "calc(48px - var(--main-paddingTop, 0px) + var(--Header-height, 0px) - (var(--_shadow-height) / 2))",
-            zIndex: 1,
-            "&::before": {
-              content: '""',
-              display: "block",
-              position: "relative",
-              zIndex: 1,
-              height: "var(--_shadow-height)",
-              background:
-                "radial-gradient(closest-side, rgba(0 0 0 / 0.12), transparent 100%)",
-            },
-          }}
-        />
         <TabList
           sticky="top"
           variant="outlined"
           tabFlex={"auto"}
-          sx={(theme) => ({
+          sx={{
             pointerEvents: isRunning ? "none" : "auto",
             opacity: isRunning ? 0.33 : 1,
             borderRadius: "0",
-            display: "flex flex-shrink",
+            display: isRunning ? "none" : "flex flex-shrink",
             flexWrap: "nowrap",
             top: "calc(-1 * (var(--main-paddingTop, 0px) - var(--Header-height, 0px)))",
             zIndex: 10,
@@ -240,21 +222,7 @@ const GoalTabs: React.FC<GoalTabsProps> = ({ children }) => {
             overflow: "auto hidden",
             alignSelf: "flex-start",
             scrollSnapType: "inline",
-            "&::after": {
-              pointerEvents: "none",
-              display: { xs: "block", sm: "none" },
-              content: '""',
-              position: "sticky",
-              top: 0,
-              width: 40,
-              flex: "none",
-              zIndex: 1,
-              right: 0,
-              borderBottom: "1px solid transparent",
-              background: `linear-gradient(to left, ${theme.vars.palette.background.body}, rgb(0 0 0 / 0))`,
-              backgroundClip: "content-box",
-            },
-          })}
+          }}
         >
           {goalList.map((tab, index) => (
             <GoalTab key={tab.id} tab={tab} index={index} />
