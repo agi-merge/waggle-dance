@@ -248,11 +248,12 @@ const AddDocuments = ({ onClose }: Props) => {
             IFTTT, Email, Discord, and more!
           </Typography>
         </Card>
-        <Stack direction="row-reverse" className="mt-2" gap="1rem">
+        <Stack direction="row-reverse" className="my-2" gap="1rem">
           <Button
             disabled={isAnyFileUploading}
             className="col-end mt-2"
             color="primary"
+            variant="soft"
             onClick={() => {
               if (onClose) onClose();
             }}

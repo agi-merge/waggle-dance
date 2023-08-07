@@ -180,68 +180,61 @@ const GoalTabs: React.FC<GoalTabsProps> = ({ children }) => {
 
   // Render the goal tabber
   return (
-    <Box
+    <Tabs
+      aria-label="Goal tabs"
+      value={currentTabIndex}
+      onChange={(event, newValue) => {
+        handleChange(event, newValue as number);
+      }}
+      variant="soft"
       sx={{
-        flex: 1,
-        width: "100%",
+        borderRadius: "lg",
+        marginTop: -2,
+        marginLeft: -2,
+        marginRight: -2,
       }}
     >
-      <Tabs
-        aria-label="Goal tabs"
-        value={currentTabIndex}
-        onChange={(event, newValue) => {
-          handleChange(event, newValue as number);
-        }}
-        variant="soft"
-        sx={{
-          borderRadius: "0",
-          marginTop: -2,
-          marginLeft: -2,
-          marginRight: -2,
-        }}
+      <TabList
+        sticky="top"
+        variant="outlined"
+        tabFlex={"auto"}
+        sx={(theme) => ({
+          "--main-paddingTop": `calc(${theme.spacing(
+            2,
+          )} + var(--Header-height, 0px))`,
+          pointerEvents: isRunning ? "none" : "auto",
+          borderRadius: "lg",
+          display: "flex flex-shrink",
+          flexWrap: "nowrap",
+          top: "0",
+          zIndex: 10,
+          width: "100%",
+          overflow: "auto hidden",
+          alignSelf: "flex-start",
+          scrollSnapType: "inline",
+          // backgroundColor: theme.palette.background.level1,
+        })}
       >
-        <TabList
-          sticky="top"
-          variant="outlined"
-          tabFlex={"auto"}
-          sx={(theme) => ({
-            "--main-paddingTop": `calc(${theme.spacing(
-              2,
-            )} + var(--Header-height, 0px))`,
-            pointerEvents: isRunning ? "none" : "auto",
-            borderRadius: "0",
-            display: "flex flex-shrink",
-            flexWrap: "nowrap",
-            top: "0",
-            zIndex: 10,
-            width: "100%",
-            overflow: "auto hidden",
-            alignSelf: "flex-start",
-            scrollSnapType: "inline",
-            backgroundColor: theme.palette.background.level1,
-          })}
+        {goalList.map((tab, index) => (
+          <GoalTab key={tab.id} tab={tab} index={index} />
+        ))}
+        <IconButton
+          className="flex-end float-start"
+          color="neutral"
+          size="md"
+          variant="plain"
+          onClick={() => {
+            const newId = newGoal();
+            void router.replace(routes.goal(newId), undefined, {
+              shallow: true,
+            });
+          }}
         >
-          {goalList.map((tab, index) => (
-            <GoalTab key={tab.id} tab={tab} index={index} />
-          ))}
-          <IconButton
-            className="flex-end float-start"
-            color="neutral"
-            size="md"
-            variant="plain"
-            onClick={() => {
-              const newId = newGoal();
-              void router.replace(routes.goal(newId), undefined, {
-                shallow: true,
-              });
-            }}
-          >
-            <Add />
-          </IconButton>
-        </TabList>
-        <Box className="mx-6 mt-1">{children}</Box>
-      </Tabs>
-    </Box>
+          <Add />
+        </IconButton>
+      </TabList>
+      <Box className="mx-6 mt-1">{children}</Box>
+    </Tabs>
   );
 };
 

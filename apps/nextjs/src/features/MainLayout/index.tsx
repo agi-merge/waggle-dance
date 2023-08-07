@@ -89,7 +89,6 @@ const MainLayout = ({ children }: Props) => {
             borderRadius: "lg",
             shadowRadius: "xl",
           }}
-          invertedColors
           variant="soft"
         >
           <Header />
@@ -99,7 +98,8 @@ const MainLayout = ({ children }: Props) => {
             variant="outlined"
             className="-m-2 p-0"
             sx={{
-              borderRadius: "0",
+              borderRadius: "lg",
+              paddingBottom: 0,
               opacity: pageOpacity,
             }}
           >

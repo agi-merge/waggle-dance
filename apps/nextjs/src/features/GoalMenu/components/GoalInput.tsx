@@ -211,11 +211,12 @@ export default function GoalInput({}: GoalInputProps) {
         />
       </FormControl>
 
-      <Stack direction="row-reverse" gap="1rem">
+      <Stack direction="row-reverse" gap="1rem" className="pb-4">
         <Button
           loading={isPageLoading}
           className="col-end mt-2"
           type="submit"
+          variant="soft"
           disabled={getGoalInputValue().trim().length === 0}
         >
           Next

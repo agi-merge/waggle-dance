@@ -1,3 +1,5 @@
+import React, { useCallback, useEffect, useMemo, useRef } from "react";
+import router from "next/router";
 import {
   BugReport,
   Edit,
@@ -29,23 +31,21 @@ import {
   Typography,
   type StackProps,
 } from "@mui/joy";
-import router from "next/router";
-import React, { useCallback, useEffect, useMemo, useRef } from "react";
 import ReactMarkdown from "react-markdown";
 import remarkGfm from "remark-gfm";
 import { stringify } from "yaml";
 
 import { type Execution } from "@acme/db";
 
+import { api } from "~/utils/api";
 import GoalSettings from "~/features/GoalMenu/components/GoalSettings";
 import { type GoalPlusExe } from "~/stores/goalStore";
 import useWaggleDanceMachineState from "~/stores/waggleDanceStore";
-import { api } from "~/utils/api";
-import { rootPlanId } from "../WaggleDanceMachine";
 import useWaggleDanceMachine, {
   TaskStatus,
   type TaskState,
 } from "../hooks/useWaggleDanceMachine";
+import { rootPlanId } from "../WaggleDanceMachine";
 import { ExecutionSelect } from "./ExecutionSelect";
 import ForceGraph from "./ForceGraph";
 
@@ -163,56 +163,53 @@ const WaggleDanceGraph = ({
     return json && json.length < max ? json : `${json.slice(0, max)}…`;
   };
   const button = (
-    <Card variant="outlined" size="sm" sx={{ p: 0, m: 0 }} color="primary">
-      <Stack
-        direction={{ xs: "column", sm: "row" }}
-        gap="0.5rem"
-        className="max-w-screen flex items-center justify-end"
-        component={Card}
-        variant="soft"
-        invertedColors={true}
-        color="primary"
-        sx={{ padding: 0 }}
+    <Stack
+      direction={{ xs: "column", sm: "row" }}
+      gap="0.5rem"
+      className="max-w-screen flex items-center justify-end"
+      component={Card}
+      variant="outlined"
+      color="primary"
+      sx={{ borderRadius: "lg" }}
+    >
+      <ExecutionSelect
+        goalId={selectedGoal.id}
+        executions={executions}
+        sx={{
+          width: { xs: "18rem", sm: "20rem", md: "24rem", lg: "28rem" },
+        }}
+      />
+      <Box
+        component={Stack}
+        direction="row"
+        sx={{ alignItems: "center", pl: 1.5 }}
+        gap={1}
       >
-        <ExecutionSelect
-          goalId={selectedGoal.id}
-          executions={executions}
-          sx={{
-            width: { xs: "18rem", sm: "20rem", md: "24rem", lg: "28rem" },
-          }}
-        />
-        <Box
-          component={Stack}
-          direction="row"
-          sx={{ alignItems: "center", pl: 1.5 }}
-          gap={1}
-        >
-          <Box className="items-center justify-center align-top">
-            <GoalSettings />
-          </Box>
-          <Button
-            size="lg"
-            className="col-end"
-            color="primary"
-            variant="soft"
-            onClick={isRunning ? handleStop : handleStart}
-            endDecorator={isRunning ? <Pause /> : <PlayArrow />}
-          >
-            <Stack
-              direction={{ xs: "row", sm: "column" }}
-              gap="0.5rem"
-              className="items-center"
-            >
-              {isRunning ? (
-                <>Pause</>
-              ) : (
-                <>{dag.nodes.length > 0 ? "Resume" : "Start"}</>
-              )}
-            </Stack>
-          </Button>
+        <Box className="items-center justify-center align-top">
+          <GoalSettings />
         </Box>
-      </Stack>
-    </Card>
+        <Button
+          size="lg"
+          className="col-end"
+          color="primary"
+          variant="soft"
+          onClick={isRunning ? handleStop : handleStart}
+          endDecorator={isRunning ? <Pause /> : <PlayArrow />}
+        >
+          <Stack
+            direction={{ xs: "row", sm: "column" }}
+            gap="0.5rem"
+            className="items-center"
+          >
+            {isRunning ? (
+              <>Pause</>
+            ) : (
+              <>{dag.nodes.length > 0 ? "Resume" : "Start"}</>
+            )}
+          </Stack>
+        </Button>
+      </Box>
+    </Stack>
   );
 
   const statusColor = (n: TaskState) => {
