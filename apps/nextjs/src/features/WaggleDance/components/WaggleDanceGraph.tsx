@@ -1,10 +1,4 @@
-import React, {
-  useCallback,
-  useEffect,
-  useMemo,
-  useRef,
-  useState,
-} from "react";
+import React, { useCallback, useEffect, useMemo, useRef } from "react";
 import router from "next/router";
 import {
   BugReport,
@@ -65,12 +59,14 @@ const WaggleDanceGraph = ({
   selectedGoal,
   executions,
 }: WaggleDanceGraphProps) => {
-  const { isRunning, setIsRunning, isAutoStartEnabled, setIsAutoStartEnabled } =
-    useWaggleDanceMachineState();
-
-  const [execution, setExecution] = useState<Execution | undefined>(
-    executions && executions[0],
-  );
+  const {
+    isRunning,
+    setIsRunning,
+    isAutoStartEnabled,
+    setIsAutoStartEnabled,
+    execution,
+    setExecution,
+  } = useWaggleDanceMachineState();
 
   const {
     graphData,
@@ -132,7 +128,7 @@ const WaggleDanceGraph = ({
       }
     },
     onError: (e) => {
-      setExecution(undefined);
+      setExecution(null);
       console.error("Failed to post!", e.message);
     },
   });

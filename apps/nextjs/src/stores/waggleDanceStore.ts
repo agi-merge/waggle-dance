@@ -3,6 +3,8 @@
 import { create } from "zustand";
 import { createJSONStorage, persist } from "zustand/middleware";
 
+import { type Execution } from "@acme/db";
+
 import { app } from "~/constants";
 import {
   AgentPromptingMethod,
@@ -33,6 +35,8 @@ export interface WaggleDanceMachineStore {
     type: "plan" | "review" | "execute",
     newValue: Partial<AgentSettings>,
   ) => void;
+  execution: Execution | null;
+  setExecution: (newExecution: Execution | null) => void;
 }
 
 const useWaggleDanceMachineStore = create(
@@ -70,6 +74,8 @@ const useWaggleDanceMachineStore = create(
             [type]: { ...state.agentSettings[type], ...newValue },
           },
         })),
+      execution: null,
+      setExecution: (newExecution) => set({ execution: newExecution }),
     }),
     {
       name: app.localStorageKeys.waggleDance,
