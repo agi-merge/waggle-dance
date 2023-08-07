@@ -1,9 +1,9 @@
 // api/agent/execute/run.ts
 
+import { type NextApiRequest, type NextApiResponse } from "next";
 import { BaseCallbackHandler } from "langchain/callbacks";
 import { type Serialized } from "langchain/load/serializable";
 import { type AgentAction, type AgentFinish } from "langchain/schema";
-import { type NextApiRequest, type NextApiResponse } from "next";
 import { stringify } from "yaml";
 
 import { appRouter } from "@acme/api";
@@ -37,6 +37,7 @@ const handler = async (req: NextApiRequest, res: NextApiResponse) => {
       creationProps,
       goal,
       goalId,
+      executionId,
       task,
       agentPromptingMethod,
       dag,
@@ -206,18 +207,26 @@ const handler = async (req: NextApiRequest, res: NextApiResponse) => {
           Object.getOwnPropertyNames(exeResult),
         ),
       };
-      void createResult(goalId, String(exeResult), dag, "ERROR", session);
+      void createResult({
+        goalId,
+        executionId,
+        exeResult: String(exeResult),
+        dag,
+        state: "ERROR",
+        session,
+      });
       res.end(stringify([errorPacket]));
     } else {
       const lastNode = dag.nodes[dag.nodes.length - 1];
       const isLastNode = lastNode?.id == finalId;
-      void createResult(
+      void createResult({
         goalId,
+        executionId,
         exeResult,
         dag,
-        isLastNode ? "DONE" : "EXECUTING",
+        state: isLastNode ? "DONE" : "EXECUTING",
         session,
-      );
+      });
       const donePacket: ChainPacket = { type: "done", value: exeResult };
       res.end(stringify([donePacket]));
     }
@@ -254,22 +263,31 @@ const handler = async (req: NextApiRequest, res: NextApiResponse) => {
   }
 };
 
-async function createResult(
-  goalId: string,
-  exeResult: string,
-  dag: DAG,
-  state: ExecutionState | undefined,
-  session?: Session | null,
-) {
+type CreateResultParams = {
+  goalId: string;
+  executionId: string;
+  exeResult: string;
+  dag: DAG;
+  state: ExecutionState | undefined;
+  session?: Session | null;
+};
+async function createResult({
+  goalId,
+  executionId,
+  exeResult,
+  dag,
+  state,
+  session,
+}: CreateResultParams) {
   if (session?.user.id) {
     const caller = appRouter.createCaller({ session, prisma });
     const createResultOptions = {
       goalId,
+      executionId,
       value: exeResult,
       graph: dag,
       state,
     };
-    2;
     const createResult = await caller.result.create(createResultOptions);
     console.log("createResult", createResult);
   } else {

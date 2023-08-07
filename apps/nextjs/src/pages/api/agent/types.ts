@@ -35,6 +35,7 @@ export interface BaseRequestBody {
 
 export type PlanRequestBody = BaseRequestBody;
 export interface ExecuteRequestBody extends BaseRequestBody {
+  executionId: string;
   task: DAGNode;
   completedTasks: Set<string>;
   taskResults: Record<string, BaseResultType>;

@@ -42,7 +42,7 @@ export type TaskState = DAGNode & {
 
 const useWaggleDanceMachine = ({ goal }: UseWaggleDanceMachineProps) => {
   const [waggleDanceMachine] = useState(new WaggleDanceMachine());
-  const { isRunning, setIsRunning, agentSettings } =
+  const { isRunning, setIsRunning, agentSettings, execution } =
     useWaggleDanceMachineStore();
   const graph = goal?.executions.find((e) => {
     const dag = e.graph as DAG | null;
@@ -232,24 +232,34 @@ const useWaggleDanceMachine = ({ goal }: UseWaggleDanceMachineProps) => {
     }
 
     const prompt = goal?.prompt;
+    if (!prompt) {
+      throw new Error("Prompt not set");
+    }
+
     const goalId = goal?.id;
     if (!prompt || !goalId) {
       throw new Error("Goal not set");
     }
 
+    const executionId = execution?.id;
+    if (!executionId) {
+      throw new Error("Execution not set");
+    }
+
     let result: WaggleDanceResult | Error;
     try {
-      result = await waggleDanceMachine.run(
-        prompt,
+      result = await waggleDanceMachine.run({
+        goal: prompt,
         goalId,
+        executionId,
         agentSettings,
-        [dag, setDAG],
-        [isDonePlanning, setIsDonePlanning],
+        graphDataState: [dag, setDAG],
+        isDonePlanningState: [isDonePlanning, setIsDonePlanning],
         sendChainPacket,
         log,
         isRunning,
-        ac,
-      );
+        abortController: ac,
+      });
     } catch (error) {
       if (error instanceof Error) {
         result = error;
@@ -275,9 +285,11 @@ const useWaggleDanceMachine = ({ goal }: UseWaggleDanceMachineProps) => {
       return result;
     }
   }, [
+    abortController,
     isDonePlanning,
     goal?.prompt,
     goal?.id,
+    execution?.id,
     setIsRunning,
     waggleDanceMachine,
     agentSettings,
@@ -285,7 +297,6 @@ const useWaggleDanceMachine = ({ goal }: UseWaggleDanceMachineProps) => {
     sendChainPacket,
     log,
     isRunning,
-    abortController,
   ]);
 
   return {

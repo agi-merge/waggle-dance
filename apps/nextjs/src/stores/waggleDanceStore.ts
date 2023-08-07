@@ -1,10 +1,12 @@
 // stores/waggleDanceStore.ts
 
+import { type NextRouter } from "next/router";
 import { create } from "zustand";
 import { createJSONStorage, persist } from "zustand/middleware";
 
 import { type Execution } from "@acme/db";
 
+import routes from "~/utils/routes";
 import { app } from "~/constants";
 import {
   AgentPromptingMethod,
@@ -36,7 +38,11 @@ export interface WaggleDanceMachineStore {
     newValue: Partial<AgentSettings>,
   ) => void;
   execution: Execution | null;
-  setExecution: (newExecution: Execution | null) => void;
+  setExecution: (
+    newExecution: Execution | null,
+    goalId: string,
+    router: NextRouter,
+  ) => Promise<void>;
 }
 
 const useWaggleDanceMachineStore = create(
@@ -75,7 +81,12 @@ const useWaggleDanceMachineStore = create(
           },
         })),
       execution: null,
-      setExecution: (newExecution) => set({ execution: newExecution }),
+      setExecution: async (newExecution, goal, router) => {
+        set({ execution: newExecution });
+        await router.replace(routes.goal(goal, newExecution?.id), undefined, {
+          shallow: true,
+        });
+      },
     }),
     {
       name: app.localStorageKeys.waggleDance,

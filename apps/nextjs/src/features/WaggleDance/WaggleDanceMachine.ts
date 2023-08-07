@@ -63,22 +63,36 @@ export type OptimisticFirstTaskState = {
   taskId?: string;
 };
 
+export type RunParams = {
+  goal: string;
+  goalId: string;
+  executionId: string;
+  agentSettings: Record<"plan" | "review" | "execute", AgentSettings>;
+  graphDataState: GraphDataState;
+  isDonePlanningState: IsDonePlanningState;
+  sendChainPacket: (
+    chainPacket: ChainPacket,
+    node: DAGNode | DAGNodeClass,
+  ) => void;
+  log: (...args: (string | number | object)[]) => void;
+  isRunning: boolean;
+  abortController: AbortController;
+};
+
 // The main class for the WaggleDanceMachine that coordinates the planning and execution of tasks
 export default class WaggleDanceMachine {
-  async run(
-    goal: string,
-    goalId: string,
-    agentSettings: Record<"plan" | "review" | "execute", AgentSettings>,
-    [initDAG, setDAG]: GraphDataState,
-    [isDonePlanning, setIsDonePlanning]: IsDonePlanningState,
-    sendChainPacket: (
-      chainPacket: ChainPacket,
-      node: DAGNode | DAGNodeClass,
-    ) => void,
-    log: (...args: (string | number | object)[]) => void,
-    isRunning: boolean,
-    abortController: AbortController,
-  ): Promise<WaggleDanceResult | Error> {
+  async run({
+    goal,
+    goalId,
+    executionId,
+    agentSettings,
+    graphDataState: [initDAG, setDAG],
+    isDonePlanningState: [isDonePlanning, setIsDonePlanning],
+    sendChainPacket,
+    log,
+    isRunning,
+    abortController,
+  }: RunParams): Promise<WaggleDanceResult | Error> {
     const optimisticFirstTaskState = {
       firstTaskState: "not started" as
         | "not started"
@@ -110,6 +124,7 @@ export default class WaggleDanceMachine {
           const executeRequest = {
             goal,
             goalId,
+            executionId,
             agentPromptingMethod:
               agentSettings["execute"].agentPromptingMethod!,
             task,
@@ -290,6 +305,7 @@ export default class WaggleDanceMachine {
       const executeRequest = {
         goal,
         goalId,
+        executionId,
         agentPromptingMethod: agentSettings["execute"].agentPromptingMethod!,
         task,
         dag,

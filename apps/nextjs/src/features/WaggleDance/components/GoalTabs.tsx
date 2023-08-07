@@ -1,7 +1,7 @@
 // features/WaggleDance/components/GoalTabs.tsx
 
-import { useCallback, useEffect } from "react";
-import NextLink from "next/link";
+import { useCallback } from "react";
+import { default as Link, default as NextLink } from "next/link";
 import router, { useRouter } from "next/router";
 import { Add, Close, Cloud } from "@mui/icons-material";
 import {
@@ -23,11 +23,14 @@ import { type Goal } from "@acme/db";
 
 import { api } from "~/utils/api";
 import routes from "~/utils/routes";
-import useGoalStore, { draftGoalPrefix } from "~/stores/goalStore";
+import useGoalStore, {
+  draftGoalPrefix,
+  type GoalPlusExe,
+} from "~/stores/goalStore";
 import useWaggleDanceMachineStore from "~/stores/waggleDanceStore";
 
 interface GoalTabProps extends BoxProps {
-  tab: Goal;
+  tab: GoalPlusExe;
   index: number;
 }
 
@@ -76,12 +79,14 @@ const GoalTab: React.FC<GoalTabProps> = ({ tab, index, key }) => {
   // Render a single goal tab
   return (
     <Box
+      component={Link}
       key={key}
       sx={{
         flex: "1 1 auto",
         maxWidth: `${100 / goalList.length}%`,
         minWidth: 0,
       }}
+      href={routes.goal(tab.id, tab.executions[0]?.id)}
     >
       <Tab
         value={index}
@@ -160,11 +165,6 @@ const GoalTabs: React.FC<GoalTabsProps> = ({ children }) => {
   const { goalList, newGoal, currentTabIndex, selectTab } = useGoalStore();
   const { isRunning } = useWaggleDanceMachineStore();
 
-  useEffect(() => {
-    const ids = goalList.map((g) => g.id);
-    ids.forEach((id) => void router.prefetch(routes.goal(id)));
-  }, [goalList, router]);
-
   // Handle tab change
   const handleChange = useCallback(
     (event: React.SyntheticEvent | null, newValue: number) => {
@@ -174,14 +174,8 @@ const GoalTabs: React.FC<GoalTabsProps> = ({ children }) => {
         return;
       }
       selectTab(newValue);
-      // Update tab state
-      const currentGoal = goalList[newValue];
-      currentGoal &&
-        void router.replace(routes.goal(currentGoal.id), undefined, {
-          shallow: true,
-        });
     },
-    [goalList, router, selectTab],
+    [goalList, selectTab],
   );
 
   // Render the goal tabber

@@ -1,7 +1,9 @@
 const routes = {
   home: "/",
-  goal: (id: string, execution?: string): string => {
-    const path = `/goal/${id}/${execution ? `execution/${execution}` : ""}`;
+  goal: (id: string, execution?: string | undefined): string => {
+    const path = `/goal/${encodeURIComponent(id)}/${
+      execution ? `execution/${encodeURIComponent(execution)}` : ""
+    }`;
     console.debug("generating path", path);
     return path;
   },

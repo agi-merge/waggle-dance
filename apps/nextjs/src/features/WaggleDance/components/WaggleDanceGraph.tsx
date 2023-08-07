@@ -1,5 +1,3 @@
-import React, { useCallback, useEffect, useMemo, useRef } from "react";
-import router from "next/router";
 import {
   BugReport,
   Edit,
@@ -31,22 +29,23 @@ import {
   Typography,
   type StackProps,
 } from "@mui/joy";
+import router from "next/router";
+import React, { useCallback, useEffect, useMemo, useRef } from "react";
 import ReactMarkdown from "react-markdown";
 import remarkGfm from "remark-gfm";
 import { stringify } from "yaml";
 
 import { type Execution } from "@acme/db";
 
-import { api } from "~/utils/api";
-import routes from "~/utils/routes";
 import GoalSettings from "~/features/GoalMenu/components/GoalSettings";
 import { type GoalPlusExe } from "~/stores/goalStore";
 import useWaggleDanceMachineState from "~/stores/waggleDanceStore";
+import { api } from "~/utils/api";
+import { rootPlanId } from "../WaggleDanceMachine";
 import useWaggleDanceMachine, {
   TaskStatus,
   type TaskState,
 } from "../hooks/useWaggleDanceMachine";
-import { rootPlanId } from "../WaggleDanceMachine";
 import { ExecutionSelect } from "./ExecutionSelect";
 import ForceGraph from "./ForceGraph";
 
@@ -108,15 +107,10 @@ const WaggleDanceGraph = ({
   const { mutate: createExecution } = api.execution.create.useMutation({
     onSuccess: (data) => {
       console.log("create execution: ", data);
-      setExecution(data);
       if (selectedGoal) {
         void (async () => {
           console.log("replace route");
-          await router.replace(
-            routes.goal(selectedGoal.id, execution?.id),
-            undefined,
-            { shallow: true },
-          );
+          await setExecution(data, selectedGoal.id, router);
           await startWaggleDance();
         })();
       }
@@ -128,7 +122,7 @@ const WaggleDanceGraph = ({
       }
     },
     onError: (e) => {
-      setExecution(null);
+      void setExecution(null, selectedGoal.id, router);
       console.error("Failed to post!", e.message);
     },
   });
@@ -181,6 +175,7 @@ const WaggleDanceGraph = ({
         sx={{ padding: 0 }}
       >
         <ExecutionSelect
+          goalId={selectedGoal.id}
           executions={executions}
           sx={{
             width: { xs: "18rem", sm: "20rem", md: "24rem", lg: "28rem" },

@@ -18,7 +18,7 @@ export const goalRouter = createTRPCRouter({
     .input(z.object({ id: z.string() }))
     .query(({ ctx, input }) => {
       const userId = ctx.session?.user.id;
-      return ctx.prisma.goal.findFirst({
+      return ctx.prisma.goal.findUnique({
         where: { id: input.id, userId },
         include: {
           executions: {
@@ -30,7 +30,6 @@ export const goalRouter = createTRPCRouter({
             orderBy: { updatedAt: "desc" },
           },
         },
-        take: 10,
       });
     }),
 

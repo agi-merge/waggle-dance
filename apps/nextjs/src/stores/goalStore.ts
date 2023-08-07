@@ -65,8 +65,9 @@ const getCurrentGoal = (
 };
 
 const getNewSelection = (get: () => GoalStore, newTabIndex: number) => {
-  const goalList = get().goalList;
-  const prevSelectedGoal = goalList[get().currentTabIndex];
+  const store = get();
+  const goalList = store.goalList;
+  const prevSelectedGoal = goalList[store.currentTabIndex];
 
   return {
     prevSelectedGoal,
@@ -107,7 +108,7 @@ const useGoalStore = (name?: string) =>
           return newGoal.id;
         },
         deleteGoal(tab: Goal) {
-          const goalList = Array.from(get().goalList);
+          const goalList = get().goalList;
           const tabIndex = goalList.findIndex((g) => g.id === tab.id);
           goalList.splice(tabIndex, 1);
           const newSelection = getNewSelection(get, tabIndex);
@@ -146,10 +147,8 @@ const useGoalStore = (name?: string) =>
           };
         },
         selectTab: (index: number) => {
-          const goalList = get().goalList;
           const tabIndex = getNewSelection(get, index);
           set({
-            goalList,
             ...tabIndex,
           });
         },
@@ -174,7 +173,8 @@ const useGoalStore = (name?: string) =>
         replaceGoals(historicGoals) {
           const now = new Date();
 
-          const drafts = get().goalList.filter((goal) =>
+          const goalList = get().goalList;
+          const drafts = goalList.filter((goal) =>
             goal.id.startsWith(draftGoalPrefix),
           );
 
@@ -190,11 +190,18 @@ const useGoalStore = (name?: string) =>
                 userId: goal.userId,
               }))
               .concat(drafts);
-            const tabIndex = getNewSelection(get, 0);
-            set({
-              goalList,
-              ...tabIndex,
-            });
+            const { prevSelectedGoal } = getNewSelection(get, 0);
+
+            const prevGoalIfStillHere = goalList.findIndex(
+              (g) => g.id == prevSelectedGoal?.id,
+            );
+
+            if (goalList)
+              set({
+                goalList,
+                currentTabIndex:
+                  prevGoalIfStillHere > -1 ? prevGoalIfStillHere : 0,
+              });
           }
         },
         currentTabIndex: 0,

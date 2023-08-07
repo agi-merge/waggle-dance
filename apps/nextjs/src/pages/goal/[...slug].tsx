@@ -14,7 +14,7 @@ import { HomeContent } from "..";
 
 export default function GoalTab() {
   const router = useRouter();
-  const { isRunning } = useWaggleDanceMachineStore();
+  const { isRunning, execution } = useWaggleDanceMachineStore();
   const { replaceGoals, getSelectedGoal, newGoal } = useGoalStore();
 
   const [savedGoals, _suspense] = api.goal.topByUser.useSuspenseQuery(
@@ -27,22 +27,30 @@ export default function GoalTab() {
     },
   );
 
-  const cleanedSlug = useMemo(() => {
+  const route = useMemo(() => {
     const { slug } = router.query;
-    console.log("cleanedSlug", slug);
-    if (typeof slug === "string") {
-      return slug;
-    } else if (Array.isArray(slug)) {
-      return slug[0];
-    } else {
-      return slug;
+    // the query will either be a goal id, or an array with goal id, followed by an optional execution, followed by optional execution id
+    // we want to return the goal id and the execution id
+    // if the slug is an array, then we want the first element and element after execution
+    if (Array.isArray(slug)) {
+      const goalId = slug[0];
+      if (slug.length === 1) {
+        return { goalId, executionId: undefined };
+      }
+
+      if (slug.length === 3 && slug[1] === "execution") {
+        return { goalId, executionId: slug[2] };
+      }
+    } else if (typeof slug === "string") {
+      return { goalId: slug, executionId: undefined };
     }
-  }, [router.query]) as string;
+  }, [router.query]);
 
   const selectedGoal = useMemo(
-    () => getSelectedGoal(cleanedSlug),
-    [getSelectedGoal, cleanedSlug],
+    () => getSelectedGoal(route?.goalId),
+    [getSelectedGoal, route?.goalId],
   );
+
   useEffect(
     () => {
       replaceGoals(savedGoals);
@@ -51,15 +59,17 @@ export default function GoalTab() {
     [savedGoals],
   );
 
+  // either input or graph
   const state = useMemo(() => {
-    if (cleanedSlug === "" || cleanedSlug === "/") {
+    if (route?.goalId === "" || route?.goalId === "/") {
       return "input";
     }
     return (selectedGoal?.executions?.length ?? 0 > 0) ||
       (selectedGoal?.userId.trim().length ?? 0 !== 0)
       ? "graph"
       : "input";
-  }, [cleanedSlug, selectedGoal?.executions?.length, selectedGoal?.userId]);
+  }, [route, selectedGoal?.executions?.length, selectedGoal?.userId]);
+
   useEffect(
     () => {
       if (!router.isReady) {
@@ -76,7 +86,7 @@ export default function GoalTab() {
           return;
         }
         // if the slug is not the same as the selected goal, then we need to update the selected goal
-        if (!selectedGoal?.id && cleanedSlug !== selectedGoal?.id) {
+        if (!selectedGoal?.id && route?.goalId !== selectedGoal?.id) {
           const anySelectedGoal = getSelectedGoal()?.id;
           // if there is a selected goal, then we should redirect to that goal
           if (anySelectedGoal) {
@@ -106,7 +116,7 @@ export default function GoalTab() {
       }
     },
     // eslint-disable-next-line react-hooks/exhaustive-deps
-    [savedGoals, selectedGoal?.id],
+    [selectedGoal?.id, execution?.id],
   );
 
   // q: is this smart? a: yes, it's smart because it's a memoized value and will only change when the selected goal changes
@@ -130,7 +140,7 @@ export default function GoalTab() {
 
             <Suspense fallback={<CircularProgress></CircularProgress>}>
               <WaggleDanceGraph
-                key={cleanedSlug}
+                key={`${route?.goalId}-${route?.executionId}`}
                 selectedGoal={selectedGoal}
                 executions={executions}
               />

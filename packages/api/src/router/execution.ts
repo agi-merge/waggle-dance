@@ -12,14 +12,26 @@ export const executionRouter = createTRPCRouter({
 
       const uniqueToken = uuidv4();
 
-      // Upsert execution
-      return ctx.prisma.execution.upsert({
-        where: { goalId_userId_uniqueToken: { goalId, userId, uniqueToken } },
-        update: {},
-        create: {
+      // create execution
+      return ctx.prisma.execution.create({
+        data: {
           goalId,
           userId,
           uniqueToken,
+        },
+      });
+    }),
+
+  byId: protectedProcedure
+    .input(z.object({ id: z.string().nonempty() }))
+    .query(({ ctx, input }) => {
+      const { id } = input;
+      const userId = ctx.session.user.id;
+
+      return ctx.prisma.execution.findUnique({
+        where: {
+          id,
+          userId,
         },
       });
     }),

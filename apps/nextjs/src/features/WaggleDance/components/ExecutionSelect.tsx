@@ -1,5 +1,6 @@
 import * as React from "react";
-import { useCallback, useMemo, useState } from "react";
+import { useCallback, useMemo } from "react";
+import { useRouter } from "next/router";
 import { ClickAwayListener } from "@mui/base";
 import { FormControl, FormLabel, Stack, Tooltip } from "@mui/joy";
 import Box, { type BoxProps } from "@mui/joy/Box";
@@ -10,23 +11,25 @@ import Typography from "@mui/joy/Typography";
 
 import { type Execution } from "@acme/db";
 
+import useWaggleDanceMachineStore from "~/stores/waggleDanceStore";
 import type DAG from "../DAG";
 import timeAgo from "../utils/timeAgo";
 import { rootPlanId } from "../WaggleDanceMachine";
 
 type ExecutionSelectProps = BoxProps & {
+  goalId: string;
   executions: Execution[] | undefined;
   showDisabled?: boolean | undefined;
 };
 
 export const ExecutionSelect = ({
+  goalId,
   executions,
   showDisabled,
   ...props
 }: ExecutionSelectProps) => {
-  const [selectedExecution, setSelectedExecution] = useState<
-    Execution | null | undefined
-  >((executions && executions[0]) || null);
+  const router = useRouter();
+  const { execution, setExecution } = useWaggleDanceMachineStore();
   const [_isOpen, setIsOpen] = React.useState(false);
   const [_anchorEl, setAnchorEl] = React.useState<null | HTMLElement>(null);
   const names = useMemo(() => {
@@ -53,11 +56,12 @@ export const ExecutionSelect = ({
     setIsOpen(false);
   };
 
-  const handleChange = (event: React.SyntheticEvent | null) => {
-    const target = event?.target as HTMLInputElement;
-    executions &&
-      target &&
-      setSelectedExecution(executions[target.valueAsNumber]);
+  const handleChange = (
+    _event: React.SyntheticEvent | null,
+    newValue: string | null,
+  ) => {
+    const found = executions?.find((e) => e.id === newValue);
+    executions && void setExecution(found || null, goalId, router);
   };
 
   const label = useCallback(
@@ -148,7 +152,7 @@ export const ExecutionSelect = ({
 
                 <Select
                   disabled={(executions?.length ?? 0) === 0}
-                  defaultValue={selectedExecution?.id || null}
+                  defaultValue={execution?.id || null}
                   onChange={handleChange}
                   placeholder={<Typography>Select Waggle</Typography>}
                   slotProps={{
