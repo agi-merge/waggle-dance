@@ -160,7 +160,6 @@ export const ExecutionSelect = ({
                     listbox: {
                       sx: {
                         maxHeight: "50vdh",
-                        minWidth: "100%",
                         maxWidth: "100%",
                         overflow: "auto",
                       },
