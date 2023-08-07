@@ -22,7 +22,7 @@ import { useSession } from "next-auth/react";
 import { type Goal } from "@acme/db";
 
 import { api } from "~/utils/api";
-import { app } from "~/constants";
+import routes from "~/utils/routes";
 import useGoalStore, { draftGoalPrefix } from "~/stores/goalStore";
 import useWaggleDanceMachineStore from "~/stores/waggleDanceStore";
 
@@ -60,13 +60,13 @@ const GoalTab: React.FC<GoalTabProps> = ({ tab, index, key }) => {
         const { prevId, goalList } = result;
         // TODO: should we use prevId before goalList[0]?
         if (goalList && goalList[0]) {
-          void router.push(app.routes.goal(goalList[0].id));
+          void router.push(routes.goal(goalList[0].id));
         } else {
           prevId
-            ? void router.replace(app.routes.goal(prevId), undefined, {
+            ? void router.replace(routes.goal(prevId), undefined, {
                 shallow: true,
               })
-            : void router.push(app.routes.home);
+            : void router.push(routes.home);
         }
       }
     },
@@ -162,7 +162,7 @@ const GoalTabs: React.FC<GoalTabsProps> = ({ children }) => {
 
   useEffect(() => {
     const ids = goalList.map((g) => g.id);
-    ids.forEach((id) => void router.prefetch(app.routes.goal(id)));
+    ids.forEach((id) => void router.prefetch(routes.goal(id)));
   }, [goalList, router]);
 
   // Handle tab change
@@ -177,7 +177,7 @@ const GoalTabs: React.FC<GoalTabsProps> = ({ children }) => {
       // Update tab state
       const currentGoal = goalList[newValue];
       currentGoal &&
-        void router.replace(app.routes.goal(currentGoal.id), undefined, {
+        void router.replace(routes.goal(currentGoal.id), undefined, {
           shallow: true,
         });
     },
@@ -237,7 +237,7 @@ const GoalTabs: React.FC<GoalTabsProps> = ({ children }) => {
             variant="plain"
             onClick={() => {
               const newId = newGoal();
-              void router.replace(app.routes.goal(newId), undefined, {
+              void router.replace(routes.goal(newId), undefined, {
                 shallow: true,
               });
             }}

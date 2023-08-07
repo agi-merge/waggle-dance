@@ -4,7 +4,7 @@ import { useRouter } from "next/router";
 import { Card, CircularProgress } from "@mui/joy";
 
 import { api } from "~/utils/api";
-import { app } from "~/constants";
+import routes from "~/utils/routes";
 import MainLayout from "~/features/MainLayout";
 import Title from "~/features/MainLayout/components/PageTitle";
 import WaggleDanceGraph from "~/features/WaggleDance/components/WaggleDanceGraph";
@@ -68,7 +68,7 @@ export default function GoalTab() {
         console.log("this useEffect routing");
         debugger;
         if (selectedGoal && selectedGoal.executions.length > 0) {
-          const route = app.routes.goal(selectedGoal.id); // avoid an error when replacing route to same route
+          const route = routes.goal(selectedGoal.id); // avoid an error when replacing route to same route
           if (router.route !== route) {
             // Only replace route if it's different from the current route
             void router.replace(route);
@@ -80,25 +80,25 @@ export default function GoalTab() {
           const anySelectedGoal = getSelectedGoal()?.id;
           // if there is a selected goal, then we should redirect to that goal
           if (anySelectedGoal) {
-            void router.replace(app.routes.goal(anySelectedGoal), undefined, {
+            void router.replace(routes.goal(anySelectedGoal), undefined, {
               shallow: true,
             });
           } else if (savedGoals?.[0]?.id) {
             // if there is a goal in the in-memory list, then we should redirect to that goal
             const firstGoalId = savedGoals?.[0]?.id;
-            void router.replace(app.routes.goal(firstGoalId), undefined, {
+            void router.replace(routes.goal(firstGoalId), undefined, {
               shallow: true,
             });
           } else if (savedGoals?.[0]) {
             // if there is a goal in the database, then we should redirect to that goal
             const savedGoalId = savedGoals?.[0]?.id;
-            void router.replace(app.routes.goal(savedGoalId), undefined, {
+            void router.replace(routes.goal(savedGoalId), undefined, {
               shallow: true,
             });
           } else {
             // otherwise, we should create a new goal
             const newId = newGoal();
-            void router.replace(app.routes.goal(newId), undefined, {
+            void router.replace(routes.goal(newId), undefined, {
               shallow: true,
             });
           }

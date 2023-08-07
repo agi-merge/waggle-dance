@@ -19,7 +19,7 @@ import { type CardProps } from "@mui/joy/Card";
 import { TRPCClientError } from "@trpc/client";
 
 import { api } from "~/utils/api";
-import { app } from "~/constants";
+import routes from "~/utils/routes";
 import useApp from "~/stores/appStore";
 import useGoalStore from "~/stores/goalStore";
 import GoalDoctorModal from "./GoalDoctorModal";
@@ -69,7 +69,7 @@ export default function GoalInput({}: GoalInputProps) {
               goal,
             );
             upsertGoal(goal, selectedGoal?.id);
-            void router.push(app.routes.goal(goal.id));
+            void router.push(routes.goal(goal.id));
           },
           onError: (e) => {
             type HTTPStatusy = { httpStatus: number };
@@ -80,7 +80,7 @@ export default function GoalInput({}: GoalInputProps) {
                 // this is a bit of terrible code that makes the state update to be able to waggle
                 selectedGoal.userId = "guest";
                 upsertGoal(selectedGoal);
-                void router.push(app.routes.goal(selectedGoal.id), undefined, {
+                void router.push(routes.goal(selectedGoal.id), undefined, {
                   shallow: true,
                 });
               }

@@ -44,7 +44,7 @@ import { stringify } from "yaml";
 import { type Execution } from "@acme/db";
 
 import { api } from "~/utils/api";
-import { app } from "~/constants";
+import routes from "~/utils/routes";
 import GoalSettings from "~/features/GoalMenu/components/GoalSettings";
 import { type GoalPlusExe } from "~/stores/goalStore";
 import useWaggleDanceMachineState from "~/stores/waggleDanceStore";
@@ -117,7 +117,7 @@ const WaggleDanceGraph = ({
         void (async () => {
           console.log("replace route");
           await router.replace(
-            app.routes.goal(selectedGoal.id, execution?.id),
+            routes.goal(selectedGoal.id, execution?.id),
             undefined,
             { shallow: true },
           );
@@ -182,6 +182,7 @@ const WaggleDanceGraph = ({
         variant="soft"
         invertedColors={true}
         color="primary"
+        sx={{ padding: 0 }}
       >
         <ExecutionSelect
           executions={executions}

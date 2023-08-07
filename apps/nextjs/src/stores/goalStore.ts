@@ -6,6 +6,7 @@ import { createJSONStorage, persist } from "zustand/middleware";
 
 import { type Execution, type Goal, type Result } from "@acme/db";
 
+import routes from "~/utils/routes";
 import { app } from "~/constants";
 
 export type GoalPlusExe = Goal & { executions: Execution[]; results: Result[] };
@@ -28,7 +29,7 @@ export interface GoalStore {
 
 export const draftGoalPrefix = "draft-";
 export const newDraftGoal = () => `${draftGoalPrefix}${v4()}`;
-export const newDraftGoalRoute = () => app.routes.goal(newDraftGoal());
+export const newDraftGoalRoute = () => routes.goal(newDraftGoal());
 
 const baseTab = {
   id: newDraftGoal(), // this was the issue idiot
