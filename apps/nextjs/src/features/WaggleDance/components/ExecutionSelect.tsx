@@ -1,7 +1,6 @@
 import * as React from "react";
 import { useCallback, useMemo } from "react";
 import NextLink from "next/link";
-import { useRouter } from "next/router";
 import { ClickAwayListener } from "@mui/base";
 import { FormControl, FormLabel, Stack, Tooltip } from "@mui/joy";
 import Box, { type BoxProps } from "@mui/joy/Box";
@@ -30,8 +29,7 @@ export const ExecutionSelect = ({
   showDisabled,
   ...props
 }: ExecutionSelectProps) => {
-  const router = useRouter();
-  const { execution, setExecution } = useWaggleDanceMachineStore();
+  const { execution } = useWaggleDanceMachineStore();
   const [_isOpen, setIsOpen] = React.useState(false);
   const [_anchorEl, setAnchorEl] = React.useState<null | HTMLElement>(null);
   const names = useMemo(() => {
