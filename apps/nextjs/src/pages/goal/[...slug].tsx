@@ -146,7 +146,6 @@ export default function GoalDynamicRoute() {
             )}
 
             <WaggleDanceGraph
-              key={`${route?.goalId}-${route?.executionId}`}
               selectedGoal={selectedGoal}
               executions={executions}
             />
