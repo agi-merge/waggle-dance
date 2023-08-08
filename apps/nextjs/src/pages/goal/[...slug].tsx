@@ -1,3 +1,5 @@
+// pages/goal/[...slug.ts]
+
 import {
   Suspense,
   useCallback,
@@ -31,10 +33,9 @@ export default function GoalDynamicRoute() {
   const [serverGoals, _suspense] = api.goal.topByUser.useSuspenseQuery(
     undefined,
     {
-      refetchOnMount: false,
+      refetchOnMount: true,
       staleTime: 60_000,
-      refetchInterval: 60_000,
-      refetchIntervalInBackground: false,
+      useErrorBoundary: true,
     },
   );
 
@@ -133,25 +134,27 @@ export default function GoalDynamicRoute() {
   }, [router.isReady, setGoalAndExecution]);
 
   return (
-    <MainLayout>
-      <Suspense fallback={<CircularProgress />}>
-        {state === "input" || !selectedGoal ? (
-          <HomeContent />
-        ) : (
-          <>
-            {!isRunning && (
-              <Title title={isRunning ? "💃 Waggling!" : "💃 Waggle"}>
-                <Card>{selectedGoal.prompt}</Card>
-              </Title>
-            )}
+    <>
+      <MainLayout>
+        <Suspense fallback={<CircularProgress />}>
+          {state === "input" || !selectedGoal ? (
+            <HomeContent />
+          ) : (
+            <>
+              {!isRunning && (
+                <Title title={isRunning ? "💃 Waggling!" : "💃 Waggle"}>
+                  <Card>{selectedGoal.prompt}</Card>
+                </Title>
+              )}
 
-            <WaggleDanceGraph
-              selectedGoal={selectedGoal}
-              executions={executions}
-            />
-          </>
-        )}
-      </Suspense>
-    </MainLayout>
+              <WaggleDanceGraph
+                selectedGoal={selectedGoal}
+                executions={executions}
+              />
+            </>
+          )}
+        </Suspense>
+      </MainLayout>
+    </>
   );
 }
