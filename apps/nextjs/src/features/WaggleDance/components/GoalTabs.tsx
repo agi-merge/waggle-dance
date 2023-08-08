@@ -3,21 +3,18 @@
 import { useCallback } from "react";
 import { default as NextLink } from "next/link";
 import router, { useRouter } from "next/router";
-import { Add, Close, Cloud } from "@mui/icons-material";
+import { Add, Close } from "@mui/icons-material";
 import {
   Box,
-  Chip,
   Divider,
   IconButton,
   Stack,
   Tab,
   TabList,
   Tabs,
-  Tooltip,
   Typography,
 } from "@mui/joy";
 import { type BoxProps } from "@mui/joy/Box";
-import { useSession } from "next-auth/react";
 
 import { type Goal } from "@acme/db";
 
@@ -40,7 +37,6 @@ interface GoalTabsProps {
 
 // A single goal tab inside the main tabber
 const GoalTab: React.FC<GoalTabProps> = ({ tab, index, key }) => {
-  const { data: sessionData } = useSession();
   const { setIsRunning } = useWaggleDanceMachineStore();
   const { goalList, getGoalInputValue, deleteGoal, getSelectedGoal } =
     useGoalStore();
@@ -131,28 +127,6 @@ const GoalTab: React.FC<GoalTabProps> = ({ tab, index, key }) => {
             `${tab.prompt.slice(0, 120)}…`
           )}
         </Typography>
-
-        {tab.id.startsWith(draftGoalPrefix) && tab.prompt.trim() !== "" ? (
-          <Tooltip title="Temporary, will be deleted when you leave.">
-            <Chip size="sm" variant="outlined">
-              {sessionData?.user.id ? (
-                <Typography level="body-xs">Draft</Typography>
-              ) : (
-                <NextLink href="/api/auth/signin">
-                  <Typography level="body-xs">Sign in</Typography>
-                </NextLink>
-              )}
-            </Chip>
-          </Tooltip>
-        ) : tab.userId.trim() !== "" ? (
-          <Tooltip title="Saved to your account">
-            <Chip size="sm" color="neutral" variant="outlined">
-              <Cloud sx={{ marginBottom: "0.1rem" }} />
-            </Chip>
-          </Tooltip>
-        ) : (
-          <></>
-        )}
       </Tab>
       <Divider orientation="vertical" />
     </Box>
