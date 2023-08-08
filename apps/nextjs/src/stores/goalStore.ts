@@ -19,6 +19,7 @@ export interface GoalStore {
     tab: Goal,
   ) => { prevId: string | undefined; goalList: GoalPlusExe[] } | undefined;
   selectTab: (index: number) => void;
+  selectGoal: (id?: string | undefined) => void;
   upsertGoal: (goal: GoalPlusExe, oldId?: string) => void;
   replaceGoals: (goalList: GoalPlusExe[]) => void;
   currentTabIndex: number;
@@ -150,6 +151,14 @@ const useGoalStore = (name?: string) =>
           const tabIndex = getNewSelection(get, index);
           set({
             ...tabIndex,
+          });
+        },
+        selectGoal(id?: string) {
+          const goalList = get().goalList;
+          const tabIndex = goalList.findIndex((g) => g.id === id);
+          const newTabIndex = getNewSelection(get, tabIndex);
+          set({
+            ...newTabIndex,
           });
         },
         upsertGoal(goal: GoalPlusExe, oldId?: string) {

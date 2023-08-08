@@ -1,5 +1,6 @@
 import * as React from "react";
 import { useCallback, useMemo } from "react";
+import NextLink from "next/link";
 import { useRouter } from "next/router";
 import { ClickAwayListener } from "@mui/base";
 import { FormControl, FormLabel, Stack, Tooltip } from "@mui/joy";
@@ -11,6 +12,7 @@ import Typography from "@mui/joy/Typography";
 
 import { type Execution } from "@acme/db";
 
+import routes from "~/utils/routes";
 import useWaggleDanceMachineStore from "~/stores/waggleDanceStore";
 import type DAG from "../DAG";
 import timeAgo from "../utils/timeAgo";
@@ -54,14 +56,6 @@ export const ExecutionSelect = ({
   const handleClose = () => {
     setAnchorEl(null);
     setIsOpen(false);
-  };
-
-  const handleChange = (
-    _event: React.SyntheticEvent | null,
-    newValue: string | null,
-  ) => {
-    const found = executions?.find((e) => e.id === newValue);
-    executions && void setExecution(found || null, goalId, router);
   };
 
   const label = useCallback(
@@ -124,12 +118,18 @@ export const ExecutionSelect = ({
       executions?.map((execution, i) => {
         const lab = label(execution, i);
         return (
-          <Option key={execution.id} value={execution.id} label={lab}>
+          <Option
+            key={execution.id}
+            value={execution.id}
+            label={lab}
+            component={NextLink}
+            href={routes.goal(goalId, execution?.id)}
+          >
             {lab}
           </Option>
         );
       }),
-    [executions, label],
+    [executions, goalId, label],
   );
 
   return (
@@ -152,8 +152,8 @@ export const ExecutionSelect = ({
 
                 <Select
                   disabled={(executions?.length ?? 0) === 0}
-                  defaultValue={execution?.id || null}
-                  onChange={handleChange}
+                  defaultValue={execution?.id}
+                  value={execution?.id}
                   placeholder={<Typography>Select Waggle</Typography>}
                   slotProps={{
                     button: {

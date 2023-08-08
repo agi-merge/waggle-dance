@@ -1,7 +1,7 @@
 // features/WaggleDance/components/GoalTabs.tsx
 
 import { useCallback } from "react";
-import { default as Link, default as NextLink } from "next/link";
+import { default as NextLink } from "next/link";
 import router, { useRouter } from "next/router";
 import { Add, Close, Cloud } from "@mui/icons-material";
 import {
@@ -79,7 +79,7 @@ const GoalTab: React.FC<GoalTabProps> = ({ tab, index, key }) => {
   // Render a single goal tab
   return (
     <Box
-      component={Link}
+      component={NextLink}
       key={key}
       sx={{
         flex: "1 1 auto",
@@ -197,7 +197,6 @@ const GoalTabs: React.FC<GoalTabsProps> = ({ children }) => {
       <TabList
         sticky="top"
         variant="outlined"
-        tabFlex={"auto"}
         sx={(theme) => ({
           "--main-paddingTop": `calc(${theme.spacing(
             2,
@@ -206,7 +205,7 @@ const GoalTabs: React.FC<GoalTabsProps> = ({ children }) => {
           borderRadius: "lg",
           display: "flex flex-shrink",
           flexWrap: "nowrap",
-          top: "0",
+          top: "1",
           zIndex: 10,
           width: "100%",
           overflow: "auto hidden",
