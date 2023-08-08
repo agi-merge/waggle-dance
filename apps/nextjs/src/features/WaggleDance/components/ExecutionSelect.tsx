@@ -67,7 +67,6 @@ export const ExecutionSelect = ({
       return (
         <>
           <Tooltip
-            key={execution.id}
             title={names && names[i]}
             enterDelay={500}
             enterNextDelay={500}
