@@ -33,7 +33,7 @@ export const newDraftGoal = () => `${draftGoalPrefix}${v4()}`;
 export const newDraftGoalRoute = () => routes.goal(newDraftGoal());
 
 const baseTab = {
-  id: newDraftGoal(), // this was the issue idiot
+  id: newDraftGoal(),
   prompt: "",
   index: 0,
   tooltip: "",
@@ -179,26 +179,14 @@ const useGoalStore = (name?: string) =>
             ...newSelection,
           });
         },
-        replaceGoals(historicGoals) {
-          const now = new Date();
-
           const goalList = get().goalList;
+        replaceGoals(newGoals) {
           const drafts = goalList.filter((goal) =>
             goal.id.startsWith(draftGoalPrefix),
           );
 
-          if (historicGoals && historicGoals.length > 0) {
-            const goalList = historicGoals
-              .map((goal) => ({
-                id: goal.id,
-                prompt: goal.prompt,
-                executions: goal.executions,
-                results: goal.results,
-                createdAt: now,
-                updatedAt: now,
-                userId: goal.userId,
-              }))
-              .concat(drafts);
+            const goalList = historicGoals.concat(drafts);
+          if (newGoals && newGoals.length > 0) {
             const { prevSelectedGoal } = getNewSelection(get, 0);
 
             const prevGoalIfStillHere = goalList.findIndex(
