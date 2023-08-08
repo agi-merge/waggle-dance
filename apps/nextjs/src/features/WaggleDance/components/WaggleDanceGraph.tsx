@@ -39,7 +39,7 @@ import { type Execution } from "@acme/db";
 
 import { api } from "~/utils/api";
 import GoalSettings from "~/features/GoalMenu/components/GoalSettings";
-import { type GoalPlusExe } from "~/stores/goalStore";
+import useGoalStore, { type GoalPlusExe } from "~/stores/goalStore";
 import useWaggleDanceMachineState from "~/stores/waggleDanceStore";
 import useWaggleDanceMachine, {
   TaskStatus,
@@ -66,7 +66,7 @@ const WaggleDanceGraph = ({
     execution,
     setExecution,
   } = useWaggleDanceMachineState();
-
+  const { upsertGoal } = useGoalStore();
   const {
     graphData,
     dag,
@@ -107,23 +107,16 @@ const WaggleDanceGraph = ({
   const { mutate: createExecution } = api.execution.create.useMutation({
     onSuccess: (data) => {
       console.log("create execution: ", data);
-      if (selectedGoal) {
-        void (async () => {
-          console.log("replace route");
-          await setExecution(data, selectedGoal.id, router);
-          await startWaggleDance();
-        })();
-      }
-
-      if (!selectedGoal || !execution) {
-        console.error(
-          `no goal(${selectedGoal?.id}) or execution: ${execution}`,
-        );
-        setIsRunning(false);
-      }
+      void (async () => {
+        console.log("replace route");
+        upsertGoal(data.goal);
+        await setExecution(data, { goalId: selectedGoal.id, router });
+        debugger;
+        // await startWaggleDance();
+      })();
     },
     onError: (e) => {
-      void setExecution(null, selectedGoal.id, router);
+      void setExecution(null, { goalId: selectedGoal.id, router });
       setIsRunning(false);
       console.error("Failed to post!", e.message);
     },

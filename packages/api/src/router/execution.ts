@@ -19,6 +19,24 @@ export const executionRouter = createTRPCRouter({
           userId,
           uniqueToken,
         },
+        include: {
+          goal: {
+            include: {
+              executions: {
+                take: 10,
+                orderBy: {
+                  updatedAt: "desc",
+                },
+              },
+              results: {
+                take: 100,
+                orderBy: {
+                  updatedAt: "desc",
+                },
+              },
+            },
+          },
+        },
       });
     }),
 

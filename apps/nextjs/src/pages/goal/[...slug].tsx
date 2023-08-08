@@ -27,7 +27,7 @@ type ExecutionMap = { [key: string]: Execution };
 export default function GoalDynamicRoute() {
   const router = useRouter();
   const { isRunning, execution, setExecution } = useWaggleDanceMachineStore();
-  const { replaceGoals, getSelectedGoal, selectGoal } = useGoalStore();
+  const { replaceGoals, selectedGoal, selectGoal, goalList } = useGoalStore();
   const [_isPending, startTransition] = useTransition();
 
   const [serverGoals, _suspense] = api.goal.topByUser.useSuspenseQuery(
@@ -41,6 +41,7 @@ export default function GoalDynamicRoute() {
 
   const route = useMemo(() => {
     const { slug } = router.query;
+    console.log(slug);
     if (Array.isArray(slug)) {
       const goalId = slug[0];
       if (slug.length === 3 && slug[1] === "execution") {
@@ -52,11 +53,6 @@ export default function GoalDynamicRoute() {
     }
     return { goalId: undefined, executionId: undefined };
   }, [router.query]);
-
-  const selectedGoal = useMemo(
-    () => getSelectedGoal(route?.goalId),
-    [getSelectedGoal, route?.goalId],
-  );
 
   useEffect(() => {
     replaceGoals(serverGoals);
@@ -92,7 +88,27 @@ export default function GoalDynamicRoute() {
   }, [executions]);
 
   const setGoalAndExecution = useCallback(() => {
-    console.log("setGoalAndExecution");
+    // this dynamic route handles the root route, which results in undefined, undefined.
+    // in this case, we want to select the first goal and the first execution
+    if (!route.executionId && !route.goalId) {
+      console.debug("checking initial routing for root path");
+      if (serverGoals[0]?.id) {
+        console.debug("routing to serverGoals[0]", serverGoals[0].id);
+        selectGoal(serverGoals[0].id);
+        void setExecution(serverGoals[0]?.executions[0] || null, {
+          goalId: serverGoals[0].id,
+          router,
+        });
+      } else if (goalList[0]?.id) {
+        console.debug("routing to goalList[0]", goalList[0].id);
+        selectGoal(goalList[0].id);
+        void router.replace(routes.goal(goalList[0].id), undefined, {
+          shallow: true,
+        });
+      }
+      return;
+    }
+
     const routeServerGoal = route?.goalId
       ? serverGoalsMap[route.goalId]
       : undefined;
@@ -105,23 +121,15 @@ export default function GoalDynamicRoute() {
     const persistedServerExecution = execution?.id
       ? executionsMap[execution.id]
       : undefined;
-    const isPersistedGoalValid = !!persistedServerGoal?.id;
-
-    if (isPersistedGoalValid) {
-      const goalId = routeServerGoal?.id || persistedServerGoal?.id;
-      if (goalId) {
-        startTransition(() => {
-          selectGoal(goalId);
-          void setExecution(
-            routeServerExecution || persistedServerExecution || null,
-            goalId,
-            router,
-          );
-        });
-      } else {
-        void router.push(routes.home);
-      }
-    }
+    const goalId = routeServerGoal?.id || persistedServerGoal?.id;
+    const exe = routeServerExecution || persistedServerExecution || null;
+    console.debug("setGoalAndExecution goalId", goalId);
+    console.debug("setGoalAndExecution exeId", exe?.id);
+    goalId &&
+      startTransition(() => {
+        selectGoal(goalId);
+        void setExecution(exe, { goalId, router });
+      });
     // avoid Error: Maximum update depth exceeded. / replaceState getting called frequently
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [route?.executionId, route?.goalId, selectedGoal?.id, execution?.id]);
@@ -134,27 +142,25 @@ export default function GoalDynamicRoute() {
   }, [router.isReady, setGoalAndExecution]);
 
   return (
-    <>
-      <MainLayout>
-        <Suspense fallback={<CircularProgress />}>
-          {state === "input" || !selectedGoal ? (
-            <HomeContent />
-          ) : (
-            <>
-              {!isRunning && (
-                <Title title={isRunning ? "💃 Waggling!" : "💃 Waggle"}>
-                  <Card>{selectedGoal.prompt}</Card>
-                </Title>
-              )}
+    <MainLayout>
+      <Suspense fallback={<CircularProgress />}>
+        {state === "input" || !selectedGoal ? (
+          <HomeContent />
+        ) : (
+          <>
+            {!isRunning && (
+              <Title title={isRunning ? "💃 Waggling!" : "💃 Waggle"}>
+                <Card>{selectedGoal.prompt}</Card>
+              </Title>
+            )}
 
-              <WaggleDanceGraph
-                selectedGoal={selectedGoal}
-                executions={executions}
-              />
-            </>
-          )}
-        </Suspense>
-      </MainLayout>
-    </>
+            <WaggleDanceGraph
+              selectedGoal={selectedGoal}
+              executions={executions}
+            />
+          </>
+        )}
+      </Suspense>
+    </MainLayout>
   );
 }

@@ -13,17 +13,13 @@ export type GoalPlusExe = Goal & { executions: Execution[]; results: Result[] };
 
 export interface GoalStore {
   goalList: GoalPlusExe[];
-  prevSelectedGoal: Goal | undefined;
+  selectedGoal: GoalPlusExe | undefined;
+  prevSelectedGoal: GoalPlusExe | undefined;
   newGoal: () => string;
-  deleteGoal: (
-    tab: Goal,
-  ) => { prevId: string | undefined; goalList: GoalPlusExe[] } | undefined;
-  selectTab: (index: number) => void;
-  selectGoal: (id?: string | undefined) => void;
-  upsertGoal: (goal: GoalPlusExe, oldId?: string) => void;
+  deleteGoal: (id: string) => void;
+  selectGoal: (id: string) => void;
+  upsertGoal: (goal: GoalPlusExe) => void;
   replaceGoals: (goalList: GoalPlusExe[]) => void;
-  currentTabIndex: number;
-  getSelectedGoal: (slug?: string | undefined) => GoalPlusExe | undefined;
   getGoalInputValue: () => string;
   setGoalInputValue: (newGoalInputValue: string) => void;
 }
@@ -44,188 +40,120 @@ const baseTab = {
   userId: "",
 } as GoalPlusExe;
 
-// Helper function to get the current goal
-// If a slug is provided, it will return the goal with that slug
-// Otherwise, it will return the goal at the currentTabIndex
-// If the slug is invalid, it will return undefined
-const getCurrentGoal = (
-  get: () => GoalStore,
-  slug?: string,
-): GoalPlusExe | undefined => {
-  const goalList = get().goalList;
-  if (slug) {
-    const currentGoal = goalList.find((goal) => goal.id === slug);
-    if (currentGoal?.id !== slug) {
-      return undefined;
-    }
-    return currentGoal;
-  } else {
-    const currentTabIndex = get().currentTabIndex;
-    return goalList[currentTabIndex];
-  }
-};
-
-const getNewSelection = (get: () => GoalStore, newTabIndex: number) => {
-  const store = get();
-  const goalList = store.goalList;
-  const prevSelectedGoal = goalList[store.currentTabIndex];
-
-  return {
-    prevSelectedGoal,
-    currentTabIndex: newTabIndex,
-  };
-};
-
 const useGoalStore = (name?: string) =>
   create(
     persist<GoalStore>(
       (set, get) => ({
         goalList: [baseTab],
+        selectedGoal: baseTab,
         prevSelectedGoal: undefined,
         newGoal() {
-          console.log("newGoal");
-          const goalList = get().goalList;
           const id = newDraftGoal();
-          const newIndex = goalList.length;
           const newGoal = {
+            ...baseTab,
             id,
-            prompt: "",
-            index: newIndex,
-            tooltip: "",
-            executions: [],
-            results: [],
-            createdAt: new Date(),
-            updatedAt: new Date(),
-            userId: "",
-          } as GoalPlusExe;
-          const newGoalList = [...goalList, newGoal];
-
-          const newSelection = getNewSelection(get, newIndex);
-          set({
-            goalList: newGoalList,
-            ...newSelection,
-          });
-
-          return newGoal.id;
-        },
-        deleteGoal(tab: Goal) {
-          const goalList = get().goalList;
-          const tabIndex = goalList.findIndex((g) => g.id === tab.id);
-          goalList.splice(tabIndex, 1);
-          const newSelection = getNewSelection(get, tabIndex);
-
-          // Prevent empty tabs
-          if (goalList.length === 0) {
-            set({
-              goalList: [baseTab],
-              currentTabIndex: 0,
-              prevSelectedGoal: undefined,
-            });
-            return {
-              prevId:
-                newSelection.prevSelectedGoal?.id ??
-                get().prevSelectedGoal?.id ??
-                (goalList[0] && goalList[0].id),
-              goalList: [baseTab],
-            };
-          }
-
-          const prevSelectedGoal = get().prevSelectedGoal;
-          const prevIndex = goalList.findIndex(
-            (goal) => goal.id === prevSelectedGoal?.id,
-          );
-          const currentTabIndex = prevIndex === -1 ? tabIndex : prevIndex;
-          set({
-            goalList,
-            currentTabIndex,
-          });
-          return {
-            prevId:
-              prevSelectedGoal?.id ??
-              get().prevSelectedGoal?.id ??
-              (goalList[0] && goalList[0].id),
-            goalList,
+            index: get().goalList.length,
           };
+          set((state) => ({
+            goalList: [...state.goalList, newGoal],
+            selectedGoal: newGoal,
+            prevSelectedGoal: state.selectedGoal,
+          }));
+          return id;
         },
-        selectTab: (index: number) => {
-          const tabIndex = getNewSelection(get, index);
-          set({
-            ...tabIndex,
+        deleteGoal(id: string) {
+          set((state) => {
+            const goalList = state.goalList.filter((g) => g.id !== id);
+            const selectedGoal =
+              state.selectedGoal?.id === id
+                ? state.prevSelectedGoal
+                : state.selectedGoal;
+            return {
+              goalList,
+              selectedGoal,
+              prevSelectedGoal:
+                state.prevSelectedGoal?.id === id
+                  ? undefined
+                  : state.prevSelectedGoal,
+            };
           });
         },
-        selectGoal(id?: string) {
-          const goalList = get().goalList;
-          const tabIndex = goalList.findIndex((g) => g.id === id);
-          const newTabIndex = getNewSelection(get, tabIndex);
-          set({
-            ...newTabIndex,
-          });
-        },
-        upsertGoal(goal: GoalPlusExe, oldId?: string) {
-          const goalList = get().goalList;
-          const tabIndex = goalList.findIndex(
-            (g) => g.id === goal.id || g.id === oldId,
-          );
-          const newGoalList = Array.from(goalList);
-          if (tabIndex === -1) {
-            newGoalList.push(goal);
-          } else {
-            newGoalList[tabIndex] = goal;
+        selectGoal(id: string) {
+          const goal = get().goalList.find((g) => g.id === id);
+          if (!goal) {
+            throw new Error("Invalid goal ID");
           }
-          const newSelection = getNewSelection(get, tabIndex);
-
-          set({
-            goalList: newGoalList,
-            ...newSelection,
+          set((state) => ({
+            selectedGoal: goal,
+            prevSelectedGoal: state.selectedGoal,
+          }));
+        },
+        upsertGoal(goal: GoalPlusExe) {
+          set((state) => {
+            const goalList = state.goalList;
+            const index = goalList.findIndex((g) => g.id === goal.id);
+            if (index > -1) {
+              goalList[index] = goal;
+            } else {
+              goalList.push(goal);
+            }
+            return {
+              goalList,
+              selectedGoal:
+                state.selectedGoal?.id === goal.id ? goal : state.selectedGoal,
+              prevSelectedGoal:
+                state.prevSelectedGoal?.id === goal.id
+                  ? goal
+                  : state.prevSelectedGoal,
+            };
           });
         },
-          const goalList = get().goalList;
-        replaceGoals(newGoals) {
-          const drafts = goalList.filter((goal) =>
-            goal.id.startsWith(draftGoalPrefix),
-          );
-
-            const goalList = historicGoals.concat(drafts);
-          if (newGoals && newGoals.length > 0) {
-            const { prevSelectedGoal } = getNewSelection(get, 0);
-
-            const prevGoalIfStillHere = goalList.findIndex(
-              (g) => g.id == prevSelectedGoal?.id,
-            );
-
-            if (goalList)
-              set({
-                goalList,
-                currentTabIndex:
-                  prevGoalIfStillHere > -1 ? prevGoalIfStillHere : 0,
-              });
-          }
-        },
-        currentTabIndex: 0,
-        getSelectedGoal(slug: string | undefined = undefined) {
-          return getCurrentGoal(get, slug);
+        replaceGoals(newGoals: GoalPlusExe[]) {
+          set((state) => {
+            const goalList = [
+              ...newGoals,
+              ...state.goalList.filter((g) => g.id.startsWith(draftGoalPrefix)),
+            ];
+            return {
+              goalList,
+              selectedGoal: goalList.find(
+                (g) => g.id === state.selectedGoal?.id,
+              ),
+              prevSelectedGoal: goalList.find(
+                (g) => g.id === state.prevSelectedGoal?.id,
+              ),
+            };
+          });
         },
         getGoalInputValue() {
-          const currentGoal = getCurrentGoal(get);
-          return currentGoal ? currentGoal.prompt : "";
+          return get().selectedGoal?.prompt || "";
         },
-        setGoalInputValue(newGoalInputValue) {
-          const goalList = get().goalList;
-          const currentTabIndex = get().currentTabIndex;
-          const currentGoal = getCurrentGoal(get);
-
-          if (currentGoal) {
-            const newGoal = { ...currentGoal, prompt: newGoalInputValue };
-            const newGoalList = [
-              ...goalList.slice(0, currentTabIndex),
-              newGoal,
-              ...goalList.slice(currentTabIndex + 1),
-            ];
-
-            set({
-              goalList: newGoalList,
-            });
-          }
+        setGoalInputValue(newGoalInputValue: string) {
+          set((state) => {
+            if (state.selectedGoal) {
+              const goalList = [...state.goalList];
+              const index = goalList.findIndex(
+                (g) => g.id === state.selectedGoal?.id,
+              );
+              if (index > -1 && index < goalList.length) {
+                const goal = goalList[index]!;
+                const updatedGoal = {
+                  ...goal,
+                  prompt: newGoalInputValue,
+                };
+                goalList[index] = updatedGoal;
+                return {
+                  goalList,
+                  selectedGoal: updatedGoal,
+                  prevSelectedGoal:
+                    state.prevSelectedGoal?.id === updatedGoal.id
+                      ? updatedGoal
+                      : state.prevSelectedGoal,
+                };
+              }
+            }
+            return state;
+          });
         },
       }),
       {

@@ -22,7 +22,7 @@ const Header = ({}) => {
   const router = useRouter();
   const { slug } = router.query;
   const { data: session } = useSession();
-  const { getSelectedGoal } = useGoalStore();
+  const { selectedGoal } = useGoalStore();
   const [anchorEl, setAnchorEl] = React.useState<null | HTMLElement>(null);
   const isOpen = Boolean(anchorEl);
 
@@ -50,7 +50,6 @@ const Header = ({}) => {
     if (cleanedSlug === "" || cleanedSlug === "/") {
       return 0;
     }
-    const selectedGoal = getSelectedGoal(cleanedSlug);
     if (
       (selectedGoal?.executions.length ?? 0) === 0 &&
       (selectedGoal?.userId ?? "") === ""
@@ -60,7 +59,7 @@ const Header = ({}) => {
       return 1;
     }
     // return Object.keys(routes).findIndex((path) => path === slug);
-  }, [cleanedSlug, getSelectedGoal]);
+  }, [cleanedSlug, selectedGoal]);
 
   const isHomeSlug = activeIndex === 0;
 

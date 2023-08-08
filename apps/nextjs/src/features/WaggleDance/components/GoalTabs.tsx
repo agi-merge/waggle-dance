@@ -1,8 +1,8 @@
 // features/WaggleDance/components/GoalTabs.tsx
 
-import { useCallback } from "react";
+import { useCallback, useMemo } from "react";
 import { default as NextLink } from "next/link";
-import router, { useRouter } from "next/router";
+import { useRouter } from "next/router";
 import { Add, Close } from "@mui/icons-material";
 import {
   Box,
@@ -38,7 +38,7 @@ interface GoalTabsProps {
 // A single goal tab inside the main tabber
 const GoalTab: React.FC<GoalTabProps> = ({ tab, index, key }) => {
   const { setIsRunning } = useWaggleDanceMachineStore();
-  const { goalList, getGoalInputValue, deleteGoal, getSelectedGoal } =
+  const { goalList, getGoalInputValue, deleteGoal, selectedGoal } =
     useGoalStore();
   const del = api.goal.delete.useMutation();
 
@@ -54,20 +54,7 @@ const GoalTab: React.FC<GoalTabProps> = ({ tab, index, key }) => {
           // an ignorable data corruption
         }
       }
-      const result = deleteGoal(tab);
-      if (result) {
-        const { prevId, goalList } = result;
-        // TODO: should we use prevId before goalList[0]?
-        if (goalList && goalList[0]) {
-          void router.push(routes.goal(goalList[0].id));
-        } else {
-          prevId
-            ? void router.replace(routes.goal(prevId), undefined, {
-                shallow: true,
-              })
-            : void router.push(routes.home);
-        }
-      }
+      deleteGoal(tab.id);
     },
     [del, deleteGoal, setIsRunning],
   );
@@ -103,7 +90,7 @@ const GoalTab: React.FC<GoalTabProps> = ({ tab, index, key }) => {
           <Close />
         </IconButton>
         <Typography
-          level={getSelectedGoal()?.id === tab.id ? "title-sm" : "body-sm"}
+          level={selectedGoal?.id === tab.id ? "title-sm" : "body-sm"}
           noWrap
           className="m-1 flex-grow p-1"
           sx={{
@@ -111,7 +98,7 @@ const GoalTab: React.FC<GoalTabProps> = ({ tab, index, key }) => {
             textAlign: "center",
           }}
         >
-          {getSelectedGoal()?.id === tab.id ? (
+          {selectedGoal?.id === tab.id ? (
             <>
               {getGoalInputValue().length > 0
                 ? getGoalInputValue()
@@ -136,7 +123,7 @@ const GoalTab: React.FC<GoalTabProps> = ({ tab, index, key }) => {
 // The main goal tabber component
 const GoalTabs: React.FC<GoalTabsProps> = ({ children }) => {
   const router = useRouter();
-  const { goalList, newGoal, currentTabIndex, selectTab } = useGoalStore();
+  const { goalList, newGoal, selectedGoal, selectGoal } = useGoalStore();
   const { isRunning } = useWaggleDanceMachineStore();
 
   // Handle tab change
@@ -147,10 +134,15 @@ const GoalTabs: React.FC<GoalTabsProps> = ({ children }) => {
         event?.preventDefault();
         return;
       }
-      selectTab(newValue);
+      const goalId = goalList[newValue]?.id;
+      goalId && selectGoal(goalId);
     },
-    [goalList, selectTab],
+    [goalList, selectGoal],
   );
+
+  const currentTabIndex = useMemo(() => {
+    return goalList.findIndex((goal) => goal.id === selectedGoal?.id);
+  }, [goalList, selectedGoal?.id]);
 
   // Render the goal tabber
   return (

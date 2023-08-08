@@ -40,8 +40,7 @@ export interface WaggleDanceMachineStore {
   execution: Execution | null;
   setExecution: (
     newExecution: Execution | null,
-    goalId: string,
-    router?: NextRouter | undefined,
+    routeToGoal?: { goalId: string; router: NextRouter } | undefined,
   ) => Promise<void>;
 }
 
@@ -81,12 +80,11 @@ const useWaggleDanceMachineStore = create(
           },
         })),
       execution: null,
-      setExecution: async (newExecution, goal, router) => {
-        console.log("newExecution", newExecution);
+      setExecution: async (newExecution, routeToGoal) => {
         set({ execution: newExecution });
-        await router?.replace(routes.goal(goal, newExecution?.id), undefined, {
-          shallow: true,
-        });
+        await routeToGoal?.router.replace(
+          routes.goal(routeToGoal?.goalId, newExecution?.id),
+        );
       },
     }),
     {

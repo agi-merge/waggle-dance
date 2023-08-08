@@ -39,7 +39,7 @@ const placeholders = ["What's your goal? …Not sure? Check Examples!"];
 type GoalInputProps = CardProps;
 
 export default function GoalInput({}: GoalInputProps) {
-  const { getGoalInputValue, setGoalInputValue, upsertGoal, getSelectedGoal } =
+  const { getGoalInputValue, setGoalInputValue, upsertGoal, selectedGoal } =
     useGoalStore();
   const { isPageLoading, setIsPageLoading } = useApp();
   const [_currentPromptIndex, setCurrentPromptIndex] = useState(0);
@@ -54,7 +54,6 @@ export default function GoalInput({}: GoalInputProps) {
     (event: React.FormEvent) => {
       event.preventDefault();
       setIsPageLoading(true);
-      const selectedGoal = getSelectedGoal();
       // setIsAutoStartEnabled(true);
       // this saves the goal to the database and routes to the goal page
       // unless the user is not logged in, in which case it routes to the goal page
@@ -62,13 +61,13 @@ export default function GoalInput({}: GoalInputProps) {
         { prompt: getGoalInputValue() },
         {
           onSuccess: (goal) => {
-            console.log(
+            console.debug(
               "saved goal, selectedGoal: ",
               selectedGoal,
               "goal: ",
               goal,
             );
-            upsertGoal(goal, selectedGoal?.id);
+            upsertGoal(goal);
             void router.push(routes.goal(goal.id));
           },
           onError: (e) => {
@@ -91,13 +90,7 @@ export default function GoalInput({}: GoalInputProps) {
         },
       );
     },
-    [
-      setIsPageLoading,
-      createGoal,
-      getGoalInputValue,
-      getSelectedGoal,
-      upsertGoal,
-    ],
+    [setIsPageLoading, createGoal, getGoalInputValue, selectedGoal, upsertGoal],
   );
 
   const handleChange = (event: React.ChangeEvent<HTMLTextAreaElement>) => {
