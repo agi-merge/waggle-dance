@@ -119,10 +119,12 @@ const WaggleDanceGraph = ({
         console.error(
           `no goal(${selectedGoal?.id}) or execution: ${execution}`,
         );
+        setIsRunning(false);
       }
     },
     onError: (e) => {
       void setExecution(null, selectedGoal.id, router);
+      setIsRunning(false);
       console.error("Failed to post!", e.message);
     },
   });
@@ -133,6 +135,7 @@ const WaggleDanceGraph = ({
         setIsRunning(true);
         createExecution({ goalId: selectedGoal.id });
       } else {
+        setIsRunning(false);
         console.error("no goal selected");
       }
     }
