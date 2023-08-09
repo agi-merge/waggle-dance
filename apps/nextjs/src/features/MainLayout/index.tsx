@@ -73,7 +73,7 @@ const MainLayout = ({ children }: Props) => {
             name="apple-mobile-web-app-status-bar-style"
             content={mode === "dark" ? "black-translucent" : "default"}
           />
-          <link rel="icon" href="/favicon.ico" />
+          <link rel="manifest" href="manifest.json" />
         </Head>
 
         <GlobalStyles
