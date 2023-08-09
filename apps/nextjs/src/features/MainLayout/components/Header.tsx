@@ -102,7 +102,7 @@ const Header = ({}) => {
           </MenuItem>
           <MenuItem orientation="vertical">
             {session?.user ? (
-              <Tooltip title={`${session.user.name} has 100 credits`}>
+              <Tooltip title={`You are signed in as ${session.user.name}`}>
                 <Link>
                   <span onClick={handleOpen}>
                     <Avatar
