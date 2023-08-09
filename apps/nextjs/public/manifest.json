@@ -5,7 +5,6 @@
   "display": "minimal-ui",
   "name": "waggledance",
   "orientation": "any",
-  "scope": "/",
   "short_name": "waggledance",
   "start_url": "/",
   "theme_color": "#f59e0b",
