@@ -23,8 +23,8 @@
   ],
   "icons": [
     {
-      "src": "/favicon.ico",
-      "type": "image/x-icon"
+      "src": "/apple-touch-icon.png",
+      "type": "image/png"
     },
     {
       "src": "windows11/SmallTile.scale-100.png",
