@@ -14,6 +14,7 @@ import {
   Box,
   Button,
   Card,
+  CircularProgress,
   Divider,
   IconButton,
   LinearProgress,
@@ -192,6 +193,7 @@ const WaggleDanceGraph = ({
           onClick={isRunning ? handleStop : handleStart}
           endDecorator={isRunning ? <Pause /> : <PlayArrow />}
         >
+          {isRunning && <CircularProgress sx={{ marginRight: 1 }} />}
           <Stack
             direction={{ xs: "row", sm: "column" }}
             gap="0.5rem"
