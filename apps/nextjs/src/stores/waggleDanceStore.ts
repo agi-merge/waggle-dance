@@ -1,6 +1,7 @@
 // stores/waggleDanceStore.ts
 
 import { type NextRouter } from "next/router";
+import { v4 } from "uuid";
 import { create } from "zustand";
 import { createJSONStorage, persist } from "zustand/middleware";
 
@@ -43,6 +44,9 @@ export interface WaggleDanceMachineStore {
     routeToGoal?: { goalId: string; router: NextRouter } | undefined,
   ) => Promise<void>;
 }
+
+export const draftExecutionPrefix = "draftexe-";
+export const newDraftExecutionId = () => `${draftExecutionPrefix}${v4()}`;
 
 const useWaggleDanceMachineStore = create(
   persist<WaggleDanceMachineStore>(
