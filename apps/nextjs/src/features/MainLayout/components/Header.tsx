@@ -14,6 +14,7 @@ import {
 } from "@mui/joy";
 import { useSession } from "next-auth/react";
 
+import routes from "~/utils/routes";
 import { app } from "~/constants";
 import useGoalStore from "~/stores/goalStore";
 import ThemeToggle from "./ThemeToggle";
@@ -115,7 +116,7 @@ const Header = ({}) => {
               </Tooltip>
             ) : (
               <Typography className="p-2">
-                <NextLink href="/api/auth/signin">Sign in/up</NextLink>
+                <NextLink href={routes.auth}>Sign in/up</NextLink>
               </Typography>
             )}
           </MenuItem>

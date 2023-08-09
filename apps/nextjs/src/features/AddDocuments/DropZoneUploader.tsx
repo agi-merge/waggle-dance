@@ -7,6 +7,7 @@ import Box from "@mui/joy/Box";
 import Card, { type CardProps } from "@mui/joy/Card";
 import Link from "@mui/joy/Link";
 
+import routes from "~/utils/routes";
 import { acceptExtensions } from "~/features/AddDocuments/mimeTypes";
 import { useIngest, type IngestFile } from "~/pages/add-documents";
 import { type UploadResponse } from "../../pages/api/docs/ingest";
@@ -92,7 +93,7 @@ export default function DropZoneUploader({ sx, ...props }: DropZoneProps) {
       return uploadResponse;
     } else {
       console.error(response);
-      await router.push("/api/auth/signin");
+      await router.push(routes.auth);
       throw new Error(response.statusText);
     }
   };

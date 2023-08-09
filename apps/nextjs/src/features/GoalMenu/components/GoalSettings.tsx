@@ -19,6 +19,7 @@ import Stack from "@mui/joy/Stack";
 import Typography from "@mui/joy/Typography";
 import { useSession } from "next-auth/react";
 
+import routes from "~/utils/routes";
 import DocsModal from "~/features/WaggleDance/components/DocsModal";
 import AddDocuments from "~/pages/add-documents";
 import useWaggleDanceMachineStore from "~/stores/waggleDanceStore";
@@ -179,7 +180,7 @@ function GoalSettings({}: CardProps) {
       </Tabs>
       {!session && (
         <Typography level="body-md" sx={{ p: 1, textAlign: "center" }}>
-          <Link href="/api/auth/signin">Log in to change settings</Link>
+          <Link href={routes.auth}>Log in to change settings</Link>
         </Typography>
       )}
     </AdvancedSettingsToggle>
