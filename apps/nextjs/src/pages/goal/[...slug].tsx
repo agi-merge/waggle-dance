@@ -157,11 +157,9 @@ export default function GoalDynamicRoute() {
           <HomeContent />
         ) : (
           <>
-            {!isRunning && (
-              <Title title={isRunning ? "💃 Waggling!" : "💃 Waggle"}>
-                <Card>{selectedGoal.prompt}</Card>
-              </Title>
-            )}
+            <Title title={isRunning ? "💃 Waggling!" : "💃 Waggle"}>
+              <Card>{selectedGoal.prompt}</Card>
+            </Title>
             <WaggleDanceGraph
               selectedGoal={selectedGoal}
               executions={executions}

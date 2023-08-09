@@ -6,10 +6,10 @@ import {
   Edit,
   Lan,
   ListAlt,
-  Pause,
-  PlayArrow,
+  PlayCircle,
   Science,
   Send,
+  StopCircle,
 } from "@mui/icons-material";
 import {
   Box,
@@ -215,8 +215,9 @@ const WaggleDanceGraph = ({
   };
   const button = (
     <Stack
+      direction={{ xs: "column", sm: "row" }}
       gap="0.5rem"
-      className="max-w-screen flex items-center justify-end p-0"
+      className=" flex items-center justify-end "
       component={Card}
       variant="outlined"
       color="primary"
@@ -255,7 +256,7 @@ const WaggleDanceGraph = ({
           color="primary"
           variant="soft"
           onClick={isRunning ? handleStop : handleStart}
-          endDecorator={isRunning ? <Pause /> : <PlayArrow />}
+          endDecorator={isRunning ? <StopCircle /> : <PlayCircle />}
           sx={{ zIndex: 15, padding: { xs: 1, sm: 2 } }}
         >
           {isRunning && (
@@ -271,9 +272,9 @@ const WaggleDanceGraph = ({
             className="items-center"
           >
             {isRunning ? (
-              <>Pause</>
+              <>Stop</>
             ) : (
-              <>{dag.nodes.length > 0 ? "Resume" : "Start"}</>
+              <>{dag.nodes.length > 0 ? "Restart" : "Start"}</>
             )}
           </Stack>
         </Button>
@@ -579,10 +580,10 @@ const WaggleDanceGraph = ({
         </Tabs>
       )}
       <Box
-        className="z-100 sticky right-0 h-20 w-full justify-end"
+        className="z-100 sticky right-0 h-20 justify-end"
         sx={{ bottom: "calc(env(safe-area-inset-bottom) + 2rem)" }}
       >
-        <Box className="sticky bottom-2 w-full" sx={{ posiiton: "relative" }}>
+        <Box className="sticky bottom-2" sx={{ posiiton: "relative" }}>
           <LinearProgress
             sx={{
               position: "absolute",

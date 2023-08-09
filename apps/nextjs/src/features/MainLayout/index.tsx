@@ -79,7 +79,7 @@ const MainLayout = ({ children }: Props) => {
         <GlobalStyles
           styles={(_theme) => ({
             ":root": {
-              "--Header-height": "49px",
+              "--Header-height": "58px",
             },
           })}
         />
