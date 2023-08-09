@@ -42,7 +42,7 @@ export const api = createTRPCNext<AppRouter>({
       ],
     };
   },
-  ssr: true,
+  ssr: true, // trpc automatic SSR also see applicable note at https://trpc.io/docs/client/react/suspense
 });
 
 export { type RouterInputs, type RouterOutputs } from "@acme/api";

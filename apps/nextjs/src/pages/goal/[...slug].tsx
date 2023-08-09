@@ -1,4 +1,11 @@
 // pages/goal/[...slug.ts]
+// dynamic route for root (/), goal, and execution paths.
+// determines the state of the page based on the route
+// persists state to in memory and session/local stores
+// e.g. /goal/123/execution/456
+// e.g. /goal/123
+// e.g. /goal
+// e.g. /
 
 import {
   Suspense,
@@ -30,6 +37,8 @@ export default function GoalDynamicRoute() {
   const { replaceGoals, selectedGoal, selectGoal, goalList } = useGoalStore();
   const [_isPending, startTransition] = useTransition();
 
+  // suspense.isFetched is always true
+  // see https://trpc.io/docs/client/react/suspense
   const [serverGoals, _suspense] = api.goal.topByUser.useSuspenseQuery(
     undefined,
     {
