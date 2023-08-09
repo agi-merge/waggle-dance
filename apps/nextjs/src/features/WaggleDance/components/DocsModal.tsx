@@ -17,7 +17,6 @@ export default function BasicModal({ children }: Props) {
           color="neutral"
         >
           <Link
-            variant="plain"
             color="primary"
             level="body-sm"
             className="flex-shrink"

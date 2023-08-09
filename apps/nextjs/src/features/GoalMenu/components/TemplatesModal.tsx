@@ -17,7 +17,12 @@ export default function BasicModal({ children, open, setOpen }: Props) {
           variant="soft"
           color="neutral"
         >
-          <Link variant="plain" level="body-sm" onClick={() => setOpen(true)}>
+          <Link
+            variant="outlined"
+            level="body-sm"
+            color="neutral"
+            onClick={() => setOpen(true)}
+          >
             🤔 Examples
           </Link>
         </Tooltip>

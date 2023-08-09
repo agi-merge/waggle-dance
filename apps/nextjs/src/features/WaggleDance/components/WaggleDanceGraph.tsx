@@ -1,3 +1,4 @@
+import assert from "assert";
 import React, { useCallback, useEffect, useMemo, useRef } from "react";
 import router from "next/router";
 import {
@@ -18,6 +19,7 @@ import {
   Divider,
   IconButton,
   LinearProgress,
+  Link,
   List,
   ListDivider,
   ListItem,
@@ -32,6 +34,7 @@ import {
   Typography,
   type StackProps,
 } from "@mui/joy";
+import { TRPCClientError } from "@trpc/client";
 import ReactMarkdown from "react-markdown";
 import remarkGfm from "remark-gfm";
 import { stringify } from "yaml";
@@ -39,13 +42,17 @@ import { stringify } from "yaml";
 import { type Execution } from "@acme/db";
 
 import { api } from "~/utils/api";
+import routes from "~/utils/routes";
 import GoalSettings from "~/features/GoalMenu/components/GoalSettings";
-import useGoalStore, { type GoalPlusExe } from "~/stores/goalStore";
-import useWaggleDanceMachineState from "~/stores/waggleDanceStore";
+import { type GoalPlusExe } from "~/stores/goalStore";
+import useWaggleDanceMachineState, {
+  newDraftExecutionId,
+} from "~/stores/waggleDanceStore";
 import useWaggleDanceMachine, {
   TaskStatus,
   type TaskState,
 } from "../hooks/useWaggleDanceMachine";
+import { type JsonValue } from "../types";
 import { rootPlanId } from "../WaggleDanceMachine";
 import { ExecutionSelect } from "./ExecutionSelect";
 import ForceGraph from "./ForceGraph";
@@ -67,7 +74,6 @@ const WaggleDanceGraph = ({
     execution,
     setExecution,
   } = useWaggleDanceMachineState();
-  const { upsertGoal } = useGoalStore();
   const {
     graphData,
     dag,
@@ -106,20 +112,67 @@ const WaggleDanceGraph = ({
   }, [taskStates]);
 
   const { mutate: createExecution } = api.execution.create.useMutation({
-    onSuccess: (data) => {
-      console.log("create execution: ", data);
+    onSettled: (data, error) => {
+      console.debug(
+        "create execution onSettled: ",
+        "data",
+        data,
+        "error",
+        error,
+      );
+      let createdExecution: Execution | undefined;
+
+      if (error) {
+        type HTTPStatusy = { httpStatus: number };
+        if (error instanceof TRPCClientError) {
+          const data = error.data as HTTPStatusy;
+          // route for anonymous users
+          if (data.httpStatus === 401 && selectedGoal) {
+            const exeId = newDraftExecutionId();
+            const goalId = selectedGoal.id;
+            /*
+            export type $ExecutionPayload<ExtArgs extends $Extensions.Args = $Extensions.DefaultArgs> = {
+              scalars: $Extensions.GetResult<{
+                id: string
+                goalId: string
+                userId: string
+                graph: Prisma.JsonValue | null
+                state: $Enums.ExecutionState
+                createdAt: Date
+                updatedAt: Date
+                uniqueToken: string
+              }, ExtArgs["result"]["execution"]>
+            }*/
+            const draftExecution: Execution = {
+              id: exeId,
+              goalId,
+              userId: "guest",
+              graph: dag as JsonValue,
+              state: "PENDING",
+              createdAt: new Date(),
+              updatedAt: new Date(),
+              uniqueToken: newDraftExecutionId(), // extra uuid
+            };
+            createdExecution = draftExecution;
+            debugger;
+          }
+          if (!createdExecution) {
+            console.error("error which is not the expected 401", error);
+            return;
+          }
+        }
+      }
+      debugger;
+      assert(createdExecution);
       void (async () => {
         console.log("replace route");
-        upsertGoal(data.goal);
-        await setExecution(data, { goalId: selectedGoal.id, router });
+        await setExecution(createdExecution, {
+          goalId: selectedGoal.id,
+          router,
+        });
         debugger;
-        // await startWaggleDance();
+        await startWaggleDance();
       })();
-    },
-    onError: (e) => {
-      void setExecution(null, { goalId: selectedGoal.id, router });
-      setIsRunning(false);
-      console.error("Failed to post!", e.message);
     },
   });
 
@@ -127,6 +180,7 @@ const WaggleDanceGraph = ({
     if (!isRunning) {
       if (selectedGoal) {
         setIsRunning(true);
+
         createExecution({ goalId: selectedGoal.id });
       } else {
         setIsRunning(false);
@@ -161,13 +215,12 @@ const WaggleDanceGraph = ({
   };
   const button = (
     <Stack
-      direction={{ xs: "column", sm: "row" }}
       gap="0.5rem"
-      className="max-w-screen flex items-center justify-end"
+      className="max-w-screen flex items-center justify-end p-0"
       component={Card}
       variant="outlined"
       color="primary"
-      sx={{ borderRadius: "lg" }}
+      sx={{ borderRadius: "lg", padding: 1 }}
     >
       <ExecutionSelect
         goalId={selectedGoal.id}
@@ -182,7 +235,18 @@ const WaggleDanceGraph = ({
         sx={{ alignItems: "center", pl: 1.5 }}
         gap={1}
       >
-        <Box className="items-center justify-center align-top">
+        <Box
+          className="items-center justify-center text-center align-top"
+          component={Stack}
+          gap={0.5}
+        >
+          <Typography level="body-sm">
+            <Link href={routes.auth} target="_blank" color="primary">
+              Sign in to save your progress
+            </Link>
+          </Typography>
+
+          <Divider />
           <GoalSettings />
         </Box>
         <Button
@@ -192,8 +256,15 @@ const WaggleDanceGraph = ({
           variant="soft"
           onClick={isRunning ? handleStop : handleStart}
           endDecorator={isRunning ? <Pause /> : <PlayArrow />}
+          sx={{ zIndex: 15, padding: { xs: 1, sm: 2 } }}
         >
-          {isRunning && <CircularProgress sx={{ marginRight: 1 }} />}
+          {isRunning && (
+            <CircularProgress
+              size="sm"
+              variant="soft"
+              sx={{ marginRight: 1 }}
+            />
+          )}
           <Stack
             direction={{ xs: "row", sm: "column" }}
             gap="0.5rem"
@@ -233,7 +304,7 @@ const WaggleDanceGraph = ({
   }, [results.length, taskStates.length]);
 
   return (
-    <Stack gap="1rem" sx={{ mx: -3 }}>
+    <Stack gap="1rem" sx={{ mx: -3, posiiton: "relative" }}>
       {dag.nodes.length > 0 && (
         <Tabs
           size="sm"
@@ -284,7 +355,7 @@ const WaggleDanceGraph = ({
             </Tab>
           </TabList>
 
-          {taskStates.length > 0 && (
+          {taskStates.length > 0 ? (
             <>
               <TabPanel value={0} className="w-full overflow-y-scroll p-4">
                 <List aria-label="Task list" size="sm" className="">
@@ -502,10 +573,43 @@ const WaggleDanceGraph = ({
                 </List>
               </TabPanel>
             </>
+          ) : (
+            <Typography>Loading</Typography>
           )}
         </Tabs>
       )}
-      <Box className="sticky bottom-2 right-0 w-full justify-end">{button}</Box>
+      <Box
+        className="z-100 sticky right-0 h-20 w-full justify-end"
+        sx={{ bottom: "calc(env(safe-area-inset-bottom) + 2rem)" }}
+      >
+        <Box className="sticky bottom-2 w-full" sx={{ posiiton: "relative" }}>
+          <LinearProgress
+            sx={{
+              position: "absolute",
+              mixBlendMode: "multiply",
+              bottom: 0,
+              right: 0,
+              width: "100%",
+              zIndex: 11, // Make sure the z-index is less than the button's
+            }}
+            determinate={_progress !== 0}
+            value={_progress}
+            color="neutral"
+          />
+          {isRunning && (
+            <LinearProgress
+              sx={{
+                position: "absolute",
+                bottom: 0,
+                right: 0,
+                width: "100%",
+                zIndex: 10, // Make sure the z-index is less than the button's
+              }}
+            />
+          )}
+        </Box>
+        {button}
+      </Box>
     </Stack>
   );
 };

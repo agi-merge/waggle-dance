@@ -79,12 +79,18 @@ const GoalTab: React.FC<GoalTabProps> = ({ tab, index, key }) => {
         orientation="horizontal"
       >
         <IconButton
-          size="sm"
-          variant="soft"
           onClick={(e) => {
             e.preventDefault();
             e.stopPropagation();
             void closeHandler(tab);
+          }}
+          className="flex-end float-start"
+          sx={{
+            width: "5vw",
+            padding: 0,
+            p: 0,
+            margin: 0,
+            m: 0,
           }}
         >
           <Close />
@@ -158,6 +164,7 @@ const GoalTabs: React.FC<GoalTabsProps> = ({ children }) => {
         marginTop: -2,
         marginLeft: -2,
         marginRight: -2,
+        zIndex: 100,
       }}
     >
       <TabList

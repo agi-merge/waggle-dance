@@ -8,12 +8,7 @@
 import { mapAgentSettingsToCreationProps } from "~/pages/api/agent/types";
 import { type AgentSettings } from "~/stores/waggleDanceStore";
 import { type ChainPacket } from "../../../../../packages/agent";
-import DAG, {
-  DAGEdgeClass,
-  DAGNodeClass,
-  type DAGNode,
-  type OptionalDAG,
-} from "./DAG";
+import DAG, { DAGNodeClass, type DAGNode, type OptionalDAG } from "./DAG";
 import {
   type BaseResultType,
   type GraphDataState,
@@ -101,7 +96,15 @@ export default class WaggleDanceMachine {
         | "error",
     } as OptimisticFirstTaskState;
 
-    let dag: DAG;
+    const initNodes = initialNodes(goal);
+
+    let dag = ((): DAG => {
+      return new DAG(
+        [...initNodes],
+        // connect our initial nodes to the DAG: gotta find them and create edges
+        [...initialEdges()],
+      );
+    })();
     const completedTasks: Set<string> = new Set([rootPlanId]);
     const taskResults: Record<string, BaseResultType> = {};
     const maxConcurrency = Infinity;
@@ -191,7 +194,6 @@ export default class WaggleDanceMachine {
       const updateTaskState = (state: "not started" | "started" | "done") => {
         optimisticFirstTaskState.firstTaskState = state;
       };
-      const initNodes = initialNodes(goal);
       try {
         const creationProps = mapAgentSettingsToCreationProps(
           agentSettings["plan"],
@@ -209,14 +211,6 @@ export default class WaggleDanceMachine {
           abortController.signal,
           updateTaskState,
           startFirstTask,
-        );
-        const hookupEdges = findNodesWithNoIncomingEdges(dag).map(
-          (node) => new DAGEdgeClass(rootPlanId, node.id),
-        );
-        dag = new DAG(
-          [...initNodes, ...dag.nodes],
-          // connect our initial nodes to the DAG: gotta find them and create edges
-          [...initialEdges(), ...(dag.edges ?? []), ...hookupEdges],
         );
       } catch (error) {
         if (initNodes[0]) {

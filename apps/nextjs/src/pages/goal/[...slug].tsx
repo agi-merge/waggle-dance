@@ -162,7 +162,6 @@ export default function GoalDynamicRoute() {
                 <Card>{selectedGoal.prompt}</Card>
               </Title>
             )}
-
             <WaggleDanceGraph
               selectedGoal={selectedGoal}
               executions={executions}

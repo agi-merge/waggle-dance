@@ -65,7 +65,7 @@ const Header = ({}) => {
   const isHomeSlug = activeIndex === 0;
 
   return (
-    <header className="z-10 mx-auto w-full px-5 pb-2 pt-0">
+    <header className=" mx-auto w-full px-5 pb-2 pt-0">
       <Stack
         direction="row"
         sx={{ paddingTop: { xs: 1, sm: 3 }, paddingBottom: { xs: 1, sm: 3 } }}

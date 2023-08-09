@@ -12,9 +12,10 @@ export default function BasicModal({ children }: Props) {
     <>
       <Tooltip title="Coming soon" variant="soft" color="neutral">
         <Link
-          variant="plain"
+          variant="outlined"
           level="body-sm"
           className="flex-shrink"
+          color="neutral"
           onClick={() => setOpen(true)}
         >
           🌺 Refine Goal

@@ -6,6 +6,7 @@ import { KeyboardArrowRight } from "@mui/icons-material";
 import {
   Box,
   Button,
+  Checkbox,
   Divider,
   FormControl,
   Grid,
@@ -22,6 +23,7 @@ import { api } from "~/utils/api";
 import routes from "~/utils/routes";
 import useApp from "~/stores/appStore";
 import useGoalStore from "~/stores/goalStore";
+import useWaggleDanceMachineStore from "~/stores/waggleDanceStore";
 import GoalDoctorModal from "./GoalDoctorModal";
 import GoalSettings from "./GoalSettings";
 import TemplatesModal from "./TemplatesModal";
@@ -41,6 +43,8 @@ type GoalInputProps = CardProps;
 export default function GoalInput({}: GoalInputProps) {
   const { getGoalInputValue, setGoalInputValue, upsertGoal, selectedGoal } =
     useGoalStore();
+  const { isAutoStartEnabled, setIsAutoStartEnabled } =
+    useWaggleDanceMachineStore();
   const { isPageLoading, setIsPageLoading } = useApp();
   const [_currentPromptIndex, setCurrentPromptIndex] = useState(0);
   const [currentPlaceholderIndex, setCurrentPlaceholderIndex] = useState(0);
@@ -97,6 +101,12 @@ export default function GoalInput({}: GoalInputProps) {
     setGoalInputValue(event.target.value);
   };
 
+  const handleAutostartChanged = (
+    event: React.ChangeEvent<HTMLInputElement>,
+  ) => {
+    setIsAutoStartEnabled(event.target.checked);
+  };
+
   useEffect(() => {
     const timer = setInterval(() => {
       setCurrentPromptIndex((prevIndex) =>
@@ -125,7 +135,7 @@ export default function GoalInput({}: GoalInputProps) {
               <Stack direction="row" gap="0.5rem">
                 <Button
                   size="sm"
-                  variant="solid"
+                  variant="outlined"
                   color="neutral"
                   disabled={getGoalInputValue().trim().length === 0}
                   onClick={() => {
@@ -185,7 +195,6 @@ export default function GoalInput({}: GoalInputProps) {
                   <Typography color="neutral">Coming soon!</Typography>
                 </GoalDoctorModal>
                 <Divider orientation="vertical" />
-                <GoalSettings />
               </Stack>
             </Box>
           }
@@ -204,18 +213,37 @@ export default function GoalInput({}: GoalInputProps) {
         />
       </FormControl>
 
-      <Stack direction="row-reverse" gap="1rem" className="pb-4">
-        <Button
-          loading={isPageLoading}
-          className="col-end mt-2"
-          type="submit"
-          variant="soft"
-          disabled={getGoalInputValue().trim().length === 0}
-        >
-          Next
-          <KeyboardArrowRight />
-        </Button>
-      </Stack>
+      <Box className="max-w-screen flex items-center justify-end">
+        <Stack direction="row-reverse" gap="1rem" className="pb-4">
+          <Button
+            loading={isPageLoading}
+            className="col-end mt-2"
+            type="submit"
+            variant="soft"
+            disabled={getGoalInputValue().trim().length === 0}
+          >
+            Next
+            <KeyboardArrowRight />
+          </Button>
+          <Box
+            className="items-center justify-center text-center align-top"
+            component={Stack}
+            gap={0.5}
+          >
+            <Checkbox
+              size="sm"
+              checked={isAutoStartEnabled}
+              onChange={handleAutostartChanged}
+              label={<Typography>Autostart Goal</Typography>}
+            >
+              Autostart
+            </Checkbox>
+
+            <Divider />
+            <GoalSettings />
+          </Box>
+        </Stack>
+      </Box>
     </form>
   );
 }

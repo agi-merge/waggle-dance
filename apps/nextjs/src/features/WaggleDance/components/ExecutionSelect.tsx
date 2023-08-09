@@ -34,7 +34,7 @@ export const ExecutionSelect = ({
   const [_anchorEl, setAnchorEl] = React.useState<null | HTMLElement>(null);
   const names = useMemo(() => {
     return executions?.map((e) => {
-      // Cast the graph to DAG and get the nodes
+      // Cast the graph unsafely to DAG and get the nodes
       const nodes = (e?.graph as unknown as DAG)?.nodes || [];
 
       // Use reduce to build the names string
