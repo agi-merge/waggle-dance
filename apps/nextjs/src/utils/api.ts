@@ -4,13 +4,9 @@ import superjson from "superjson";
 
 import type { AppRouter } from "@acme/api";
 
-import { env } from "~/env.mjs";
-
 export const getBaseUrl = () => {
   if (typeof window !== "undefined") return ""; // browser should use relative url
-  if (env.NEXTAUTH_URL.length) {
-    return env.NEXTAUTH_URL;
-  }
+  if (process.env.VERCEL_URL) return `https://${process.env.VERCEL_URL}`; // SSR should use vercel url
 
   return `http://localhost:3000`; // dev SSR should use localhost
 };
