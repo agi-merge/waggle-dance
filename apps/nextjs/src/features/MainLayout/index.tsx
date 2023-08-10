@@ -79,7 +79,7 @@ const MainLayout = ({ children }: Props) => {
         <GlobalStyles
           styles={(_theme) => ({
             ":root": {
-              "--Header-height": "58px",
+              "--Header-height": "2.8rem",
             },
           })}
         />
@@ -113,7 +113,7 @@ const MainLayout = ({ children }: Props) => {
               {children}
             </GoalTabs>
           </Card>
-          <Footer />
+          <Footer className="sticky bottom-0 flex w-full pb-2 pt-10" />
         </Sheet>
       </Box>
     </Box>

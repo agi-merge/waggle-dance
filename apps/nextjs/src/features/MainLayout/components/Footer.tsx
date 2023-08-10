@@ -12,9 +12,14 @@ import {
 
 import { env } from "~/env.mjs";
 
-const Footer = () => {
+const Footer = (
+  props: React.DetailedHTMLProps<
+    React.HTMLAttributes<HTMLElement>,
+    HTMLElement
+  >,
+) => {
   return (
-    <footer className="flex w-full pb-2 pt-10">
+    <footer {...props}>
       <List
         orientation="horizontal"
         sx={{
