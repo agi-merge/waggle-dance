@@ -217,13 +217,15 @@ const WaggleDanceGraph = ({
       color="primary"
       sx={{ borderRadius: "lg", padding: 1 }}
     >
-      <ExecutionSelect
-        goalId={selectedGoal.id}
-        executions={executions}
-        sx={{
-          width: { xs: "18rem", sm: "20rem", md: "24rem", lg: "28rem" },
-        }}
-      />
+      {!isRunning && (
+        <ExecutionSelect
+          goalId={selectedGoal.id}
+          executions={executions}
+          sx={{
+            width: { xs: "18rem", sm: "20rem", md: "24rem", lg: "28rem" },
+          }}
+        />
+      )}
       <Box
         component={Stack}
         direction="row"
