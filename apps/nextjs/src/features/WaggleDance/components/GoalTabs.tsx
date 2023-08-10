@@ -84,13 +84,14 @@ const GoalTab: React.FC<GoalTabProps> = ({ tab, index, key }) => {
             e.stopPropagation();
             void closeHandler(tab);
           }}
+          variant="plain"
           className="flex-end float-start"
+          size="sm"
           sx={{
-            width: "5vw",
-            padding: 0,
-            p: 0,
-            margin: 0,
-            m: 0,
+            minWidth: { xs: "1.5rem", sm: "var(--IconButton-size, 2rem)" },
+            minHeight: { xs: "1.5rem", sm: "var(--IconButton-size, 2rem)" },
+            maxWidth: { xs: "1.5rem", sm: "var(--IconButton-size, 2rem)" },
+            maxHeight: { xs: "1.5rem", sm: "var(--IconButton-size, 2rem)" },
           }}
         >
           <Close />
