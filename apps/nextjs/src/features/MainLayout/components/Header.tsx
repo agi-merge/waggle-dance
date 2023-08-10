@@ -110,7 +110,7 @@ const Header = ({}) => {
           <MenuItem orientation="vertical">
             {session?.user ? (
               <Tooltip title={`You are signed in as ${session.user.name}`}>
-                <IconButton onClick={void signOut()}>
+                <IconButton onClick={() => void signOut()}>
                   <Avatar
                     className="mr-3"
                     src={session.user.image || undefined}
