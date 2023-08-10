@@ -4,7 +4,7 @@ import "../styles/globals.css";
 import { useCallback, useEffect } from "react";
 import type { AppType } from "next/app";
 import { useRouter } from "next/router";
-import { CssVarsProvider, getInitColorSchemeScript } from "@mui/joy/styles";
+import { CssVarsProvider } from "@mui/joy/styles";
 import { Analytics } from "@vercel/analytics/react";
 import type { Session } from "next-auth";
 import { SessionProvider } from "next-auth/react";
@@ -54,9 +54,9 @@ const MyApp: AppType<{ session: Session | null }> = ({
 }) => {
   return (
     <SessionProvider session={session}>
-      {getInitColorSchemeScript()}
+      {/* {getInitColorSchemeScript()} */}
       <RouteControllerProvider>
-        <CssVarsProvider theme={theme} defaultMode="dark">
+        <CssVarsProvider theme={theme} defaultMode="system">
           <Component {...pageProps} />
         </CssVarsProvider>
       </RouteControllerProvider>

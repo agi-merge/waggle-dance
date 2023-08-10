@@ -72,3 +72,24 @@ a {
       0 0 var(--light-color);
   background-size: 40px 60px;
 }
+/* In your global.css file */
+
+html {
+  @apply bg-honeycomb;
+}
+/* 
+@media (prefers-color-scheme: dark) {
+  html {
+    @apply dark;
+  }
+} */
+
+/* 
+@media (prefers-color-scheme: light) {
+  html {
+    @apply light;
+  }
+}
+*/
+.lighten {
+}

@@ -75,7 +75,6 @@ const GoalTab: React.FC<GoalTabProps> = ({ tab, index, key }) => {
         value={index}
         component={Stack}
         color={"neutral"}
-        variant="plain"
         orientation="horizontal"
       >
         <IconButton

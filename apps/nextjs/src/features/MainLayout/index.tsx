@@ -72,14 +72,11 @@ const MainLayout = ({ children }: Props) => {
             name="viewport"
             content="initial-scale=1, viewport-fit=cover width=device-width height=device-height"
           />
-          <meta name="mobile-web-app-capable" content="yes" />
-          <meta name="apple-mobile-web-app-capable" content="yes" />
           <meta name="apple-mobile-web-app-title" content={app.name} />
           <meta
             name="apple-mobile-web-app-status-bar-style"
             content={mode === "dark" ? "black-translucent" : "default"}
           />
-          <link rel="manifest" href="/manifest.json" />
         </Head>
 
         <GlobalStyles
