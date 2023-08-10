@@ -22,6 +22,7 @@ const Footer = (
     <footer {...props}>
       <List
         orientation="horizontal"
+        size="sm"
         sx={{
           bgcolor: "background.body",
           borderRadius: "sm",
