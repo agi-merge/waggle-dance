@@ -300,7 +300,7 @@ const WaggleDanceGraph = ({
   }, [results.length, taskStates.length]);
 
   return (
-    <Stack gap="1rem" sx={{ mx: -3, posiiton: "relative" }}>
+    <Stack gap="1rem" sx={{ mx: -3 }}>
       {dag.nodes.length > 0 && (
         <Tabs
           size="sm"
@@ -573,7 +573,7 @@ const WaggleDanceGraph = ({
         </Tabs>
       )}
       <Box
-        className="z-100 sticky right-0 h-20 justify-end"
+        className="z-100 sticky"
         sx={{ bottom: "calc(env(safe-area-inset-bottom) + 2rem)" }}
       >
         <Box className="sticky bottom-2" sx={{ posiiton: "relative" }}>
