@@ -15,18 +15,17 @@ import {
   useTransition,
 } from "react";
 import { useRouter } from "next/router";
-import { Card, CircularProgress, List, Typography } from "@mui/joy";
-import {
-  Accordion,
-  AccordionContent,
-  AccordionItem,
-} from "@radix-ui/react-accordion";
+import { CircularProgress, List, Typography } from "@mui/joy";
+import { Accordion, AccordionItem } from "@radix-ui/react-accordion";
 
 import { type Execution } from "@acme/db";
 
 import { api } from "~/utils/api";
 import routes from "~/utils/routes";
-import { AccordionHeader } from "~/features/HeadlessUI/JoyAccordion";
+import {
+  AccordionContent,
+  AccordionHeader,
+} from "~/features/HeadlessUI/JoyAccordion";
 import MainLayout from "~/features/MainLayout";
 import Title from "~/features/MainLayout/components/PageTitle";
 import WaggleDanceGraph from "~/features/WaggleDance/components/WaggleDanceGraph";
@@ -164,22 +163,41 @@ export default function GoalDynamicRoute() {
         ) : (
           <>
             <Title title={isRunning ? "💃 Waggling!" : "💃 Waggle"}>
-              <Card>{selectedGoal.prompt}</Card>
+              {selectedGoal?.prompt && (
+                <List
+                  type="multiple"
+                  component={Accordion}
+                  variant="outlined"
+                  className="mt-2"
+                >
+                  <AccordionItem value="item-1">
+                    <AccordionHeader
+                      isFirst
+                      openText={
+                        <Typography noWrap level="title-sm" className="pb-2">
+                          Your goal
+                        </Typography>
+                      }
+                      closedText={
+                        <>
+                          <Typography level="title-sm">Your goal</Typography>
+                          <Typography noWrap level="body-sm">
+                            {selectedGoal.prompt}
+                          </Typography>
+                        </>
+                      }
+                    ></AccordionHeader>
+                    <AccordionContent isLast={true}>
+                      {selectedGoal.prompt}
+                    </AccordionContent>
+                  </AccordionItem>
+                </List>
+              )}
             </Title>
             <WaggleDanceGraph
               selectedGoal={selectedGoal}
               executions={executions}
             />
-            <List type="multiple" component={Accordion}>
-              <AccordionItem value="item-1">
-                <AccordionHeader isFirst>
-                  <Typography level="body-sm">Current goal</Typography>
-                </AccordionHeader>
-                <AccordionContent>
-                  <Card size="sm">{selectedGoal?.prompt}</Card>
-                </AccordionContent>
-              </AccordionItem>
-            </List>
           </>
         )}
       </Suspense>

@@ -1,3 +1,4 @@
+import { useState, type ReactNode } from "react";
 import { KeyboardArrowDownOutlined } from "@mui/icons-material";
 import Box, { type BoxProps } from "@mui/joy/Box";
 import ListItemButton, {
@@ -17,28 +18,26 @@ const slideUp = keyframes({
   from: { height: "var(--radix-accordion-content-height)" },
   to: { height: 0 },
 });
-
 export const AccordionHeader = ({
-  children,
   isFirst,
   isLast,
+  openText,
+  closedText,
   sx,
   ...props
 }: ListItemButtonProps & {
-  /**
-   * If `true`, the top border-radius is applied
-   */
   isFirst?: boolean;
-  /**
-   * If `true`, the bottom border-radius is applied when closed
-   */
   isLast?: boolean;
-}) => (
-  <ListItemButton
-    component={Accordion.Trigger}
-    {...props}
-    sx={[
-      {
+  openText?: string | ReactNode | undefined;
+  closedText?: string | ReactNode | undefined;
+}) => {
+  const [isOpen, setIsOpen] = useState(false);
+
+  return (
+    <ListItemButton
+      component={Accordion.Trigger}
+      {...props}
+      sx={{
         width: "100%",
         color: "text.secondary",
         fontWeight: "md",
@@ -55,19 +54,18 @@ export const AccordionHeader = ({
             borderBottomRightRadius: "3px",
           },
         }),
-      },
-      {
         '&[data-state="open"] > svg:last-child': {
           transform: "rotate(180deg)",
         },
-      },
-      ...(Array.isArray(sx) ? sx : [sx]),
-    ]}
-  >
-    <ListItemContent>{children}</ListItemContent>
-    <KeyboardArrowDownOutlined />
-  </ListItemButton>
-);
+        ...(sx ? sx : {}),
+      }}
+      onClick={() => setIsOpen(!isOpen)}
+    >
+      <ListItemContent>{isOpen ? openText : closedText}</ListItemContent>
+      <KeyboardArrowDownOutlined />
+    </ListItemButton>
+  );
+};
 
 export const AccordionContent = ({
   children,

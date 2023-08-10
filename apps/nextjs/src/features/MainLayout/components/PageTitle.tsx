@@ -14,7 +14,7 @@ const PageTitle = ({ title, children }: TitleProps) => {
         className="flex"
         gap="1rem"
       >
-        <Stack direction="column" className="flex w-full">
+        <Stack direction="column" className="flex w-full" gap="0.5rem">
           <Typography level="h4" fontSize={{ xs: "14pt", sm: "18pt" }}>
             {title}
           </Typography>
