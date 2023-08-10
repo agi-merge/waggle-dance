@@ -35,8 +35,6 @@ import {
   type StackProps,
 } from "@mui/joy";
 import { TRPCClientError } from "@trpc/client";
-import ReactMarkdown from "react-markdown";
-import remarkGfm from "remark-gfm";
 import { stringify } from "yaml";
 
 import { type Execution } from "@acme/db";
@@ -154,7 +152,6 @@ const WaggleDanceGraph = ({
               uniqueToken: newDraftExecutionId(), // extra uuid
             };
             createdExecution = draftExecution;
-            debugger;
           }
           if (!createdExecution) {
             console.error("error which is not the expected 401", error);
@@ -162,7 +159,6 @@ const WaggleDanceGraph = ({
           }
         }
       }
-      debugger;
       assert(createdExecution);
       void (async () => {
         console.log("replace route");
@@ -170,7 +166,6 @@ const WaggleDanceGraph = ({
           goalId: selectedGoal.id,
           router,
         });
-        debugger;
         await startWaggleDance();
       })();
     },
@@ -490,9 +485,7 @@ const WaggleDanceGraph = ({
 
                               {n.result && (
                                 <Typography level="body-sm" className="pt-2">
-                                  <ReactMarkdown remarkPlugins={[remarkGfm]}>
-                                    {n.result}
-                                  </ReactMarkdown>
+                                  {n.result}
                                 </Typography>
                               )}
                             </Card>
