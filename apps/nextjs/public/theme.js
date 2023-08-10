@@ -8,7 +8,7 @@
         defaultDarkColorScheme: "dark",
         modeStorageKey: "DEFAULT_MODE_STORAGE_KEY",
         colorSchemeStorageKey: "DEFAULT_COLOR_SCHEME_STORAGE_KEY",
-        attribute: "DEFAULT_ATTRIBUTE",
+        attribute: "class",
         colorSchemeNode: "document.documentElement",
       };
       console.group("running theme.js");
@@ -48,8 +48,7 @@
           thing.defaultDarkColorScheme;
       }
       if (colorScheme) {
-        debugger;
-        document.documentElement.setAttribute(thing.attribute, colorScheme);
+        document.body.setAttribute(thing.attribute, colorScheme);
       }
     } catch (e) {
     } finally {
