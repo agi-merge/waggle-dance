@@ -15,12 +15,18 @@ import {
   useTransition,
 } from "react";
 import { useRouter } from "next/router";
-import { Card, CircularProgress } from "@mui/joy";
+import { Card, CircularProgress, List, Typography } from "@mui/joy";
+import {
+  Accordion,
+  AccordionContent,
+  AccordionItem,
+} from "@radix-ui/react-accordion";
 
 import { type Execution } from "@acme/db";
 
 import { api } from "~/utils/api";
 import routes from "~/utils/routes";
+import { AccordionHeader } from "~/features/HeadlessUI/JoyAccordion";
 import MainLayout from "~/features/MainLayout";
 import Title from "~/features/MainLayout/components/PageTitle";
 import WaggleDanceGraph from "~/features/WaggleDance/components/WaggleDanceGraph";
@@ -164,6 +170,16 @@ export default function GoalDynamicRoute() {
               selectedGoal={selectedGoal}
               executions={executions}
             />
+            <List type="multiple" component={Accordion}>
+              <AccordionItem value="item-1">
+                <AccordionHeader isFirst>
+                  <Typography level="body-sm">Current goal</Typography>
+                </AccordionHeader>
+                <AccordionContent>
+                  <Card size="sm">{selectedGoal?.prompt}</Card>
+                </AccordionContent>
+              </AccordionItem>
+            </List>
           </>
         )}
       </Suspense>
