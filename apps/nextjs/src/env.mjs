@@ -23,6 +23,8 @@ export const env = createEnv({
     // Add `.min(1) on ID and SECRET if you want to make sure they're not empty
     DISCORD_ID: z.string().min(19).max(19).optional(),
     DISCORD_SECRET: z.string().min(32).max(32).optional(),
+    POSTMARK_TOKEN: z.string().min(1).optional(),
+    EMAIL_FROM: z.string().min(1).optional(),
     MEMORY_TYPE: z
       .enum([
         "buffer",
@@ -96,5 +98,7 @@ export const env = createEnv({
     EDGE_CONFIG_WRITE: process.env.EDGE_CONFIG_WRITE,
     VERCEL_ACCESS_TOKEN: process.env.VERCEL_ACCESS_TOKEN,
     NEXT_PUBLIC_LANGCHAIN_API_URL: process.env.NEXT_PUBLIC_LANGCHAIN_API_URL,
+    EMAIL_FROM: process.env.EMAIL_FROM,
+    POSTMARK_TOKEN: process.env.POSTMARK_TOKEN,
   },
 });
