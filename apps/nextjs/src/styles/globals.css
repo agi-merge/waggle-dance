@@ -77,19 +77,9 @@ a {
 html {
   @apply bg-honeycomb;
 }
-/* 
+
 @media (prefers-color-scheme: dark) {
   html {
     @apply dark;
   }
-} */
-
-/* 
-@media (prefers-color-scheme: light) {
-  html {
-    @apply light;
-  }
-}
-*/
-.lighten {
 }
