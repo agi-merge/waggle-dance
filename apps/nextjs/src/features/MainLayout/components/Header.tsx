@@ -5,18 +5,18 @@ import { MoreVert } from "@mui/icons-material";
 import {
   Avatar,
   IconButton,
-  Link,
   Menu,
   MenuItem,
   Stack,
   Tooltip,
   Typography,
 } from "@mui/joy";
-import { useSession } from "next-auth/react";
+import { signOut, useSession } from "next-auth/react";
 
 import routes from "~/utils/routes";
 import { app } from "~/constants";
 import useGoalStore from "~/stores/goalStore";
+import Footer from "./Footer";
 import ThemeToggle from "./ThemeToggle";
 
 const Header = ({}) => {
@@ -65,10 +65,16 @@ const Header = ({}) => {
   const isHomeSlug = activeIndex === 0;
 
   return (
-    <header className=" mx-auto w-full px-5 pb-2 pt-0">
+    <header className="mx-auto w-full px-5 pb-2 pt-0">
       <Stack
         direction="row"
-        sx={{ paddingTop: { xs: 1, sm: 3 }, paddingBottom: { xs: 1, sm: 3 } }}
+        sx={{
+          paddingTop: {
+            xs: "calc(env(safe-area-inset-top) + 1rem)",
+            sm: "calc(env(safe-area-inset-top) + 3rem)",
+          },
+          paddingBottom: { xs: 1, sm: 3 },
+        }}
       >
         <Typography
           className="flex-grow"
@@ -104,21 +110,22 @@ const Header = ({}) => {
           <MenuItem orientation="vertical">
             {session?.user ? (
               <Tooltip title={`You are signed in as ${session.user.name}`}>
-                <Link>
-                  <span onClick={handleOpen}>
-                    <Avatar
-                      className="mr-3"
-                      src={session.user.image || undefined}
-                      alt={session.user.name || undefined}
-                    />
-                  </span>
-                </Link>
+                <IconButton onClick={void signOut()}>
+                  <Avatar
+                    className="mr-3"
+                    src={session.user.image || undefined}
+                    alt={session.user.name || undefined}
+                  />
+                </IconButton>
               </Tooltip>
             ) : (
               <Typography className="p-2">
                 <NextLink href={routes.auth}>Sign in/up</NextLink>
               </Typography>
             )}
+          </MenuItem>
+          <MenuItem>
+            <Footer />
           </MenuItem>
         </Menu>
       </Stack>
