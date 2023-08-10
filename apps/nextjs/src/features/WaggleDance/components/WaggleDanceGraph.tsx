@@ -82,6 +82,8 @@ const WaggleDanceGraph = ({
   } = useWaggleDanceMachine({
     goal: selectedGoal,
   });
+  const listItemsRef = useRef<HTMLLIElement[]>([]);
+  const taskListRef = useRef<HTMLUListElement>(null);
 
   const sortedTaskStates = useMemo(() => {
     return taskStates.sort((a: TaskState, b: TaskState) => {
@@ -192,6 +194,14 @@ const WaggleDanceGraph = ({
       }, 0);
     }
   }, [handleStart, hasMountedRef, isAutoStartEnabled, setIsAutoStartEnabled]);
+
+  useEffect(() => {
+    // Scroll to the end of the list when a new task is added
+    // setTimeout(() => {
+    const lastListItem = listItemsRef.current[sortedTaskStates.length - 1];
+    lastListItem?.scrollIntoView({ behavior: "smooth" });
+    // }, 100);
+  }, [sortedTaskStates.length]);
 
   const stringifyMax = (value: unknown, max: number) => {
     const json = stringify(value);
@@ -343,7 +353,7 @@ const WaggleDanceGraph = ({
           {taskStates.length > 0 ? (
             <>
               <TabPanel value={0} className="w-full overflow-y-scroll p-4">
-                <List aria-label="Task list" size="sm" className="">
+                <List aria-label="Task list" size="sm" ref={taskListRef}>
                   {sortedTaskStates.map((n, i) => (
                     <React.Fragment key={n.id}>
                       <ListItem
@@ -351,6 +361,7 @@ const WaggleDanceGraph = ({
                           width: { xs: "100%", sm: "auto" },
                           flexDirection: { xs: "column", sm: "row" },
                         }}
+                        ref={(el) => el && (listItemsRef.current[i] = el)}
                       >
                         <ListItemDecorator
                           color={statusColor(n)}
