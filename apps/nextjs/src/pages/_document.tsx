@@ -4,7 +4,7 @@ import Script from "next/script";
 class MyDocument extends Document {
   render() {
     return (
-      <Html className="bg-honeycomb">
+      <Html>
         <Head>
           <Script src="/theme.js" strategy="beforeInteractive" />
           <meta name="mobile-web-app-capable" content="yes" />
