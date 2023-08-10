@@ -3,10 +3,10 @@
     try {
       let mode = localStorage.getItem("mode") || undefined;
       const thing = {
-        defaultMode: "light",
+        defaultMode: "system",
         defaultLightColorScheme: "light",
         defaultDarkColorScheme: "dark",
-        modeStorageKey: "DEFAULT_MODE_STORAGE_KEY",
+        modeStorageKey: "joy-mode",
         colorSchemeStorageKey: "DEFAULT_COLOR_SCHEME_STORAGE_KEY",
         attribute: "class",
         colorSchemeNode: "document.documentElement",
@@ -48,7 +48,15 @@
           thing.defaultDarkColorScheme;
       }
       if (colorScheme) {
-        document.body.setAttribute(thing.attribute, colorScheme);
+        document.body.setAttribute(
+          thing.attribute,
+          `bg-honeycomb ${colorScheme}`,
+        );
+      } else if (cssColorScheme) {
+        document.body.setAttribute(
+          thing.attribute,
+          `bg-honeycomb ${cssColorScheme}`,
+        );
       }
     } catch (e) {
     } finally {

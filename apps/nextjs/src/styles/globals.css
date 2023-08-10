@@ -10,6 +10,12 @@ a {
   --background-color: rgba(24, 24, 27, 0);
 }
 
+.light {
+  --light-color: rgb(254, 231, 188);
+  --dark-color: rgb(250, 181, 97);
+  --background-color: rgba(24, 24, 27, 0);
+}
+
 .dark {
   --light-color: rgb(48, 26, 0, 0.9);
   --dark-color: rgb(119, 71, 14);
@@ -17,7 +23,6 @@ a {
 }
 
 .bg-honeycomb {
-  @apply h-full w-full;
   background:
     radial-gradient(
         circle farthest-side at 0% 50%,
@@ -73,12 +78,14 @@ a {
   background-size: 40px 60px;
 }
 
-body {
-  @apply bg-honeycomb;
+@media (prefers-color-scheme: dark) {
+  .system.bg-honeycomb {
+    @apply dark;
+  }
 }
 
-@media (prefers-color-scheme: dark) {
-  body {
-    @apply dark;
+@media (prefers-color-scheme: light) {
+  .system.bg-honeycomb {
+    @apply light;
   }
 }

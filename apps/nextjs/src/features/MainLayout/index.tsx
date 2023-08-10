@@ -33,7 +33,19 @@ const MainLayout = ({ children }: Props) => {
   // because mode is undefined on the server
   useEffect(() => {
     setMounted(true);
-  }, [router]);
+    if (mode) {
+      if (document.body.classList.contains("dark")) {
+        document.body.classList.remove("dark");
+      }
+      if (document.body.classList.contains("light")) {
+        document.body.classList.remove("light");
+      }
+      if (document.body.classList.contains("system")) {
+        document.body.classList.remove("system");
+      }
+      document.body.classList.add(mode);
+    }
+  }, [router, mode]);
 
   const progressOpacity = useMemo(() => {
     return isPageLoading ? 100 : 0;
@@ -47,15 +59,9 @@ const MainLayout = ({ children }: Props) => {
     return null;
   }
   return (
-    <Box
-      className={`bg-honeycomb xs:pt-0 sm:pt-2 ${
-        mode === "dark" ? " dark" : "light"
-      }`}
-    >
+    <Box className={`xs:pt-0 sm:pt-2`}>
       <Box
-        className={`overflow-x-clip overflow-y-scroll px-2 pb-2 ${
-          mode === "dark" ? " dark" : "light"
-        }`}
+        className={`overflow-x-clip overflow-y-scroll px-2 pb-2`}
         sx={{
           height: "calc(100dvh + env(safe-area-inset-bottom))",
           minHeight: "calc(100dvh + env(safe-area-inset-bottom))",
