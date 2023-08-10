@@ -158,6 +158,8 @@ const WaggleDanceGraph = ({
             return;
           }
         }
+      } else {
+        createdExecution = data;
       }
       assert(createdExecution);
       void (async () => {
