@@ -119,7 +119,12 @@ const MainLayout = ({ children }: Props) => {
               {children}
             </GoalTabs>
           </Card>
-          <Footer className="xs:scale-75 sticky bottom-0 flex w-full pb-2 pt-10 md:scale-100" />
+          <Footer
+            className="xs:scale-75 sticky bottom-0 flex w-full pb-2 pt-10 md:scale-100"
+            style={{
+              bottom: "calc(env(safe-area-inset-bottom))",
+            }}
+          />
         </Sheet>
       </Box>
     </Box>
