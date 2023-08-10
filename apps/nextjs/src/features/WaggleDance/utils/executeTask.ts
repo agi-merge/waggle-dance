@@ -100,7 +100,9 @@ export default async function executeTask(
   }
 
   if (!tokens || !tokens.length) {
-    throw new Error(`No buffer: ${response.statusText} `);
+    throw new Error(
+      `No buffered tokens ${tokens} for response ${response.status} result ${result.done} `,
+    );
   }
   const packet = processResponseBuffer(tokens);
 
