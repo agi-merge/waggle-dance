@@ -47,9 +47,13 @@ const MainLayout = ({ children }: Props) => {
     return null;
   }
   return (
-    <Box className={`bg-honeycomb ${mode === "dark" ? " dark" : "light"}`}>
+    <Box
+      className={`bg-honeycomb xs:pt-0 sm:pt-2 ${
+        mode === "dark" ? " dark" : "light"
+      }`}
+    >
       <Box
-        className={`bg-honeycomb overflow-x-clip overflow-y-clip ${
+        className={`h-screen overflow-x-clip overflow-y-scroll px-2 pb-2 ${
           mode === "dark" ? " dark" : "light"
         }`}
         sx={{
@@ -85,10 +89,11 @@ const MainLayout = ({ children }: Props) => {
           })}
         />
         <Sheet
-          className="mx-auto sm:mt-1 md:mt-2 md:max-w-screen-lg xl:max-w-screen-lg"
+          className="sticky mx-auto md:max-w-screen-lg xl:max-w-screen-lg"
           sx={{
             borderRadius: "lg",
             shadowRadius: "xl",
+            zIndex: 101,
           }}
           variant="soft"
         >
@@ -114,7 +119,7 @@ const MainLayout = ({ children }: Props) => {
               {children}
             </GoalTabs>
           </Card>
-          <Footer className="sticky bottom-0 flex w-full pb-2 pt-10" />
+          <Footer className="xs:scale-75 sticky bottom-0 flex w-full pb-2 pt-10 md:scale-100" />
         </Sheet>
       </Box>
     </Box>
