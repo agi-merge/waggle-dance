@@ -10,23 +10,21 @@ type Props = {
 };
 export default function BasicModal({ children, open, setOpen }: Props) {
   return (
-    <React.Fragment>
-      <Box className="flex justify-center">
-        <Tooltip
-          title="View some example goals for inspiration"
-          variant="soft"
+    <>
+      <Tooltip
+        title="View some example goals for inspiration"
+        variant="soft"
+        color="neutral"
+      >
+        <Link
+          variant="outlined"
+          level="body-sm"
           color="neutral"
+          onClick={() => setOpen(true)}
         >
-          <Link
-            variant="outlined"
-            level="body-sm"
-            color="neutral"
-            onClick={() => setOpen(true)}
-          >
-            🤔 Examples
-          </Link>
-        </Tooltip>
-      </Box>
+          🤔 Examples
+        </Link>
+      </Tooltip>
       <Modal
         aria-labelledby="modal-title"
         aria-describedby="modal-desc"
@@ -66,6 +64,6 @@ export default function BasicModal({ children, open, setOpen }: Props) {
           </Box>
         </Card>
       </Modal>
-    </React.Fragment>
+    </>
   );
 }

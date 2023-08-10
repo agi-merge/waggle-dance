@@ -194,7 +194,6 @@ export default function GoalInput({}: GoalInputProps) {
                 <GoalDoctorModal>
                   <Typography color="neutral">Coming soon!</Typography>
                 </GoalDoctorModal>
-                <Divider orientation="vertical" />
               </Stack>
             </Box>
           }
