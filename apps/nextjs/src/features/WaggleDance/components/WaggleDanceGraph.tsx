@@ -128,19 +128,6 @@ const WaggleDanceGraph = ({
           if (data.httpStatus === 401 && selectedGoal) {
             const exeId = newDraftExecutionId();
             const goalId = selectedGoal.id;
-            /*
-            export type $ExecutionPayload<ExtArgs extends $Extensions.Args = $Extensions.DefaultArgs> = {
-              scalars: $Extensions.GetResult<{
-                id: string
-                goalId: string
-                userId: string
-                graph: Prisma.JsonValue | null
-                state: $Enums.ExecutionState
-                createdAt: Date
-                updatedAt: Date
-                uniqueToken: string
-              }, ExtArgs["result"]["execution"]>
-            }*/
             const draftExecution: Execution = {
               id: exeId,
               goalId,
