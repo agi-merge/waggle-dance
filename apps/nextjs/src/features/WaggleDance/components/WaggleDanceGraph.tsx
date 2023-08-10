@@ -574,9 +574,9 @@ const WaggleDanceGraph = ({
       )}
       <Box
         className="z-100 sticky"
-        sx={{ bottom: "calc(env(safe-area-inset-bottom) + 2rem)" }}
+        sx={{ bottom: "calc(env(safe-area-inset-bottom))" }}
       >
-        <Box className="sticky bottom-2" sx={{ posiiton: "relative" }}>
+        <Box className="bottom sticky" sx={{ posiiton: "relative" }}>
           <LinearProgress
             sx={{
               position: "absolute",

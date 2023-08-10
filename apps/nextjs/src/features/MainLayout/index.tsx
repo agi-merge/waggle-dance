@@ -47,14 +47,15 @@ const MainLayout = ({ children }: Props) => {
     return null;
   }
   return (
-    <Box
-      className={`bg-honeycomb ${mode === "dark" ? " dark" : "light"}`}
-      sx={{
-        overflow: "clip",
-        height: "calc(100dvh - env(safe-area-inset-bottom))",
-      }}
-    >
-      <Box className="h-screen overflow-y-auto px-2 pb-2">
+    <Box className={`bg-honeycomb ${mode === "dark" ? " dark" : "light"}`}>
+      <Box
+        className={`bg-honeycomb overflow-x-clip overflow-y-clip ${
+          mode === "dark" ? " dark" : "light"
+        }`}
+        sx={{
+          minHeight: "calc(100dvh + env(safe-area-inset-bottom))",
+        }}
+      >
         <Head>
           <title>{app.name}</title>
           <meta name="description" content={app.description} />
