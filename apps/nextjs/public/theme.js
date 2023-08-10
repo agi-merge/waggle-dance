@@ -1,7 +1,7 @@
 (function initTheme() {
   (function () {
     try {
-      let mode = localStorage.getItem("mode");
+      let mode = localStorage.getItem("mode") || undefined;
       const thing = {
         defaultMode: "light",
         defaultLightColorScheme: "light",
