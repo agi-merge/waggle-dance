@@ -53,10 +53,11 @@ const MainLayout = ({ children }: Props) => {
       }`}
     >
       <Box
-        className={`h-screen overflow-x-clip overflow-y-scroll px-2 pb-2 ${
+        className={`overflow-x-clip overflow-y-scroll px-2 pb-2 ${
           mode === "dark" ? " dark" : "light"
         }`}
         sx={{
+          height: "calc(100dvh + env(safe-area-inset-bottom))",
           minHeight: "calc(100dvh + env(safe-area-inset-bottom))",
         }}
       >
