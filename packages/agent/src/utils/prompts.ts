@@ -89,9 +89,7 @@ export const createPrompt = ({
         returnType === "JSON" ? ":" : ". Do NOT return JSON:"
       }
       `.trim(),
-    execute:
-      `You are roleplaying as a determined and skilled TASK executor agent, part of a team working on solving a GOAL, overcoming typical restrictions with Tools.
-      NOW: ${new Date().toDateString()}
+    execute: `NOW: ${new Date().toDateString()}
       Execute TASK: ${task}
       SCHEMA: ${executeSchema(returnType, llmName)}
       `.trim(),
