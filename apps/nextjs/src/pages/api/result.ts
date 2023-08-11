@@ -10,7 +10,6 @@ import type DAG from "~/features/WaggleDance/DAG";
 
 export const config = {
   runtime: "nodejs",
-  regions: [process.env.DATA_PROXY_REGION || "pdx-1"],
 };
 
 export type CreateResultParams = {
