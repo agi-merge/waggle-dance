@@ -45,17 +45,22 @@ function processResponseBuffer(tokens: string): Partial<ChainPacket> {
   return packet;
 }
 
-export default async function executeTask(
-  request: ExecuteRequestBody,
-  _maxConcurrency: number,
-  _isRunning: boolean,
+export type ExecuteTaskProps = {
+  request: ExecuteRequestBody;
   sendChainPacket: (
     chainPacket: ChainPacket,
     node: DAGNode | DAGNodeClass,
-  ) => void,
-  log: (...args: (string | number | object)[]) => void,
-  abortSignal: AbortSignal,
-): Promise<string> {
+  ) => void;
+  log: (...args: (string | number | object)[]) => void;
+  abortSignal: AbortSignal;
+};
+
+export default async function executeTask({
+  request,
+  sendChainPacket,
+  log,
+  abortSignal,
+}: ExecuteTaskProps): Promise<string> {
   const { task } = request;
 
   if (abortSignal.aborted) throw new Error("Signal aborted");

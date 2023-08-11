@@ -15,23 +15,36 @@ import {
   type OptimisticFirstTaskState,
 } from "../WaggleDanceMachine";
 
-// Request the execution plan (DAG) from the API
-export default async function planTasks(
-  goal: string,
-  goalId: string,
-  creationProps: ModelCreationProps,
-  dag: DAG,
-  setDAG: (dag: DAG) => void,
-  log: (...args: (string | number | object)[]) => void,
+export type PlanTasksProps = {
+  goal: string;
+  goalId: string;
+  creationProps: ModelCreationProps;
+  dag: DAG;
+  graphDataState: [DAG, (dag: DAG) => void];
+  log: (...args: (string | number | object)[]) => void;
   sendChainPacket: (
     chainPacket: ChainPacket,
     node: DAGNode | DAGNodeClass,
-  ) => void,
-  taskState: OptimisticFirstTaskState,
-  abortSignal: AbortSignal,
-  updateTaskState?: (state: "not started" | "started" | "done") => void,
-  startFirstTask?: (task: DAGNode, dag: DAG) => Promise<void>,
-): Promise<DAG> {
+  ) => void;
+  optimisticFirstTaskState: OptimisticFirstTaskState;
+  abortSignal: AbortSignal;
+  updateTaskState?: (state: "not started" | "started" | "done") => void;
+  startFirstTask?: (task: DAGNode, dag: DAG) => Promise<void>;
+};
+// Request the execution plan (DAG) from the API
+export default async function planTasks({
+  goal,
+  goalId,
+  creationProps,
+  dag,
+  graphDataState: [_initDag, setDAG],
+  log,
+  sendChainPacket,
+  optimisticFirstTaskState,
+  abortSignal,
+  updateTaskState,
+  startFirstTask,
+}: PlanTasksProps): Promise<DAG> {
   const data = { goal, goalId, creationProps };
   const res = await fetch("/api/agent/plan", {
     method: "POST",
@@ -102,7 +115,7 @@ export default async function planTasks(
           const firstNode = validNodes[0];
           if (
             startFirstTask &&
-            taskState.firstTaskState === "not started" &&
+            optimisticFirstTaskState.firstTaskState === "not started" &&
             firstNode &&
             validNodes.length > 0
           ) {

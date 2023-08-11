@@ -75,7 +75,6 @@ export type RunParams = {
     node: DAGNode | DAGNodeClass,
   ) => void;
   log: (...args: (string | number | object)[]) => void;
-  isRunning: boolean;
   abortController: AbortController;
 };
 
@@ -90,7 +89,6 @@ export default class WaggleDanceMachine {
     isDonePlanningState: [isDonePlanning, setIsDonePlanning],
     sendChainPacket,
     log,
-    isRunning,
     abortController,
   }: RunParams): Promise<WaggleDanceResult | Error> {
     const optimisticFirstTaskState = {
@@ -112,7 +110,6 @@ export default class WaggleDanceMachine {
     })();
     const completedTasks: Set<string> = new Set([rootPlanId]);
     const taskResults: Record<string, BaseResultType> = {};
-    const maxConcurrency = Infinity;
 
     const startFirstTask = async (task: DAGNode | DAGNodeClass, dag: DAG) => {
       log(
@@ -142,14 +139,12 @@ export default class WaggleDanceMachine {
             creationProps,
           };
 
-          result = await executeTask(
-            executeRequest,
-            maxConcurrency,
-            isRunning,
+          result = await executeTask({
+            request: executeRequest,
             sendChainPacket,
             log,
-            abortController.signal,
-          );
+            abortSignal: abortController.signal,
+          });
         } catch (error) {
           sendChainPacket(
             {
@@ -204,19 +199,19 @@ export default class WaggleDanceMachine {
           agentSettings["plan"],
         );
 
-        dag = await planTasks(
+        dag = await planTasks({
           goal,
           goalId,
           creationProps,
-          initDAG,
-          setDAG,
+          dag,
+          graphDataState: [initDAG, setDAG],
           log,
           sendChainPacket,
           optimisticFirstTaskState,
-          abortController.signal,
+          abortSignal: abortController.signal,
           updateTaskState,
           startFirstTask,
-        );
+        });
         const hookupEdges = findNodesWithNoIncomingEdges(dag).map(
           (node) => new DAGEdgeClass(rootPlanId, node.id),
         );
@@ -324,14 +319,12 @@ export default class WaggleDanceMachine {
       void (async () => {
         let result;
         try {
-          result = await executeTask(
-            executeRequest,
-            maxConcurrency,
-            isRunning,
+          result = await executeTask({
+            request: executeRequest,
             sendChainPacket,
             log,
-            abortController.signal,
-          );
+            abortSignal: abortController.signal,
+          });
         } catch (error) {
           sendChainPacket(
             {

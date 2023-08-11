@@ -42,7 +42,7 @@ export type TaskState = DAGNode & {
 
 const useWaggleDanceMachine = ({ goal }: UseWaggleDanceMachineProps) => {
   const [waggleDanceMachine] = useState(new WaggleDanceMachine());
-  const { isRunning, setIsRunning, agentSettings, execution } =
+  const { setIsRunning, agentSettings, execution } =
     useWaggleDanceMachineStore();
   const graph = goal?.executions.find((e) => {
     const dag = e.graph as DAG | null;
@@ -257,7 +257,6 @@ const useWaggleDanceMachine = ({ goal }: UseWaggleDanceMachineProps) => {
         isDonePlanningState: [isDonePlanning, setIsDonePlanning],
         sendChainPacket,
         log,
-        isRunning,
         abortController: ac,
       });
     } catch (error) {
@@ -296,7 +295,6 @@ const useWaggleDanceMachine = ({ goal }: UseWaggleDanceMachineProps) => {
     dag,
     sendChainPacket,
     log,
-    isRunning,
   ]);
 
   return {
