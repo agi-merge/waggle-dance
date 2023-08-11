@@ -1,16 +1,18 @@
 // utils/llms.ts
 
+// TODO: use APIs to list eligible models
+
 export enum LLM {
   "embeddings" = "text-embedding-ada-002",
   "gpt-4" = "gpt-4",
   "gpt-4-0613" = "gpt-4-0613",
   "gpt-4-0314" = "gpt-4-0314",
-  "gpt-4-32k" = "gpt-4-32k",
-  "gpt-4-32k-0613" = "gpt-4-32k-0613",
+  // "gpt-4-32k" = "gpt-4-32k",
+  // "gpt-4-32k-0613" = "gpt-4-32k-0613",
   "gpt-3.5-turbo" = "gpt-3.5-turbo",
   "gpt-3.5-turbo-16k" = "gpt-3.5-turbo-16k",
   "gpt-3.5-turbo-0613" = "gpt-3.5-turbo-0613",
-  "gpt-3.5-turbo-0301" = "gpt-3.5-turbo-16k-0301",
+  "gpt-3.5-turbo-0301" = "gpt-3.5-turbo-0301",
   "gpt-3.5-turbo-16k-0613" = "gpt-3.5-turbo-16k-0613",
 }
 
@@ -18,7 +20,7 @@ export const LLM_ALIASES = {
   fast: LLM["gpt-3.5-turbo"],
   "fast-large": LLM["gpt-3.5-turbo-16k"],
   smart: LLM["gpt-4-0314"],
-  "smart-large": LLM["gpt-4-32k"],
+  // "smart-large": LLM["gpt-4-32k"],
   embeddings: LLM["embeddings"],
 };
 
@@ -115,20 +117,20 @@ export const models: Model[] = [
     maxTokens: 8192,
     trainingData: "Up to Sep 2021",
   },
-  {
-    name: LLM["gpt-4-32k"],
-    description:
-      "Same capabilities as the base gpt-4 mode but with 4x the context length. Will be updated with our latest model iteration.",
-    maxTokens: 32768,
-    trainingData: "Up to Sep 2021",
-  },
-  {
-    name: LLM["gpt-4-32k-0613"],
-    description:
-      "Snapshot of gpt-4-32 from June 13th 2023. Unlike gpt-4-32k, this model will not receive updates, and will be deprecated 3 months after a new version is released.",
-    maxTokens: 32768,
-    trainingData: "Up to Sep 2021",
-  },
+  // {
+  //   name: LLM["gpt-4-32k"],
+  //   description:
+  //     "Same capabilities as the base gpt-4 mode but with 4x the context length. Will be updated with our latest model iteration.",
+  //   maxTokens: 32768,
+  //   trainingData: "Up to Sep 2021",
+  // },
+  // {
+  //   name: LLM["gpt-4-32k-0613"],
+  //   description:
+  //     "Snapshot of gpt-4-32 from June 13th 2023. Unlike gpt-4-32k, this model will not receive updates, and will be deprecated 3 months after a new version is released.",
+  //   maxTokens: 32768,
+  //   trainingData: "Up to Sep 2021",
+  // },
   {
     name: LLM["gpt-3.5-turbo"],
     description:
