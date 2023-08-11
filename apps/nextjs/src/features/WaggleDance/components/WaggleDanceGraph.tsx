@@ -153,10 +153,8 @@ const WaggleDanceGraph = ({
       assert(createdExecution);
       void (async () => {
         console.log("replace route");
-        await setExecution(createdExecution, {
-          goalId: selectedGoal.id,
-          router,
-        });
+        setExecution(createdExecution);
+        await router.push(routes.goal(selectedGoal.id, createdExecution?.id));
         await startWaggleDance();
       })();
     },

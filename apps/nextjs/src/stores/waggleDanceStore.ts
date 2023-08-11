@@ -1,13 +1,11 @@
 // stores/waggleDanceStore.ts
 
-import { type NextRouter } from "next/router";
 import { v4 } from "uuid";
 import { create } from "zustand";
 import { createJSONStorage, persist } from "zustand/middleware";
 
 import { type Execution } from "@acme/db";
 
-import routes from "~/utils/routes";
 import { app } from "~/constants";
 import {
   AgentPromptingMethod,
@@ -39,10 +37,7 @@ export interface WaggleDanceMachineStore {
     newValue: Partial<AgentSettings>,
   ) => void;
   execution: Execution | null;
-  setExecution: (
-    newExecution: Execution | null,
-    routeToGoal?: { goalId: string; router: NextRouter } | undefined,
-  ) => Promise<void>;
+  setExecution: (newExecution: Execution | null) => void;
 }
 
 export const draftExecutionPrefix = "draftexe-";
@@ -84,11 +79,8 @@ const useWaggleDanceMachineStore = create(
           },
         })),
       execution: null,
-      setExecution: async (newExecution, routeToGoal) => {
+      setExecution: (newExecution) => {
         set({ execution: newExecution });
-        await routeToGoal?.router.replace(
-          routes.goal(routeToGoal?.goalId, newExecution?.id),
-        );
       },
     }),
     {

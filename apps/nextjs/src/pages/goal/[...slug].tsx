@@ -109,10 +109,14 @@ export default function GoalDynamicRoute() {
       if (serverGoals[0]?.id) {
         console.debug("routing to serverGoals[0]", serverGoals[0].id);
         selectGoal(serverGoals[0].id);
-        void setExecution(serverGoals[0]?.executions[0] || null, {
-          goalId: serverGoals[0].id,
-          router,
-        });
+        void setExecution(serverGoals[0]?.executions[0] || null);
+        void router.replace(
+          routes.goal(serverGoals[0].id, serverGoals[0]?.executions[0]?.id),
+          undefined,
+          {
+            shallow: true,
+          },
+        );
       } else if (goalList[0]?.id) {
         console.debug("routing to goalList[0]", goalList[0].id);
         selectGoal(goalList[0].id);
@@ -142,7 +146,7 @@ export default function GoalDynamicRoute() {
     goalId &&
       startTransition(() => {
         selectGoal(goalId);
-        void setExecution(exe, { goalId, router });
+        void setExecution(exe);
       });
     // avoid Error: Maximum update depth exceeded. / replaceState getting called frequently
     // eslint-disable-next-line react-hooks/exhaustive-deps
