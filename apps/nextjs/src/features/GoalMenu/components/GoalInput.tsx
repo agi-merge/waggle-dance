@@ -50,8 +50,6 @@ export default function GoalInput({}: GoalInputProps) {
   const [currentPlaceholderIndex, setCurrentPlaceholderIndex] = useState(0);
   const [templatesModalOpen, setTemplatesModalOpen] = useState<boolean>(false);
 
-  // const { data: sessionData } = useSession();
-
   const { mutate: createGoal } = api.goal.create.useMutation({});
 
   const handleSubmit = useCallback(
