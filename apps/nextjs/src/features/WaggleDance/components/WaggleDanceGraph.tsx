@@ -138,7 +138,6 @@ const WaggleDanceGraph = ({
               state: "EXECUTING",
               createdAt: new Date(),
               updatedAt: new Date(),
-              uniqueToken: newDraftExecutionId(), // extra uuid
             };
             createdExecution = draftExecution;
           }

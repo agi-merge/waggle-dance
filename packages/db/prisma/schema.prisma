@@ -97,11 +97,9 @@ model Execution {
   state       ExecutionState @default(EXECUTING)
   createdAt   DateTime       @default(now())
   updatedAt   DateTime       @default(now()) @updatedAt
-  uniqueToken String
 
   @@index([userId])
   @@index([goalId])
-  @@unique([goalId, userId, uniqueToken])
 }
 
 model Result {
