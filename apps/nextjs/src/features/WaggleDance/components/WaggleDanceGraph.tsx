@@ -207,72 +207,6 @@ const WaggleDanceGraph = ({
     const json = stringify(value);
     return json && json.length < max ? json : `${json.slice(0, max)}…`;
   };
-  const button = (
-    <Stack
-      direction={{ xs: "column", sm: "row" }}
-      gap="0.5rem"
-      className="flex items-center justify-end"
-    >
-      {!isRunning && (
-        <ExecutionSelect
-          goalId={selectedGoal.id}
-          executions={executions}
-          sx={{
-            width: { xs: "18rem", sm: "20rem", md: "24rem", lg: "28rem" },
-          }}
-        />
-      )}
-      <Box
-        component={Stack}
-        direction="row"
-        sx={{ alignItems: "center", pl: 1.5 }}
-        gap={1}
-      >
-        <Box
-          className="items-center justify-center text-center align-top"
-          component={Stack}
-          gap={0.5}
-        >
-          <Typography level="body-sm">
-            <Link href={routes.auth} target="_blank" color="primary">
-              Sign in to save your progress
-            </Link>
-          </Typography>
-
-          <Divider />
-          <GoalSettings />
-        </Box>
-        <Button
-          size="lg"
-          className="col-end"
-          color="primary"
-          variant="soft"
-          onClick={isRunning ? handleStop : handleStart}
-          endDecorator={isRunning ? <StopCircle /> : <PlayCircle />}
-          sx={{ zIndex: 15, padding: { xs: 1, sm: 2 } }}
-        >
-          {isRunning && (
-            <CircularProgress
-              size="sm"
-              variant="soft"
-              sx={{ marginRight: 1 }}
-            />
-          )}
-          <Stack
-            direction={{ xs: "row", sm: "column" }}
-            gap="0.5rem"
-            className="items-center"
-          >
-            {isRunning ? (
-              <>Stop</>
-            ) : (
-              <>{dag.nodes.length > 0 ? "Restart" : "Start"}</>
-            )}
-          </Stack>
-        </Button>
-      </Box>
-    </Stack>
-  );
 
   const statusColor = (n: TaskState) => {
     switch (n.status) {
@@ -295,6 +229,22 @@ const WaggleDanceGraph = ({
   const progress = useMemo(() => {
     return (results.length / taskStates.length) * 100;
   }, [results.length, taskStates.length]);
+
+  const inProgressTasks = useMemo(() => {
+    return taskStates.filter((s) => s.status !== TaskStatus.idle).length;
+  }, [taskStates]);
+
+  const inProgress = useMemo(() => {
+    return (inProgressTasks / taskStates.length) * 100;
+  }, [inProgressTasks, taskStates.length]);
+
+  const progressLabel = useMemo(() => {
+    return `${results.length} (${inProgressTasks}) / ${taskStates.length}`;
+  }, [inProgressTasks, results.length, taskStates.length]);
+
+  const shouldShowProgress = useMemo(() => {
+    return isRunning || results.length > 0;
+  }, [isRunning, results]);
 
   return (
     <Stack gap="1rem" sx={{ mx: -3 }}>
@@ -579,45 +529,141 @@ const WaggleDanceGraph = ({
         </Tabs>
       )}
       <Box
-        component={Card}
-        className="z-100 sticky overflow-clip"
+        className="z-100 sticky "
         sx={{
           bottom: "calc(env(safe-area-inset-bottom))",
           padding: 0,
-          borderRadius: "lg",
+          margin: 0,
         }}
-        variant="outlined"
-        color="primary"
       >
-        <Box sx={{ position: "relative", overflowX: "clip" }}>
-          <LinearProgress
-            sx={{
-              position: "absolute",
-              mixBlendMode: "multiply",
-              top: 0,
-              left: 0,
-              right: 0,
-              width: "100%",
-              zIndex: 1,
-            }}
-            thickness={5}
-            determinate={progress !== 0}
-            value={isNaN(progress) ? 0 : progress}
-            color="neutral"
-          />
-          {isRunning && (
-            <LinearProgress
-              sx={{
-                position: "absolute",
-                top: 0,
-                left: 0,
-                right: 0,
-                width: "100%",
-              }}
-            />
+        <Card
+          variant="outlined"
+          color="primary"
+          sx={{
+            paddingTop: shouldShowProgress ? 0 : "var(--Card-padding, 0px)",
+            borderRadius: "lg",
+            overflowX: "clip",
+            margin: "calc(-1 * var(--variant-borderWidth, 0px))",
+          }}
+        >
+          {shouldShowProgress && (
+            <Tooltip title={`Tasks Done (In Progress) / Total Tasks`}>
+              <Box
+                sx={{
+                  paddingBottom: "var(--Card-padding, 0px)",
+                  position: "relative",
+                  zIndex: 0,
+                  marginX: "calc(-1.5 * var(--Card-padding, 0px))",
+                }}
+              >
+                <LinearProgress
+                  sx={{
+                    position: "absolute",
+                    top: 0,
+                    width: "100%",
+                    "--LinearProgress-progressRadius": 0,
+                  }}
+                  determinate={true}
+                  value={progress}
+                  color="neutral"
+                  thickness={20}
+                >
+                  {
+                    <Typography
+                      level="body-xs"
+                      fontWeight="xl"
+                      sx={{ mixBlendMode: "difference" }}
+                    >
+                      {progressLabel}
+                    </Typography>
+                  }
+                </LinearProgress>
+
+                <LinearProgress
+                  sx={{
+                    position: "absolute",
+                    // mixBlendMode: "plus-lighter",
+                    opacity: 0.5,
+                    top: 0,
+                    width: "100%",
+                    "--LinearProgress-progressRadius": 0,
+                  }}
+                  determinate={true}
+                  // value={50}
+                  value={isNaN(inProgress) ? 0 : inProgress}
+                  color="neutral"
+                  thickness={20}
+                  variant="soft"
+                ></LinearProgress>
+              </Box>
+            </Tooltip>
           )}
-        </Box>
-        {button}
+
+          <Stack
+            direction={{ xs: "column", sm: "row" }}
+            gap={shouldShowProgress ? "0.5rem" : "0"}
+            className="flex w-full items-end"
+          >
+            {!isRunning && (
+              <ExecutionSelect
+                goalId={selectedGoal.id}
+                executions={executions}
+                sx={{
+                  width: { xs: "18rem", sm: "20rem", md: "24rem", lg: "28rem" },
+                }}
+              />
+            )}
+            <Box
+              component={Stack}
+              direction="row"
+              sx={{ alignItems: "center", pl: 1.5 }}
+              gap={1}
+            >
+              <Box
+                className="items-center justify-center text-center align-top"
+                component={Stack}
+                gap={0.5}
+              >
+                <Typography level="body-sm">
+                  <Link href={routes.auth} target="_blank" color="primary">
+                    Sign in to save your progress
+                  </Link>
+                </Typography>
+
+                <Divider />
+                <GoalSettings />
+              </Box>
+              <Button
+                size="lg"
+                className="col-end"
+                color="primary"
+                variant="soft"
+                onClick={isRunning ? handleStop : handleStart}
+                endDecorator={isRunning ? <StopCircle /> : <PlayCircle />}
+                sx={{ zIndex: 15, padding: { xs: 1, sm: 2 } }}
+              >
+                {isRunning && (
+                  <CircularProgress
+                    size="sm"
+                    variant="soft"
+                    sx={{ marginRight: 1 }}
+                  />
+                )}
+                <Stack
+                  direction={{ xs: "row", sm: "column" }}
+                  gap="0.5rem"
+                  className="items-center"
+                >
+                  {isRunning ? (
+                    <>Stop</>
+                  ) : (
+                    <>{dag.nodes.length > 0 ? "Restart" : "Start"}</>
+                  )}
+                </Stack>
+              </Button>
+            </Box>
+          </Stack>
+        </Card>
       </Box>
     </Stack>
   );
