@@ -211,11 +211,7 @@ const WaggleDanceGraph = ({
     <Stack
       direction={{ xs: "column", sm: "row" }}
       gap="0.5rem"
-      className=" flex items-center justify-end "
-      component={Card}
-      variant="outlined"
-      color="primary"
-      sx={{ borderRadius: "lg", padding: 1 }}
+      className="flex items-center justify-end"
     >
       {!isRunning && (
         <ExecutionSelect
@@ -296,7 +292,7 @@ const WaggleDanceGraph = ({
     [taskStates],
   );
 
-  const _progress = useMemo(() => {
+  const progress = useMemo(() => {
     return (results.length / taskStates.length) * 100;
   }, [results.length, taskStates.length]);
 
@@ -583,31 +579,40 @@ const WaggleDanceGraph = ({
         </Tabs>
       )}
       <Box
-        className="z-100 sticky"
-        sx={{ bottom: "calc(env(safe-area-inset-bottom))" }}
+        component={Card}
+        className="z-100 sticky overflow-clip"
+        sx={{
+          bottom: "calc(env(safe-area-inset-bottom))",
+          padding: 0,
+          borderRadius: "lg",
+        }}
+        variant="outlined"
+        color="primary"
       >
-        <Box className="bottom sticky" sx={{ posiiton: "relative" }}>
+        <Box sx={{ position: "relative", overflowX: "clip" }}>
           <LinearProgress
             sx={{
               position: "absolute",
               mixBlendMode: "multiply",
-              bottom: 0,
+              top: 0,
+              left: 0,
               right: 0,
               width: "100%",
-              zIndex: 11, // Make sure the z-index is less than the button's
+              zIndex: 1,
             }}
-            determinate={_progress !== 0}
-            value={_progress}
+            thickness={5}
+            determinate={progress !== 0}
+            value={isNaN(progress) ? 0 : progress}
             color="neutral"
           />
           {isRunning && (
             <LinearProgress
               sx={{
                 position: "absolute",
-                bottom: 0,
+                top: 0,
+                left: 0,
                 right: 0,
                 width: "100%",
-                zIndex: 10, // Make sure the z-index is less than the button's
               }}
             />
           )}
