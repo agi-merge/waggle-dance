@@ -346,6 +346,22 @@ export default class WaggleDanceMachine {
         }
         taskResults[executeRequest.task.id] = result;
         completedTasks.add(executeRequest.task.id);
+        const node = dag.nodes.find((n) => task.id === n.id);
+        if (!node) {
+          abortController.abort();
+          throw new Error("no node to sendChainPacket");
+        } else {
+          if (!result) {
+            sendChainPacket(
+              { type: "error", severity: "warn", message: "no task result" },
+              node,
+            );
+            abortController.abort();
+            return;
+          } else if (typeof result === "string") {
+            sendChainPacket({ type: "done", value: result }, node);
+          }
+        }
       })();
     }
 
