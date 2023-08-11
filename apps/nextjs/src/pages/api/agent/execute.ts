@@ -75,7 +75,7 @@ export default async function ExecuteStream(req: NextRequest) {
                 type: "handleChainError",
                 err: errorMessage,
               };
-              controller.enqueue(encoder.encode(stringify(packet) + "\n\n"));
+              controller.enqueue(encoder.encode(stringify([packet]) + "\n\n"));
               console.error("handleChainError", packet);
             },
             handleToolStart(
@@ -89,7 +89,7 @@ export default async function ExecuteStream(req: NextRequest) {
                 tool,
                 input,
               };
-              controller.enqueue(encoder.encode(stringify(packet) + "\n\n"));
+              controller.enqueue(encoder.encode(stringify([packet]) + "\n\n"));
             },
             handleToolError(
               err: unknown,
@@ -106,7 +106,7 @@ export default async function ExecuteStream(req: NextRequest) {
                 type: "handleToolError",
                 err: errorMessage,
               };
-              controller.enqueue(encoder.encode(stringify(packet) + "\n\n"));
+              controller.enqueue(encoder.encode(stringify([packet]) + "\n\n"));
               console.error("handleToolError", packet);
             },
             handleToolEnd(
@@ -115,7 +115,7 @@ export default async function ExecuteStream(req: NextRequest) {
               _parentRunId?: string | undefined,
             ): void | Promise<void> {
               const packet: ChainPacket = { type: "handleToolEnd", output };
-              controller.enqueue(encoder.encode(stringify(packet) + "\n\n"));
+              controller.enqueue(encoder.encode(stringify([packet]) + "\n\n"));
             },
             handleAgentAction(
               action: AgentAction,
@@ -123,7 +123,7 @@ export default async function ExecuteStream(req: NextRequest) {
               _parentRunId?: string | undefined,
             ): void | Promise<void> {
               const packet: ChainPacket = { type: "handleAgentAction", action };
-              controller.enqueue(encoder.encode(stringify(packet) + "\n\n"));
+              controller.enqueue(encoder.encode(stringify([packet]) + "\n\n"));
             },
             handleAgentEnd(
               action: AgentFinish,
@@ -134,7 +134,7 @@ export default async function ExecuteStream(req: NextRequest) {
                 action.returnValues && action.returnValues["output"],
               );
               const packet: ChainPacket = { type: "handleAgentEnd", value };
-              controller.enqueue(encoder.encode(stringify(packet) + "\n\n"));
+              controller.enqueue(encoder.encode(stringify([packet]) + "\n\n"));
             },
           }),
         ];
