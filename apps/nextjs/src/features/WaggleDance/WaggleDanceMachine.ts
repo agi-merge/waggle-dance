@@ -202,6 +202,7 @@ export default class WaggleDanceMachine {
         dag = await planTasks({
           goal,
           goalId,
+          executionId,
           creationProps,
           dag,
           graphDataState: [initDAG, setDAG],

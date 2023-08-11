@@ -18,6 +18,7 @@ import {
 export type PlanTasksProps = {
   goal: string;
   goalId: string;
+  executionId: string;
   creationProps: ModelCreationProps;
   dag: DAG;
   graphDataState: [DAG, (dag: DAG) => void];
@@ -35,6 +36,7 @@ export type PlanTasksProps = {
 export default async function planTasks({
   goal,
   goalId,
+  executionId,
   creationProps,
   dag,
   graphDataState: [_initDag, setDAG],
@@ -45,7 +47,7 @@ export default async function planTasks({
   updateTaskState,
   startFirstTask,
 }: PlanTasksProps): Promise<DAG> {
-  const data = { goal, goalId, creationProps };
+  const data = { goal, goalId, executionId, creationProps };
   const res = await fetch("/api/agent/plan", {
     method: "POST",
     headers: { "Content-Type": "application/json" },

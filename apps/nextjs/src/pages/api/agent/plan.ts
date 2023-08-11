@@ -17,9 +17,9 @@ export const config = {
 };
 
 export default async function PlanStream(req: NextRequest) {
-  console.log("plan request");
+  console.debug("plan request");
   try {
-    const { creationProps, goal, goalId } =
+    const { creationProps, goal, goalId, executionId } =
       (await req.json()) as PlanRequestBody;
 
     const abortController = new AbortController();
@@ -49,7 +49,7 @@ export default async function PlanStream(req: NextRequest) {
               err: errorMessage,
             };
             controller.enqueue(encoder.encode(stringify([packet])));
-            console.log("handleChainError", packet);
+            console.debug("handleChainError", packet);
           },
 
           handleLLMError(
@@ -68,23 +68,44 @@ export default async function PlanStream(req: NextRequest) {
               err: errorMessage,
             };
             controller.enqueue(encoder.encode(stringify([packet])));
-            console.log("handleLLMError", packet);
+            console.debug("handleLLMError", packet);
           },
         };
 
         const callbacks = [inlineCallback];
         creationProps.callbacks = callbacks;
-        console.log("about to planChain");
+        console.debug("about to planChain");
 
-        const planResultPromise = createPlanningAgent(
+        const planResult = await createPlanningAgent(
           creationProps,
           goal,
           goalId,
           abortController.signal,
         );
-        const results = await Promise.allSettled([planResultPromise]);
-        const [planResult] = results;
-        console.debug("plan result", planResult.status);
+        console.debug("plan result", planResult);
+
+        const updateGraph = {
+          goalId,
+          graph: planResult,
+          executionId,
+        };
+        const response = await fetch(
+          `${process.env.NEXTAUTH_URL}/api/execution/graph`,
+          {
+            method: "POST",
+            headers: {
+              Cookie: req.headers.get("cookie") || "", // pass cookie so session logic still works
+              "Content-Type": "application/json",
+            },
+            body: JSON.stringify(updateGraph),
+            signal: abortController.signal,
+          },
+        );
+
+        if (!response.ok) {
+          throw new Error(`Could not save execution: ${response.statusText}`);
+        }
+
         controller.close();
       },
 

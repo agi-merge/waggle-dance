@@ -33,12 +33,15 @@ export interface BaseRequestBody {
   goal: string;
 }
 
-export type PlanRequestBody = BaseRequestBody;
-export interface ExecuteRequestBody extends BaseRequestBody {
+export type PlanRequestBody = BaseRequestBody & {
+  executionId: string;
+};
+
+export type ExecuteRequestBody = PlanRequestBody & {
   executionId: string;
   task: DAGNode;
   completedTasks: Set<string>;
   taskResults: Record<string, BaseResultType>;
   dag: DAG;
   agentPromptingMethod: AgentPromptingMethod;
-}
+};

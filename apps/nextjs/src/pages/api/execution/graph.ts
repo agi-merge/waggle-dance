@@ -4,7 +4,7 @@ import { type NextApiRequest, type NextApiResponse } from "next";
 
 import { appRouter } from "@acme/api";
 import { getServerSession, type Session } from "@acme/auth";
-import { prisma, type ExecutionState, type Result } from "@acme/db";
+import { prisma, type Execution } from "@acme/db";
 
 import type DAG from "~/features/WaggleDance/DAG";
 
@@ -13,27 +13,25 @@ export const config = {
   regions: [process.env.DATA_PROXY_REGION || "pdx-1"],
 };
 
-export type CreateResultParams = {
+export type UpdateGraphParams = {
   goalId: string;
   executionId: string;
-  exeResult: string;
   dag: DAG;
-  state: ExecutionState | undefined;
   session?: Session | null;
 };
 
 // data proxy for edge
-export default async function createResultProxy(
+export default async function updateGraphProxy(
   req: NextApiRequest,
   res: NextApiResponse,
 ) {
   try {
     const session = await getServerSession({ req, res });
 
-    const params = req.body as CreateResultParams;
+    const params = req.body as UpdateGraphParams;
     params["session"] = session;
 
-    const result = await createResult(params);
+    const result = await updateGraph(params);
     res.status(200).json(result);
   } catch (error) {
     console.error("createGoalExecution error", error);
@@ -41,26 +39,20 @@ export default async function createResultProxy(
   }
 }
 
-async function createResult({
-  goalId,
+async function updateGraph({
   executionId,
-  exeResult,
   dag,
-  state,
   session,
-}: CreateResultParams): Promise<Result> {
+}: UpdateGraphParams): Promise<Execution> {
   if (session?.user.id) {
     const caller = appRouter.createCaller({ session, prisma });
-    const createResultOptions = {
-      goalId,
+    const updateGraphOptions = {
       executionId,
-      value: exeResult,
       graph: dag,
-      state,
     };
-    const createResult = await caller.result.create(createResultOptions);
-    console.debug("createResult", createResult);
-    return createResult;
+    const updated = await caller.execution.updateGraph(updateGraphOptions);
+    console.debug("updated exe graph", updated);
+    return updated;
   } else {
     throw new Error("no user id");
   }
