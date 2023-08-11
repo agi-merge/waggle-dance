@@ -135,7 +135,7 @@ const WaggleDanceGraph = ({
               goalId,
               userId: "guest",
               graph: dag as JsonValue,
-              state: "PENDING",
+              state: "EXECUTING",
               createdAt: new Date(),
               updatedAt: new Date(),
               uniqueToken: newDraftExecutionId(), // extra uuid

@@ -1,6 +1,8 @@
 import { v4 as uuidv4 } from "uuid";
 import { z } from "zod";
 
+import { ExecutionState } from "@acme/db";
+
 import { createTRPCRouter, protectedProcedure } from "../trpc";
 
 export const executionRouter = createTRPCRouter({
@@ -37,6 +39,40 @@ export const executionRouter = createTRPCRouter({
             },
           },
         },
+      });
+    }),
+
+  updateGraph: protectedProcedure
+    .input(
+      z.object({
+        executionId: z.string().nonempty(),
+        graph: z.object({ nodes: z.array(z.any()), edges: z.array(z.any()) }),
+      }),
+    )
+    .mutation(({ ctx, input }) => {
+      const { executionId, graph } = input;
+      const userId = ctx.session.user.id;
+
+      return ctx.prisma.execution.update({
+        where: { id: executionId, userId },
+        data: { graph, state: "EXECUTING" },
+      });
+    }),
+
+  updateState: protectedProcedure
+    .input(
+      z.object({
+        executionId: z.string().nonempty(),
+        state: z.nativeEnum(ExecutionState),
+      }),
+    )
+    .mutation(({ ctx, input }) => {
+      const { executionId, state } = input;
+      const userId = ctx.session.user.id;
+
+      return ctx.prisma.execution.update({
+        where: { id: executionId, userId },
+        data: { state },
       });
     }),
 
