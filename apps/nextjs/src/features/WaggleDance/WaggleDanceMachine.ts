@@ -365,7 +365,7 @@ export default class WaggleDanceMachine {
       })();
     }
 
-    console.log("WaggleDanceMachine.run: completedTasks", completedTasks);
+    console.debug("WaggleDanceMachine.run: completedTasks", completedTasks);
     console.groupEnd();
 
     return { results: taskResults, completedTasks };
