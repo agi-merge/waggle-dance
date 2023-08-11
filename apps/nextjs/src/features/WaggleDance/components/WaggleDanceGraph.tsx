@@ -486,7 +486,15 @@ const WaggleDanceGraph = ({
                               </Typography>
 
                               {n.result && (
-                                <Typography level="body-sm" className="pt-2">
+                                <Typography
+                                  level="body-sm"
+                                  className="max-h-72 overflow-x-clip overflow-y-scroll  break-words pt-2"
+                                  fontFamily={
+                                    n.status === TaskStatus.error
+                                      ? "monospace"
+                                      : undefined
+                                  }
+                                >
                                   {n.result}
                                 </Typography>
                               )}
