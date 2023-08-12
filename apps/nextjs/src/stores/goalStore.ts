@@ -31,7 +31,6 @@ export const newDraftGoalRoute = () => routes.goal(newDraftGoal());
 const baseTab = {
   id: newDraftGoal(),
   prompt: "",
-  index: 0,
   tooltip: "",
   executions: [],
   results: [],

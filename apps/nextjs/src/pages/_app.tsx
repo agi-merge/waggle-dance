@@ -29,10 +29,6 @@ export const RouteControllerProvider = ({ children }: RouteControllerProps) => {
     setIsPageLoading(false);
   }, [setIsPageLoading]);
 
-  // const handleRouteChange = (routeName: string): void => {
-  //   if (router.pathname !== routeName) void router.push(routeName);
-  // };
-
   useEffect(() => {
     router.events.on("routeChangeStart", handleStart);
     router.events.on("routeChangeComplete", handleStop);
