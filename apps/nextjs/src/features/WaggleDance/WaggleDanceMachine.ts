@@ -91,6 +91,7 @@ export default class WaggleDanceMachine {
     log,
     abortController,
   }: RunParams): Promise<WaggleDanceResult | Error> {
+    setDAG({ ...initDAG });
     const optimisticFirstTaskState = {
       firstTaskState: "not started" as
         | "not started"
@@ -188,7 +189,6 @@ export default class WaggleDanceMachine {
     };
     if (initDAG.edges.length > 1 && isDonePlanning) {
       log("skipping planning because it is done - initDAG", initDAG);
-      dag = { ...initDAG };
     } else {
       setIsDonePlanning(false);
       const updateTaskState = (state: "not started" | "started" | "done") => {
