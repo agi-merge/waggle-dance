@@ -40,7 +40,7 @@ export default async function ExecuteStream(req: NextRequest) {
           BaseCallbackHandler.fromMethods({
             handleLLMStart(): void | Promise<void> {
               const packet: ChainPacket = { type: "handleLLMStart" };
-              controller.enqueue(encoder.encode(stringify([packet]) + "\n\n"));
+              controller.enqueue(encoder.encode(stringify([packet])));
             },
             handleLLMError(
               err: unknown,
@@ -57,7 +57,7 @@ export default async function ExecuteStream(req: NextRequest) {
                 type: "handleLLMError",
                 err: errorMessage,
               };
-              controller.enqueue(encoder.encode(stringify([packet]) + "\n\n"));
+              controller.enqueue(encoder.encode(stringify([packet])));
               console.error("handleLLMError", packet);
             },
             handleChainError(
@@ -75,7 +75,7 @@ export default async function ExecuteStream(req: NextRequest) {
                 type: "handleChainError",
                 err: errorMessage,
               };
-              controller.enqueue(encoder.encode(stringify([packet]) + "\n\n"));
+              controller.enqueue(encoder.encode(stringify([packet])));
               console.error("handleChainError", packet);
             },
             handleToolStart(
@@ -89,7 +89,7 @@ export default async function ExecuteStream(req: NextRequest) {
                 tool,
                 input,
               };
-              controller.enqueue(encoder.encode(stringify([packet]) + "\n\n"));
+              controller.enqueue(encoder.encode(stringify([packet])));
             },
             handleToolError(
               err: unknown,
@@ -106,7 +106,7 @@ export default async function ExecuteStream(req: NextRequest) {
                 type: "handleToolError",
                 err: errorMessage,
               };
-              controller.enqueue(encoder.encode(stringify([packet]) + "\n\n"));
+              controller.enqueue(encoder.encode(stringify([packet])));
               console.error("handleToolError", packet);
             },
             handleToolEnd(
@@ -115,7 +115,7 @@ export default async function ExecuteStream(req: NextRequest) {
               _parentRunId?: string | undefined,
             ): void | Promise<void> {
               const packet: ChainPacket = { type: "handleToolEnd", output };
-              controller.enqueue(encoder.encode(stringify([packet]) + "\n\n"));
+              controller.enqueue(encoder.encode(stringify([packet])));
             },
             handleAgentAction(
               action: AgentAction,
@@ -123,7 +123,7 @@ export default async function ExecuteStream(req: NextRequest) {
               _parentRunId?: string | undefined,
             ): void | Promise<void> {
               const packet: ChainPacket = { type: "handleAgentAction", action };
-              controller.enqueue(encoder.encode(stringify([packet]) + "\n\n"));
+              controller.enqueue(encoder.encode(stringify([packet])));
             },
             handleAgentEnd(
               action: AgentFinish,
@@ -134,7 +134,7 @@ export default async function ExecuteStream(req: NextRequest) {
                 action.returnValues && action.returnValues["output"],
               );
               const packet: ChainPacket = { type: "handleAgentEnd", value };
-              controller.enqueue(encoder.encode(stringify([packet]) + "\n\n"));
+              controller.enqueue(encoder.encode(stringify([packet])));
             },
           }),
         ];
@@ -192,7 +192,7 @@ export default async function ExecuteStream(req: NextRequest) {
           throw new Error(`Could not save result: ${response.statusText}`);
         }
 
-        controller.enqueue(packet);
+        controller.enqueue(encoder.encode(stringify([packet])));
         controller.close();
       },
 
