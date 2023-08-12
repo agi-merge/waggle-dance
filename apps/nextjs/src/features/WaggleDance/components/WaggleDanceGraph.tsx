@@ -596,7 +596,7 @@ const WaggleDanceGraph = ({}: WaggleDanceGraphProps) => {
 
           <Stack
             direction={{ xs: "column", sm: "row" }}
-            gap={shouldShowProgress ? "0.5rem" : "0"}
+            gap={1}
             className="flex w-full items-center"
           >
             {!isRunning && selectedGoal && (
@@ -612,7 +612,7 @@ const WaggleDanceGraph = ({}: WaggleDanceGraphProps) => {
             <Box
               component={Stack}
               direction="row"
-              className="min-w-fit"
+              className="min-w-fit justify-end"
               sx={{
                 alignItems: "center",
                 pl: 1.5,
