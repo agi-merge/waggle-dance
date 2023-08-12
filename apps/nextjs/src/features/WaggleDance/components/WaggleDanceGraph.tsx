@@ -35,6 +35,7 @@ import {
   type StackProps,
 } from "@mui/joy";
 import { TRPCClientError } from "@trpc/client";
+import { useSession } from "next-auth/react";
 import { stringify } from "yaml";
 
 import { type Execution } from "@acme/db";
@@ -85,6 +86,7 @@ const WaggleDanceGraph = ({
   const listItemsRef = useRef<HTMLLIElement[]>([]);
   const taskListRef = useRef<HTMLUListElement>(null);
 
+  const { data: session } = useSession();
   const sortedTaskStates = useMemo(() => {
     return taskStates.sort((a: TaskState, b: TaskState) => {
       if (a.id === rootPlanId) {
@@ -621,13 +623,17 @@ const WaggleDanceGraph = ({
                 component={Stack}
                 gap={0.5}
               >
-                <Typography level="body-sm">
-                  <Link href={routes.auth} target="_blank" color="primary">
-                    Sign in to save your progress
-                  </Link>
-                </Typography>
+                {!session && (
+                  <>
+                    <Typography level="body-sm">
+                      <Link href={routes.auth} target="_blank" color="primary">
+                        Sign in to save your progress
+                      </Link>
+                    </Typography>
+                    <Divider />
+                  </>
+                )}
 
-                <Divider />
                 <GoalSettings />
               </Box>
               <Button
