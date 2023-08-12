@@ -38,7 +38,7 @@ interface GoalTabsProps {
 // A single goal tab inside the main tabber
 const GoalTab: React.FC<GoalTabProps> = ({ tab, index, key }) => {
   const { setIsRunning } = useWaggleDanceMachineStore();
-  const { goalList, getGoalInputValue, deleteGoal, selectedGoal } =
+  const { selectGoal, goalList, getGoalInputValue, deleteGoal, selectedGoal } =
     useGoalStore();
   const del = api.goal.delete.useMutation();
 
@@ -63,6 +63,9 @@ const GoalTab: React.FC<GoalTabProps> = ({ tab, index, key }) => {
   return (
     <Box
       component={NextLink}
+      onClick={(e) => {
+        selectGoal(tab.id);
+      }}
       key={key}
       sx={{
         flex: "1 1 auto",
@@ -129,22 +132,8 @@ const GoalTab: React.FC<GoalTabProps> = ({ tab, index, key }) => {
 // The main goal tabber component
 const GoalTabs: React.FC<GoalTabsProps> = ({ children }) => {
   const router = useRouter();
-  const { goalList, newGoal, selectedGoal, selectGoal } = useGoalStore();
+  const { goalList, newGoal, selectedGoal } = useGoalStore();
   const { isRunning } = useWaggleDanceMachineStore();
-
-  // Handle tab change
-  const handleChange = useCallback(
-    (event: React.SyntheticEvent | null, newValue: number) => {
-      // prevent + from being selected
-      if (newValue === goalList.length) {
-        event?.preventDefault();
-        return;
-      }
-      const goalId = goalList[newValue]?.id;
-      goalId && selectGoal(goalId);
-    },
-    [goalList, selectGoal],
-  );
 
   const currentTabIndex = useMemo(() => {
     return goalList.findIndex((goal) => goal.id === selectedGoal?.id);
@@ -155,9 +144,6 @@ const GoalTabs: React.FC<GoalTabsProps> = ({ children }) => {
     <Tabs
       aria-label="Goal tabs"
       value={currentTabIndex}
-      onChange={(event, newValue) => {
-        handleChange(event, newValue as number);
-      }}
       variant="soft"
       sx={{
         borderRadius: "lg",
