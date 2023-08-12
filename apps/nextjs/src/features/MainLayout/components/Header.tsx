@@ -77,7 +77,10 @@ const Header = ({}) => {
       >
         <Typography
           className="flex-grow"
-          fontSize={{ xs: "20pt", sm: "28pt" }}
+          fontSize={{
+            xs: isHomeSlug ? "20pt" : "16pt",
+            sm: isHomeSlug ? "28pt" : "22pt",
+          }}
           level="h1"
         >
           waggle🐝<Typography>💃dance</Typography>
