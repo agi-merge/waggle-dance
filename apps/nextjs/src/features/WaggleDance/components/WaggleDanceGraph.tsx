@@ -43,6 +43,7 @@ import { type Execution } from "@acme/db";
 import { api } from "~/utils/api";
 import routes from "~/utils/routes";
 import GoalSettings from "~/features/GoalMenu/components/GoalSettings";
+import useApp from "~/stores/appStore";
 import useGoalStore from "~/stores/goalStore";
 import useWaggleDanceMachineState, {
   newDraftExecutionId,
@@ -108,8 +109,10 @@ const WaggleDanceGraph = ({}: WaggleDanceGraphProps) => {
     });
   }, [taskStates]);
 
+  const { isPageLoading, setIsPageLoading } = useApp();
   const { mutate: createExecution } = api.execution.create.useMutation({
     onSettled: (data, error) => {
+      setIsPageLoading(false);
       console.debug(
         "create execution onSettled: ",
         "data",
@@ -162,7 +165,7 @@ const WaggleDanceGraph = ({}: WaggleDanceGraphProps) => {
     if (!isRunning) {
       if (selectedGoal) {
         setIsRunning(true);
-
+        setIsPageLoading(true);
         createExecution({ goalId: selectedGoal.id });
       } else {
         setIsRunning(false);
