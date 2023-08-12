@@ -2,7 +2,9 @@
 
 import React, { type SyntheticEvent } from "react";
 import { ClickAwayListener } from "@mui/base";
+import { InfoOutlined } from "@mui/icons-material";
 import {
+  Alert,
   Divider,
   Link,
   Menu,
@@ -84,8 +86,9 @@ function AdvancedSettingsToggle({ children }: { children: React.ReactNode }) {
   );
 }
 function GoalSettings({}: CardProps) {
-  const { agentSettings, setAgentSettings } = useWaggleDanceMachineStore();
-
+  const { agentSettings, setAgentSettings, isRunning } =
+    useWaggleDanceMachineStore();
+  const [isShowingAlert, setIsShowingAlert] = React.useState(false);
   const { data: session } = useSession();
 
   const types: Array<"plan" | "review" | "execute"> = [
@@ -126,6 +129,7 @@ function GoalSettings({}: CardProps) {
             <Select
               value={agentSettings[type].modelName}
               onChange={(_, value) => {
+                setIsShowingAlert(true);
                 value && setAgentSettings(type, { modelName: value });
               }}
               disabled={!session}
@@ -142,6 +146,7 @@ function GoalSettings({}: CardProps) {
             <Select
               value={agentSettings[type].temperature}
               onChange={(_, value) => {
+                setIsShowingAlert(true);
                 value && setAgentSettings(type, { temperature: value });
               }}
               disabled={!session}
@@ -162,6 +167,7 @@ function GoalSettings({}: CardProps) {
                 <Select
                   value={agentSettings[type].agentPromptingMethod}
                   onChange={(_, value) => {
+                    setIsShowingAlert(true);
                     value &&
                       setAgentSettings(type, { agentPromptingMethod: value });
                   }}
@@ -182,6 +188,17 @@ function GoalSettings({}: CardProps) {
         <Typography level="body-md" sx={{ p: 1, textAlign: "center" }}>
           <Link href={routes.auth}>Log in to change settings</Link>
         </Typography>
+      )}
+      {isRunning && isShowingAlert && (
+        <Alert
+          size="md"
+          startDecorator={<InfoOutlined sx={{ margin: 1 }} />}
+          sx={{ padding: 0.5 }}
+        >
+          <Typography level="body-xs" sx={{ p: 1, textAlign: "center" }}>
+            Settings apply to all future Tasks, but not any current Tasks.
+          </Typography>
+        </Alert>
       )}
     </AdvancedSettingsToggle>
   );
