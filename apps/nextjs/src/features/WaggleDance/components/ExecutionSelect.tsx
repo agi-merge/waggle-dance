@@ -153,7 +153,11 @@ export const ExecutionSelect = ({
                   disabled={(executions?.length ?? 0) === 0}
                   defaultValue={execution?.id}
                   value={execution?.id}
-                  placeholder={<Typography>Select Waggle</Typography>}
+                  placeholder={
+                    (executions?.length ?? 0) === 0 ? (
+                      <Typography>Select Waggle</Typography>
+                    ) : null
+                  }
                   slotProps={{
                     button: {
                       id: "select-execution-button",
