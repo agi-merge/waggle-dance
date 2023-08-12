@@ -43,7 +43,7 @@ import { type Execution } from "@acme/db";
 import { api } from "~/utils/api";
 import routes from "~/utils/routes";
 import GoalSettings from "~/features/GoalMenu/components/GoalSettings";
-import { type GoalPlusExe } from "~/stores/goalStore";
+import useGoalStore from "~/stores/goalStore";
 import useWaggleDanceMachineState, {
   newDraftExecutionId,
 } from "~/stores/waggleDanceStore";
@@ -56,15 +56,10 @@ import { rootPlanId } from "../WaggleDanceMachine";
 import { ExecutionSelect } from "./ExecutionSelect";
 import ForceGraph from "./ForceGraph";
 
-type WaggleDanceGraphProps = {
-  selectedGoal: GoalPlusExe;
-  executions: Execution[] | undefined;
-} & StackProps;
+type WaggleDanceGraphProps = StackProps;
 // shows the graph, agents, results, general messages and chat input
-const WaggleDanceGraph = ({
-  selectedGoal,
-  executions,
-}: WaggleDanceGraphProps) => {
+const WaggleDanceGraph = ({}: WaggleDanceGraphProps) => {
+  const { selectedGoal } = useGoalStore();
   const {
     isRunning,
     setIsRunning,
@@ -155,7 +150,9 @@ const WaggleDanceGraph = ({
       void (async () => {
         console.log("replace route");
         setExecution(createdExecution);
-        await router.push(routes.goal(selectedGoal.id, createdExecution?.id));
+        await router.push(
+          routes.goal(createdExecution.goalId, createdExecution?.id),
+        );
         await startWaggleDance();
       })();
     },
@@ -603,10 +600,10 @@ const WaggleDanceGraph = ({
             gap={shouldShowProgress ? "0.5rem" : "0"}
             className="flex w-full items-end"
           >
-            {!isRunning && (
+            {!isRunning && selectedGoal && (
               <ExecutionSelect
                 goalId={selectedGoal.id}
-                executions={executions}
+                executions={selectedGoal.executions}
                 sx={{
                   width: { xs: "18rem", sm: "20rem", md: "24rem", lg: "28rem" },
                 }}

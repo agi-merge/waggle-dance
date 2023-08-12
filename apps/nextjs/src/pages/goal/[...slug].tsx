@@ -198,10 +198,7 @@ export default function GoalDynamicRoute() {
                 </List>
               )}
             </Title>
-            <WaggleDanceGraph
-              selectedGoal={selectedGoal}
-              executions={executions}
-            />
+            <WaggleDanceGraph />
           </>
         )}
       </Suspense>
