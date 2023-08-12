@@ -210,7 +210,7 @@ const WaggleDanceGraph = ({}: WaggleDanceGraphProps) => {
     // Scroll to the end of the list when a new task is added
     // setTimeout(() => {
     const lastListItem = listItemsRef.current[sortedTaskStates.length - 1];
-    lastListItem?.scrollIntoView({ behavior: "auto" });
+    lastListItem?.scrollIntoView({ behavior: "smooth" });
     // }, 100);
   }, [isAutoScrollToBottom, sortedTaskStates.length, listItemsRef]);
 
