@@ -421,12 +421,12 @@ const WaggleDanceGraph = ({
                                   level="body-md"
                                 >
                                   {isRunning
-                                    ? n.status
+                                    ? n.fromPacketType
                                     : n.status === TaskStatus.working ||
                                       n.status === TaskStatus.starting ||
                                       n.status === TaskStatus.wait
                                     ? "stopped"
-                                    : n.status}
+                                    : n.fromPacketType}
                                 </Typography>
                               </Typography>
 
