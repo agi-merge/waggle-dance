@@ -1,6 +1,5 @@
 // GoalSettings.tsx
 
-import React, { type SyntheticEvent } from "react";
 import { ClickAwayListener } from "@mui/base";
 import { InfoOutlined } from "@mui/icons-material";
 import {
@@ -20,11 +19,12 @@ import Select from "@mui/joy/Select";
 import Stack from "@mui/joy/Stack";
 import Typography from "@mui/joy/Typography";
 import { useSession } from "next-auth/react";
+import React, { type SyntheticEvent } from "react";
 
-import routes from "~/utils/routes";
 import DocsModal from "~/features/WaggleDance/components/DocsModal";
 import AddDocuments from "~/pages/add-documents";
 import useWaggleDanceMachineStore from "~/stores/waggleDanceStore";
+import routes from "~/utils/routes";
 import {
   AgentPromptingMethod,
   LLM,
@@ -35,7 +35,8 @@ function AdvancedSettingsToggle({ children }: { children: React.ReactNode }) {
   const [isOpen, setIsOpen] = React.useState(false);
   const [anchorEl, setAnchorEl] = React.useState<null | HTMLElement>(null);
 
-  const handleClose = () => {
+  const handleClose = (e?: MouseEvent | TouchEvent | undefined) => {
+    e?.preventDefault();
     setAnchorEl(null);
     setIsOpen(false);
   };
@@ -68,7 +69,6 @@ function AdvancedSettingsToggle({ children }: { children: React.ReactNode }) {
         {isOpen && (
           <ClickAwayListener onClickAway={handleClose}>
             <Menu
-              autoFocus
               aria-labelledby="agent-settings-button"
               id="agent-settings-menu"
               anchorEl={anchorEl}
