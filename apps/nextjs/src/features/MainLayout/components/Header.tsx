@@ -62,8 +62,6 @@ const Header = ({}) => {
     // return Object.keys(routes).findIndex((path) => path === slug);
   }, [cleanedSlug, selectedGoal]);
 
-  const isHomeSlug = activeIndex === 0;
-
   return (
     <header className="mx-auto w-full px-5 pb-2 pt-0">
       <Stack
@@ -75,14 +73,7 @@ const Header = ({}) => {
           paddingBottom: { xs: 1 },
         }}
       >
-        <Typography
-          className="flex-grow"
-          fontSize={{
-            xs: isHomeSlug ? "20pt" : "16pt",
-            sm: isHomeSlug ? "28pt" : "22pt",
-          }}
-          level="h1"
-        >
+        <Typography className="flex-grow" level="h1">
           waggle🐝<Typography>💃dance</Typography>
           <Typography level="body-xs" className="pl-2">
             {app.version}
