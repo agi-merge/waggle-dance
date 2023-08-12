@@ -542,7 +542,9 @@ const WaggleDanceGraph = ({}: WaggleDanceGraphProps) => {
           }}
         >
           {shouldShowProgress && (
-            <Tooltip title={`Tasks Done (In Progress) / Total Tasks`}>
+            <Tooltip
+              title={`Shows Tasks Done / Total Tasks, and the progress bars show tasks in currently progress and completed tasks.`}
+            >
               <Box
                 sx={{
                   paddingBottom: "var(--Card-padding, 0px)",
