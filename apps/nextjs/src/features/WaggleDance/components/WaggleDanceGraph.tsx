@@ -15,6 +15,7 @@ import {
   Box,
   Button,
   Card,
+  Checkbox,
   CircularProgress,
   Divider,
   IconButton,
@@ -109,7 +110,8 @@ const WaggleDanceGraph = ({}: WaggleDanceGraphProps) => {
     });
   }, [taskStates]);
 
-  const { isPageLoading, setIsPageLoading } = useApp();
+  const { setIsPageLoading, isAutoScrollToBottom, setIsAutoScrollToBottom } =
+    useApp();
   const { mutate: createExecution } = api.execution.create.useMutation({
     onSettled: (data, error) => {
       setIsPageLoading(false);
@@ -166,13 +168,20 @@ const WaggleDanceGraph = ({}: WaggleDanceGraphProps) => {
       if (selectedGoal) {
         setIsRunning(true);
         setIsPageLoading(true);
+
         createExecution({ goalId: selectedGoal.id });
       } else {
         setIsRunning(false);
         console.error("no goal selected");
       }
     }
-  }, [isRunning, selectedGoal, setIsRunning, createExecution]);
+  }, [
+    isRunning,
+    selectedGoal,
+    setIsRunning,
+    setIsPageLoading,
+    createExecution,
+  ]);
 
   const handleStop = useCallback(() => {
     setIsRunning(false);
@@ -195,12 +204,15 @@ const WaggleDanceGraph = ({}: WaggleDanceGraphProps) => {
   }, [handleStart, hasMountedRef, isAutoStartEnabled, setIsAutoStartEnabled]);
 
   useEffect(() => {
+    if (!isAutoScrollToBottom) {
+      return;
+    }
     // Scroll to the end of the list when a new task is added
     // setTimeout(() => {
     const lastListItem = listItemsRef.current[sortedTaskStates.length - 1];
-    lastListItem?.scrollIntoView({ behavior: "smooth" });
+    lastListItem?.scrollIntoView({ behavior: "auto" });
     // }, 100);
-  }, [sortedTaskStates.length]);
+  }, [isAutoScrollToBottom, sortedTaskStates.length, listItemsRef]);
 
   const stringifyMax = (value: unknown, max: number) => {
     const json = stringify(value);
@@ -404,9 +416,9 @@ const WaggleDanceGraph = ({}: WaggleDanceGraphProps) => {
                               </Typography>
                             </Stack>
 
-                            {isRunning && n.status === TaskStatus.working && (
+                            {/* {isRunning && n.status === TaskStatus.working && (
                               <LinearProgress thickness={2} />
-                            )}
+                            )} */}
                             <Card
                               size="sm"
                               className="justify-start p-1 text-start"
@@ -595,6 +607,7 @@ const WaggleDanceGraph = ({}: WaggleDanceGraphProps) => {
                   thickness={20}
                   variant="soft"
                 ></LinearProgress>
+                <Typography className="flex-grow justify-end">Test</Typography>
               </Box>
             </Tooltip>
           )}
@@ -640,6 +653,16 @@ const WaggleDanceGraph = ({}: WaggleDanceGraphProps) => {
                     <Divider />
                   </>
                 )}
+                <Checkbox
+                  size="sm"
+                  checked={isAutoScrollToBottom}
+                  onChange={(e: React.ChangeEvent<HTMLInputElement>) => {
+                    setIsAutoScrollToBottom(e.target.checked);
+                  }}
+                  label={<Typography>Auto scroll to task</Typography>}
+                >
+                  Autostart
+                </Checkbox>
 
                 <GoalSettings />
               </Box>
