@@ -599,7 +599,7 @@ const WaggleDanceGraph = ({}: WaggleDanceGraphProps) => {
             gap={shouldShowProgress ? "0.5rem" : "0"}
             className="flex w-full items-center"
           >
-            {selectedGoal && (
+            {!isRunning && selectedGoal && (
               <ExecutionSelect
                 goalId={selectedGoal.id}
                 executions={selectedGoal.executions}
