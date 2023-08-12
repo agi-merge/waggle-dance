@@ -134,7 +134,7 @@ export const ExecutionSelect = ({
         </>
       );
     },
-    [names],
+    [executions, names],
   );
 
   const options = useMemo(
