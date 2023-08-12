@@ -71,15 +71,14 @@ const Header = ({}) => {
         sx={{
           paddingTop: {
             xs: "calc(env(safe-area-inset-top) + 1rem)",
-            sm: "calc(env(safe-area-inset-top) + 3rem)",
           },
-          paddingBottom: { xs: 1, sm: 3 },
+          paddingBottom: { xs: 1 },
         }}
       >
         <Typography
           className="flex-grow"
-          fontSize={{ xs: "15pt", sm: "24pt" }}
-          level={isHomeSlug ? "h3" : "h4"}
+          fontSize={{ xs: "20pt", sm: "28pt" }}
+          level="h1"
         >
           waggle🐝<Typography>💃dance</Typography>
           <Typography level="body-xs" className="pl-2">

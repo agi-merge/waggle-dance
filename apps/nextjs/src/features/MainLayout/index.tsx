@@ -8,7 +8,6 @@ import {
   Card,
   GlobalStyles,
   LinearProgress,
-  Sheet,
   useColorScheme,
 } from "@mui/joy";
 
@@ -92,13 +91,15 @@ const MainLayout = ({ children }: Props) => {
             },
           })}
         />
-        <Sheet
+        <Card
           className="sticky mx-auto md:max-w-screen-lg xl:max-w-screen-lg"
-          sx={{
+          sx={(theme) => ({
             borderRadius: "lg",
             shadowRadius: "xl",
             zIndex: 101,
-          }}
+            backgroundColor: theme.palette.background.backdrop,
+            backdropFilter: "blur(5px)",
+          })}
           variant="soft"
         >
           <Header />
@@ -129,7 +130,7 @@ const MainLayout = ({ children }: Props) => {
               bottom: "calc(env(safe-area-inset-bottom))",
             }}
           />
-        </Sheet>
+        </Card>
       </Box>
     </Box>
   );
