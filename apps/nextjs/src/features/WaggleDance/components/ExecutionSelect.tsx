@@ -66,18 +66,45 @@ export const ExecutionSelect = ({
       } as const;
       return (
         <>
-          <Tooltip
-            title={names && names[i]}
-            enterDelay={500}
-            enterNextDelay={500}
-            followCursor={true}
-          >
+          <Box className="flex-grow content-start items-start text-left">
+            {names?.length && names[i] && (
+              <Typography
+                level="body-md"
+                fontSize="sm"
+                sx={{
+                  textOverflow: "ellipsis",
+                  overflowWrap: "break-word",
+                }}
+              >
+                {names[i]}
+              </Typography>
+            )}
+
             <Typography
-              sx={{ textOverflow: "ellipsis", overflowWrap: "break-word" }}
+              level="body-xs"
+              fontFamily={names?.length && names[i] ? undefined : "monospace"}
+              sx={{
+                textOverflow: "ellipsis",
+                overflowWrap: "break-word",
+              }}
             >
-              {names && names[i]}
+              <Tooltip
+                title={names && names[i]}
+                enterDelay={500}
+                enterNextDelay={500}
+                followCursor={true}
+              >
+                <Typography>
+                  {(names?.length && names[i]) ||
+                    (executions && executions[i]?.graph
+                      ? null
+                      : executions &&
+                        executions[i] &&
+                        `id:${executions[i]!.id.slice(-4)}`)}
+                </Typography>
+              </Tooltip>
             </Typography>
-          </Tooltip>
+          </Box>
           <Box
             sx={{ ml: "auto", minWidth: "fit-content" }}
             component={Stack}
