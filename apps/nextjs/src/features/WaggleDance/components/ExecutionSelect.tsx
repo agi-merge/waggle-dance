@@ -81,7 +81,7 @@ export const ExecutionSelect = ({
           <Box
             sx={{ ml: "auto", minWidth: "fit-content" }}
             component={Stack}
-            direction={{ xs: "column", sm: "row" }}
+            direction="row"
           >
             <Chip
               size="sm"
@@ -122,6 +122,7 @@ export const ExecutionSelect = ({
             component={NextLink}
             onClick={() => void setExecution(execution)}
             href={routes.goal(goalId, execution?.id)}
+            sx={{ flexGrow: 1 }}
           >
             {lab}
           </Option>
@@ -161,12 +162,12 @@ export const ExecutionSelect = ({
                     },
                     listbox: {
                       sx: {
-                        maxHeight: "50vdh",
                         maxWidth: "100%",
                         overflow: "auto",
                       },
                     },
                   }}
+                  className="max-w-md flex-grow"
                 >
                   {options}
                 </Select>
