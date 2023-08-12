@@ -1,6 +1,5 @@
-import React, { useMemo } from "react";
+import React from "react";
 import NextLink from "next/link";
-import { useRouter } from "next/router";
 import { MoreVert } from "@mui/icons-material";
 import {
   Avatar,
@@ -15,15 +14,11 @@ import { signOut, useSession } from "next-auth/react";
 
 import routes from "~/utils/routes";
 import { app } from "~/constants";
-import useGoalStore from "~/stores/goalStore";
 import Footer from "./Footer";
 import ThemeToggle from "./ThemeToggle";
 
 const Header = ({}) => {
-  const router = useRouter();
-  const { slug } = router.query;
   const { data: session } = useSession();
-  const { selectedGoal } = useGoalStore();
   const [anchorEl, setAnchorEl] = React.useState<null | HTMLElement>(null);
   const isOpen = Boolean(anchorEl);
 
@@ -36,31 +31,6 @@ const Header = ({}) => {
 
     setAnchorEl(event.currentTarget);
   };
-  const cleanedSlug = useMemo(() => {
-    if (typeof slug === "string") {
-      return slug;
-    } else if (Array.isArray(slug)) {
-      return slug[0];
-    } else {
-      return slug;
-    }
-    return "";
-  }, [slug]) as string;
-
-  const activeIndex = useMemo(() => {
-    if (cleanedSlug === "" || cleanedSlug === "/") {
-      return 0;
-    }
-    if (
-      (selectedGoal?.executions.length ?? 0) === 0 &&
-      (selectedGoal?.userId ?? "") === ""
-    ) {
-      return 0;
-    } else {
-      return 1;
-    }
-    // return Object.keys(routes).findIndex((path) => path === slug);
-  }, [cleanedSlug, selectedGoal]);
 
   return (
     <header className="mx-auto w-full px-5 pb-2 pt-0">
