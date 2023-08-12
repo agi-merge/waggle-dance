@@ -173,7 +173,12 @@ export const ExecutionSelect = ({
                   id="select-execution-label"
                   htmlFor="select-execution-button"
                 >
-                  <Typography level="body-xs">Previous Waggles</Typography>
+                  <Typography
+                    level="body-xs"
+                    className=" items-end text-center"
+                  >
+                    Previous Waggles
+                  </Typography>
                 </FormLabel>
 
                 <Select
