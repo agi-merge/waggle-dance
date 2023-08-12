@@ -67,11 +67,13 @@ const GoalTab: React.FC<GoalTabProps> = ({ tab, index, key }) => {
         selectGoal(tab.id);
       }}
       key={key}
-      sx={{
+      sx={(theme) => ({
+        backgroundColor: theme.palette.background.backdrop,
+        backdropFilter: "blur(5px)",
         flex: "1 1 auto",
         maxWidth: `${100 / goalList.length}%`,
         minWidth: 0,
-      }}
+      })}
       href={routes.goal(tab.id, tab.executions[0]?.id)}
     >
       <Tab
@@ -79,6 +81,10 @@ const GoalTab: React.FC<GoalTabProps> = ({ tab, index, key }) => {
         component={Stack}
         color={"neutral"}
         orientation="horizontal"
+        sx={(theme) => ({
+          backgroundColor: theme.palette.background.backdrop,
+          backdropFilter: "blur(5px)",
+        })}
       >
         <IconButton
           onClick={(e) => {

@@ -408,7 +408,7 @@ const WaggleDanceGraph = ({}: WaggleDanceGraphProps) => {
                         </ListItemDecorator>
                         <ListItemContent sx={{ width: "100%" }}>
                           <Card
-                            variant="soft"
+                            variant="outlined"
                             component={Stack}
                             direction="column"
                             className="min-w-full"
@@ -456,6 +456,11 @@ const WaggleDanceGraph = ({}: WaggleDanceGraphProps) => {
                               className="justify-start p-1 text-start"
                               component={Stack}
                               direction={"column"}
+                              variant="outlined"
+                              sx={(theme) => ({
+                                backgroundColor:
+                                  theme.palette.background.backdrop,
+                              })}
                             >
                               <Typography level="title-lg">
                                 {n.result ? <>Result: </> : <>Status: </>}
@@ -581,12 +586,14 @@ const WaggleDanceGraph = ({}: WaggleDanceGraphProps) => {
         <Card
           variant="outlined"
           color="primary"
-          sx={{
+          sx={(theme) => ({
+            backgroundColor: theme.palette.background.backdrop,
+            backdropFilter: "blur(5px)",
             paddingTop: shouldShowProgress ? 0 : "var(--Card-padding, 0px)",
             borderRadius: "lg",
             overflowX: "clip",
             margin: "calc(-1 * var(--variant-borderWidth, 0px))",
-          }}
+          })}
         >
           {shouldShowProgress && (
             <Tooltip
