@@ -51,7 +51,7 @@ export const executionRouter = createTRPCRouter({
 
       return ctx.prisma.execution.update({
         where: { id: executionId, userId },
-        data: { graph, state: "EXECUTING" },
+        data: { graph: JSON.stringify(graph), state: "EXECUTING" },
       });
     }),
 
