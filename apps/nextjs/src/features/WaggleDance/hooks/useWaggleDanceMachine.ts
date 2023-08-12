@@ -39,6 +39,7 @@ export type TaskState = DAGNode & {
   fromPacketType: ChainPacket["type"] | null;
   result: string | null;
   packets: ChainPacket[];
+  updatedAt: Date;
 };
 
 const useWaggleDanceMachine = ({ goal }: UseWaggleDanceMachineProps) => {
@@ -144,19 +145,34 @@ const useWaggleDanceMachine = ({ goal }: UseWaggleDanceMachineProps) => {
         const packets = chainPacket?.packets ?? [];
         const status = mapPacketTypeToStatus(packets[packets.length - 1]?.type);
         const result = chainPacket?.result ?? null;
+
+        // Get the existing task state
+        const existingTaskState = taskResults[node.id];
+
+        // If the task state is not changed, return the existing state
+        if (
+          existingTaskState &&
+          existingTaskState.status === status &&
+          existingTaskState.result === result &&
+          existingTaskState.packets.length === packets.length
+        ) {
+          return existingTaskState;
+        }
+
+        // Otherwise, return a new state with updated 'updatedAt'
         return {
           ...node,
           status,
           result,
           fromPacketType: packets[packets.length - 1]?.type ?? null,
+          updatedAt: new Date(),
           packets,
         };
       });
     };
     const taskStates = reduceTaskStates(dag.nodes, chainPackets);
     return taskStates;
-  }, [chainPackets, dag.nodes]);
-
+  }, [chainPackets, dag.nodes, taskResults]);
   const sendChainPacket = useCallback(
     (chainPacket: ChainPacket, node: DAGNode | DAGNodeClass) => {
       if (!node || !node.id) {
@@ -183,6 +199,7 @@ const useWaggleDanceMachine = ({ goal }: UseWaggleDanceMachineProps) => {
                   ? chainPacket.message
                   : null,
               packets: [chainPacket],
+              updatedAt: new Date(),
             },
           }));
         }
@@ -198,6 +215,7 @@ const useWaggleDanceMachine = ({ goal }: UseWaggleDanceMachineProps) => {
               ? chainPacket.message
               : null,
           packets: [...existingTask.packets, chainPacket],
+          updatedAt: new Date(),
         } as TaskState;
         setChainPackets((prevChainPackets) => ({
           ...prevChainPackets,

@@ -1,5 +1,11 @@
 import assert from "assert";
-import React, { useCallback, useEffect, useMemo, useRef } from "react";
+import React, {
+  useCallback,
+  useEffect,
+  useMemo,
+  useRef,
+  useState,
+} from "react";
 import router from "next/router";
 import {
   BugReport,
@@ -203,16 +209,38 @@ const WaggleDanceGraph = ({}: WaggleDanceGraphProps) => {
     }
   }, [handleStart, hasMountedRef, isAutoStartEnabled, setIsAutoStartEnabled]);
 
+  const [recentTaskId, setRecentTaskId] = useState<string | null>(null);
+
   useEffect(() => {
     if (!isAutoScrollToBottom) {
       return;
     }
-    // Scroll to the end of the list when a new task is added
-    // setTimeout(() => {
-    const lastListItem = listItemsRef.current[sortedTaskStates.length - 1];
-    lastListItem?.scrollIntoView({ behavior: "smooth" });
-    // }, 100);
-  }, [isAutoScrollToBottom, sortedTaskStates.length, listItemsRef]);
+
+    // Find the task with the most recent update
+    const recentTask = taskStates.reduce(
+      (recent: TaskState | null, task: TaskState) => {
+        if (!recent || task.updatedAt > recent.updatedAt) {
+          return task;
+        } else {
+          return recent;
+        }
+      },
+      null,
+    );
+
+    // Update the most recently updated task ID
+    if (recentTask && recentTask.id !== recentTaskId) {
+      setRecentTaskId(recentTask.id);
+
+      // Scroll to the most recently updated task
+      const taskIndex = sortedTaskStates.findIndex(
+        (task) => task.id === recentTask.id,
+      );
+      if (taskIndex !== -1) {
+        listItemsRef.current[taskIndex]?.scrollIntoView({ behavior: "smooth" });
+      }
+    }
+  }, [taskStates, isAutoScrollToBottom, recentTaskId, sortedTaskStates]);
 
   const stringifyMax = (value: unknown, max: number) => {
     const json = stringify(value);
