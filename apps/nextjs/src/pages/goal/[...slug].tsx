@@ -173,6 +173,7 @@ export default function GoalDynamicRoute() {
         exe?.id,
       );
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [
     route.executionId,
     route.goalId,
