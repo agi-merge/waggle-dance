@@ -111,6 +111,7 @@ const MainLayout = ({ children }: Props) => {
             sx={{
               borderRadius: "lg",
               paddingBottom: 0,
+              zIndex: 1,
               opacity: pageOpacity,
             }}
           >
