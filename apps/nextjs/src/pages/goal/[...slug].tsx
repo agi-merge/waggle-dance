@@ -55,7 +55,7 @@ export default function GoalDynamicRoute() {
 
   const route = useMemo(() => {
     const { slug } = router.query;
-    console.log(slug);
+    console.debug("route slug", slug);
     if (Array.isArray(slug)) {
       const goalId = slug[0];
       if (slug.length === 3 && slug[1] === "execution") {
@@ -109,7 +109,7 @@ export default function GoalDynamicRoute() {
       if (serverGoals[0]?.id) {
         console.debug("routing to serverGoals[0]", serverGoals[0].id);
         selectGoal(serverGoals[0].id);
-        void setExecution(serverGoals[0]?.executions[0] || null);
+        setExecution(serverGoals[0]?.executions[0] || null);
         void router.replace(
           routes.goal(serverGoals[0].id, serverGoals[0]?.executions[0]?.id),
           undefined,
@@ -141,16 +141,49 @@ export default function GoalDynamicRoute() {
       : undefined;
     const goalId = routeServerGoal?.id || persistedServerGoal?.id;
     const exe = routeServerExecution || persistedServerExecution || null;
-    console.debug("setGoalAndExecution goalId", goalId);
-    console.debug("setGoalAndExecution exeId", exe?.id);
-    goalId &&
-      startTransition(() => {
-        selectGoal(goalId);
-        void setExecution(exe);
-      });
     // avoid Error: Maximum update depth exceeded. / replaceState getting called frequently
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [route?.executionId, route?.goalId, selectedGoal?.id, execution?.id]);
+    console.debug(
+      "selectedGoal",
+      selectedGoal?.id,
+      "routeServerGoal",
+      routeServerGoal?.id,
+      "persistedServerGoal",
+      persistedServerGoal?.id,
+      "goalId",
+      goalId,
+    );
+
+    if (goalId !== selectedGoal?.id || exe?.id !== execution?.id) {
+      console.debug(
+        "setGoalAndExecution changing goalId",
+        goalId,
+        "exeId",
+        exe?.id,
+      );
+      goalId &&
+        startTransition(() => {
+          selectGoal(goalId);
+          void setExecution(exe);
+        });
+    } else {
+      console.debug(
+        "setGoalAndExecution not changing goalId",
+        goalId,
+        "exeId",
+        exe?.id,
+      );
+    }
+  }, [
+    route.executionId,
+    route.goalId,
+    serverGoalsMap,
+    executionsMap,
+    selectedGoal?.id,
+    execution?.id,
+    serverGoals,
+    goalList,
+    router,
+  ]);
 
   useEffect(() => {
     if (router.isReady) {
