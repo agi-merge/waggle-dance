@@ -68,8 +68,8 @@ const GoalTab: React.FC<GoalTabProps> = ({ tab, index, key }) => {
       }}
       key={key}
       sx={(theme) => ({
-        backgroundColor: theme.palette.background.backdrop,
-        backdropFilter: "blur(5px)",
+        backgroundColor: theme.palette.background.backdrop, // semi-transparent background
+        backdropFilter: "blur(5px)", // blur effect
         flex: "1 1 auto",
         maxWidth: `${100 / goalList.length}%`,
         minWidth: 0,
@@ -150,33 +150,35 @@ const GoalTabs: React.FC<GoalTabsProps> = ({ children }) => {
     <Tabs
       aria-label="Goal tabs"
       value={currentTabIndex}
-      variant="soft"
+      variant="outlined"
+      color="primary"
       sx={{
         borderRadius: "lg",
-        marginTop: -2,
-        marginLeft: -2,
-        marginRight: -2,
-        zIndex: 100,
+        marginTop: -2.3,
+        marginLeft: -2.1,
+        marginRight: -2.1,
+        overflow: "clip",
       }}
     >
       <TabList
         sticky="top"
         variant="outlined"
+        color="primary"
         sx={(theme) => ({
           "--main-paddingTop": `calc(${theme.spacing(
-            2,
+            0,
           )} + var(--Header-height, 0px))`,
           pointerEvents: isRunning ? "none" : "auto",
-          borderRadius: "lg",
           display: "flex flex-shrink",
           flexWrap: "nowrap",
-          top: "1",
-          zIndex: 10,
+          top: 0,
+          zIndex: 101,
           width: "100%",
           overflow: "auto hidden",
           alignSelf: "flex-start",
           scrollSnapType: "inline",
-          // backgroundColor: theme.palette.background.level1,
+          backgroundColor: theme.palette.background.backdrop, // semi-transparent background
+          backdropFilter: "blur(5px)", // blur effect
         })}
       >
         {goalList.map((tab, index) => (

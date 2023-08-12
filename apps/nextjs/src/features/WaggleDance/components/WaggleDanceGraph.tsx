@@ -300,12 +300,14 @@ const WaggleDanceGraph = ({}: WaggleDanceGraphProps) => {
           <TabList
             sticky="top"
             variant="outlined"
-            sx={{
+            sx={(theme) => ({
               borderRadius: "0",
               flexWrap: "nowrap",
               top: "calc(-1 * (var(--main-paddingTop, 0px) - var(--Header-height, 0px)))",
               width: "100%",
-            }}
+              backgroundColor: theme.palette.background.backdrop, // semi-transparent background
+              backdropFilter: "blur(5px)", // blur effect
+            })}
           >
             <Tab value={0} sx={{ flex: "1 1 auto" }}>
               <ListAlt />
