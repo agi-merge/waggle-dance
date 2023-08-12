@@ -88,7 +88,7 @@ const MainLayout = ({ children }: Props) => {
         <GlobalStyles
           styles={(_theme) => ({
             ":root": {
-              "--Header-height": "2.8rem",
+              "--Header-height": "2.9rem",
             },
           })}
         />
