@@ -238,8 +238,8 @@ const WaggleDanceGraph = ({
   }, [inProgressTasks, taskStates.length]);
 
   const progressLabel = useMemo(() => {
-    return `${results.length} (${inProgressTasks}) / ${taskStates.length}`;
-  }, [inProgressTasks, results.length, taskStates.length]);
+    return `Tasks: ${results.length} / ${taskStates.length}`;
+  }, [results.length, taskStates.length]);
 
   const shouldShowProgress = useMemo(() => {
     return isRunning || results.length > 0;
