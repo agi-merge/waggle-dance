@@ -111,9 +111,9 @@ function GoalSettings({}: CardProps) {
         onChange={handleChange}
         aria-label="Settings for plan, execute, and review agents"
       >
-        <TabList tabFlex="auto">
+        <TabList>
           {types.map((type, i) => (
-            <Tab key={type} value={i}>
+            <Tab key={type} value={i} sx={{ flex: "1 1 auto" }}>
               {type.charAt(0).toUpperCase() + type.slice(1)}
             </Tab>
           ))}

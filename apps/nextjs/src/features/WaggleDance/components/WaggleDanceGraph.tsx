@@ -256,7 +256,6 @@ const WaggleDanceGraph = ({}: WaggleDanceGraphProps) => {
         >
           <TabList
             sticky="top"
-            tabFlex={"auto"}
             variant="outlined"
             sx={{
               borderRadius: "0",
@@ -265,14 +264,14 @@ const WaggleDanceGraph = ({}: WaggleDanceGraphProps) => {
               width: "100%",
             }}
           >
-            <Tab value={0}>
+            <Tab value={0} sx={{ flex: "1 1 auto" }}>
               <ListAlt />
               <Typography className="px-1">Tasks</Typography>
             </Tab>
             <Tab
               value={1}
               disabled={dag.nodes.length < 2}
-              sx={{ opacity: dag.nodes.length < 2 ? 0.2 : 1 }}
+              sx={{ opacity: dag.nodes.length < 2 ? 0.2 : 1, flex: "1 1 auto" }}
             >
               <Lan />
               <Typography className="px-1">Graph</Typography>
@@ -280,7 +279,7 @@ const WaggleDanceGraph = ({}: WaggleDanceGraphProps) => {
             <Tab
               value={2}
               disabled={results.length < 1}
-              sx={{ opacity: results.length < 1 ? 0.2 : 1 }}
+              sx={{ opacity: results.length < 1 ? 0.2 : 1, flex: "1 1 auto" }}
             >
               <Science />
               <Typography>Results</Typography>
@@ -288,7 +287,7 @@ const WaggleDanceGraph = ({}: WaggleDanceGraphProps) => {
             <Tab
               value={3}
               disabled={logs.length < 1}
-              sx={{ opacity: logs.length < 1 ? 0.2 : 1 }}
+              sx={{ opacity: logs.length < 1 ? 0.2 : 1, flex: "1 1 auto" }}
             >
               <BugReport />
             </Tab>
