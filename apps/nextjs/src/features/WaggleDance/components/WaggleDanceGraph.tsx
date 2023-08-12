@@ -376,7 +376,11 @@ const WaggleDanceGraph = ({}: WaggleDanceGraphProps) => {
                             gap={{ xs: "0.5rem", sm: "0.25rem" }}
                             alignItems={{ xs: "center", sm: "flex-end" }}
                           >
-                            <Typography level="title-md" color="primary">
+                            <Typography
+                              level="title-md"
+                              color="primary"
+                              sx={{ wordBreak: "break-word" }}
+                            >
                               {n.name}
                             </Typography>
                             <Typography
@@ -653,6 +657,7 @@ const WaggleDanceGraph = ({}: WaggleDanceGraphProps) => {
                   width: "100%",
                   flex: "1 1 auto",
                 }}
+                className="overflow-clip"
               />
             )}
             <Box
