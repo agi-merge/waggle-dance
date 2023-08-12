@@ -40,7 +40,7 @@ export default async function ExecuteStream(req: NextRequest) {
           BaseCallbackHandler.fromMethods({
             handleLLMStart(): void | Promise<void> {
               const packet: ChainPacket = { type: "handleLLMStart" };
-              controller.enqueue(encoder.encode(stringify(packet) + "\n\n"));
+              controller.enqueue(encoder.encode(stringify([packet]) + "\n\n"));
             },
             handleLLMError(
               err: unknown,
@@ -57,7 +57,7 @@ export default async function ExecuteStream(req: NextRequest) {
                 type: "handleLLMError",
                 err: errorMessage,
               };
-              controller.enqueue(encoder.encode(stringify(packet) + "\n\n"));
+              controller.enqueue(encoder.encode(stringify([packet]) + "\n\n"));
               console.error("handleLLMError", packet);
             },
             handleChainError(
