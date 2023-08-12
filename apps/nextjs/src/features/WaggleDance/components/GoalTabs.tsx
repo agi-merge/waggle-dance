@@ -63,7 +63,7 @@ const GoalTab: React.FC<GoalTabProps> = ({ tab, index, key }) => {
   return (
     <Box
       component={NextLink}
-      onClick={(e) => {
+      onClick={() => {
         selectGoal(tab.id);
       }}
       key={key}
