@@ -80,6 +80,7 @@ const GoalTab: React.FC<GoalTabProps> = ({ tab, index, key }) => {
         value={index}
         component={Stack}
         color={"neutral"}
+        variant="outlined"
         orientation="horizontal"
         sx={(theme) => ({
           backgroundColor: theme.palette.background.backdrop,
@@ -154,16 +155,13 @@ const GoalTabs: React.FC<GoalTabsProps> = ({ children }) => {
       color="primary"
       sx={{
         borderRadius: "lg",
-        marginTop: -2.3,
-        marginLeft: -2.1,
-        marginRight: -2.1,
         overflow: "clip",
+        marginX: -2.1,
+        marginTop: -2.1,
       }}
     >
       <TabList
         sticky="top"
-        variant="outlined"
-        color="primary"
         sx={(theme) => ({
           "--main-paddingTop": `calc(${theme.spacing(
             0,
@@ -195,6 +193,7 @@ const GoalTabs: React.FC<GoalTabsProps> = ({ children }) => {
               shallow: true,
             });
           }}
+          sx={{ borderRadius: 0 }}
         >
           <Add />
         </IconButton>
