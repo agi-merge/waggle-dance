@@ -60,7 +60,9 @@ export type ChainPacket =
   | { type: "handleAgentAction"; action: AgentAction }
   | { type: "handleAgentEnd"; value: string }
   | { type: "handleText"; text: string }
+  | { type: "handleRetrieverError"; err: unknown }
   // our callbacks
+  | { type: "handleAgentError"; err: unknown } // synthetic; used for max iterations only
   | { type: "done"; value: string }
   | { type: "error"; severity: "warn" | "human" | "fatal"; message: string }
   | { type: "requestHumanInput"; reason: string }

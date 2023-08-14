@@ -125,16 +125,44 @@ export default async function ExecuteStream(req: NextRequest) {
               const packet: ChainPacket = { type: "handleAgentAction", action };
               controller.enqueue(encoder.encode(stringify([packet])));
             },
+            handleRetrieverError(
+              err: Error,
+              _runId: string,
+              _parentRunId?: string,
+              _tags?: string[],
+            ) {
+              let errorMessage = "";
+              if (err instanceof Error) {
+                errorMessage = err.message;
+              } else {
+                errorMessage = stringify(err);
+              }
+              const packet: ChainPacket = {
+                type: "handleRetrieverError",
+                err: errorMessage,
+              };
+              controller.enqueue(encoder.encode(stringify([packet])));
+            },
             handleAgentEnd(
               action: AgentFinish,
               _runId: string,
               _parentRunId?: string | undefined,
             ): void | Promise<void> {
-              const value = stringify(
-                action.returnValues && action.returnValues["output"],
-              );
-              const packet: ChainPacket = { type: "handleAgentEnd", value };
-              controller.enqueue(encoder.encode(stringify([packet])));
+              // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
+              const output =
+                action.returnValues && action.returnValues["output"];
+              if (output === "Agent stopped due to max iterations.") {
+                // not sure why this isn't an error…
+                const packet: ChainPacket = {
+                  type: "handleAgentError",
+                  err: "Agent stopped due to max iterations.",
+                };
+                controller.enqueue(encoder.encode(stringify([packet])));
+              } else {
+                const value = stringify(output);
+                const packet: ChainPacket = { type: "handleAgentEnd", value };
+                controller.enqueue(encoder.encode(stringify([packet])));
+              }
             },
           }),
         ];

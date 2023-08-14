@@ -35,7 +35,9 @@ function processResponseBuffer(tokens: string): Partial<ChainPacket> {
       packet.type === "error" ||
       packet.type === "handleChainError" ||
       packet.type === "handleToolError" ||
-      packet.type === "handleLLMError",
+      packet.type === "handleLLMError" ||
+      packet.type === "handleRetrieverError" ||
+      packet.type === "handleAgentError",
   ) ?? {
     type: "error",
     severity: "fatal",
