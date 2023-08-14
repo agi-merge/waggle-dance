@@ -79,13 +79,8 @@ const GoalTab: React.FC<GoalTabProps> = ({ tab, index, key }) => {
       <Tab
         value={index}
         component={Stack}
-        color={"neutral"}
-        variant="outlined"
+        color={"primary"}
         orientation="horizontal"
-        sx={(theme) => ({
-          backgroundColor: theme.palette.background.backdrop,
-          backdropFilter: "blur(5px)",
-        })}
       >
         <IconButton
           onClick={(e) => {
@@ -103,12 +98,18 @@ const GoalTab: React.FC<GoalTabProps> = ({ tab, index, key }) => {
             maxHeight: { xs: "1.5rem", sm: "var(--IconButton-size, 2rem)" },
           }}
         >
-          <Close />
+          <Close
+            sx={(theme) => ({
+              color: theme.palette.text.primary,
+            })}
+          />
         </IconButton>
         <Typography
-          level={selectedGoal?.id === tab.id ? "title-sm" : "body-sm"}
+          level={"title-sm"}
           noWrap
           className="m-1 flex-grow p-1"
+          fontWeight={selectedGoal?.id === tab.id ? "bold" : "normal"}
+          fontStyle={tab.userId ? "normal" : "italic"}
           sx={{
             textOverflow: "ellipsis",
             textAlign: "center",
