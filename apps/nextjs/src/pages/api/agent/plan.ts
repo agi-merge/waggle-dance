@@ -117,7 +117,8 @@ export default async function PlanStream(req: NextRequest) {
 
     return new Response(stream, {
       headers: {
-        "Content-Type": "application/octet-stream",
+        "Content-Type": "text/event-stream",
+        "Cache-Control": "no-cache",
         "Transfer-Encoding": "chunked",
       },
     });

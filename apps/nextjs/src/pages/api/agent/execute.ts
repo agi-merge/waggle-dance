@@ -206,6 +206,7 @@ export default async function ExecuteStream(req: NextRequest) {
       headers: {
         "Content-Type": "text/event-stream",
         "Cache-Control": "no-cache",
+        "Transfer-Encoding": "chunked",
       },
     });
   } catch (e) {
