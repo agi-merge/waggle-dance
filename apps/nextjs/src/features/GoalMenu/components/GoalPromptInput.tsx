@@ -38,9 +38,9 @@ export const examplePrompts = [
 
 const placeholders = ["What's your goal? …Not sure? Check Examples!"];
 
-type GoalInputProps = CardProps;
+type GoalPromptInputProps = CardProps;
 
-export default function GoalInput({}: GoalInputProps) {
+export default function GoalPromptInput({}: GoalPromptInputProps) {
   const { getGoalInputValue, setGoalInputValue, upsertGoal, selectedGoal } =
     useGoalStore();
   const { isAutoStartEnabled, setIsAutoStartEnabled } =
@@ -56,6 +56,7 @@ export default function GoalInput({}: GoalInputProps) {
     (event: React.FormEvent) => {
       event.preventDefault();
       setIsPageLoading(true);
+      const previousGoalId = selectedGoal?.id;
       // setIsAutoStartEnabled(true);
       // this saves the goal to the database and routes to the goal page
       // unless the user is not logged in, in which case it routes to the goal page
@@ -64,12 +65,12 @@ export default function GoalInput({}: GoalInputProps) {
         {
           onSuccess: (goal) => {
             console.debug(
-              "saved goal, selectedGoal: ",
-              selectedGoal,
+              "saved goal, previousGoalId: ",
+              previousGoalId,
               "goal: ",
               goal,
             );
-            upsertGoal(goal);
+            upsertGoal(goal, previousGoalId);
             void router.push(routes.goal(goal.id));
           },
           onError: (e) => {

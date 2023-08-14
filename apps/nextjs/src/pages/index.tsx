@@ -3,9 +3,9 @@
 import Link from "next/link";
 import { Tooltip, Typography } from "@mui/joy";
 
-import GoalInput from "~/features/GoalMenu/components/GoalInput";
+import GoalPromptInput from "~/features/GoalMenu/components/GoalPromptInput";
 import Title from "~/features/MainLayout/components/PageTitle";
-import GoalDynamicRoute from "~/pages/goal/[...slug]";
+import GoalDynamicRoute from "~/pages/goal/[[...goal]]";
 
 export const HomeContent = () => {
   return (
@@ -26,7 +26,7 @@ export const HomeContent = () => {
           of large language model agents
         </Typography>
       </Title>
-      <GoalInput />
+      <GoalPromptInput />
     </>
   );
 };

@@ -3,6 +3,8 @@
 import { useCallback, useEffect, useMemo, useState } from "react";
 import { stringify } from "yaml";
 
+import { type Execution } from "@acme/db";
+
 import { type GoalPlusExe } from "~/stores/goalStore";
 import useWaggleDanceMachineStore from "~/stores/waggleDanceStore";
 import { type ChainPacket } from "../../../../../../packages/agent";
@@ -44,8 +46,7 @@ export type TaskState = DAGNode & {
 
 const useWaggleDanceMachine = ({ goal }: UseWaggleDanceMachineProps) => {
   const [waggleDanceMachine] = useState(new WaggleDanceMachine());
-  const { setIsRunning, agentSettings, execution } =
-    useWaggleDanceMachineStore();
+  const { setIsRunning, agentSettings } = useWaggleDanceMachineStore();
   const graph = goal?.executions.find((e) => {
     const dag = e.graph as DAG | null;
     return dag !== null && dag.nodes?.length > 0;
@@ -242,82 +243,84 @@ const useWaggleDanceMachine = ({ goal }: UseWaggleDanceMachineProps) => {
   }, [abortController]);
 
   // main entrypoint
-  const run = useCallback(async () => {
-    const ac = new AbortController();
-    if (!abortController.signal.aborted) {
-      abortController.abort();
-    }
-    setAbortController(ac);
-
-    if (!isDonePlanning) {
-      setDAG(new DAG(initialNodes(goal?.prompt ?? ""), initialEdges()));
-    }
-
-    const prompt = goal?.prompt;
-    if (!prompt) {
-      throw new Error("Prompt not set");
-    }
-
-    const goalId = goal?.id;
-    if (!prompt || !goalId) {
-      throw new Error("Goal not set");
-    }
-
-    const executionId = execution?.id;
-    if (!executionId) {
-      throw new Error("Execution not set");
-    }
-
-    let result: WaggleDanceResult | Error;
-    try {
-      result = await waggleDanceMachine.run({
-        goal: prompt,
-        goalId,
-        executionId,
-        agentSettings,
-        graphDataState: [dag, setDAG],
-        isDonePlanningState: [isDonePlanning, setIsDonePlanning],
-        sendChainPacket,
-        log,
-        abortController: ac,
-      });
-    } catch (error) {
-      if (error instanceof Error) {
-        result = error;
-      } else {
-        result = new Error(`Unknown error ${JSON.stringify(error)}`);
+  const run = useCallback(
+    async (execution: Execution) => {
+      const ac = new AbortController();
+      if (!abortController.signal.aborted) {
+        abortController.abort();
       }
-    }
+      setAbortController(ac);
 
-    console.log("waggleDanceMachine.run result", result);
+      if (!isDonePlanning) {
+        setDAG(new DAG(initialNodes(goal?.prompt ?? ""), initialEdges()));
+      }
 
-    setIsRunning(false);
-    if (!ac.signal.aborted) {
-      ac.abort();
-    }
+      const prompt = goal?.prompt;
+      if (!prompt) {
+        throw new Error("Prompt not set");
+      }
 
-    if (result instanceof Error) {
-      console.error("Error in WaggleDanceMachine's run:", result);
-      return;
-    } else {
-      console.log("result", result);
-      const res = result.results[0] as Record<string, TaskState>;
-      res && setTaskResults(res);
-      return result;
-    }
-  }, [
-    abortController,
-    isDonePlanning,
-    goal?.prompt,
-    goal?.id,
-    execution?.id,
-    setIsRunning,
-    waggleDanceMachine,
-    agentSettings,
-    dag,
-    sendChainPacket,
-    log,
-  ]);
+      const goalId = goal?.id;
+      if (!prompt || !goalId) {
+        throw new Error("Goal not set");
+      }
+
+      const executionId = execution?.id;
+      if (!executionId) {
+        throw new Error("Execution not set");
+      }
+
+      let result: WaggleDanceResult | Error;
+      try {
+        result = await waggleDanceMachine.run({
+          goal: prompt,
+          goalId,
+          executionId,
+          agentSettings,
+          graphDataState: [dag, setDAG],
+          isDonePlanningState: [isDonePlanning, setIsDonePlanning],
+          sendChainPacket,
+          log,
+          abortController: ac,
+        });
+      } catch (error) {
+        if (error instanceof Error) {
+          result = error;
+        } else {
+          result = new Error(`Unknown error ${JSON.stringify(error)}`);
+        }
+      }
+
+      console.log("waggleDanceMachine.run result", result);
+
+      setIsRunning(false);
+      if (!ac.signal.aborted) {
+        ac.abort();
+      }
+
+      if (result instanceof Error) {
+        console.error("Error in WaggleDanceMachine's run:", result);
+        return;
+      } else {
+        console.log("result", result);
+        const res = result.results[0] as Record<string, TaskState>;
+        res && setTaskResults(res);
+        return result;
+      }
+    },
+    [
+      abortController,
+      isDonePlanning,
+      goal?.prompt,
+      goal?.id,
+      setIsRunning,
+      waggleDanceMachine,
+      agentSettings,
+      dag,
+      sendChainPacket,
+      log,
+    ],
+  );
 
   return {
     waggleDanceMachine,

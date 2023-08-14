@@ -29,6 +29,7 @@ import useWaggleDanceMachineStore from "~/stores/waggleDanceStore";
 interface GoalTabProps extends BoxProps {
   tab: GoalPlusExe;
   index: number;
+  goalList: GoalPlusExe[];
 }
 
 interface GoalTabsProps {
@@ -36,12 +37,16 @@ interface GoalTabsProps {
 }
 
 // A single goal tab inside the main tabber
-const GoalTab: React.FC<GoalTabProps> = ({ tab, index, key }) => {
+const GoalTab: React.FC<GoalTabProps> = ({
+  tab,
+  index,
+  goalList,
+  ...props
+}) => {
   const { setIsRunning } = useWaggleDanceMachineStore();
-  const { selectGoal, goalList, getGoalInputValue, deleteGoal, selectedGoal } =
+  const { selectGoal, getGoalInputValue, deleteGoal, selectedGoal } =
     useGoalStore();
   const del = api.goal.delete.useMutation();
-
   // Function to handle closing a tab
   const closeHandler = useCallback(
     async (tab: Goal) => {
@@ -66,7 +71,7 @@ const GoalTab: React.FC<GoalTabProps> = ({ tab, index, key }) => {
       onClick={() => {
         selectGoal(tab.id);
       }}
-      key={key}
+      {...props}
       sx={(theme) => ({
         backgroundColor: theme.palette.background.backdrop, // semi-transparent background
         backdropFilter: "blur(5px)", // blur effect
@@ -74,7 +79,7 @@ const GoalTab: React.FC<GoalTabProps> = ({ tab, index, key }) => {
         maxWidth: `${100 / goalList.length}%`,
         minWidth: 0,
       })}
-      href={routes.goal(tab.id, tab.executions[0]?.id)}
+      href={routes.goal(tab.id)}
     >
       <Tab
         value={index}
@@ -140,8 +145,12 @@ const GoalTab: React.FC<GoalTabProps> = ({ tab, index, key }) => {
 // The main goal tabber component
 const GoalTabs: React.FC<GoalTabsProps> = ({ children }) => {
   const router = useRouter();
-  const { goalList, newGoal, selectedGoal } = useGoalStore();
+  const { goalMap, newGoal, selectedGoal } = useGoalStore();
   const { isRunning } = useWaggleDanceMachineStore();
+
+  const goalList = useMemo(() => {
+    return goalMap ? Object.values(goalMap) : [];
+  }, [goalMap]);
 
   const currentTabIndex = useMemo(() => {
     return goalList.findIndex((goal) => goal.id === selectedGoal?.id);
@@ -181,7 +190,7 @@ const GoalTabs: React.FC<GoalTabsProps> = ({ children }) => {
         })}
       >
         {goalList.map((tab, index) => (
-          <GoalTab key={tab.id} tab={tab} index={index} />
+          <GoalTab key={tab.id} tab={tab} index={index} goalList={goalList} />
         ))}
         <IconButton
           className="flex-end float-start"

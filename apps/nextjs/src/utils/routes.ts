@@ -4,8 +4,8 @@ const routes = {
     if (!id) {
       return "/";
     }
-    const path = `/goal/${encodeURIComponent(id)}/${
-      execution ? `execution/${encodeURIComponent(execution)}` : ""
+    const path = `/goal/${encodeURIComponent(id)}${
+      execution ? `/execution/${encodeURIComponent(execution)}` : ""
     }`;
     return path;
   },

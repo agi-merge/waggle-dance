@@ -37,7 +37,7 @@ export interface WaggleDanceMachineStore {
     newValue: Partial<AgentSettings>,
   ) => void;
   execution: Execution | null;
-  setExecution: (newExecution: Execution | null) => void;
+  setExecution: (newExecution: Execution | undefined | null) => void;
 }
 
 export const draftExecutionPrefix = "draftexe-";
@@ -80,7 +80,7 @@ const useWaggleDanceMachineStore = create(
         })),
       execution: null,
       setExecution: (newExecution) => {
-        set({ execution: newExecution });
+        set({ execution: newExecution || null });
       },
     }),
     {

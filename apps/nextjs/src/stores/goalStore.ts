@@ -12,14 +12,15 @@ import { app } from "~/constants";
 export type GoalPlusExe = Goal & { executions: Execution[]; results: Result[] };
 
 export interface GoalStore {
-  goalList: GoalPlusExe[];
+  getState: () => GoalStore;
+  goalMap: Record<string, GoalPlusExe>;
   selectedGoal: GoalPlusExe | undefined;
   prevSelectedGoal: GoalPlusExe | undefined;
   newGoal: () => string;
   deleteGoal: (id: string) => void;
   selectGoal: (id: string) => void;
-  upsertGoal: (goal: GoalPlusExe) => void;
-  replaceGoals: (goalList: GoalPlusExe[]) => void;
+  upsertGoal: (goal: GoalPlusExe, replaceDraftId?: string | null) => void;
+  upsertGoals: (goals: Record<string, GoalPlusExe> | GoalPlusExe[]) => void;
   getGoalInputValue: () => string;
   setGoalInputValue: (newGoalInputValue: string) => void;
 }
@@ -28,7 +29,7 @@ export const draftGoalPrefix = "draft-";
 export const newDraftGoal = () => `${draftGoalPrefix}${v4()}`;
 export const newDraftGoalRoute = () => routes.goal(newDraftGoal());
 
-const baseTab = {
+const baseGoal = {
   id: newDraftGoal(),
   prompt: "",
   tooltip: "",
@@ -39,22 +40,22 @@ const baseTab = {
   userId: "",
 } as GoalPlusExe;
 
-const useGoalStore = (name?: string) =>
+const useGoalStore = () =>
   create(
     persist<GoalStore>(
       (set, get) => ({
-        goalList: [baseTab],
-        selectedGoal: baseTab,
+        getState: get,
+        goalMap: { [baseGoal.id]: baseGoal },
+        selectedGoal: baseGoal,
         prevSelectedGoal: undefined,
         newGoal() {
           const id = newDraftGoal();
           const newGoal = {
-            ...baseTab,
+            ...baseGoal,
             id,
-            index: get().goalList.length,
           };
           set((state) => ({
-            goalList: [...state.goalList, newGoal],
+            goalMap: { ...state.goalMap, [id]: newGoal },
             selectedGoal: newGoal,
             prevSelectedGoal: state.selectedGoal,
           }));
@@ -62,13 +63,13 @@ const useGoalStore = (name?: string) =>
         },
         deleteGoal(id: string) {
           set((state) => {
-            const goalList = state.goalList.filter((g) => g.id !== id);
+            const { [id]: _, ...goalMap } = state.goalMap;
             const selectedGoal =
               state.selectedGoal?.id === id
                 ? state.prevSelectedGoal
                 : state.selectedGoal;
             return {
-              goalList,
+              goalMap,
               selectedGoal,
               prevSelectedGoal:
                 state.prevSelectedGoal?.id === id
@@ -78,7 +79,7 @@ const useGoalStore = (name?: string) =>
           });
         },
         selectGoal(id: string) {
-          const goal = get().goalList.find((g) => g.id === id);
+          const goal = get().goalMap[id];
           if (!goal) {
             throw new Error("Invalid goal ID");
           }
@@ -87,19 +88,22 @@ const useGoalStore = (name?: string) =>
             prevSelectedGoal: state.selectedGoal,
           }));
         },
-        upsertGoal(goal: GoalPlusExe) {
+        upsertGoal(goal: GoalPlusExe, replaceDraftId?: string | null) {
           set((state) => {
-            const goalList = state.goalList;
-            const index = goalList.findIndex((g) => g.id === goal.id);
-            if (index > -1) {
-              goalList[index] = goal;
-            } else {
-              goalList.push(goal);
+            const goalMap = { ...state.goalMap, [goal.id]: goal };
+
+            // If replaceDraftId is provided, remove it from the goalMap
+            if (replaceDraftId) {
+              delete goalMap[replaceDraftId];
             }
+
             return {
-              goalList,
-              selectedGoal:
-                state.selectedGoal?.id === goal.id ? goal : state.selectedGoal,
+              goalMap,
+              selectedGoal: replaceDraftId
+                ? goal
+                : state.selectedGoal?.id === goal.id
+                ? goal
+                : state.selectedGoal,
               prevSelectedGoal:
                 state.prevSelectedGoal?.id === goal.id
                   ? goal
@@ -107,20 +111,39 @@ const useGoalStore = (name?: string) =>
             };
           });
         },
-        replaceGoals(newGoals: GoalPlusExe[]) {
+        upsertGoals(goals: Record<string, GoalPlusExe> | GoalPlusExe[]) {
           set((state) => {
-            const goalList = [
-              ...newGoals,
-              ...state.goalList.filter((g) => g.id.startsWith(draftGoalPrefix)),
-            ];
+            let newGoalsMap: Record<string, GoalPlusExe>;
+
+            // Use type guard to check if goals is an array or map
+            if (Array.isArray(goals)) {
+              newGoalsMap = goals.reduce(
+                (map, goal) => {
+                  map[goal.id] = goal;
+                  return map;
+                },
+                {} as Record<string, GoalPlusExe>,
+              );
+            } else {
+              newGoalsMap = goals;
+            }
+
+            const goalMap = {
+              ...newGoalsMap,
+              ...Object.fromEntries(
+                Object.entries(state.goalMap).filter(([id]) =>
+                  id.startsWith(draftGoalPrefix),
+                ),
+              ),
+            };
             return {
-              goalList,
-              selectedGoal: goalList.find(
-                (g) => g.id === state.selectedGoal?.id,
-              ),
-              prevSelectedGoal: goalList.find(
-                (g) => g.id === state.prevSelectedGoal?.id,
-              ),
+              goalMap,
+              selectedGoal: state.selectedGoal?.id
+                ? goalMap[state.selectedGoal.id]
+                : undefined,
+              prevSelectedGoal: state.prevSelectedGoal?.id
+                ? goalMap[state.prevSelectedGoal.id]
+                : undefined,
             };
           });
         },
@@ -130,19 +153,14 @@ const useGoalStore = (name?: string) =>
         setGoalInputValue(newGoalInputValue: string) {
           set((state) => {
             if (state.selectedGoal) {
-              const goalList = [...state.goalList];
-              const index = goalList.findIndex(
-                (g) => g.id === state.selectedGoal?.id,
-              );
-              if (index > -1 && index < goalList.length) {
-                const goal = goalList[index]!;
+              const goal = state.goalMap[state.selectedGoal.id];
+              if (goal) {
                 const updatedGoal = {
                   ...goal,
                   prompt: newGoalInputValue,
                 };
-                goalList[index] = updatedGoal;
                 return {
-                  goalList,
+                  goalMap: { ...state.goalMap, [updatedGoal.id]: updatedGoal },
                   selectedGoal: updatedGoal,
                   prevSelectedGoal:
                     state.prevSelectedGoal?.id === updatedGoal.id
@@ -156,7 +174,7 @@ const useGoalStore = (name?: string) =>
         },
       }),
       {
-        name: name ?? app.localStorageKeys.goal,
+        name: app.localStorageKeys.goal,
         storage: createJSONStorage(() => sessionStorage), // alternatively use: localStorage
       },
     ),

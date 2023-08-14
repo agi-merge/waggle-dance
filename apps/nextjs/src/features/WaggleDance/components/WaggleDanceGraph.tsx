@@ -164,7 +164,7 @@ const WaggleDanceGraph = ({}: WaggleDanceGraphProps) => {
         await router.push(
           routes.goal(createdExecution.goalId, createdExecution?.id),
         );
-        await startWaggleDance();
+        await startWaggleDance(createdExecution); // idk, execution not set was happening if we relied on useCallback hook
       })();
     },
   });
