@@ -173,6 +173,7 @@ export default function GoalDynamicRoute() {
                   component={Accordion}
                   variant="outlined"
                   className="mt-2"
+                  sx={{ padding: 0 }}
                 >
                   <AccordionItem value="item-1">
                     <AccordionHeader
