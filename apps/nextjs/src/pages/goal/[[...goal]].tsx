@@ -1,13 +1,15 @@
 // pages/goal/[goalId].tsx
-import { Accordion, AccordionItem } from "@radix-ui/react-accordion";
-import { useRouter } from "next/router";
 import { type ParsedUrlQuery } from "querystring";
 import { Suspense, useEffect, useMemo, useRef } from "react";
+import { useRouter } from "next/router";
+import List from "@mui/joy/List";
+import Typography from "@mui/joy/Typography";
+import { Accordion, AccordionItem } from "@radix-ui/react-accordion";
 
 import { type Execution } from "@acme/db";
 
-import List from "@mui/joy/List";
-import Typography from "@mui/joy/Typography";
+import { api } from "~/utils/api";
+import routes from "~/utils/routes";
 import {
   AccordionContent,
   AccordionHeader,
@@ -16,8 +18,6 @@ import MainLayout from "~/features/MainLayout";
 import PageTitle from "~/features/MainLayout/components/PageTitle";
 import WaggleDanceGraph from "~/features/WaggleDance/components/WaggleDanceGraph";
 import useWaggleDanceMachineStore from "~/stores/waggleDanceStore";
-import { api } from "~/utils/api";
-import routes from "~/utils/routes";
 import { HomeContent } from "..";
 import useGoalStore, { type GoalPlusExe } from "../../stores/goalStore";
 
@@ -126,6 +126,7 @@ const GoalPage = () => {
 };
 
 export default GoalPage;
+
 function getRoute(query: ParsedUrlQuery): {
   goalId: string | undefined;
   executionId: string | undefined;
