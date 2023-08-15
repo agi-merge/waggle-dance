@@ -16,11 +16,11 @@
     "@trpc/client": "^10.37.1",
     "@trpc/server": "^10.37.1",
     "superjson": "1.13.1",
-    "zod": "^3.21.4"
+    "zod": "^3.22.0"
   },
   "devDependencies": {
     "@acme/eslint-config": "^0.1.0",
-    "eslint": "^8.46.0",
+    "eslint": "^8.47.0",
     "typescript": "^5.1.6"
   }
 }
