@@ -45,7 +45,7 @@
     "jsonrepair": "^3.2.0",
     "langchain": "^0.0.127",
     "mammoth": "^1.6.0",
-    "next": "^13.4.13",
+    "next": "^13.4.16",
     "next-auth": "^4.23.0",
     "pdf-parse": "^1.1.1",
     "playwright": "^1.37.0",
