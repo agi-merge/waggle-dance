@@ -23,7 +23,6 @@ export default async function PlanStream(req: NextRequest) {
       (await req.json()) as PlanRequestBody;
 
     const abortController = new AbortController();
-
     const encoder = new TextEncoder();
     const stream = new ReadableStream({
       async start(controller) {

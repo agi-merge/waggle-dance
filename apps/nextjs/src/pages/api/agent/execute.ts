@@ -1,4 +1,4 @@
-import { NextResponse, type NextRequest } from "next/server";
+import { type NextRequest } from "next/server";
 import { BaseCallbackHandler } from "langchain/callbacks";
 import { type Serialized } from "langchain/load/serializable";
 import { type AgentAction, type AgentFinish } from "langchain/schema";
@@ -230,7 +230,7 @@ export default async function ExecuteStream(req: NextRequest) {
       },
     });
 
-    return new NextResponse(stream, {
+    return new Response(stream, {
       headers: {
         "Content-Type": "text/event-stream",
         "Cache-Control": "no-cache",
@@ -258,7 +258,7 @@ export default async function ExecuteStream(req: NextRequest) {
       severity: "fatal",
       message: stringify(all),
     };
-    return new NextResponse(stringify([errorPacket]), {
+    return new Response(stringify([errorPacket]), {
       headers: {
         "Content-Type": "application/yaml",
       },
