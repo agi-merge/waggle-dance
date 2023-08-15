@@ -1,12 +1,13 @@
 // api/agent/plan.ts
 
 import { type NextRequest } from "next/server";
-import { stringify } from "yaml";
+import { parse, stringify } from "yaml";
 
 import {
   createPlanningAgent,
   type ChainPacket,
 } from "../../../../../../packages/agent";
+import { type UpdateGraphParams } from "../execution/graph";
 import { type PlanRequestBody } from "./types";
 
 export const config = {
@@ -18,11 +19,26 @@ export const config = {
 
 export default async function PlanStream(req: NextRequest) {
   console.debug("plan request");
+  const abortController = new AbortController();
+  let planResult: string | undefined;
+  let goalId: string | undefined;
+  let executionId: string | undefined;
+  let resolveStreamEnded: () => void;
+  let rejectStreamEnded: (reason?: string) => void;
+  const streamEndedPromise = new Promise<void>((resolve, reject) => {
+    resolveStreamEnded = resolve;
+    rejectStreamEnded = reject;
+  });
   try {
-    const { creationProps, goal, goalId, executionId } =
-      (await req.json()) as PlanRequestBody;
+    const {
+      creationProps,
+      goal,
+      goalId: parsedGoalId,
+      executionId: parsedExecutionId,
+    } = (await req.json()) as PlanRequestBody;
+    goalId = parsedGoalId;
+    executionId = parsedExecutionId;
 
-    const abortController = new AbortController();
     const encoder = new TextEncoder();
     const stream = new ReadableStream({
       async start(controller) {
@@ -75,42 +91,22 @@ export default async function PlanStream(req: NextRequest) {
         creationProps.callbacks = callbacks;
         console.debug("about to planChain");
 
-        const planResult = await createPlanningAgent(
+        planResult = await createPlanningAgent(
           creationProps,
           goal,
-          goalId,
+          goalId!,
           abortController.signal,
         );
+
         console.debug("plan result", planResult);
-
-        const updateGraph = {
-          goalId,
-          graph: planResult,
-          executionId,
-        };
-        const response = await fetch(
-          `${process.env.NEXTAUTH_URL}/api/execution/graph`,
-          {
-            method: "POST",
-            headers: {
-              Cookie: req.headers.get("cookie") || "", // pass cookie so session logic still works
-              "Content-Type": "application/json",
-            },
-            body: JSON.stringify(updateGraph),
-            signal: abortController.signal,
-          },
-        );
-
-        if (!response.ok) {
-          throw new Error(`Could not save execution: ${response.statusText}`);
-        }
-
         controller.close();
+        resolveStreamEnded();
       },
 
       cancel() {
         abortController.abort();
         console.warn("cancel plan request");
+        rejectStreamEnded("Stream cancelled");
       },
     });
 
@@ -136,17 +132,63 @@ export default async function PlanStream(req: NextRequest) {
     }
 
     const all = { stack, message, status };
+    planResult = stringify(all);
     console.error("plan error", all);
     const errorPacket: ChainPacket = {
       type: "error",
       severity: "fatal",
-      message: stringify(all),
+      message: planResult,
     };
+
     return new Response(stringify([errorPacket]), {
       headers: {
         "Content-Type": "application/yaml",
       },
       status,
     });
+  } finally {
+    // wrap this because otherwise streaming is broken due to finally being run, and awaiting, before the return stream.
+    void (async () => {
+      await streamEndedPromise;
+
+      if (goalId && executionId) {
+        // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
+        const graph = (planResult && parse(planResult)) || null;
+        await updateExecution(
+          {
+            goalId,
+            // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
+            graph,
+            executionId,
+          },
+          req,
+        );
+      } else {
+        console.error(
+          "could not save execution, it must be manually cleaned up",
+        );
+      }
+    })();
+  }
+}
+
+export async function updateExecution(
+  params: UpdateGraphParams,
+  req: NextRequest,
+): Promise<void> {
+  const response = await fetch(
+    `${process.env.NEXTAUTH_URL}/api/execution/graph`,
+    {
+      method: "POST",
+      headers: {
+        Cookie: req.headers.get("cookie") || "", // pass cookie so session logic still works
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify(params),
+    },
+  );
+
+  if (!response.ok) {
+    throw new Error(`Could not save execution: ${response.statusText}`);
   }
 }

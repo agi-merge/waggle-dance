@@ -4,9 +4,7 @@ import { type NextApiRequest, type NextApiResponse } from "next";
 
 import { appRouter } from "@acme/api";
 import { getServerSession, type Session } from "@acme/auth";
-import { prisma, type Execution } from "@acme/db";
-
-import type DAG from "~/features/WaggleDance/DAG";
+import { ExecutionState, prisma, type Execution } from "@acme/db";
 
 export const config = {
   runtime: "nodejs",
@@ -15,7 +13,8 @@ export const config = {
 export type UpdateGraphParams = {
   goalId: string;
   executionId: string;
-  dag: DAG;
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  graph: { nodes: any[]; edges: any[] } | null;
   session?: Session | null;
 };
 
@@ -40,18 +39,26 @@ export default async function updateGraphProxy(
 
 async function updateGraph({
   executionId,
-  dag,
+  graph,
   session,
 }: UpdateGraphParams): Promise<Execution> {
   if (session?.user.id) {
     const caller = appRouter.createCaller({ session, prisma });
-    const updateGraphOptions = {
-      executionId,
-      graph: dag,
-    };
-    const updated = await caller.execution.updateGraph(updateGraphOptions);
-    console.debug("updated exe graph", updated);
-    return updated;
+    if (graph == null) {
+      const updated = await caller.execution.updateState({
+        state: ExecutionState.ERROR,
+        executionId,
+      });
+      console.warn("updated exe state to error", updated);
+      return updated;
+    } else {
+      const updated = await caller.execution.updateGraph({
+        executionId,
+        graph,
+      });
+      console.debug("updated exe graph", updated);
+      return updated;
+    }
   } else {
     throw new Error("no user id");
   }

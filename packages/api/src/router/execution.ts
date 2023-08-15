@@ -4,6 +4,11 @@ import { ExecutionState } from "@acme/db";
 
 import { createTRPCRouter, protectedProcedure } from "../trpc";
 
+export const dagShape = z.object({
+  nodes: z.array(z.any()),
+  edges: z.array(z.any()),
+});
+
 export const executionRouter = createTRPCRouter({
   create: protectedProcedure
     .input(z.object({ goalId: z.string().nonempty() }))
@@ -42,7 +47,7 @@ export const executionRouter = createTRPCRouter({
     .input(
       z.object({
         executionId: z.string().nonempty(),
-        graph: z.object({ nodes: z.array(z.any()), edges: z.array(z.any()) }),
+        graph: dagShape,
       }),
     )
     .mutation(({ ctx, input }) => {
