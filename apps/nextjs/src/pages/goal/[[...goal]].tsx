@@ -75,7 +75,7 @@ const GoalPage = () => {
       prevDestinationRouteRef.current = destinationRoute;
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [destinationRoute]);
+  }, [goal?.id, execution?.id, destinationRoute]);
 
   return (
     <MainLayout>
