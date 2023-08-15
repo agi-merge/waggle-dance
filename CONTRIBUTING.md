@@ -1,5 +1,7 @@
 # Contributing to Waggle🐝💃Dance
 
+## ⚠️ Under Construction ⚠️
+
 Thank you for your interest in contributing to Waggle🐝💃Dance! We welcome contributions from the community to help make this project even better. This document outlines the contribution pattern we follow. Please take a moment to review this information before making your contribution.
 
 ## ✅ Getting Started
@@ -51,7 +53,9 @@ git push origin feature/your-feature-name
 
 - Run the provided linting and formatting scripts before committing your changes.
 
-- Test build locally to ensure pre-build/build scripts don't trip any critical errors: `pnpm build`.
+- Test build locally to ensure pre-build/build scripts don't trip any critical errors: `SKIP_ENV_VALIDATION=true NODE_ENV=production  pnpm turbo build lint type-check`
+
+CI will run this command on your PR, so it's best to run it locally before submitting.
 
 ## 😱 Issue Guidelines
 
@@ -63,7 +67,7 @@ git push origin feature/your-feature-name
 
 ## 🦜 Communication
 
-- Join our community on [Discord]() to get help or discuss the project.
+- Join our community on [Discord](https://discord.gg/Rud2fR3hAX) to get help or discuss the project.
 
 ## 📃 License
 
