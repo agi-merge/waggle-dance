@@ -723,12 +723,11 @@ const WaggleDanceGraph = ({}: WaggleDanceGraphProps) => {
                 variant="soft"
                 onClick={isRunning ? handleStop : handleStart}
                 endDecorator={isRunning ? <StopCircle /> : <PlayCircle />}
-                sx={(theme) => ({
+                sx={{
                   zIndex: 15,
                   paddingX: { xs: 1, sm: 2 },
                   minHeight: { xs: 2, sm: 3 },
-                  fontSize: { xs: "title-md", sm: "title-lg" },
-                })}
+                }}
               >
                 {isRunning && (
                   <CircularProgress

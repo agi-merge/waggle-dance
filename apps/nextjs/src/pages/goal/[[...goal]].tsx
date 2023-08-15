@@ -1,6 +1,12 @@
 // pages/goal/[goalId].tsx
 import { type ParsedUrlQuery } from "querystring";
-import { Suspense, useEffect, useMemo, useRef } from "react";
+import React, {
+  useEffect,
+  useMemo,
+  useRef,
+  type ErrorInfo,
+  type ReactNode,
+} from "react";
 import { useRouter } from "next/router";
 import List from "@mui/joy/List";
 import Typography from "@mui/joy/Typography";
@@ -79,7 +85,8 @@ const GoalPage = () => {
 
   return (
     <MainLayout>
-      <Suspense fallback={<Typography>Loading…</Typography>}>
+      <ErrorBoundary fallback={<Typography>Loading…</Typography>}>
+        {/* <Suspense fallback={<Typography>Loading…</Typography>}> */}
         {state === "input" ? (
           <HomeContent />
         ) : (
@@ -120,7 +127,8 @@ const GoalPage = () => {
             <WaggleDanceGraph />
           </>
         )}
-      </Suspense>
+        {/* </Suspense> */}
+      </ErrorBoundary>
     </MainLayout>
   );
 };
@@ -195,5 +203,46 @@ function getDestinationRoute(
     return destinationRoute;
   } else if (currentPath !== destinationRoute) {
     return destinationRoute;
+  }
+}
+interface ErrorBoundaryProps {
+  children: ReactNode;
+  fallback: ReactNode;
+}
+
+interface ErrorBoundaryState {
+  hasError: boolean;
+}
+
+class ErrorBoundary extends React.Component<
+  ErrorBoundaryProps,
+  ErrorBoundaryState
+> {
+  constructor(props: ErrorBoundaryProps) {
+    super(props);
+    this.state = { hasError: false };
+  }
+
+  static getDerivedStateFromError(_error: Error): ErrorBoundaryState {
+    // Update state so the next render will show the fallback UI.
+    return { hasError: true };
+  }
+
+  componentDidCatch(_error: Error, _info: ErrorInfo) {
+    // Example "componentStack":
+    //   in ComponentThatThrows (created by App)
+    //   in ErrorBoundary (created by App)
+    //   in div (created by App)
+    //   in App
+    // logErrorToMyService(error, (info as LogErrorInfo).componentStack);
+  }
+
+  render(): ReactNode {
+    if (this.state.hasError) {
+      // You can render any custom fallback UI
+      return this.props.fallback;
+    }
+
+    return this.props.children;
   }
 }
