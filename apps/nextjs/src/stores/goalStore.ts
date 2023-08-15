@@ -81,6 +81,11 @@ const useGoalStore = () =>
         selectGoal(id: string) {
           const goal = get().goalMap[id];
           if (!goal) {
+            set((state) => ({
+              selectedGoal: Object.values(state.goalMap)[0]?.id
+                ? state.goalMap[Object.values(state.goalMap)[0]!.id]
+                : undefined,
+            }));
             throw new Error("Invalid goal ID");
           }
           set((state) => ({
