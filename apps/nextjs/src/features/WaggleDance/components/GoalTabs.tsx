@@ -71,6 +71,7 @@ const GoalTab: React.FC<GoalTabProps> = ({
       }}
       {...props}
       sx={{
+        pointerEvents: isRunning ? "none" : "auto",
         opacity: isRunning ? 0.33 : 1,
         flex: "1 1 auto",
         maxWidth: `${100 / goalList.length}%`,
@@ -78,68 +79,66 @@ const GoalTab: React.FC<GoalTabProps> = ({
       }}
       href={routes.goal(tab.id)}
     >
-      <Tooltip disableInteractive={isRunning}>
-        <Tab
-          disabled={isRunning}
-          value={index}
-          component={Stack}
-          gap={0}
-          color={"primary"}
-          orientation="horizontal"
-          sx={{ paddingRight: 0, paddingLeft: 0.5 }}
+      <Tab
+        disabled={isRunning}
+        value={index}
+        component={Stack}
+        gap={0}
+        color={"primary"}
+        orientation="horizontal"
+        sx={{ paddingRight: 0, paddingLeft: 0.5 }}
+      >
+        <IconButton
+          onClick={(e) => {
+            e.preventDefault();
+            e.stopPropagation();
+            void closeHandler(tab);
+          }}
+          variant="plain"
+          className="flex-end float-start"
+          size="sm"
+          sx={{
+            minWidth: { sm: "1.5rem", md: "var(--IconButton-size, 2rem)" },
+            minHeight: { sm: "1.5rem", md: "var(--IconButton-size, 2rem)" },
+            maxWidth: { sm: "1.5rem", md: "var(--IconButton-size, 2rem)" },
+            maxHeight: { sm: "1.5rem", md: "var(--IconButton-size, 2rem)" },
+          }}
         >
-          <IconButton
-            onClick={(e) => {
-              e.preventDefault();
-              e.stopPropagation();
-              void closeHandler(tab);
-            }}
-            variant="plain"
-            className="flex-end float-start"
-            size="sm"
-            sx={{
-              minWidth: { sm: "1.5rem", md: "var(--IconButton-size, 2rem)" },
-              minHeight: { sm: "1.5rem", md: "var(--IconButton-size, 2rem)" },
-              maxWidth: { sm: "1.5rem", md: "var(--IconButton-size, 2rem)" },
-              maxHeight: { sm: "1.5rem", md: "var(--IconButton-size, 2rem)" },
-            }}
-          >
-            <Close
-              sx={(theme) => ({
-                color: theme.palette.text.primary,
-              })}
-            />
-          </IconButton>
-          <Typography
-            level={"title-sm"}
-            noWrap
-            className="m-1 flex-grow p-1"
-            fontWeight={selectedGoal?.id === tab.id ? "bold" : "normal"}
-            fontStyle={tab.userId ? "normal" : "italic"}
-            sx={{
-              textOverflow: "ellipsis",
-              textAlign: "center",
-              fontSize: { xs: "8pt", sm: "10pt" },
-            }}
-          >
-            {selectedGoal?.id === tab.id ? (
-              <>
-                {getGoalInputValue().length > 0
-                  ? getGoalInputValue()
-                  : "New Goal"}
-              </>
-            ) : tab.prompt.length < 120 ? (
-              tab.prompt.length > 0 ? (
-                tab.prompt
-              ) : (
-                "New Goal"
-              )
+          <Close
+            sx={(theme) => ({
+              color: theme.palette.text.primary,
+            })}
+          />
+        </IconButton>
+        <Typography
+          level={"title-sm"}
+          noWrap
+          className="m-1 flex-grow p-1"
+          fontWeight={selectedGoal?.id === tab.id ? "bold" : "normal"}
+          fontStyle={tab.userId ? "normal" : "italic"}
+          sx={{
+            textOverflow: "ellipsis",
+            textAlign: "center",
+            fontSize: { xs: "8pt", sm: "10pt" },
+          }}
+        >
+          {selectedGoal?.id === tab.id ? (
+            <>
+              {getGoalInputValue().length > 0
+                ? getGoalInputValue()
+                : "New Goal"}
+            </>
+          ) : tab.prompt.length < 120 ? (
+            tab.prompt.length > 0 ? (
+              tab.prompt
             ) : (
-              `${tab.prompt.slice(0, 120)}…`
-            )}
-          </Typography>
-        </Tab>
-      </Tooltip>
+              "New Goal"
+            )
+          ) : (
+            `${tab.prompt.slice(0, 120)}…`
+          )}
+        </Typography>
+      </Tab>
       <Divider orientation="vertical" />
     </Box>
   );
@@ -173,46 +172,49 @@ const GoalTabs: React.FC<GoalTabsProps> = ({ children }) => {
         marginTop: -2.1,
       }}
     >
-      <TabList
-        sticky="top"
-        sx={(theme) => ({
-          "--main-paddingTop": `calc(${theme.spacing(
-            0,
-          )} + var(--Header-height, 0px))`,
-          pointerEvents: isRunning ? "none" : "auto",
-          display: "flex flex-shrink",
-          flexWrap: "nowrap",
-          top: 0,
-          zIndex: 101,
-          width: "100%",
-          overflow: "auto hidden",
-          alignSelf: "flex-start",
-          scrollSnapType: "inline",
-          backgroundColor: isRunning
-            ? theme.palette.background.level1
-            : theme.palette.background.backdrop, // semi-transparent background
-          backdropFilter: "blur(10px)",
-        })}
+      <Tooltip
+        title={isRunning ? "Changing goals is disabled while waggling." : null}
       >
-        {goalList.map((tab, index) => (
-          <GoalTab key={tab.id} tab={tab} index={index} goalList={goalList} />
-        ))}
-        <IconButton
-          className="flex-end float-start min-w-fit"
-          color="neutral"
-          size="md"
-          variant="plain"
-          onClick={() => {
-            const newId = newGoal();
-            void router.replace(routes.goal(newId), undefined, {
-              shallow: true,
-            });
-          }}
-          sx={{ borderRadius: 0 }}
+        <TabList
+          sticky="top"
+          sx={(theme) => ({
+            "--main-paddingTop": `calc(${theme.spacing(
+              0,
+            )} + var(--Header-height, 0px))`,
+            display: "flex flex-shrink",
+            flexWrap: "nowrap",
+            top: 0,
+            zIndex: 101,
+            width: "100%",
+            overflow: "auto hidden",
+            alignSelf: "flex-start",
+            scrollSnapType: "inline",
+            backgroundColor: isRunning
+              ? theme.palette.background.level1
+              : theme.palette.background.backdrop, // semi-transparent background
+            backdropFilter: "blur(10px)",
+          })}
         >
-          <Add />
-        </IconButton>
-      </TabList>
+          {goalList.map((tab, index) => (
+            <GoalTab key={tab.id} tab={tab} index={index} goalList={goalList} />
+          ))}
+          <IconButton
+            className="flex-end float-start min-w-fit"
+            color="neutral"
+            size="md"
+            variant="plain"
+            onClick={() => {
+              const newId = newGoal();
+              void router.replace(routes.goal(newId), undefined, {
+                shallow: true,
+              });
+            }}
+            sx={{ borderRadius: 0 }}
+          >
+            <Add />
+          </IconButton>
+        </TabList>
+      </Tooltip>
       <Box className="mx-6 mt-1">{children}</Box>
     </Tabs>
   );
