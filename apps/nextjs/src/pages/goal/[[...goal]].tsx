@@ -1,14 +1,13 @@
 // pages/goal/[goalId].tsx
+import { Accordion, AccordionItem } from "@radix-ui/react-accordion";
+import { useRouter } from "next/router";
 import { type ParsedUrlQuery } from "querystring";
 import { Suspense, useEffect, useMemo, useRef } from "react";
-import { useRouter } from "next/router";
-import { CircularProgress, List, Typography } from "@mui/joy";
-import { Accordion, AccordionItem } from "@radix-ui/react-accordion";
 
 import { type Execution } from "@acme/db";
 
-import { api } from "~/utils/api";
-import routes from "~/utils/routes";
+import List from "@mui/joy/List";
+import Typography from "@mui/joy/Typography";
 import {
   AccordionContent,
   AccordionHeader,
@@ -17,6 +16,8 @@ import MainLayout from "~/features/MainLayout";
 import PageTitle from "~/features/MainLayout/components/PageTitle";
 import WaggleDanceGraph from "~/features/WaggleDance/components/WaggleDanceGraph";
 import useWaggleDanceMachineStore from "~/stores/waggleDanceStore";
+import { api } from "~/utils/api";
+import routes from "~/utils/routes";
 import { HomeContent } from "..";
 import useGoalStore, { type GoalPlusExe } from "../../stores/goalStore";
 
@@ -78,7 +79,7 @@ const GoalPage = () => {
 
   return (
     <MainLayout>
-      <Suspense fallback={<CircularProgress />}>
+      <Suspense fallback={<Typography>Loading…</Typography>}>
         {state === "input" ? (
           <HomeContent />
         ) : (

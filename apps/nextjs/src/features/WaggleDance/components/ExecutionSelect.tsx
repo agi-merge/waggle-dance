@@ -1,21 +1,24 @@
-import * as React from "react";
-import { useCallback, useMemo } from "react";
-import NextLink from "next/link";
 import { ClickAwayListener } from "@mui/base";
-import { FormControl, FormLabel, Stack, Tooltip } from "@mui/joy";
 import Box, { type BoxProps } from "@mui/joy/Box";
 import Chip from "@mui/joy/Chip";
 import Option from "@mui/joy/Option";
 import Select from "@mui/joy/Select";
 import Typography from "@mui/joy/Typography";
+import NextLink from "next/link";
+import * as React from "react";
+import { useCallback, useMemo } from "react";
 
 import { type Execution } from "@acme/db";
 
-import routes from "~/utils/routes";
+import FormControl from "@mui/joy/FormControl";
+import FormLabel from "@mui/joy/FormLabel";
+import Stack from "@mui/joy/Stack";
+import Tooltip from "@mui/joy/Tooltip";
 import useWaggleDanceMachineStore from "~/stores/waggleDanceStore";
+import routes from "~/utils/routes";
 import type DAG from "../DAG";
-import timeAgo from "../utils/timeAgo";
 import { rootPlanId } from "../WaggleDanceMachine";
+import timeAgo from "../utils/timeAgo";
 
 type ExecutionSelectProps = BoxProps & {
   goalId: string;

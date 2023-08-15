@@ -1,7 +1,8 @@
 // pages/index.tsx
 
+import Tooltip from "@mui/joy/Tooltip";
+import Typography from "@mui/joy/Typography";
 import Link from "next/link";
-import { Tooltip, Typography } from "@mui/joy";
 
 import GoalPromptInput from "~/features/GoalMenu/components/GoalPromptInput";
 import Title from "~/features/MainLayout/components/PageTitle";

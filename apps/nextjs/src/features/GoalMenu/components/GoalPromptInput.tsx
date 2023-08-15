@@ -1,29 +1,27 @@
 // GoalInput.tsx
 
-import React, { useCallback, useEffect, useState } from "react";
-import router from "next/router";
 import { KeyboardArrowRight } from "@mui/icons-material";
-import {
-  Box,
-  Button,
-  Checkbox,
-  Divider,
-  FormControl,
-  Grid,
-  Link,
-  List,
-  Stack,
-  Textarea,
-  Typography,
-} from "@mui/joy";
 import { type CardProps } from "@mui/joy/Card";
 import { TRPCClientError } from "@trpc/client";
+import router from "next/router";
+import React, { useCallback, useEffect, useState } from "react";
 
-import { api } from "~/utils/api";
-import routes from "~/utils/routes";
+import Box from "@mui/joy/Box";
+import Button from "@mui/joy/Button";
+import Checkbox from "@mui/joy/Checkbox";
+import Divider from "@mui/joy/Divider";
+import FormControl from "@mui/joy/FormControl";
+// import Grid from "@mui/joy/Grid";
+import Link from "@mui/joy/Link";
+import List from "@mui/joy/List";
+import Stack from "@mui/joy/Stack";
+import Textarea from "@mui/joy/Textarea";
+import Typography from "@mui/joy/Typography";
 import useApp from "~/stores/appStore";
 import useGoalStore from "~/stores/goalStore";
 import useWaggleDanceMachineStore from "~/stores/waggleDanceStore";
+import { api } from "~/utils/api";
+import routes from "~/utils/routes";
 import GoalDoctorModal from "./GoalDoctorModal";
 import GoalSettings from "./GoalSettings";
 import TemplatesModal from "./TemplatesModal";
@@ -162,11 +160,11 @@ export default function GoalPromptInput({}: GoalPromptInputProps) {
                     </Link>
                   </Typography>
                   <List className="absolute left-0 top-0 mt-3">
-                    <Grid container spacing={2}>
+                    <Stack spacing={2}>
                       {examplePrompts
                         .sort((a, b) => (a.length < b.length ? 1 : -1))
                         .map((prompt, _index) => (
-                          <Grid key={prompt} sm={4} md={6}>
+                          <Stack key={prompt}>
                             <Button
                               color="neutral"
                               size="sm"
@@ -184,9 +182,9 @@ export default function GoalPromptInput({}: GoalPromptInputProps) {
                                 {prompt}
                               </Typography>
                             </Button>
-                          </Grid>
+                          </Stack>
                         ))}
-                    </Grid>
+                    </Stack>
                   </List>
                 </TemplatesModal>
                 <Divider orientation="vertical" />

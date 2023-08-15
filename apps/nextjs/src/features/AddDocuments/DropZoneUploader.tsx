@@ -1,15 +1,15 @@
 // DropZone.tsx
-import React, { useState } from "react";
-import { useRouter } from "next/router";
 import { UploadFile } from "@mui/icons-material";
-import { Tooltip } from "@mui/joy";
 import Box from "@mui/joy/Box";
 import Card, { type CardProps } from "@mui/joy/Card";
 import Link from "@mui/joy/Link";
+import Tooltip from "@mui/joy/Tooltip";
+import { useRouter } from "next/router";
+import React, { useState } from "react";
 
-import routes from "~/utils/routes";
 import { acceptExtensions } from "~/features/AddDocuments/mimeTypes";
 import { useIngest, type IngestFile } from "~/pages/add-documents";
+import routes from "~/utils/routes";
 import { type UploadResponse } from "../../pages/api/docs/ingest";
 
 type DropZoneProps = CardProps;

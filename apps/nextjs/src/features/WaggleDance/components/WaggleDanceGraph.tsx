@@ -1,12 +1,3 @@
-import assert from "assert";
-import React, {
-  useCallback,
-  useEffect,
-  useMemo,
-  useRef,
-  useState,
-} from "react";
-import router from "next/router";
 import {
   BugReport,
   Edit,
@@ -17,50 +8,56 @@ import {
   Send,
   StopCircle,
 } from "@mui/icons-material";
-import {
-  Box,
-  Button,
-  Card,
-  Checkbox,
-  CircularProgress,
-  Divider,
-  IconButton,
-  LinearProgress,
-  Link,
-  List,
-  ListDivider,
-  ListItem,
-  ListItemContent,
-  ListItemDecorator,
-  Stack,
-  Tab,
-  TabList,
-  TabPanel,
-  Tabs,
-  Tooltip,
-  Typography,
-  type StackProps,
-} from "@mui/joy";
 import { TRPCClientError } from "@trpc/client";
+import assert from "assert";
 import { useSession } from "next-auth/react";
+import router from "next/router";
+import React, {
+  useCallback,
+  useEffect,
+  useMemo,
+  useRef,
+  useState,
+} from "react";
 import { stringify } from "yaml";
 
 import { type Execution } from "@acme/db";
 
-import { api } from "~/utils/api";
-import routes from "~/utils/routes";
+import Box from "@mui/joy/Box";
+import Button from "@mui/joy/Button";
+import Card from "@mui/joy/Card";
+import Checkbox from "@mui/joy/Checkbox";
+import CircularProgress from "@mui/joy/CircularProgress";
+import Divider from "@mui/joy/Divider";
+import IconButton from "@mui/joy/IconButton";
+import LinearProgress from "@mui/joy/LinearProgress";
+import Link from "@mui/joy/Link";
+import List from "@mui/joy/List";
+import ListDivider from "@mui/joy/ListDivider";
+import ListItem from "@mui/joy/ListItem";
+import ListItemContent from "@mui/joy/ListItemContent";
+import ListItemDecorator from "@mui/joy/ListItemDecorator";
+import Stack, { type StackProps } from "@mui/joy/Stack";
+import Tab from "@mui/joy/Tab";
+import TabList from "@mui/joy/TabList";
+import TabPanel from "@mui/joy/TabPanel";
+import Tabs from "@mui/joy/Tabs";
+import Tooltip from "@mui/joy/Tooltip";
+import Typography from "@mui/joy/Typography";
 import GoalSettings from "~/features/GoalMenu/components/GoalSettings";
 import useApp from "~/stores/appStore";
 import useGoalStore from "~/stores/goalStore";
 import useWaggleDanceMachineState, {
   newDraftExecutionId,
 } from "~/stores/waggleDanceStore";
+import { api } from "~/utils/api";
+import routes from "~/utils/routes";
+import { rootPlanId } from "../WaggleDanceMachine";
 import useWaggleDanceMachine, {
   TaskStatus,
   type TaskState,
 } from "../hooks/useWaggleDanceMachine";
 import { type JsonValue } from "../types";
-import { rootPlanId } from "../WaggleDanceMachine";
 import { ExecutionSelect } from "./ExecutionSelect";
 import ForceGraph from "./ForceGraph";
 

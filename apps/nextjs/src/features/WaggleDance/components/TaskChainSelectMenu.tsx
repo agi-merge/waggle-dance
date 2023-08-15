@@ -1,10 +1,11 @@
-import * as React from "react";
 import { KeyboardArrowUp } from "@mui/icons-material";
-import { Stack, Typography } from "@mui/joy";
 import Button from "@mui/joy/Button";
 import Menu from "@mui/joy/Menu";
 import MenuItem from "@mui/joy/MenuItem";
+import * as React from "react";
 
+import Stack from "@mui/joy/Stack";
+import Typography from "@mui/joy/Typography";
 import type DAG from "../DAG";
 
 type Props = {

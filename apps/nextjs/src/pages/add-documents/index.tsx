@@ -1,4 +1,14 @@
 // AddDocuments.tsx
+import { CheckCircle, KeyboardArrowRight } from "@mui/icons-material";
+import Box from "@mui/joy/Box";
+import Button from "@mui/joy/Button";
+import Card from "@mui/joy/Card";
+import IconButton from "@mui/joy/IconButton";
+import Input from "@mui/joy/Input";
+import LinearProgress from "@mui/joy/LinearProgress";
+import Stack from "@mui/joy/Stack";
+import Table from "@mui/joy/Table";
+import Typography from "@mui/joy/Typography";
 import React, {
   createContext,
   useCallback,
@@ -8,18 +18,6 @@ import React, {
   useState,
   type KeyboardEvent,
 } from "react";
-import { CheckCircle, KeyboardArrowRight } from "@mui/icons-material";
-import {
-  Box,
-  Button,
-  Card,
-  IconButton,
-  Input,
-  LinearProgress,
-  Stack,
-  Typography,
-} from "@mui/joy";
-import Table from "@mui/joy/Table";
 
 import DropZoneUploader from "~/features/AddDocuments/DropZoneUploader";
 import Title from "~/features/MainLayout/components/PageTitle";

@@ -2,17 +2,6 @@
 
 import { ClickAwayListener } from "@mui/base";
 import { InfoOutlined } from "@mui/icons-material";
-import {
-  Alert,
-  Divider,
-  Link,
-  Menu,
-  Tab,
-  TabList,
-  TabPanel,
-  Tabs,
-  type CardProps,
-} from "@mui/joy";
 import Box from "@mui/joy/Box";
 import Option from "@mui/joy/Option";
 import Select from "@mui/joy/Select";
@@ -21,6 +10,15 @@ import Typography from "@mui/joy/Typography";
 import { useSession } from "next-auth/react";
 import React, { type SyntheticEvent } from "react";
 
+import Alert from "@mui/joy/Alert";
+import { type CardProps } from "@mui/joy/Card";
+import Divider from "@mui/joy/Divider";
+import Link from "@mui/joy/Link";
+import Menu from "@mui/joy/Menu";
+import Tab from "@mui/joy/Tab";
+import TabList from "@mui/joy/TabList";
+import TabPanel from "@mui/joy/TabPanel";
+import Tabs from "@mui/joy/Tabs";
 import DocsModal from "~/features/WaggleDance/components/DocsModal";
 import AddDocuments from "~/pages/add-documents";
 import useWaggleDanceMachineStore from "~/stores/waggleDanceStore";

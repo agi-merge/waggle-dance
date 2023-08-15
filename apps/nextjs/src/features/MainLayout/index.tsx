@@ -1,16 +1,14 @@
 // features/MainLayout/index.tsx
 
-import React, { useEffect, useMemo, useState } from "react";
 import Head from "next/head";
 import { useRouter } from "next/router";
-import {
-  Box,
-  Card,
-  GlobalStyles,
-  LinearProgress,
-  useColorScheme,
-} from "@mui/joy";
+import React, { useEffect, useMemo, useState } from "react";
 
+import Box from "@mui/joy/Box";
+import Card from "@mui/joy/Card";
+import GlobalStyles from "@mui/joy/GlobalStyles";
+import LinearProgress from "@mui/joy/LinearProgress";
+import { useColorScheme } from "@mui/joy/styles";
 import { app } from "~/constants";
 import useApp from "~/stores/appStore";
 import GoalTabs from "../WaggleDance/components/GoalTabs";

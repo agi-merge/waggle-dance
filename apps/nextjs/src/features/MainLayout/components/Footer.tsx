@@ -1,15 +1,13 @@
-import Link from "next/link";
 import { GitHub, LinkedIn } from "@mui/icons-material";
-import {
-  List,
-  ListDivider,
-  ListItem,
-  ListItemButton,
-  Stack,
-  SvgIcon,
-  Typography,
-} from "@mui/joy";
+import Link from "next/link";
 
+import List from "@mui/joy/List";
+import ListDivider from "@mui/joy/ListDivider";
+import ListItem from "@mui/joy/ListItem";
+import ListItemButton from "@mui/joy/ListItemButton";
+import Stack from "@mui/joy/Stack";
+import SvgIcon from "@mui/joy/SvgIcon";
+import Typography from "@mui/joy/Typography";
 import { env } from "~/env.mjs";
 
 const Footer = (

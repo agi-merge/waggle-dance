@@ -1,30 +1,27 @@
 // features/WaggleDance/components/GoalTabs.tsx
 
-import { useCallback, useMemo } from "react";
+import { Add, Close } from "@mui/icons-material";
+import Box, { type BoxProps } from "@mui/joy/Box";
 import { default as NextLink } from "next/link";
 import { useRouter } from "next/router";
-import { Add, Close } from "@mui/icons-material";
-import {
-  Box,
-  Divider,
-  IconButton,
-  Stack,
-  Tab,
-  TabList,
-  Tabs,
-  Typography,
-} from "@mui/joy";
-import { type BoxProps } from "@mui/joy/Box";
+import { useCallback, useMemo } from "react";
 
 import { type Goal } from "@acme/db";
 
-import { api } from "~/utils/api";
-import routes from "~/utils/routes";
+import Divider from "@mui/joy/Divider";
+import IconButton from "@mui/joy/IconButton";
+import Stack from "@mui/joy/Stack";
+import Tab from "@mui/joy/Tab";
+import TabList from "@mui/joy/TabList";
+import Tabs from "@mui/joy/Tabs";
+import Typography from "@mui/joy/Typography";
 import useGoalStore, {
   draftGoalPrefix,
   type GoalPlusExe,
 } from "~/stores/goalStore";
 import useWaggleDanceMachineStore from "~/stores/waggleDanceStore";
+import { api } from "~/utils/api";
+import routes from "~/utils/routes";
 
 interface GoalTabProps extends BoxProps {
   tab: GoalPlusExe;
