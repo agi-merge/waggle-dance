@@ -84,7 +84,7 @@ const GoalTab: React.FC<GoalTabProps> = ({
         gap={0}
         color={"primary"}
         orientation="horizontal"
-        sx={{ padding: 0 }}
+        sx={{ paddingRight: 0, paddingLeft: 0.5 }}
       >
         <IconButton
           onClick={(e) => {
@@ -117,6 +117,7 @@ const GoalTab: React.FC<GoalTabProps> = ({
           sx={{
             textOverflow: "ellipsis",
             textAlign: "center",
+            fontSize: { xs: "8pt", sm: "10pt" },
           }}
         >
           {selectedGoal?.id === tab.id ? (
