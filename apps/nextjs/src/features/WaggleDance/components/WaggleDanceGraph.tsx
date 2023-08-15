@@ -1,3 +1,12 @@
+import assert from "assert";
+import React, {
+  useCallback,
+  useEffect,
+  useMemo,
+  useRef,
+  useState,
+} from "react";
+import router from "next/router";
 import {
   BugReport,
   Edit,
@@ -8,21 +17,6 @@ import {
   Send,
   StopCircle,
 } from "@mui/icons-material";
-import { TRPCClientError } from "@trpc/client";
-import assert from "assert";
-import { useSession } from "next-auth/react";
-import router from "next/router";
-import React, {
-  useCallback,
-  useEffect,
-  useMemo,
-  useRef,
-  useState,
-} from "react";
-import { stringify } from "yaml";
-
-import { type Execution } from "@acme/db";
-
 import Box from "@mui/joy/Box";
 import Button from "@mui/joy/Button";
 import Card from "@mui/joy/Card";
@@ -44,20 +38,26 @@ import TabPanel from "@mui/joy/TabPanel";
 import Tabs from "@mui/joy/Tabs";
 import Tooltip from "@mui/joy/Tooltip";
 import Typography from "@mui/joy/Typography";
+import { TRPCClientError } from "@trpc/client";
+import { useSession } from "next-auth/react";
+import { stringify } from "yaml";
+
+import { type Execution } from "@acme/db";
+
+import { api } from "~/utils/api";
+import routes from "~/utils/routes";
 import GoalSettings from "~/features/GoalMenu/components/GoalSettings";
 import useApp from "~/stores/appStore";
 import useGoalStore from "~/stores/goalStore";
 import useWaggleDanceMachineState, {
   newDraftExecutionId,
 } from "~/stores/waggleDanceStore";
-import { api } from "~/utils/api";
-import routes from "~/utils/routes";
-import { rootPlanId } from "../WaggleDanceMachine";
 import useWaggleDanceMachine, {
   TaskStatus,
   type TaskState,
 } from "../hooks/useWaggleDanceMachine";
 import { type JsonValue } from "../types";
+import { rootPlanId } from "../WaggleDanceMachine";
 import { ExecutionSelect } from "./ExecutionSelect";
 import ForceGraph from "./ForceGraph";
 
@@ -262,21 +262,32 @@ const WaggleDanceGraph = ({}: WaggleDanceGraphProps) => {
     [taskStates],
   );
 
-  const progress = useMemo(() => {
+  const progressPercent = useMemo(() => {
     return (results.length / taskStates.length) * 100;
   }, [results.length, taskStates.length]);
 
-  const inProgressTasks = useMemo(() => {
+  const notIdleTasks = useMemo(() => {
     return taskStates.filter((s) => s.status !== TaskStatus.idle).length;
   }, [taskStates]);
 
+  const inProgressOrDonePercent = useMemo(() => {
+    return (notIdleTasks / taskStates.length) * 100;
+  }, [notIdleTasks, taskStates.length]);
+
   const inProgress = useMemo(() => {
-    return (inProgressTasks / taskStates.length) * 100;
-  }, [inProgressTasks, taskStates.length]);
+    return taskStates.filter(
+      (s) =>
+        s.status === TaskStatus.starting ||
+        s.status === TaskStatus.working ||
+        s.status === TaskStatus.wait,
+    ).length;
+  }, [taskStates]);
 
   const progressLabel = useMemo(() => {
-    return `Tasks in progress or done: ${results.length}, ${inProgressTasks}, total: ${taskStates.length}`;
-  }, [inProgressTasks, results.length, taskStates.length]);
+    return `# Tasks in progress: ${inProgress}, done: ${
+      results.length
+    }, scheduled: ${notIdleTasks - results.length} total: ${taskStates.length}`;
+  }, [inProgress, notIdleTasks, results.length, taskStates.length]);
 
   const shouldShowProgress = useMemo(() => {
     return isRunning || results.length > 0;
@@ -447,9 +458,9 @@ const WaggleDanceGraph = ({}: WaggleDanceGraphProps) => {
                               </Typography>
                             </Stack>
 
-                            {/* {isRunning && n.status === TaskStatus.working && (
+                            {isRunning && n.status === TaskStatus.working && (
                               <LinearProgress thickness={2} />
-                            )} */}
+                            )}
                             <Card
                               size="sm"
                               className="justify-start p-1 text-start"
@@ -595,9 +606,7 @@ const WaggleDanceGraph = ({}: WaggleDanceGraphProps) => {
           })}
         >
           {shouldShowProgress && (
-            <Tooltip
-              title={`Shows Tasks Done / Total Tasks, and the progress bars show tasks in currently progress and completed tasks.`}
-            >
+            <Tooltip title={progressLabel}>
               <Box
                 sx={{
                   paddingBottom: "var(--Card-padding, 0px)",
@@ -614,7 +623,7 @@ const WaggleDanceGraph = ({}: WaggleDanceGraphProps) => {
                     "--LinearProgress-progressRadius": 0,
                   }}
                   determinate={true}
-                  value={progress}
+                  value={progressPercent}
                   color="neutral"
                   thickness={20}
                 >
@@ -640,7 +649,9 @@ const WaggleDanceGraph = ({}: WaggleDanceGraphProps) => {
                   }}
                   determinate={true}
                   // value={50}
-                  value={isNaN(inProgress) ? 0 : inProgress}
+                  value={
+                    isNaN(inProgressOrDonePercent) ? 0 : inProgressOrDonePercent
+                  }
                   color="neutral"
                   thickness={20}
                   variant="soft"
