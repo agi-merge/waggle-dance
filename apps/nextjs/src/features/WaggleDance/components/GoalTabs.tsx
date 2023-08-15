@@ -11,6 +11,7 @@ import Stack from "@mui/joy/Stack";
 import Tab from "@mui/joy/Tab";
 import TabList from "@mui/joy/TabList";
 import Tabs from "@mui/joy/Tabs";
+import Tooltip from "@mui/joy/Tooltip";
 import Typography from "@mui/joy/Typography";
 
 import { type Goal } from "@acme/db";
@@ -77,66 +78,68 @@ const GoalTab: React.FC<GoalTabProps> = ({
       }}
       href={routes.goal(tab.id)}
     >
-      <Tab
-        disabled={isRunning}
-        value={index}
-        component={Stack}
-        gap={0}
-        color={"primary"}
-        orientation="horizontal"
-        sx={{ paddingRight: 0, paddingLeft: 0.5 }}
-      >
-        <IconButton
-          onClick={(e) => {
-            e.preventDefault();
-            e.stopPropagation();
-            void closeHandler(tab);
-          }}
-          variant="plain"
-          className="flex-end float-start"
-          size="sm"
-          sx={{
-            minWidth: { sm: "1.5rem", md: "var(--IconButton-size, 2rem)" },
-            minHeight: { sm: "1.5rem", md: "var(--IconButton-size, 2rem)" },
-            maxWidth: { sm: "1.5rem", md: "var(--IconButton-size, 2rem)" },
-            maxHeight: { sm: "1.5rem", md: "var(--IconButton-size, 2rem)" },
-          }}
+      <Tooltip disableInteractive={isRunning}>
+        <Tab
+          disabled={isRunning}
+          value={index}
+          component={Stack}
+          gap={0}
+          color={"primary"}
+          orientation="horizontal"
+          sx={{ paddingRight: 0, paddingLeft: 0.5 }}
         >
-          <Close
-            sx={(theme) => ({
-              color: theme.palette.text.primary,
-            })}
-          />
-        </IconButton>
-        <Typography
-          level={"title-sm"}
-          noWrap
-          className="m-1 flex-grow p-1"
-          fontWeight={selectedGoal?.id === tab.id ? "bold" : "normal"}
-          fontStyle={tab.userId ? "normal" : "italic"}
-          sx={{
-            textOverflow: "ellipsis",
-            textAlign: "center",
-            fontSize: { xs: "8pt", sm: "10pt" },
-          }}
-        >
-          {selectedGoal?.id === tab.id ? (
-            <>
-              {getGoalInputValue().length > 0
-                ? getGoalInputValue()
-                : "New Goal"}
-            </>
-          ) : tab.prompt.length < 120 ? (
-            tab.prompt.length > 0 ? (
-              tab.prompt
+          <IconButton
+            onClick={(e) => {
+              e.preventDefault();
+              e.stopPropagation();
+              void closeHandler(tab);
+            }}
+            variant="plain"
+            className="flex-end float-start"
+            size="sm"
+            sx={{
+              minWidth: { sm: "1.5rem", md: "var(--IconButton-size, 2rem)" },
+              minHeight: { sm: "1.5rem", md: "var(--IconButton-size, 2rem)" },
+              maxWidth: { sm: "1.5rem", md: "var(--IconButton-size, 2rem)" },
+              maxHeight: { sm: "1.5rem", md: "var(--IconButton-size, 2rem)" },
+            }}
+          >
+            <Close
+              sx={(theme) => ({
+                color: theme.palette.text.primary,
+              })}
+            />
+          </IconButton>
+          <Typography
+            level={"title-sm"}
+            noWrap
+            className="m-1 flex-grow p-1"
+            fontWeight={selectedGoal?.id === tab.id ? "bold" : "normal"}
+            fontStyle={tab.userId ? "normal" : "italic"}
+            sx={{
+              textOverflow: "ellipsis",
+              textAlign: "center",
+              fontSize: { xs: "8pt", sm: "10pt" },
+            }}
+          >
+            {selectedGoal?.id === tab.id ? (
+              <>
+                {getGoalInputValue().length > 0
+                  ? getGoalInputValue()
+                  : "New Goal"}
+              </>
+            ) : tab.prompt.length < 120 ? (
+              tab.prompt.length > 0 ? (
+                tab.prompt
+              ) : (
+                "New Goal"
+              )
             ) : (
-              "New Goal"
-            )
-          ) : (
-            `${tab.prompt.slice(0, 120)}…`
-          )}
-        </Typography>
-      </Tab>
+              `${tab.prompt.slice(0, 120)}…`
+            )}
+          </Typography>
+        </Tab>
+      </Tooltip>
       <Divider orientation="vertical" />
     </Box>
   );
@@ -188,7 +191,7 @@ const GoalTabs: React.FC<GoalTabsProps> = ({ children }) => {
           backgroundColor: isRunning
             ? theme.palette.background.level1
             : theme.palette.background.backdrop, // semi-transparent background
-          backdropFilter: "blur(5px)", // blur effect
+          backdropFilter: "blur(10px)",
         })}
       >
         {goalList.map((tab, index) => (

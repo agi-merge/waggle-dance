@@ -314,7 +314,7 @@ const WaggleDanceGraph = ({}: WaggleDanceGraphProps) => {
               top: "calc(-1 * (var(--main-paddingTop, 0px) - var(--Header-height, 0px)))",
               width: "100%",
               backgroundColor: theme.palette.background.backdrop, // semi-transparent background
-              backdropFilter: "blur(5px)", // blur effect
+              backdropFilter: "blur(10px)",
             })}
           >
             <Tab value={0} sx={{ flex: "1 1 auto" }}>
@@ -596,10 +596,9 @@ const WaggleDanceGraph = ({}: WaggleDanceGraphProps) => {
         <Card
           variant="outlined"
           color="primary"
-          sx={(theme) => ({
-            backgroundColor: theme.palette.background.backdrop,
-            backdropFilter: "blur(5px)",
-            paddingTop: shouldShowProgress ? 0 : "var(--Card-padding, 0px)",
+          sx={() => ({
+            backdropFilter: "blur(20px)",
+            "-webkit-backdrop-filter": "blur(10px)", // For Safari            paddingTop: shouldShowProgress ? 0 : "var(--Card-padding, 0px)",
             borderRadius: "lg",
             overflowX: "clip",
             margin: "calc(-1 * var(--variant-borderWidth, 0px))",
