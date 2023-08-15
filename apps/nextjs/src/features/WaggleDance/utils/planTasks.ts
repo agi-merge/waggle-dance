@@ -47,6 +47,7 @@ export default async function planTasks({
   updateTaskState,
   startFirstTask,
 }: PlanTasksProps): Promise<DAG> {
+  updateTaskState && updateTaskState("not started");
   const data = { goal, goalId, executionId, creationProps };
   const res = await fetch("/api/agent/plan", {
     method: "POST",
@@ -137,8 +138,6 @@ export default async function planTasks({
     stream: ReadableStream<Uint8Array>,
   ): Promise<string | DAG> {
     const reader = stream.getReader();
-
-    updateTaskState && updateTaskState("not started");
 
     let result;
     while ((result = await reader.read()) && !result.done) {

@@ -43,13 +43,13 @@ When outputting URLs, ensure that they do not HTTP 4xx+ using a Web Browser Tool
 `.trim();
 
 const executeSchema = (format: string, _llmName: string) =>
-  `${executeBaseSchema}
+  `${executeBaseSchema(format, _llmName)}
 The RETURN VALUE IN SCHEMA should represent the result of the execution of your TASK.
 AGAIN, THE ONLY THING YOU MUST OUTPUT IS ${format} that represents the execution of your TASK:
 `.trim();
 
 const criticizeSchema = (format: string, _llmName: string) =>
-  `${executeBaseSchema}
+  `${executeBaseSchema(format, _llmName)}
 The RETURN VALUE IN SCHEMA should represent the result of the execution of your TASK.
 For example, if the task is repeating, loops, or has a low score, the result would be to return an error ChainPacket with suggestions to improve.
 AGAIN, THE ONLY THING YOU MUST OUTPUT IS ${format} that represents the execution of your TASK:
