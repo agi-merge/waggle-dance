@@ -251,6 +251,9 @@ const useWaggleDanceMachine = ({ goal }: UseWaggleDanceMachineProps) => {
       }
       setAbortController(ac);
 
+      setIsDonePlanning(false);
+      setChainPackets({});
+      setTaskResults({});
       setDAG(new DAG(initialNodes(goal?.prompt ?? ""), initialEdges()));
 
       const prompt = goal?.prompt;

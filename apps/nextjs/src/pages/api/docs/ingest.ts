@@ -21,7 +21,6 @@ import { getServerSession } from "@acme/auth";
 import { env } from "~/env.mjs";
 import { createEmbeddings } from "../../../../../../packages/agent";
 import { LLM } from "../../../../../../packages/agent/src/utils/llms";
-import { uploadObject } from "./store";
 
 export const config = {
   api: {
@@ -115,8 +114,6 @@ const handler = async (req: IncomingMessage, res: ServerResponse) => {
           flattenedFiles
             .filter((file): file is formidable.File => file !== undefined)
             .map(async (file: formidable.File) => {
-              // Upload the file to the store
-              await uploadObject(userId, file);
               const result = "";
               console.log(`Processing ${file.filepath}`);
               const writableStream = new Writable({
