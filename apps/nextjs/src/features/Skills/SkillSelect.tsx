@@ -1,4 +1,13 @@
 // AddDocuments.tsx
+import React, {
+  createContext,
+  useCallback,
+  useContext,
+  useMemo,
+  useRef,
+  useState,
+  type KeyboardEvent,
+} from "react";
 import { CheckCircle, KeyboardArrowRight } from "@mui/icons-material";
 import Box from "@mui/joy/Box";
 import Button from "@mui/joy/Button";
@@ -9,15 +18,6 @@ import LinearProgress from "@mui/joy/LinearProgress";
 import Stack from "@mui/joy/Stack";
 import Table from "@mui/joy/Table";
 import Typography from "@mui/joy/Typography";
-import React, {
-  createContext,
-  useCallback,
-  useContext,
-  useMemo,
-  useRef,
-  useState,
-  type KeyboardEvent,
-} from "react";
 
 import DropZoneUploader from "~/features/AddDocuments/DropZoneUploader";
 import Title from "~/features/MainLayout/components/PageTitle";
@@ -74,7 +74,7 @@ function isValidUrl(url: string) {
 type Props = {
   onClose?: () => void;
 };
-const AddDocuments = ({ onClose }: Props) => {
+const SkillSelect = ({ onClose }: Props) => {
   const [ingestFiles, setIngestFiles] = useState<IngestFiles>({});
   const [ingestUrls, setIngestUrls] = useState<IngestUrls>({});
 
@@ -270,4 +270,4 @@ const AddDocuments = ({ onClose }: Props) => {
   );
 };
 
-export default AddDocuments;
+export default SkillSelect;

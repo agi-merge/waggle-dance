@@ -723,7 +723,12 @@ const WaggleDanceGraph = ({}: WaggleDanceGraphProps) => {
                 variant="soft"
                 onClick={isRunning ? handleStop : handleStart}
                 endDecorator={isRunning ? <StopCircle /> : <PlayCircle />}
-                sx={{ zIndex: 15, padding: { xs: 1, sm: 2 } }}
+                sx={(theme) => ({
+                  zIndex: 15,
+                  paddingX: { xs: 1, sm: 2 },
+                  minHeight: { xs: 2, sm: 3 },
+                  fontSize: { xs: "title-md", sm: "title-lg" },
+                })}
               >
                 {isRunning && (
                   <CircularProgress
@@ -737,11 +742,13 @@ const WaggleDanceGraph = ({}: WaggleDanceGraphProps) => {
                   gap="0.5rem"
                   className="items-center"
                 >
-                  {isRunning ? (
-                    <>Stop</>
-                  ) : (
-                    <>{dag.nodes.length > 0 ? "Restart" : "Start"}</>
-                  )}
+                  <Typography level="h4">
+                    {isRunning ? (
+                      <>Stop</>
+                    ) : (
+                      <>{dag.nodes.length > 0 ? "Restart" : "Start"}</>
+                    )}
+                  </Typography>
                 </Stack>
               </Button>
             </Box>

@@ -1,28 +1,30 @@
 // GoalSettings.tsx
 
+import React, { type SyntheticEvent } from "react";
 import { ClickAwayListener } from "@mui/base";
 import { InfoOutlined } from "@mui/icons-material";
-import Box from "@mui/joy/Box";
-import Option from "@mui/joy/Option";
-import Select from "@mui/joy/Select";
-import Stack from "@mui/joy/Stack";
-import Typography from "@mui/joy/Typography";
-import { useSession } from "next-auth/react";
-import React, { type SyntheticEvent } from "react";
-
 import Alert from "@mui/joy/Alert";
+import Box from "@mui/joy/Box";
 import { type CardProps } from "@mui/joy/Card";
 import Divider from "@mui/joy/Divider";
 import Link from "@mui/joy/Link";
 import Menu from "@mui/joy/Menu";
+import Option from "@mui/joy/Option";
+import Select from "@mui/joy/Select";
+import Stack from "@mui/joy/Stack";
 import Tab from "@mui/joy/Tab";
 import TabList from "@mui/joy/TabList";
 import TabPanel from "@mui/joy/TabPanel";
 import Tabs from "@mui/joy/Tabs";
-import DocsModal from "~/features/WaggleDance/components/DocsModal";
-import AddDocuments from "~/pages/add-documents";
-import useWaggleDanceMachineStore from "~/stores/waggleDanceStore";
+import Typography from "@mui/joy/Typography";
+import { useSession } from "next-auth/react";
+
 import routes from "~/utils/routes";
+import AddDocuments from "~/features/AddDocuments/AddDocuments";
+import DocsModal from "~/features/AddDocuments/components/DocsModal";
+import SkillsModal from "~/features/Skills/components/SkillsModal";
+import SkillSelect from "~/features/Skills/SkillSelect";
+import useWaggleDanceMachineStore from "~/stores/waggleDanceStore";
 import {
   AgentPromptingMethod,
   LLM,
@@ -45,6 +47,10 @@ function AdvancedSettingsToggle({ children }: { children: React.ReactNode }) {
         <DocsModal>
           <AddDocuments />
         </DocsModal>
+        <Divider orientation="vertical" sx={{ marginX: "0.5rem" }} />
+        <SkillsModal>
+          <SkillSelect />
+        </SkillsModal>
       </Box>
       <Divider orientation="vertical" />
       <>

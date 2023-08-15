@@ -10,7 +10,7 @@ import LinearProgress from "@mui/joy/LinearProgress";
 import Typography from "@mui/joy/Typography";
 
 import formatBytes from "~/utils/formatBytes";
-import { type IngestFile } from "~/pages/add-documents";
+import { type IngestFile } from "~/features/AddDocuments/AddDocuments";
 
 export interface FileUploadProps extends CardProps {
   ingestFile: IngestFile;

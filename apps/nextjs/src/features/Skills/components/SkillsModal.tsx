@@ -1,15 +1,15 @@
+import * as React from "react";
 import Box from "@mui/joy/Box";
 import Card from "@mui/joy/Card";
 import Link from "@mui/joy/Link";
 import Modal from "@mui/joy/Modal";
 import ModalClose from "@mui/joy/ModalClose";
 import Tooltip from "@mui/joy/Tooltip";
-import * as React from "react";
 
 type Props = {
   children: React.ReactNode;
 };
-export default function BasicModal({ children }: Props) {
+export default function SkillsModal({ children }: Props) {
   const [open, setOpen] = React.useState<boolean>(false);
   return (
     <React.Fragment>
@@ -25,7 +25,7 @@ export default function BasicModal({ children }: Props) {
             className="flex-shrink"
             onClick={() => setOpen(true)}
           >
-            💰 Data + Tools
+            🔨 Skills
           </Link>
         </Tooltip>
       </Box>
