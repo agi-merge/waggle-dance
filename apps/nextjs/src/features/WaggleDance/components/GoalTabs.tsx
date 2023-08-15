@@ -1,13 +1,10 @@
 // features/WaggleDance/components/GoalTabs.tsx
 
-import { Add, Close } from "@mui/icons-material";
-import Box, { type BoxProps } from "@mui/joy/Box";
+import { useCallback, useMemo } from "react";
 import { default as NextLink } from "next/link";
 import { useRouter } from "next/router";
-import { useCallback, useMemo } from "react";
-
-import { type Goal } from "@acme/db";
-
+import { Add, Close } from "@mui/icons-material";
+import Box, { type BoxProps } from "@mui/joy/Box";
 import Divider from "@mui/joy/Divider";
 import IconButton from "@mui/joy/IconButton";
 import Stack from "@mui/joy/Stack";
@@ -15,13 +12,16 @@ import Tab from "@mui/joy/Tab";
 import TabList from "@mui/joy/TabList";
 import Tabs from "@mui/joy/Tabs";
 import Typography from "@mui/joy/Typography";
+
+import { type Goal } from "@acme/db";
+
+import { api } from "~/utils/api";
+import routes from "~/utils/routes";
 import useGoalStore, {
   draftGoalPrefix,
   type GoalPlusExe,
 } from "~/stores/goalStore";
 import useWaggleDanceMachineStore from "~/stores/waggleDanceStore";
-import { api } from "~/utils/api";
-import routes from "~/utils/routes";
 
 interface GoalTabProps extends BoxProps {
   tab: GoalPlusExe;
@@ -40,7 +40,7 @@ const GoalTab: React.FC<GoalTabProps> = ({
   goalList,
   ...props
 }) => {
-  const { setIsRunning } = useWaggleDanceMachineStore();
+  const { isRunning, setIsRunning } = useWaggleDanceMachineStore();
   const { selectGoal, getGoalInputValue, deleteGoal, selectedGoal } =
     useGoalStore();
   const del = api.goal.delete.useMutation();
@@ -69,16 +69,16 @@ const GoalTab: React.FC<GoalTabProps> = ({
         selectGoal(tab.id);
       }}
       {...props}
-      sx={(theme) => ({
-        backgroundColor: theme.palette.background.backdrop, // semi-transparent background
-        backdropFilter: "blur(5px)", // blur effect
+      sx={{
+        opacity: isRunning ? 0.33 : 1,
         flex: "1 1 auto",
         maxWidth: `${100 / goalList.length}%`,
         minWidth: 0,
-      })}
+      }}
       href={routes.goal(tab.id)}
     >
       <Tab
+        disabled={isRunning}
         value={index}
         component={Stack}
         color={"primary"}
@@ -182,7 +182,9 @@ const GoalTabs: React.FC<GoalTabsProps> = ({ children }) => {
           overflow: "auto hidden",
           alignSelf: "flex-start",
           scrollSnapType: "inline",
-          backgroundColor: theme.palette.background.backdrop, // semi-transparent background
+          backgroundColor: isRunning
+            ? theme.palette.background.level1
+            : theme.palette.background.backdrop, // semi-transparent background
           backdropFilter: "blur(5px)", // blur effect
         })}
       >
