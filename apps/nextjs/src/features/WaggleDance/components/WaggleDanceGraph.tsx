@@ -117,7 +117,6 @@ const WaggleDanceGraph = ({}: WaggleDanceGraphProps) => {
     useApp();
   const { mutate: createExecution } = api.execution.create.useMutation({
     onSettled: (data, error) => {
-      setIsPageLoading(false);
       console.debug(
         "create execution onSettled: ",
         "data",
@@ -162,6 +161,7 @@ const WaggleDanceGraph = ({}: WaggleDanceGraphProps) => {
           routes.goal(createdExecution.goalId, createdExecution?.id),
         );
         await startWaggleDance(createdExecution); // idk, execution not set was happening if we relied on useCallback hook
+        setIsPageLoading(false);
       })();
     },
   });
