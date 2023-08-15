@@ -81,8 +81,10 @@ const GoalTab: React.FC<GoalTabProps> = ({
         disabled={isRunning}
         value={index}
         component={Stack}
+        gap={0}
         color={"primary"}
         orientation="horizontal"
+        sx={{ padding: 0 }}
       >
         <IconButton
           onClick={(e) => {
@@ -94,10 +96,10 @@ const GoalTab: React.FC<GoalTabProps> = ({
           className="flex-end float-start"
           size="sm"
           sx={{
-            minWidth: { xs: "1.5rem", sm: "var(--IconButton-size, 2rem)" },
-            minHeight: { xs: "1.5rem", sm: "var(--IconButton-size, 2rem)" },
-            maxWidth: { xs: "1.5rem", sm: "var(--IconButton-size, 2rem)" },
-            maxHeight: { xs: "1.5rem", sm: "var(--IconButton-size, 2rem)" },
+            minWidth: { sm: "1.5rem", md: "var(--IconButton-size, 2rem)" },
+            minHeight: { sm: "1.5rem", md: "var(--IconButton-size, 2rem)" },
+            maxWidth: { sm: "1.5rem", md: "var(--IconButton-size, 2rem)" },
+            maxHeight: { sm: "1.5rem", md: "var(--IconButton-size, 2rem)" },
           }}
         >
           <Close
@@ -192,7 +194,7 @@ const GoalTabs: React.FC<GoalTabsProps> = ({ children }) => {
           <GoalTab key={tab.id} tab={tab} index={index} goalList={goalList} />
         ))}
         <IconButton
-          className="flex-end float-start"
+          className="flex-end float-start min-w-fit"
           color="neutral"
           size="md"
           variant="plain"
