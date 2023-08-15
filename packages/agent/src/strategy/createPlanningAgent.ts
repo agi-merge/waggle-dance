@@ -28,7 +28,12 @@ export async function createPlanningAgent(
       signal,
     }),
   ]);
-  const dag = call?.response ? (call.response as string) : "error";
+
+  const dag = call?.response
+    ? (call.response as string)
+    : call?.text
+    ? (call.text as string)
+    : "error";
 
   return dag;
 }
