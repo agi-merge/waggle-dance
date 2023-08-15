@@ -23,13 +23,10 @@
 
 **Waggle Dance** is a _highly experimental™️_ adversarial-cooperative multi-agent goal solver.
 
-Check
-
 Waggle Dance takes a goal and passes it to a Planner Agent which streams an execution graph for sub-tasks. Each sub-task is executed as concurrently as possible by Execution Agents. To reduce poor results and hallucinations, sub-results are reviewed by Criticism Agents. Eventually, the Human in the loop (you!) will be able to chat with individual Agents, and provide course-corrections if needed.
 
-It is inspired by [Auto-GPT](https://github.com/Significant-Gravitas/Auto-GPT), and has a lot in common with [gpt-researcher](https://github.com/assafelovic/gpt-researcher).
-
-<div align="center">
+It was originally inspired by [Auto-GPT](https://github.com/Significant-Gravitas/Auto-GPT), and has concurrency features similar to those found in [gpt-researcher](https://github.com/assafelovic/gpt-researcher).
+I thought it would be nice to contribute to the JS ecosystem. Many other agentic systems are written in Python, and I wanted to see if I could make something in JS that was just as good. I also wanted to see if I could make something that was more accessible to non-technical users.
 
 <img src="https://github.com/agi-merge/waggle-dance/assets/906671/1f868edc-0ada-4576-9798-95dbbae6ffb2" height="480" />
 
@@ -37,24 +34,33 @@ It is inspired by [Auto-GPT](https://github.com/Significant-Gravitas/Auto-GPT), 
 
 # 🦚 Highlighted Features
 
-- Highly concurrent execution graph. Some sub-task branches are not dependent, and can run concurrently.
+- LLMs go brrr… Highly concurrent execution graph. Some sub-task branches are not dependent, and can run concurrently.
 - Adversarial agents that review results.
 - Vector database for long-term memory.
-- Explainable UI: Graph visualizer, sub-task (agent) results, agent logs and events.
+- Explainable results and responsive UI: Graph visualizer, sub-task (agent) results, agent logs and events.
+
+## 🥞 Tech Stack
+
+Typescript ﹒ Langchain.js ﹒ T3 ﹒ Prisma ﹒ tRPC ﹒ Pinecone ﹒ Postgres ﹒ OpenAI API ﹒ MUI Joy
 
 ## 📍 Roadmap
 
-[Project Roadmap Board](https://github.com/orgs/agi-merge/projects/1/views/1)
+[Live Project Roadmap Board](https://github.com/orgs/agi-merge/projects/1/views/1) ﹒ <a href="#🛠️-contribute-and-help">🛠️Contribute</a>
 
+- Human-in-the-loop (e.g. chat to provide course-corrections, chat freely with agents/chains)
+- Loop detection (in-chain review)
+- Support for Local LLMs and other LLM APIs such as LLaMa-2, Azure Private OpenAI, Claude, etc.
+- Recalled skills a la Voyager/PolyGPT
 - Agent data connections, e.g. GitHub, Google Drive, Databases, etc.
-- Local LLMs / removing strict dependence on OpenAI
-- Tree of thought and other execution methods
+- Execution notifications (e.g. Slack, Email, etc.)
+- Further execution methods and blends (e.g. Tree of thought, ongoing research)
+
+Future
+
 - Desktop and mobile apps
 - Migrate to from Next.js Pages structure to App structure
 - Consider removing langchain
 - Improved architecture for running agents
-- More tools
-- More data connectors
 - Templates and sharing
 
 ## 🏃 Running Locally and Development
