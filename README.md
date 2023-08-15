@@ -27,6 +27,8 @@ Waggle Dance takes a goal and passes it to a Planner Agent which streams an exec
 
 It was originally inspired by [Auto-GPT](https://github.com/Significant-Gravitas/Auto-GPT), and has concurrency features similar to those found in [gpt-researcher](https://github.com/assafelovic/gpt-researcher).
 I thought it would be nice to contribute to the JS ecosystem. Many other agentic systems are written in Python, and I wanted to see if I could make something in JS that was just as good. I also wanted to see if I could make something that was more accessible to non-technical users.
+It was originally inspired by [Auto-GPT](https://github.com/Significant-Gravitas/Auto-GPT), and has concurrency features similar to those found in [gpt-researcher](https://github.com/assafelovic/gpt-researcher).
+I thought it would be nice to contribute to the JS ecosystem. Many other agentic systems are written in Python, and I wanted to see if I could make something in JS that was just as good. I also wanted to see if I could make something that was more accessible to non-technical users.
 
 <img src="https://github.com/agi-merge/waggle-dance/assets/906671/1f868edc-0ada-4576-9798-95dbbae6ffb2" height="480" />
 
@@ -51,7 +53,16 @@ Typescript ﹒ Langchain.js ﹒ T3 ﹒ Prisma ﹒ tRPC ﹒ Pinecone ﹒ Postgres
 - Loop detection (in-chain review)
 - Support for Local LLMs and other LLM APIs such as LLaMa-2, Azure Private OpenAI, Claude, etc.
 - Recalled skills a la Voyager/PolyGPT
+- Human-in-the-loop (e.g. chat to provide course-corrections, chat freely with agents/chains)
+- Loop detection (in-chain review)
+- Support for Local LLMs and other LLM APIs such as LLaMa-2, Azure Private OpenAI, Claude, etc.
+- Recalled skills a la Voyager/PolyGPT
 - Agent data connections, e.g. GitHub, Google Drive, Databases, etc.
+- Execution notifications (e.g. Slack, Email, etc.)
+- Further execution methods and blends (e.g. Tree of thought, ongoing research)
+
+Future
+
 - Execution notifications (e.g. Slack, Email, etc.)
 - Further execution methods and blends (e.g. Tree of thought, ongoing research)
 
