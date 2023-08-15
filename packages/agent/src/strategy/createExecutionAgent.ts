@@ -18,7 +18,6 @@ import {
   getAgentPromptingMethodValue,
   LLM,
 } from "../utils/llms";
-import { createMemory } from "../utils/memory";
 import { createEmbeddings, createModel } from "../utils/model";
 import { createPrompt } from "../utils/prompts";
 import { type ModelCreationProps } from "../utils/types";
@@ -39,7 +38,6 @@ export async function createExecutionAgent(creation: {
     goal,
     agentPromptingMethod,
     task,
-    dag,
     result,
     abortSignal,
     namespace,
@@ -55,10 +53,14 @@ export async function createExecutionAgent(creation: {
     creationProps,
     goal,
     task,
-    dag,
     result,
   });
-  const _memory = await createMemory(goal);
+  // const _memory = await createMemory(goal);
+  console.log(
+    "about to format prompt",
+    JSON.stringify(prompt),
+    prompt.inputVariables,
+  );
   const formattedPrompt = await prompt.format({
     format: "YAML",
   });
