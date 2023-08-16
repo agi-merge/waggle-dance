@@ -4,8 +4,8 @@
   },
   "crons": [
     {
-      "path": "/",
-      "schedule": "*/8 * * * *"
+      "path": "/api/auth/session",
+      "schedule": "*/5 * * * *"
     }
   ]
 }
