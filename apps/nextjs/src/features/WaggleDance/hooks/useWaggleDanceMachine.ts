@@ -9,12 +9,14 @@ import useGoalStore from "~/stores/goalStore";
 import useWaggleDanceMachineStore from "~/stores/waggleDanceStore";
 import { type ChainPacket } from "../../../../../../packages/agent";
 import { type GraphData } from "../components/ForceGraph";
-import DAG, { type DAGNode, type DAGNodeClass } from "../DAG";
+import DAG, { DAGEdgeClass, type DAGNode, type DAGNodeClass } from "../DAG";
 import { type WaggleDanceResult } from "../types";
 import { dagToGraphData } from "../utils/conversions";
 import WaggleDanceMachine, {
+  findNodesWithNoIncomingEdges,
   initialEdges,
   initialNodes,
+  rootPlanId,
 } from "../WaggleDanceMachine";
 
 export type LogMessage = {
@@ -52,12 +54,20 @@ const useWaggleDanceMachine = () => {
   }, [execution?.graph]);
   const [dag, setDAG] = useState<DAG>(graph ?? new DAG([], []));
   useEffect(() => {
-    if (graph) {
-      setDAG(graph);
+    if (graph && goal?.id) {
+      const hookupEdges = findNodesWithNoIncomingEdges(graph).map(
+        (node) => new DAGEdgeClass(rootPlanId, node.id),
+      );
+      const rootAddedToGraph = new DAG(
+        [...initialNodes(goal.id), ...graph.nodes],
+        // connect our initial nodes to the DAG: gotta find them and create edges
+        [...graph.edges, ...hookupEdges],
+      );
+      setDAG(rootAddedToGraph);
     } else {
       setDAG(new DAG([], []));
     }
-  }, [graph]);
+  }, [goal?.id, graph]);
   const results = useMemo(() => {
     return goal?.results?.map((r) => {
       return {
