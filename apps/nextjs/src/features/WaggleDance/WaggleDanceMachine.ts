@@ -80,6 +80,9 @@ export type RunParams = {
 
 // The main class for the WaggleDanceMachine that coordinates the planning and execution of tasks
 export default class WaggleDanceMachine {
+  constructor() {
+    console.warn("WaggleDanceMachine constructor");
+  }
   async run({
     goal,
     goalId,

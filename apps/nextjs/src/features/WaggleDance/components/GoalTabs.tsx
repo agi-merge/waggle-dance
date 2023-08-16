@@ -39,8 +39,7 @@ const GoalTab: React.FC<GoalTabProps> = ({
   ...props
 }) => {
   const { isRunning, setIsRunning } = useWaggleDanceMachineStore();
-  const { selectGoal, getGoalInputValue, deleteGoal, selectedGoal } =
-    useGoalStore();
+  const { getGoalInputValue, deleteGoal, selectedGoal } = useGoalStore();
   const del = api.goal.delete.useMutation();
   // Function to handle closing a tab
   const closeHandler = useCallback(
@@ -63,9 +62,6 @@ const GoalTab: React.FC<GoalTabProps> = ({
   return (
     <Box
       component={NextLink}
-      onClick={() => {
-        selectGoal(tab.id);
-      }}
       {...props}
       sx={{
         pointerEvents: isRunning ? "none" : "auto",

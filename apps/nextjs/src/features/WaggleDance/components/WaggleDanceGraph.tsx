@@ -70,7 +70,6 @@ const WaggleDanceGraph = ({}: WaggleDanceGraphProps) => {
     isAutoStartEnabled,
     setIsAutoStartEnabled,
     execution,
-    setExecution,
   } = useWaggleDanceMachineStore();
   const {
     graphData,
@@ -142,7 +141,6 @@ const WaggleDanceGraph = ({}: WaggleDanceGraphProps) => {
       assert(createdExecution);
       void (async () => {
         console.log("replace route");
-        setExecution(createdExecution);
         await router.push(
           routes.goal(createdExecution.goalId, createdExecution?.id),
         );

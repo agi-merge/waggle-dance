@@ -32,7 +32,7 @@ export const ExecutionSelect = ({
   showDisabled,
   ...props
 }: ExecutionSelectProps) => {
-  const { execution, setExecution } = useWaggleDanceMachineStore();
+  const { execution } = useWaggleDanceMachineStore();
   const [_isOpen, setIsOpen] = React.useState(false);
   const [_anchorEl, setAnchorEl] = React.useState<null | HTMLElement>(null);
   const names = useMemo(() => {
@@ -140,7 +140,6 @@ export const ExecutionSelect = ({
             value={execution.id}
             label={lab}
             component={NextLink}
-            onClick={() => void setExecution(execution)}
             href={routes.goal(goalId, execution?.id)}
             sx={{ flexGrow: 1 }}
           >
@@ -148,7 +147,7 @@ export const ExecutionSelect = ({
           </Option>
         );
       }),
-    [executions, goalId, label, setExecution],
+    [executions, goalId, label],
   );
 
   return (
