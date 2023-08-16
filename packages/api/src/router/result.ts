@@ -7,7 +7,7 @@ export const resultRouter = createTRPCRouter({
     .input(
       z.object({
         goalId: z.string().nonempty(),
-        executionId: z.string().nonempty(),
+        executionId: z.string().cuid(),
         value: z.string().nonempty(),
       }),
     )

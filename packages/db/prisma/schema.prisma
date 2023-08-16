@@ -92,7 +92,7 @@ model Execution {
   goalId      String
   user        User    @relation(fields: [userId], references: [id], onDelete: Cascade)
   userId      String
-  graph       Json?
+  graph       ExecutionGraph?
   results     Result[]
   state       ExecutionState @default(EXECUTING)
   createdAt   DateTime       @default(now())
@@ -102,8 +102,43 @@ model Execution {
   @@index([goalId])
 }
 
+model ExecutionGraph {
+  id          String @id @default(cuid())
+  execution   Execution  @relation(fields: [executionId], references: [id], onDelete: Cascade)
+  executionId String @unique
+  createdAt   DateTime   @default(now())
+  updatedAt   DateTime   @default(now()) @updatedAt
+  nodes       ExecutionNode[]
+  edges       ExecutionEdge[]
+
+  @@index([executionId])
+}
+
+model ExecutionNode { // aka Task
+  realId   String @id @default(cuid())
+  id       String
+  name     String
+  act      String
+  context  String
+  params   String?
+  graph    ExecutionGraph  @relation(fields: [graphId], references: [id], onDelete: Cascade)
+  graphId  String
+
+  @@index([graphId])
+}
+
+model ExecutionEdge { // aka TaskRelationship
+  id       String @id @default(cuid())
+  sId      String
+  tId      String
+  graph    ExecutionGraph  @relation(fields: [graphId], references: [id], onDelete: Cascade)
+  graphId  String
+
+  @@index([graphId])
+}
+
 model Result {
-  id          String     @id @default(cuid())
+  id          String @id @default(cuid())
   goal        Goal       @relation(fields: [goalId], references: [id], onDelete: Cascade)
   goalId      String
   execution   Execution  @relation(fields: [executionId], references: [id], onDelete: Cascade)

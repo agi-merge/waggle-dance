@@ -24,6 +24,14 @@ export const goalRouter = createTRPCRouter({
           executions: {
             take: 10,
             orderBy: { updatedAt: "desc" }, // doesnt work as expected?
+            include: {
+              graph: {
+                include: {
+                  nodes: true,
+                  edges: true,
+                },
+              },
+            },
           },
           results: {
             take: 100,
@@ -45,6 +53,14 @@ export const goalRouter = createTRPCRouter({
         executions: {
           take: 10,
           orderBy: { updatedAt: "desc" }, // doesnt work as expected?
+          include: {
+            graph: {
+              include: {
+                nodes: true,
+                edges: true,
+              },
+            },
+          },
         },
         results: {
           take: 100,
@@ -78,6 +94,14 @@ export const goalRouter = createTRPCRouter({
         include: {
           executions: {
             orderBy: { updatedAt: "desc" },
+            include: {
+              graph: {
+                include: {
+                  nodes: true,
+                  edges: true,
+                },
+              },
+            },
           },
           results: {
             orderBy: { updatedAt: "desc" },

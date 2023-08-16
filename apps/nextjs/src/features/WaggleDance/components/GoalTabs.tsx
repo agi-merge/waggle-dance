@@ -14,14 +14,11 @@ import Tabs from "@mui/joy/Tabs";
 import Tooltip from "@mui/joy/Tooltip";
 import Typography from "@mui/joy/Typography";
 
-import { type Goal } from "@acme/db";
+import { type Goal, type GoalPlusExe } from "@acme/db";
 
 import { api } from "~/utils/api";
 import routes from "~/utils/routes";
-import useGoalStore, {
-  draftGoalPrefix,
-  type GoalPlusExe,
-} from "~/stores/goalStore";
+import useGoalStore, { draftGoalPrefix } from "~/stores/goalStore";
 import useWaggleDanceMachineStore from "~/stores/waggleDanceStore";
 
 interface GoalTabProps extends BoxProps {

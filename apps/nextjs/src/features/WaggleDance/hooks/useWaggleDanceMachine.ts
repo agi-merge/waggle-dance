@@ -3,9 +3,8 @@
 import { useCallback, useEffect, useMemo, useState } from "react";
 import { stringify } from "yaml";
 
-import { type Execution } from "@acme/db";
+import { type ExecutionPlusGraph, type GoalPlusExe } from "@acme/db";
 
-import { type GoalPlusExe } from "~/stores/goalStore";
 import useWaggleDanceMachineStore from "~/stores/waggleDanceStore";
 import { type ChainPacket } from "../../../../../../packages/agent";
 import { type GraphData } from "../components/ForceGraph";
@@ -244,7 +243,7 @@ const useWaggleDanceMachine = ({ goal }: UseWaggleDanceMachineProps) => {
 
   // main entrypoint
   const run = useCallback(
-    async (execution: Execution) => {
+    async (execution: ExecutionPlusGraph) => {
       const ac = new AbortController();
       if (!abortController.signal.aborted) {
         abortController.abort();
