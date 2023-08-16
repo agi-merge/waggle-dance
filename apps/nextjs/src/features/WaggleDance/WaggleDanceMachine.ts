@@ -8,12 +8,7 @@
 import { mapAgentSettingsToCreationProps } from "~/pages/api/agent/types";
 import { type AgentSettings } from "~/stores/waggleDanceStore";
 import { type ChainPacket } from "../../../../../packages/agent";
-import DAG, {
-  DAGEdgeClass,
-  DAGNodeClass,
-  type DAGNode,
-  type OptionalDAG,
-} from "./DAG";
+import DAG, { DAGNodeClass, type DAGNode, type OptionalDAG } from "./DAG";
 import {
   type BaseResultType,
   type GraphDataState,
@@ -27,7 +22,6 @@ import planTasks from "./utils/planTasks";
 function isGoalReached(dag: DAG, completedTasks: Set<string>): boolean {
   return dag.nodes.every((node) => completedTasks.has(node.id));
 }
-export const initialCond = { predicate: "", context: {} };
 export const rootPlanId = `👸🐝`;
 export const initialNodes = (goal: string) => [
   new DAGNodeClass(
@@ -216,14 +210,6 @@ export default class WaggleDanceMachine {
           updateTaskState,
           startFirstTask,
         });
-        const hookupEdges = findNodesWithNoIncomingEdges(dag).map(
-          (node) => new DAGEdgeClass(rootPlanId, node.id),
-        );
-        dag = new DAG(
-          [...initNodes, ...dag.nodes],
-          // connect our initial nodes to the DAG: gotta find them and create edges
-          [...initialEdges(), ...(dag.edges ?? []), ...hookupEdges],
-        );
       } catch (error) {
         if (initNodes[0]) {
           sendChainPacket(
