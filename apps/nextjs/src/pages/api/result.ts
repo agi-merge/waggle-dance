@@ -14,7 +14,7 @@ export type CreateResultParams = {
   goalId: string;
   executionId: string;
   exeResult: string;
-  state: ExecutionState | undefined;
+  state: ExecutionState;
   session?: Session | null;
 };
 

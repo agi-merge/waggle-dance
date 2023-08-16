@@ -1,5 +1,7 @@
 import { z } from "zod";
 
+import { ExecutionState } from "@acme/db";
+
 import { createTRPCRouter, protectedProcedure } from "../trpc";
 
 export const resultRouter = createTRPCRouter({
@@ -9,20 +11,31 @@ export const resultRouter = createTRPCRouter({
         goalId: z.string().nonempty(),
         executionId: z.string().cuid(),
         value: z.string().nonempty(),
+        state: z.nativeEnum(ExecutionState),
       }),
     )
-    .mutation(({ ctx, input }) => {
-      const { goalId, executionId, value } = input;
-      return ctx.prisma.result.create({
-        data: {
-          execution: {
-            connect: {
-              id: executionId,
+    .mutation(async ({ ctx, input }) => {
+      const { goalId, executionId, value, state } = input;
+
+      // start transaction
+      const [result] = await ctx.prisma.$transaction([
+        ctx.prisma.result.create({
+          data: {
+            execution: {
+              connect: {
+                id: executionId,
+              },
             },
+            goal: { connect: { id: goalId } },
+            value,
           },
-          goal: { connect: { id: goalId } },
-          value,
-        },
-      });
+        }),
+        ctx.prisma.execution.update({
+          where: { id: executionId },
+          data: { state },
+        }),
+      ]);
+
+      return result;
     }),
 });
