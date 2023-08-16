@@ -3,8 +3,9 @@
 import { useCallback, useEffect, useMemo, useState } from "react";
 import { stringify } from "yaml";
 
-import { type ExecutionPlusGraph, type GoalPlusExe } from "@acme/db";
+import { type ExecutionPlusGraph } from "@acme/db";
 
+import useGoalStore from "~/stores/goalStore";
 import useWaggleDanceMachineStore from "~/stores/waggleDanceStore";
 import { type ChainPacket } from "../../../../../../packages/agent";
 import { type GraphData } from "../components/ForceGraph";
@@ -15,10 +16,6 @@ import WaggleDanceMachine, {
   initialEdges,
   initialNodes,
 } from "../WaggleDanceMachine";
-
-interface UseWaggleDanceMachineProps {
-  goal: GoalPlusExe | undefined;
-}
 
 export type LogMessage = {
   message: string;
@@ -43,13 +40,24 @@ export type TaskState = DAGNode & {
   updatedAt: Date;
 };
 
-const useWaggleDanceMachine = ({ goal }: UseWaggleDanceMachineProps) => {
-  const [waggleDanceMachine] = useState(new WaggleDanceMachine());
-  const { setIsRunning, agentSettings } = useWaggleDanceMachineStore();
-  const graph = goal?.executions.find((e) => {
-    const dag = e.graph as DAG | null;
-    return dag !== null && dag.nodes?.length > 0;
-  })?.graph as DAG | null;
+const wdm = new WaggleDanceMachine();
+
+const useWaggleDanceMachine = () => {
+  const [waggleDanceMachine] = useState(wdm);
+  const { setIsRunning, agentSettings, execution } =
+    useWaggleDanceMachineStore();
+  const { selectedGoal: goal } = useGoalStore();
+  const graph = useMemo(() => {
+    return execution?.graph;
+  }, [execution?.graph]);
+  const [dag, setDAG] = useState<DAG>(graph ?? new DAG([], []));
+  useEffect(() => {
+    if (graph) {
+      setDAG(graph);
+    } else {
+      setDAG(new DAG([], []));
+    }
+  }, [graph]);
   const results = useMemo(() => {
     return goal?.results?.map((r) => {
       return {
@@ -71,7 +79,6 @@ const useWaggleDanceMachine = ({ goal }: UseWaggleDanceMachineProps) => {
       ),
     [results],
   );
-  const [dag, setDAG] = useState<DAG>(graph ?? new DAG([], []));
   const [isDonePlanning, setIsDonePlanning] = useState(false);
   const [taskResults, setTaskResults] = useState<Record<string, TaskState>>(
     resultsMap ?? {},

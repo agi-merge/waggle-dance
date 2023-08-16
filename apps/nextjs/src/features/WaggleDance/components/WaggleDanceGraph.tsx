@@ -79,9 +79,7 @@ const WaggleDanceGraph = ({}: WaggleDanceGraphProps) => {
     run: startWaggleDance,
     logs,
     taskStates,
-  } = useWaggleDanceMachine({
-    goal: selectedGoal,
-  });
+  } = useWaggleDanceMachine();
   const listItemsRef = useRef<HTMLLIElement[]>([]);
   const taskListRef = useRef<HTMLUListElement>(null);
 
