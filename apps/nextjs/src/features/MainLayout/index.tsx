@@ -56,7 +56,7 @@ const MainLayout = ({ children }: Props) => {
     return null;
   }
   return (
-    <Box className={`xs:pt-0 sm:pt-2`}>
+    <Box className={`xs:pt-0 overflow-clip sm:pt-2`}>
       <Box
         className={`overflow-x-clip overflow-y-scroll px-2 pb-2`}
         sx={{
@@ -90,14 +90,12 @@ const MainLayout = ({ children }: Props) => {
           })}
         />
         <Card
-          className="sticky mx-auto md:max-w-screen-lg xl:max-w-screen-lg"
+          className=" mx-auto md:max-w-screen-lg xl:max-w-screen-lg"
           sx={(theme) => ({
             borderRadius: "lg",
             shadowRadius: "xl",
-            zIndex: 101,
             backgroundColor: theme.palette.background.backdrop,
-            backdropFilter: "blur(5px)",
-            "-webkit-backdrop-filter": "blur(5px)", // For Safari
+            backdropFilter: "blur(3px)",
           })}
           variant="soft"
         >

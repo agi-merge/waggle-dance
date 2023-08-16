@@ -286,7 +286,9 @@ const WaggleDanceGraph = ({}: WaggleDanceGraphProps) => {
   const progressLabel = useMemo(() => {
     return `# Tasks in progress: ${inProgress}, done: ${
       results.length
-    }, scheduled: ${notIdleTasks - results.length} total: ${taskStates.length}`;
+    }, scheduled: ${taskStates.length - notIdleTasks}, total: ${
+      taskStates.length
+    }`;
   }, [inProgress, notIdleTasks, results.length, taskStates.length]);
 
   const shouldShowProgress = useMemo(() => {
@@ -590,18 +592,19 @@ const WaggleDanceGraph = ({}: WaggleDanceGraphProps) => {
         sx={{
           bottom: "calc(env(safe-area-inset-bottom))",
           padding: 0,
-          margin: 0,
         }}
       >
         <Card
           variant="outlined"
           color="primary"
-          sx={() => ({
-            backdropFilter: "blur(20px)",
-            "-webkit-backdrop-filter": "blur(10px)", // For Safari            paddingTop: shouldShowProgress ? 0 : "var(--Card-padding, 0px)",
-            borderRadius: "lg",
+          sx={(theme) => ({
+            background: theme.palette.background.backdrop,
+            backdropFilter: "blur(5px)",
+            borderRadius: 0,
             overflowX: "clip",
-            margin: "calc(-1 * var(--variant-borderWidth, 0px))",
+            marginX: "calc(-1 * var(--variant-borderWidth, 0px))",
+            marginBottom: "calc(-10 * var(--variant-borderWidth, 0px))",
+            paddingTop: shouldShowProgress ? 0 : "var(--Card-padding, 0px)",
           })}
         >
           {shouldShowProgress && (

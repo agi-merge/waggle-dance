@@ -1,24 +1,24 @@
+import * as React from "react";
+import { useCallback, useMemo } from "react";
+import NextLink from "next/link";
 import { ClickAwayListener } from "@mui/base";
 import Box, { type BoxProps } from "@mui/joy/Box";
 import Chip from "@mui/joy/Chip";
+import FormControl from "@mui/joy/FormControl";
+import FormLabel from "@mui/joy/FormLabel";
 import Option from "@mui/joy/Option";
 import Select from "@mui/joy/Select";
+import Stack from "@mui/joy/Stack";
+import Tooltip from "@mui/joy/Tooltip";
 import Typography from "@mui/joy/Typography";
-import NextLink from "next/link";
-import * as React from "react";
-import { useCallback, useMemo } from "react";
 
 import { type Execution } from "@acme/db";
 
-import FormControl from "@mui/joy/FormControl";
-import FormLabel from "@mui/joy/FormLabel";
-import Stack from "@mui/joy/Stack";
-import Tooltip from "@mui/joy/Tooltip";
-import useWaggleDanceMachineStore from "~/stores/waggleDanceStore";
 import routes from "~/utils/routes";
+import useWaggleDanceMachineStore from "~/stores/waggleDanceStore";
 import type DAG from "../DAG";
-import { rootPlanId } from "../WaggleDanceMachine";
 import timeAgo from "../utils/timeAgo";
+import { rootPlanId } from "../WaggleDanceMachine";
 
 type ExecutionSelectProps = BoxProps & {
   goalId: string;
@@ -69,7 +69,10 @@ export const ExecutionSelect = ({
       } as const;
       return (
         <>
-          <Box className="flex-grow content-start items-start text-left">
+          <Box
+            className="flex flex-shrink content-start items-start text-left"
+            sx={{ overflowX: "clip", maxWidth: "50vw" }}
+          >
             {names?.length && names[i] && (
               <Typography
                 level="body-md"
@@ -98,12 +101,9 @@ export const ExecutionSelect = ({
                 followCursor={true}
               >
                 <Typography>
-                  {(names?.length && names[i]) ||
-                    (executions && executions[i]?.graph
-                      ? null
-                      : executions &&
-                        executions[i] &&
-                        `id:${executions[i]!.id.slice(-4)}`)}
+                  {executions &&
+                    executions[i] &&
+                    `id:${executions[i]!.id.slice(-4)}`}
                 </Typography>
               </Tooltip>
             </Typography>
@@ -117,7 +117,11 @@ export const ExecutionSelect = ({
               size="sm"
               variant="solid"
               color="neutral"
-              sx={{ borderRadius: "2px", fontSize: { xs: "xs", sm: "sm" } }}
+              sx={{
+                borderRadius: "2px",
+                fontSize: { xs: "6pt", sm: "sm" },
+                paddingX: { xs: "0.1rem", sm: "0.25rem" },
+              }}
             >
               {timeAgo(execution.updatedAt)}
             </Chip>
@@ -127,8 +131,9 @@ export const ExecutionSelect = ({
               color={colors[execution.state]}
               sx={{
                 borderRadius: "2px",
-                fontSize: { xs: "xs", sm: "sm" },
+                fontSize: { xs: "6pt", sm: "sm" },
                 bgcolor: `${colors[execution.state]}.softBg`,
+                paddingX: { xs: "0.1rem", sm: "0.25rem" },
               }}
             >
               {execution.state}
@@ -152,7 +157,6 @@ export const ExecutionSelect = ({
             component={NextLink}
             onClick={() => void setExecution(execution)}
             href={routes.goal(goalId, execution?.id)}
-            sx={{ flexGrow: 1 }}
           >
             {lab}
           </Option>

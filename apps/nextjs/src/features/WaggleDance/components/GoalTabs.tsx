@@ -41,7 +41,8 @@ const GoalTab: React.FC<GoalTabProps> = ({
   goalList,
   ...props
 }) => {
-  const { isRunning, setIsRunning } = useWaggleDanceMachineStore();
+  const { isRunning, setIsRunning, setExecution } =
+    useWaggleDanceMachineStore();
   const { selectGoal, getGoalInputValue, deleteGoal, selectedGoal } =
     useGoalStore();
   const del = api.goal.delete.useMutation();
@@ -68,6 +69,7 @@ const GoalTab: React.FC<GoalTabProps> = ({
       component={NextLink}
       onClick={() => {
         selectGoal(tab.id);
+        setExecution(null);
       }}
       {...props}
       sx={{
