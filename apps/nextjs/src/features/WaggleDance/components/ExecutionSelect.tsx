@@ -69,20 +69,10 @@ export const ExecutionSelect = ({
       } as const;
       return (
         <>
-          <Box className="flex-grow content-start items-start text-left">
-            {names?.length && names[i] && (
-              <Typography
-                level="body-md"
-                fontSize="sm"
-                sx={{
-                  textOverflow: "ellipsis",
-                  overflowWrap: "break-word",
-                }}
-              >
-                {names[i]}
-              </Typography>
-            )}
-
+          <Box
+            className="flex flex-shrink content-start items-start text-left"
+            sx={{ overflowX: "clip", maxWidth: "50vw" }}
+          >
             <Typography
               level="body-xs"
               fontFamily={names?.length && names[i] ? undefined : "monospace"}
