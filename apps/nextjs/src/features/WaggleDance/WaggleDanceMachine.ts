@@ -5,11 +5,11 @@
 // It starts by generating an execution DAG and then executes the tasks concurrently.
 // When a task completes, a new dependent review task should be added to the DAG to ensure quality results.
 
-import { mapAgentSettingsToCreationProps } from "~/pages/api/agent/types";
 import { type AgentSettings } from "~/stores/waggleDanceStore";
 import { type ChainPacket } from "../../../../../packages/agent";
 import DAG, { DAGNodeClass, type DAGNode, type OptionalDAG } from "./DAG";
 import {
+  mapAgentSettingsToCreationProps,
   type BaseResultType,
   type GraphDataState,
   type IsDonePlanningState,

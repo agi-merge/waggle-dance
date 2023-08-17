@@ -4,12 +4,12 @@ import { type NextRequest } from "next/server";
 import { parse, stringify } from "yaml";
 
 import { getBaseUrl } from "~/utils/api";
+import { type PlanRequestBody } from "~/features/WaggleDance/types";
 import {
   createPlanningAgent,
   type ChainPacket,
 } from "../../../../../../packages/agent";
 import { type UpdateGraphParams } from "../execution/graph";
-import { type PlanRequestBody } from "./types";
 
 export const config = {
   api: {

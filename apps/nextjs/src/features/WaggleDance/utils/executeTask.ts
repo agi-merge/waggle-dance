@@ -2,9 +2,9 @@
 
 import { parse, stringify } from "yaml";
 
-import { type ExecuteRequestBody } from "~/pages/api/agent/types";
 import { type ChainPacket } from "../../../../../../packages/agent";
 import { type DAGNode, type DAGNodeClass } from "../DAG";
+import { type ExecuteRequestBody } from "../types";
 
 export function sleep(ms: number): Promise<void> {
   return new Promise((resolve) => setTimeout(resolve, ms));
@@ -41,7 +41,7 @@ function processResponseBuffer(tokens: string): Partial<ChainPacket> {
   ) ?? {
     type: "error",
     severity: "fatal",
-    message: "No exe result packet found",
+    message: `No exe result packet found in ${packets.length} packets`,
   }; // Use Nullish Coalescing to provide a default value
 
   return packet;

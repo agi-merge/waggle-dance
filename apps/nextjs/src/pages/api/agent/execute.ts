@@ -5,12 +5,12 @@ import { type AgentAction, type AgentFinish } from "langchain/schema";
 import { stringify } from "yaml";
 
 import { getBaseUrl } from "~/utils/api";
+import { type ExecuteRequestBody } from "~/features/WaggleDance/types";
 import {
   createExecutionAgent,
   finalId,
   type ChainPacket,
 } from "../../../../../../packages/agent";
-import { type ExecuteRequestBody } from "./types";
 
 export const config = {
   api: {
