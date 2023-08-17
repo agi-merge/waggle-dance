@@ -52,11 +52,6 @@ export function findNodesWithNoIncomingEdges(
   return nodesWithNoIncomingEdges;
 }
 
-export type OptimisticFirstTaskState = {
-  firstTaskState: "not started" | "started" | "done" | "error";
-  taskId?: string;
-};
-
 export type RunParams = {
   goal: string;
   goalId: string;
@@ -89,13 +84,6 @@ export default class WaggleDanceMachine {
     abortController,
   }: RunParams): Promise<WaggleDanceResult | Error> {
     setDAG({ ...initDAG });
-    const optimisticFirstTaskState = {
-      firstTaskState: "not started" as
-        | "not started"
-        | "started"
-        | "done"
-        | "error",
-    } as OptimisticFirstTaskState;
 
     const initNodes = initialNodes(goal);
 
@@ -109,21 +97,26 @@ export default class WaggleDanceMachine {
     const completedTasks: Set<string> = new Set([rootPlanId]);
     const taskResults: Record<string, BaseResultType> = {};
 
+    let resolveFirstTask: (
+      value?: BaseResultType | PromiseLike<BaseResultType>,
+    ) => void = () => {}; // these are just placeholders, overwritten within firstTaskPromise
+    let rejectFirstTask: (reason?: string | Error) => void = () => {}; // these are just placeholders, overwritten within firstTaskPromise
+
+    const firstTaskPromise = new Promise<BaseResultType>((resolve, reject) => {
+      resolveFirstTask = resolve;
+      rejectFirstTask = reject;
+    });
+
     const startFirstTask = async (task: DAGNode | DAGNodeClass, dag: DAG) => {
       log(
         "speed optimization: we are able to execute the first task while still planning.",
       );
-      optimisticFirstTaskState.firstTaskState = "started";
-      optimisticFirstTaskState.taskId = task.id;
-      completedTasks.add(task.id); // calling this pre-emptively allows our logic for regular tasks to remain simple.
-      // Call the executeTasks function for the given task and update the states accordingly
+      completedTasks.add(task.id);
       if (!abortController.signal.aborted) {
-        let result;
         try {
           const creationProps = mapAgentSettingsToCreationProps(
             agentSettings["execute"],
           );
-
           const executeRequest = {
             goal,
             goalId,
@@ -136,61 +129,37 @@ export default class WaggleDanceMachine {
             completedTasks,
             creationProps,
           };
-
-          result = await executeTask({
+          const result = await executeTask({
             request: executeRequest,
             sendChainPacket,
             log,
             abortSignal: abortController.signal,
           });
+          resolveFirstTask(result);
         } catch (error) {
+          const message = (error as Error).message;
           sendChainPacket(
             {
               type: "error",
               severity: "warn",
-              message: JSON.stringify(error, Object.getOwnPropertyNames(error)),
+              message,
             },
             task,
           );
-          optimisticFirstTaskState.firstTaskState = "error";
-          return;
-        }
-        taskResults[task.id] = result;
-        const node = dag.nodes.find((n) => task.id === n.id);
-        if (!node) {
-          optimisticFirstTaskState.firstTaskState = "error";
+          rejectFirstTask(message);
           abortController.abort();
-          throw new Error("no node to sendChainPacket");
-        } else {
-          if (!result) {
-            sendChainPacket(
-              { type: "error", severity: "warn", message: "no task result" },
-              node,
-            );
-            optimisticFirstTaskState.firstTaskState = "error";
-            abortController.abort();
-            return;
-          } else if (typeof result === "string") {
-            sendChainPacket({ type: "done", value: result }, node);
-          }
         }
-        log("optimistic first task succeeded", result);
-        optimisticFirstTaskState.firstTaskState = "done";
       } else {
         console.warn("aborted startFirstTask");
-        optimisticFirstTaskState.firstTaskState = "error";
+        rejectFirstTask("Signal aborted");
         abortController.abort();
-        return;
       }
-      // console.error("Error executing the first task:", error);
     };
+
     if (initDAG.edges.length > 1 && isDonePlanning) {
       log("skipping planning because it is done - initDAG", initDAG);
     } else {
       setIsDonePlanning(false);
-      const updateTaskState = (state: "not started" | "started" | "done") => {
-        optimisticFirstTaskState.firstTaskState = state;
-      };
       try {
         const creationProps = mapAgentSettingsToCreationProps(
           agentSettings["plan"],
@@ -205,10 +174,8 @@ export default class WaggleDanceMachine {
           graphDataState: [initDAG, setDAG],
           log,
           sendChainPacket,
-          optimisticFirstTaskState,
-          abortSignal: abortController.signal,
-          updateTaskState,
           startFirstTask,
+          abortSignal: abortController.signal,
         });
       } catch (error) {
         if (initNodes[0]) {
@@ -246,6 +213,7 @@ export default class WaggleDanceMachine {
     // prepend our initial nodes to the DAG
 
     const toDoNodes = Array.from(dag.nodes);
+    await firstTaskPromise;
     // Continue executing tasks and updating DAG until the goal is reached
     while (!isGoalReached(dag, completedTasks)) {
       if (abortController.signal.aborted) throw new Error("Signal aborted");
@@ -255,10 +223,7 @@ export default class WaggleDanceMachine {
         (node) => !completedTasks.has(node.id),
       );
 
-      if (
-        pendingTasks.length === 0 ||
-        optimisticFirstTaskState.firstTaskState === "started"
-      ) {
+      if (pendingTasks.length === 0) {
         await sleep(1000); // FIXME: observation model instead
         continue;
       }
