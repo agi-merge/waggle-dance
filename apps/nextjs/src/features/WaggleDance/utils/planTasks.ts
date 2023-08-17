@@ -131,7 +131,19 @@ export default async function planTasks({
   async function streamToString(
     stream: ReadableStream<Uint8Array>,
   ): Promise<string | DAG> {
-    const reader = stream.getReader();
+    const decoder = new TextDecoder();
+    // Create a TransformStream that will handle the incoming data
+    const transformStream = new TransformStream<Uint8Array, string>({
+      transform(chunk, controller) {
+        controller.enqueue(decoder.decode(chunk));
+      },
+    });
+
+    // Pipe the original stream through the transform stream
+    const readableStream = stream.pipeThrough(transformStream);
+
+    // Create a reader for the new stream
+    const reader = readableStream.getReader();
 
     let result;
     while ((result = await reader.read()) && !result.done) {
