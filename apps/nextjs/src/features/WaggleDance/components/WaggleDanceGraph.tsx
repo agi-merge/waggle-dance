@@ -1,12 +1,3 @@
-import assert from "assert";
-import React, {
-  useCallback,
-  useEffect,
-  useMemo,
-  useRef,
-  useState,
-} from "react";
-import router from "next/router";
 import {
   BugReport,
   Edit,
@@ -39,24 +30,33 @@ import Tabs from "@mui/joy/Tabs";
 import Tooltip from "@mui/joy/Tooltip";
 import Typography from "@mui/joy/Typography";
 import { TRPCClientError } from "@trpc/client";
+import assert from "assert";
 import { useSession } from "next-auth/react";
+import router from "next/router";
+import React, {
+  useCallback,
+  useEffect,
+  useMemo,
+  useRef,
+  useState,
+} from "react";
 import { stringify } from "yaml";
 
 import { type ExecutionPlusGraph } from "@acme/db";
 
-import { api } from "~/utils/api";
-import routes from "~/utils/routes";
 import GoalSettings from "~/features/GoalMenu/components/GoalSettings";
 import useApp from "~/stores/appStore";
 import useGoalStore from "~/stores/goalStore";
 import useWaggleDanceMachineStore, {
   createDraftExecution,
 } from "~/stores/waggleDanceStore";
+import { api } from "~/utils/api";
+import routes from "~/utils/routes";
+import { rootPlanId } from "../WaggleDanceMachine";
 import useWaggleDanceMachine, {
   TaskStatus,
   type TaskState,
 } from "../hooks/useWaggleDanceMachine";
-import { rootPlanId } from "../WaggleDanceMachine";
 import { ExecutionSelect } from "./ExecutionSelect";
 import ForceGraph from "./ForceGraph";
 
@@ -76,6 +76,7 @@ const WaggleDanceGraph = ({}: WaggleDanceGraphProps) => {
     dag,
     stop,
     run: startWaggleDance,
+    reset,
     logs,
     taskStates,
   } = useWaggleDanceMachine();
@@ -155,6 +156,7 @@ const WaggleDanceGraph = ({}: WaggleDanceGraphProps) => {
       if (selectedGoal) {
         setIsRunning(true);
         setIsPageLoading(true);
+        reset();
 
         createExecution({ goalId: selectedGoal.id });
       } else {
@@ -167,6 +169,7 @@ const WaggleDanceGraph = ({}: WaggleDanceGraphProps) => {
     selectedGoal,
     setIsRunning,
     setIsPageLoading,
+    reset,
     createExecution,
   ]);
 

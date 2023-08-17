@@ -190,6 +190,7 @@ const useWaggleDanceMachine = () => {
     const taskStates = reduceTaskStates(dag.nodes, chainPackets);
     return taskStates;
   }, [chainPackets, dag.nodes, taskResults]);
+
   const sendChainPacket = useCallback(
     (chainPacket: ChainPacket, node: DAGNode | DAGNodeClass) => {
       if (!node || !node.id) {
@@ -242,6 +243,13 @@ const useWaggleDanceMachine = () => {
     },
     [chainPackets, setChainPackets, log],
   );
+
+  const reset = useCallback(() => {
+    setIsDonePlanning(false);
+    setDAG(new DAG(initialNodes(goal?.prompt ?? ""), []));
+    setChainPackets({});
+    setTaskResults({});
+  }, [goal?.prompt]);
 
   const [graphData, setGraphData] = useState<GraphData>({
     nodes: [],
@@ -345,7 +353,7 @@ const useWaggleDanceMachine = () => {
     graphData,
     stop,
     run,
-    setIsDonePlanning,
+    reset,
     isDonePlanning,
     logs,
     taskStates,
