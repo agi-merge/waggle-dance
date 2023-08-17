@@ -134,6 +134,14 @@ export default class WaggleDanceMachine {
             log,
             abortSignal: abortController.signal,
           });
+
+          sendChainPacket(
+            {
+              type: "done",
+              value: result,
+            },
+            task,
+          );
           resolveFirstTask(result);
         } catch (error) {
           const message = (error as Error).message;
