@@ -1,11 +1,11 @@
 const routes = {
   home: "/",
-  goal: (id: string, execution?: string | undefined): string => {
+  goal: (id: string, executionId?: string | undefined): string => {
     if (!id) {
       return "/";
     }
     const path = `/goal/${encodeURIComponent(id)}${
-      execution ? `/execution/${encodeURIComponent(execution)}` : ""
+      executionId ? `/execution/${encodeURIComponent(executionId)}` : ""
     }`;
     return path;
   },

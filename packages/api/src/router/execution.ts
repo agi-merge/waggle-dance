@@ -1,12 +1,16 @@
 import { z } from "zod";
 
-import { ExecutionState } from "@acme/db";
+import {
+  ExecutionState,
+  type ExecutionEdge,
+  type ExecutionNode,
+} from "@acme/db";
 
 import { createTRPCRouter, protectedProcedure } from "../trpc";
 
 export const dagShape = z.object({
-  nodes: z.array(z.any()),
-  edges: z.array(z.any()),
+  nodes: z.array(z.custom<Exclude<ExecutionNode, "realId">>()),
+  edges: z.array(z.custom<Exclude<ExecutionEdge, "id">>()),
 });
 
 export const executionRouter = createTRPCRouter({
@@ -30,6 +34,14 @@ export const executionRouter = createTRPCRouter({
                 orderBy: {
                   updatedAt: "desc",
                 },
+                include: {
+                  graph: {
+                    include: {
+                      nodes: true,
+                      edges: true,
+                    },
+                  },
+                },
               },
               results: {
                 take: 100,
@@ -46,24 +58,31 @@ export const executionRouter = createTRPCRouter({
   updateGraph: protectedProcedure
     .input(
       z.object({
-        executionId: z.string().nonempty(),
+        executionId: z.string().cuid(),
         graph: dagShape,
       }),
     )
     .mutation(({ ctx, input }) => {
       const { executionId, graph } = input;
-      const userId = ctx.session.user.id;
 
-      return ctx.prisma.execution.update({
-        where: { id: executionId, userId },
-        data: { graph: JSON.stringify(graph), state: "EXECUTING" },
+      return ctx.prisma.executionGraph.upsert({
+        where: { executionId: executionId },
+        create: {
+          executionId: executionId,
+          nodes: { createMany: { data: graph.nodes } },
+          edges: { createMany: { data: graph.edges } },
+        },
+        update: {
+          nodes: { createMany: { data: graph.nodes } },
+          edges: { createMany: { data: graph.edges } },
+        },
       });
     }),
 
   updateState: protectedProcedure
     .input(
       z.object({
-        executionId: z.string().nonempty(),
+        executionId: z.string().cuid(),
         state: z.nativeEnum(ExecutionState),
       }),
     )
@@ -78,7 +97,7 @@ export const executionRouter = createTRPCRouter({
     }),
 
   byId: protectedProcedure
-    .input(z.object({ id: z.string().nonempty() }))
+    .input(z.object({ id: z.string().cuid() }))
     .query(({ ctx, input }) => {
       const { id } = input;
       const userId = ctx.session.user.id;

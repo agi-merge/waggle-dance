@@ -4,9 +4,10 @@ import { v4 } from "uuid";
 import { create } from "zustand";
 import { createJSONStorage, persist } from "zustand/middleware";
 
-import { type Execution } from "@acme/db";
+import { type ExecutionPlusGraph, type GoalPlusExe } from "@acme/db";
 
 import { app } from "~/constants";
+import type DAG from "~/features/WaggleDance/DAG";
 import {
   AgentPromptingMethod,
   LLM_ALIASES,
@@ -36,12 +37,41 @@ export interface WaggleDanceMachineStore {
     type: "plan" | "review" | "execute",
     newValue: Partial<AgentSettings>,
   ) => void;
-  execution: Execution | null;
-  setExecution: (newExecution: Execution | undefined | null) => void;
+  execution: ExecutionPlusGraph | null;
+  setExecution: (newExecution: ExecutionPlusGraph | undefined | null) => void;
 }
 
-export const draftExecutionPrefix = "draftexe-";
+export const draftExecutionPrefix = "draft-";
 export const newDraftExecutionId = () => `${draftExecutionPrefix}${v4()}`;
+
+export function createDraftExecution(selectedGoal: GoalPlusExe, dag: DAG) {
+  const executionId = newDraftExecutionId();
+  const graphId = newDraftExecutionId();
+  const goalId = selectedGoal.id;
+  const nodes = dag.nodes.map((node) => {
+    return { ...node, graphId, realId: v4() };
+  });
+  const edges = dag.edges.map((edge) => {
+    return { ...edge, graphId, id: v4() };
+  });
+  const draftExecution: ExecutionPlusGraph = {
+    id: executionId,
+    goalId,
+    userId: "guest",
+    graph: {
+      id: graphId,
+      executionId,
+      nodes,
+      edges,
+      createdAt: new Date(),
+      updatedAt: new Date(),
+    },
+    state: "EXECUTING",
+    createdAt: new Date(),
+    updatedAt: new Date(),
+  };
+  return draftExecution;
+}
 
 const useWaggleDanceMachineStore = create(
   persist<WaggleDanceMachineStore>(

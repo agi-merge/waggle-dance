@@ -12,7 +12,7 @@ import List from "@mui/joy/List";
 import Typography from "@mui/joy/Typography";
 import { Accordion, AccordionItem } from "@radix-ui/react-accordion";
 
-import { type Execution } from "@acme/db";
+import { type ExecutionPlusGraph, type GoalPlusExe } from "@acme/db";
 
 import { api } from "~/utils/api";
 import routes from "~/utils/routes";
@@ -25,7 +25,7 @@ import PageTitle from "~/features/MainLayout/components/PageTitle";
 import WaggleDanceGraph from "~/features/WaggleDance/components/WaggleDanceGraph";
 import useWaggleDanceMachineStore from "~/stores/waggleDanceStore";
 import { HomeContent } from "..";
-import useGoalStore, { type GoalPlusExe } from "../../stores/goalStore";
+import useGoalStore from "../../stores/goalStore";
 
 const GoalPage = () => {
   const router = useRouter();
@@ -75,7 +75,7 @@ const GoalPage = () => {
     setExecution(execution);
     if (destinationRoute && router.asPath !== destinationRoute) {
       void (async () => {
-        await router.replace(destinationRoute, undefined, { shallow: true });
+        await router.replace(destinationRoute);
       })();
     } else {
       prevDestinationRouteRef.current = destinationRoute;
@@ -143,7 +143,10 @@ function getRoute(query: ParsedUrlQuery): {
   if (Array.isArray(goal)) {
     const goalId = goal[0];
     if (goal.length === 3 && goal[1] === "execution") {
-      return { goalId, executionId: goal[2] };
+      return {
+        goalId,
+        executionId: goal[2],
+      };
     }
     return { goalId, executionId: undefined };
   } else if (typeof goal === "string") {
@@ -189,7 +192,7 @@ function getState(
 function getDestinationRoute(
   route: { goalId: string | undefined; executionId: string | undefined },
   goal: GoalPlusExe | undefined,
-  execution: Execution | undefined,
+  execution: ExecutionPlusGraph | undefined,
   currentPath: string,
 ): string | undefined {
   const destinationRoute = goal && routes.goal(goal.id, execution?.id);

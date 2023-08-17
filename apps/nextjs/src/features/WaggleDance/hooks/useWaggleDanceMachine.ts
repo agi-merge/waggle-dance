@@ -3,23 +3,21 @@
 import { useCallback, useEffect, useMemo, useState } from "react";
 import { stringify } from "yaml";
 
-import { type Execution } from "@acme/db";
+import { type ExecutionPlusGraph } from "@acme/db";
 
-import { type GoalPlusExe } from "~/stores/goalStore";
+import useGoalStore from "~/stores/goalStore";
 import useWaggleDanceMachineStore from "~/stores/waggleDanceStore";
 import { type ChainPacket } from "../../../../../../packages/agent";
 import { type GraphData } from "../components/ForceGraph";
-import DAG, { type DAGNode, type DAGNodeClass } from "../DAG";
+import DAG, { DAGEdgeClass, type DAGNode, type DAGNodeClass } from "../DAG";
 import { type WaggleDanceResult } from "../types";
 import { dagToGraphData } from "../utils/conversions";
 import WaggleDanceMachine, {
+  findNodesWithNoIncomingEdges,
   initialEdges,
   initialNodes,
+  rootPlanId,
 } from "../WaggleDanceMachine";
-
-interface UseWaggleDanceMachineProps {
-  goal: GoalPlusExe | undefined;
-}
 
 export type LogMessage = {
   message: string;
@@ -44,13 +42,32 @@ export type TaskState = DAGNode & {
   updatedAt: Date;
 };
 
-const useWaggleDanceMachine = ({ goal }: UseWaggleDanceMachineProps) => {
-  const [waggleDanceMachine] = useState(new WaggleDanceMachine());
-  const { setIsRunning, agentSettings } = useWaggleDanceMachineStore();
-  const graph = goal?.executions.find((e) => {
-    const dag = e.graph as DAG | null;
-    return dag !== null && dag.nodes?.length > 0;
-  })?.graph as DAG | null;
+const wdm = new WaggleDanceMachine();
+
+const useWaggleDanceMachine = () => {
+  const [waggleDanceMachine] = useState(wdm);
+  const { setIsRunning, agentSettings, execution } =
+    useWaggleDanceMachineStore();
+  const { selectedGoal: goal } = useGoalStore();
+  const graph = useMemo(() => {
+    return execution?.graph;
+  }, [execution?.graph]);
+  const [dag, setDAG] = useState<DAG>(graph ?? new DAG([], []));
+  useEffect(() => {
+    if (graph && goal?.id) {
+      const hookupEdges = findNodesWithNoIncomingEdges(graph).map(
+        (node) => new DAGEdgeClass(rootPlanId, node.id),
+      );
+      const rootAddedToGraph = new DAG(
+        [...initialNodes(goal.id), ...graph.nodes],
+        // connect our initial nodes to the DAG: gotta find them and create edges
+        [...graph.edges, ...hookupEdges],
+      );
+      setDAG(rootAddedToGraph);
+    } else {
+      setDAG(new DAG([], []));
+    }
+  }, [goal?.id, graph]);
   const results = useMemo(() => {
     return goal?.results?.map((r) => {
       return {
@@ -72,7 +89,6 @@ const useWaggleDanceMachine = ({ goal }: UseWaggleDanceMachineProps) => {
       ),
     [results],
   );
-  const [dag, setDAG] = useState<DAG>(graph ?? new DAG([], []));
   const [isDonePlanning, setIsDonePlanning] = useState(false);
   const [taskResults, setTaskResults] = useState<Record<string, TaskState>>(
     resultsMap ?? {},
@@ -244,7 +260,7 @@ const useWaggleDanceMachine = ({ goal }: UseWaggleDanceMachineProps) => {
 
   // main entrypoint
   const run = useCallback(
-    async (execution: Execution) => {
+    async (execution: ExecutionPlusGraph) => {
       const ac = new AbortController();
       if (!abortController.signal.aborted) {
         abortController.abort();

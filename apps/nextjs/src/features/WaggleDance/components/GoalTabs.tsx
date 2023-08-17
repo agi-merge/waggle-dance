@@ -14,14 +14,11 @@ import Tabs from "@mui/joy/Tabs";
 import Tooltip from "@mui/joy/Tooltip";
 import Typography from "@mui/joy/Typography";
 
-import { type Goal } from "@acme/db";
+import { type Goal, type GoalPlusExe } from "@acme/db";
 
 import { api } from "~/utils/api";
 import routes from "~/utils/routes";
-import useGoalStore, {
-  draftGoalPrefix,
-  type GoalPlusExe,
-} from "~/stores/goalStore";
+import useGoalStore, { draftGoalPrefix } from "~/stores/goalStore";
 import useWaggleDanceMachineStore from "~/stores/waggleDanceStore";
 
 interface GoalTabProps extends BoxProps {
@@ -41,10 +38,8 @@ const GoalTab: React.FC<GoalTabProps> = ({
   goalList,
   ...props
 }) => {
-  const { isRunning, setIsRunning, setExecution } =
-    useWaggleDanceMachineStore();
-  const { selectGoal, getGoalInputValue, deleteGoal, selectedGoal } =
-    useGoalStore();
+  const { isRunning, setIsRunning } = useWaggleDanceMachineStore();
+  const { getGoalInputValue, deleteGoal, selectedGoal } = useGoalStore();
   const del = api.goal.delete.useMutation();
   // Function to handle closing a tab
   const closeHandler = useCallback(
@@ -67,10 +62,6 @@ const GoalTab: React.FC<GoalTabProps> = ({
   return (
     <Box
       component={NextLink}
-      onClick={() => {
-        selectGoal(tab.id);
-        setExecution(null);
-      }}
       {...props}
       sx={{
         pointerEvents: isRunning ? "none" : "auto",

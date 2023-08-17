@@ -4,12 +4,10 @@ import { v4 } from "uuid";
 import { create } from "zustand";
 import { createJSONStorage, persist } from "zustand/middleware";
 
-import { type Execution, type Goal, type Result } from "@acme/db";
+import { type GoalPlusExe } from "@acme/db";
 
 import routes from "~/utils/routes";
 import { app } from "~/constants";
-
-export type GoalPlusExe = Goal & { executions: Execution[]; results: Result[] };
 
 export interface GoalStore {
   getState: () => GoalStore;

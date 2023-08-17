@@ -42,21 +42,20 @@ import { TRPCClientError } from "@trpc/client";
 import { useSession } from "next-auth/react";
 import { stringify } from "yaml";
 
-import { type Execution } from "@acme/db";
+import { type ExecutionPlusGraph } from "@acme/db";
 
 import { api } from "~/utils/api";
 import routes from "~/utils/routes";
 import GoalSettings from "~/features/GoalMenu/components/GoalSettings";
 import useApp from "~/stores/appStore";
 import useGoalStore from "~/stores/goalStore";
-import useWaggleDanceMachineState, {
-  newDraftExecutionId,
+import useWaggleDanceMachineStore, {
+  createDraftExecution,
 } from "~/stores/waggleDanceStore";
 import useWaggleDanceMachine, {
   TaskStatus,
   type TaskState,
 } from "../hooks/useWaggleDanceMachine";
-import { type JsonValue } from "../types";
 import { rootPlanId } from "../WaggleDanceMachine";
 import { ExecutionSelect } from "./ExecutionSelect";
 import ForceGraph from "./ForceGraph";
@@ -71,8 +70,7 @@ const WaggleDanceGraph = ({}: WaggleDanceGraphProps) => {
     isAutoStartEnabled,
     setIsAutoStartEnabled,
     execution,
-    setExecution,
-  } = useWaggleDanceMachineState();
+  } = useWaggleDanceMachineStore();
   const {
     graphData,
     dag,
@@ -80,9 +78,7 @@ const WaggleDanceGraph = ({}: WaggleDanceGraphProps) => {
     run: startWaggleDance,
     logs,
     taskStates,
-  } = useWaggleDanceMachine({
-    goal: selectedGoal,
-  });
+  } = useWaggleDanceMachine();
   const listItemsRef = useRef<HTMLLIElement[]>([]);
   const taskListRef = useRef<HTMLUListElement>(null);
 
@@ -124,7 +120,7 @@ const WaggleDanceGraph = ({}: WaggleDanceGraphProps) => {
         "error",
         error,
       );
-      let createdExecution: Execution | undefined;
+      let createdExecution: ExecutionPlusGraph | undefined;
 
       if (error) {
         type HTTPStatusy = { httpStatus: number };
@@ -132,22 +128,11 @@ const WaggleDanceGraph = ({}: WaggleDanceGraphProps) => {
           const data = error.data as HTTPStatusy;
           // route for anonymous users
           if (data.httpStatus === 401 && selectedGoal) {
-            const exeId = newDraftExecutionId();
-            const goalId = selectedGoal.id;
-            const draftExecution: Execution = {
-              id: exeId,
-              goalId,
-              userId: "guest",
-              graph: dag as JsonValue,
-              state: "EXECUTING",
-              createdAt: new Date(),
-              updatedAt: new Date(),
-            };
+            const draftExecution = createDraftExecution(selectedGoal, dag);
             createdExecution = draftExecution;
           }
           if (!createdExecution) {
-            console.error("error which is not the expected 401", error);
-            return;
+            throw error;
           }
         }
       } else {
@@ -156,7 +141,6 @@ const WaggleDanceGraph = ({}: WaggleDanceGraphProps) => {
       assert(createdExecution);
       void (async () => {
         console.log("replace route");
-        setExecution(createdExecution);
         await router.push(
           routes.goal(createdExecution.goalId, createdExecution?.id),
         );

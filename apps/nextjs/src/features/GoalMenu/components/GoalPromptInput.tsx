@@ -1,13 +1,11 @@
 // GoalInput.tsx
 
-import { KeyboardArrowRight } from "@mui/icons-material";
-import { type CardProps } from "@mui/joy/Card";
-import { TRPCClientError } from "@trpc/client";
-import router from "next/router";
 import React, { useCallback, useEffect, useState } from "react";
-
+import router from "next/router";
+import { KeyboardArrowRight } from "@mui/icons-material";
 import Box from "@mui/joy/Box";
 import Button from "@mui/joy/Button";
+import { type CardProps } from "@mui/joy/Card";
 import Checkbox from "@mui/joy/Checkbox";
 import Divider from "@mui/joy/Divider";
 import FormControl from "@mui/joy/FormControl";
@@ -17,11 +15,13 @@ import List from "@mui/joy/List";
 import Stack from "@mui/joy/Stack";
 import Textarea from "@mui/joy/Textarea";
 import Typography from "@mui/joy/Typography";
+import { TRPCClientError } from "@trpc/client";
+
+import { api } from "~/utils/api";
+import routes from "~/utils/routes";
 import useApp from "~/stores/appStore";
 import useGoalStore from "~/stores/goalStore";
 import useWaggleDanceMachineStore from "~/stores/waggleDanceStore";
-import { api } from "~/utils/api";
-import routes from "~/utils/routes";
 import GoalDoctorModal from "./GoalDoctorModal";
 import GoalSettings from "./GoalSettings";
 import TemplatesModal from "./TemplatesModal";

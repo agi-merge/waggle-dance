@@ -17,22 +17,33 @@ export const config = {
   },
   runtime: "edge",
 };
-
 export default async function ExecuteStream(req: NextRequest) {
   console.log("execute request");
+  let executionResult: { packetString: string; state: string } | undefined;
+  let goalId: string | undefined;
+  let executionId: string | undefined;
+  let resolveStreamEnded: () => void;
+  let rejectStreamEnded: (reason?: string) => void;
+  const streamEndedPromise = new Promise<void>((resolve, reject) => {
+    resolveStreamEnded = resolve;
+    rejectStreamEnded = reject;
+  });
+  const abortController = new AbortController();
   try {
     const {
       creationProps,
       goal,
-      goalId,
-      executionId,
+      goalId: parsedGoalId,
+      executionId: parsedExecutionId,
       task,
       agentPromptingMethod,
       dag,
       taskResults,
     } = (await req.json()) as ExecuteRequestBody;
 
-    const abortController = new AbortController();
+    goalId = parsedGoalId;
+    executionId = parsedExecutionId;
+
     const encoder = new TextEncoder();
     const stream = new ReadableStream({
       async start(controller) {
@@ -170,63 +181,42 @@ export default async function ExecuteStream(req: NextRequest) {
         const exeResult = await createExecutionAgent({
           creationProps,
           goal,
-          goalId,
+          goalId: parsedGoalId,
           agentPromptingMethod,
           task: stringify(task),
           dag: stringify(dag),
           result: String(taskResults[task.id]),
           abortSignal: abortController.signal,
-          namespace: executionId,
+          namespace: `${goalId}_${executionId}`,
         });
 
         let state: string;
-        let packet: Uint8Array;
+        let packetString: string;
         if (exeResult instanceof Error) {
           state = "ERROR";
-          packet = encoder.encode(
-            stringify({
-              type: "error",
-              severity: "fatal",
-              message: exeResult.message,
-            }) + "\n\n",
-          );
+          packetString = stringify({
+            type: "error",
+            severity: "fatal",
+            message: exeResult.message,
+          });
         } else {
-          (state =
+          state =
             dag.nodes[dag.nodes.length - 1]?.id == finalId
               ? "DONE"
-              : "EXECUTING"),
-            (packet = encoder.encode(
-              stringify({ type: "done", value: exeResult }) + "\n\n",
-            ));
+              : "EXECUTING";
+          packetString = stringify({ type: "done", value: exeResult });
         }
-        const createResultParams = {
-          goalId,
-          executionId,
-          exeResult,
-          dag,
-          state,
-        };
-        const response = await fetch(`${process.env.NEXTAUTH_URL}/api/result`, {
-          method: "POST",
-          headers: {
-            Cookie: req.headers.get("cookie") || "", // pass cookie so session logic still works
-            "Content-Type": "application/json",
-          },
-          body: JSON.stringify(createResultParams),
-          signal: abortController.signal,
-        });
-
-        if (!response.ok) {
-          throw new Error(`Could not save result: ${response.statusText}`);
-        }
-
+        const packet = encoder.encode(packetString);
+        executionResult = { packetString, state };
         controller.enqueue(encoder.encode(stringify([packet])));
         controller.close();
+        resolveStreamEnded();
       },
 
       cancel() {
         abortController.abort();
         console.warn("cancel execute request");
+        rejectStreamEnded("Stream cancelled");
       },
     });
 
@@ -264,5 +254,34 @@ export default async function ExecuteStream(req: NextRequest) {
       },
       status,
     });
+  } finally {
+    // wrap this because otherwise streaming is broken due to finally being run, and awaiting, before the return stream.
+    void (async () => {
+      await streamEndedPromise;
+
+      if (!executionResult) {
+        // TODO: save a new error for this case?
+        return console.error("no execution result");
+      }
+      const { packetString: exeResult, state } = executionResult;
+      const createResultParams = {
+        goalId,
+        executionId,
+        exeResult,
+        state,
+      };
+      const response = await fetch(`${process.env.NEXTAUTH_URL}/api/result`, {
+        method: "POST",
+        headers: {
+          Cookie: req.headers.get("cookie") || "", // pass cookie so session logic still works
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify(createResultParams),
+      });
+
+      if (!response.ok) {
+        throw new Error(`Could not save result: ${response.statusText}`);
+      }
+    })();
   }
 }

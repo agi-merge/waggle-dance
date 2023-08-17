@@ -12,7 +12,7 @@ import Stack from "@mui/joy/Stack";
 import Tooltip from "@mui/joy/Tooltip";
 import Typography from "@mui/joy/Typography";
 
-import { type Execution } from "@acme/db";
+import { type ExecutionPlusGraph } from "@acme/db";
 
 import routes from "~/utils/routes";
 import useWaggleDanceMachineStore from "~/stores/waggleDanceStore";
@@ -22,7 +22,7 @@ import { rootPlanId } from "../WaggleDanceMachine";
 
 type ExecutionSelectProps = BoxProps & {
   goalId: string;
-  executions: Execution[] | undefined;
+  executions: ExecutionPlusGraph[] | undefined;
   showDisabled?: boolean | undefined;
 };
 
@@ -32,7 +32,7 @@ export const ExecutionSelect = ({
   showDisabled,
   ...props
 }: ExecutionSelectProps) => {
-  const { execution, setExecution } = useWaggleDanceMachineStore();
+  const { execution } = useWaggleDanceMachineStore();
   const [_isOpen, setIsOpen] = React.useState(false);
   const [_anchorEl, setAnchorEl] = React.useState<null | HTMLElement>(null);
   const names = useMemo(() => {
@@ -60,7 +60,7 @@ export const ExecutionSelect = ({
   };
 
   const label = useCallback(
-    (execution: Execution, i: number) => {
+    (execution: ExecutionPlusGraph, i: number) => {
       const colors = {
         PENDING: "neutral",
         EXECUTING: "warning",
@@ -70,20 +70,28 @@ export const ExecutionSelect = ({
       return (
         <>
           <Box
-            className="flex flex-shrink content-start items-start text-left"
+            className="flex flex-shrink content-center items-center text-left"
             sx={{ overflowX: "clip", maxWidth: "50vw" }}
           >
             {names?.length && names[i] && (
-              <Typography
-                level="body-md"
-                fontSize="sm"
-                sx={{
-                  textOverflow: "ellipsis",
-                  overflowWrap: "break-word",
-                }}
+              <Tooltip
+                title={names && names[i]}
+                enterDelay={500}
+                enterNextDelay={500}
+                followCursor={true}
               >
-                {names[i]}
-              </Typography>
+                <Typography
+                  level="body-md"
+                  fontSize="sm"
+                  noWrap
+                  sx={{
+                    textOverflow: "ellipsis",
+                    overflowWrap: "break-word",
+                  }}
+                >
+                  {names[i]}
+                </Typography>
+              </Tooltip>
             )}
 
             <Typography
@@ -94,18 +102,11 @@ export const ExecutionSelect = ({
                 overflowWrap: "break-word",
               }}
             >
-              <Tooltip
-                title={names && names[i]}
-                enterDelay={500}
-                enterNextDelay={500}
-                followCursor={true}
-              >
-                <Typography>
-                  {executions &&
-                    executions[i] &&
-                    `id:${executions[i]!.id.slice(-4)}`}
-                </Typography>
-              </Tooltip>
+              <Typography>
+                {executions &&
+                  executions[i] &&
+                  `id:${executions[i]!.id.slice(-4)}`}
+              </Typography>
             </Typography>
           </Box>
           <Box
@@ -155,14 +156,13 @@ export const ExecutionSelect = ({
             value={execution.id}
             label={lab}
             component={NextLink}
-            onClick={() => void setExecution(execution)}
             href={routes.goal(goalId, execution?.id)}
           >
             {lab}
           </Option>
         );
       }),
-    [executions, goalId, label, setExecution],
+    [executions, goalId, label],
   );
 
   return (

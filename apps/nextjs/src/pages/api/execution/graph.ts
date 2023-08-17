@@ -4,7 +4,12 @@ import { type NextApiRequest, type NextApiResponse } from "next";
 
 import { appRouter } from "@acme/api";
 import { getServerSession, type Session } from "@acme/auth";
-import { ExecutionState, prisma, type Execution } from "@acme/db";
+import {
+  ExecutionState,
+  prisma,
+  type Execution,
+  type ExecutionGraph,
+} from "@acme/db";
 
 export const config = {
   runtime: "nodejs",
@@ -32,7 +37,7 @@ export default async function updateGraphProxy(
     const result = await updateGraph(params);
     res.status(200).json(result);
   } catch (error) {
-    console.error("createGoalExecution error", error);
+    console.error("updateGraph error", error);
     res.status(500).json({ error: (error as { message: string }).message });
   }
 }
@@ -41,7 +46,7 @@ async function updateGraph({
   executionId,
   graph,
   session,
-}: UpdateGraphParams): Promise<Execution> {
+}: UpdateGraphParams): Promise<Execution | ExecutionGraph> {
   if (session?.user.id) {
     const caller = appRouter.createCaller({ session, prisma });
     if (graph == null) {
