@@ -18,7 +18,6 @@ import { type Goal, type GoalPlusExe } from "@acme/db";
 
 import { api } from "~/utils/api";
 import routes from "~/utils/routes";
-import theme from "~/styles/theme";
 import useGoalStore, { draftGoalPrefix } from "~/stores/goalStore";
 import useWaggleDanceMachineStore from "~/stores/waggleDanceStore";
 
@@ -98,11 +97,7 @@ const GoalTab: React.FC<GoalTabProps> = ({
             maxHeight: { sm: "1.5rem", md: "var(--IconButton-size, 2rem)" },
           }}
         >
-          <Close
-            sx={{
-              color: theme.palette.text.primary,
-            }}
-          />
+          <Close />
         </IconButton>
         <Typography
           level={"title-sm"}

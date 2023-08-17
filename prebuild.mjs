@@ -1,5 +1,10 @@
 import { checkEnv } from "./tools/check-env.mjs";
 
+if (!!process.env.SKIP_ENV_VALIDATION) {
+  console.log(YELLOW + "⚠️ Skipping env validation!" + RESET)
+  return
+}
+
 // Fun message colors
 const RESET = '\x1b[0m';
 const RED = '\x1b[31m';
