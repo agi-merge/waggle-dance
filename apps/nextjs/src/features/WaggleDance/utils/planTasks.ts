@@ -9,7 +9,6 @@ import {
 import DAG, { DAGEdgeClass, type DAGNode, type DAGNodeClass } from "../DAG";
 import {
   findNodesWithNoIncomingEdges,
-  initialEdges,
   initialNodes,
   rootPlanId,
 } from "../WaggleDanceMachine";
@@ -103,7 +102,7 @@ export default async function planTasks({
           const partialDAG = new DAG(
             [...initialNodes(goal), ...validNodes],
             // connect our initial nodes to the DAG: gotta find them and create edges
-            [...initialEdges(), ...(validEdges ?? []), ...hookupEdges],
+            [...(validEdges ?? []), ...hookupEdges],
           );
           const diffNodesCount = partialDAG.nodes.length - dag.nodes.length;
           const newEdgesCount = partialDAG.edges.length - dag.edges.length;

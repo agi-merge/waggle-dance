@@ -14,7 +14,6 @@ import { type WaggleDanceResult } from "../types";
 import { dagToGraphData } from "../utils/conversions";
 import WaggleDanceMachine, {
   findNodesWithNoIncomingEdges,
-  initialEdges,
   initialNodes,
   rootPlanId,
 } from "../WaggleDanceMachine";
@@ -271,7 +270,7 @@ const useWaggleDanceMachine = () => {
       setIsDonePlanning(false);
       setChainPackets({});
       setTaskResults({});
-      setDAG(new DAG(initialNodes(goal?.prompt ?? ""), initialEdges()));
+      setDAG(new DAG(initialNodes(goal?.prompt ?? ""), []));
 
       const prompt = goal?.prompt;
       if (!prompt) {

@@ -32,7 +32,6 @@ export const initialNodes = (prompt: string) => [
     null,
   ),
 ];
-export const initialEdges = () => [];
 
 export function findNodesWithNoIncomingEdges(
   dag: DAG | OptionalDAG,
@@ -91,7 +90,7 @@ export default class WaggleDanceMachine {
       return new DAG(
         [...initNodes],
         // connect our initial nodes to the DAG: gotta find them and create edges
-        [...initialEdges()],
+        [],
       );
     })();
     const completedTasks: Set<string> = new Set([rootPlanId]);
