@@ -2,23 +2,30 @@ import { createEnv } from "@t3-oss/env-nextjs";
 import { z } from "zod";
 
 export const env = createEnv({
+  skipValidation: !!process.env.SKIP_ENV_VALIDATION,
   /**
    * Specify your server-side environment variables schema here. This way you can ensure the app isn't
    * built with invalid env vars.
    */
   server: {
-    DATABASE_URL: z.string().url(),
     NODE_ENV: z.enum(["development", "test", "production"]),
     NEXTAUTH_SECRET:
       process.env.NODE_ENV === "production"
-        ? z.string().min(1)
+        ? z.string().min(1).optional()
         : z.string().min(1).optional(),
     NEXTAUTH_URL: z.preprocess(
       // This makes Vercel deployments not fail if you don't set NEXTAUTH_URL
       // Since NextAuth.js automatically uses the VERCEL_URL if present.
       (str) => process.env.VERCEL_URL ?? str,
       // VERCEL_URL doesn't include `https` so it cant be validated as a URL
-      process.env.VERCEL ? z.string() : z.string().url(),
+      // additionally, only make this required in NEXTAUTH_URL is set
+      process.env.VERCEL
+        ? process.env.NEXTAUTH_URL
+          ? z.string()
+          : z.string().optional()
+        : process.env.NEXTAUTH_URL
+        ? z.string().url()
+        : z.string().url().optional(),
     ),
     // Add `.min(1) on ID and SECRET if you want to make sure they're not empty
     DISCORD_ID: z.string().min(19).max(19).optional(),
@@ -41,12 +48,12 @@ export const env = createEnv({
     MEMORY_REST_API_READ_ONLY_TOKEN: z.string().optional(),
     GITHUB_ID: z.string().min(20).max(21).optional(),
     GITHUB_SECRET: z.string().min(40).max(40).optional(),
-    OPENAI_API_KEY: z.string().min(51).max(51),
+    OPENAI_API_KEY: z.string().min(51).max(51).optional(),
     OPENAI_ORGANIZATION_ID: z.string().optional(),
     SERPAPI_API_KEY: z.string().min(64).max(64).optional(),
-    PINECONE_API_KEY: z.string().min(36).max(36),
-    PINECONE_ENVIRONMENT: z.string().min(1),
-    PINECONE_INDEX: z.string().min(1),
+    PINECONE_API_KEY: z.string().min(36).max(36).optional(),
+    PINECONE_ENVIRONMENT: z.string().min(1).optional(),
+    PINECONE_INDEX: z.string().min(1).optional(),
     LANGCHAIN_TRACE: z.boolean().optional(),
     EDGE_CONFIG: z.string().url().optional(),
     EDGE_CONFIG_WRITE: z.string().url().optional(),
@@ -66,7 +73,6 @@ export const env = createEnv({
    * Destructure all variables from `process.env` to make sure they aren't tree-shaken away.
    */
   runtimeEnv: {
-    DATABASE_URL: process.env.DATABASE_URL,
     NODE_ENV: process.env.NODE_ENV,
     NEXTAUTH_SECRET: process.env.NEXTAUTH_SECRET,
     NEXTAUTH_URL: process.env.NEXTAUTH_URL,
