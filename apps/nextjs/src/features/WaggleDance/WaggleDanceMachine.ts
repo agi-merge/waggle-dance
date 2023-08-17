@@ -23,12 +23,12 @@ function isGoalReached(dag: DAG, completedTasks: Set<string>): boolean {
   return dag.nodes.every((node) => completedTasks.has(node.id));
 }
 export const rootPlanId = `👸🐝`;
-export const initialNodes = (goal: string) => [
+export const initialNodes = (prompt: string) => [
   new DAGNodeClass(
     rootPlanId,
     `👸🐝 Queen Bee`,
     `Plan initial strategy to help achieve your goal`,
-    goal,
+    prompt,
     null,
   ),
 ];

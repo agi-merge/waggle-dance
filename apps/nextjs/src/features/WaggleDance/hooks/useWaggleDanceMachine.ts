@@ -54,12 +54,12 @@ const useWaggleDanceMachine = () => {
   }, [execution?.graph]);
   const [dag, setDAG] = useState<DAG>(graph ?? new DAG([], []));
   useEffect(() => {
-    if (graph && goal?.id) {
+    if (graph && goal?.prompt) {
       const hookupEdges = findNodesWithNoIncomingEdges(graph).map(
         (node) => new DAGEdgeClass(rootPlanId, node.id),
       );
       const rootAddedToGraph = new DAG(
-        [...initialNodes(goal.id), ...graph.nodes],
+        [...initialNodes(goal.prompt), ...graph.nodes],
         // connect our initial nodes to the DAG: gotta find them and create edges
         [...graph.edges, ...hookupEdges],
       );
@@ -67,6 +67,7 @@ const useWaggleDanceMachine = () => {
     } else {
       setDAG(new DAG([], []));
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [goal?.id, graph]);
   const results = useMemo(() => {
     return goal?.results?.map((r) => {
