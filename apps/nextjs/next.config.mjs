@@ -22,7 +22,10 @@ const config = {
     config.experiments = {
       ...config.experiments,
       ...{ asyncWebAssembly: true },
+      layers: true,
     };
+
+    config.resolve.alias["@mui/material"] = "@mui/joy";
 
     return config;
   },

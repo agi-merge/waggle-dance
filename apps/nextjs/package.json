@@ -24,6 +24,7 @@
     "@fontsource/public-sans": "^5.0.8",
     "@mui/icons-material": "^5.14.3",
     "@mui/joy": "5.0.0-beta.2",
+    "@mui/material": "^5.14.5",
     "@pinecone-database/pinecone": "^0.1.6",
     "@radix-ui/react-accordion": "^1.1.2",
     "@react-hook/resize-observer": "^1.2.6",
