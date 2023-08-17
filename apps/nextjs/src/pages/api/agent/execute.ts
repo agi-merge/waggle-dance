@@ -4,6 +4,7 @@ import { type Serialized } from "langchain/load/serializable";
 import { type AgentAction, type AgentFinish } from "langchain/schema";
 import { stringify } from "yaml";
 
+import { getBaseUrl } from "~/utils/api";
 import {
   createExecutionAgent,
   finalId,
@@ -270,7 +271,7 @@ export default async function ExecuteStream(req: NextRequest) {
         exeResult,
         state,
       };
-      const response = await fetch(`${process.env.VERCEL_URL}/api/result`, {
+      const response = await fetch(`${getBaseUrl()}/api/result`, {
         method: "POST",
         headers: {
           Cookie: req.headers.get("cookie") || "", // pass cookie so session logic still works

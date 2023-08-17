@@ -3,6 +3,7 @@
 import { type NextRequest } from "next/server";
 import { parse, stringify } from "yaml";
 
+import { getBaseUrl } from "~/utils/api";
 import {
   createPlanningAgent,
   type ChainPacket,
@@ -176,17 +177,14 @@ export async function updateExecution(
   params: UpdateGraphParams,
   req: NextRequest,
 ): Promise<void> {
-  const response = await fetch(
-    `${process.env.VERCEL_URL}/api/execution/graph`,
-    {
-      method: "POST",
-      headers: {
-        Cookie: req.headers.get("cookie") || "", // pass cookie so session logic still works
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify(params),
+  const response = await fetch(`${getBaseUrl()}/api/execution/graph`, {
+    method: "POST",
+    headers: {
+      Cookie: req.headers.get("cookie") || "", // pass cookie so session logic still works
+      "Content-Type": "application/json",
     },
-  );
+    body: JSON.stringify(params),
+  });
 
   if (!response.ok) {
     throw new Error(`Could not save execution: ${response.statusText}`);
