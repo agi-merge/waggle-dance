@@ -5,6 +5,7 @@ import { stringify } from "yaml";
 
 import { type ExecutionPlusGraph } from "@acme/db";
 
+import { api } from "~/utils/api";
 import useGoalStore from "~/stores/goalStore";
 import useWaggleDanceMachineStore from "~/stores/waggleDanceStore";
 import { type ChainPacket } from "../../../../../../packages/agent";
@@ -52,6 +53,11 @@ const useWaggleDanceMachine = () => {
     return execution?.graph;
   }, [execution?.graph]);
   const [dag, setDAG] = useState<DAG>(graph ?? new DAG([], []));
+
+  const { mutate: updateExecutionState } =
+    api.execution.updateState.useMutation({
+      onSettled: () => {},
+    });
   useEffect(() => {
     if (graph && goal?.prompt) {
       const hookupEdges = findNodesWithNoIncomingEdges(graph).map(
@@ -325,25 +331,28 @@ const useWaggleDanceMachine = () => {
 
       if (result instanceof Error) {
         console.error("Error in WaggleDanceMachine's run:", result);
+        updateExecutionState({ executionId, state: "ERROR" });
         return;
       } else {
         console.log("result", result);
         const res = result.results[0] as Record<string, TaskState>;
         res && setTaskResults(res);
+        updateExecutionState({ executionId, state: "DONE" });
         return result;
       }
     },
     [
       abortController,
-      isDonePlanning,
       goal?.prompt,
       goal?.id,
       setIsRunning,
       waggleDanceMachine,
       agentSettings,
       dag,
+      isDonePlanning,
       sendChainPacket,
       log,
+      updateExecutionState,
     ],
   );
 
