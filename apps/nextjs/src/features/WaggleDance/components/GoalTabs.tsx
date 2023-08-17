@@ -18,6 +18,7 @@ import { type Goal, type GoalPlusExe } from "@acme/db";
 
 import { api } from "~/utils/api";
 import routes from "~/utils/routes";
+import theme from "~/styles/theme";
 import useGoalStore, { draftGoalPrefix } from "~/stores/goalStore";
 import useWaggleDanceMachineStore from "~/stores/waggleDanceStore";
 
@@ -98,9 +99,9 @@ const GoalTab: React.FC<GoalTabProps> = ({
           }}
         >
           <Close
-            sx={(theme) => ({
+            sx={{
               color: theme.palette.text.primary,
-            })}
+            }}
           />
         </IconButton>
         <Typography
