@@ -209,8 +209,8 @@ export default async function ExecuteStream(req: NextRequest) {
         const packet = encoder.encode(packetString);
         executionResult = { packetString, state };
         controller.enqueue(encoder.encode(stringify([packet])));
-        controller.close();
         resolveStreamEnded();
+        controller.close();
       },
 
       cancel() {
@@ -270,7 +270,7 @@ export default async function ExecuteStream(req: NextRequest) {
         exeResult,
         state,
       };
-      const response = await fetch(`${process.env.NEXTAUTH_URL}/api/result`, {
+      const response = await fetch(`${process.env.VERCEL_URL}/api/result`, {
         method: "POST",
         headers: {
           Cookie: req.headers.get("cookie") || "", // pass cookie so session logic still works

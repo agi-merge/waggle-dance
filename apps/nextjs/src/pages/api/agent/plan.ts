@@ -177,7 +177,7 @@ export async function updateExecution(
   req: NextRequest,
 ): Promise<void> {
   const response = await fetch(
-    `${process.env.NEXTAUTH_URL}/api/execution/graph`,
+    `${process.env.VERCEL_URL}/api/execution/graph`,
     {
       method: "POST",
       headers: {
