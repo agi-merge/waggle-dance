@@ -6,7 +6,7 @@ import { createModel } from "../utils/model";
 import { createPrompt } from "../utils/prompts";
 import { type ModelCreationProps } from "../utils/types";
 
-export async function createPlanningAgent(
+export async function callPlanningAgent(
   creationProps: ModelCreationProps,
   goal: string,
   goalId: string,

@@ -6,7 +6,7 @@ import { parse, stringify } from "yaml";
 import { getBaseUrl } from "~/utils/api";
 import { type PlanRequestBody } from "~/features/WaggleDance/types";
 import {
-  createPlanningAgent,
+  callPlanningAgent,
   type ChainPacket,
 } from "../../../../../../packages/agent";
 import { type UpdateGraphParams } from "../execution/graph";
@@ -92,7 +92,7 @@ export default async function PlanStream(req: NextRequest) {
         creationProps.callbacks = callbacks;
         console.debug("about to planChain");
 
-        planResult = await createPlanningAgent(
+        planResult = await callPlanningAgent(
           creationProps,
           goal,
           goalId!,

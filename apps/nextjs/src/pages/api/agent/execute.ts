@@ -7,7 +7,7 @@ import { stringify } from "yaml";
 import { getBaseUrl } from "~/utils/api";
 import { type ExecuteRequestBody } from "~/features/WaggleDance/types";
 import {
-  createExecutionAgent,
+  callExecutionAgent,
   finalId,
   type ChainPacket,
 } from "../../../../../../packages/agent";
@@ -18,6 +18,7 @@ export const config = {
   },
   runtime: "edge",
 };
+
 export default async function ExecuteStream(req: NextRequest) {
   console.log("execute request");
   let executionResult: { packetString: string; state: string } | undefined;
@@ -179,7 +180,7 @@ export default async function ExecuteStream(req: NextRequest) {
           }),
         ];
 
-        const exeResult = await createExecutionAgent({
+        const exeResult = await callExecutionAgent({
           creationProps,
           goal,
           goalId: parsedGoalId,
