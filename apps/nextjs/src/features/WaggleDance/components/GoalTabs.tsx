@@ -18,6 +18,7 @@ import { type Goal, type GoalPlusExe } from "@acme/db";
 
 import { api } from "~/utils/api";
 import routes from "~/utils/routes";
+import useApp from "~/stores/appStore";
 import useGoalStore, { draftGoalPrefix } from "~/stores/goalStore";
 import useWaggleDanceMachineStore from "~/stores/waggleDanceStore";
 
@@ -38,6 +39,7 @@ const GoalTab: React.FC<GoalTabProps> = ({
   goalList,
   ...props
 }) => {
+  const { setIsPageLoading } = useApp();
   const { isRunning, setIsRunning } = useWaggleDanceMachineStore();
   const { getGoalInputValue, deleteGoal, selectedGoal } = useGoalStore();
   const del = api.goal.delete.useMutation();
@@ -45,6 +47,7 @@ const GoalTab: React.FC<GoalTabProps> = ({
   const closeHandler = useCallback(
     async (tab: Goal) => {
       setIsRunning(false);
+      setIsPageLoading(true);
       if (!tab.id.startsWith(draftGoalPrefix)) {
         // real delete on backend
         try {
@@ -55,7 +58,7 @@ const GoalTab: React.FC<GoalTabProps> = ({
       }
       deleteGoal(tab.id);
     },
-    [del, deleteGoal, setIsRunning],
+    [del, deleteGoal, setIsPageLoading, setIsRunning],
   );
 
   // Render a single goal tab

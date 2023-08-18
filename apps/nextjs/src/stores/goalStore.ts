@@ -47,17 +47,7 @@ const useGoalStore = () =>
         selectedGoal: baseGoal,
         prevSelectedGoal: undefined,
         newGoal() {
-          const id = newDraftGoal();
-          const newGoal = {
-            ...baseGoal,
-            id,
-          };
-          set((state) => ({
-            goalMap: { ...state.goalMap, [id]: newGoal },
-            selectedGoal: newGoal,
-            prevSelectedGoal: state.selectedGoal,
-          }));
-          return id;
+          return newGoalInner(set);
         },
         deleteGoal(id: string) {
           set((state) => {
@@ -77,19 +67,26 @@ const useGoalStore = () =>
           });
         },
         selectGoal(id: string) {
-          const goal = get().goalMap[id];
+          const goalMap = get().goalMap;
+          const goal = goalMap[id];
           if (!goal) {
+            if (Object.values(goalMap).length > 0) {
+              set((state) => ({
+                selectedGoal: Object.values(state.goalMap)[0]?.id
+                  ? state.goalMap[Object.values(state.goalMap)[0]!.id]
+                  : undefined,
+                prevSelectedGoal: undefined,
+              }));
+            } else {
+              set({ prevSelectedGoal: undefined });
+              newGoalInner(set);
+            }
+          } else {
             set((state) => ({
-              selectedGoal: Object.values(state.goalMap)[0]?.id
-                ? state.goalMap[Object.values(state.goalMap)[0]!.id]
-                : undefined,
+              selectedGoal: goal,
+              prevSelectedGoal: state.selectedGoal,
             }));
-            throw new Error("Invalid goal ID");
           }
-          set((state) => ({
-            selectedGoal: goal,
-            prevSelectedGoal: state.selectedGoal,
-          }));
         },
         upsertGoal(goal: GoalPlusExe, replaceDraftId?: string | null) {
           set((state) => {
@@ -184,3 +181,24 @@ const useGoalStore = () =>
   )();
 
 export default useGoalStore;
+function newGoalInner(
+  set: (
+    partial:
+      | GoalStore
+      | Partial<GoalStore>
+      | ((state: GoalStore) => GoalStore | Partial<GoalStore>),
+    replace?: boolean | undefined,
+  ) => void,
+) {
+  const id = newDraftGoal();
+  const newGoal = {
+    ...baseGoal,
+    id,
+  };
+  set((state) => ({
+    goalMap: { ...state.goalMap, [id]: newGoal },
+    selectedGoal: newGoal,
+    prevSelectedGoal: state.selectedGoal,
+  }));
+  return id;
+}
