@@ -160,7 +160,6 @@ export default class WaggleDanceMachine {
           goalId,
           executionId,
           creationProps,
-          dag,
           graphDataState: [initDAG, setDAG],
           log,
           sendChainPacket,
