@@ -91,13 +91,13 @@ const useWaggleDanceMachineStore = create(
         review: {
           modelName: LLM_ALIASES["fast"],
           temperature: Temperature.Stable,
-          agentPromptingMethod: AgentPromptingMethod.ChatZeroShotReAct,
+          agentPromptingMethod: AgentPromptingMethod.ZeroShotReAct,
           maxConcurrency: 2,
         },
         execute: {
           modelName: LLM_ALIASES["fast"],
           temperature: Temperature.Stable,
-          agentPromptingMethod: AgentPromptingMethod.ChatZeroShotReAct,
+          agentPromptingMethod: AgentPromptingMethod.ZeroShotReAct,
           maxConcurrency: 4,
         },
       },
