@@ -36,7 +36,7 @@ export enum TaskStatus {
 
 export type TaskState = DAGNode & {
   status: TaskStatus;
-  fromPacketType: ChainPacket["type"] | null;
+  fromPacketType: ChainPacket["type"] | "idle";
   result: string | null;
   packets: ChainPacket[];
   updatedAt: Date;
@@ -187,7 +187,7 @@ const useWaggleDanceMachine = () => {
           ...node,
           status,
           result,
-          fromPacketType: packets[packets.length - 1]?.type ?? null,
+          fromPacketType: packets[packets.length - 1]?.type ?? "idle",
           updatedAt: new Date(),
           packets,
         };
@@ -215,7 +215,7 @@ const useWaggleDanceMachine = () => {
             [node.id]: {
               ...node,
               status: TaskStatus.idle,
-              fromPacketType: null,
+              fromPacketType: chainPacket.type,
               result:
                 chainPacket.type === "done"
                   ? chainPacket.value
