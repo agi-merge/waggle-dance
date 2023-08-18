@@ -23,10 +23,8 @@
 
 **Waggle Dance** is a _highly experimental™️_ adversarial-cooperative multi-agent goal solver.
 
-Waggle Dance takes a goal and passes it to a Planner Agent which streams an execution graph for sub-tasks. Each sub-task is executed as concurrently as possible by Execution Agents. To reduce poor results and hallucinations, sub-results are reviewed by Criticism Agents. Eventually, the Human in the loop (you!) will be able to chat with individual Agents, and provide course-corrections if needed.
+Waggle Dance takes a goal and passes it to a **Planner Agent** which streams an execution graph for sub-tasks. Each sub-task is executed as concurrently as possible by **Execution Agents**. To reduce poor results and hallucinations, sub-results are reviewed by **Criticism Agents**. Eventually, the **Human in the loop (you!)** will be able to chat with individual Agents, and provide course-corrections if needed.
 
-It was originally inspired by [Auto-GPT](https://github.com/Significant-Gravitas/Auto-GPT), and has concurrency features similar to those found in [gpt-researcher](https://github.com/assafelovic/gpt-researcher).
-I thought it would be nice to contribute to the JS ecosystem. Many other agentic systems are written in Python, and I wanted to see if I could make something in JS that was just as good. I also wanted to see if I could make something that was more accessible to non-technical users.
 It was originally inspired by [Auto-GPT](https://github.com/Significant-Gravitas/Auto-GPT), and has concurrency features similar to those found in [gpt-researcher](https://github.com/assafelovic/gpt-researcher).
 I thought it would be nice to contribute to the JS ecosystem. Many other agentic systems are written in Python, and I wanted to see if I could make something in JS that was just as good. I also wanted to see if I could make something that was more accessible to non-technical users.
 
@@ -65,9 +63,6 @@ Future
 
 - Execution notifications (e.g. Slack, Email, etc.)
 - Further execution methods and blends (e.g. Tree of thought, ongoing research)
-
-Future
-
 - Desktop and mobile apps
 - Migrate to from Next.js Pages structure to App structure
 - Consider removing langchain
