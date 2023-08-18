@@ -11,9 +11,10 @@ import useWaggleDanceMachineStore from "~/stores/waggleDanceStore";
 import { type ChainPacket } from "../../../../../../packages/agent";
 import { type GraphData } from "../components/ForceGraph";
 import DAG, { type DAGNode, type DAGNodeClass } from "../DAG";
+import { initialNodes } from "../initialNodes";
 import { type WaggleDanceResult } from "../types";
 import { dagToGraphData } from "../utils/conversions";
-import WaggleDanceMachine, { initialNodes } from "../WaggleDanceMachine";
+import WaggleDanceMachine from "../WaggleDanceMachine";
 
 export type LogMessage = {
   message: string;

@@ -7,7 +7,8 @@
 
 import { type AgentSettings } from "~/stores/waggleDanceStore";
 import { type ChainPacket } from "../../../../../packages/agent";
-import DAG, { DAGNodeClass, type DAGNode } from "./DAG";
+import DAG, { type DAGNode, type DAGNodeClass } from "./DAG";
+import { initialNodes, rootPlanId } from "./initialNodes";
 import {
   mapAgentSettingsToCreationProps,
   type BaseResultType,
@@ -23,17 +24,6 @@ import { sleep } from "./utils/sleep";
 function isGoalReached(dag: DAG, completedTasks: Set<string>): boolean {
   return dag.nodes.every((node) => completedTasks.has(node.id));
 }
-export const rootPlanId = `👸🐝`;
-export const initialNodes = (prompt: string) => [
-  new DAGNodeClass(
-    rootPlanId,
-    `👸🐝 Queen Bee`,
-    `Plan initial strategy to help achieve your goal`,
-    prompt,
-    null,
-  ),
-];
-
 export type RunParams = {
   goal: string;
   goalId: string;

@@ -6,7 +6,7 @@ import {
 } from "../../../../../../packages/agent";
 import type DAG from "../DAG";
 import { type DAGNode, type DAGNodeClass } from "../DAG";
-import { initialNodes, rootPlanId } from "../WaggleDanceMachine";
+import { initialNodes, rootPlanId } from "../initialNodes";
 
 export type PlanTasksProps = {
   goal: string;

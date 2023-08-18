@@ -3,7 +3,7 @@ import { parse } from "yaml";
 
 import { type ChainPacket } from "../../../../../../packages/agent";
 import DAG, { DAGEdgeClass } from "../DAG";
-import { initialNodes, rootPlanId } from "../WaggleDanceMachine";
+import { initialNodes, rootPlanId } from "../initialNodes";
 
 interface MyWorkerGlobalScope {
   onmessage: (event: MessageEvent) => void;

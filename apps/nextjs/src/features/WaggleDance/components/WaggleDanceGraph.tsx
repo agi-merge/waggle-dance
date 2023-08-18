@@ -56,7 +56,7 @@ import useWaggleDanceMachine, {
   TaskStatus,
   type TaskState,
 } from "../hooks/useWaggleDanceMachine";
-import { rootPlanId } from "../WaggleDanceMachine";
+import { rootPlanId } from "../initialNodes";
 import { ExecutionSelect } from "./ExecutionSelect";
 import ForceGraph from "./ForceGraph";
 
