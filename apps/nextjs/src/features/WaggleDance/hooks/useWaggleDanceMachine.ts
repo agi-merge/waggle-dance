@@ -10,14 +10,10 @@ import useGoalStore from "~/stores/goalStore";
 import useWaggleDanceMachineStore from "~/stores/waggleDanceStore";
 import { type ChainPacket } from "../../../../../../packages/agent";
 import { type GraphData } from "../components/ForceGraph";
-import DAG, { DAGEdgeClass, type DAGNode, type DAGNodeClass } from "../DAG";
+import DAG, { type DAGNode, type DAGNodeClass } from "../DAG";
 import { type WaggleDanceResult } from "../types";
 import { dagToGraphData } from "../utils/conversions";
-import WaggleDanceMachine, {
-  findNodesWithNoIncomingEdges,
-  initialNodes,
-  rootPlanId,
-} from "../WaggleDanceMachine";
+import WaggleDanceMachine, { initialNodes } from "../WaggleDanceMachine";
 
 export type LogMessage = {
   message: string;
@@ -58,22 +54,22 @@ const useWaggleDanceMachine = () => {
     api.execution.updateState.useMutation({
       onSettled: () => {},
     });
-  useEffect(() => {
-    if (graph && goal?.prompt) {
-      const hookupEdges = findNodesWithNoIncomingEdges(graph).map(
-        (node) => new DAGEdgeClass(rootPlanId, node.id),
-      );
-      const rootAddedToGraph = new DAG(
-        [...initialNodes(goal.prompt), ...graph.nodes],
-        // connect our initial nodes to the DAG: gotta find them and create edges
-        [...graph.edges, ...hookupEdges],
-      );
-      setDAG(rootAddedToGraph);
-    } else {
-      setDAG(new DAG([], []));
-    }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [goal?.id, graph]);
+  // useEffect(() => {
+  //   if (graph && goal?.prompt) {
+  //     const hookupEdges = findNodesWithNoIncomingEdges(graph).map(
+  //       (node) => new DAGEdgeClass(rootPlanId, node.id),
+  //     );
+  //     const rootAddedToGraph = new DAG(
+  //       [...initialNodes(goal.prompt), ...graph.nodes],
+  //       // connect our initial nodes to the DAG: gotta find them and create edges
+  //       [...graph.edges, ...hookupEdges],
+  //     );
+  //     setDAG(rootAddedToGraph);
+  //   } else {
+  //     setDAG(new DAG([], []));
+  //   }
+  //   // eslint-disable-next-line react-hooks/exhaustive-deps
+  // }, [goal?.id, graph]);
   const results = useMemo(() => {
     return goal?.results?.map((r) => {
       return {

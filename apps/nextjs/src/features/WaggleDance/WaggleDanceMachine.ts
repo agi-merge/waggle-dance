@@ -7,7 +7,7 @@
 
 import { type AgentSettings } from "~/stores/waggleDanceStore";
 import { type ChainPacket } from "../../../../../packages/agent";
-import DAG, { DAGNodeClass, type DAGNode, type OptionalDAG } from "./DAG";
+import DAG, { DAGNodeClass, type DAGNode } from "./DAG";
 import {
   mapAgentSettingsToCreationProps,
   type BaseResultType,
@@ -32,24 +32,6 @@ export const initialNodes = (prompt: string) => [
     null,
   ),
 ];
-
-export function findNodesWithNoIncomingEdges(
-  dag: DAG | OptionalDAG,
-): DAGNode[] {
-  const nodesWithIncomingEdges = new Set<string>();
-  for (const edge of dag.edges ?? []) {
-    nodesWithIncomingEdges.add(edge.tId);
-  }
-
-  const nodesWithNoIncomingEdges: DAGNode[] = [];
-
-  for (const node of dag.nodes ?? []) {
-    if (!nodesWithIncomingEdges.has(node.id)) {
-      nodesWithNoIncomingEdges.push(node);
-    }
-  }
-  return nodesWithNoIncomingEdges;
-}
 
 export type RunParams = {
   goal: string;

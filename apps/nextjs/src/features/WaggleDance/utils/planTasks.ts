@@ -6,12 +6,13 @@ import {
   type ChainPacket,
   type ModelCreationProps,
 } from "../../../../../../packages/agent";
-import DAG, { DAGEdgeClass, type DAGNode, type DAGNodeClass } from "../DAG";
-import {
-  findNodesWithNoIncomingEdges,
-  initialNodes,
-  rootPlanId,
-} from "../WaggleDanceMachine";
+import DAG, {
+  DAGEdgeClass,
+  type DAGNode,
+  type DAGNodeClass,
+  type OptionalDAG,
+} from "../DAG";
+import { initialNodes, rootPlanId } from "../WaggleDanceMachine";
 
 export type PlanTasksProps = {
   goal: string;
@@ -181,8 +182,15 @@ export default async function planTasks({
         dag = dagYamlString;
       }
 
-      // TODO: if this fails, spin up a ConstitutionChain w/ return type reinforcement
-      return dag;
+      const hookupEdges = findNodesWithNoIncomingEdges(dag).map(
+        (node) => new DAGEdgeClass(rootPlanId, node.id),
+      );
+
+      return new DAG(
+        [...initialNodes(goal), ...dag.nodes],
+        // connect our initial nodes to the DAG: gotta find them and create edges
+        [...(dag.edges ?? []), ...hookupEdges],
+      );
     } catch (error) {
       console.error(error);
       console.log("yaml", dagYamlString);
@@ -193,7 +201,16 @@ export default async function planTasks({
           dagYamlString as string,
         );
         const fixedDag: DAG = parse(fixedYamlString) as DAG;
-        return fixedDag;
+
+        const hookupEdges = findNodesWithNoIncomingEdges(dag).map(
+          (node) => new DAGEdgeClass(rootPlanId, node.id),
+        );
+
+        return new DAG(
+          [...initialNodes(goal), ...fixedDag.nodes],
+          // connect our initial nodes to the DAG: gotta find them and create edges
+          [...(fixedDag.edges ?? []), ...hookupEdges],
+        );
       } catch (innerError) {
         throw new Error(`Error parsing DAG: ${innerError}`);
       }
@@ -223,4 +240,20 @@ function fixYamlFormattingWithError(yamlString: string): string {
   const yamlData: unknown = parse(fixedYamlIssues);
   const fixedYamlString: string = stringify(yamlData, { indent: 2 });
   return fixedYamlString;
+}
+
+function findNodesWithNoIncomingEdges(dag: DAG | OptionalDAG): DAGNode[] {
+  const nodesWithIncomingEdges = new Set<string>();
+  for (const edge of dag.edges ?? []) {
+    nodesWithIncomingEdges.add(edge.tId);
+  }
+
+  const nodesWithNoIncomingEdges: DAGNode[] = [];
+
+  for (const node of dag.nodes ?? []) {
+    if (!nodesWithIncomingEdges.has(node.id)) {
+      nodesWithNoIncomingEdges.push(node);
+    }
+  }
+  return nodesWithNoIncomingEdges;
 }
