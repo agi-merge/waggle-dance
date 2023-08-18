@@ -75,7 +75,7 @@ const GoalPage = () => {
     setExecution(execution);
     if (destinationRoute && router.asPath !== destinationRoute) {
       void (async () => {
-        await router.replace(destinationRoute);
+        await router.replace(destinationRoute, undefined, { shallow: true });
       })();
     } else {
       prevDestinationRouteRef.current = destinationRoute;

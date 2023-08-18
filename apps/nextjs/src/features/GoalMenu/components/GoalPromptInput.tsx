@@ -69,7 +69,9 @@ export default function GoalPromptInput({}: GoalPromptInputProps) {
               goal,
             );
             upsertGoal(goal, previousGoalId);
-            void router.push(routes.goal(goal.id));
+            void router.push(routes.goal(goal.id), undefined, {
+              shallow: true,
+            });
           },
           onError: (e) => {
             type HTTPStatusy = { httpStatus: number };
