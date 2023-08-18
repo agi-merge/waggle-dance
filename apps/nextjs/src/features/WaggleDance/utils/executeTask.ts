@@ -6,10 +6,6 @@ import { type ChainPacket } from "../../../../../../packages/agent";
 import { type DAGNode, type DAGNodeClass } from "../DAG";
 import { type ExecuteRequestBody } from "../types";
 
-export function sleep(ms: number): Promise<void> {
-  return new Promise((resolve) => setTimeout(resolve, ms));
-}
-
 async function fetchTaskData(
   request: ExecuteRequestBody,
   abortSignal: AbortSignal,

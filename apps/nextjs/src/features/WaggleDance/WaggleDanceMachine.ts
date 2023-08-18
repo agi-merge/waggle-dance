@@ -15,8 +15,9 @@ import {
   type IsDonePlanningState,
   type WaggleDanceResult,
 } from "./types";
-import executeTask, { sleep } from "./utils/executeTask";
+import executeTask from "./utils/executeTask";
 import planTasks from "./utils/planTasks";
+import { sleep } from "./utils/sleep";
 
 // Check if every node is included in the completedTasks set
 function isGoalReached(dag: DAG, completedTasks: Set<string>): boolean {
