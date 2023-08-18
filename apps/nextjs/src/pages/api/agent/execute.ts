@@ -8,7 +8,6 @@ import { getBaseUrl } from "~/utils/api";
 import { type ExecuteRequestBody } from "~/features/WaggleDance/types";
 import {
   callExecutionAgent,
-  finalId,
   type ChainPacket,
 } from "../../../../../../packages/agent";
 
@@ -203,7 +202,7 @@ export default async function ExecuteStream(req: NextRequest) {
           });
         } else {
           state =
-            dag.nodes[dag.nodes.length - 1]?.id == finalId
+            dag.nodes[dag.nodes.length - 1]?.id == task.id
               ? "DONE"
               : "EXECUTING";
           packetString = stringify({ type: "done", value: exeResult });
