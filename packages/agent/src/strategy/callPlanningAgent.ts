@@ -27,6 +27,7 @@ export async function callPlanningAgent(
     // prompt.format({ goal, schema: "string[]" }),
     chain.call({
       signal,
+      tags: ["plan", goalId],
     }),
   ]);
 

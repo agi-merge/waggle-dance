@@ -89,7 +89,9 @@ export async function callExecutionAgent(creation: {
       namespace,
     });
 
-    const ltmChain = VectorDBQAChain.fromLLM(llm, vectorStore);
+    const ltmChain = VectorDBQAChain.fromLLM(llm, vectorStore, {
+      tags: [taskObj.id],
+    });
     // const ltm = await ltmChain.call({ input: "What are your main contents?" })
     const description = ` a comprehensive database extending your knowledge/memory; use this tool before other tools.`;
     const ltmTool = new ChainTool({
@@ -130,6 +132,7 @@ export async function callExecutionAgent(creation: {
     executor = PlanAndExecuteAgentExecutor.fromLLMAndTools({
       llm: llm,
       tools,
+      tags: ["execute", agentPromptingMethod, taskObj.id],
     });
   }
 
