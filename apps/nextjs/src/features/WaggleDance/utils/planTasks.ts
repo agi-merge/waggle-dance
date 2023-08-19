@@ -78,8 +78,9 @@ export default async function planTasks({
       const newEdgesCount = newDag.edges.length - (dag?.edges.length ?? 0);
       if (diffNodesCount || newEdgesCount) {
         setDAG(newDag);
-        dag = newDag;
       }
+      dag = newDag;
+
       const firstNode = newDag.nodes[1];
       if (
         !hasFirstTaskStarted &&
