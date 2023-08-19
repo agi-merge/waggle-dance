@@ -1,6 +1,10 @@
 // utils/llms.ts
 
 // TODO: use APIs to list eligible models
+import {
+  type InitializeAgentExecutorOptions,
+  type InitializeAgentExecutorOptionsStructured,
+} from "langchain/dist/agents/initialize";
 
 export enum LLM {
   "embeddings" = "text-embedding-ada-002",
@@ -41,34 +45,29 @@ export enum AgentPromptingMethod {
   ChatZeroShotReAct = "Chat Zero-shot ReAct",
   ChatConversationalReAct = "Chat Conversational ReAct",
   PlanAndExecute = "Plan and Execute",
-} // TODO: add structure variants
+  OpenAIStructuredChat = "Structured Chat Zero Shot ReAct",
+  OpenAIFunctions = "OpenAI Functions",
+}
 
 type AgentType =
-  | "zero-shot-react-description"
-  | "chat-zero-shot-react-description"
-  | "chat-conversational-react-description";
-// maps from ExecutionMethod to
-export const AGENT_PROMPTING_METHOD_VALUES = {
-  [AgentPromptingMethod.ZeroShotReAct]:
-    "zero-shot-react-description" as AgentType,
-  [AgentPromptingMethod.ChatZeroShotReAct]:
-    "chat-zero-shot-react-description" as AgentType,
-  [AgentPromptingMethod.ChatConversationalReAct]:
-    "chat-conversational-react-description" as AgentType,
-};
+  | InitializeAgentExecutorOptions["agentType"]
+  | InitializeAgentExecutorOptionsStructured["agentType"];
 
 export function getAgentPromptingMethodValue(
-  method: AgentPromptingMethod,
+  method: Exclude<AgentPromptingMethod, "PlanAndExecute">, // different AgentExecutor, see callExecutionAgent.ts
 ): AgentType {
   switch (method) {
+    case AgentPromptingMethod.PlanAndExecute:
     case AgentPromptingMethod.ZeroShotReAct:
       return "zero-shot-react-description";
     case AgentPromptingMethod.ChatZeroShotReAct:
       return "chat-zero-shot-react-description";
     case AgentPromptingMethod.ChatConversationalReAct:
       return "chat-conversational-react-description";
-    default:
-      throw new Error(`Unsupported method: ${method}`);
+    case AgentPromptingMethod.OpenAIStructuredChat:
+      return "structured-chat-zero-shot-react-description";
+    case AgentPromptingMethod.OpenAIFunctions:
+      return "openai-functions";
   }
 }
 
