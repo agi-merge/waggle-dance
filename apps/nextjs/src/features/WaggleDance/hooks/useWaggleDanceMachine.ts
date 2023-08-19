@@ -46,11 +46,12 @@ const useWaggleDanceMachine = () => {
   const { setIsRunning, agentSettings, execution } =
     useWaggleDanceMachineStore();
   const { selectedGoal: goal } = useGoalStore();
-  const graph = useMemo(() => {
-    return execution?.graph;
-  }, [execution?.graph]);
-  const [dag, setDAG] = useState<DAG>(graph ?? new DAG([], []));
 
+  const [dag, setDAG] = useState<DAG>(execution?.graph ?? new DAG([], []));
+
+  useEffect(() => {
+    setDAG(execution?.graph ?? new DAG([], []));
+  }, [execution?.graph]);
   const { mutate: updateExecutionState } =
     api.execution.updateState.useMutation({
       onSettled: () => {},
