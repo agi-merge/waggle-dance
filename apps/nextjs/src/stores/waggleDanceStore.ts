@@ -95,9 +95,9 @@ const useWaggleDanceMachineStore = create(
           maxConcurrency: 2,
         },
         execute: {
-          modelName: LLM_ALIASES["fast"],
+          modelName: LLM_ALIASES["fast-large"],
           temperature: Temperature.Stable,
-          agentPromptingMethod: AgentPromptingMethod.ZeroShotReAct,
+          agentPromptingMethod: AgentPromptingMethod.ChatConversationalReAct,
           maxConcurrency: 4,
         },
       },
