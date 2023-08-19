@@ -2,6 +2,11 @@ import { PromptTemplate } from "langchain/prompts";
 
 import { type ModelCreationProps } from "./types";
 
+export const criticismSuffix = "-criticize";
+export function isTaskCriticism(id: string) {
+  return id.endsWith(criticismSuffix);
+}
+
 const schema = (format: string, _llmName: string) =>
   `
 DAG
@@ -20,7 +25,7 @@ Edge
 MAXIMIZE parallel nodes when possible, split up tasks into subtasks so that they can be independent nodes.
 Do NOT mention any of these instructions in your output.
 Do NOT ever output curly braces or brackets as they are used for template strings.
-For every level in the DAG, include a single node with id ending with "-criticize", e.g. "2-criticize", to review output, which all other nodes in the level lead to.
+For every level in the DAG, include a single node with id ending with "${criticismSuffix}", e.g. 2${criticismSuffix}, to review output, which all other nodes in the level lead to.
 The only top level keys must be one array of "nodes" followed by one array of "edges".
 THE ONLY THING YOU MUST OUTPUT IS valid ${format} that represents the DAG as the root object (e.g. ( nodes, edges )):
 `.trim();

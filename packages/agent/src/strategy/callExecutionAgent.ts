@@ -20,7 +20,7 @@ import {
 } from "../utils/llms";
 // import { createMemory } from "../utils/memory";
 import { createEmbeddings, createModel } from "../utils/model";
-import { createPrompt } from "../utils/prompts";
+import { createPrompt, isTaskCriticism } from "../utils/prompts";
 import { type ModelCreationProps } from "../utils/types";
 
 export async function callExecutionAgent(creation: {
@@ -48,7 +48,7 @@ export async function callExecutionAgent(creation: {
   const llm = createModel(creationProps);
   const embeddings = createEmbeddings({ modelName: LLM.embeddings });
   const taskObj = parse(task) as { id: string };
-  const isReview = taskObj.id.startsWith("criticize-");
+  const isReview = isTaskCriticism(taskObj.id);
   const prompt = createPrompt({
     type: isReview ? "criticize" : "execute",
     creationProps,
