@@ -1,10 +1,6 @@
 // utils/llms.ts
 
 // TODO: use APIs to list eligible models
-import {
-  type InitializeAgentExecutorOptions,
-  type InitializeAgentExecutorOptionsStructured,
-} from "langchain/dist/agents/initialize";
 
 export enum LLM {
   "embeddings" = "text-embedding-ada-002",
@@ -49,15 +45,30 @@ export enum AgentPromptingMethod {
   OpenAIFunctions = "OpenAI Functions",
 }
 
-type AgentType =
-  | InitializeAgentExecutorOptions["agentType"]
-  | InitializeAgentExecutorOptionsStructured["agentType"];
+export const InitializeAgentExecutorOptionsAgentTypes = [
+  "zero-shot-react-description",
+  "chat-zero-shot-react-description",
+  "chat-conversational-react-description",
+] as const;
+
+export const InitializeAgentExecutorOptionsStructuredAgentTypes = [
+  "structured-chat-zero-shot-react-description",
+  "openai-functions",
+] as const;
+
+export type InitializeAgentExecutorOptionsAgentType =
+  (typeof InitializeAgentExecutorOptionsAgentTypes)[number];
+export type InitializeAgentExecutorOptionsStructuredAgentType =
+  (typeof InitializeAgentExecutorOptionsStructuredAgentTypes)[number];
+
+export type AgentType =
+  | InitializeAgentExecutorOptionsAgentType
+  | InitializeAgentExecutorOptionsStructuredAgentType;
 
 export function getAgentPromptingMethodValue(
   method: Exclude<AgentPromptingMethod, "PlanAndExecute">, // different AgentExecutor, see callExecutionAgent.ts
 ): AgentType {
   switch (method) {
-    case AgentPromptingMethod.PlanAndExecute:
     case AgentPromptingMethod.ZeroShotReAct:
       return "zero-shot-react-description";
     case AgentPromptingMethod.ChatZeroShotReAct:
@@ -68,6 +79,8 @@ export function getAgentPromptingMethodValue(
       return "structured-chat-zero-shot-react-description";
     case AgentPromptingMethod.OpenAIFunctions:
       return "openai-functions";
+    case AgentPromptingMethod.PlanAndExecute:
+      throw new Error("PlanAndExecute is not a valid prompting method");
   }
 }
 

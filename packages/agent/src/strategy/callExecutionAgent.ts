@@ -6,6 +6,9 @@ import {
   type InitializeAgentExecutorOptions,
 } from "langchain/agents";
 import { VectorDBQAChain } from "langchain/chains";
+// import { createMemory } from "../utils/memory";
+import { type OpenAI } from "langchain/dist";
+import { type InitializeAgentExecutorOptionsStructured } from "langchain/dist/agents/initialize";
 import { type Tool } from "langchain/dist/tools/base";
 import { PlanAndExecuteAgentExecutor } from "langchain/experimental/plan_and_execute";
 import { ChainTool, SerpAPI } from "langchain/tools";
@@ -14,11 +17,14 @@ import { PineconeStore } from "langchain/vectorstores/pinecone";
 import { parse } from "yaml";
 
 import {
-  AgentPromptingMethod,
   getAgentPromptingMethodValue,
+  InitializeAgentExecutorOptionsAgentTypes,
+  InitializeAgentExecutorOptionsStructuredAgentTypes,
   LLM,
+  type AgentPromptingMethod,
+  type InitializeAgentExecutorOptionsAgentType,
+  type InitializeAgentExecutorOptionsStructuredAgentType,
 } from "../utils/llms";
-// import { createMemory } from "../utils/memory";
 import { createEmbeddings, createModel } from "../utils/model";
 import { createPrompt, isTaskCriticism } from "../utils/prompts";
 import { type ModelCreationProps } from "../utils/types";
@@ -112,36 +118,23 @@ export async function callExecutionAgent(creation: {
       }),
     );
   }
+  const tags = ["execute", agentPromptingMethod, taskObj.id];
 
-  let executor;
-  if (agentPromptingMethod !== AgentPromptingMethod.PlanAndExecute) {
-    const agentType = getAgentPromptingMethodValue(agentPromptingMethod);
-    const options: InitializeAgentExecutorOptions = {
-      agentType,
-      returnIntermediateSteps: false,
-      ...creationProps,
-    };
-
-    // Only include the memory parameter for "chat-conversational-react-description" agent type
-    // if (agentType === "chat-conversational-react-description") {
-    //   options.memory = memory;
-    // }
-
-    executor = await initializeAgentExecutorWithOptions(tools, llm, options);
-  } else {
-    executor = PlanAndExecuteAgentExecutor.fromLLMAndTools({
-      llm: llm,
-      tools,
-      tags: ["execute", agentPromptingMethod, taskObj.id],
-    });
-  }
+  const executor = await initializeExecutor(
+    agentPromptingMethod,
+    taskObj,
+    creationProps,
+    tools,
+    llm,
+    tags,
+  );
 
   try {
     const call = await executor.call(
       {
         input: formattedPrompt,
         signal: abortSignal,
-        tags: ["execute", agentPromptingMethod, taskObj.id],
+        tags,
       },
       callbacks,
     );
@@ -155,4 +148,51 @@ export async function callExecutionAgent(creation: {
   } catch (error) {
     return error as Error;
   }
+}
+async function initializeExecutor(
+  agentPromptingMethod: AgentPromptingMethod,
+  taskObj: { id: string },
+  creationProps: ModelCreationProps,
+  tools: Tool[],
+  llm: OpenAI,
+  tags: string[],
+) {
+  let executor;
+  const agentType = getAgentPromptingMethodValue(agentPromptingMethod);
+  let options:
+    | InitializeAgentExecutorOptions
+    | InitializeAgentExecutorOptionsStructured;
+  if (
+    InitializeAgentExecutorOptionsAgentTypes.includes(
+      agentType as InitializeAgentExecutorOptionsAgentType,
+    )
+  ) {
+    options = {
+      agentType,
+      returnIntermediateSteps: false,
+      ...creationProps,
+      tags,
+    } as InitializeAgentExecutorOptions;
+
+    executor = await initializeAgentExecutorWithOptions(tools, llm, options);
+  } else if (
+    InitializeAgentExecutorOptionsStructuredAgentTypes.includes(
+      agentType as InitializeAgentExecutorOptionsStructuredAgentType,
+    )
+  ) {
+    options = {
+      agentType: agentType,
+      returnIntermediateSteps: false,
+      ...creationProps,
+      tags,
+    } as InitializeAgentExecutorOptionsStructured;
+    executor = await initializeAgentExecutorWithOptions(tools, llm, options);
+  } else {
+    executor = PlanAndExecuteAgentExecutor.fromLLMAndTools({
+      llm: llm,
+      tools,
+      tags,
+    });
+  }
+  return executor;
 }
