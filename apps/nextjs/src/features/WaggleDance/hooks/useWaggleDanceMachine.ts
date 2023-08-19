@@ -10,8 +10,12 @@ import useGoalStore from "~/stores/goalStore";
 import useWaggleDanceMachineStore from "~/stores/waggleDanceStore";
 import { type ChainPacket } from "../../../../../../packages/agent";
 import { type GraphData } from "../components/ForceGraph";
-import DAG, { type DAGNode, type DAGNodeClass } from "../DAG";
-import { initialNodes } from "../initialNodes";
+import DAG, { DAGEdgeClass, type DAGNode, type DAGNodeClass } from "../DAG";
+import {
+  findNodesWithNoIncomingEdges,
+  initialNodes,
+  rootPlanId,
+} from "../initialNodes";
 import { type WaggleDanceResult } from "../types";
 import { dagToGraphData } from "../utils/conversions";
 import WaggleDanceMachine from "../WaggleDanceMachine";
@@ -50,8 +54,22 @@ const useWaggleDanceMachine = () => {
   const [dag, setDAG] = useState<DAG>(execution?.graph ?? new DAG([], []));
 
   useEffect(() => {
-    setDAG(execution?.graph ?? new DAG([], []));
-  }, [execution?.graph]);
+    if (execution?.graph && goal?.prompt) {
+      const hookupEdges = findNodesWithNoIncomingEdges(execution?.graph).map(
+        (node) => new DAGEdgeClass(rootPlanId, node.id),
+      );
+      const rootAddedToGraph = new DAG(
+        [...initialNodes(goal.prompt), ...execution.graph.nodes],
+        // connect our initial nodes to the DAG: gotta find them and create edges
+        [...execution.graph.edges, ...hookupEdges],
+      );
+      setDAG(rootAddedToGraph);
+    } else {
+      setDAG(new DAG([], []));
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [goal?.id, execution?.graph]);
+
   const { mutate: updateExecutionState } =
     api.execution.updateState.useMutation({
       onSettled: () => {},

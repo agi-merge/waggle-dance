@@ -3,7 +3,11 @@ import { parse } from "yaml";
 
 import { type ChainPacket } from "../../../../../../packages/agent";
 import DAG, { DAGEdgeClass } from "../DAG";
-import { initialNodes, rootPlanId } from "../initialNodes";
+import {
+  findNodesWithNoIncomingEdges,
+  initialNodes,
+  rootPlanId,
+} from "../initialNodes";
 
 interface MyWorkerGlobalScope {
   onmessage: (event: MessageEvent) => void;
@@ -59,19 +63,3 @@ self.onmessage = function (
     self.postMessage({ dag, error: "no dag" });
   }
 };
-
-function findNodesWithNoIncomingEdges(dag: Partial<DAG>) {
-  const nodesWithIncomingEdges = new Set<string>();
-  for (const edge of dag.edges ?? []) {
-    nodesWithIncomingEdges.add(edge.tId);
-  }
-
-  const nodesWithNoIncomingEdges = [];
-
-  for (const node of dag.nodes ?? []) {
-    if (!nodesWithIncomingEdges.has(node.id)) {
-      nodesWithNoIncomingEdges.push(node);
-    }
-  }
-  return nodesWithNoIncomingEdges;
-}
