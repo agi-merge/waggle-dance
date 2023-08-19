@@ -92,8 +92,26 @@ const WaggleDanceGraph = ({}: WaggleDanceGraphProps) => {
       if (b.id === rootPlanId) {
         return 1;
       }
+      if (a.id === rootPlanId) {
+        return -1;
+      }
+      if (b.id === rootPlanId) {
+        return 1;
+      }
       if (a.status === b.status) {
-        return a.id.localeCompare(b.id) || 1;
+        // Split the IDs into parts and parse them into numbers
+        const aIdParts = a.id.split("-").map(Number);
+        const bIdParts = b.id.split("-").map(Number);
+
+        // Compare the parts
+        for (let i = 0; i < aIdParts.length && i < bIdParts.length; i++) {
+          if (aIdParts[i] !== bIdParts[i]) {
+            return aIdParts[i] ?? 0 - (bIdParts[i] ?? 0);
+          }
+        }
+
+        // If all parts are equal, the one with fewer parts should come first
+        return aIdParts.length - bIdParts.length;
       }
       if (a.status === TaskStatus.done) return -1;
       if (b.status === TaskStatus.done) return 1;
