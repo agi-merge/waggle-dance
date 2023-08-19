@@ -28,7 +28,8 @@ Waggle Dance takes a goal and passes it to a **Planner Agent** which streams an 
 It was originally inspired by [Auto-GPT](https://github.com/Significant-Gravitas/Auto-GPT), and has concurrency features similar to those found in [gpt-researcher](https://github.com/assafelovic/gpt-researcher).
 I thought it would be nice to contribute to the JS ecosystem. Many other agentic systems are written in Python, and I wanted to see if I could make something in JS that was just as good. I also wanted to see if I could make something that was more accessible to non-technical users.
 
-<img src="[https://github.com/agi-merge/waggle-dance/assets/906671/1f868edc-0ada-4576-9798-95dbbae6ffb2](https://github.com/agi-merge/waggle-dance/assets/906671/2026ff9d-e3d6-4b2d-b4b3-77b4cade8eda)" height="480" />
+
+<img src="https://github.com/agi-merge/waggle-dance/assets/906671/aaa6850d-b6d4-4acb-be50-5f8cdf50a760" height="480" />
 
 </div>
 
