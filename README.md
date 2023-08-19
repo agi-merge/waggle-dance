@@ -29,8 +29,9 @@ It was originally inspired by [Auto-GPT](https://github.com/Significant-Gravitas
 I thought it would be nice to contribute to the JS ecosystem. Many other agentic systems are written in Python, and I wanted to see if I could make something in JS that was just as good. I also wanted to see if I could make something that was more accessible to non-technical users.
 
 
+<p align="center">
 <img src="https://github.com/agi-merge/waggle-dance/assets/906671/aaa6850d-b6d4-4acb-be50-5f8cdf50a760" height="480" />
-
+</p>
 </div>
 
 # 🦚 Highlighted Features
