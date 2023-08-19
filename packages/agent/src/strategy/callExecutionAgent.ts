@@ -135,7 +135,11 @@ export async function callExecutionAgent(creation: {
 
   try {
     const call = await executor.call(
-      { input: formattedPrompt, signal: abortSignal },
+      {
+        input: formattedPrompt,
+        signal: abortSignal,
+        tags: ["execute", agentPromptingMethod, taskObj.id],
+      },
       callbacks,
     );
 

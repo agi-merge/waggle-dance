@@ -19,6 +19,7 @@ export async function callPlanningAgent(
   const chain = new LLMChain({
     // memory,
     prompt,
+    tags: ["plan", goalId],
     llm,
   });
 
