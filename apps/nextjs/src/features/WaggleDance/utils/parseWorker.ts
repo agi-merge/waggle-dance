@@ -50,10 +50,13 @@ self.onmessage = function (
       dag = null;
     }
   } catch (error) {
+    self.postMessage({ dag, error: "partial parse" });
     // normal, we're streaming and receive partial data
   }
   if (dag) {
     self.postMessage({ dag });
+  } else {
+    self.postMessage({ dag, error: "no dag" });
   }
 };
 

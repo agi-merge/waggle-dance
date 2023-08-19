@@ -7,6 +7,7 @@ import {
 import type DAG from "../DAG";
 import { type DAGNode, type DAGNodeClass } from "../DAG";
 import { initialNodes, rootPlanId } from "../initialNodes";
+import { sleep } from "./sleep";
 
 export type PlanTasksProps = {
   goal: string;
@@ -62,14 +63,28 @@ export default async function planTasks({
     }
   }
 
+  let postMessageCount = 0;
   let dag: DAG | null | undefined;
   const parseWorker = new Worker(new URL("./parseWorker.ts", import.meta.url));
+
+  parseWorker.onerror = function (event) {
+    console.error("parseWorker error", event);
+    postMessageCount--;
+  };
+  parseWorker.onmessageerror = function (event) {
+    console.error("parseWorker onmessageerror", event);
+    postMessageCount--;
+  };
   parseWorker.onmessage = function (
-    event: MessageEvent<{ dag: DAG; error: string | null }>,
+    event: MessageEvent<{
+      dag: DAG | null | undefined;
+      error: Error | undefined;
+    }>,
   ) {
+    postMessageCount--;
     const { dag: newDag, error } = event.data;
-    if (error) {
-      console.error(`Error parsing YAML in web worker: ${error}`);
+
+    if (!!error) {
       return;
     }
 
@@ -78,8 +93,8 @@ export default async function planTasks({
       const newEdgesCount = newDag.edges.length - (dag?.edges.length ?? 0);
       if (diffNodesCount || newEdgesCount) {
         setDAG(newDag);
+        dag = newDag;
       }
-      dag = newDag;
 
       const firstNode = newDag.nodes[1];
       if (
@@ -120,11 +135,15 @@ export default async function planTasks({
         const partialLine = newData.subarray(lineBreakIndex + 1);
 
         buffer = Buffer.concat([buffer, completeLine]);
+        postMessageCount++;
         parseWorker.postMessage({ buffer: buffer.toString(), goal });
         buffer = partialLine;
       } else {
         buffer = Buffer.concat([buffer, newData]);
       }
+    }
+    while (postMessageCount > 0) {
+      await sleep(10);
     }
   }
 
