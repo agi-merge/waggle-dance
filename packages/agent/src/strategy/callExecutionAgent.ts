@@ -18,7 +18,7 @@ import {
   getAgentPromptingMethodValue,
   LLM,
 } from "../utils/llms";
-import { createMemory } from "../utils/memory";
+// import { createMemory } from "../utils/memory";
 import { createEmbeddings, createModel } from "../utils/model";
 import { createPrompt } from "../utils/prompts";
 import { type ModelCreationProps } from "../utils/types";
@@ -56,7 +56,7 @@ export async function callExecutionAgent(creation: {
     task,
     result,
   });
-  const memory = await createMemory(goal);
+  // const memory = await createMemory(goal);
   console.log(
     "about to format prompt",
     JSON.stringify(prompt),
@@ -123,9 +123,9 @@ export async function callExecutionAgent(creation: {
     };
 
     // Only include the memory parameter for "chat-conversational-react-description" agent type
-    if (agentType === "chat-conversational-react-description") {
-      options.memory = memory;
-    }
+    // if (agentType === "chat-conversational-react-description") {
+    //   options.memory = memory;
+    // }
 
     executor = await initializeAgentExecutorWithOptions(tools, llm, options);
   } else {
