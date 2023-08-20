@@ -1,6 +1,7 @@
 // pages/goal/[goalId].tsx
 import { type ParsedUrlQuery } from "querystring";
 import React, {
+  Suspense,
   useEffect,
   useMemo,
   useRef,
@@ -86,54 +87,54 @@ const GoalPage = () => {
   return (
     <MainLayout>
       <ErrorBoundary fallback={<Typography>Loading…</Typography>}>
-        {/* <Suspense fallback={<Typography>Loading…</Typography>}> */}
-        {state === "input" ? (
-          <HomeContent />
-        ) : (
-          <>
-            <PageTitle title={isRunning ? "💃 Waggling!" : "💃 Waggle"}>
-              {goal?.prompt && (
-                <List
-                  type="multiple"
-                  component={Accordion}
-                  variant="outlined"
-                  className="mt-2"
-                  sx={{ padding: 0 }}
-                >
-                  <AccordionItem value="item-1">
-                    <AccordionHeader
-                      isFirst
-                      openText={
-                        <Typography noWrap level="title-sm" className="pb-2">
-                          Your goal
-                        </Typography>
-                      }
-                      closedText={
-                        <>
-                          <Typography level="title-sm">Your goal</Typography>
-                          <Typography noWrap level="body-sm">
-                            {goal?.prompt}
+        <Suspense fallback={<Typography>Loading…</Typography>}>
+          {state === "input" ? (
+            <HomeContent />
+          ) : (
+            <>
+              <PageTitle title={isRunning ? "💃 Waggling!" : "💃 Waggle"}>
+                {goal?.prompt && (
+                  <List
+                    type="multiple"
+                    component={Accordion}
+                    variant="outlined"
+                    className="mt-2"
+                    sx={{ padding: 0 }}
+                  >
+                    <AccordionItem value="item-1">
+                      <AccordionHeader
+                        isFirst
+                        openText={
+                          <Typography noWrap level="title-sm" className="pb-2">
+                            Your goal
                           </Typography>
-                        </>
-                      }
-                    ></AccordionHeader>
-                    <AccordionContent isLast={true}>
-                      {goal?.prompt}
-                    </AccordionContent>
-                  </AccordionItem>
-                </List>
-              )}
-            </PageTitle>
-            <WaggleDanceGraph />
-          </>
-        )}
-        {/* </Suspense> */}
+                        }
+                        closedText={
+                          <>
+                            <Typography level="title-sm">Your goal</Typography>
+                            <Typography noWrap level="body-sm">
+                              {goal?.prompt}
+                            </Typography>
+                          </>
+                        }
+                      ></AccordionHeader>
+                      <AccordionContent isLast={true}>
+                        {goal?.prompt}
+                      </AccordionContent>
+                    </AccordionItem>
+                  </List>
+                )}
+              </PageTitle>
+              <WaggleDanceGraph />
+            </>
+          )}
+        </Suspense>
       </ErrorBoundary>
     </MainLayout>
   );
 };
 
-export default GoalPage;
+export default React.memo(GoalPage);
 
 function getRoute(query: ParsedUrlQuery): {
   goalId: string | undefined;
