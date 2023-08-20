@@ -41,8 +41,7 @@ export async function middleware(request: NextRequest) {
   }
 }
 
-// See "Matching Paths" below to learn more
 export const config = {
   runtime: "experimental-edge",
-  matcher: "/api/:path*",
+  matcher: "/api/trpc/goal.create",
 };
