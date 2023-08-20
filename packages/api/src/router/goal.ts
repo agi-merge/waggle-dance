@@ -22,7 +22,7 @@ export const goalRouter = createTRPCRouter({
         where: { id: input.id, userId },
         include: {
           executions: {
-            take: 10,
+            take: 5,
             orderBy: { updatedAt: "desc" }, // doesnt work as expected?
             include: {
               graph: {
@@ -34,7 +34,7 @@ export const goalRouter = createTRPCRouter({
             },
           },
           results: {
-            take: 100,
+            take: 40,
             orderBy: { updatedAt: "desc" },
           },
         },
@@ -51,7 +51,7 @@ export const goalRouter = createTRPCRouter({
       orderBy: { updatedAt: "asc" },
       include: {
         executions: {
-          take: 10,
+          take: 5,
           orderBy: { updatedAt: "desc" }, // doesnt work as expected?
           include: {
             graph: {
@@ -63,11 +63,11 @@ export const goalRouter = createTRPCRouter({
           },
         },
         results: {
-          take: 100,
+          take: 40,
           orderBy: { updatedAt: "desc" },
         },
       },
-      take: 10,
+      take: 6,
     });
   }),
 
