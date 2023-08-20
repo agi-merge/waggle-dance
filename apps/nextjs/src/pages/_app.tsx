@@ -50,7 +50,6 @@ const MyApp: AppType<{ session: Session | null }> = ({
 }) => {
   return (
     <SessionProvider session={session}>
-      {/* {getInitColorSchemeScript()} */}
       <RouteControllerProvider>
         <CssVarsProvider theme={theme} defaultMode="system">
           <Component {...pageProps} />
