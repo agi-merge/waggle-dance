@@ -58,6 +58,7 @@ export const env = createEnv({
     EDGE_CONFIG: z.string().url().optional(),
     EDGE_CONFIG_WRITE: z.string().url().optional(),
     VERCEL_ACCESS_TOKEN: z.string().optional(),
+    TURNSTILE_SECRET_KEY: z.string().startsWith("0x").optional(),
   },
   /**
    * Specify your client-side environment variables schema here.
@@ -68,6 +69,7 @@ export const env = createEnv({
     NEXT_PUBLIC_DISCORD_INVITE_URL: z.string().url().optional(),
     NEXT_PUBLIC_LANGCHAIN_API_URL: z.string().url().optional(),
     NEXT_PUBLIC_LANGCHAIN_VERBOSE: z.string().optional(),
+    NEXT_PUBLIC_TURNSTILE_SITE_KEY: z.string().startsWith("0x").optional(),
   },
   /**
    * Destructure all variables from `process.env` to make sure they aren't tree-shaken away.
@@ -102,5 +104,7 @@ export const env = createEnv({
     NEXT_PUBLIC_LANGCHAIN_API_URL: process.env.NEXT_PUBLIC_LANGCHAIN_API_URL,
     EMAIL_FROM: process.env.EMAIL_FROM,
     POSTMARK_TOKEN: process.env.POSTMARK_TOKEN,
+    NEXT_PUBLIC_TURNSTILE_SITE_KEY: process.env.NEXT_PUBLIC_TURNSTILE_SITE_KEY,
+    TURNSTILE_SECRET_KEY: process.env.TURNSTILE_SECRET_KEY,
   },
 });
