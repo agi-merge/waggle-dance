@@ -119,12 +119,6 @@ const MainLayout = ({ children }: Props) => {
                 sx={{ opacity: progressOpacity }}
                 color="neutral"
               />
-              <div
-                className="cf-turnstile"
-                data-sitekey={process.env.NEXT_PUBLIC_TURNSTILE_SITE_KEY}
-                data-callback="javascriptCallback"
-                data-theme={mode === "dark" ? "dark" : "light"}
-              ></div>
               {children}
             </GoalTabs>
           </Card>

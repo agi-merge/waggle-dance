@@ -4,7 +4,6 @@ import "../styles/globals.css";
 import { useCallback, useEffect } from "react";
 import type { AppType } from "next/app";
 import { useRouter } from "next/router";
-import Script from "next/script";
 import { CssVarsProvider } from "@mui/joy/styles";
 import { Analytics } from "@vercel/analytics/react";
 import type { Session } from "next-auth";
@@ -12,7 +11,6 @@ import { SessionProvider } from "next-auth/react";
 
 import { api } from "~/utils/api";
 import theme from "~/styles/theme";
-import { env } from "~/env.mjs";
 import useApp from "~/stores/appStore";
 
 type RouteControllerProps = {
@@ -58,13 +56,6 @@ const MyApp: AppType<{ session: Session | null }> = ({
         </CssVarsProvider>
       </RouteControllerProvider>
       <Analytics />
-      {env.NEXT_PUBLIC_TURNSTILE_SITE_KEY && (
-        <Script
-          src="https://challenges.cloudflare.com/turnstile/v0/api.js"
-          async
-          defer
-        />
-      )}
     </SessionProvider>
   );
 };
