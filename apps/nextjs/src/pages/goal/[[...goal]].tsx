@@ -28,6 +28,10 @@ import useWaggleDanceMachineStore from "~/stores/waggleDanceStore";
 import { HomeContent } from "..";
 import useGoalStore from "../../stores/goalStore";
 
+export const config = {
+  runtime: "experimental-edge",
+};
+
 const GoalPage = () => {
   const router = useRouter();
   const { goalMap, selectedGoal, upsertGoals, selectGoal } = useGoalStore();
