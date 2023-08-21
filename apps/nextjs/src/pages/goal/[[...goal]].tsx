@@ -11,14 +11,18 @@ import React, {
 } from "react";
 import dynamic from "next/dynamic";
 import { useRouter } from "next/router";
+import { Refresh } from "@mui/icons-material";
+import { Button, Link, Stack } from "@mui/joy";
 import List from "@mui/joy/List";
 import Typography from "@mui/joy/Typography";
+import { Divider } from "@mui/material";
 import { Accordion, AccordionItem } from "@radix-ui/react-accordion";
 
 import { type ExecutionPlusGraph, type GoalPlusExe } from "@acme/db";
 
 import { api } from "~/utils/api";
 import routes from "~/utils/routes";
+import { env } from "~/env.mjs";
 import {
   AccordionContent,
   AccordionHeader,
@@ -111,7 +115,50 @@ const GoalPage = () => {
 
   return (
     <MainLayout>
-      <ErrorBoundary fallback={<Typography>An error occurred.</Typography>}>
+      <ErrorBoundary
+        fallback={
+          <Stack className="content-center justify-center self-center  text-center align-middle">
+            <Typography level="h3">
+              A fatal error occurred.
+              <Divider />
+              <Typography level="title-lg">This is likely a bug.</Typography>
+            </Typography>
+            <Button
+              onClick={() => router.reload()}
+              aria-label="Reload"
+              variant="plain"
+            >
+              <span className="max-w-fit">
+                <Refresh></Refresh>Reload
+              </span>
+            </Button>{" "}
+            <Stack
+              max-w-sm
+              direction="row"
+              spacing={1}
+              className="justify-center text-center align-baseline "
+            >
+              <Typography className="self-center">Not working?</Typography>
+              <Button
+                onClick={() => router.reload()}
+                aria-label="Reload"
+                variant="plain"
+              >
+                Go home
+              </Button>{" "}
+              <Divider />
+              <Button
+                component={Link}
+                href={env.NEXT_PUBLIC_DISCORD_INVITE_URL}
+                aria-label="Get help on Discord"
+                variant="plain"
+              >
+                Get Help
+              </Button>
+            </Stack>
+          </Stack>
+        }
+      >
         <Suspense fallback={fallback}>
           {state === "input" ? (
             <HomeContent />
