@@ -1,6 +1,8 @@
 // NoSSRForceGraph.tsx
 import React, { useEffect, useRef, useState } from "react";
 import useResizeObserver from "@react-hook/resize-observer";
+// ok to do here bc all uses are dynamic (client side)
+// eslint-disable-next-line no-restricted-imports
 import { ForceGraph2D as OriginalForceGraph2D } from "react-force-graph";
 import { useDebounce } from "use-debounce";
 
