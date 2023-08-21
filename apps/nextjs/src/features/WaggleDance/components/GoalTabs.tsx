@@ -18,6 +18,7 @@ import { type Goal, type GoalPlusExe } from "@acme/db";
 
 import { api } from "~/utils/api";
 import routes from "~/utils/routes";
+import useIsAppleDevice from "~/hooks/useIsAppleDevice";
 import useApp from "~/stores/appStore";
 import useGoalStore, { draftGoalPrefix } from "~/stores/goalStore";
 import useWaggleDanceMachineStore from "~/stores/waggleDanceStore";
@@ -43,6 +44,9 @@ const GoalTab: React.FC<GoalTabProps> = ({
   const { isRunning, setIsRunning } = useWaggleDanceMachineStore();
   const { getGoalInputValue, deleteGoal, selectedGoal } = useGoalStore();
   const del = api.goal.delete.useMutation();
+
+  const isAppleDevice = useIsAppleDevice();
+
   // Function to handle closing a tab
   const closeHandler = useCallback(
     async (tab: Goal) => {
@@ -59,6 +63,27 @@ const GoalTab: React.FC<GoalTabProps> = ({
       deleteGoal(tab.id);
     },
     [del, deleteGoal, setIsPageLoading, setIsRunning],
+  );
+
+  const CloseButton = (
+    <IconButton
+      onClick={(e) => {
+        e.preventDefault();
+        e.stopPropagation();
+        void closeHandler(tab);
+      }}
+      variant="plain"
+      className="flex-end float-start"
+      size="sm"
+      sx={{
+        minWidth: { sm: "1.5rem", md: "var(--IconButton-size, 2rem)" },
+        minHeight: { sm: "1.5rem", md: "var(--IconButton-size, 2rem)" },
+        maxWidth: { sm: "1.5rem", md: "var(--IconButton-size, 2rem)" },
+        maxHeight: { sm: "1.5rem", md: "var(--IconButton-size, 2rem)" },
+      }}
+    >
+      <Close />
+    </IconButton>
   );
 
   // Render a single goal tab
@@ -84,24 +109,7 @@ const GoalTab: React.FC<GoalTabProps> = ({
         orientation="horizontal"
         sx={{ paddingRight: 0, paddingLeft: 0.5 }}
       >
-        <IconButton
-          onClick={(e) => {
-            e.preventDefault();
-            e.stopPropagation();
-            void closeHandler(tab);
-          }}
-          variant="plain"
-          className="flex-end float-start"
-          size="sm"
-          sx={{
-            minWidth: { sm: "1.5rem", md: "var(--IconButton-size, 2rem)" },
-            minHeight: { sm: "1.5rem", md: "var(--IconButton-size, 2rem)" },
-            maxWidth: { sm: "1.5rem", md: "var(--IconButton-size, 2rem)" },
-            maxHeight: { sm: "1.5rem", md: "var(--IconButton-size, 2rem)" },
-          }}
-        >
-          <Close />
-        </IconButton>
+        {isAppleDevice && CloseButton}
         <Typography
           level={"title-sm"}
           noWrap
@@ -130,6 +138,7 @@ const GoalTab: React.FC<GoalTabProps> = ({
             `${tab.prompt.slice(0, 120)}…`
           )}
         </Typography>
+        {!isAppleDevice && CloseButton}
       </Tab>
       <Divider orientation="vertical" />
     </Box>
