@@ -44,10 +44,6 @@ const MainLayout = ({ children }: Props) => {
     }
   }, [router, mode]);
 
-  const progressOpacity = useMemo(() => {
-    return isPageLoading ? 100 : 0;
-  }, [isPageLoading]);
-
   const pageOpacity = useMemo(() => {
     return isPageLoading ? 50 : 100;
   }, [isPageLoading]);
@@ -116,7 +112,7 @@ const MainLayout = ({ children }: Props) => {
             <GoalTabs>
               <LinearProgress
                 thickness={3}
-                sx={{ opacity: progressOpacity }}
+                sx={{ visibility: isPageLoading ? "visible" : "hidden" }}
                 color="neutral"
               />
               {children}

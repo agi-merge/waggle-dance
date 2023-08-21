@@ -5,6 +5,7 @@ import React, {
   useEffect,
   useMemo,
   useRef,
+  useState,
   type ErrorInfo,
   type ReactNode,
 } from "react";
@@ -62,6 +63,23 @@ const GoalPage = () => {
     [goalMap, selectedGoal, route, serverGoals],
   );
 
+  function useDelayedFallback(fallback: ReactNode, delay = 1000) {
+    const [show, setShow] = useState(false);
+
+    useEffect(() => {
+      const timeout = setTimeout(() => setShow(true), delay);
+      return () => clearTimeout(timeout);
+    }, [delay]);
+
+    return show ? fallback : null;
+  }
+
+  const fallback = useDelayedFallback(
+    <MainLayout>
+      <Typography>Loading…</Typography>
+    </MainLayout>,
+  );
+
   const execution = useMemo(() => {
     if (!goal || !route.executionId) {
       return undefined;
@@ -93,8 +111,8 @@ const GoalPage = () => {
 
   return (
     <MainLayout>
-      <ErrorBoundary fallback={<Typography>Loading…</Typography>}>
-        <Suspense fallback={<Typography>Loading…</Typography>}>
+      <ErrorBoundary fallback={<Typography>An error occurred.</Typography>}>
+        <Suspense fallback={fallback}>
           {state === "input" ? (
             <HomeContent />
           ) : (

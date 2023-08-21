@@ -1,12 +1,12 @@
 // pages/index.tsx
 
+import dynamic from "next/dynamic";
+import Link from "next/link";
 import Tooltip from "@mui/joy/Tooltip";
 import Typography from "@mui/joy/Typography";
-import Link from "next/link";
 
 import GoalPromptInput from "~/features/GoalMenu/components/GoalPromptInput";
 import Title from "~/features/MainLayout/components/PageTitle";
-import GoalDynamicRoute from "~/pages/goal/[[...goal]]";
 
 export const HomeContent = () => {
   return (
@@ -32,6 +32,10 @@ export const HomeContent = () => {
   );
 };
 
+const LazyGoalDynamicRoute = dynamic(() =>
+  import("~/pages/goal/[[...goal]]").then((mod) => mod.default),
+);
+
 export default function Home() {
-  return <GoalDynamicRoute />;
+  return <LazyGoalDynamicRoute />;
 }
