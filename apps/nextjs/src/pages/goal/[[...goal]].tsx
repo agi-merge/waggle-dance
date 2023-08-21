@@ -8,8 +8,6 @@ import React, {
   type ErrorInfo,
   type ReactNode,
 } from "react";
-// import WaggleDanceGraph from "~/features/WaggleDance/components/WaggleDanceGraph";
-import dynamic from "next/dynamic";
 import { useRouter } from "next/router";
 import List from "@mui/joy/List";
 import Typography from "@mui/joy/Typography";
@@ -25,16 +23,10 @@ import {
 } from "~/features/HeadlessUI/JoyAccordion";
 import MainLayout from "~/features/MainLayout";
 import PageTitle from "~/features/MainLayout/components/PageTitle";
+import WaggleDanceGraph from "~/features/WaggleDance/components/WaggleDanceGraph";
 import useWaggleDanceMachineStore from "~/stores/waggleDanceStore";
 import { HomeContent } from "..";
 import useGoalStore from "../../stores/goalStore";
-
-const NoSSRWaggleDanceGraph = dynamic(
-  () => import("~/features/WaggleDance/components/WaggleDanceGraph"),
-  {
-    ssr: false,
-  },
-);
 
 export const config = {
   runtime: "experimental-edge",
@@ -137,7 +129,7 @@ const GoalPage = () => {
                   </List>
                 )}
               </PageTitle>
-              <NoSSRWaggleDanceGraph />
+              <WaggleDanceGraph />
             </>
           )}
         </Suspense>
