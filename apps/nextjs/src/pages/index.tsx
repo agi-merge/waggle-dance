@@ -1,16 +1,12 @@
 // pages/index.tsx
 
-import Link from "next/link";
 import Tooltip from "@mui/joy/Tooltip";
 import Typography from "@mui/joy/Typography";
+import Link from "next/link";
 
 import GoalPromptInput from "~/features/GoalMenu/components/GoalPromptInput";
 import Title from "~/features/MainLayout/components/PageTitle";
 import GoalDynamicRoute from "~/pages/goal/[[...goal]]";
-
-export const config = {
-  runtime: "experimental-edge",
-};
 
 export const HomeContent = () => {
   return (
