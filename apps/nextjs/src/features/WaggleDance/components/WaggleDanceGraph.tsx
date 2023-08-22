@@ -17,6 +17,7 @@ import {
   Send,
   StopCircle,
 } from "@mui/icons-material";
+import { Link } from "@mui/joy";
 import Box from "@mui/joy/Box";
 import Button from "@mui/joy/Button";
 import Card from "@mui/joy/Card";
@@ -25,7 +26,6 @@ import CircularProgress from "@mui/joy/CircularProgress";
 import Divider from "@mui/joy/Divider";
 import IconButton from "@mui/joy/IconButton";
 import LinearProgress from "@mui/joy/LinearProgress";
-import Link from "@mui/joy/Link";
 import List from "@mui/joy/List";
 import ListDivider from "@mui/joy/ListDivider";
 import ListItem from "@mui/joy/ListItem";
@@ -304,6 +304,18 @@ const WaggleDanceGraph = ({}: WaggleDanceGraphProps) => {
 
   return (
     <Stack gap="1rem" sx={{ mx: -3 }}>
+      {!session && (
+        <Box className="text-center">
+          <Typography level="body-sm">
+            <Link href={routes.auth} target="_blank" color="primary">
+              {isRunning
+                ? "Sign in to save your next waggle"
+                : "Sign in to save waggles, change settings and more"}
+            </Link>
+          </Typography>
+          <Divider />
+        </Box>
+      )}
       {dag.nodes.length > 0 && (
         <Tabs
           size="sm"
@@ -703,14 +715,16 @@ const WaggleDanceGraph = ({}: WaggleDanceGraphProps) => {
                 gap={0.5}
               >
                 {!session && (
-                  <>
+                  <Box className="text-center">
                     <Typography level="body-sm">
                       <Link href={routes.auth} target="_blank" color="primary">
-                        Sign in to save your progress
+                        {isRunning
+                          ? "Sign in to save your next waggle"
+                          : undefined}
                       </Link>
                     </Typography>
                     <Divider />
-                  </>
+                  </Box>
                 )}
                 <Checkbox
                   size="sm"
