@@ -371,8 +371,8 @@ const WaggleDanceGraph = ({}: WaggleDanceGraphProps) => {
             <>
               <TabPanel value={0} className="w-full overflow-y-scroll p-4">
                 <List aria-label="Task list" size="sm" ref={taskListRef}>
-                  {sortedTaskStates.map((n, i) => (
-                    <React.Fragment key={n.id}>
+                  {sortedTaskStates.map((t, i) => (
+                    <React.Fragment key={t.id}>
                       <ListItem
                         sx={{
                           width: { xs: "100%", sm: "auto" },
@@ -381,7 +381,7 @@ const WaggleDanceGraph = ({}: WaggleDanceGraphProps) => {
                         ref={(el) => el && (listItemsRef.current[i] = el)}
                       >
                         <ListItemDecorator
-                          color={statusColor(n)}
+                          color={statusColor(t)}
                           sx={{
                             width: { xs: "100%", sm: "10rem" },
                             height: "100%",
@@ -412,7 +412,7 @@ const WaggleDanceGraph = ({}: WaggleDanceGraphProps) => {
                               color="primary"
                               sx={{ wordBreak: "break-word" }}
                             >
-                              {n.name}
+                              {t.name}
                             </Typography>
                             <Typography
                               level="title-sm"
@@ -420,7 +420,7 @@ const WaggleDanceGraph = ({}: WaggleDanceGraphProps) => {
                               fontFamily="monospace"
                             >
                               id:{" "}
-                              <Typography level="body-sm">{n.id}</Typography>
+                              <Typography level="body-sm">{t.id}</Typography>
                             </Typography>
                             <Stack gap="0.3rem" direction="row">
                               <Tooltip title="Chat">
@@ -451,7 +451,7 @@ const WaggleDanceGraph = ({}: WaggleDanceGraphProps) => {
                                   overflowWrap: "break-word",
                                 }}
                               >
-                                {n.act}
+                                {t.act}
                                 <Typography
                                   fontFamily="monospace"
                                   level="body-sm"
@@ -462,7 +462,7 @@ const WaggleDanceGraph = ({}: WaggleDanceGraphProps) => {
                                   }}
                                 >
                                   {" ("}
-                                  {n.params}
+                                  {t.params}
                                   {")"}
                                 </Typography>
                               </Typography>
@@ -475,11 +475,11 @@ const WaggleDanceGraph = ({}: WaggleDanceGraphProps) => {
                                   overflowWrap: "break-word",
                                 }}
                               >
-                                {stringifyMax(n.context, 200)}
+                                {stringifyMax(t.context, 200)}
                               </Typography>
                             </Stack>
 
-                            {isRunning && n.status === TaskStatus.working && (
+                            {isRunning && t.status === TaskStatus.working && (
                               <LinearProgress thickness={2} />
                             )}
                             <Card
@@ -494,32 +494,32 @@ const WaggleDanceGraph = ({}: WaggleDanceGraphProps) => {
                               })}
                             >
                               <Typography level="title-lg">
-                                {n.result ? <>Result: </> : <>Status: </>}
+                                {t.result ? <>Result: </> : <>Status: </>}
                                 <Typography
-                                  color={statusColor(n)}
+                                  color={statusColor(t)}
                                   level="body-md"
                                 >
                                   {isRunning
-                                    ? n.fromPacketType
-                                    : n.status === TaskStatus.working ||
-                                      n.status === TaskStatus.starting ||
-                                      n.status === TaskStatus.wait
+                                    ? t.fromPacketType
+                                    : t.status === TaskStatus.working ||
+                                      t.status === TaskStatus.starting ||
+                                      t.status === TaskStatus.wait
                                     ? "stopped"
-                                    : n.fromPacketType}
+                                    : t.fromPacketType}
                                 </Typography>
                               </Typography>
 
-                              {n.result && (
+                              {t.result && (
                                 <Typography
                                   level="body-sm"
                                   className="max-h-72 overflow-x-clip overflow-y-scroll  break-words pt-2"
                                   fontFamily={
-                                    n.status === TaskStatus.error
+                                    t.status === TaskStatus.error
                                       ? "monospace"
                                       : undefined
                                   }
                                 >
-                                  {n.result}
+                                  {t.result}
                                 </Typography>
                               )}
                             </Card>
