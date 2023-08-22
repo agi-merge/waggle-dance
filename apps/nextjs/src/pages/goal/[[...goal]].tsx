@@ -12,10 +12,10 @@ import React, {
 import dynamic from "next/dynamic";
 import { useRouter } from "next/router";
 import { Refresh } from "@mui/icons-material";
-import { Button, Link, Stack } from "@mui/joy";
+import { Button, CircularProgress, Link, Stack } from "@mui/joy";
+import Divider from "@mui/joy/Divider";
 import List from "@mui/joy/List";
 import Typography from "@mui/joy/Typography";
-import { Divider } from "@mui/material";
 import { Accordion, AccordionItem } from "@radix-ui/react-accordion";
 
 import { type ExecutionPlusGraph, type GoalPlusExe } from "@acme/db";
@@ -80,6 +80,7 @@ const GoalPage = () => {
 
   const fallback = useDelayedFallback(
     <MainLayout>
+      <CircularProgress />
       <Typography>Loading…</Typography>
     </MainLayout>,
   );
@@ -197,7 +198,9 @@ const GoalPage = () => {
                   </List>
                 )}
               </PageTitle>
-              <NoSSRWaggleDanceGraph />
+              <Suspense fallback={<CircularProgress />}>
+                <NoSSRWaggleDanceGraph />
+              </Suspense>
             </>
           )}
         </Suspense>
