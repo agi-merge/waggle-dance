@@ -134,10 +134,9 @@ const GoalPage = () => {
               </span>
             </Button>{" "}
             <Stack
-              max-w-sm
               direction="row"
               spacing={1}
-              className="justify-center text-center align-baseline "
+              className="max-w-sm justify-center text-center  align-baseline"
             >
               <Typography className="self-center">Not working?</Typography>
               <Button

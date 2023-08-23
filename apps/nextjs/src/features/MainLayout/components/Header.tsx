@@ -1,9 +1,7 @@
+import React from "react";
+import NextLink from "next/link";
 import { ClickAwayListener } from "@mui/base";
 import { MoreVert } from "@mui/icons-material";
-import { signOut, useSession } from "next-auth/react";
-import NextLink from "next/link";
-import React from "react";
-
 import Avatar from "@mui/joy/Avatar";
 import IconButton from "@mui/joy/IconButton";
 import Menu from "@mui/joy/Menu";
@@ -11,8 +9,10 @@ import MenuItem from "@mui/joy/MenuItem";
 import Stack from "@mui/joy/Stack";
 import Tooltip from "@mui/joy/Tooltip";
 import Typography from "@mui/joy/Typography";
-import { app } from "~/constants";
+import { signOut, useSession } from "next-auth/react";
+
 import routes from "~/utils/routes";
+import { app } from "~/constants";
 import Footer from "./Footer";
 import ThemeToggle from "./ThemeToggle";
 
@@ -49,6 +49,17 @@ const Header = ({}) => {
             {app.version}
           </Typography>
         </Typography>
+        {session && (
+          <Tooltip title={`You are signed in as ${session.user.name}`}>
+            <IconButton onClick={() => void signOut()}>
+              <Avatar
+                className="mr-3"
+                src={session.user.image || undefined}
+                alt={session.user.name || undefined}
+              />
+            </IconButton>
+          </Tooltip>
+        )}
         <IconButton
           aria-haspopup="menu"
           id="menu-button"
@@ -71,38 +82,42 @@ const Header = ({}) => {
             touchEvent={isOpen ? "onTouchStart" : false}
             onClickAway={handleClose} // Make sure handleClose is properly bound here
           >
-            <Menu
-              id="main-menu"
-              variant="outlined"
-              anchorEl={anchorEl}
-              open={isOpen}
-              onClose={handleClose}
-              aria-labelledby="menu-button"
-            >
-              <MenuItem orientation="vertical">
-                <ThemeToggle />
-              </MenuItem>
-              <MenuItem orientation="vertical">
-                {session?.user ? (
-                  <Tooltip title={`You are signed in as ${session.user.name}`}>
-                    <IconButton onClick={() => void signOut()}>
-                      <Avatar
-                        className="mr-3"
-                        src={session.user.image || undefined}
-                        alt={session.user.name || undefined}
-                      />
-                    </IconButton>
-                  </Tooltip>
-                ) : (
-                  <Typography className="p-2">
-                    <NextLink href={routes.auth}>Sign in/up</NextLink>
-                  </Typography>
-                )}
-              </MenuItem>
-              <MenuItem>
-                <Footer />
-              </MenuItem>
-            </Menu>
+            <>
+              <Menu
+                id="main-menu"
+                variant="outlined"
+                anchorEl={anchorEl}
+                open={isOpen}
+                onClose={handleClose}
+                aria-labelledby="menu-button"
+              >
+                <MenuItem orientation="vertical">
+                  <ThemeToggle />
+                </MenuItem>
+                <MenuItem orientation="vertical">
+                  {session?.user ? (
+                    <Tooltip
+                      title={`You are signed in as ${session.user.name}`}
+                    >
+                      <IconButton onClick={() => void signOut()}>
+                        <Avatar
+                          className="mr-3"
+                          src={session.user.image || undefined}
+                          alt={session.user.name || undefined}
+                        />
+                      </IconButton>
+                    </Tooltip>
+                  ) : (
+                    <Typography className="p-2">
+                      <NextLink href={routes.auth}>Sign in/up</NextLink>
+                    </Typography>
+                  )}
+                </MenuItem>
+                <MenuItem>
+                  <Footer />
+                </MenuItem>
+              </Menu>
+            </>
           </ClickAwayListener>
         )}
       </Stack>

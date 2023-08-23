@@ -1,19 +1,20 @@
 import { Settings } from "@mui/icons-material";
 import { IconButton } from "@mui/joy";
 
-import { type SkillSelectState } from "../SkillSelect";
+import { type SkillDisplay } from "~/stores/skillStore";
 
 type Props = {
-  skillSelectState: SkillSelectState;
+  skill: SkillDisplay;
 };
-export default function ConfigureSkillset({ skillSelectState }: Props) {
-  const [skillSelected, setSkillSelectState] = skillSelectState;
+export default function ConfigureSkillset({ skill }: Props) {
   return (
     <IconButton
-      variant="plain"
-      sx={{ background: "transparent", padding: "0.5rem" }}
-      onClick={() => {
-        setSkillSelectState(skillSelected);
+      sx={{ background: "transparent", padding: 0, margin: 0 }}
+      className="text-left"
+      onClick={(e) => {
+        e.stopPropagation();
+        e.preventDefault();
+        alert(`configure skillset ${skill.label} coming soon`);
       }}
     >
       <Settings />
