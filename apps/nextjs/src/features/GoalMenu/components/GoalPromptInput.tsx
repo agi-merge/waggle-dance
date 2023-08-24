@@ -41,7 +41,7 @@ export const examplePrompts = [
   "I want to know the most popular songs on Spotify globally for the week of April 1, 2023.",
   "Compare and contrast AgentGPT, AutoGPT, BabyAGI, https://waggledance.ai, and SuperAGI. Find similar projects or state of the art research papers. Create a .md (GFM) report of the findings.",
   "Write a 1000+ word markdown document (GFM / Github flavored markdown). Research and summarize trends in the multi-family housing trends in San Francisco and surrounding areas. Create tables and figures that compare and contrast, and display relevant data to support the metrics. Afterwards, add citations, ensuring that URLs are valid.",
-  "In Next.js 13, write a minimal example of a streaming API HTTP response that uses langchainjs CallbackHandler callbacks",
+  "In Next.js 13, write a minimal example of a streaming API HTTP response that uses langchainjs CallbackHandler callbacks.",
 ];
 
 const placeholders = ["What's your goal? …Not sure? Check Examples!"];
