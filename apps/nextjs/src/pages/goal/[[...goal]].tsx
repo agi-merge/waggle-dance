@@ -33,8 +33,8 @@ import useWaggleDanceMachineStore from "~/stores/waggleDanceStore";
 import { HomeContent } from "..";
 import useGoalStore from "../../stores/goalStore";
 
-const NoSSRWaggleDanceGraph = dynamic(
-  () => import("~/features/WaggleDance/components/WaggleDanceGraph"),
+const NoSSRWaggleDance = dynamic(
+  () => import("~/features/WaggleDance/WaggleDance"),
   {
     ssr: false,
   },
@@ -198,7 +198,7 @@ const GoalPage = () => {
                 )}
               </PageTitle>
               <Suspense fallback={<CircularProgress />}>
-                <NoSSRWaggleDanceGraph />
+                <NoSSRWaggleDance />
               </Suspense>
             </>
           )}

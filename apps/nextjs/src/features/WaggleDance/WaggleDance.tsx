@@ -52,17 +52,17 @@ import useGoalStore from "~/stores/goalStore";
 import useWaggleDanceMachineStore, {
   createDraftExecution,
 } from "~/stores/waggleDanceStore";
+import { ExecutionSelect } from "./components/ExecutionSelect";
+import ForceGraph from "./components/ForceGraph";
 import useWaggleDanceMachine, {
   TaskStatus,
   type TaskState,
-} from "../hooks/useWaggleDanceMachine";
-import { rootPlanId } from "../initialNodes";
-import { ExecutionSelect } from "./ExecutionSelect";
-import ForceGraph from "./ForceGraph";
+} from "./hooks/useWaggleDanceMachine";
+import { rootPlanId } from "./initialNodes";
 
-type WaggleDanceGraphProps = StackProps;
+type Props = StackProps;
 // shows the graph, agents, results, general messages and chat input
-const WaggleDanceGraph = ({}: WaggleDanceGraphProps) => {
+const WaggleDance = ({}: Props) => {
   const { selectedGoal } = useGoalStore();
   const {
     isRunning,
@@ -781,4 +781,4 @@ const WaggleDanceGraph = ({}: WaggleDanceGraphProps) => {
   );
 };
 
-export default WaggleDanceGraph;
+export default WaggleDance;
