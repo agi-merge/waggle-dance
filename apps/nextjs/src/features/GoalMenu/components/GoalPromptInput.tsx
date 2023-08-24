@@ -177,7 +177,11 @@ export default function GoalPromptInput({}: GoalPromptInputProps) {
             onClick={() => {
               setGoalInputValue("");
             }}
-            sx={{ marginRight: -0.4, paddingX: { xs: 0.5, sm: 2 } }}
+            sx={{
+              marginRight: -0.4,
+              paddingX: { xs: 0.5, sm: 2 },
+              borderRadius: 2,
+            }}
           >
             Clear
           </Button>
