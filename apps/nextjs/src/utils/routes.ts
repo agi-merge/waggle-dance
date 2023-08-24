@@ -9,7 +9,6 @@ const routes = {
     }`;
     return path;
   },
-  refine: "/add-documents",
   auth: "/api/auth/signin",
   donate: "https://www.patreon.com/agimerge",
 };
