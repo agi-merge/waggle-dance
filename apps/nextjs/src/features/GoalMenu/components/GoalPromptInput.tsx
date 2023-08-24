@@ -22,7 +22,7 @@ import routes from "~/utils/routes";
 import useApp from "~/stores/appStore";
 import useGoalStore from "~/stores/goalStore";
 import useWaggleDanceMachineStore from "~/stores/waggleDanceStore";
-import GoalDoctorModal from "./GoalDoctorModal";
+import AutoRefineGoalToggle from "./AutoRefineGoalToggle";
 import GoalSettings from "./GoalSettings";
 import TemplatesModal from "./TemplatesModal";
 
@@ -200,9 +200,7 @@ export default function GoalPromptInput({}: GoalPromptInputProps) {
                   </List>
                 </TemplatesModal>
                 <Divider orientation="vertical" />
-                <GoalDoctorModal>
-                  <Typography color="neutral">Coming soon!</Typography>
-                </GoalDoctorModal>
+                <AutoRefineGoalToggle />
               </Stack>
             </Box>
           }

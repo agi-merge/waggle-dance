@@ -5,6 +5,8 @@ export interface AppState {
   setIsPageLoading: (newState: boolean) => void;
   isAutoScrollToBottom: boolean;
   setIsAutoScrollToBottom: (newState: boolean) => void;
+  isAutoRefineEnabled: boolean;
+  setIsAutoRefineEnabled: (newState: boolean) => void;
 }
 
 const useApp = create<AppState>((set) => ({
@@ -13,6 +15,8 @@ const useApp = create<AppState>((set) => ({
   isAutoScrollToBottom: true,
   setIsAutoScrollToBottom: (newState) =>
     set({ isAutoScrollToBottom: newState }),
+  isAutoRefineEnabled: true,
+  setIsAutoRefineEnabled: (newState) => set({ isAutoRefineEnabled: newState }),
 }));
 
 export default useApp;
