@@ -1,10 +1,11 @@
+import { type ReactNode } from "react";
+import { type StackProps } from "@mui/joy";
 import Box from "@mui/joy/Box";
 import Divider from "@mui/joy/Divider";
 import Stack from "@mui/joy/Stack";
 import Typography from "@mui/joy/Typography";
-import { type ReactNode } from "react";
 
-interface TitleProps {
+interface TitleProps extends StackProps {
   title: string;
   children?: ReactNode | null;
 }

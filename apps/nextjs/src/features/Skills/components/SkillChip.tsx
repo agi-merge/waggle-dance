@@ -105,11 +105,13 @@ const SkillChip = ({
               }
             }}
           >
-            <Box className=" text-left">
+            <Box className="text-left">
               <Typography level="body-sm" color="primary">
                 {skill.label}
               </Typography>
-              <Typography level="body-xs">{skill.description}</Typography>
+              <Typography level="body-xs" className="max-w-10">
+                {skill.description}
+              </Typography>
             </Box>
           </Button>
         </Stack>
