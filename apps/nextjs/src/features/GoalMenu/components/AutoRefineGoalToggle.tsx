@@ -11,13 +11,14 @@ import useApp from "~/stores/appStore";
 
 type Props = SheetProps;
 
-export default function AutoRefineGoalToggle({}: Props) {
+export default function AutoRefineGoalToggle({ ...props }: Props) {
   const { isAutoRefineEnabled, setIsAutoRefineEnabled } = useApp();
   return (
     <Sheet
+      {...props}
       variant={"outlined"}
       color="warning"
-      className="m-0 px-1 pt-2"
+      className="m-0 px-1 pt-1"
       sx={{
         marginLeft: -0.4,
         borderRadius: isAutoRefineEnabled ? 2 : 1,
@@ -27,6 +28,7 @@ export default function AutoRefineGoalToggle({}: Props) {
       <Checkbox
         color="warning"
         variant="plain"
+        component={Typography}
         uncheckedIcon={<AutoFixOff />}
         checkedIcon={<AutoFixHigh />}
         checked={isAutoRefineEnabled}

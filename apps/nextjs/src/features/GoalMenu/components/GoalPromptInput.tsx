@@ -3,6 +3,7 @@
 import React, { useCallback, useEffect, useState } from "react";
 import router from "next/router";
 import { KeyboardArrowRight } from "@mui/icons-material";
+import { Link, List } from "@mui/joy";
 import Box from "@mui/joy/Box";
 import Button from "@mui/joy/Button";
 import { type CardProps } from "@mui/joy/Card";
@@ -10,8 +11,6 @@ import Checkbox from "@mui/joy/Checkbox";
 import Divider from "@mui/joy/Divider";
 import FormControl from "@mui/joy/FormControl";
 // import Grid from "@mui/joy/Grid";
-import Link from "@mui/joy/Link";
-import List from "@mui/joy/List";
 import Stack from "@mui/joy/Stack";
 import Textarea from "@mui/joy/Textarea";
 import Typography from "@mui/joy/Typography";
@@ -130,95 +129,108 @@ export default function GoalPromptInput({}: GoalPromptInputProps) {
   }, []);
 
   return (
-    <form onSubmit={handleSubmit} className="mt-6 space-y-2">
-      <FormControl disabled={isPageLoading}>
-        <Textarea
-          autoFocus
-          id="goalTextarea"
-          name="goalTextarea"
-          placeholder={placeholders[currentPlaceholderIndex]}
-          minRows={3}
-          maxRows={10}
-          endDecorator={
-            <Box>
-              <Stack direction="row" gap="0.5rem">
-                <Button
-                  size="sm"
-                  variant="outlined"
-                  color="neutral"
-                  disabled={getGoalInputValue().trim().length === 0}
-                  onClick={() => {
-                    setGoalInputValue("");
-                  }}
-                >
-                  Clear
-                </Button>
-                <Divider orientation="vertical" />
-                <TemplatesModal
-                  open={templatesModalOpen}
-                  setOpen={setTemplatesModalOpen}
-                >
-                  <Typography color="neutral" level="title-lg" className="px-5">
-                    Examples
-                  </Typography>
-                  <Typography level="body-md" className="px-5 pb-2">
-                    For better results, try to{" "}
-                    <Link
-                      href="https://platform.openai.com/docs/guides/gpt-best-practices"
-                      target="_blank"
-                      rel="noopener noreferrer"
-                    >
-                      follow GPT best practices
-                    </Link>
-                  </Typography>
-                  <List className="absolute left-0 top-0 mt-3">
-                    <Stack spacing={2}>
-                      {examplePrompts
-                        .sort((a, b) => (a.length < b.length ? 1 : -1))
-                        .map((prompt, _index) => (
-                          <Stack key={prompt}>
-                            <Button
-                              color="neutral"
-                              size="sm"
-                              variant="outlined"
-                              className="flex flex-grow flex-row justify-center"
-                              onClick={() => {
-                                setGoalInputValue(prompt);
-                                setTemplatesModalOpen(false);
-                              }}
-                            >
-                              <Typography
-                                level="body-sm"
-                                className="flex flex-grow flex-row justify-center"
-                              >
-                                {prompt}
-                              </Typography>
-                            </Button>
-                          </Stack>
-                        ))}
+    <Box className="relative">
+      <form onSubmit={handleSubmit} className="my-3 space-y-2 pb-2">
+        <FormControl disabled={isPageLoading}>
+          <Textarea
+            autoFocus
+            id="goalTextarea"
+            name="goalTextarea"
+            placeholder={placeholders[currentPlaceholderIndex]}
+            minRows={3}
+            maxRows={10}
+            size="lg"
+            required
+            variant="outlined"
+            className="py-col flex-grow pb-10"
+            onKeyPress={(event) => {
+              if (event.key === "Enter" && !event.shiftKey) {
+                event.preventDefault();
+                handleSubmit(event);
+              }
+            }}
+            value={getGoalInputValue()}
+            onChange={handleChange}
+            sx={{
+              paddingTop: "1rem",
+              "--Textarea-paddingBlock": "4rem",
+            }}
+          >
+            {/* <Box className="min-h-28"></Box> */}
+          </Textarea>
+        </FormControl>
+      </form>
+      <Box
+        className="absolute"
+        sx={{
+          // scale: { xs: "0.9", sm: "1" },
+          bottom: "6rem",
+          left: "1rem",
+        }}
+      >
+        <Stack direction="row" gap="0.5rem">
+          <Button
+            size="sm"
+            variant="outlined"
+            color="neutral"
+            disabled={getGoalInputValue().trim().length === 0}
+            onClick={() => {
+              setGoalInputValue("");
+            }}
+            sx={{ marginRight: -0.4, paddingX: { xs: 0.5, sm: 2 } }}
+          >
+            Clear
+          </Button>
+          <Divider orientation="vertical" />
+          <TemplatesModal
+            open={templatesModalOpen}
+            setOpen={setTemplatesModalOpen}
+          >
+            <Typography color="neutral" level="title-lg" className="px-5">
+              Examples
+            </Typography>
+            <Typography level="body-md" className="px-5 pb-2">
+              For better results, try to{" "}
+              <Link
+                href="https://platform.openai.com/docs/guides/gpt-best-practices"
+                target="_blank"
+                rel="noopener noreferrer"
+              >
+                follow GPT best practices
+              </Link>
+            </Typography>
+            <List className="absolute left-0 top-0 mt-3">
+              <Stack spacing={2}>
+                {examplePrompts
+                  .sort((a, b) => (a.length < b.length ? 1 : -1))
+                  .map((prompt, _index) => (
+                    <Stack key={prompt}>
+                      <Button
+                        color="neutral"
+                        size="sm"
+                        variant="outlined"
+                        className="flex flex-grow flex-row justify-center"
+                        onClick={() => {
+                          setGoalInputValue(prompt);
+                          setTemplatesModalOpen(false);
+                        }}
+                      >
+                        <Typography
+                          level="body-sm"
+                          className="flex flex-grow flex-row justify-center"
+                        >
+                          {prompt}
+                        </Typography>
+                      </Button>
                     </Stack>
-                  </List>
-                </TemplatesModal>
-                <Divider orientation="vertical" />
-                <AutoRefineGoalToggle />
+                  ))}
               </Stack>
-            </Box>
-          }
-          size="lg"
-          required
-          variant="outlined"
-          className="py-col flex-grow"
-          onKeyPress={(event) => {
-            if (event.key === "Enter" && !event.shiftKey) {
-              event.preventDefault();
-              handleSubmit(event);
-            }
-          }}
-          value={getGoalInputValue()}
-          onChange={handleChange}
-        />
-      </FormControl>
-
+            </List>
+          </TemplatesModal>
+          <Divider orientation="vertical" />
+          <AutoRefineGoalToggle />
+        </Stack>
+      </Box>
       <Box className="max-w-screen flex items-center justify-end">
         <Stack direction="row-reverse" gap="1rem" className="pb-4">
           <Button
@@ -250,6 +262,6 @@ export default function GoalPromptInput({}: GoalPromptInputProps) {
           </Box>
         </Stack>
       </Box>
-    </form>
+    </Box>
   );
 }
