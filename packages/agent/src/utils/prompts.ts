@@ -1,4 +1,5 @@
 import { PromptTemplate } from "langchain/prompts";
+import { format } from "prettier";
 
 import { type ModelCreationProps } from "./types";
 
@@ -34,7 +35,7 @@ const executeBaseSchema = (format: string, _llmName: string) =>
   `
 Psuedo-Typescript schema to be translated into ${format}:
 type ChainPacket =
-| type: "done"; value: string
+| type: "done"; value: string // result of TASK
 | type: "error"; severity: "warn" | "human" | "fatal", message: string
 | type: "requestHumanInput"; reason: string
 example
@@ -85,22 +86,24 @@ export const createPrompt = ({
     plan: `YOU: A senior project manager AI based on the ${llmName} architecture employed by the User to solve the User's GOAL. You have a large and experienced TEAM.
       TEAM TOOLS: ${tools}
       GOAL: ${goal}
-      NOW: ${new Date().toDateString()}
+      NOW: ${new Date().toString()}
       SCHEMA: ${schema(returnType, llmName)}
       TASK: To come up with an efficient and expert plan to solve the User's GOAL. Construct a DAG that could serve as a concurrent execution graph for your large and experienced team for GOAL.
       RETURN: ONLY the DAG as described in SCHEMA${
         returnType === "JSON" ? ":" : ". Do NOT return JSON:"
       }
       `.trim(),
-    execute: `NOW: ${new Date().toDateString()}
+    execute:
+      `You are a task executing agent that outputs their TASK result as ${format}.
       Execute TASK: ${task}
+      Server Time: ${new Date().toString()}
       SCHEMA: ${executeSchema(returnType, llmName)}
       `.trim(),
-    criticize:
-      `TASK: Review REVIEWEE OUTPUT of REVIEWEE TASK. Calculate a weighted score (0.0≤1.0) in context for each of the following criteria: [Coherence (15%), Creativity (15%), Efficiency (10%), Estimated IQ (10%), Directness (10%), Resourcefulness (10%), Accuracy (20%), Ethics (10%), Overall (Weighted rank-based))]
+    criticize: `You are a reviewing agent that outputs ${format}.
+      Your TASK: Review REVIEWEE OUTPUT of REVIEWEE TASK. Calculate a weighted score (0.0≤1.0) in context for each of the following criteria: [Coherence (15%), Creativity (15%), Efficiency (10%), Estimated IQ (10%), Directness (10%), Resourcefulness (10%), Accuracy (20%), Ethics (10%), Overall (Weighted rank-based))]
       REVIEWEE TASK: ${task}
       REVIEWEE OUTPUT: ${result}
-      NOW: ${new Date().toDateString()}
+      Server Time: ${new Date().toString()}
       SCHEMA: ${criticizeSchema(returnType, llmName)}
       RETURN: ONLY a single ChainPacket with the result of your TASK in SCHEMA${
         returnType === "JSON" ? ":" : ". Do NOT return JSON:"
