@@ -270,7 +270,8 @@ function getDestinationRoute(
   execution: ExecutionPlusGraph | undefined,
   currentPath: string,
 ): string | undefined {
-  const destinationRoute = goal && routes.goal(goal.id, execution?.id);
+  const destinationRoute =
+    goal && routes.goal({ id: goal.id, executionId: execution?.id });
   if (
     route.executionId &&
     goal &&

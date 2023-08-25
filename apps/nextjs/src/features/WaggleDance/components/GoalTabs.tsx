@@ -98,7 +98,7 @@ const GoalTab: React.FC<GoalTabProps> = ({
         maxWidth: `${100 / goalList.length}%`,
         minWidth: 0,
       }}
-      href={routes.goal(tab.id)}
+      href={routes.goal({ id: tab.id })}
     >
       <Tab
         disabled={isRunning}
@@ -206,7 +206,7 @@ const GoalTabs: React.FC<GoalTabsProps> = ({ children }) => {
             variant="plain"
             onClick={() => {
               const newId = newGoal();
-              void router.replace(routes.goal(newId), undefined, {
+              void router.replace(routes.goal({ id: newId }), undefined, {
                 shallow: true,
               });
             }}

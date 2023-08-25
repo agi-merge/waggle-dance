@@ -156,7 +156,7 @@ export const ExecutionSelect = ({
             value={execution.id}
             label={lab}
             component={NextLink}
-            href={routes.goal(goalId, execution?.id)}
+            href={routes.goal({ id: goalId, executionId: execution?.id })}
           >
             {lab}
           </Option>

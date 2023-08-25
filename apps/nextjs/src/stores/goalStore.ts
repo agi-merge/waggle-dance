@@ -25,7 +25,7 @@ export interface GoalStore {
 
 export const draftGoalPrefix = "draft-";
 export const newDraftGoal = () => `${draftGoalPrefix}${v4()}`;
-export const newDraftGoalRoute = () => routes.goal(newDraftGoal());
+export const newDraftGoalRoute = () => routes.goal({ id: newDraftGoal() });
 
 const baseGoal = {
   id: newDraftGoal(),

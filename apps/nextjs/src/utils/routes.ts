@@ -1,6 +1,7 @@
 const routes = {
   home: "/",
-  goal: (id: string, executionId?: string | undefined): string => {
+  goal: (params: { id: string; executionId?: string | undefined }): string => {
+    const { id, executionId } = params;
     if (!id) {
       return "/";
     }

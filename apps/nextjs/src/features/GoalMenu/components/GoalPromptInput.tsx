@@ -78,7 +78,7 @@ export default function GoalPromptInput({}: GoalPromptInputProps) {
               goal,
             );
             upsertGoal(goal, previousGoalId);
-            void router.push(routes.goal(goal.id), undefined, {
+            void router.push(routes.goal({ id: goal.id }), undefined, {
               shallow: true,
             });
           },
@@ -91,9 +91,13 @@ export default function GoalPromptInput({}: GoalPromptInputProps) {
                 // this is a bit of terrible code that makes the state update to be able to waggle
                 selectedGoal.userId = "guest";
                 upsertGoal(selectedGoal);
-                void router.push(routes.goal(selectedGoal.id), undefined, {
-                  shallow: true,
-                });
+                void router.push(
+                  routes.goal({ id: selectedGoal.id }),
+                  undefined,
+                  {
+                    shallow: true,
+                  },
+                );
               }
             } else {
               setIsPageLoading(false);
