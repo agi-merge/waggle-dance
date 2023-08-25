@@ -8,10 +8,8 @@ import React, {
   useState,
   type KeyboardEvent,
 } from "react";
-import { CheckCircle, KeyboardArrowRight } from "@mui/icons-material";
+import { CheckCircle } from "@mui/icons-material";
 import Box from "@mui/joy/Box";
-import Button from "@mui/joy/Button";
-import Card from "@mui/joy/Card";
 import IconButton from "@mui/joy/IconButton";
 import Input from "@mui/joy/Input";
 import LinearProgress from "@mui/joy/LinearProgress";
@@ -234,37 +232,6 @@ const AddDocuments = ({ onClose }: Props) => {
           Files
         </Typography>
         <DropZoneUploader />
-        <Typography className="mt-6" color="primary">
-          Service connectors and Tools
-        </Typography>
-        <Card className="mt-2 p-2" variant="outlined">
-          <Typography className="mt-6" level="body-md">
-            <Typography level="body-lg" variant="soft" color="neutral">
-              Coming soon:
-            </Typography>{" "}
-            Use waggledance.ai to automatically automate your life w/ Zapier,
-            IFTTT, Email, Discord, and more!
-          </Typography>
-        </Card>
-        <Stack direction="row-reverse" className="my-2" gap="1rem">
-          <Button
-            disabled={isAnyFileUploading}
-            className="col-end mt-2"
-            color="primary"
-            variant="soft"
-            onClick={() => {
-              if (onClose) onClose();
-            }}
-          >
-            {onClose ? (
-              <>
-                Next <KeyboardArrowRight />
-              </>
-            ) : (
-              "Done"
-            )}
-          </Button>
-        </Stack>
       </Stack>
     </>
   );
