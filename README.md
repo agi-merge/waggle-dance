@@ -14,11 +14,11 @@
 
 <p align="center">
   <a href="https://www.waggledance.ai">🍯 Demo<a> |
-  <a href="#🦚-highlighted-features">🦚Features</a> |
-  <a href="#📍-roadmap">📍Roadmap</a> |
-  <a href="#🛠️-contribute-and-help">🛠️Contribute</a> |
-  <a href="#🏃-running-locally-and-development">🏃Run Locally</a> |
-  <a href="#🌺-open-core">🌺Open Core</a>
+  <a href="#-highlighted-features">🦚Features</a> |
+  <a href="#-roadmap">📍Roadmap</a> |
+  <a href="#%EF%B8%8F-contribute-and-help">🛠️Contribute</a> |
+  <a href="#-running-locally-and-development">🏃Run Locally</a> |
+  <a href="#-open-core">🌺Open Core</a>
 </p>
 
 **Waggle Dance** is a _highly experimental™️_ adversarial-cooperative multi-agent goal solver.
@@ -31,7 +31,7 @@ I thought it would be nice to contribute to the JS ecosystem. Many other agentic
 An (unstable) API is also available via [tRPC](packages/api/src/root.ts) as well an API [implemented within Next.js](apps/nextjs/src/pages/api). The client-side is mostly responsible for orchestrating and rendering the agent executions, while the API and server-side executes the agents and stores the results. This architecture is likely to be adjusted in the future.
 
 <p align="center">
-<img src="https://github.com/agi-merge/waggle-dance/assets/906671/aaa6850d-b6d4-4acb-be50-5f8cdf50a760" maxHeight="640" />
+<img src="https://github.com/agi-merge/waggle-dance/assets/906671/aaa6850d-b6d4-4acb-be50-5f8cdf50a760" height="640" />
 </p>
 </div>
 
