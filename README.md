@@ -49,6 +49,7 @@ Typescript ﹒ Langchain.js ﹒ T3 ﹒ Prisma ﹒ tRPC ﹒ Pinecone ﹒ Postgres
 
 [Live Project Roadmap Board](https://github.com/orgs/agi-merge/projects/1/views/1) ﹒ <a href="#🛠️-contribute-and-help">🛠️Contribute</a>
 
+- Implement Graph of Thoughts architecture
 - Human-in-the-loop (e.g. chat to provide course-corrections, chat freely with agents/chains)
 - Loop detection (in-chain review)
 - Support for Local LLMs and other LLM APIs such as LLaMa-2, Azure Private OpenAI, Claude, etc.
