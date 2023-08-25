@@ -9,12 +9,14 @@ import ModalClose from "@mui/joy/ModalClose";
 import Tooltip from "@mui/joy/Tooltip";
 
 import Title from "~/features/MainLayout/components/PageTitle";
+import useSkillStore from "~/stores/skillStore";
 
 type Props = {
   children: React.ReactNode;
 };
 export default function SkillsModal({ children }: Props) {
   const [open, setOpen] = React.useState<boolean>(false);
+  const { deselectAll, selectOnlyRecommended, selectAll } = useSkillStore();
   return (
     <React.Fragment>
       <Box className="flex justify-center">
@@ -52,6 +54,7 @@ export default function SkillsModal({ children }: Props) {
             m: { xs: 2, sm: 2 },
             boxShadow: "lg",
           }}
+          className="flex flex-col"
         >
           <ModalClose
             variant="outlined"
@@ -80,19 +83,33 @@ export default function SkillsModal({ children }: Props) {
             </Typography>
             {children}
           </Box>
-          <Button
-            className="sticky bottom-24 z-10 min-h-fit max-w-fit"
-            color="primary"
-            variant="soft"
-            onClick={() => {
-              setOpen(false);
-            }}
-            sx={{ position: "sticky", bottom: 0 }}
-          >
-            <>
-              Save <KeyboardArrowRight />
-            </>
-          </Button>
+          <Box sx={{ alignSelf: "flex-end", marginInlineEnd: 2 }}>
+            <Button variant="plain" color="neutral" onClick={selectAll}>
+              Select all
+            </Button>
+            <Button
+              variant="plain"
+              color="neutral"
+              onClick={selectOnlyRecommended}
+            >
+              Recommended only
+            </Button>
+            <Button variant="plain" color="neutral" onClick={deselectAll}>
+              De-select all
+            </Button>
+            <Button
+              className="min-h-fit max-w-fit"
+              color="primary"
+              variant="soft"
+              onClick={() => {
+                setOpen(false);
+              }}
+            >
+              <>
+                Save <KeyboardArrowRight />
+              </>
+            </Button>
+          </Box>
         </Card>
       </Modal>
     </React.Fragment>

@@ -90,6 +90,9 @@ interface SkillStore {
   selectedSkills: NullableSkillDisplay[];
   toggleSkill: (skill: SkillDisplay) => void;
   setSkills: (skills: NullableSkillDisplay[]) => void;
+  selectOnlyRecommended: () => void;
+  selectAll: () => void;
+  deselectAll: () => void;
 }
 
 const useSkillStore = create<SkillStore>()(
@@ -107,6 +110,19 @@ const useSkillStore = create<SkillStore>()(
         }),
       setSkills: (skills: NullableSkillDisplay[]) => {
         set({ selectedSkills: skills });
+      },
+      selectOnlyRecommended: () => {
+        set({
+          selectedSkills: [...defaultSkills],
+        });
+      },
+      selectAll: () => {
+        set({
+          selectedSkills: [...skillDatabase],
+        });
+      },
+      deselectAll: () => {
+        set({ selectedSkills: Array(skillDatabase.length).map(() => null) });
       },
     }),
 

@@ -1,66 +1,85 @@
-import { Settings } from "@mui/icons-material";
-import {
-  Checkbox,
-  IconButton,
-  List,
-  ListDivider,
-  ListItem,
-  ListItemContent,
-  ListItemDecorator,
-} from "@mui/joy";
+import { Checkbox, List, type CheckboxProps } from "@mui/joy";
 import Typography from "@mui/joy/Typography";
+import { Accordion, AccordionItem } from "@radix-ui/react-accordion";
 
+import theme from "~/styles/theme";
 import useSkillStore, {
   skillDatabase,
   type SkillDisplay,
 } from "~/stores/skillStore";
+import { AccordionContent, AccordionHeader } from "../HeadlessUI/JoyAccordion";
 
 const SkillSelect = ({}) => {
   const { selectedSkills, toggleSkill } = useSkillStore();
-
   const handleCheckboxChange = (skill: SkillDisplay) => {
     toggleSkill(skill);
   };
 
+  const CheckboxItem = ({
+    skill,
+    ...props
+  }: { skill: SkillDisplay } & CheckboxProps) => {
+    return (
+      <Checkbox
+        size="lg"
+        label={
+          <>
+            <Typography level="title-md" sx={{}}>
+              {skill.label}
+            </Typography>
+            <br />
+            <Typography level="body-sm">{skill.description}</Typography>
+          </>
+        }
+        color="primary"
+        checked={selectedSkills[skill.index]?.id === skill.id}
+        variant="outlined"
+        overlay
+        onChange={() => {
+          handleCheckboxChange(skill);
+        }}
+        slotProps={{
+          checkbox: {
+            sx: { marginY: "auto" },
+          },
+          action: {
+            sx: {
+              borderRadius: "1pt",
+              borderColor: theme.palette.primary[500],
+            },
+          },
+        }}
+        {...props}
+      />
+    );
+  };
+
   return (
-    <List variant="plain" sx={{ padding: 1, margin: 1, marginLeft: -2 }}>
-      {skillDatabase.map((skill) => (
-        <>
-          <ListItem
-            sx={{ paddingX: 1, margin: 0, paddingY: 0.25 }}
-            key={skill.id}
+    <List
+      type="multiple"
+      variant="plain"
+      component={Accordion}
+      value={selectedSkills.map((skill) => skill?.id ?? "")}
+    >
+      {skillDatabase.map((skill, i) => (
+        <AccordionItem value={skill.id} key={skill.id} className="pb-5">
+          <AccordionHeader
+            isFirst={skill.index === 0 || i === 0}
+            variant="outlined"
+            openText={<CheckboxItem skill={skill} />}
+            closedText={<CheckboxItem skill={skill} />}
+          />
+          <AccordionContent
+            isLast={
+              skill.index === skillDatabase.length - 1 ||
+              i === skillDatabase.length
+            }
           >
-            <ListItemContent>
-              <Checkbox
-                size="lg"
-                label={
-                  <>
-                    <Typography level="title-md" sx={{}}>
-                      {skill.label}
-                    </Typography>
-                    <br />
-                    <Typography level="body-sm">{skill.description}</Typography>
-                  </>
-                }
-                color="primary"
-                checked={selectedSkills[skill.index]?.id === skill.id}
-                variant="outlined"
-                onChange={() => handleCheckboxChange(skill)}
-                slotProps={{
-                  checkbox: {
-                    sx: { marginY: "auto" },
-                  },
-                }}
-              />
-            </ListItemContent>
-            <ListItemDecorator>
-              <IconButton variant="plain" size="lg" onClick={() => {}}>
-                <Settings />
-              </IconButton>
-            </ListItemDecorator>
-          </ListItem>
-          <ListDivider inset="gutter" />
-        </>
+            <Typography>
+              This is where config would go for {skill.label}
+            </Typography>
+          </AccordionContent>
+        </AccordionItem>
       ))}
     </List>
   );
