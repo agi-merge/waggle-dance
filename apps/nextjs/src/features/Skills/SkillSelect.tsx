@@ -1,11 +1,19 @@
-import { Checkbox, List, ListItem, Stack } from "@mui/joy"
-import Typography from "@mui/joy/Typography"
+import { Settings } from "@mui/icons-material";
+import {
+  Checkbox,
+  IconButton,
+  List,
+  ListDivider,
+  ListItem,
+  ListItemContent,
+  ListItemDecorator,
+} from "@mui/joy";
+import Typography from "@mui/joy/Typography";
 
 import useSkillStore, {
   skillDatabase,
   type SkillDisplay,
-} from "~/stores/skillStore"
-
+} from "~/stores/skillStore";
 
 const SkillSelect = ({}) => {
   const { selectedSkills, toggleSkill } = useSkillStore();
@@ -15,64 +23,46 @@ const SkillSelect = ({}) => {
   };
 
   return (
-    <>
-      <Stack
-        gap="1rem"
-        className="mt-6"
-        sx={{
-          height: "100%",
-          overflow: "scroll",
-        }}
-      >
-        <List
-          orientation="horizontal"
-          wrap
-          sx={{
-            "--List-gap": "0.5rem",
-            "--ListItem-radius": "0.25rem",
-            "--ListItem-minHeight": "5rem",
-          }}
-        >
-          {skillDatabase.map((skill) => (
-            <ListItem key={skill.id}>
+    <List variant="plain" sx={{ padding: 1, margin: 1, marginLeft: -2 }}>
+      {skillDatabase.map((skill) => (
+        <>
+          <ListItem
+            sx={{ paddingX: 1, margin: 0, paddingY: 0.25 }}
+            key={skill.id}
+          >
+            <ListItemContent>
               <Checkbox
-                size="sm"
-                sx={{ maxWidth: "80%" }}
+                size="lg"
                 label={
                   <>
                     <Typography level="title-md" sx={{}}>
                       {skill.label}
                     </Typography>
                     <br />
-                    <Typography level="body-xs">{skill.description}</Typography>
+                    <Typography level="body-sm">{skill.description}</Typography>
                   </>
                 }
-                disableIcon
-                overlay
-                color="neutral"
+                color="primary"
                 checked={selectedSkills[skill.index]?.id === skill.id}
-                variant={
-                  selectedSkills[skill.index]?.id === skill.id
-                    ? "soft"
-                    : "outlined"
-                }
+                variant="outlined"
                 onChange={() => handleCheckboxChange(skill)}
                 slotProps={{
-                  action: ({ checked }) => ({
-                    sx: checked
-                      ? {
-                          border: "1px solid",
-                          borderColor: "primary.500",
-                        }
-                      : {},
-                  }),
+                  checkbox: {
+                    sx: { marginY: "auto" },
+                  },
                 }}
               />
-            </ListItem>
-          ))}
-        </List>
-      </Stack>
-    </>
+            </ListItemContent>
+            <ListItemDecorator>
+              <IconButton variant="plain" size="lg" onClick={() => {}}>
+                <Settings />
+              </IconButton>
+            </ListItemDecorator>
+          </ListItem>
+          <ListDivider inset="gutter" />
+        </>
+      ))}
+    </List>
   );
 };
 
