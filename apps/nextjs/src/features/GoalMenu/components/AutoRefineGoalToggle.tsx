@@ -49,6 +49,9 @@ export default function AutoRefineGoalToggle({ ...props }: Props) {
               ? checkboxClasses.checked
               : checkboxClasses.variantOutlined,
           },
+          label: {
+            sx: { marginInlineStart: 0.5 },
+          },
         }}
       />
     </Sheet>

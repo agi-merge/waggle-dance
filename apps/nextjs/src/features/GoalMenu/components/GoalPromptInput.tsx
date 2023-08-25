@@ -163,8 +163,7 @@ export default function GoalPromptInput({}: GoalPromptInputProps) {
       <Box
         className="absolute"
         sx={{
-          // scale: { xs: "0.9", sm: "1" },
-          bottom: "6rem",
+          bottom: { xs: "7rem", sm: "6rem" },
           left: "1rem",
         }}
       >
