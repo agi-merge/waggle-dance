@@ -3,17 +3,17 @@ import { z } from "zod";
 
 import { createTRPCRouter, protectedProcedure } from "../trpc";
 
+export const createSkillSetShape = z.object({
+  label: z.string().nonempty(),
+  description: z.string(),
+  isRecommended: z.boolean(),
+  index: z.number(),
+});
+
 export const skillsetRouter = createTRPCRouter({
   // Create a new skillset
   create: protectedProcedure
-    .input(
-      z.object({
-        label: z.string().nonempty(),
-        description: z.string(),
-        isRecommended: z.boolean(),
-        index: z.number(),
-      }),
-    )
+    .input(createSkillSetShape)
     .mutation(({ ctx, input }) => {
       const userId = ctx.session.user?.id;
 

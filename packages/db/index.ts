@@ -10,6 +10,8 @@ import {
 
 export * from "@prisma/client";
 
+// TODO: find better way to share this with skillset trpc router
+
 const globalForPrisma = globalThis as { prisma?: PrismaClient };
 export const prisma =
   globalForPrisma.prisma ||

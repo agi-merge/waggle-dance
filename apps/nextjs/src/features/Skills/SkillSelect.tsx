@@ -2,23 +2,23 @@ import { Checkbox, List, type CheckboxProps } from "@mui/joy";
 import Typography from "@mui/joy/Typography";
 import { Accordion, AccordionItem } from "@radix-ui/react-accordion";
 
+import { type Skillset } from "@acme/db";
+import { skillDatabase } from "@acme/db/skills";
+
 import theme from "~/styles/theme";
-import useSkillStore, {
-  skillDatabase,
-  type SkillDisplay,
-} from "~/stores/skillStore";
+import useSkillStore from "~/stores/skillStore";
 import { AccordionContent, AccordionHeader } from "../HeadlessUI/JoyAccordion";
 
 const SkillSelect = ({}) => {
   const { selectedSkills, toggleSkill } = useSkillStore();
-  const handleCheckboxChange = (skill: SkillDisplay) => {
+  const handleCheckboxChange = (skill: Skillset) => {
     toggleSkill(skill);
   };
 
   const CheckboxItem = ({
     skill,
     ...props
-  }: { skill: SkillDisplay } & CheckboxProps) => {
+  }: { skill: Skillset } & CheckboxProps) => {
     return (
       <Checkbox
         size="lg"

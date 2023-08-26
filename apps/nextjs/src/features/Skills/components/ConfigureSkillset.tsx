@@ -1,10 +1,9 @@
-import { Settings } from "@mui/icons-material";
-import { IconButton } from "@mui/joy";
-
-import { type SkillDisplay } from "~/stores/skillStore";
+import { type Skillset } from "@acme/db"
+import { Settings } from "@mui/icons-material"
+import { IconButton } from "@mui/joy"
 
 type Props = {
-  skill: SkillDisplay;
+  skill: Skillset;
 };
 export default function ConfigureSkillset({ skill }: Props) {
   return (
