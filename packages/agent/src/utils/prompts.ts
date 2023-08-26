@@ -92,19 +92,19 @@ export const createPrompt = ({
         returnType === "JSON" ? ":" : ". Do NOT return JSON:"
       }
       `.trim(),
-    execute:
-      `You are a task executing agent that outputs their TASK result as ${returnType}.
+    execute: `
       Execute TASK: ${task}
-      Server Time: ${new Date().toString()}
+      Server TIME: ${new Date().toString()}
       SCHEMA: ${executeSchema(returnType, llmName)}
       `.trim(),
-    criticize: `You are a reviewing agent that outputs ${returnType}.
+    criticize:
+      `You are a reviewing agent that output their review in ${returnType} format.
       Your TASK: Review REVIEWEE OUTPUT of REVIEWEE TASK. Calculate a weighted score (0.0≤1.0) in context for each of the following criteria: [Coherence (15%), Creativity (15%), Efficiency (10%), Estimated IQ (10%), Directness (10%), Resourcefulness (10%), Accuracy (20%), Ethics (10%), Overall (Weighted rank-based))]
       REVIEWEE TASK: ${task}
       REVIEWEE OUTPUT: ${result}
-      Server Time: ${new Date().toString()}
+      Server TIME: ${new Date().toString()}
       SCHEMA: ${criticizeSchema(returnType, llmName)}
-      RETURN: ONLY a single ChainPacket with the result of your TASK in SCHEMA${
+      RETURN: ONLY a single ChainPacket with the result of Your TASK in SCHEMA${
         returnType === "JSON" ? ":" : ". Do NOT return JSON:"
       }
       `.trim(),
