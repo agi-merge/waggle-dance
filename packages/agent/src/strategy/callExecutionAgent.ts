@@ -118,7 +118,11 @@ export async function callExecutionAgent(creation: {
       }),
     );
   }
-  const tags = ["execute", agentPromptingMethod, taskObj.id];
+  const tags = [
+    isReview ? "criticize" : "execute",
+    agentPromptingMethod,
+    taskObj.id,
+  ];
 
   const executor = await initializeExecutor(
     agentPromptingMethod,
