@@ -3,7 +3,6 @@ import React, {
   createContext,
   useCallback,
   useContext,
-  useMemo,
   useRef,
   useState,
   type KeyboardEvent,
@@ -72,15 +71,15 @@ function isValidUrl(url: string) {
 type Props = {
   onClose?: () => void;
 };
-const AddDocuments = ({ onClose }: Props) => {
+const AddDocuments = ({ onClose: _onClose }: Props) => {
   const [ingestFiles, setIngestFiles] = useState<IngestFiles>({});
   const [ingestUrls, setIngestUrls] = useState<IngestUrls>({});
 
-  const isAnyFileUploading = useMemo(() => {
-    return Object.values(ingestFiles).some(
-      (x) => x.uploadState.status === "uploading",
-    );
-  }, [ingestFiles]);
+  // const isAnyFileUploading = useMemo(() => {
+  //   return Object.values(ingestFiles).some(
+  //     (x) => x.uploadState.status === "uploading",
+  //   );
+  // }, [ingestFiles]);
   const [urlInput, setUrlInput] = useState("");
   const urlInputRef = useRef<HTMLInputElement>(null);
   const handleUrlSubmit = useCallback(async () => {
