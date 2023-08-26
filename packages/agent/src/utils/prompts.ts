@@ -1,5 +1,4 @@
 import { PromptTemplate } from "langchain/prompts";
-import { format } from "prettier";
 
 import { type ModelCreationProps } from "./types";
 
@@ -94,12 +93,12 @@ export const createPrompt = ({
       }
       `.trim(),
     execute:
-      `You are a task executing agent that outputs their TASK result as ${format}.
+      `You are a task executing agent that outputs their TASK result as ${returnType}.
       Execute TASK: ${task}
       Server Time: ${new Date().toString()}
       SCHEMA: ${executeSchema(returnType, llmName)}
       `.trim(),
-    criticize: `You are a reviewing agent that outputs ${format}.
+    criticize: `You are a reviewing agent that outputs ${returnType}.
       Your TASK: Review REVIEWEE OUTPUT of REVIEWEE TASK. Calculate a weighted score (0.0≤1.0) in context for each of the following criteria: [Coherence (15%), Creativity (15%), Efficiency (10%), Estimated IQ (10%), Directness (10%), Resourcefulness (10%), Accuracy (20%), Ethics (10%), Overall (Weighted rank-based))]
       REVIEWEE TASK: ${task}
       REVIEWEE OUTPUT: ${result}
