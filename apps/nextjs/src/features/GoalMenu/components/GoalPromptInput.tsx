@@ -246,6 +246,7 @@ export default function GoalPromptInput({}: GoalPromptInputProps) {
             type="submit"
             variant="soft"
             disabled={getGoalInputValue().trim().length === 0}
+            onClick={handleSubmit}
           >
             Next
             <KeyboardArrowRight />
