@@ -280,8 +280,21 @@ export default async function ExecuteStream(req: NextRequest) {
         body: JSON.stringify(createResultParams),
       });
 
-      if (!response.ok) {
-        throw new Error(`Could not save result: ${response.statusText}`);
+      if (!response.ok && response.status !== 401) {
+        const error = new Error(
+          `Could not save result: ${response.statusText}`,
+        );
+        const errorPacket: ChainPacket = {
+          type: "error",
+          severity: "fatal",
+          message: stringify(error),
+        };
+        return new Response(stringify([errorPacket]), {
+          headers: {
+            "Content-Type": "application/yaml",
+          },
+          status: 500,
+        });
       }
     })();
   }
