@@ -680,7 +680,6 @@ const WaggleDance = ({}: Props) => {
                   thickness={20}
                   variant="soft"
                 ></LinearProgress>
-                <Typography className="flex-grow justify-end">Test</Typography>
               </Box>
             </Tooltip>
           )}
