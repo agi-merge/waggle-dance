@@ -1,11 +1,5 @@
 {
   "github": {
     "silent": true
-  },
-  "crons": [
-    {
-      "path": "/",
-      "schedule": "*/4 * * * *"
-    }
-  ]
+  }
 }
