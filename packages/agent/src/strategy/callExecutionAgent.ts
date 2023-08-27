@@ -1,4 +1,4 @@
-// chain/strategy/plan.ts
+// agent/strategy/callExecutionAgent.ts
 
 import { PineconeClient } from "@pinecone-database/pinecone";
 import {
@@ -17,6 +17,11 @@ import { PineconeStore } from "langchain/vectorstores/pinecone";
 import { parse } from "yaml";
 
 import {
+  createCriticizePrompt,
+  createExecutePrompt,
+} from "../prompts/createExecuteCriticismPrompt";
+import { isTaskCriticism } from "../prompts/types";
+import {
   getAgentPromptingMethodValue,
   InitializeAgentExecutorOptionsAgentTypes,
   InitializeAgentExecutorOptionsStructuredAgentTypes,
@@ -26,7 +31,6 @@ import {
   type InitializeAgentExecutorOptionsStructuredAgentType,
 } from "../utils/llms";
 import { createEmbeddings, createModel } from "../utils/model";
-import { createPrompt, isTaskCriticism } from "../utils/prompts";
 import { type Geo, type ModelCreationProps } from "../utils/types";
 
 export async function callExecutionAgent(creation: {
@@ -56,13 +60,15 @@ export async function callExecutionAgent(creation: {
   const embeddings = createEmbeddings({ modelName: LLM.embeddings });
   const taskObj = parse(task) as { id: string };
   const isReview = isTaskCriticism(taskObj.id);
-  const prompt = createPrompt({
-    type: isReview ? "criticize" : "execute",
-    creationProps,
+  const params = {
     goal,
     task,
     result,
-  });
+    returnType: "YAML",
+  };
+  const prompt = isReview
+    ? createCriticizePrompt(params)
+    : createExecutePrompt(params);
   // const memory = await createMemory(goal);
   console.log(
     "about to format prompt",

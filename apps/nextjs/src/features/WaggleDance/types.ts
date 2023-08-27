@@ -72,6 +72,11 @@ export interface BaseRequestBody {
   goal: string;
 }
 
+export interface RefineRequestBody {
+  creationProps: ModelCreationProps;
+  goal: string;
+}
+
 export type PlanRequestBody = BaseRequestBody & {
   executionId: string;
 };

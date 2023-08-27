@@ -1,31 +1,25 @@
-// agent/strategy/callPlanningAgent.ts
+// agent/strategy/callRefiningAgent.ts
 
 import { LLMChain } from "langchain/chains";
 
-import { createPlanPrompt } from "../prompts/createPlanPrompt";
+import { type ModelCreationProps } from "../..";
+import { createRefinePrompt } from "../prompts/createRefinePrompt";
 import { createModel } from "../utils/model";
-import { type ModelCreationProps } from "../utils/types";
 
-export async function callPlanningAgent(
-  creationProps: ModelCreationProps,
-  goal: string,
-  goalId: string,
-  signal: AbortSignal,
-) {
+export async function callRefiningAgent(params: {
+  creationProps: ModelCreationProps;
+  goal: string;
+  signal: AbortSignal;
+}) {
+  const { creationProps, goal, signal } = params;
   const llm = createModel(creationProps);
   // const memory = await createMemory(goal);
   // const planPrompt = createPrompt("plan");
-  // const prompt = createPrompt({ type: "plan", creationProps, goal, goalId });
-  const prompt = createPlanPrompt({
-    goal,
-    goalId,
-    returnType: "YAML",
-    tools: "",
-  });
+  const prompt = createRefinePrompt({ goal, tools: "", returnType: "YAML" });
   const chain = new LLMChain({
     // memory,
     prompt,
-    tags: ["plan", goalId],
+    tags: ["refine"],
     llm,
   });
 
@@ -33,7 +27,7 @@ export async function callPlanningAgent(
     // prompt.format({ goal, schema: "string[]" }),
     chain.call({
       signal,
-      tags: ["plan", goalId],
+      tags: ["refine"],
     }),
   ]);
 
