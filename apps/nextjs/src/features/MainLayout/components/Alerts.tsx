@@ -7,8 +7,8 @@ import usePreferences from "~/stores/preferencesStore";
 const Alerts = () => {
   const { isDemoAlertOpen, setIsDemoAlertOpen } = usePreferences();
   const color = "neutral";
-  const title = "Limited Demo";
-  const description = "MVP 1 Complete! OTW -> MVP 2.";
+  const title = "Pre-alpha demo";
+  const description = "waggledance.ai still under active development.";
   const icon = <Warning />;
   return (
     <>
@@ -27,6 +27,7 @@ const Alerts = () => {
             sx={{ alignItems: "flex-start text-center" }}
             startDecorator={React.cloneElement(icon, {
               sx: { mt: "2px", mx: "4px" },
+              color: "warning",
               fontSize: "xl2",
             })}
             variant="soft"
@@ -54,6 +55,7 @@ const Alerts = () => {
               </Typography>
               <Typography fontSize="xs" sx={{ opacity: 0.5 }}>
                 • Expect changes and bugs. Do not input anything sensitive.
+                Database is frequently wiped.
               </Typography>
             </div>
           </Alert>
