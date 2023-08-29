@@ -21,9 +21,9 @@ import routes from "~/utils/routes";
 import useApp from "~/stores/appStore";
 import useGoalStore from "~/stores/goalStore";
 import useWaggleDanceMachineStore from "~/stores/waggleDanceStore";
-import AutoRefineGoalToggle from "./AutoRefineGoalToggle";
-import GoalSettings from "./GoalSettings";
-import TemplatesModal from "./TemplatesModal";
+import AutoRefineGoalToggle from "../GoalMenu/components/AutoRefineGoalToggle";
+import GoalSettings from "../GoalMenu/components/GoalSettings";
+import TemplatesModal from "../GoalMenu/components/TemplatesModal";
 
 export const examplePrompts = [
   "I need to find the most talked-about books in the self-help genre in 2023. Provide a list of top 10 books along with their brief summaries.",
