@@ -2,6 +2,7 @@ import { TRPCError } from "@trpc/server";
 import { stringify } from "superjson";
 import { z } from "zod";
 
+import { getBaseUrl } from "../baseUrl";
 import {
   createTRPCRouter,
   optionalProtectedProcedure,
@@ -139,7 +140,7 @@ export const goalRouter = createTRPCRouter({
         .nonempty(),
     )
     .mutation(async ({ ctx: _ctx, input }) => {
-      const response = await fetch("/api/docs/urls/ingest", {
+      const response = await fetch(`${getBaseUrl()}/api/goal/refine`, {
         method: "POST",
         body: stringify(input),
         headers: {
