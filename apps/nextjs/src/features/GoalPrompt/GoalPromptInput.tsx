@@ -24,7 +24,6 @@ import useWaggleDanceMachineStore from "~/stores/waggleDanceStore";
 import AutoRefineGoalToggle from "../GoalMenu/components/AutoRefineGoalToggle";
 import GoalSettings from "../GoalMenu/components/GoalSettings";
 import TemplatesModal from "../GoalMenu/components/TemplatesModal";
-import AutoRefineGoalFeedbackList from "./AutoRefineGoalFeedbackList";
 
 export const examplePrompts = [
   "I need to find the most talked-about books in the self-help genre in 2023. Provide a list of top 10 books along with their brief summaries.",
@@ -60,6 +59,7 @@ export default function GoalPromptInput({}: GoalPromptInputProps) {
   const [templatesModalOpen, setTemplatesModalOpen] = useState<boolean>(false);
 
   const { mutate: createGoal } = api.goal.create.useMutation({});
+  const { mutate: refineGoal } = api.goal.refine.useMutation({});
   const handleSubmit = useCallback(
     (event: React.FormEvent) => {
       event.preventDefault();
@@ -109,12 +109,40 @@ export default function GoalPromptInput({}: GoalPromptInputProps) {
           },
         );
       }
-      // setIsAutoStartEnabled(true);
-      // this saves the goal to the database and routes to the goal page
-      // unless the user is not logged in, in which case it routes to the goal page
-      innerCreateGoal(getGoalInputValue());
+
+      if (isAutoRefineEnabled) {
+        refineGoal(
+          { prompt: getGoalInputValue() },
+          {
+            onSettled: (goal, error) => {
+              if (error) {
+                setIsPageLoading(false);
+                if (error instanceof Error) {
+                  setError(error);
+                }
+              } else if (goal) {
+                innerCreateGoal(goal[0].goalPrompt);
+              }
+            },
+          },
+        );
+      } else {
+        // setIsAutoStartEnabled(true);
+        // this saves the goal to the database and routes to the goal page
+        // unless the user is not logged in, in which case it routes to the goal page
+        innerCreateGoal(getGoalInputValue());
+      }
     },
-    [setIsPageLoading, selectedGoal, createGoal, upsertGoal, getGoalInputValue],
+    [
+      setIsPageLoading,
+      selectedGoal,
+      isAutoRefineEnabled,
+      createGoal,
+      upsertGoal,
+      refineGoal,
+      getGoalInputValue,
+      setError,
+    ],
   );
 
   const handleChange = (event: React.ChangeEvent<HTMLTextAreaElement>) => {
@@ -245,7 +273,6 @@ export default function GoalPromptInput({}: GoalPromptInputProps) {
           <Divider orientation="vertical" />
           <AutoRefineGoalToggle />
         </Stack>
-        <AutoRefineGoalFeedbackList />
       </Box>
       <Box className="max-w-screen flex items-center justify-end">
         <Stack direction="row-reverse" gap="1rem" className="pb-4">
