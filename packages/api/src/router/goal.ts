@@ -1,10 +1,12 @@
 import { TRPCError } from "@trpc/server";
+import { stringify } from "superjson";
 import { z } from "zod";
 
 import {
   createTRPCRouter,
   optionalProtectedProcedure,
   protectedProcedure,
+  publicProcedure,
 } from "../trpc";
 
 export const goalRouter = createTRPCRouter({
@@ -121,5 +123,30 @@ export const goalRouter = createTRPCRouter({
       }
 
       return ctx.prisma.goal.delete({ where: { id: input, userId } });
+    }),
+
+  refine: publicProcedure
+    .input(z.object({ prompt: z.string().nonempty() }))
+    .output(
+      z
+        .array(
+          z.object({
+            type: z.enum(["enhancement", "error", "warning", "pass"]),
+            message: z.string(),
+            goalPrompt: z.string(),
+          }),
+        )
+        .nonempty(),
+    )
+    .mutation(async ({ ctx: _ctx, input }) => {
+      const response = await fetch("/api/docs/urls/ingest", {
+        method: "POST",
+        body: stringify(input),
+        headers: {
+          "Content-Type": "application/json",
+        },
+      });
+      // eslint-disable-next-line @typescript-eslint/no-unsafe-return
+      return await response.json();
     }),
 });
