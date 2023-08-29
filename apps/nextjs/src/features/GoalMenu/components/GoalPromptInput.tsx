@@ -52,61 +52,65 @@ export default function GoalPromptInput({}: GoalPromptInputProps) {
     useGoalStore();
   const { isAutoStartEnabled, setIsAutoStartEnabled } =
     useWaggleDanceMachineStore();
-  const { isPageLoading, setIsPageLoading } = useApp();
+  const { isPageLoading, setIsPageLoading, isAutoRefineEnabled, setError } =
+    useApp();
   const [_currentPromptIndex, setCurrentPromptIndex] = useState(0);
   const [currentPlaceholderIndex, setCurrentPlaceholderIndex] = useState(0);
   const [templatesModalOpen, setTemplatesModalOpen] = useState<boolean>(false);
 
   const { mutate: createGoal } = api.goal.create.useMutation({});
-
   const handleSubmit = useCallback(
     (event: React.FormEvent) => {
       event.preventDefault();
       setIsPageLoading(true);
       const previousGoalId = selectedGoal?.id;
+
+      function innerCreateGoal(prompt: string) {
+        createGoal(
+          { prompt },
+          {
+            onSuccess: (goal) => {
+              console.debug(
+                "saved goal, previousGoalId: ",
+                previousGoalId,
+                "goal: ",
+                goal,
+              );
+              upsertGoal(goal, previousGoalId);
+              void router.push(routes.goal({ id: goal.id }), undefined, {
+                shallow: true,
+              });
+            },
+            onError: (e) => {
+              type HTTPStatusy = { httpStatus: number };
+              if (e instanceof TRPCClientError) {
+                const data = e.data as HTTPStatusy;
+                // route for anonymous users
+                if (data.httpStatus === 401 && selectedGoal) {
+                  // this is a bit of terrible code that makes the state update to be able to waggle
+                  selectedGoal.userId = "guest";
+                  upsertGoal(selectedGoal);
+                  void router.push(
+                    routes.goal({ id: selectedGoal.id }),
+                    undefined,
+                    {
+                      shallow: true,
+                    },
+                  );
+                }
+              } else {
+                setIsPageLoading(false);
+              }
+            },
+          },
+        );
+      }
       // setIsAutoStartEnabled(true);
       // this saves the goal to the database and routes to the goal page
       // unless the user is not logged in, in which case it routes to the goal page
-      createGoal(
-        { prompt: getGoalInputValue() },
-        {
-          onSuccess: (goal) => {
-            console.debug(
-              "saved goal, previousGoalId: ",
-              previousGoalId,
-              "goal: ",
-              goal,
-            );
-            upsertGoal(goal, previousGoalId);
-            void router.push(routes.goal({ id: goal.id }), undefined, {
-              shallow: true,
-            });
-          },
-          onError: (e) => {
-            type HTTPStatusy = { httpStatus: number };
-            if (e instanceof TRPCClientError) {
-              const data = e.data as HTTPStatusy;
-              // route for anonymous users
-              if (data.httpStatus === 401 && selectedGoal) {
-                // this is a bit of terrible code that makes the state update to be able to waggle
-                selectedGoal.userId = "guest";
-                upsertGoal(selectedGoal);
-                void router.push(
-                  routes.goal({ id: selectedGoal.id }),
-                  undefined,
-                  {
-                    shallow: true,
-                  },
-                );
-              }
-            } else {
-              setIsPageLoading(false);
-            }
-          },
-        },
-      );
+      innerCreateGoal(getGoalInputValue());
     },
-    [setIsPageLoading, createGoal, getGoalInputValue, selectedGoal, upsertGoal],
+    [setIsPageLoading, selectedGoal, createGoal, upsertGoal, getGoalInputValue],
   );
 
   const handleChange = (event: React.ChangeEvent<HTMLTextAreaElement>) => {

@@ -11,8 +11,9 @@ import { useColorScheme } from "@mui/joy/styles";
 
 import { app } from "~/constants";
 import useApp from "~/stores/appStore";
+import Alerts from "../Alerts/Alerts";
+import ErrorSnackbar from "../Alerts/ErrorSnackbar";
 import GoalTabs from "../WaggleDance/components/GoalTabs";
-import Alerts from "./components/Alerts";
 import Footer from "./components/Footer";
 import Header from "./components/Header";
 
@@ -126,6 +127,7 @@ const MainLayout = ({ children }: Props) => {
           />
         </Card>
       </Box>
+      <ErrorSnackbar />
     </Box>
   );
 };
