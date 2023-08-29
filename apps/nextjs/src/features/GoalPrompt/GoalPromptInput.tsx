@@ -24,6 +24,7 @@ import useWaggleDanceMachineStore from "~/stores/waggleDanceStore";
 import AutoRefineGoalToggle from "../GoalMenu/components/AutoRefineGoalToggle";
 import GoalSettings from "../GoalMenu/components/GoalSettings";
 import TemplatesModal from "../GoalMenu/components/TemplatesModal";
+import AutoRefineGoalFeedbackList from "./AutoRefineGoalFeedbackList";
 
 export const examplePrompts = [
   "I need to find the most talked-about books in the self-help genre in 2023. Provide a list of top 10 books along with their brief summaries.",
@@ -244,6 +245,7 @@ export default function GoalPromptInput({}: GoalPromptInputProps) {
           <Divider orientation="vertical" />
           <AutoRefineGoalToggle />
         </Stack>
+        <AutoRefineGoalFeedbackList />
       </Box>
       <Box className="max-w-screen flex items-center justify-end">
         <Stack direction="row-reverse" gap="1rem" className="pb-4">
