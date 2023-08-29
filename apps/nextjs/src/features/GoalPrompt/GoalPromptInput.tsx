@@ -16,6 +16,8 @@ import Textarea from "@mui/joy/Textarea";
 import Typography from "@mui/joy/Typography";
 import { TRPCClientError } from "@trpc/client";
 
+import { type AutoRefineFeedback } from "@acme/api/utils";
+
 import { api } from "~/utils/api";
 import routes from "~/utils/routes";
 import useApp from "~/stores/appStore";
@@ -24,6 +26,7 @@ import useWaggleDanceMachineStore from "~/stores/waggleDanceStore";
 import AutoRefineGoalToggle from "../GoalMenu/components/AutoRefineGoalToggle";
 import GoalSettings from "../GoalMenu/components/GoalSettings";
 import TemplatesModal from "../GoalMenu/components/TemplatesModal";
+import AutoRefineFeedbackList from "./AutoRefineGoalFeedbackList";
 
 export const examplePrompts = [
   "I need to find the most talked-about books in the self-help genre in 2023. Provide a list of top 10 books along with their brief summaries.",
@@ -57,6 +60,7 @@ export default function GoalPromptInput({}: GoalPromptInputProps) {
   const [_currentPromptIndex, setCurrentPromptIndex] = useState(0);
   const [currentPlaceholderIndex, setCurrentPlaceholderIndex] = useState(0);
   const [templatesModalOpen, setTemplatesModalOpen] = useState<boolean>(false);
+  const [feedback, setFeedback] = useState<[AutoRefineFeedback] | null>(null);
 
   const { mutate: createGoal } = api.goal.create.useMutation({});
   const { mutate: refineGoal } = api.goal.refine.useMutation({});
@@ -112,16 +116,22 @@ export default function GoalPromptInput({}: GoalPromptInputProps) {
 
       if (isAutoRefineEnabled) {
         refineGoal(
-          { prompt: getGoalInputValue() },
+          { goal: getGoalInputValue() },
           {
-            onSettled: (goal, error) => {
+            onSettled: (feedback, error) => {
               if (error) {
                 setIsPageLoading(false);
                 if (error instanceof Error) {
                   setError(error);
                 }
-              } else if (goal) {
-                innerCreateGoal(goal[0].goalPrompt);
+              } else if (feedback) {
+                const errorFeedback = feedback.find((f) => f.type === "error");
+                if (errorFeedback) {
+                  setIsPageLoading(false);
+                  setError(new Error(errorFeedback.message));
+                } else {
+                  setFeedback(feedback as [AutoRefineFeedback]);
+                }
               }
             },
           },
@@ -274,6 +284,7 @@ export default function GoalPromptInput({}: GoalPromptInputProps) {
           <AutoRefineGoalToggle />
         </Stack>
       </Box>
+      <AutoRefineFeedbackList feedback={feedback} />
       <Box className="max-w-screen flex items-center justify-end">
         <Stack direction="row-reverse" gap="1rem" className="pb-4">
           <Button

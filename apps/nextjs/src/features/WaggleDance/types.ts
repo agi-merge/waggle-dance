@@ -73,7 +73,6 @@ export interface BaseRequestBody {
 }
 
 export interface RefineRequestBody {
-  creationProps: ModelCreationProps;
   goal: string;
 }
 

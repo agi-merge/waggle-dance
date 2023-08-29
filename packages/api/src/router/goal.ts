@@ -127,14 +127,14 @@ export const goalRouter = createTRPCRouter({
     }),
 
   refine: publicProcedure
-    .input(z.object({ prompt: z.string().nonempty() }))
+    .input(z.object({ goal: z.string().nonempty() }))
     .output(
       z
         .array(
           z.object({
             type: z.enum(["enhancement", "error", "warning", "pass"]),
-            message: z.string(),
-            goalPrompt: z.string(),
+            message: z.string().nonempty(),
+            refinedPrompt: z.string().optional().nullable(),
           }),
         )
         .nonempty(),
@@ -142,12 +142,14 @@ export const goalRouter = createTRPCRouter({
     .mutation(async ({ ctx: _ctx, input }) => {
       const response = await fetch(`${getBaseUrl()}/api/goal/refine`, {
         method: "POST",
-        body: stringify(input),
         headers: {
           "Content-Type": "application/json",
         },
+        body: stringify(input),
       });
+      // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
+      const json = await response.json();
       // eslint-disable-next-line @typescript-eslint/no-unsafe-return
-      return await response.json();
+      return json;
     }),
 });

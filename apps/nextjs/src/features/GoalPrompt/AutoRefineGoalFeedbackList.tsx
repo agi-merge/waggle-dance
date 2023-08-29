@@ -1,4 +1,3 @@
-import { useState } from "react";
 import { Box, Typography, type BoxProps } from "@mui/joy";
 
 import {
@@ -6,7 +5,9 @@ import {
   type AutoRefineFeedbackType,
 } from "@acme/api/utils";
 
-type Props = BoxProps & object;
+type Props = BoxProps & {
+  feedback: [AutoRefineFeedback] | null;
+};
 
 const colorForType = (type: AutoRefineFeedbackType) => {
   switch (type) {
@@ -21,9 +22,7 @@ const colorForType = (type: AutoRefineFeedbackType) => {
   }
 };
 
-function AutoRefineFeedbackList({}: Props) {
-  const [feedback, _setFeedback] = useState<[AutoRefineFeedback] | null>(null);
-
+function AutoRefineFeedbackList({ feedback }: Props) {
   // This useEffect hook could call the AutoRefineService to get feedback
   // on the current goal, and then update the state with the received feedback.
   // useEffect(() => {}, [goal]);

@@ -11,11 +11,11 @@ export async function callRefiningAgent(params: {
   goal: string;
   signal: AbortSignal;
 }) {
-  const { creationProps, goal, signal } = params;
+  const { goal, signal, creationProps } = params;
   const llm = createModel(creationProps);
   // const memory = await createMemory(goal);
   // const planPrompt = createPrompt("plan");
-  const prompt = createRefinePrompt({ goal, tools: "", returnType: "YAML" });
+  const prompt = createRefinePrompt({ goal, tools: "", returnType: "JSON" });
   const chain = new LLMChain({
     // memory,
     prompt,
@@ -31,11 +31,11 @@ export async function callRefiningAgent(params: {
     }),
   ]);
 
-  const dag = call?.response
+  const feedback = call?.response
     ? (call.response as string)
     : call?.text
     ? (call.text as string)
     : "error";
 
-  return dag;
+  return feedback;
 }
