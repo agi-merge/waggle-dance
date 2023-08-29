@@ -3,7 +3,8 @@
 import { type NextRequest } from "next/server";
 import { parse, stringify } from "yaml";
 
-import { getBaseUrl } from "~/utils/api";
+import { getBaseUrl } from "@acme/api/utils";
+
 import { type PlanRequestBody } from "~/features/WaggleDance/types";
 import {
   callPlanningAgent,

@@ -4,7 +4,8 @@ import { type Serialized } from "langchain/load/serializable";
 import { type AgentAction, type AgentFinish } from "langchain/schema";
 import { stringify } from "yaml";
 
-import { getBaseUrl } from "~/utils/api";
+import { getBaseUrl } from "@acme/api/utils";
+
 import { type ExecuteRequestBody } from "~/features/WaggleDance/types";
 import {
   callExecutionAgent,
