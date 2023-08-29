@@ -97,10 +97,13 @@ export default function GoalPromptInput({}: GoalPromptInputProps) {
                       shallow: true,
                     },
                   );
+                  return;
                 }
-              } else {
-                setIsPageLoading(false);
               }
+              if (e instanceof Error) {
+                setError(e);
+              }
+              setIsPageLoading(false);
             },
           },
         );
