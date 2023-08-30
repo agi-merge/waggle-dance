@@ -118,18 +118,20 @@ export default async function RefineStream(req: NextRequest) {
     //     rejectStreamEnded("Stream cancelled");
     //   },
     // });
+    const contentType = "application/yaml";
 
     refineResult = await callRefiningAgent({
       creationProps,
       goal,
       signal: abortController.signal,
+      contentType,
     });
 
     console.debug("refine result", refineResult);
 
     return new Response(refineResult, {
       headers: {
-        "Content-Type": "application/json",
+        "Content-Type": contentType,
       },
     });
   } catch (e) {

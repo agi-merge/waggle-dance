@@ -11,16 +11,18 @@ export async function callRefiningAgent(params: {
   creationProps: ModelCreationProps;
   goal: string;
   signal: AbortSignal;
+  contentType: "application/json" | "application/yaml";
 }) {
-  const { goal, signal, creationProps } = params;
-  const llm = createModel(creationProps, AgentPromptingMethod.ZeroShotReAct);
+  const { goal, signal, creationProps, contentType } = params;
+  const returnType = contentType === "application/json" ? "JSON" : "YAML";
+  const llm = createModel(creationProps, AgentPromptingMethod.ZeroShotReAct); // this is used to select OpenAI as the model (non-Chat)
   // const memory = await createMemory(goal);
   // const planPrompt = createPrompt("plan");
-  const prompt = createRefinePrompt({ goal, tools: "", returnType: "JSON" });
+  const prompt = createRefinePrompt({ goal, tools: "", returnType });
   const chain = new LLMChain({
     // memory,
     prompt,
-    tags: ["refine"],
+    tags: ["refine", contentType],
     llm,
   });
 
@@ -28,7 +30,7 @@ export async function callRefiningAgent(params: {
     // prompt.format({ goal, schema: "string[]" }),
     chain.call({
       signal,
-      tags: ["refine"],
+      tags: ["refine", contentType],
     }),
   ]);
 
