@@ -1,4 +1,4 @@
-import { stringify } from "superjson";
+import { stringify } from "yaml";
 
 export const stringifyMax = (value: unknown, max: number) => {
   const json = stringify(value);
