@@ -79,6 +79,7 @@ export const createPrompt = ({
   result,
   tools = "Google Search, Vector database query, Zapier, Google Drive, Calculator, Web Crawler.",
 }: PromptParams): PromptTemplate => {
+  // TODO: pass user's time zone similar to/with Geo
   const llmName = creationProps?.modelName ?? "unknown";
   const returnType = "YAML" as string;
   const basePromptMessages = {

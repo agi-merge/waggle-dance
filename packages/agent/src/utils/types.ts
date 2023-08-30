@@ -69,3 +69,13 @@ export type ChainPacket =
   // client-side only
   | { type: "starting"; nodeId: string }
   | { type: "working"; nodeId: string };
+
+export type Geo =
+  | {
+      city?: string | undefined;
+      country?: string | undefined;
+      region?: string | undefined;
+      latitude?: string | undefined;
+      longitude?: string | undefined;
+    }
+  | undefined;

@@ -27,7 +27,7 @@ import {
 } from "../utils/llms";
 import { createEmbeddings, createModel } from "../utils/model";
 import { createPrompt, isTaskCriticism } from "../utils/prompts";
-import { type ModelCreationProps } from "../utils/types";
+import { type Geo, type ModelCreationProps } from "../utils/types";
 
 export async function callExecutionAgent(creation: {
   creationProps: ModelCreationProps;
@@ -39,6 +39,7 @@ export async function callExecutionAgent(creation: {
   result: string;
   abortSignal: AbortSignal;
   namespace?: string;
+  geo?: Geo;
 }): Promise<string | Error> {
   const {
     creationProps,

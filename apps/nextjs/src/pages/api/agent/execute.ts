@@ -190,6 +190,7 @@ export default async function ExecuteStream(req: NextRequest) {
           result: String(taskResults[task.id]),
           abortSignal: abortController.signal,
           namespace: `${goalId}_${executionId}`,
+          geo: req.geo,
         });
 
         let state: string;
