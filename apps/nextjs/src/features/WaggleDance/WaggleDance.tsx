@@ -7,22 +7,12 @@ import React, {
   useState,
 } from "react";
 import router from "next/router";
-import {
-  BugReport,
-  Lan,
-  ListAlt,
-  PlayCircle,
-  Science,
-  StopCircle,
-} from "@mui/icons-material";
+import { BugReport, Lan, ListAlt, Science } from "@mui/icons-material";
 import { Link } from "@mui/joy";
 import Box from "@mui/joy/Box";
-import Button from "@mui/joy/Button";
 import Card from "@mui/joy/Card";
 import Checkbox from "@mui/joy/Checkbox";
-import CircularProgress from "@mui/joy/CircularProgress";
 import Divider from "@mui/joy/Divider";
-import LinearProgress from "@mui/joy/LinearProgress";
 import List from "@mui/joy/List";
 import ListDivider from "@mui/joy/ListDivider";
 import ListItem from "@mui/joy/ListItem";
@@ -31,7 +21,6 @@ import Tab from "@mui/joy/Tab";
 import TabList from "@mui/joy/TabList";
 import TabPanel from "@mui/joy/TabPanel";
 import Tabs from "@mui/joy/Tabs";
-import Tooltip from "@mui/joy/Tooltip";
 import Typography from "@mui/joy/Typography";
 import { TRPCClientError } from "@trpc/client";
 import { useSession } from "next-auth/react";
@@ -48,7 +37,9 @@ import useWaggleDanceMachineStore, {
 } from "~/stores/waggleDanceStore";
 import { ExecutionSelect } from "./components/ExecutionSelect";
 import ForceGraph from "./components/ForceGraph";
+import { StartStopButton } from "./components/StartStopButton";
 import TaskListItem from "./components/TaskListItem";
+import { TaskProgress } from "./components/TaskProgress";
 import useWaggleDanceMachine, {
   TaskStatus,
   type TaskState,
@@ -383,7 +374,7 @@ const WaggleDance = ({}: Props) => {
 
               <TabPanel
                 value={1}
-                className="min-h-90 w-full items-center overflow-y-scroll"
+                className="h-fit w-full items-center overflow-y-scroll"
                 sx={{ padding: { xs: 0, sm: 2 } }}
               >
                 <ForceGraph data={graphData} />
@@ -473,58 +464,11 @@ const WaggleDance = ({}: Props) => {
           })}
         >
           {shouldShowProgress && (
-            <Tooltip title={progressLabel}>
-              <Box
-                sx={{
-                  paddingBottom: "var(--Card-padding, 0px)",
-                  position: "relative",
-                  zIndex: 0,
-                  marginX: "calc(-1.5 * var(--Card-padding, 0px))",
-                }}
-              >
-                <LinearProgress
-                  sx={{
-                    position: "absolute",
-                    top: 0,
-                    width: "100%",
-                    "--LinearProgress-progressRadius": 0,
-                  }}
-                  determinate={true}
-                  value={progressPercent}
-                  color="neutral"
-                  thickness={20}
-                >
-                  {
-                    <Typography
-                      level="body-xs"
-                      fontWeight="xl"
-                      sx={{ mixBlendMode: "difference" }}
-                    >
-                      {progressLabel}
-                    </Typography>
-                  }
-                </LinearProgress>
-
-                <LinearProgress
-                  sx={{
-                    position: "absolute",
-                    // mixBlendMode: "plus-lighter",
-                    opacity: 0.5,
-                    top: 0,
-                    width: "100%",
-                    "--LinearProgress-progressRadius": 0,
-                  }}
-                  determinate={true}
-                  // value={50}
-                  value={
-                    isNaN(inProgressOrDonePercent) ? 0 : inProgressOrDonePercent
-                  }
-                  color="neutral"
-                  thickness={20}
-                  variant="soft"
-                ></LinearProgress>
-              </Box>
-            </Tooltip>
+            <TaskProgress
+              progressPercent={progressPercent}
+              inProgressOrDonePercent={inProgressOrDonePercent}
+              progressLabel={progressLabel}
+            />
           )}
 
           <Stack
@@ -584,40 +528,12 @@ const WaggleDance = ({}: Props) => {
 
                 <GoalSettings />
               </Box>
-              <Button
-                size="lg"
-                className="col-end"
-                color="primary"
-                variant="soft"
-                onClick={isRunning ? handleStop : handleStart}
-                endDecorator={isRunning ? <StopCircle /> : <PlayCircle />}
-                sx={{
-                  zIndex: 15,
-                  paddingX: { xs: 1, sm: 2 },
-                  minHeight: { xs: 2, sm: 3 },
-                }}
-              >
-                {isRunning && (
-                  <CircularProgress
-                    size="sm"
-                    variant="soft"
-                    sx={{ marginRight: 1 }}
-                  />
-                )}
-                <Stack
-                  direction={{ xs: "row", sm: "column" }}
-                  gap="0.5rem"
-                  className="items-center"
-                >
-                  <Typography level="h4">
-                    {isRunning ? (
-                      <>Stop</>
-                    ) : (
-                      <>{dag.nodes.length > 0 ? "Restart" : "Start"}</>
-                    )}
-                  </Typography>
-                </Stack>
-              </Button>
+              <StartStopButton
+                isRunning={isRunning}
+                handleStart={handleStart}
+                handleStop={handleStop}
+                dag={dag}
+              />
             </Box>
           </Stack>
         </Card>
