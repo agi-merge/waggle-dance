@@ -1,11 +1,11 @@
 // chain/strategy/plan.ts
-
 import { PineconeClient } from "@pinecone-database/pinecone";
 import {
   initializeAgentExecutorWithOptions,
   type InitializeAgentExecutorOptions,
 } from "langchain/agents";
 import { VectorDBQAChain } from "langchain/chains";
+import { type ChatOpenAI } from "langchain/chat_models/openai";
 // import { createMemory } from "../utils/memory";
 import { type OpenAI } from "langchain/dist";
 import { type InitializeAgentExecutorOptionsStructured } from "langchain/dist/agents/initialize";
@@ -52,7 +52,7 @@ export async function callExecutionAgent(creation: {
   } = creation;
   const callbacks = creationProps.callbacks;
   creationProps.callbacks = undefined;
-  const llm = createModel(creationProps);
+  const llm = createModel(creationProps, agentPromptingMethod);
   const embeddings = createEmbeddings({ modelName: LLM.embeddings });
   const taskObj = parse(task) as { id: string };
   const isReview = isTaskCriticism(taskObj.id);
@@ -159,7 +159,7 @@ async function initializeExecutor(
   taskObj: { id: string },
   creationProps: ModelCreationProps,
   tools: Tool[],
-  llm: OpenAI,
+  llm: OpenAI | ChatOpenAI,
   tags: string[],
 ) {
   let executor;

@@ -52,8 +52,12 @@ export default function GoalPromptInput({}: GoalPromptInputProps) {
     useGoalStore();
   const { isAutoStartEnabled, setIsAutoStartEnabled } =
     useWaggleDanceMachineStore();
-  const { isPageLoading, setIsPageLoading, isAutoRefineEnabled, setError } =
-    useApp();
+  const {
+    isPageLoading,
+    setIsPageLoading,
+    isAutoRefineEnabled: _isAutoRefineEnabled,
+    setError,
+  } = useApp();
   const [_currentPromptIndex, setCurrentPromptIndex] = useState(0);
   const [currentPlaceholderIndex, setCurrentPlaceholderIndex] = useState(0);
   const [templatesModalOpen, setTemplatesModalOpen] = useState<boolean>(false);
@@ -113,7 +117,14 @@ export default function GoalPromptInput({}: GoalPromptInputProps) {
       // unless the user is not logged in, in which case it routes to the goal page
       innerCreateGoal(getGoalInputValue());
     },
-    [setIsPageLoading, selectedGoal, createGoal, upsertGoal, getGoalInputValue],
+    [
+      setIsPageLoading,
+      selectedGoal,
+      getGoalInputValue,
+      createGoal,
+      upsertGoal,
+      setError,
+    ],
   );
 
   const handleChange = (event: React.ChangeEvent<HTMLTextAreaElement>) => {
