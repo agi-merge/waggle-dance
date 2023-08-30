@@ -1,10 +1,13 @@
 import { TRPCError } from "@trpc/server";
+import { stringify } from "superjson";
 import { z } from "zod";
 
+import { getBaseUrl } from "../baseUrl";
 import {
   createTRPCRouter,
   optionalProtectedProcedure,
   protectedProcedure,
+  publicProcedure,
 } from "../trpc";
 
 export const goalRouter = createTRPCRouter({
@@ -121,5 +124,32 @@ export const goalRouter = createTRPCRouter({
       }
 
       return ctx.prisma.goal.delete({ where: { id: input, userId } });
+    }),
+
+  refine: publicProcedure
+    .input(z.object({ goal: z.string().nonempty() }))
+    .output(
+      z
+        .array(
+          z.object({
+            type: z.enum(["enhancement", "error", "warning", "pass"]),
+            message: z.string().nonempty(),
+            refinedPrompt: z.string().optional().nullable(),
+          }),
+        )
+        .nonempty(),
+    )
+    .mutation(async ({ ctx: _ctx, input }) => {
+      const response = await fetch(`${getBaseUrl()}/api/goal/refine`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: stringify(input),
+      });
+      // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
+      const json = await response.json();
+      // eslint-disable-next-line @typescript-eslint/no-unsafe-return
+      return json;
     }),
 });

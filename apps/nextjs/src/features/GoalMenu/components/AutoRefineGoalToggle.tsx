@@ -47,7 +47,7 @@ export default function AutoRefineGoalToggle({ ...props }: Props) {
               Auto-Refine
             </Typography>
           }
-          sx={{ padding: 0 }}
+          sx={{ padding: 0, display: "none" }}
           slotProps={{
             action: {
               className: isAutoRefineEnabled

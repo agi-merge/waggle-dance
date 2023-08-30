@@ -16,14 +16,17 @@ import Textarea from "@mui/joy/Textarea";
 import Typography from "@mui/joy/Typography";
 import { TRPCClientError } from "@trpc/client";
 
+import { type AutoRefineFeedback } from "@acme/api/utils";
+
 import { api } from "~/utils/api";
 import routes from "~/utils/routes";
 import useApp from "~/stores/appStore";
 import useGoalStore from "~/stores/goalStore";
 import useWaggleDanceMachineStore from "~/stores/waggleDanceStore";
-import AutoRefineGoalToggle from "./AutoRefineGoalToggle";
-import GoalSettings from "./GoalSettings";
-import TemplatesModal from "./TemplatesModal";
+import AutoRefineGoalToggle from "../GoalMenu/components/AutoRefineGoalToggle";
+import GoalSettings from "../GoalMenu/components/GoalSettings";
+import TemplatesModal from "../GoalMenu/components/TemplatesModal";
+import AutoRefineFeedbackList from "./AutoRefineGoalFeedbackList";
 
 export const examplePrompts = [
   "I need to find the most talked-about books in the self-help genre in 2023. Provide a list of top 10 books along with their brief summaries.",
@@ -61,8 +64,10 @@ export default function GoalPromptInput({}: GoalPromptInputProps) {
   const [_currentPromptIndex, setCurrentPromptIndex] = useState(0);
   const [currentPlaceholderIndex, setCurrentPlaceholderIndex] = useState(0);
   const [templatesModalOpen, setTemplatesModalOpen] = useState<boolean>(false);
+  const [feedback, setFeedback] = useState<[AutoRefineFeedback] | null>(null);
 
   const { mutate: createGoal } = api.goal.create.useMutation({});
+  const { mutate: refineGoal } = api.goal.refine.useMutation({});
   const handleSubmit = useCallback(
     (event: React.FormEvent) => {
       event.preventDefault();
@@ -112,18 +117,45 @@ export default function GoalPromptInput({}: GoalPromptInputProps) {
           },
         );
       }
-      // setIsAutoStartEnabled(true);
-      // this saves the goal to the database and routes to the goal page
-      // unless the user is not logged in, in which case it routes to the goal page
-      innerCreateGoal(getGoalInputValue());
+
+      if (_isAutoRefineEnabled) {
+        refineGoal(
+          { goal: getGoalInputValue() },
+          {
+            onSettled: (feedback, error) => {
+              if (error) {
+                setIsPageLoading(false);
+                if (error instanceof Error) {
+                  setError(error);
+                }
+              } else if (feedback) {
+                const errorFeedback = feedback.find((f) => f.type === "error");
+                if (errorFeedback) {
+                  setIsPageLoading(false);
+                  setError(new Error(errorFeedback.message));
+                } else {
+                  setFeedback(feedback as [AutoRefineFeedback]);
+                }
+              }
+            },
+          },
+        );
+      } else {
+        // setIsAutoStartEnabled(true);
+        // this saves the goal to the database and routes to the goal page
+        // unless the user is not logged in, in which case it routes to the goal page
+        innerCreateGoal(getGoalInputValue());
+      }
     },
     [
       setIsPageLoading,
       selectedGoal,
-      getGoalInputValue,
+      _isAutoRefineEnabled,
       createGoal,
       upsertGoal,
       setError,
+      refineGoal,
+      getGoalInputValue,
     ],
   );
 
@@ -256,6 +288,7 @@ export default function GoalPromptInput({}: GoalPromptInputProps) {
           <AutoRefineGoalToggle />
         </Stack>
       </Box>
+      <AutoRefineFeedbackList feedback={feedback} />
       <Box className="max-w-screen flex items-center justify-end">
         <Stack direction="row-reverse" gap="1rem" className="pb-4">
           <Button

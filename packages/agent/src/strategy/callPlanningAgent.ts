@@ -1,10 +1,10 @@
-// chain/strategy/createPlanningAgent.ts
+// agent/strategy/callPlanningAgent.ts
 
 import { LLMChain } from "langchain/chains";
 
+import { createPlanPrompt } from "../prompts/createPlanPrompt";
 import { AgentPromptingMethod } from "../utils/llms";
 import { createModel } from "../utils/model";
-import { createPrompt } from "../utils/prompts";
 import { type ModelCreationProps } from "../utils/types";
 
 export async function callPlanningAgent(
@@ -16,7 +16,13 @@ export async function callPlanningAgent(
   const llm = createModel(creationProps, AgentPromptingMethod.ZeroShotReAct); // this is used to select OpenAI as the model (non-Chat)
   // const memory = await createMemory(goal);
   // const planPrompt = createPrompt("plan");
-  const prompt = createPrompt({ type: "plan", creationProps, goal, goalId });
+  // const prompt = createPrompt({ type: "plan", creationProps, goal, goalId });
+  const prompt = createPlanPrompt({
+    goal,
+    goalId,
+    returnType: "YAML",
+    tools: "",
+  });
   const chain = new LLMChain({
     // memory,
     prompt,

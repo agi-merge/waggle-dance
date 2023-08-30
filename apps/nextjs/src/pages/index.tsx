@@ -5,7 +5,7 @@ import Link from "next/link";
 import Tooltip from "@mui/joy/Tooltip";
 import Typography from "@mui/joy/Typography";
 
-import GoalPromptInput from "~/features/GoalMenu/components/GoalPromptInput";
+import GoalPromptInput from "~/features/GoalPrompt/GoalPromptInput";
 import Title from "~/features/MainLayout/components/PageTitle";
 
 export const HomeContent = () => {
