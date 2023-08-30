@@ -2,6 +2,7 @@
 
 <div align="center">
 
+![milestone](https://img.shields.io/badge/pre%20mvp-%20)
 [![License](https://img.shields.io/badge/license-MIT-green)](LICENSE)
 ![CI](https://github.com/agi-merge/waggle-dance/actions/workflows/ci.yml/badge.svg?event=push)
 [![Public Deployment](https://img.shields.io/badge/Demo-waggledance.ai-blue?style=flat&logo=world&logoColor=white)](https://waggledance.ai)
