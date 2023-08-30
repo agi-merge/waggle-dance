@@ -8,7 +8,7 @@
 [![Public Deployment](https://img.shields.io/badge/Demo-waggledance.ai-blue?style=flat&logo=world&logoColor=white)](https://waggledance.ai)
 <a href="https://vercel.com/new/clone?repository-url=https%3A%2F%2Fgithub.com%2Fagi-merge%2Fwaggle-dance&env=OPENAI_API_KEY&project-name=waggle-dance&repository-name=waggle-dance" alt="Deploy with Vercel"><img src="https://vercel.com/button" height="20" /></a>
 <br/>
-[![Join Discord Server](https://dcbadge.vercel.app/api/server/Rud2fR3hAX?style=flat)](https://discord.com/invite/Rud2fR3hAX)
+[![Join Discord Server](https://dcbadge.vercel.app/api/server/ttt9YmhQU6?style=flat)](https://discord.gg/ttt9YmhQU6)
 [![GitHub Repo stars](https://img.shields.io/github/stars/agi-merge/waggle-dance?style=social)](https://github.com/agi-merge/waggle-dance)
 
 </div>
@@ -151,7 +151,7 @@ As a best practice, run `turbo lint` before starting a feature and after finishi
 
 - [GPT best practices](https://platform.openai.com/docs/guides/gpt-best-practices)
 - [Jerry Liu (LLama Index) on state & history of Agentic AI, context management](https://podcasts.apple.com/us/podcast/the-twiml-ai-podcast-formerly-this-week-in-machine/id1116303051?i=1000612216800)
-- [Join the discord](https://discord.gg/Rud2fR3hAX)
+- [Join the discord](https://discord.gg/ttt9YmhQU6)
 - [Using AI Agents to Solve Complex Problems](https://haystack.deepset.ai/blog/introducing-haystack-agents)
 - [Examples of Prompt Based Apps](https://chatgpt-prompt-apps.com/)
 - [Another Example of a Prompt Based App](https://github.com/Significant-Gravitas/Auto-GPT)

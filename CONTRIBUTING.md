@@ -67,7 +67,7 @@ CI will run this command on your PR, so it's best to run it locally before submi
 
 ## 🦜 Communication
 
-- Join our community on [Discord](https://discord.gg/Rud2fR3hAX) to get help or discuss the project.
+- Join our community on [Discord](https://discord.gg/ttt9YmhQU6) to get help or discuss the project.
 
 ## 📃 License
 
