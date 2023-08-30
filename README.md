@@ -22,11 +22,11 @@
   <a href="#-open-core">🌺Open Core</a>
 </p>
 
-**Waggle Dance** is a _highly experimental™️_ adversarial-cooperative multi-agent goal solver.
+**Waggle Dance** is a _highly experimental™️_ goal solving application. It offers an opinionated user interface to build agentic systems, with a focus on observability, concurrency, stability, and automated prompt engineering. Currently in pre-alpha, the development philosophy prefers experimentation over stability as goal-solving and Agent systems are rapidly evolving.
 
 Waggle Dance takes a goal and passes it to a **Planner Agent** which streams an execution graph for sub-tasks. Each sub-task is executed as concurrently as possible by **Execution Agents**. To reduce poor results and hallucinations, sub-results are reviewed by **Criticism Agents**. Eventually, the **Human in the loop (you!)** will be able to chat with individual Agents, and provide course-corrections if needed.
 
-It was originally inspired by [Auto-GPT](https://github.com/Significant-Gravitas/Auto-GPT), and has concurrency features similar to those found in [gpt-researcher](https://github.com/assafelovic/gpt-researcher). Therefore, core tenets of the project include *speed*, *accuracy*, *observability*, and *simplicity*. Additionally, many other agentic systems are written in Python, so this project acts as a small counter-balance, and is accessible to the large number of Javascript developers.
+It was originally inspired by [Auto-GPT](https://github.com/Significant-Gravitas/Auto-GPT), and has concurrency features similar to those found in [gpt-researcher](https://github.com/assafelovic/gpt-researcher). Therefore, core tenets of the project include _speed_, _accuracy_, _observability_, and _simplicity_. Additionally, many other agentic systems are written in Python, so this project acts as a small counter-balance, and is accessible to the large number of Javascript developers.
 
 An (unstable) API is also available via [tRPC](packages/api/src/root.ts) as well an API [implemented within Next.js](apps/nextjs/src/pages/api). The client-side is mostly responsible for orchestrating and rendering the agent executions, while the API and server-side executes the agents and stores the results. This architecture is likely to be adjusted in the future.
 
