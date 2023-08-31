@@ -129,15 +129,18 @@ export const goalRouter = createTRPCRouter({
   refine: publicProcedure
     .input(z.object({ goal: z.string().nonempty() }))
     .output(
-      z
-        .array(
-          z.object({
-            type: z.enum(["enhancement", "error", "warning"]),
-            message: z.string().nonempty(),
-            refinedGoal: z.string().optional().nullable(),
-          }),
-        )
-        .nonempty(),
+      z.object({
+        feedback: z
+          .array(
+            z.object({
+              type: z.enum(["enhancement", "error", "warning"]),
+              reason: z.string().nonempty(),
+              refinedGoal: z.string().optional().nullable(),
+            }),
+          )
+          .nonempty(),
+        combinedRefinedGoal: z.string(),
+      }),
     )
     .mutation(async ({ ctx: _ctx, input }) => {
       const response = await fetch(`${getBaseUrl()}/api/goal/refine`, {
