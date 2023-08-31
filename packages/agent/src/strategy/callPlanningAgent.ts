@@ -13,11 +13,14 @@ export async function callPlanningAgent(
   goalId: string,
   signal: AbortSignal,
 ) {
-  const llm = createModel(creationProps, AgentPromptingMethod.ZeroShotReAct); // this is used to select OpenAI as the model (non-Chat)
+  const llm = createModel(
+    creationProps,
+    AgentPromptingMethod.ChatConversationalReAct,
+  ); // this is used to select a chat model (required for system message prompt)
   // const memory = await createMemory(goal);
   // const planPrompt = createPrompt("plan");
   // const prompt = createPrompt({ type: "plan", creationProps, goal, goalId });
-  const prompt = createPlanPrompt({
+  const prompt = await createPlanPrompt({
     goal,
     goalId,
     returnType: "YAML",
