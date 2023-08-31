@@ -179,6 +179,7 @@ export default async function ExecuteStream(req: NextRequest) {
             },
           }),
         ];
+        const contentType = "application/yaml";
 
         const exeResult = await callExecutionAgent({
           creationProps,
@@ -188,6 +189,7 @@ export default async function ExecuteStream(req: NextRequest) {
           task: stringify(task),
           dag: stringify(dag),
           result: String(taskResults[task.id]),
+          contentType,
           abortSignal: abortController.signal,
           namespace: `${goalId}_${executionId}`,
           geo: req.geo,

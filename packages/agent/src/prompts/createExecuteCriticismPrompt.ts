@@ -37,7 +37,7 @@ AGAIN, THE ONLY THING YOU MUST OUTPUT IS ${format} that represents the execution
 
 export function createExecutePrompt(params: {
   task: string;
-  returnType: string;
+  returnType: "YAML" | "JSON";
 }): SystemMessagePromptTemplate {
   const { task, returnType } = params;
 
@@ -56,11 +56,11 @@ export function createExecutePrompt(params: {
 export function createCriticizePrompt(params: {
   task: string;
   result: string;
-  returnType: string;
+  returnType: "JSON" | "YAML";
 }): SystemMessagePromptTemplate {
   const { task, result, returnType } = params;
 
-  const schema = criticizeSchema("YAML", "unknown");
+  const schema = criticizeSchema(returnType, "unknown");
 
   const template =
     `You are a reviewing agent that output their review in ${returnType} format.

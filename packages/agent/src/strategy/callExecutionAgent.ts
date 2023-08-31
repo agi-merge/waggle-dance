@@ -42,6 +42,7 @@ export async function callExecutionAgent(creation: {
   task: string;
   dag: string;
   result: string;
+  contentType: "application/json" | "application/yaml";
   abortSignal: AbortSignal;
   namespace?: string;
   geo?: Geo;
@@ -54,6 +55,7 @@ export async function callExecutionAgent(creation: {
     result,
     abortSignal,
     namespace,
+    contentType,
   } = creation;
   const callbacks = creationProps.callbacks;
   creationProps.callbacks = undefined;
@@ -61,12 +63,13 @@ export async function callExecutionAgent(creation: {
   const embeddings = createEmbeddings({ modelName: LLM.embeddings });
   const taskObj = parse(task) as { id: string };
   const isReview = isTaskCriticism(taskObj.id);
+  const returnType = contentType === "application/json" ? "JSON" : "YAML";
   const params = {
     goal,
     task,
     result,
-    returnType: "YAML",
-  };
+    returnType,
+  } as const;
   const prompt = isReview
     ? createCriticizePrompt(params)
     : createExecutePrompt(params);
