@@ -9,7 +9,7 @@ DAG
   edges: Edge[]
 Node
   id: uuid // e.g. "1-1", "2-0", "2-1" (first number is the level, second number is the concurrent node number)
-  name: string // requires relevant emoji
+  name: string // start with a distinct (unique), relevant, emoji (do not reuse amongst nodes unless absolutely necessary)
   act: string
   context: string // paragraph describing what this node is about and how to properly execute the act
   params: string // string of pertinent key-value pairs separated by commas
