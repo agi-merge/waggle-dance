@@ -2,22 +2,24 @@ import { Box, Typography, type BoxProps } from "@mui/joy";
 
 import {
   type AutoRefineFeedback,
-  type AutoRefineFeedbackType,
+  type AutoRefineFeedbackItem,
 } from "@acme/api/utils";
 
 type Props = BoxProps & {
-  feedback: [AutoRefineFeedback] | null;
+  feedback: AutoRefineFeedback | null;
 };
 
-const colorForType = (type: AutoRefineFeedbackType) => {
-  switch (type) {
+const colorForFeedback = (
+  feedback: AutoRefineFeedbackItem | null | undefined,
+) => {
+  switch (feedback?.type) {
     case "error":
       return "danger";
     case "warning":
       return "warning";
     case "enhancement":
       return "primary";
-    case "pass":
+    default:
       return "success";
   }
 };
@@ -33,12 +35,12 @@ function AutoRefineFeedbackList({ feedback }: Props) {
 
   return (
     <Box>
-      {feedback.map((issue, index) => (
+      {feedback.feedback.map((issue, index) => (
         <Typography
-          key={`${index}${issue.message}`}
-          color={colorForType(issue.type)}
+          key={`${index}${issue.reason}`}
+          color={colorForFeedback(issue)}
         >
-          {issue.message}
+          {issue.refinedGoal}
         </Typography>
       ))}
     </Box>

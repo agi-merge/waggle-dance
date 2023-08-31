@@ -16,6 +16,7 @@ import Textarea from "@mui/joy/Textarea";
 import Typography from "@mui/joy/Typography";
 import { TRPCClientError } from "@trpc/client";
 
+import { examplePrompts } from "@acme/agent";
 import { type AutoRefineFeedback } from "@acme/api/utils";
 
 import { api } from "~/utils/api";
@@ -27,24 +28,6 @@ import AutoRefineGoalToggle from "../GoalMenu/components/AutoRefineGoalToggle";
 import GoalSettings from "../GoalMenu/components/GoalSettings";
 import TemplatesModal from "../GoalMenu/components/TemplatesModal";
 import AutoRefineFeedbackList from "./AutoRefineGoalFeedbackList";
-
-export const examplePrompts = [
-  "I need to find the most talked-about books in the self-help genre in 2023. Provide a list of top 10 books along with their brief summaries.",
-  "What are the top trending toys for 6-8 year olds on Amazon in April 2023? Provide a list with their prices and customer ratings.",
-  "I am starting a digital marketing agency. What are the key steps and strategies used by successful digital marketing startups in the last two years?",
-  "Provide a list of must-visit places in France, Italy, and Spain, as recommended by top travel bloggers in 2023.",
-  "What are the most effective product launches on Hacker News in the last three months? Analyze and provide a summary of each.",
-  "I want to understand the sentiment towards electric cars on Reddit. Analyze the last month's posts and comments in the r/ElectricVehicles subreddit.",
-  "I'm interested in the most successful Kickstarter campaigns in the Tech category from the last six months. Provide a list with brief descriptions of each campaign and the amount of money raised.",
-  "I need to compare the ticket prices for a flight from New York to London on different airlines for the dates December 1-15, 2023.",
-  "I want to know the top trending topics on Twitter worldwide right now.",
-  "I need to find the best-rated laptops under $1000 on Amazon. Provide a list with their key specifications and customer ratings.",
-  "I'm looking for the latest research papers on AI ethics published in 2023. Provide a list with their abstracts.",
-  "I want to know the most popular songs on Spotify globally for the week of April 1, 2023.",
-  "Compare and contrast AgentGPT, AutoGPT, BabyAGI, https://waggledance.ai, and SuperAGI. Find similar projects or state of the art research papers. Create a .md (GFM) report of the findings.",
-  "Write a 1000+ word markdown document (GFM / Github flavored markdown). Research and summarize trends in the multi-family housing trends in San Francisco and surrounding areas. Create tables and figures that compare and contrast, and display relevant data to support the metrics. Afterwards, add citations, ensuring that URLs are valid.",
-  "In Next.js 13, write a minimal example of a streaming API HTTP response that uses langchainjs CallbackHandler callbacks.",
-];
 
 const placeholders = ["What's your goal? …Not sure? Check Examples!"];
 
@@ -64,7 +47,7 @@ export default function GoalPromptInput({}: GoalPromptInputProps) {
   const [_currentPromptIndex, setCurrentPromptIndex] = useState(0);
   const [currentPlaceholderIndex, setCurrentPlaceholderIndex] = useState(0);
   const [templatesModalOpen, setTemplatesModalOpen] = useState<boolean>(false);
-  const [feedback, setFeedback] = useState<[AutoRefineFeedback] | null>(null);
+  const [feedback, setFeedback] = useState<AutoRefineFeedback | null>(null);
 
   const { mutate: createGoal } = api.goal.create.useMutation({});
   const { mutate: refineGoal } = api.goal.refine.useMutation({});
@@ -134,7 +117,7 @@ export default function GoalPromptInput({}: GoalPromptInputProps) {
                   setIsPageLoading(false);
                   setError(new Error(errorFeedback.message));
                 } else {
-                  setFeedback(feedback as [AutoRefineFeedback]);
+                  setFeedback(feedback);
                 }
               }
             },

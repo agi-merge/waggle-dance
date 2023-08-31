@@ -1,15 +1,19 @@
 import { type z } from "zod";
 
-export type AutoRefineFeedbackType =
-  | "enhancement"
-  | "error"
-  | "warning"
-  | "pass";
+export type AutoRefineFeedbackType = "enhancement" | "error" | "warning";
+
+export type AutoRefineFeedbackItem = {
+  type: AutoRefineFeedbackType;
+  reason: string;
+  replaceIndices: [number, number];
+  refinedGoal: string;
+  suggestedSkills: string[];
+  suggestedData: string[];
+};
 
 export type AutoRefineFeedback = {
-  type: AutoRefineFeedbackType;
-  message: string;
-  refinedPrompt?: string | undefined | null;
+  feedback: AutoRefineFeedbackItem[];
+  combinedRefinedGoal: string;
 };
 
 export type TypeToZod<T> = {

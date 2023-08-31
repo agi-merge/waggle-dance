@@ -132,9 +132,9 @@ export const goalRouter = createTRPCRouter({
       z
         .array(
           z.object({
-            type: z.enum(["enhancement", "error", "warning", "pass"]),
+            type: z.enum(["enhancement", "error", "warning"]),
             message: z.string().nonempty(),
-            refinedPrompt: z.string().optional().nullable(),
+            refinedGoal: z.string().optional().nullable(),
           }),
         )
         .nonempty(),

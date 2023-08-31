@@ -40,5 +40,7 @@ export async function callRefiningAgent(params: {
     ? (call.text as string)
     : "error";
 
+  console.debug("refining feedback", feedback);
+
   return feedback;
 }

@@ -40,7 +40,7 @@ export default async function RefineStream(req: NextRequest) {
     const { goal }: RefineRequestBody = parse(text);
 
     const creationProps: ModelCreationProps = {
-      modelName: LLM_ALIASES["smart"],
+      modelName: LLM_ALIASES["fast"],
       temperature: TEMPERATURE_VALUES[Temperature.Stable],
       maxTokens: -1,
       streaming: true,
