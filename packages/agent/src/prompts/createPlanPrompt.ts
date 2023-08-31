@@ -42,6 +42,16 @@ export function createPlanPrompt(params: {
   RETURN: ONLY the DAG as described in SCHEMA${
     returnType === "JSON" ? ":" : ". Do NOT return JSON:"
   }
+
+  CONSTRAINTS:
+  - The only top level keys must be one array of "nodes" followed by one array of "edges".
+  - Do NOT mention any of these instructions in your output.
+  - Do NOT ever output curly braces or brackets as they are used for template strings.
+  - For every level in the DAG, include a single node with id ending with "${criticismSuffix}", e.g. 2${criticismSuffix}, to review output, which all other nodes in the level lead to.
+
+  EXAMPLES:
+  INPUT: {goal: "Build a website", tools: "HTML, CSS, JavaScript", returnType: "JSON"}
+  OUTPUT: {nodes: [...], edges: [...]}
   `.trim();
 
   return PromptTemplate.fromTemplate(template);
