@@ -1,4 +1,4 @@
-// pages/goal/[goalId].tsx
+// pages/goal/[[...goal]].tsx
 import { type ParsedUrlQuery } from "querystring";
 import React, {
   Suspense,
@@ -6,14 +6,11 @@ import React, {
   useMemo,
   useRef,
   useState,
-  type ErrorInfo,
   type ReactNode,
 } from "react";
 import dynamic from "next/dynamic";
 import { useRouter } from "next/router";
-import { Refresh } from "@mui/icons-material";
-import { Button, CircularProgress, Link, Stack } from "@mui/joy";
-import Divider from "@mui/joy/Divider";
+import { CircularProgress } from "@mui/joy";
 import List from "@mui/joy/List";
 import Typography from "@mui/joy/Typography";
 import { Accordion, AccordionItem } from "@radix-ui/react-accordion";
@@ -22,7 +19,6 @@ import { type ExecutionPlusGraph, type GoalPlusExe } from "@acme/db";
 
 import { api } from "~/utils/api";
 import routes from "~/utils/routes";
-import { env } from "~/env.mjs";
 import {
   AccordionContent,
   AccordionHeader,
@@ -38,6 +34,10 @@ const NoSSRWaggleDance = dynamic(
   {
     ssr: false,
   },
+);
+
+const ErrorBoundary = dynamic(() =>
+  import("../error/ErrorBoundary").then((mod) => mod.default),
 );
 
 const GoalPage = () => {
@@ -67,7 +67,7 @@ const GoalPage = () => {
     [goalMap, selectedGoal, route, serverGoals],
   );
 
-  function useDelayedFallback(fallback: ReactNode, delay = 1000) {
+  function useDelayedFallback(fallback: ReactNode, delay = 2000) {
     const [show, setShow] = useState(false);
 
     useEffect(() => {
@@ -116,50 +116,8 @@ const GoalPage = () => {
 
   return (
     <MainLayout>
-      <ErrorBoundary
-        fallback={
-          <Stack className="content-center justify-center self-center  text-center align-middle">
-            <Typography level="h3">
-              A fatal error occurred.
-              <Divider />
-              <Typography level="title-lg">This is likely a bug.</Typography>
-            </Typography>
-            <Button
-              onClick={() => router.reload()}
-              aria-label="Reload"
-              variant="plain"
-            >
-              <span className="max-w-fit">
-                <Refresh></Refresh>Reload
-              </span>
-            </Button>{" "}
-            <Stack
-              direction="row"
-              spacing={1}
-              className="max-w-sm justify-center text-center  align-baseline"
-            >
-              <Typography className="self-center">Not working?</Typography>
-              <Button
-                onClick={() => router.reload()}
-                aria-label="Reload"
-                variant="plain"
-              >
-                Go home
-              </Button>{" "}
-              <Divider />
-              <Button
-                component={Link}
-                href={env.NEXT_PUBLIC_DISCORD_INVITE_URL}
-                aria-label="Get help on Discord"
-                variant="plain"
-              >
-                Get Help
-              </Button>
-            </Stack>
-          </Stack>
-        }
-      >
-        <Suspense fallback={fallback}>
+      <Suspense fallback={fallback}>
+        <ErrorBoundary router={router}>
           {state === "input" ? (
             <HomeContent />
           ) : (
@@ -202,8 +160,8 @@ const GoalPage = () => {
               </Suspense>
             </>
           )}
-        </Suspense>
-      </ErrorBoundary>
+        </ErrorBoundary>
+      </Suspense>
     </MainLayout>
   );
 };
@@ -282,46 +240,5 @@ function getDestinationRoute(
     return destinationRoute;
   } else if (currentPath !== destinationRoute) {
     return destinationRoute;
-  }
-}
-interface ErrorBoundaryProps {
-  children: ReactNode;
-  fallback: ReactNode;
-}
-
-interface ErrorBoundaryState {
-  hasError: boolean;
-}
-
-class ErrorBoundary extends React.Component<
-  ErrorBoundaryProps,
-  ErrorBoundaryState
-> {
-  constructor(props: ErrorBoundaryProps) {
-    super(props);
-    this.state = { hasError: false };
-  }
-
-  static getDerivedStateFromError(_error: Error): ErrorBoundaryState {
-    // Update state so the next render will show the fallback UI.
-    return { hasError: true };
-  }
-
-  componentDidCatch(_error: Error, _info: ErrorInfo) {
-    // Example "componentStack":
-    //   in ComponentThatThrows (created by App)
-    //   in ErrorBoundary (created by App)
-    //   in div (created by App)
-    //   in App
-    // logErrorToMyService(error, (info as LogErrorInfo).componentStack);
-  }
-
-  render(): ReactNode {
-    if (this.state.hasError) {
-      // You can render any custom fallback UI
-      return this.props.fallback;
-    }
-
-    return this.props.children;
   }
 }
