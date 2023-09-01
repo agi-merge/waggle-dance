@@ -34,9 +34,15 @@
     "typescriptreact"
   ],
   "eslint.timeBudget.onValidation": {
-    "warn": 4000,
+    "warn": 8000,
     "error": 8000
   },
   "eslint.enable": true,
-  "eslint.format.enable": true
+  "eslint.format.enable": true,
+  "eslint.lintTask.enable": true,
+  "eslint.run": "onSave",
+  "eslint.timeBudget.onFixes": {
+    "warn": 10000,
+    "error": 10000
+  }
 }
