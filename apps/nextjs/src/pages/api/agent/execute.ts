@@ -191,7 +191,8 @@ export default async function ExecuteStream(req: NextRequest) {
           result: String(taskResults[task.id]),
           contentType,
           abortSignal: abortController.signal,
-          namespace: `${goalId}_${executionId}`,
+          namespace:
+            goalId || executionId ? `${goalId}_${executionId}` : undefined,
           geo: req.geo,
         });
 
