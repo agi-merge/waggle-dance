@@ -10,8 +10,6 @@ import router from "next/router";
 import { BugReport, Lan, ListAlt, Science } from "@mui/icons-material";
 import { Link } from "@mui/joy";
 import Box from "@mui/joy/Box";
-import Card from "@mui/joy/Card";
-import Checkbox from "@mui/joy/Checkbox";
 import Divider from "@mui/joy/Divider";
 import List from "@mui/joy/List";
 import ListDivider from "@mui/joy/ListDivider";
@@ -29,17 +27,14 @@ import { type ExecutionPlusGraph } from "@acme/db";
 
 import { api } from "~/utils/api";
 import routes from "~/utils/routes";
-import GoalSettings from "~/features/GoalMenu/components/GoalSettings";
 import useApp from "~/stores/appStore";
 import useGoalStore from "~/stores/goalStore";
 import useWaggleDanceMachineStore, {
   createDraftExecution,
 } from "~/stores/waggleDanceStore";
-import { ExecutionSelect } from "./components/ExecutionSelect";
+import BottomControls from "./components/BottomControls";
 import ForceGraph from "./components/ForceGraph";
-import { StartStopButton } from "./components/StartStopButton";
 import TaskListItem from "./components/TaskListItem";
-import { TaskProgress } from "./components/TaskProgress";
 import useWaggleDanceMachine, {
   TaskStatus,
   type TaskState,
@@ -447,105 +442,20 @@ const WaggleDance = ({}: Props) => {
           )}
         </Tabs>
       )}
-      <Box
-        className="z-100 sticky "
-        sx={{
-          bottom: "calc(env(safe-area-inset-bottom))",
-          padding: 0,
-        }}
-      >
-        <Card
-          variant="outlined"
-          color="primary"
-          sx={(theme) => ({
-            background: theme.palette.background.backdrop,
-            backdropFilter: "blur(5px)",
-            "@supports not ((-webkit-backdrop-filter: blur) or (backdrop-filter: blur))":
-              {
-                backgroundColor: theme.palette.background.surface, // Add opacity to the background color
-              },
-            borderRadius: 0,
-            overflowX: "clip",
-            marginX: "calc(-1 * var(--variant-borderWidth, 0px))",
-            marginBottom: "calc(-10 * var(--variant-borderWidth, 0px))",
-            paddingTop: shouldShowProgress ? 0 : "var(--Card-padding, 0px)",
-          })}
-        >
-          {shouldShowProgress && (
-            <TaskProgress
-              progressPercent={progressPercent}
-              inProgressOrDonePercent={inProgressOrDonePercent}
-              progressLabel={progressLabel}
-            />
-          )}
-
-          <Stack
-            direction={{ xs: "column", sm: "row" }}
-            gap={1}
-            className="flex w-full items-center"
-          >
-            {!isRunning && selectedGoal && (
-              <ExecutionSelect
-                goalId={selectedGoal.id}
-                executions={selectedGoal.executions}
-                sx={{
-                  width: "100%",
-                  flex: "1 1 auto",
-                }}
-                className="overflow-clip"
-              />
-            )}
-            <Box
-              component={Stack}
-              direction="row"
-              className="min-w-fit justify-end"
-              sx={{
-                alignItems: "center",
-                pl: 1.5,
-                flex: "1 1 auto",
-              }}
-              gap={1}
-            >
-              <Box
-                className="items-center justify-end text-center align-top"
-                component={Stack}
-                gap={0.5}
-              >
-                {!session && (
-                  <Box className="text-center">
-                    <Typography level="body-sm">
-                      <Link href={routes.auth} target="_blank" color="primary">
-                        {isRunning
-                          ? "Sign in to save your next waggle"
-                          : undefined}
-                      </Link>
-                    </Typography>
-                    <Divider />
-                  </Box>
-                )}
-                <Checkbox
-                  size="sm"
-                  checked={isAutoScrollToBottom}
-                  onChange={(e: React.ChangeEvent<HTMLInputElement>) => {
-                    setIsAutoScrollToBottom(e.target.checked);
-                  }}
-                  label={<Typography>Auto scroll to task</Typography>}
-                >
-                  Autostart
-                </Checkbox>
-
-                <GoalSettings />
-              </Box>
-              <StartStopButton
-                isRunning={isRunning}
-                handleStart={handleStart}
-                handleStop={handleStop}
-                dag={dag}
-              />
-            </Box>
-          </Stack>
-        </Card>
-      </Box>
+      <BottomControls
+        session={session}
+        isRunning={isRunning}
+        selectedGoal={selectedGoal}
+        dag={dag}
+        handleStart={handleStart}
+        handleStop={handleStop}
+        setIsAutoScrollToBottom={setIsAutoScrollToBottom}
+        isAutoScrollToBottom={isAutoScrollToBottom}
+        shouldShowProgress={shouldShowProgress}
+        progressPercent={progressPercent}
+        inProgressOrDonePercent={inProgressOrDonePercent}
+        progressLabel={progressLabel}
+      />
     </Stack>
   );
 };
