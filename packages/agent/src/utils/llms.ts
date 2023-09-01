@@ -67,7 +67,7 @@ export type AgentType =
 
 export function getAgentPromptingMethodValue(
   method: Exclude<AgentPromptingMethod, "PlanAndExecute">, // different AgentExecutor, see callExecutionAgent.ts
-): AgentType {
+): AgentType | null {
   switch (method) {
     case AgentPromptingMethod.ZeroShotReAct:
       return "zero-shot-react-description";
@@ -80,7 +80,7 @@ export function getAgentPromptingMethodValue(
     case AgentPromptingMethod.OpenAIFunctions:
       return "openai-functions";
     case AgentPromptingMethod.PlanAndExecute:
-      throw new Error("PlanAndExecute is not a valid prompting method");
+      return null; //throw new Error("PlanAndExecute is not a valid prompting method");
   }
 }
 
