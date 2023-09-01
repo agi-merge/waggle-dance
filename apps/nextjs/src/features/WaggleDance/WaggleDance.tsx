@@ -1,11 +1,5 @@
 import assert from "assert";
-import React, {
-  useCallback,
-  useEffect,
-  useMemo,
-  useRef,
-  useState,
-} from "react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import router from "next/router";
 import { BugReport, Lan, ListAlt, Science } from "@mui/icons-material";
 import { Link } from "@mui/joy";
@@ -34,7 +28,8 @@ import useWaggleDanceMachineStore, {
 } from "~/stores/waggleDanceStore";
 import BottomControls from "./components/BottomControls";
 import ForceGraph from "./components/ForceGraph";
-import TaskListItem from "./components/TaskListItem";
+import { ResultsTab } from "./components/ResultsTab";
+import { TaskListTab } from "./components/TaskListTab";
 import useWaggleDanceMachine, {
   TaskStatus,
   type TaskState,
@@ -353,22 +348,13 @@ const WaggleDance = ({}: Props) => {
           {taskStates.length > 0 ? (
             <>
               <TabPanel value={0} className="w-full overflow-y-scroll p-4">
-                <List aria-label="Task list" size="sm" ref={taskListRef}>
-                  {sortedTaskStates.map((t, i) => (
-                    <React.Fragment key={t.id}>
-                      <TaskListItem
-                        task={t}
-                        i={i}
-                        statusColor={statusColor}
-                        listItemsRef={listItemsRef}
-                        isRunning={isRunning}
-                      />
-                      {i !== sortedTaskStates.length - 1 && (
-                        <ListDivider inset="gutter" sx={{ margin: 1.5 }} />
-                      )}
-                    </React.Fragment>
-                  ))}
-                </List>
+                <TaskListTab
+                  sortedTaskStates={sortedTaskStates}
+                  statusColor={statusColor}
+                  isRunning={isRunning}
+                  listItemsRef={listItemsRef}
+                  taskListRef={taskListRef}
+                />
               </TabPanel>
 
               <TabPanel
@@ -380,19 +366,7 @@ const WaggleDance = ({}: Props) => {
               </TabPanel>
 
               <TabPanel value={2} className="w-full overflow-y-scroll p-4">
-                <List
-                  className="absolute left-0 top-0 mt-3"
-                  sx={{
-                    marginX: { xs: -2, sm: 0 },
-                  }}
-                  aria-label="Results List"
-                >
-                  {taskStates
-                    .filter((t) => !!t.result)
-                    .map((t) => (
-                      <Box key={t.id}>{t.result}</Box>
-                    ))}
-                </List>
+                <ResultsTab taskStates={taskStates} />
               </TabPanel>
 
               <TabPanel value={3} className="w-full overflow-y-scroll p-4">
