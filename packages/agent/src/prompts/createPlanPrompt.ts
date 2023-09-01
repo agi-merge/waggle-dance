@@ -7,10 +7,11 @@ import {
   SystemMessagePromptTemplate,
 } from "langchain/prompts";
 import { MemoryVectorStore } from "langchain/vectorstores/memory";
+import { stringify as jsonStringify } from "superjson";
+import { stringify as yamlStringify } from "yaml";
 
 import { LLM } from "../utils/llms";
 import { createEmbeddings } from "../utils/model";
-import { examplePrompts } from "./createRefinePrompt";
 import { criticismSuffix } from "./types";
 
 const schema = (_format: string) =>
@@ -23,7 +24,6 @@ Node
   name: string // a unique-amongst-nodes emoji plus a short description of the node
   act: string
   context: string // paragraph describing what this node is about and how to properly execute the act
-  params: string // string of pertinent key-value pairs separated by commas
 Edge
   sId: uuid
   tId: uuid
@@ -42,32 +42,172 @@ For every level in the DAG, include a single node with id ending with "${critici
 The only top level keys must be one array of "nodes" followed by one array of "edges".
 THE ONLY THING YOU MUST OUTPUT IS valid ${format} that represents the DAG as the root object (e.g. ( nodes, edges ))`.trim();
 
-const exampleInputs = examplePrompts.map((goal) => {
-  return { goal };
-});
-
 export async function createPlanPrompt(params: {
   goal: string;
   goalId: string;
   tools: string;
-  returnType: string;
+  returnType: "JSON" | "YAML";
 }): Promise<ChatPromptTemplate> {
   const { goal, tools, returnType } = params;
+  const highQualityExamples = [
+    {
+      input:
+        "Create a markdown document that compares and contrasts the costs, benefits, regional differences, and risks of implementing rooftop distributed solar, versus utility-scale solar, versus community solar.",
+      output: {
+        nodes: [
+          {
+            id: "1-1",
+            name: "Research rooftop distributed solar",
+            act: "research",
+            context:
+              "Conduct an in-depth research on the costs, benefits, regional differences, and risks of implementing rooftop distributed solar. Gather data from reliable sources.",
+          },
+          {
+            id: "1-2",
+            name: "Research utility-scale solar",
+            act: "research",
+            context:
+              "Investigate the costs, benefits, regional differences, and risks of utility-scale solar. Ensure the information is up-to-date and accurate.",
+          },
+          {
+            id: "1-3",
+            name: "Research community solar",
+            act: "research",
+            context:
+              "Study the costs, benefits, regional differences, and risks of community solar. Information should be comprehensive and relevant.",
+          },
+          {
+            id: "2-1",
+            name: "Compile Research",
+            act: "compile",
+            context:
+              "Compile the researched data in a structured format for easy comparison.",
+          },
+          {
+            id: "2-2",
+            name: "Write markdown document",
+            act: "write",
+            context:
+              "Write a markdown document that compares and contrasts the researched information. The document should be clear, concise, and well-structured.",
+          },
+        ],
+        edges: [
+          { sId: "1-1", tId: "2-1" },
+          { sId: "1-2", tId: "2-1" },
+          { sId: "1-3", tId: "2-1" },
+          { sId: "2-1", tId: "2-2" },
+        ],
+      },
+    },
+    {
+      input:
+        "I need to find the most talked-about books in the self-help genre in 2023. Provide a list of top 10 books along with their brief summaries.",
+      output: {
+        nodes: [
+          {
+            id: "1-1",
+            name: "Research books",
+            act: "research",
+            context:
+              "Research the most talked-about books in the self-help genre in 2023. Use reliable sources like top book review sites, bestseller lists, and reader reviews.",
+          },
+          {
+            id: "2-1",
+            name: "Select top 10 books",
+            act: "select",
+            context:
+              "From the researched books, select the top 10 based on factors like popularity, reviews, and relevance.",
+          },
+          {
+            id: "3-1",
+            name: "Summarize books",
+            act: "summarize",
+            context:
+              "Provide brief summaries for the top 10 books. Each summary should highlight the key points of the book.",
+          },
+        ],
+        edges: [
+          { sId: "1-1", tId: "2-1" },
+          { sId: "2-1", tId: "3-1" },
+        ],
+      },
+    },
+    {
+      input:
+        "What are the top trending toys for 6-8 year olds on Amazon in April 2023? Provide a list with their prices and customer ratings.",
+      output: {
+        nodes: [
+          {
+            id: "1-1",
+            name: "Research trending toys",
+            act: "research",
+            context:
+              "Research the top trending toys for 6-8 year olds on Amazon in April 2023. Find reliable sources that provide accurate trends.",
+          },
+          {
+            id: "2-1",
+            name: "List toys with prices and ratings",
+            act: "list",
+            context:
+              "From the researched toys, list them along with their prices and customer ratings. Ensure the information is accurate and up-to-date.",
+          },
+        ],
+        edges: [{ sId: "1-1", tId: "2-1" }],
+      },
+    },
+    {
+      input:
+        "I am starting a digital marketing agency. What are the key steps and strategies used by successful digital marketing startups in the last two years?",
+      output: {
+        nodes: [
+          {
+            id: "1-1",
+            name: "Research successful digital marketing startups",
+            act: "research",
+            context:
+              "Research successful digital marketing startups in the last two years. Find reliable sources that provide detailed information about their strategies.",
+          },
+          {
+            id: "2-1",
+            name: "Identify key steps and strategies",
+            act: "identify",
+            context:
+              "From the researched startups, identify the key steps and strategies they used. Look for common trends and unique approaches.",
+          },
+          {
+            id: "3-1",
+            name: "Compile steps and strategies",
+            act: "compile",
+            context:
+              "Compile the identified steps and strategies in a clear and organized manner. The information should be easy to understand and apply.",
+          },
+        ],
+        edges: [
+          { sId: "1-1", tId: "2-1" },
+          { sId: "2-1", tId: "3-1" },
+        ],
+      },
+    },
+  ];
+
+  // Convert highQualityExamples to the desired format
+  const formattedHighQualityExamples = highQualityExamples.map((example) => {
+    const formattedOutput =
+      returnType === "JSON"
+        ? jsonStringify(example.output)
+        : yamlStringify(example.output);
+
+    return {
+      ...example,
+      output: formattedOutput,
+    };
+  });
 
   const exampleSelector = await SemanticSimilarityExampleSelector.fromExamples(
-    [
-      {
-        input: "browse https://waggledance.ai",
-        output: "{ nodes: [], edges: [] }",
-      },
-      { input: "tall", output: "short" },
-      { input: "energetic", output: "lethargic" },
-      { input: "sunny", output: "gloomy" },
-      { input: "windy", output: "calm" },
-    ],
+    formattedHighQualityExamples,
     createEmbeddings({ modelName: LLM.embeddings }),
     MemoryVectorStore,
-    { k: 1 },
+    { k: 2 },
   );
 
   const template = `
@@ -83,19 +223,23 @@ TASK: To come up with an efficient and expert plan to solve the User's GOAL.
   // Create a prompt template that will be used to format the examples.
   const examplePrompt = new PromptTemplate({
     inputVariables: ["input", "output"],
-    template: "Input: {input}\nOutput: {output}",
+    template: `Input:\n{input}\nOutput:\n{output}`,
   });
   // Create a FewShotPromptTemplate that will use the example selector.
   const dynamicPrompt = new FewShotPromptTemplate({
     // We provide an ExampleSelector instead of examples.
     exampleSelector,
     examplePrompt,
-    prefix: template,
-    suffix: "Input: {goal}\nOutput:",
-    inputVariables: ["goal"],
+    prefix: "",
+    suffix: "",
+    inputVariables: [],
   });
   // Input is about the weather, so should select eg. the sunny/gloomy example
-  const examples = await dynamicPrompt.format(exampleInputs);
+
+  // const examples = await Promise.all(
+  //   exampleInputs.map((input) => dynamicPrompt.format(input)),
+  // );
+  const examples = await dynamicPrompt.format({ goal });
   console.debug(`examples: ${examples}`);
 
   // Create a SystemMessagePromptTemplate instance
@@ -103,8 +247,9 @@ TASK: To come up with an efficient and expert plan to solve the User's GOAL.
     SystemMessagePromptTemplate.fromTemplate(template);
 
   const examplesTemplate = `Here are some example GOAL and DAG pairs: ${examples}`;
-  const examplesMessagePrompt =
-    HumanMessagePromptTemplate.fromTemplate(examplesTemplate);
+  const _examplesMessagePrompt =
+    SystemMessagePromptTemplate.fromTemplate(examplesTemplate);
+
   // Create a human message prompt template
   const humanTemplate = `My GOAL is: ${goal}`;
   const humanMessagePrompt =
@@ -113,21 +258,9 @@ TASK: To come up with an efficient and expert plan to solve the User's GOAL.
   // Create a chat prompt template from the system and human message prompts
   const chatPrompt = ChatPromptTemplate.fromPromptMessages([
     systemMessagePrompt,
-    examplesMessagePrompt,
+    // examplesMessagePrompt,
     humanMessagePrompt,
   ]);
 
   return chatPrompt;
-
-  // // Format the messages with the desired input values
-  // const formattedChatPrompt = await chatPrompt.format({}); //.formatMessages({});
-  // // Format the prompt
-  // // const formattedPrompt = await systemMessagePrompt.format({});
-
-  // // const { name, content } = formattedChatPrompt;
-
-  // console.debug(`plan prompt: ${formattedChatPrompt}`);
-
-  // // You can now use `formattedPrompt` in your LLMChain or wherever you're sending the prompt to the model
-  // return PromptTemplate.fromTemplate(formattedChatPrompt);
 }

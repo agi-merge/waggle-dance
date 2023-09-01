@@ -1,8 +1,17 @@
 import {
   ChatPromptTemplate,
+  FewShotPromptTemplate,
   HumanMessagePromptTemplate,
+  PromptTemplate,
+  SemanticSimilarityExampleSelector,
   SystemMessagePromptTemplate,
 } from "langchain/prompts";
+import { MemoryVectorStore } from "langchain/vectorstores/memory";
+import { stringify as jsonStringify } from "superjson";
+import { stringify as yamlStringify } from "yaml";
+
+import { createEmbeddings } from "../..";
+import { LLM } from "../utils/llms";
 
 // Helper function to generate the base schema
 function executeBaseSchema(_format: string, _llmName: string) {
@@ -41,80 +50,102 @@ AGAIN, THE ONLY THING YOU MUST OUTPUT IS ${format} that represents the execution
 `.trim();
 }
 
-const examples = `[
+const highQualityExamples = [
   {
-    "type": "success",
-    "value": {
-      "task": "Create a markdown document that compares and contrasts the costs, benefits, regional differences, and risks of implementing rooftop distributed solar, versus utility-scale solar, versus community solar.",
-      "revieweeOutput": "# Solar Power Comparison\n\n## Rooftop Distributed Solar\n\nCosts: High initial cost, low maintenance cost\nBenefits: Reduces electricity bill, increases property value\nRegional Differences: More effective in sunny regions\nRisks: High upfront cost, dependent on weather\n\n## Utility-Scale Solar\n\nCosts: Lower cost per watt\nBenefits: Large scale power generation, more efficient\nRegional Differences: Requires large land area\nRisks: High initial investment, long payback period\n\n## Community Solar\n\nCosts: Lower cost due to shared resources\nBenefits: Accessible to those who can't install solar panels\nRegional Differences: Depends on community participation\nRisks: Dependent on continued community interest and participation",
-      "scores": {
-        "coherence": 0.85,
-        "creativity": 0.75,
-        "efficiency": 0.9,
-        "estimatedIQ": 0.8,
-        "directness": 0.8,
-        "resourcefulness": 0.7,
-        "accuracy": 0.95,
-        "ethics": 0.85,
-        "overall": 0.82
-      }
-    }
+    input:
+      "Create a markdown document that compares and contrasts the costs, benefits, regional differences, and risks of implementing rooftop distributed solar, versus utility-scale solar, versus community solar.",
+    output: {
+      type: "success",
+      value: {
+        task: "Create a markdown document that compares and contrasts the costs, benefits, regional differences, and risks of implementing rooftop distributed solar, versus utility-scale solar, versus community solar.",
+        revieweeOutput:
+          "# Solar Power Comparison\n\n## Rooftop Distributed Solar\n\nCosts: High initial cost, low maintenance cost\nBenefits: Reduces electricity bill, increases property value\nRegional Differences: More effective in sunny regions\nRisks: High upfront cost, dependent on weather\n\n## Utility-Scale Solar\n\nCosts: Lower cost per watt\nBenefits: Large scale power generation, more efficient\nRegional Differences: Requires large land area\nRisks: High initial investment, long payback period\n\n## Community Solar\n\nCosts: Lower cost due to shared resources\nBenefits: Accessible to those who can't install solar panels\nRegional Differences: Depends on community participation\nRisks: Dependent on continued community interest and participation",
+        scores: {
+          coherence: 0.85,
+          creativity: 0.75,
+          efficiency: 0.9,
+          estimatedIQ: 0.8,
+          directness: 0.8,
+          resourcefulness: 0.7,
+          accuracy: 0.95,
+          ethics: 0.85,
+          overall: 0.82,
+        },
+      },
+    },
   },
   {
-    "type": "requestHumanInput",
-    "reason": "We are attempting to browse the web, but we do not have access to that Skill."
+    input:
+      "We are attempting to browse the web, but we do not have access to that Skill.",
+    output: {
+      type: "requestHumanInput",
+      reason:
+        "We are attempting to browse the web, but we do not have access to that Skill.",
+    },
   },
   {
-    "type": "error",
-    "severity": "fatal",
-    "message": "It seems there is an error with the REVIEWEE OUTPUT as it is 'undefined'. This means that the task of reviewing the list of airlines was not completed. Therefore, it's impossible to calculate a weighted score for the criteria provided. The REVIEWEE TASK should be reattempted with a valid output."
-  }
-]
-`.trim();
+    input:
+      "It seems there is an error with the REVIEWEE OUTPUT as it is 'undefined'. This means that the task of reviewing the list of airlines was not completed. Therefore, it's impossible to calculate a weighted score for the criteria provided. The REVIEWEE TASK should be reattempted with a valid output.",
+    output: {
+      type: "error",
+      severity: "fatal",
+      message:
+        "It seems there is an error with the REVIEWEE OUTPUT as it is 'undefined'. This means that the task of reviewing the list of airlines was not completed. Therefore, it's impossible to calculate a weighted score for the criteria provided. The REVIEWEE TASK should be reattempted with a valid output.",
+    },
+  },
+];
 
-const counterExamples = `[
+const _counterExamples = [
   {
-    "type": "success",
-    "value": {
-      "task": "Create a markdown document that compares and contrasts the costs, benefits, regional differences, and risks of implementing rooftop distributed solar, versus utility-scale solar, versus community solar.",
-      "revieweeOutput": "Solar power is good.",
-      "scores": {
-        "coherence": 0.95,
-        "creativity": 0.9,
-        "efficiency": 0.95,
-        "estimatedIQ": 0.9,
-        "directness": 0.9,
-        "resourcefulness": 0.9,
-        "accuracy": 0.95,
-        "ethics": 0.9,
-        "overall": 0.92
-      }
-    }
+    input:
+      "Create a markdown document that compares and contrasts the costs, benefits, regional differences, and risks of implementing rooftop distributed solar, versus utility-scale solar, versus community solar.",
+    output: {
+      type: "success",
+      value: {
+        task: "Create a markdown document that compares and contrasts the costs, benefits, regional differences, and risks of implementing rooftop distributed solar, versus utility-scale solar, versus community solar.",
+        revieweeOutput: "Solar power is good.",
+        scores: {
+          coherence: 0.95,
+          creativity: 0.9,
+          efficiency: 0.95,
+          estimatedIQ: 0.9,
+          directness: 0.9,
+          resourcefulness: 0.9,
+          accuracy: 0.95,
+          ethics: 0.9,
+          overall: 0.92,
+        },
+      },
+    },
   },
   {
-    "type": "error",
-    "severity": "fatal",
-    "message": "It seems there is an error with the REVIEWEE OUTPUT as it is 'undefined'. This means that the task of reviewing the list of airlines was not completed. Therefore, it's impossible to calculate a weighted score for the criteria provided. The REVIEWEE TASK should be reattempted with a valid output.",
-    "value": {
-      "task": "Create a markdown document that compares and contrasts the costs, benefits, regional differences, and risks of implementing rooftop distributed solar, versus utility-scale solar, versus community solar.",
-      "revieweeOutput": "# Solar Power Comparison\n\n## Rooftop Distributed Solar\n\nCosts: High initial cost, low maintenance cost\nBenefits: Reduces electricity bill, increases property value\nRegional Differences: More effective in sunny regions\nRisks: High upfront cost, dependent on weather\n\n## Utility-Scale Solar\n\nCosts: Lower cost per watt\nBenefits: Large scale power generation, more efficient\nRegional Differences: Requires large land area\nRisks: High initial investment, long payback period\n\n## Community Solar\n\nCosts: Lower cost due to shared resources\nBenefits: Accessible to those who can't install solar panels\nRegional Differences: Depends on community participation\nRisks: Dependent on continued community interest and participation",
-      "scores": {
-        "coherence": 0.85,
-        "creativity": 0.75,
-        "efficiency": 0.9,
-        "estimatedIQ": 0.8,
-        "directness": 0.8,
-        "resourcefulness": 0.7,
-        "accuracy": 0.95,
-        "ethics": 0.85,
-        "overall": 0.82
-      }
-    }
-  }
-]
-`.trim();
+    input:
+      "It seems there is an error with the REVIEWEE OUTPUT as it is 'undefined'. This means that the task of reviewing the list of airlines was not completed. Therefore, it's impossible to calculate a weighted score for the criteria provided. The REVIEWEE TASK should be reattempted with a valid output.",
+    output: {
+      type: "error",
+      severity: "fatal",
+      message:
+        "It seems there is an error with the REVIEWEE OUTPUT as it is 'undefined'. This means that the task of reviewing the list of airlines was not completed. Therefore, it's impossible to calculate a weighted score for the criteria provided. The REVIEWEE TASK should be reattempted with a valid output.",
+      value: {
+        task: "Create a markdown document that compares and contrasts the costs, benefits, regional differences, and risks of implementing rooftop distributed solar, versus utility-scale solar, versus community solar.",
+        revieweeOutput:
+          "# Solar Power Comparison\n\n## Rooftop Distributed Solar\n\nCosts: High initial cost, low maintenance cost\nBenefits: Reduces electricity bill, increases property value\nRegional Differences: More effective in sunnyregions\nRisks: High upfront cost, dependent on weather\n\n## Utility-Scale Solar\n\nCosts: Lower cost per watt\nBenefits: Large scale power generation, more efficient\nRegional Differences: Requires large land area\nRisks: High initial investment, long payback period\n\n## Community Solar\n\nCosts: Lower cost due to shared resources\nBenefits: Accessible to those who can't install solar panels\nRegional Differences: Depends on community participation\nRisks: Dependent on continued community interest and participation",
+        scores: {
+          coherence: 0.85,
+          creativity: 0.75,
+          efficiency: 0.9,
+          estimatedIQ: 0.8,
+          directness: 0.8,
+          resourcefulness: 0.7,
+          accuracy: 0.95,
+          ethics: 0.85,
+          overall: 0.82,
+        },
+      },
+    },
+  },
+];
 
-// eslint-disable-next-line @typescript-eslint/require-await
 export async function createExecutePrompt(params: {
   task: string;
   returnType: "YAML" | "JSON";
@@ -127,13 +158,50 @@ export async function createExecutePrompt(params: {
   Execute TASK: ${task}
   Server TIME: ${new Date().toString()}
   CONSTRAINTS: ${constraints(returnType)}
-  EXAMPLES: ${examples}
-  COUNTER EXAMPLES: ${counterExamples}
   SCHEMA: ${schema}
   `.trim();
 
+  // Convert highQualityExamples to the desired format
+  const formattedHighQualityExamples = highQualityExamples.map((example) => {
+    const formattedOutput =
+      returnType === "JSON" ? jsonStringify(example) : yamlStringify(example);
+
+    return {
+      ...example,
+      output: formattedOutput,
+    };
+  });
+
+  const exampleSelector = await SemanticSimilarityExampleSelector.fromExamples(
+    formattedHighQualityExamples,
+    createEmbeddings({ modelName: LLM.embeddings }),
+    MemoryVectorStore,
+    { k: 2 },
+  );
+
+  // Create a prompt template that will be used to format the examples.
+  const examplePrompt = new PromptTemplate({
+    inputVariables: ["input", "output"],
+    template: `Input:\n{input}\nOutput:\n{output}`,
+  });
+
+  // Create a FewShotPromptTemplate that will use the example selector.
+  const dynamicPrompt = new FewShotPromptTemplate({
+    exampleSelector,
+    examplePrompt,
+    prefix: "",
+    suffix: "",
+    inputVariables: [],
+  });
+
+  const exampleTemplate = await dynamicPrompt.format({ task });
+  console.debug(`examples: ${exampleTemplate}`);
+
   const systemMessagePrompt =
     SystemMessagePromptTemplate.fromTemplate(systemTemplate);
+
+  const _examplesSystemMessagePrompt =
+    SystemMessagePromptTemplate.fromTemplate(exampleTemplate);
 
   const humanTemplate = `My TASK is: ${task}`;
   const humanMessagePrompt =
@@ -141,6 +209,7 @@ export async function createExecutePrompt(params: {
 
   const chatPrompt = ChatPromptTemplate.fromPromptMessages([
     systemMessagePrompt,
+    // examplesSystemMessagePrompt,
     humanMessagePrompt,
   ]);
 
