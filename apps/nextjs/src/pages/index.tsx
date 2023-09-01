@@ -1,12 +1,16 @@
 // pages/index.tsx
 
+import { Suspense } from "react";
 import dynamic from "next/dynamic";
 import Link from "next/link";
 import Tooltip from "@mui/joy/Tooltip";
 import Typography from "@mui/joy/Typography";
 
-import GoalPromptInput from "~/features/GoalPrompt/GoalPromptInput";
 import Title from "~/features/MainLayout/components/PageTitle";
+
+const LazyGoalPromptInput = dynamic(() =>
+  import("~/features/GoalPrompt/GoalPromptInput").then((mod) => mod.default),
+);
 
 export const HomeContent = () => {
   return (
@@ -27,7 +31,9 @@ export const HomeContent = () => {
           of large language model agents
         </Typography>
       </Title>
-      <GoalPromptInput />
+      <Suspense fallback={<div>Loading input...</div>}>
+        <LazyGoalPromptInput />
+      </Suspense>
     </>
   );
 };
@@ -37,5 +43,9 @@ const LazyGoalDynamicRoute = dynamic(() =>
 );
 
 export default function Home() {
-  return <LazyGoalDynamicRoute />;
+  return (
+    <Suspense fallback={<div>Loading...</div>}>
+      <LazyGoalDynamicRoute />
+    </Suspense>
+  );
 }

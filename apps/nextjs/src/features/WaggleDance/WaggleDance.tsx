@@ -1,5 +1,6 @@
 import assert from "assert";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
+import dynamic from "next/dynamic";
 import router from "next/router";
 import { BugReport, Lan, ListAlt, Science } from "@mui/icons-material";
 import { Link } from "@mui/joy";
@@ -26,15 +27,22 @@ import useGoalStore from "~/stores/goalStore";
 import useWaggleDanceMachineStore, {
   createDraftExecution,
 } from "~/stores/waggleDanceStore";
-import BottomControls from "./components/BottomControls";
 import ForceGraph from "./components/ForceGraph";
-import { ResultsTab } from "./components/ResultsTab";
-import { TaskListTab } from "./components/TaskListTab";
 import useWaggleDanceMachine, {
   TaskStatus,
   type TaskState,
 } from "./hooks/useWaggleDanceMachine";
 import { rootPlanId } from "./initialNodes";
+
+const ResultsTab = dynamic(() =>
+  import("./components/ResultsTab").then((mod) => mod.ResultsTab),
+);
+const TaskListTab = dynamic(() =>
+  import("./components/TaskListTab").then((mod) => mod.TaskListTab),
+);
+const BottomControls = dynamic(() =>
+  import("./components/BottomControls").then((mod) => mod.default),
+);
 
 type Props = StackProps;
 // shows the graph, agents, results, general messages and chat input

@@ -1,6 +1,7 @@
 // features/MainLayout/index.tsx
 
-import React, { useEffect, useMemo, useState } from "react";
+import React, { Suspense, useEffect, useMemo, useState } from "react";
+import dynamic from "next/dynamic";
 import Head from "next/head";
 import { useRouter } from "next/router";
 import Box from "@mui/joy/Box";
@@ -11,11 +12,22 @@ import { useColorScheme } from "@mui/joy/styles";
 
 import { app } from "~/constants";
 import useApp from "~/stores/appStore";
-import Alerts from "../Alerts/Alerts";
-import ErrorSnackbar from "../Alerts/ErrorSnackbar";
-import GoalTabs from "../WaggleDance/components/GoalTabs";
-import Footer from "./components/Footer";
-import Header from "./components/Header";
+
+const Alerts = dynamic(() =>
+  import("../Alerts/Alerts").then((mod) => mod.default),
+);
+const ErrorSnackbar = dynamic(() =>
+  import("../Alerts/ErrorSnackbar").then((mod) => mod.default),
+);
+const GoalTabs = dynamic(() =>
+  import("../WaggleDance/components/GoalTabs").then((mod) => mod.default),
+);
+const Footer = dynamic(() =>
+  import("./components/Footer").then((mod) => mod.default),
+);
+const Header = dynamic(() =>
+  import("./components/Header").then((mod) => mod.default),
+);
 
 type Props = {
   children: React.ReactNode;
@@ -96,35 +108,37 @@ const MainLayout = ({ children }: Props) => {
           })}
           variant="soft"
         >
-          <Header />
-          <Card
-            invertedColors
-            color="primary"
-            variant="outlined"
-            className="-m-2 p-0"
-            sx={{
-              borderRadius: "lg",
-              paddingBottom: 0,
-              zIndex: 1,
-              opacity: pageOpacity,
-            }}
-          >
-            <Alerts />
-            <GoalTabs>
-              <LinearProgress
-                thickness={3}
-                sx={{ visibility: isPageLoading ? "visible" : "hidden" }}
-                color="neutral"
-              />
-              {children}
-            </GoalTabs>
-          </Card>
-          <Footer
-            className="xs:scale-75 sticky bottom-0 flex w-full pb-2 pt-10 md:scale-100"
-            style={{
-              bottom: "calc(env(safe-area-inset-bottom))",
-            }}
-          />
+          <Suspense fallback={<div>Loading...</div>}>
+            <Header />
+            <Card
+              invertedColors
+              color="primary"
+              variant="outlined"
+              className="-m-2 p-0"
+              sx={{
+                borderRadius: "lg",
+                paddingBottom: 0,
+                zIndex: 1,
+                opacity: pageOpacity,
+              }}
+            >
+              <Alerts />
+              <GoalTabs>
+                <LinearProgress
+                  thickness={3}
+                  sx={{ visibility: isPageLoading ? "visible" : "hidden" }}
+                  color="neutral"
+                />
+                {children}
+              </GoalTabs>
+            </Card>
+            <Footer
+              className="xs:scale-75 sticky bottom-0 flex w-full pb-2 pt-10 md:scale-100"
+              style={{
+                bottom: "calc(env(safe-area-inset-bottom))",
+              }}
+            />
+          </Suspense>
         </Card>
       </Box>
       <ErrorSnackbar />
