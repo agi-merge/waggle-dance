@@ -17,7 +17,7 @@ const useApp = create<AppState>((set) => ({
   isAutoScrollToBottom: true,
   setIsAutoScrollToBottom: (newState) =>
     set({ isAutoScrollToBottom: newState }),
-  isAutoRefineEnabled: false,
+  isAutoRefineEnabled: true,
   setIsAutoRefineEnabled: (newState) => set({ isAutoRefineEnabled: newState }),
   error: null,
   setError: (newState) => set({ error: newState }),
