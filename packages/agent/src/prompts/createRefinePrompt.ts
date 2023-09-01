@@ -39,6 +39,7 @@ type ExampleFeedback = {
 };
 
 export const examplePrompts = [
+  "Create a markdown document that compares and contrasts the costs, benefits, regional differences, and risks of implementing rooftop distributed solar, versus utility-scale solar, versus community solar.",
   "I need to find the most talked-about books in the self-help genre in 2023. Provide a list of top 10 books along with their brief summaries.",
   "What are the top trending toys for 6-8 year olds on Amazon in April 2023? Provide a list with their prices and customer ratings.",
   "I am starting a digital marketing agency. What are the key steps and strategies used by successful digital marketing startups in the last two years?",

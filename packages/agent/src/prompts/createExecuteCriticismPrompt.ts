@@ -21,6 +21,7 @@ const constraints = (_format: string) =>
 - If the TASK is not sufficiently complete, return an error or requestHumanInput ChainPacket.
 - Do not get stuck in a loop. (e.g. repeating the same action over and over again.)
 - Your output will be reviewed, so ensure it is an accurate and complete execution of the TASK.
+- Follow multiple routes; avoid final responses such as "I'm sorry, but I was unable to find information [x]. It may be necessary to try a different approach or check the website at a later time."
 `.trim();
 
 // Helper function to generate the execute schema
@@ -40,6 +41,79 @@ AGAIN, THE ONLY THING YOU MUST OUTPUT IS ${format} that represents the execution
 `.trim();
 }
 
+const examples = `[
+  {
+    "type": "success",
+    "value": {
+      "task": "Create a markdown document that compares and contrasts the costs, benefits, regional differences, and risks of implementing rooftop distributed solar, versus utility-scale solar, versus community solar.",
+      "revieweeOutput": "# Solar Power Comparison\n\n## Rooftop Distributed Solar\n\nCosts: High initial cost, low maintenance cost\nBenefits: Reduces electricity bill, increases property value\nRegional Differences: More effective in sunny regions\nRisks: High upfront cost, dependent on weather\n\n## Utility-Scale Solar\n\nCosts: Lower cost per watt\nBenefits: Large scale power generation, more efficient\nRegional Differences: Requires large land area\nRisks: High initial investment, long payback period\n\n## Community Solar\n\nCosts: Lower cost due to shared resources\nBenefits: Accessible to those who can't install solar panels\nRegional Differences: Depends on community participation\nRisks: Dependent on continued community interest and participation",
+      "scores": {
+        "coherence": 0.85,
+        "creativity": 0.75,
+        "efficiency": 0.9,
+        "estimatedIQ": 0.8,
+        "directness": 0.8,
+        "resourcefulness": 0.7,
+        "accuracy": 0.95,
+        "ethics": 0.85,
+        "overall": 0.82
+      }
+    }
+  },
+  {
+    "type": "requestHumanInput",
+    "reason": "We are attempting to browse the web, but we do not have access to that Skill."
+  },
+  {
+    "type": "error",
+    "severity": "fatal",
+    "message": "It seems there is an error with the REVIEWEE OUTPUT as it is 'undefined'. This means that the task of reviewing the list of airlines was not completed. Therefore, it's impossible to calculate a weighted score for the criteria provided. The REVIEWEE TASK should be reattempted with a valid output."
+  }
+]
+`.trim();
+
+const counterExamples = `[
+  {
+    "type": "success",
+    "value": {
+      "task": "Create a markdown document that compares and contrasts the costs, benefits, regional differences, and risks of implementing rooftop distributed solar, versus utility-scale solar, versus community solar.",
+      "revieweeOutput": "Solar power is good.",
+      "scores": {
+        "coherence": 0.95,
+        "creativity": 0.9,
+        "efficiency": 0.95,
+        "estimatedIQ": 0.9,
+        "directness": 0.9,
+        "resourcefulness": 0.9,
+        "accuracy": 0.95,
+        "ethics": 0.9,
+        "overall": 0.92
+      }
+    }
+  },
+  {
+    "type": "error",
+    "severity": "fatal",
+    "message": "It seems there is an error with the REVIEWEE OUTPUT as it is 'undefined'. This means that the task of reviewing the list of airlines was not completed. Therefore, it's impossible to calculate a weighted score for the criteria provided. The REVIEWEE TASK should be reattempted with a valid output.",
+    "value": {
+      "task": "Create a markdown document that compares and contrasts the costs, benefits, regional differences, and risks of implementing rooftop distributed solar, versus utility-scale solar, versus community solar.",
+      "revieweeOutput": "# Solar Power Comparison\n\n## Rooftop Distributed Solar\n\nCosts: High initial cost, low maintenance cost\nBenefits: Reduces electricity bill, increases property value\nRegional Differences: More effective in sunny regions\nRisks: High upfront cost, dependent on weather\n\n## Utility-Scale Solar\n\nCosts: Lower cost per watt\nBenefits: Large scale power generation, more efficient\nRegional Differences: Requires large land area\nRisks: High initial investment, long payback period\n\n## Community Solar\n\nCosts: Lower cost due to shared resources\nBenefits: Accessible to those who can't install solar panels\nRegional Differences: Depends on community participation\nRisks: Dependent on continued community interest and participation",
+      "scores": {
+        "coherence": 0.85,
+        "creativity": 0.75,
+        "efficiency": 0.9,
+        "estimatedIQ": 0.8,
+        "directness": 0.8,
+        "resourcefulness": 0.7,
+        "accuracy": 0.95,
+        "ethics": 0.85,
+        "overall": 0.82
+      }
+    }
+  }
+]
+`.trim();
+
 // eslint-disable-next-line @typescript-eslint/require-await
 export async function createExecutePrompt(params: {
   task: string;
@@ -53,6 +127,8 @@ export async function createExecutePrompt(params: {
   Execute TASK: ${task}
   Server TIME: ${new Date().toString()}
   CONSTRAINTS: ${constraints(returnType)}
+  EXAMPLES: ${examples}
+  COUNTER EXAMPLES: ${counterExamples}
   SCHEMA: ${schema}
   `.trim();
 

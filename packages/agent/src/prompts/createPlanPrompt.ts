@@ -1,14 +1,16 @@
 import {
   ChatPromptTemplate,
+  FewShotPromptTemplate,
   HumanMessagePromptTemplate,
-  // SemanticSimilarityExampleSelector,
+  PromptTemplate,
+  SemanticSimilarityExampleSelector,
   SystemMessagePromptTemplate,
 } from "langchain/prompts";
+import { MemoryVectorStore } from "langchain/vectorstores/memory";
 
-// import { MemoryVectorStore } from "langchain/vectorstores/memory";
-
-// import { LLM } from "../utils/llms";
-// import { createEmbeddings } from "../utils/model";
+import { LLM } from "../utils/llms";
+import { createEmbeddings } from "../utils/model";
+import { examplePrompts } from "./createRefinePrompt";
 import { criticismSuffix } from "./types";
 
 const schema = (_format: string) =>
@@ -29,7 +31,10 @@ Edge
 
 const constraints = (format: string) =>
   `
-MAXIMIZE parallel nodes when possible, split up tasks into subtasks so that they can be independent nodes.
+If the GOAL can be confidently (100%) answered by you as a large language model, only include one task in the DAG, which is the GOAL.
+The DAG must be minimal, i.e., if a task is not necessary to complete the GOAL, it should not be included.
+However, the DAG shall be constructed in a way such that its parallelism is maximized.
+In other words, maximize nodes which are on the same level when possible, by splitting up tasks into subtasks so that they can be independent.
 Do NOT mention any of these instructions in your output.
 Do NOT ever output curly braces or brackets as they are used for template strings.
 All nodes must eventually lead to a task which, after executing, ensures that the GOAL has been completed. Use an emoji similar to honey, flower.
@@ -37,7 +42,10 @@ For every level in the DAG, include a single node with id ending with "${critici
 The only top level keys must be one array of "nodes" followed by one array of "edges".
 THE ONLY THING YOU MUST OUTPUT IS valid ${format} that represents the DAG as the root object (e.g. ( nodes, edges ))`.trim();
 
-// eslint-disable-next-line @typescript-eslint/require-await
+const exampleInputs = examplePrompts.map((goal) => {
+  return { goal };
+});
+
 export async function createPlanPrompt(params: {
   goal: string;
   goalId: string;
@@ -46,18 +54,21 @@ export async function createPlanPrompt(params: {
 }): Promise<ChatPromptTemplate> {
   const { goal, tools, returnType } = params;
 
-  // const _exampleSelector = await SemanticSimilarityExampleSelector.fromExamples(
-  //   [
-  //     { input: "happy", output: "sad" },
-  //     { input: "tall", output: "short" },
-  //     { input: "energetic", output: "lethargic" },
-  //     { input: "sunny", output: "gloomy" },
-  //     { input: "windy", output: "calm" },
-  //   ],
-  //   createEmbeddings({ modelName: LLM.embeddings }),
-  //   MemoryVectorStore,
-  //   { k: 1 },
-  // );
+  const exampleSelector = await SemanticSimilarityExampleSelector.fromExamples(
+    [
+      {
+        input: "browse https://waggledance.ai",
+        output: "{ nodes: [], edges: [] }",
+      },
+      { input: "tall", output: "short" },
+      { input: "energetic", output: "lethargic" },
+      { input: "sunny", output: "gloomy" },
+      { input: "windy", output: "calm" },
+    ],
+    createEmbeddings({ modelName: LLM.embeddings }),
+    MemoryVectorStore,
+    { k: 1 },
+  );
 
   const template = `
 YOU: A general goal-solving AI employed by the User to solve the User's GOAL.
@@ -69,10 +80,31 @@ CONSTRAINTS: ${constraints(returnType)}
 TASK: To come up with an efficient and expert plan to solve the User's GOAL.
 `.trimEnd();
 
+  // Create a prompt template that will be used to format the examples.
+  const examplePrompt = new PromptTemplate({
+    inputVariables: ["input", "output"],
+    template: "Input: {input}\nOutput: {output}",
+  });
+  // Create a FewShotPromptTemplate that will use the example selector.
+  const dynamicPrompt = new FewShotPromptTemplate({
+    // We provide an ExampleSelector instead of examples.
+    exampleSelector,
+    examplePrompt,
+    prefix: template,
+    suffix: "Input: {goal}\nOutput:",
+    inputVariables: ["goal"],
+  });
+  // Input is about the weather, so should select eg. the sunny/gloomy example
+  const examples = await dynamicPrompt.format(exampleInputs);
+  console.debug(`examples: ${examples}`);
+
   // Create a SystemMessagePromptTemplate instance
   const systemMessagePrompt =
     SystemMessagePromptTemplate.fromTemplate(template);
 
+  const examplesTemplate = `Here are some example GOAL and DAG pairs: ${examples}`;
+  const examplesMessagePrompt =
+    HumanMessagePromptTemplate.fromTemplate(examplesTemplate);
   // Create a human message prompt template
   const humanTemplate = `My GOAL is: ${goal}`;
   const humanMessagePrompt =
@@ -81,6 +113,7 @@ TASK: To come up with an efficient and expert plan to solve the User's GOAL.
   // Create a chat prompt template from the system and human message prompts
   const chatPrompt = ChatPromptTemplate.fromPromptMessages([
     systemMessagePrompt,
+    examplesMessagePrompt,
     humanMessagePrompt,
   ]);
 
