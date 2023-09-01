@@ -5,6 +5,12 @@ export type NullableSkillset = Skillset | undefined | null;
 
 const skillsData: SkillsetCreate[] = [
   {
+    label: "Notify Human for Help",
+    isRecommended: true,
+    description:
+      "Receive notifications when the AI needs clarification or help with something like account access, or an error has occurred.",
+  },
+  {
     label: "🏃‍♀️ Context Baton",
     isRecommended: true,
     description: "Parent → Child context passing",
