@@ -190,7 +190,9 @@ function GoalSettings({}: CardProps) {
       </Tabs>
       {!session && (
         <Typography level="body-md" sx={{ p: 1, textAlign: "center" }}>
-          <Link href={routes.auth}>Log in to change settings</Link>
+          <Link href={routes.auth} target="_blank">
+            Log in to change settings
+          </Link>
         </Typography>
       )}
       {isRunning && isShowingAlert && (

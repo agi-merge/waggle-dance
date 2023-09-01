@@ -1,6 +1,5 @@
-import { GitHub, LinkedIn } from "@mui/icons-material";
 import Link from "next/link";
-
+import { GitHub, LinkedIn } from "@mui/icons-material";
 import List from "@mui/joy/List";
 import ListDivider from "@mui/joy/ListDivider";
 import ListItem from "@mui/joy/ListItem";
@@ -8,6 +7,7 @@ import ListItemButton from "@mui/joy/ListItemButton";
 import Stack from "@mui/joy/Stack";
 import SvgIcon from "@mui/joy/SvgIcon";
 import Typography from "@mui/joy/Typography";
+
 import { env } from "~/env.mjs";
 
 const Footer = (
@@ -62,7 +62,11 @@ const Footer = (
         <ListDivider inset="gutter" />
         <ListItem>
           <ListItemButton color="neutral">
-            <Link href="https://linkedin.com/in/willisjon" target="_blank">
+            <Link
+              href="https://linkedin.com/in/willisjon"
+              target="_blank"
+              rel="noopener noreferrer"
+            >
               <LinkedIn />
             </Link>
           </ListItemButton>
@@ -90,8 +94,13 @@ const Footer = (
               © 2023 <Link href="https://agimerge.com">agi-merge</Link>
             </Typography>
             <Typography level="body-xs">
-              <Link href="/privacy">privacy</Link> |{" "}
-              <Link href="/terms">terms</Link>
+              <Link href="/privacy" target="_blank">
+                privacy
+              </Link>{" "}
+              |{" "}
+              <Link href="/terms" target="_blank">
+                terms
+              </Link>
             </Typography>
           </Stack>
         </ListItem>
