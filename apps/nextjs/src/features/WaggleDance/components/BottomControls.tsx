@@ -62,6 +62,10 @@ const BottomControls: React.FC<BottomControlsProps> = ({
         sx={(theme) => ({
           background: theme.palette.background.backdrop,
           backdropFilter: "blur(5px)",
+          "@supports not ((-webkit-backdrop-filter: blur) or (backdrop-filter: blur))":
+            {
+              backgroundColor: theme.palette.background.surface, // Add opacity to the background color
+            },
           borderRadius: 0,
           overflowX: "clip",
           marginX: "calc(-1 * var(--variant-borderWidth, 0px))",
