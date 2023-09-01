@@ -146,6 +146,10 @@ const TaskListItem = ({
             variant="outlined"
             sx={(theme) => ({
               backgroundColor: theme.palette.background.backdrop,
+              "@supports not ((-webkit-backdrop-filter: blur) or (backdrop-filter: blur))":
+                {
+                  backgroundColor: theme.palette.background.surface, // Add opacity to the background color
+                },
             })}
           >
             <Typography level="title-lg">

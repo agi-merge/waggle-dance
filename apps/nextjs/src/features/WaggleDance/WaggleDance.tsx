@@ -320,6 +320,10 @@ const WaggleDance = ({}: Props) => {
               width: "100%",
               backgroundColor: theme.palette.background.backdrop, // semi-transparent background
               backdropFilter: "blur(10px)",
+              "@supports not ((-webkit-backdrop-filter: blur) or (backdrop-filter: blur))":
+                {
+                  backgroundColor: theme.palette.background.surface, // Add opacity to the background color
+                },
             })}
           >
             <Tab value={0} sx={{ flex: "1 1 auto" }}>
@@ -456,6 +460,10 @@ const WaggleDance = ({}: Props) => {
           sx={(theme) => ({
             background: theme.palette.background.backdrop,
             backdropFilter: "blur(5px)",
+            "@supports not ((-webkit-backdrop-filter: blur) or (backdrop-filter: blur))":
+              {
+                backgroundColor: theme.palette.background.surface, // Add opacity to the background color
+              },
             borderRadius: 0,
             overflowX: "clip",
             marginX: "calc(-1 * var(--variant-borderWidth, 0px))",

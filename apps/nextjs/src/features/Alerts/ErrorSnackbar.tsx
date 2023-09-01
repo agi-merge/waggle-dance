@@ -31,6 +31,10 @@ export default function ErrorSnackbar() {
             shadowRadius: "xl",
             backgroundColor: theme.palette.background.backdrop,
             backdropFilter: "blur(3px)",
+            "@supports not ((-webkit-backdrop-filter: blur) or (backdrop-filter: blur))":
+              {
+                backgroundColor: theme.palette.background.surface, // Add opacity to the background color
+              },
           })}
           invertedColors
           onOpenChange={(open) => !open && setError(null)}

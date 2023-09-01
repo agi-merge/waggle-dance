@@ -194,6 +194,12 @@ const GoalTabs: React.FC<GoalTabsProps> = ({ children }) => {
               ? theme.palette.background.level1
               : theme.palette.background.backdrop, // semi-transparent background
             backdropFilter: "blur(10px)",
+            "@supports not ((-webkit-backdrop-filter: blur) or (backdrop-filter: blur))":
+              {
+                backgroundColor: isRunning
+                  ? theme.palette.background.level1
+                  : theme.palette.background.surface, // Add opacity to the background color
+              },
           })}
         >
           {goalList.map((tab, index) => (
