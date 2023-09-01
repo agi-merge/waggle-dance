@@ -92,7 +92,7 @@ const WaggleDance = ({}: Props) => {
         // Compare the parts
         for (let i = 0; i < aIdParts.length && i < bIdParts.length; i++) {
           if (aIdParts[i] !== bIdParts[i]) {
-            return aIdParts[i] ?? 0 - (bIdParts[i] ?? 0);
+            return (aIdParts[i] ?? 0) - (bIdParts[i] ?? 0); // Wrap the subtraction in parentheses
           }
         }
 
