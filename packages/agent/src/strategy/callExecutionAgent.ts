@@ -71,17 +71,13 @@ export async function callExecutionAgent(creation: {
     returnType,
   } as const;
   const prompt = isReview
-    ? createCriticizePrompt(params)
-    : createExecutePrompt(params);
-  // const memory = await createMemory(goal);
-  console.log(
-    "about to format prompt",
-    JSON.stringify(prompt),
-    prompt.inputVariables,
-  );
-  const formattedPrompt = await prompt.format({
-    format: "YAML",
-  });
+    ? await createCriticizePrompt(params)
+    : await createExecutePrompt(params);
+  const formattedMessages = await prompt.formatMessages({});
+
+  const input: string = formattedMessages
+    .map((m) => `${m._getType()}: ${m.content}`)
+    .join("\n");
 
   const tools: Tool[] = [new WebBrowser({ model: llm, embeddings })];
 
@@ -144,10 +140,11 @@ export async function callExecutionAgent(creation: {
     tags,
   );
 
+  // prompt.pipe(executor).invoke({});
   try {
     const call = await executor.call(
       {
-        input: formattedPrompt,
+        input,
         signal: abortSignal,
         tags,
       },
@@ -204,7 +201,7 @@ async function initializeExecutor(
     executor = await initializeAgentExecutorWithOptions(tools, llm, options);
   } else {
     executor = PlanAndExecuteAgentExecutor.fromLLMAndTools({
-      llm: llm,
+      llm,
       tools,
       tags,
     });
