@@ -17,13 +17,10 @@ import {
   type WaggleDanceResult,
 } from "./types";
 import executeTask from "./utils/executeTask";
+import { isGoalReached } from "./utils/isGoalReached";
 import planTasks from "./utils/planTasks";
 import { sleep } from "./utils/sleep";
 
-// Check if every node is included in the completedTasks set
-function isGoalReached(dag: DAG, completedTasks: Set<string>): boolean {
-  return dag.nodes.every((node) => completedTasks.has(node.id));
-}
 export type RunParams = {
   goal: string;
   goalId: string;
