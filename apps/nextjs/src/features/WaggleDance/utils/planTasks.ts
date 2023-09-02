@@ -142,6 +142,12 @@ export default async function planTasks({
         buffer = Buffer.concat([buffer, newData]);
       }
     }
+
+    if (buffer.length > 0) {
+      postMessageCount++;
+      parseWorker.postMessage({ buffer: buffer.toString(), goal });
+    }
+
     while (postMessageCount > 0) {
       await sleep(10);
     }

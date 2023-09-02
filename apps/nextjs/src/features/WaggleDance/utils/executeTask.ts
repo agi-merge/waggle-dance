@@ -101,6 +101,11 @@ export default async function executeTask({
     }
   }
 
+  // If there's still data left in the buffer, add it to the tokens
+  if (buffer.length > 0) {
+    tokens += buffer.toString();
+  }
+
   if (!tokens || !tokens.length) {
     throw new Error(
       `No buffered tokens ${tokens} for response ${response.status} result ${result.done} `,
