@@ -52,10 +52,14 @@ const useGoalStore = () =>
         deleteGoal(id: string) {
           set((state) => {
             const { [id]: _, ...goalMap } = state.goalMap;
-            const selectedGoal =
+            let selectedGoal =
               state.selectedGoal?.id === id
                 ? state.prevSelectedGoal
                 : state.selectedGoal;
+            if (Object.keys(goalMap).length === 0) {
+              const newId = newGoalInner(set);
+              selectedGoal = goalMap[newId];
+            }
             return {
               goalMap,
               selectedGoal,
