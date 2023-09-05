@@ -3,14 +3,14 @@
 import { useCallback, useEffect, useMemo, useState } from "react";
 import { stringify } from "yaml";
 
-import { type ExecutionPlusGraph } from "@acme/db";
+import { type ExecutionEdge, type ExecutionPlusGraph } from "@acme/db";
 
 import { api } from "~/utils/api";
 import useGoalStore from "~/stores/goalStore";
 import useWaggleDanceMachineStore from "~/stores/waggleDanceStore";
 import { type ChainPacket } from "../../../../../../packages/agent";
 import { type GraphData } from "../components/ForceGraph";
-import DAG, { DAGEdgeClass, type DAGNode, type DAGNodeClass } from "../DAG";
+import DAG, { type DAGNode, type DAGNodeClass } from "../DAG";
 import {
   findNodesWithNoIncomingEdges,
   initialNodes,
@@ -54,14 +54,22 @@ const useWaggleDanceMachine = () => {
   const [dag, setDAG] = useState<DAG>(execution?.graph ?? new DAG([], []));
 
   useEffect(() => {
-    if (execution?.graph && goal?.prompt) {
-      const hookupEdges = findNodesWithNoIncomingEdges(execution?.graph).map(
-        (node) => new DAGEdgeClass(rootPlanId, node.id),
-      );
+    const graph = execution?.graph;
+    if (graph && goal?.prompt) {
+      const hookupEdges: ExecutionEdge[] = findNodesWithNoIncomingEdges(
+        graph,
+      ).map((node) => {
+        return {
+          id: node.id,
+          sId: rootPlanId,
+          tId: node.id,
+          graphId: graph.id,
+        };
+      });
       const rootAddedToGraph = new DAG(
-        [...initialNodes(goal.prompt), ...execution.graph.nodes],
+        [...initialNodes(goal.prompt), ...graph.nodes],
         // connect our initial nodes to the DAG: gotta find them and create edges
-        [...execution.graph.edges, ...hookupEdges],
+        [...graph.edges, ...hookupEdges],
       );
       setDAG(rootAddedToGraph);
     } else {

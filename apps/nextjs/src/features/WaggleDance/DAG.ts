@@ -1,3 +1,7 @@
+import { v4 } from "uuid";
+
+import { type ExecutionEdge, type ExecutionNode } from "@acme/db";
+
 // DAG.ts
 export type Context = string;
 
@@ -13,56 +17,38 @@ export interface DAGEdge {
   tId: string;
 }
 
-export class DAGNodeClass implements DAGNode {
-  id: string;
-  name: string;
-  act: string;
-  context: Context;
-  params: string | null;
+export type DAGNodeClass = ExecutionNode;
 
-  constructor(
-    id: string,
-    name: string,
-    act: string,
-    context: Context,
-    params: string | null,
-  ) {
-    this.id = id;
-    this.name = name;
-    this.act = act;
-    this.context = context;
-    this.params = params;
-  }
-}
-
-export class DAGEdgeClass implements DAGEdge {
-  sId: string;
-  tId: string;
-
-  constructor(sId: string, tId: string) {
-    this.sId = sId;
-    this.tId = tId;
-  }
-}
+export type DAGEdgeClass = ExecutionEdge;
 
 export class OptionalDAG {
-  readonly nodes?: DAGNode[];
-  readonly edges?: DAGEdge[];
+  readonly nodes?: ExecutionNode[];
+  readonly edges?: ExecutionEdge[];
 
   constructor(
-    nodes?: DAGNode[],
-    edges?: DAGEdge[] /*, init?: Cond, goal?: Cond*/,
+    nodes?: ExecutionNode[],
+    edges?: ExecutionEdge[] /*, init?: Cond, goal?: Cond*/,
   ) {
     this.nodes = nodes;
     this.edges = edges;
   }
 }
 export default class DAG {
-  readonly nodes: DAGNode[];
-  readonly edges: DAGEdge[];
+  readonly nodes: ExecutionNode[];
+  readonly edges: ExecutionEdge[];
+  readonly id: string;
 
-  constructor(nodes: DAGNode[], edges: DAGEdge[] /*, init: Cond, goal: Cond*/) {
+  constructor(
+    nodes: ExecutionNode[],
+    edges: ExecutionEdge[] /*, init: Cond, goal: Cond*/,
+    id: string = v4(),
+  ) {
     this.nodes = nodes;
     this.edges = edges;
+    this.id = id;
   }
 }
+
+// export type DAG = ExecutionGraphPlusNodesAndEdges;
+
+// export default DAG;

@@ -1,15 +1,20 @@
+import { v4 } from "uuid";
+
+import { type ExecutionNode } from "@acme/db";
+
 import type DAG from "./DAG";
-import { DAGNodeClass } from "./DAG";
 
 export const rootPlanId = `👸🐝`;
-export const initialNodes = (prompt: string) => [
-  new DAGNodeClass(
-    rootPlanId,
-    `👸🐝 Queen Bee`,
-    `Plan initial strategy to help achieve your goal`,
-    prompt,
-    null,
-  ),
+export const initialNodes = (prompt: string): ExecutionNode[] => [
+  {
+    realId: v4(),
+    id: rootPlanId,
+    name: `👸🐝 Queen Bee`,
+    act: `Plan initial strategy to help achieve your goal`,
+    context: prompt,
+    params: null,
+    graphId: v4(),
+  },
 ];
 
 export function findNodesWithNoIncomingEdges(dag: Partial<DAG>) {

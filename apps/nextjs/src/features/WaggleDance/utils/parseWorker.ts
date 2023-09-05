@@ -1,8 +1,9 @@
 // parseWorker.ts
+import { v4 } from "uuid";
 import { parse } from "yaml";
 
 import { type ChainPacket } from "../../../../../../packages/agent";
-import DAG, { DAGEdgeClass } from "../DAG";
+import DAG from "../DAG";
 import {
   findNodesWithNoIncomingEdges,
   initialNodes,
@@ -41,9 +42,14 @@ self.onmessage = function (
         (n) => n.sId.length > 0 && n.tId.length > 0,
       );
       if (validNodes?.length) {
-        const hookupEdges = findNodesWithNoIncomingEdges(optDag).map(
-          (node) => new DAGEdgeClass(rootPlanId, node.id),
-        );
+        const hookupEdges = findNodesWithNoIncomingEdges(optDag).map((node) => {
+          return {
+            sId: rootPlanId,
+            tId: node.id,
+            graphId: node.graphId,
+            id: v4(),
+          };
+        });
         const partialDAG = new DAG(
           [...initialNodes(goal), ...validNodes],
           [...(validEdges ?? []), ...hookupEdges],

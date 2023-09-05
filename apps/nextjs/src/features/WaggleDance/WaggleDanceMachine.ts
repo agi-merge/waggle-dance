@@ -249,6 +249,7 @@ export default class WaggleDanceMachine {
         agentSettings["execute"],
       );
 
+      debugger;
       const executeRequest = {
         goal,
         goalId,
