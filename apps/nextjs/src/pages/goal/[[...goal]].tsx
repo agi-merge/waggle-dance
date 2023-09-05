@@ -1,16 +1,9 @@
 // pages/goal/[[...goal]].tsx
 import { type ParsedUrlQuery } from "querystring";
-import React, {
-  Suspense,
-  useEffect,
-  useMemo,
-  useRef,
-  useState,
-  type ReactNode,
-} from "react";
+import React, { lazy, Suspense, useEffect, useMemo, useRef } from "react";
 import dynamic from "next/dynamic";
 import { useRouter } from "next/router";
-import { CircularProgress } from "@mui/joy";
+import { Skeleton } from "@mui/joy";
 import List from "@mui/joy/List";
 import Typography from "@mui/joy/Typography";
 import { Accordion, AccordionItem } from "@radix-ui/react-accordion";
@@ -19,14 +12,13 @@ import { type ExecutionPlusGraph, type GoalPlusExe } from "@acme/db";
 
 import { api } from "~/utils/api";
 import routes from "~/utils/routes";
+import GoalPrompt from "~/features/GoalPrompt/GoalPrompt";
 import {
   AccordionContent,
   AccordionHeader,
 } from "~/features/HeadlessUI/JoyAccordion";
 import MainLayout from "~/features/MainLayout";
-import PageTitle from "~/features/MainLayout/components/PageTitle";
 import useWaggleDanceMachineStore from "~/stores/waggleDanceStore";
-import { HomeContent } from "..";
 import useGoalStore from "../../stores/goalStore";
 
 const NoSSRWaggleDance = dynamic(
@@ -36,10 +28,11 @@ const NoSSRWaggleDance = dynamic(
   },
 );
 
-const ErrorBoundary = dynamic(() =>
-  import("../error/ErrorBoundary").then((mod) => mod.default),
-);
+const ErrorBoundary = lazy(() => import("../error/ErrorBoundary"));
 
+const PageTitle = lazy(
+  () => import("~/features/MainLayout/components/PageTitle"),
+);
 const GoalPage = () => {
   const router = useRouter();
   const { goalMap, selectedGoal, upsertGoals, selectGoal } = useGoalStore();
@@ -55,35 +48,20 @@ const GoalPage = () => {
 
   const prevServerGoalsRef = useRef<typeof serverGoals | null>(null);
 
-  useEffect(() => {
-    if (prevServerGoalsRef.current !== serverGoals) {
-      upsertGoals(serverGoals);
-      prevServerGoalsRef.current = serverGoals;
-    }
-  }, [serverGoals, route, upsertGoals]);
-
   const goal = useMemo(
     () => getGoal(serverGoals, route, selectedGoal, goalMap),
     [goalMap, selectedGoal, route, serverGoals],
   );
 
-  function useDelayedFallback(fallback: ReactNode, delay = 2000) {
-    const [show, setShow] = useState(false);
-
-    useEffect(() => {
-      const timeout = setTimeout(() => setShow(true), delay);
-      return () => clearTimeout(timeout);
-    }, [delay]);
-
-    return show ? fallback : null;
-  }
-
-  const fallback = useDelayedFallback(
-    <MainLayout>
-      <CircularProgress />
-      <Typography>Loading…</Typography>
-    </MainLayout>,
-  );
+  useEffect(() => {
+    if (prevServerGoalsRef.current !== serverGoals) {
+      // Batch state updates here
+      upsertGoals(serverGoals);
+      goal && selectGoal(goal.id);
+      prevServerGoalsRef.current = serverGoals;
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [serverGoals, goal?.id, upsertGoals]);
 
   const execution = useMemo(() => {
     if (!goal || !route.executionId) {
@@ -116,10 +94,10 @@ const GoalPage = () => {
 
   return (
     <MainLayout>
-      <Suspense fallback={fallback}>
+      <Suspense>
         <ErrorBoundary router={router}>
           {state === "input" ? (
-            <HomeContent />
+            <GoalPrompt />
           ) : (
             <>
               <PageTitle title={isRunning ? "💃 Waggling!" : "💃 Waggle"}>
@@ -155,7 +133,7 @@ const GoalPage = () => {
                   </List>
                 )}
               </PageTitle>
-              <Suspense fallback={<CircularProgress />}>
+              <Suspense fallback={<Skeleton variant="rectangular" />}>
                 <NoSSRWaggleDance />
               </Suspense>
             </>

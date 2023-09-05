@@ -1,18 +1,16 @@
 // GoalInput.tsx
 
-import React, { useCallback, useEffect, useState } from "react";
+import React, { lazy, Suspense, useCallback, useState } from "react";
 import router from "next/router";
 import { KeyboardArrowRight } from "@mui/icons-material";
-import { Link, List } from "@mui/joy";
+import { Link, List, Skeleton } from "@mui/joy";
 import Box from "@mui/joy/Box";
 import Button from "@mui/joy/Button";
 import { type CardProps } from "@mui/joy/Card";
 import Checkbox from "@mui/joy/Checkbox";
 import Divider from "@mui/joy/Divider";
-import FormControl from "@mui/joy/FormControl";
 // import Grid from "@mui/joy/Grid";
 import Stack from "@mui/joy/Stack";
-import Textarea from "@mui/joy/Textarea";
 import Typography from "@mui/joy/Typography";
 import { TRPCClientError } from "@trpc/client";
 import { stringify } from "superjson";
@@ -26,15 +24,19 @@ import useApp from "~/stores/appStore";
 import useGoalStore from "~/stores/goalStore";
 import useWaggleDanceMachineStore from "~/stores/waggleDanceStore";
 import AutoRefineGoalToggle from "../GoalMenu/components/AutoRefineGoalToggle";
-import GoalSettings from "../GoalMenu/components/GoalSettings";
-import TemplatesModal from "../GoalMenu/components/TemplatesModal";
-import AutoRefineFeedbackList from "./AutoRefineGoalFeedbackList";
 
-const placeholders = ["What's your goal? …Not sure? Check Examples!"];
+const GoalSettings = lazy(() => import("../GoalMenu/components/GoalSettings"));
+const AutoRefineFeedbackList = lazy(
+  () => import("./components/AutoRefineGoalFeedbackList"),
+);
+const GoalForm = lazy(() => import("./components/GoalForm"));
+const TemplatesModal = lazy(
+  () => import("../GoalMenu/components/TemplatesModal"),
+);
 
-type GoalPromptInputProps = CardProps;
+type GoalInputProps = CardProps;
 
-export default function GoalPromptInput({}: GoalPromptInputProps) {
+export default function GoalInput({}: GoalInputProps) {
   const { getGoalInputValue, setGoalInputValue, upsertGoal, selectedGoal } =
     useGoalStore();
   const { isAutoStartEnabled, setIsAutoStartEnabled } =
@@ -45,8 +47,6 @@ export default function GoalPromptInput({}: GoalPromptInputProps) {
     isAutoRefineEnabled: _isAutoRefineEnabled,
     setError,
   } = useApp();
-  const [_currentPromptIndex, setCurrentPromptIndex] = useState(0);
-  const [currentPlaceholderIndex, setCurrentPlaceholderIndex] = useState(0);
   const [templatesModalOpen, setTemplatesModalOpen] = useState<boolean>(false);
   const [feedback, _setFeedback] = useState<AutoRefineFeedback | null>(null);
 
@@ -164,51 +164,17 @@ export default function GoalPromptInput({}: GoalPromptInputProps) {
     setIsAutoStartEnabled(event.target.checked);
   };
 
-  useEffect(() => {
-    const timer = setInterval(() => {
-      setCurrentPromptIndex((prevIndex) =>
-        prevIndex + 1 >= examplePrompts.length ? 0 : prevIndex + 1,
-      );
-      setCurrentPlaceholderIndex((prevIndex) =>
-        prevIndex + 1 >= placeholders.length ? 0 : prevIndex + 1,
-      );
-    }, 5000); // The tooltip title will change every 5 seconds.
-
-    return () => clearInterval(timer);
-  }, []);
-
   return (
     <Box className="relative">
-      <form onSubmit={handleSubmit} className="my-3 space-y-2 pb-2">
-        <FormControl disabled={isPageLoading}>
-          <Textarea
-            autoFocus
-            id="goalTextarea"
-            name="goalTextarea"
-            placeholder={placeholders[currentPlaceholderIndex]}
-            minRows={3}
-            maxRows={10}
-            size="lg"
-            required
-            variant="outlined"
-            className="py-col flex-grow pb-10"
-            onKeyPress={(event) => {
-              if (event.key === "Enter" && !event.shiftKey) {
-                event.preventDefault();
-                handleSubmit(event);
-              }
-            }}
-            value={getGoalInputValue()}
-            onChange={handleChange}
-            sx={{
-              paddingTop: "1rem",
-              "--Textarea-paddingBlock": "4rem",
-            }}
-          >
-            {/* <Box className="min-h-28"></Box> */}
-          </Textarea>
-        </FormControl>
-      </form>
+      <Suspense fallback={<Skeleton variant="rectangular" height={100} />}>
+        <GoalForm
+          isPageLoading={isPageLoading}
+          getGoalInputValue={getGoalInputValue}
+          handleChange={handleChange}
+          handleSubmit={handleSubmit}
+        />{" "}
+      </Suspense>
+
       <Box
         className="absolute"
         sx={{
@@ -234,56 +200,64 @@ export default function GoalPromptInput({}: GoalPromptInputProps) {
             Clear
           </Button>
           <Divider orientation="vertical" />
-          <TemplatesModal
-            open={templatesModalOpen}
-            setOpen={setTemplatesModalOpen}
-          >
-            <Typography color="neutral" level="title-lg" className="px-5">
-              Examples
-            </Typography>
-            <Typography level="body-md" className="px-5 pb-2">
-              For better results, try to{" "}
-              <Link
-                href="https://platform.openai.com/docs/guides/gpt-best-practices"
-                target="_blank"
-                rel="noopener noreferrer"
-              >
-                follow GPT best practices
-              </Link>
-            </Typography>
-            <List className="absolute left-0 top-0 mt-3">
-              <Stack spacing={2}>
-                {examplePrompts
-                  .sort((a, b) => (a.length < b.length ? 1 : -1))
-                  .map((prompt, _index) => (
-                    <Stack key={prompt}>
-                      <Button
-                        color="neutral"
-                        size="sm"
-                        variant="outlined"
-                        className="flex flex-grow flex-row justify-center"
-                        onClick={() => {
-                          setGoalInputValue(prompt);
-                          setTemplatesModalOpen(false);
-                        }}
-                      >
-                        <Typography
-                          level="body-sm"
+          <Suspense fallback={<Skeleton variant="rectangular" height={100} />}>
+            <TemplatesModal
+              open={templatesModalOpen}
+              setOpen={setTemplatesModalOpen}
+            >
+              <Typography color="neutral" level="title-lg" className="px-5">
+                Examples
+              </Typography>
+              <Typography level="body-md" className="px-5 pb-2">
+                For better results, try to{" "}
+                <Link
+                  href="https://platform.openai.com/docs/guides/gpt-best-practices"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                >
+                  follow GPT best practices
+                </Link>
+              </Typography>
+              <List className="absolute left-0 top-0 mt-3">
+                <Stack spacing={2}>
+                  {examplePrompts
+                    .sort((a, b) => (a.length < b.length ? 1 : -1))
+                    .map((prompt, _index) => (
+                      <Stack key={prompt}>
+                        <Button
+                          color="neutral"
+                          size="sm"
+                          variant="outlined"
                           className="flex flex-grow flex-row justify-center"
+                          onClick={() => {
+                            setGoalInputValue(prompt);
+                            setTemplatesModalOpen(false);
+                          }}
                         >
-                          {prompt}
-                        </Typography>
-                      </Button>
-                    </Stack>
-                  ))}
-              </Stack>
-            </List>
-          </TemplatesModal>
+                          <Typography
+                            level="body-sm"
+                            className="flex flex-grow flex-row justify-center"
+                          >
+                            {prompt}
+                          </Typography>
+                        </Button>
+                      </Stack>
+                    ))}
+                </Stack>
+              </List>
+            </TemplatesModal>
+          </Suspense>
           <Divider orientation="vertical" />
           <AutoRefineGoalToggle />
         </Stack>
       </Box>
-      <AutoRefineFeedbackList feedback={feedback} />
+      <Suspense
+        fallback={
+          <Skeleton variant="rectangular" height={feedback ? 100 : 0} />
+        }
+      >
+        <AutoRefineFeedbackList feedback={feedback} />
+      </Suspense>
       <Box className="max-w-screen flex items-center justify-end">
         <Stack direction="row-reverse" gap="1rem" className="pb-4">
           <Button
@@ -312,7 +286,19 @@ export default function GoalPromptInput({}: GoalPromptInputProps) {
             </Checkbox>
 
             <Divider />
-            <GoalSettings />
+            <Suspense
+              fallback={
+                <Skeleton
+                  variant="text"
+                  width={"100%"}
+                  height={162}
+                  animation={"wave"}
+                  loading={true}
+                />
+              }
+            >
+              <GoalSettings />
+            </Suspense>
           </Box>
         </Stack>
       </Box>

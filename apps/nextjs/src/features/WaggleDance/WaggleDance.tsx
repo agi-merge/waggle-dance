@@ -1,9 +1,16 @@
 import assert from "assert";
-import { useCallback, useEffect, useMemo, useRef, useState } from "react";
-import dynamic from "next/dynamic";
+import {
+  lazy,
+  Suspense,
+  useCallback,
+  useEffect,
+  useMemo,
+  useRef,
+  useState,
+} from "react";
 import router from "next/router";
 import { BugReport, Lan, ListAlt, Science } from "@mui/icons-material";
-import { Link } from "@mui/joy";
+import { Link, Skeleton } from "@mui/joy";
 import Box from "@mui/joy/Box";
 import Divider from "@mui/joy/Divider";
 import List from "@mui/joy/List";
@@ -34,15 +41,9 @@ import useWaggleDanceMachine, {
 } from "./hooks/useWaggleDanceMachine";
 import { rootPlanId } from "./initialNodes";
 
-const ResultsTab = dynamic(() =>
-  import("./components/ResultsTab").then((mod) => mod.ResultsTab),
-);
-const TaskListTab = dynamic(() =>
-  import("./components/TaskListTab").then((mod) => mod.TaskListTab),
-);
-const BottomControls = dynamic(() =>
-  import("./components/BottomControls").then((mod) => mod.default),
-);
+const ResultsTab = lazy(() => import("./components/ResultsTab"));
+const TaskListTab = lazy(() => import("./components/TaskListTab"));
+const BottomControls = lazy(() => import("./components/BottomControls"));
 
 type Props = StackProps;
 // shows the graph, agents, results, general messages and chat input
@@ -424,20 +425,26 @@ const WaggleDance = ({}: Props) => {
           )}
         </Tabs>
       )}
-      <BottomControls
-        session={session}
-        isRunning={isRunning}
-        selectedGoal={selectedGoal}
-        dag={dag}
-        handleStart={handleStart}
-        handleStop={handleStop}
-        setIsAutoScrollToBottom={setIsAutoScrollToBottom}
-        isAutoScrollToBottom={isAutoScrollToBottom}
-        shouldShowProgress={shouldShowProgress}
-        progressPercent={progressPercent}
-        inProgressOrDonePercent={inProgressOrDonePercent}
-        progressLabel={progressLabel}
-      />
+      <Suspense
+        fallback={
+          <Skeleton variant="text" width="100%" height={160} animation="wave" />
+        }
+      >
+        <BottomControls
+          session={session}
+          isRunning={isRunning}
+          selectedGoal={selectedGoal}
+          dag={dag}
+          handleStart={handleStart}
+          handleStop={handleStop}
+          setIsAutoScrollToBottom={setIsAutoScrollToBottom}
+          isAutoScrollToBottom={isAutoScrollToBottom}
+          shouldShowProgress={shouldShowProgress}
+          progressPercent={progressPercent}
+          inProgressOrDonePercent={inProgressOrDonePercent}
+          progressLabel={progressLabel}
+        />
+      </Suspense>
     </Stack>
   );
 };

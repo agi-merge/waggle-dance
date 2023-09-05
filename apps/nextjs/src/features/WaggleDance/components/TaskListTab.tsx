@@ -42,3 +42,5 @@ export const TaskListTab = ({
     </List>
   );
 };
+
+export default TaskListTab;

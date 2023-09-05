@@ -25,3 +25,5 @@ export const ResultsTab = ({ taskStates }: ResultsTabProps) => {
     </List>
   );
 };
+
+export default ResultsTab;

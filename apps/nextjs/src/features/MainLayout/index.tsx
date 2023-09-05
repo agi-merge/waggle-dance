@@ -1,9 +1,9 @@
 // features/MainLayout/index.tsx
 
-import React, { Suspense, useEffect, useMemo, useState } from "react";
-import dynamic from "next/dynamic";
+import React, { lazy, Suspense, useEffect, useMemo, useState } from "react";
 import Head from "next/head";
 import { useRouter } from "next/router";
+import { Skeleton } from "@mui/joy";
 import Box from "@mui/joy/Box";
 import Card from "@mui/joy/Card";
 import GlobalStyles from "@mui/joy/GlobalStyles";
@@ -13,21 +13,11 @@ import { useColorScheme } from "@mui/joy/styles";
 import { app } from "~/constants";
 import useApp from "~/stores/appStore";
 
-const Alerts = dynamic(() =>
-  import("../Alerts/Alerts").then((mod) => mod.default),
-);
-const ErrorSnackbar = dynamic(() =>
-  import("../Alerts/ErrorSnackbar").then((mod) => mod.default),
-);
-const GoalTabs = dynamic(() =>
-  import("../WaggleDance/components/GoalTabs").then((mod) => mod.default),
-);
-const Footer = dynamic(() =>
-  import("./components/Footer").then((mod) => mod.default),
-);
-const Header = dynamic(() =>
-  import("./components/Header").then((mod) => mod.default),
-);
+const Alerts = lazy(() => import("../Alerts/Alerts"));
+const ErrorSnackbar = lazy(() => import("../Alerts/ErrorSnackbar"));
+const GoalTabs = lazy(() => import("../WaggleDance/components/GoalTabs"));
+const Footer = lazy(() => import("./components/Footer"));
+const Header = lazy(() => import("./components/Header"));
 
 type Props = {
   children: React.ReactNode;
@@ -108,21 +98,37 @@ const MainLayout = ({ children }: Props) => {
           })}
           variant="soft"
         >
-          <Suspense fallback={<div>Loading...</div>}>
+          <Suspense
+            fallback={
+              <Skeleton variant="rectangular" width={"100%"} height={60} />
+            }
+          >
             <Header />
-            <Card
-              invertedColors
-              color="primary"
-              variant="outlined"
-              className="-m-2 p-0"
-              sx={{
-                borderRadius: "lg",
-                paddingBottom: 0,
-                zIndex: 1,
-                opacity: pageOpacity,
-              }}
+          </Suspense>
+          <Card
+            invertedColors
+            color="primary"
+            variant="outlined"
+            className="-m-2 p-0"
+            sx={{
+              borderRadius: "lg",
+              paddingBottom: 0,
+              zIndex: 1,
+              opacity: pageOpacity,
+            }}
+          >
+            <Suspense
+              fallback={
+                <Skeleton variant="rectangular" width="100%" height={80} />
+              }
             >
               <Alerts />
+            </Suspense>
+            <Suspense
+              fallback={
+                <Skeleton variant="rectangular" width="100%" height={30} />
+              }
+            >
               <GoalTabs>
                 <LinearProgress
                   thickness={3}
@@ -131,7 +137,13 @@ const MainLayout = ({ children }: Props) => {
                 />
                 {children}
               </GoalTabs>
-            </Card>
+            </Suspense>
+          </Card>
+          <Suspense
+            fallback={
+              <Skeleton variant="rectangular" width={210} height={60} />
+            }
+          >
             <Footer
               className="xs:scale-75 sticky bottom-0 flex w-full pb-2 pt-10 md:scale-100"
               style={{
