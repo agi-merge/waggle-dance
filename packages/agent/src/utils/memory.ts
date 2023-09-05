@@ -46,24 +46,7 @@ export async function createMemory(
 
     case "vector":
       if (namespace) {
-        if (process.env.PINECONE_API_KEY === undefined)
-          throw new Error("No pinecone api key found");
-        if (process.env.PINECONE_ENVIRONMENT === undefined)
-          throw new Error("No pinecone environment found");
-        if (process.env.PINECONE_INDEX === undefined)
-          throw new Error("No pinecone index found");
-        const client = new PineconeClient();
-        await client.init({
-          apiKey: process.env.PINECONE_API_KEY,
-          environment: process.env.PINECONE_ENVIRONMENT,
-        });
-        const pineconeIndex = client.Index(process.env.PINECONE_INDEX);
-
-        const embeddings = createEmbeddings({ modelName: LLM.embeddings });
-        const vectorStore = await PineconeStore.fromExistingIndex(embeddings, {
-          pineconeIndex,
-          namespace,
-        });
+        const vectorStore = await createVectorStore(namespace);
 
         const vectorMemory = new VectorStoreRetrieverMemory({
           // 1 is how many documents to return, you might want to return more, eg. 4
@@ -130,4 +113,26 @@ export async function createMemory(
 
     // });
   }
+}
+
+export async function createVectorStore(namespace: string) {
+  if (process.env.PINECONE_API_KEY === undefined)
+    throw new Error("No pinecone api key found");
+  if (process.env.PINECONE_ENVIRONMENT === undefined)
+    throw new Error("No pinecone environment found");
+  if (process.env.PINECONE_INDEX === undefined)
+    throw new Error("No pinecone index found");
+  const client = new PineconeClient();
+  await client.init({
+    apiKey: process.env.PINECONE_API_KEY,
+    environment: process.env.PINECONE_ENVIRONMENT,
+  });
+  const pineconeIndex = client.Index(process.env.PINECONE_INDEX);
+
+  const embeddings = createEmbeddings({ modelName: LLM.embeddings });
+  const vectorStore = await PineconeStore.fromExistingIndex(embeddings, {
+    pineconeIndex,
+    namespace,
+  });
+  return vectorStore;
 }

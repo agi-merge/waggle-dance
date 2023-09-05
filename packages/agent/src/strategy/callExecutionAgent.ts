@@ -7,12 +7,12 @@ import {
 } from "langchain/agents";
 import { VectorDBQAChain } from "langchain/chains";
 import { type ChatOpenAI } from "langchain/chat_models/openai";
-// import { createMemory } from "../utils/memory";
 import { type OpenAI } from "langchain/dist";
 import { type InitializeAgentExecutorOptionsStructured } from "langchain/dist/agents/initialize";
 import { type Tool } from "langchain/dist/tools/base";
 import { PlanAndExecuteAgentExecutor } from "langchain/experimental/plan_and_execute";
 import { ChainTool, SerpAPI } from "langchain/tools";
+import { Calculator } from "langchain/tools/calculator";
 import { WebBrowser } from "langchain/tools/webbrowser";
 import { PineconeStore } from "langchain/vectorstores/pinecone";
 import { parse } from "yaml";
@@ -22,6 +22,7 @@ import {
   createExecutePrompt,
 } from "../prompts/createExecuteCriticismPrompt";
 import { isTaskCriticism } from "../prompts/types";
+import saveMemorySkill from "../skills/saveMemory";
 import {
   getAgentPromptingMethodValue,
   InitializeAgentExecutorOptionsAgentTypes,
@@ -66,6 +67,12 @@ export async function callExecutionAgent(creation: {
   const returnType = contentType === "application/json" ? "JSON" : "YAML";
   if (isReview && !result)
     throw new Error("No result found to provide to review task");
+  // const params = {
+  //   goal,
+  //   task,
+  //   result,
+  //   returnType,
+  // } as const;
   const prompt = isReview
     ? await createCriticizePrompt({ task, result: result!, returnType })
     : await createExecutePrompt({ task, returnType });
@@ -75,7 +82,11 @@ export async function callExecutionAgent(creation: {
     .map((m) => `${m._getType()}: ${m.content}`)
     .join("\n");
 
-  const tools: Tool[] = [new WebBrowser({ model: llm, embeddings })];
+  const tools: Tool[] = [
+    new WebBrowser({ model: llm, embeddings }),
+    new Calculator(),
+    saveMemorySkill,
+  ];
 
   // optional tools
 
@@ -129,6 +140,7 @@ export async function callExecutionAgent(creation: {
   ];
 
   const executor = await initializeExecutor(
+    goal,
     agentPromptingMethod,
     taskObj,
     creationProps,
@@ -148,6 +160,8 @@ export async function callExecutionAgent(creation: {
       callbacks,
     );
 
+    call;
+
     const response = call?.output ? (call.output as string) : "";
     if (response === "Agent stopped due to max iterations.") {
       // brittle; this should really be an error in langchain
@@ -159,6 +173,7 @@ export async function callExecutionAgent(creation: {
   }
 }
 async function initializeExecutor(
+  goal: string,
   agentPromptingMethod: AgentPromptingMethod,
   taskObj: { id: string },
   creationProps: ModelCreationProps,
