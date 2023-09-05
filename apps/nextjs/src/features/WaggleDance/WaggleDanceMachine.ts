@@ -6,9 +6,13 @@
 // When a task completes, a new dependent review task should be added to the DAG to ensure quality results.
 
 import { type AgentSettings } from "~/stores/waggleDanceStore";
-import { type ChainPacket } from "../../../../../packages/agent";
-import DAG, { type DAGNode, type DAGNodeClass } from "./DAG";
-import { TaskStatus, type TaskState } from "./hooks/useWaggleDanceMachine";
+import {
+  TaskStatus,
+  type ChainPacket,
+  type DAGNode,
+  type TaskState,
+} from "../../../../../packages/agent";
+import DAG, { type DAGNodeClass } from "./DAG";
 import { initialNodes, rootPlanId } from "./initialNodes";
 import {
   mapAgentSettingsToCreationProps,
@@ -98,7 +102,7 @@ export default class WaggleDanceMachine {
               agentSettings["execute"].agentPromptingMethod!,
             task,
             dag,
-            result: "",
+            revieweeTaskResults: null, // intentionally left blank, first task cant be criticism
             completedTasks,
             creationProps,
           };
@@ -249,7 +253,13 @@ export default class WaggleDanceMachine {
         agentSettings["execute"],
       );
 
-      debugger;
+      const idMinusSuffix = task.id.split("-")[0];
+      const revieweeTaskResults = Object.entries(taskResults)
+        .filter((task) => task[0].startsWith(idMinusSuffix + "-"))
+        .map((task) => task[1]);
+      // const revieweeTaskResults = dag.edges.filter(
+      //   (edge) => edge.tId === task.id,
+      // );
       const executeRequest = {
         goal,
         goalId,
@@ -257,7 +267,7 @@ export default class WaggleDanceMachine {
         agentPromptingMethod: agentSettings["execute"].agentPromptingMethod!,
         task,
         dag,
-        result: taskResults[task.id],
+        revieweeTaskResults,
         completedTasks,
         creationProps,
       } as ExecuteRequestBody;

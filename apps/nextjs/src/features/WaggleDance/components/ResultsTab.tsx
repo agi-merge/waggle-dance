@@ -2,7 +2,7 @@
 import Box from "@mui/joy/Box";
 import List from "@mui/joy/List";
 
-import { type TaskState } from "../hooks/useWaggleDanceMachine";
+import { type TaskState } from "@acme/agent";
 
 type ResultsTabProps = {
   taskStates: TaskState[];

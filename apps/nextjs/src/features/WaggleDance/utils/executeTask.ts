@@ -1,8 +1,11 @@
 // features/WaggleDance/utils/executeTask.ts
 import { parse, stringify } from "yaml";
 
-import { type ChainPacket } from "../../../../../../packages/agent";
-import { type DAGNode, type DAGNodeClass } from "../DAG";
+import {
+  type ChainPacket,
+  type DAGNode,
+} from "../../../../../../packages/agent";
+import { type DAGNodeClass } from "../DAG";
 import { type ExecuteRequestBody } from "../types";
 
 async function fetchTaskData(

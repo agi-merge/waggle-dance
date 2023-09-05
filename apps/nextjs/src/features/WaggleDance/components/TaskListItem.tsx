@@ -13,7 +13,8 @@ import {
   Typography,
 } from "@mui/joy";
 
-import { TaskStatus, type TaskState } from "../hooks/useWaggleDanceMachine";
+import { TaskStatus, type TaskState } from "@acme/agent";
+
 import { stringifyMax } from "../utils/stringifyMax";
 
 interface TaskListItemProps {

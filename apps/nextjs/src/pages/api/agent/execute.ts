@@ -40,8 +40,7 @@ export default async function ExecuteStream(req: NextRequest) {
       task,
       agentPromptingMethod,
       dag,
-      result,
-      // taskResults,
+      revieweeTaskResults,
     } = (await req.json()) as ExecuteRequestBody;
 
     goalId = parsedGoalId;
@@ -189,7 +188,7 @@ export default async function ExecuteStream(req: NextRequest) {
           agentPromptingMethod,
           task: stringify(task),
           dag: stringify(dag),
-          result,
+          revieweeTaskResults,
           contentType,
           abortSignal: abortController.signal,
           namespace:

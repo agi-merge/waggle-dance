@@ -2,10 +2,11 @@
 
 import {
   type ChainPacket,
+  type DAGNode,
   type ModelCreationProps,
 } from "../../../../../../packages/agent";
 import type DAG from "../DAG";
-import { type DAGNode, type DAGNodeClass } from "../DAG";
+import { type DAGNodeClass } from "../DAG";
 import { initialNodes, rootPlanId } from "../initialNodes";
 import { sleep } from "./sleep";
 

@@ -1,7 +1,11 @@
 // WaggleDance/types.ts
 import { type Dispatch, type SetStateAction } from "react";
 
-import { type ModelCreationProps } from "@acme/agent";
+import {
+  type DAGNode,
+  type ModelCreationProps,
+  type TaskState,
+} from "@acme/agent";
 import {
   TEMPERATURE_VALUES,
   type AgentPromptingMethod,
@@ -10,8 +14,6 @@ import {
 import { env } from "~/env.mjs";
 import { type AgentSettings } from "~/stores/waggleDanceStore";
 import type DAG from "./DAG";
-import { type DAGNode } from "./DAG";
-import { type TaskState } from "./hooks/useWaggleDanceMachine";
 
 export type PlanResult = DAG;
 
@@ -88,7 +90,7 @@ export type PlanRequestBody = BaseRequestBody & {
 export type ExecuteRequestBody = PlanRequestBody & {
   executionId: string;
   task: DAGNode;
-  result: string | undefined | null;
+  revieweeTaskResults: TaskState[] | null;
   // completedTasks: Set<string>;
   // taskResults: Record<string, BaseResultType>;
   dag: DAG;

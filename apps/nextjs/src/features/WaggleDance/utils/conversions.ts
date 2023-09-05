@@ -1,12 +1,13 @@
 // conversions.ts
 
+import { type TaskState } from "@acme/agent";
+
 import {
   type GraphData,
   type LinkObject,
   type NodeObject,
 } from "../components/ForceGraph";
 import type DAG from "../DAG";
-import { type TaskState } from "../hooks/useWaggleDanceMachine";
 
 export function dagToGraphData(dag: DAG, taskStates: TaskState[]): GraphData {
   const nodes = dag.nodes.map((node) => {

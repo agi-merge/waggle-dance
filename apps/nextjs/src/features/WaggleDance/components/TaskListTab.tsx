@@ -3,7 +3,8 @@ import React from "react";
 import List from "@mui/joy/List";
 import ListDivider from "@mui/joy/ListDivider";
 
-import { type TaskState } from "../hooks/useWaggleDanceMachine";
+import { type TaskState } from "@acme/agent";
+
 import TaskListItem from "./TaskListItem";
 
 type TaskListTabProps = {

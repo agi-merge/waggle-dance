@@ -3,19 +3,6 @@ import { v4 } from "uuid";
 import { type ExecutionEdge, type ExecutionNode } from "@acme/db";
 
 // DAG.ts
-export type Context = string;
-
-export interface DAGNode {
-  id: string;
-  name: string;
-  act: string;
-  context: Context;
-  params: string | null;
-}
-export interface DAGEdge {
-  sId: string;
-  tId: string;
-}
 
 export type DAGNodeClass = ExecutionNode;
 

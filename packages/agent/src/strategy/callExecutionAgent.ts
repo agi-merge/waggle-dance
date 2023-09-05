@@ -20,6 +20,7 @@ import { parse } from "yaml";
 import {
   createCriticizePrompt,
   createExecutePrompt,
+  type TaskState,
 } from "../prompts/createExecuteCriticismPrompt";
 import { isTaskCriticism } from "../prompts/types";
 import saveMemorySkill from "../skills/saveMemory";
@@ -42,7 +43,7 @@ export async function callExecutionAgent(creation: {
   agentPromptingMethod: AgentPromptingMethod;
   task: string;
   dag: string;
-  result: string | null | undefined;
+  revieweeTaskResults: TaskState[] | null;
   contentType: "application/json" | "application/yaml";
   abortSignal: AbortSignal;
   namespace?: string;
@@ -53,7 +54,7 @@ export async function callExecutionAgent(creation: {
     goal,
     agentPromptingMethod,
     task,
-    result,
+    revieweeTaskResults,
     abortSignal,
     namespace,
     contentType,
@@ -65,7 +66,7 @@ export async function callExecutionAgent(creation: {
   const taskObj = parse(task) as { id: string };
   const isReview = isTaskCriticism(taskObj.id);
   const returnType = contentType === "application/json" ? "JSON" : "YAML";
-  if (isReview && !result)
+  if (isReview && !revieweeTaskResults)
     throw new Error("No result found to provide to review task");
   // const params = {
   //   goal,
@@ -74,7 +75,10 @@ export async function callExecutionAgent(creation: {
   //   returnType,
   // } as const;
   const prompt = isReview
-    ? await createCriticizePrompt({ task, result: result!, returnType })
+    ? await createCriticizePrompt({
+        revieweeTaskResults: revieweeTaskResults!,
+        returnType,
+      })
     : await createExecutePrompt({ task, returnType });
   const formattedMessages = await prompt.formatMessages({});
 

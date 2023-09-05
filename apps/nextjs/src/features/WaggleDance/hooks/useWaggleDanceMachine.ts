@@ -8,9 +8,14 @@ import { type ExecutionEdge, type ExecutionPlusGraph } from "@acme/db";
 import { api } from "~/utils/api";
 import useGoalStore from "~/stores/goalStore";
 import useWaggleDanceMachineStore from "~/stores/waggleDanceStore";
-import { type ChainPacket } from "../../../../../../packages/agent";
+import {
+  TaskStatus,
+  type ChainPacket,
+  type DAGNode,
+  type TaskState,
+} from "../../../../../../packages/agent";
 import { type GraphData } from "../components/ForceGraph";
-import DAG, { type DAGNode, type DAGNodeClass } from "../DAG";
+import DAG, { type DAGNodeClass } from "../DAG";
 import {
   findNodesWithNoIncomingEdges,
   initialNodes,
@@ -24,23 +29,6 @@ export type LogMessage = {
   message: string;
   type: "info" | "error";
   timestamp: Date;
-};
-
-export enum TaskStatus {
-  idle = "idle",
-  starting = "starting",
-  working = "working",
-  done = "done",
-  wait = "wait", // for human?
-  error = "error",
-}
-
-export type TaskState = DAGNode & {
-  status: TaskStatus;
-  fromPacketType: ChainPacket["type"] | "idle";
-  result: string | null;
-  packets: ChainPacket[];
-  updatedAt: Date;
 };
 
 const wdm = new WaggleDanceMachine();
@@ -249,7 +237,7 @@ const useWaggleDanceMachine = () => {
               : null,
           packets: [...existingTask.packets, chainPacket],
           updatedAt: new Date(),
-        } as TaskState;
+        };
         setChainPackets((prevChainPackets) => ({
           ...prevChainPackets,
           [node.id]: updatedTask,

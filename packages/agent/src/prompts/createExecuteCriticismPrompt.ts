@@ -10,7 +10,7 @@ import { MemoryVectorStore } from "langchain/vectorstores/memory";
 import { stringify as jsonStringify } from "superjson";
 import { stringify as yamlStringify } from "yaml";
 
-import { createEmbeddings } from "../..";
+import { createEmbeddings, type ChainPacket } from "../..";
 import { LLM } from "../utils/llms";
 
 // Helper function to generate the base schema
@@ -215,14 +215,41 @@ export async function createExecutePrompt(params: {
 
   return chatPrompt;
 }
+export enum TaskStatus {
+  idle = "idle",
+  starting = "starting",
+  working = "working",
+  done = "done",
+  wait = "wait", // for human?
+  error = "error",
+}
+
+export interface DAGNode {
+  id: string;
+  name: string;
+  act: string;
+  context: string;
+  params: string | null;
+}
+export interface DAGEdge {
+  sId: string;
+  tId: string;
+}
+
+export type TaskState = DAGNode & {
+  status: TaskStatus;
+  fromPacketType: ChainPacket["type"] | "idle";
+  result: string | null;
+  packets: ChainPacket[];
+  updatedAt: Date;
+};
 
 // eslint-disable-next-line @typescript-eslint/require-await
 export async function createCriticizePrompt(params: {
-  task: string;
-  result: string;
+  revieweeTaskResults: TaskState[];
   returnType: "JSON" | "YAML";
 }): Promise<ChatPromptTemplate> {
-  const { task, result, returnType } = params;
+  const { revieweeTaskResults, returnType } = params;
 
   const schema = criticizeSchema(returnType, "unknown");
 
@@ -230,7 +257,7 @@ export async function createCriticizePrompt(params: {
     Server TIME: ${new Date().toString()}
     CONSTRAINTS: ${constraints(returnType)}
     SCHEMA: ${schema}
-    RETURN: ONLY a single ChainPacket with the result of Your TASK in SCHEMA${
+    RETURN: ONLY a single ChainPacket with the results of your TASK in SCHEMA${
       returnType === "JSON" ? ":" : ". Do NOT return JSON:"
     }
     TASK: Review REVIEWEE OUTPUT of REVIEWEE TASK. Calculate a weighted score (0.0≤1.0) in context for each of the following criteria: [Coherence (15%), Creativity (15%), Efficiency (10%), Estimated IQ (10%), Directness (10%), Resourcefulness (10%), Accuracy (20%), Ethics (10%), Overall (Weighted rank-based))]
@@ -239,15 +266,27 @@ export async function createCriticizePrompt(params: {
   const systemMessagePrompt =
     SystemMessagePromptTemplate.fromTemplate(systemTemplate);
 
-  const humanTemplate = `My REVIEWEE TASK: ${task}
-  and my REVIEWEE OUTPUT: ${result}`;
-  const humanMessagePrompt =
-    HumanMessagePromptTemplate.fromTemplate(humanTemplate);
+  // todo: convert to use map for each task and result
 
-  const chatPrompt = ChatPromptTemplate.fromPromptMessages([
-    systemMessagePrompt,
-    humanMessagePrompt,
-  ]);
+  const tasksAsHumanMessages = Object.entries(revieweeTaskResults).map(
+    (task, i) => {
+      return HumanMessagePromptTemplate.fromTemplate(
+        `REVIEWEE TASK${i > 0 ? ` ${i}` : ""}: ${task[1].result}`,
+      );
+    },
+  );
 
-  return chatPrompt;
+  // const humanTemplate = `My REVIEWEE TASK: ${revieweeTask}
+  // and my REVIEWEE OUTPUT: ${result}`;
+  // const humanMessagePrompt =
+  //   HumanMessagePromptTemplate.fromTemplate(humanTemplate);
+
+  // const chatPrompt = ChatPromptTemplate.fromPromptMessages([
+  //   systemMessagePrompt,
+  //   humanMessagePrompt,
+  // ]);
+
+  const promptMessages = [systemMessagePrompt, ...tasksAsHumanMessages];
+
+  return ChatPromptTemplate.fromPromptMessages(promptMessages);
 }

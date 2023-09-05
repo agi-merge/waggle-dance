@@ -25,6 +25,7 @@ import Typography from "@mui/joy/Typography";
 import { TRPCClientError } from "@trpc/client";
 import { useSession } from "next-auth/react";
 
+import { TaskStatus, type TaskState } from "@acme/agent";
 import { type ExecutionPlusGraph } from "@acme/db";
 
 import { api } from "~/utils/api";
@@ -35,10 +36,7 @@ import useWaggleDanceMachineStore, {
   createDraftExecution,
 } from "~/stores/waggleDanceStore";
 import ForceGraph from "./components/ForceGraph";
-import useWaggleDanceMachine, {
-  TaskStatus,
-  type TaskState,
-} from "./hooks/useWaggleDanceMachine";
+import useWaggleDanceMachine from "./hooks/useWaggleDanceMachine";
 import { rootPlanId } from "./initialNodes";
 
 const ResultsTab = lazy(() => import("./components/ResultsTab"));
