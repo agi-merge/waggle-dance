@@ -8,12 +8,15 @@
 import { type AgentSettings } from "~/stores/waggleDanceStore";
 import { type ChainPacket } from "../../../../../packages/agent";
 import DAG, { type DAGNode, type DAGNodeClass } from "./DAG";
+import { TaskStatus, type TaskState } from "./hooks/useWaggleDanceMachine";
 import { initialNodes, rootPlanId } from "./initialNodes";
 import {
   mapAgentSettingsToCreationProps,
   type BaseResultType,
+  type ExecuteRequestBody,
   type GraphDataState,
   type IsDonePlanningState,
+  type TaskResultsState,
   type WaggleDanceResult,
 } from "./types";
 import executeTask from "./utils/executeTask";
@@ -27,6 +30,7 @@ export type RunParams = {
   executionId: string;
   agentSettings: Record<"plan" | "review" | "execute", AgentSettings>;
   graphDataState: GraphDataState;
+  taskResultsState: TaskResultsState;
   isDonePlanningState: IsDonePlanningState;
   sendChainPacket: (
     chainPacket: ChainPacket,
@@ -48,6 +52,7 @@ export default class WaggleDanceMachine {
     agentSettings,
     graphDataState: [initDAG, setDAG],
     isDonePlanningState: [isDonePlanning, setIsDonePlanning],
+    taskResultsState: [taskResults, _setTaskResults],
     sendChainPacket,
     log,
     abortController,
@@ -64,7 +69,6 @@ export default class WaggleDanceMachine {
       );
     })();
     const completedTasks: Set<string> = new Set([rootPlanId]);
-    const taskResults: Record<string, BaseResultType> = {};
 
     let resolveFirstTask: (
       value?: BaseResultType | PromiseLike<BaseResultType>,
@@ -94,7 +98,7 @@ export default class WaggleDanceMachine {
               agentSettings["execute"].agentPromptingMethod!,
             task,
             dag,
-            taskResults,
+            result: "",
             completedTasks,
             creationProps,
           };
@@ -113,6 +117,16 @@ export default class WaggleDanceMachine {
             task,
           );
           resolveFirstTask(result);
+
+          const taskState: TaskState = {
+            ...task,
+            status: TaskStatus.done,
+            fromPacketType: "done",
+            result,
+            packets: [],
+            updatedAt: new Date(),
+          };
+          taskResults[task.id] = taskState;
         } catch (error) {
           const message = (error as Error).message;
           sendChainPacket(
@@ -242,13 +256,13 @@ export default class WaggleDanceMachine {
         agentPromptingMethod: agentSettings["execute"].agentPromptingMethod!,
         task,
         dag,
-        taskResults,
+        result: taskResults[task.id],
         completedTasks,
         creationProps,
-      };
+      } as ExecuteRequestBody;
 
       void (async () => {
-        let result;
+        let result: BaseResultType | undefined | null;
         try {
           result = await executeTask({
             request: executeRequest,
@@ -268,7 +282,15 @@ export default class WaggleDanceMachine {
           abortController.abort();
           return;
         }
-        taskResults[executeRequest.task.id] = result;
+        const taskState: TaskState = {
+          ...task,
+          status: TaskStatus.done,
+          fromPacketType: "done",
+          result,
+          packets: [],
+          updatedAt: new Date(),
+        };
+        taskResults[executeRequest.task.id] = taskState;
         completedTasks.add(executeRequest.task.id);
         const node = dag.nodes.find((n) => task.id === n.id);
         if (!node) {

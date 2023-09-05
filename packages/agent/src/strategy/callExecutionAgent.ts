@@ -41,7 +41,7 @@ export async function callExecutionAgent(creation: {
   agentPromptingMethod: AgentPromptingMethod;
   task: string;
   dag: string;
-  result: string;
+  result: string | null | undefined;
   contentType: "application/json" | "application/yaml";
   abortSignal: AbortSignal;
   namespace?: string;
@@ -64,15 +64,11 @@ export async function callExecutionAgent(creation: {
   const taskObj = parse(task) as { id: string };
   const isReview = isTaskCriticism(taskObj.id);
   const returnType = contentType === "application/json" ? "JSON" : "YAML";
-  const params = {
-    goal,
-    task,
-    result,
-    returnType,
-  } as const;
+  if (isReview && !result)
+    throw new Error("No result found to provide to review task");
   const prompt = isReview
-    ? await createCriticizePrompt(params)
-    : await createExecutePrompt(params);
+    ? await createCriticizePrompt({ task, result: result!, returnType })
+    : await createExecutePrompt({ task, returnType });
   const formattedMessages = await prompt.formatMessages({});
 
   const input: string = formattedMessages

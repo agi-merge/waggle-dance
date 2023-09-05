@@ -11,6 +11,7 @@ import { env } from "~/env.mjs";
 import { type AgentSettings } from "~/stores/waggleDanceStore";
 import type DAG from "./DAG";
 import { type DAGNode } from "./DAG";
+import { type TaskState } from "./hooks/useWaggleDanceMachine";
 
 export type PlanResult = DAG;
 
@@ -41,6 +42,10 @@ export interface WaggleDanceResult {
 
 export type GraphDataState = [DAG, Dispatch<SetStateAction<DAG>>];
 export type IsDonePlanningState = [boolean, Dispatch<SetStateAction<boolean>>];
+export type TaskResultsState = [
+  Record<string, TaskState>,
+  Dispatch<SetStateAction<Record<string, TaskState>>>,
+];
 
 export type JsonValue =
   | string
@@ -83,8 +88,9 @@ export type PlanRequestBody = BaseRequestBody & {
 export type ExecuteRequestBody = PlanRequestBody & {
   executionId: string;
   task: DAGNode;
-  completedTasks: Set<string>;
-  taskResults: Record<string, BaseResultType>;
+  result: string | undefined | null;
+  // completedTasks: Set<string>;
+  // taskResults: Record<string, BaseResultType>;
   dag: DAG;
   agentPromptingMethod: AgentPromptingMethod;
 };
