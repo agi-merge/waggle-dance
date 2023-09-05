@@ -172,13 +172,13 @@ export default function GoalInput({}: GoalInputProps) {
           getGoalInputValue={getGoalInputValue}
           handleChange={handleChange}
           handleSubmit={handleSubmit}
-        />{" "}
+        />
       </Suspense>
 
       <Box
         className="absolute"
         sx={{
-          bottom: { xs: "7rem", sm: "6rem" },
+          bottom: { xs: "6rem", sm: "5.5rem" },
           left: "1rem",
         }}
       >

@@ -31,6 +31,7 @@ export default function GoalForm({
           className="py-col flex-grow pb-10"
           value={getGoalInputValue()}
           onChange={handleChange}
+          sx={{ pb: 8 }}
         ></Textarea>
       </FormControl>
     </form>
