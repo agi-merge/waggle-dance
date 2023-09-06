@@ -1,6 +1,7 @@
 // features/MainLayout/index.tsx
 
 import React, { lazy, Suspense, useEffect, useMemo, useState } from "react";
+import { type InferGetStaticPropsType } from "next";
 import Head from "next/head";
 import { useRouter } from "next/router";
 import { Skeleton } from "@mui/joy";
@@ -11,6 +12,7 @@ import LinearProgress from "@mui/joy/LinearProgress";
 import { useColorScheme } from "@mui/joy/styles";
 
 import { app } from "~/constants";
+import { type getStaticProps } from "~/pages/goal/[[...goal]]";
 import useApp from "~/stores/appStore";
 
 const Alerts = lazy(() => import("../Alerts/Alerts"));
@@ -19,11 +21,11 @@ const GoalTabs = lazy(() => import("../WaggleDance/components/GoalTabs"));
 const Footer = lazy(() => import("./components/Footer"));
 const Header = lazy(() => import("./components/Header"));
 
-type Props = {
+type Props = InferGetStaticPropsType<typeof getStaticProps> & {
   children: React.ReactNode;
 };
 
-const MainLayout = ({ children }: Props) => {
+const MainLayout = ({ children, alertConfigs }: Props) => {
   const { mode } = useColorScheme();
   const { isPageLoading } = useApp();
   const router = useRouter();
@@ -122,7 +124,7 @@ const MainLayout = ({ children }: Props) => {
                 <Skeleton variant="rectangular" width="100%" height={80} />
               }
             >
-              <Alerts />
+              <Alerts alertConfigs={alertConfigs} />
             </Suspense>
             <Suspense
               fallback={

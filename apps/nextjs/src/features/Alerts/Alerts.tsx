@@ -1,68 +1,73 @@
 import React from "react";
+import type { InferGetStaticPropsType } from "next";
 import { Warning } from "@mui/icons-material";
 import { Alert, Box, Button, Typography } from "@mui/joy";
 
+import { type getStaticProps } from "~/pages/goal/[[...goal]]";
 import usePreferences from "~/stores/preferencesStore";
 
-const Alerts = () => {
+const Alerts = ({
+  alertConfigs,
+}: InferGetStaticPropsType<typeof getStaticProps>) => {
   const { isDemoAlertOpen, setIsDemoAlertOpen } = usePreferences();
-  const color = "neutral";
-  const title = "Pre-alpha demo";
-  const description = "waggledance.ai still under active development.";
-  const icon = <Warning />;
+
   return (
     <>
-      {isDemoAlertOpen && (
-        <Box
-          className="mb-6"
-          sx={{
-            display: "flex",
-            gap: 2,
-            width: "100%",
-            flexDirection: "column",
-          }}
-        >
-          <Alert
-            key={title}
-            sx={{ alignItems: "flex-start text-center" }}
-            startDecorator={React.cloneElement(icon, {
-              sx: { mt: "2px", mx: "4px" },
-              color: "warning",
-              fontSize: "xl2",
-            })}
-            variant="soft"
-            color={color}
-            endDecorator={
-              <Button
-                variant="outlined"
-                size="sm"
-                className=""
-                color={color}
-                onClick={() => {
-                  setIsDemoAlertOpen(false);
-                }}
-              >
-                I understand
-              </Button>
-            }
+      {isDemoAlertOpen &&
+        alertConfigs.map((alert) => (
+          <Box
+            key={alert.title}
+            className="mb-6"
+            sx={{
+              display: "flex",
+              gap: 2,
+              width: "100%",
+              flexDirection: "column",
+            }}
           >
-            <div>
-              <Typography fontWeight="lg" mt={0.25}>
-                {title}
-              </Typography>
-              <Typography fontSize="sm" sx={{ opacity: 0.8 }}>
-                {description}
-              </Typography>
-              <Typography fontSize="xs" sx={{ opacity: 0.5 }}>
-                • Expect changes and bugs. Do not input anything sensitive.
-                Database is frequently wiped.
-              </Typography>
-            </div>
-          </Alert>
-        </Box>
-      )}
+            <Alert
+              key={alert.title}
+              sx={{ alignItems: "flex-start text-center" }}
+              startDecorator={React.cloneElement(<Warning />, {
+                sx: { mt: "2px", mx: "4px" },
+                color: "warning",
+                fontSize: "xl2",
+              })}
+              variant="soft"
+              // color={alert.color}
+              endDecorator={
+                <Button
+                  variant="outlined"
+                  size="sm"
+                  // color={alert.color}
+                  onClick={() => {
+                    setIsDemoAlertOpen(false);
+                  }}
+                >
+                  I understand
+                </Button>
+              }
+            >
+              <div>
+                <Typography fontWeight="lg" mt={0.25}>
+                  {alert.title}
+                </Typography>
+                <Typography fontSize="sm" sx={{ opacity: 0.8 }}>
+                  {alert.description}
+                </Typography>
+                <Typography fontSize="xs" sx={{ opacity: 0.5 }}>
+                  {alert.footer}
+                </Typography>
+              </div>
+            </Alert>
+          </Box>
+        ))}
     </>
   );
 };
 
 export default Alerts;
+
+export const config = {
+  runtime: "edge",
+};

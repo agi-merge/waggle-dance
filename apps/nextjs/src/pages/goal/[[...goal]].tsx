@@ -1,12 +1,14 @@
 // pages/goal/[[...goal]].tsx
 import { type ParsedUrlQuery } from "querystring";
-import React, { lazy, Suspense, useEffect, useMemo, useRef } from "react";
+import { lazy, Suspense, useEffect, useMemo, useRef } from "react";
+import { type GetStaticPropsResult, type InferGetStaticPropsType } from "next";
 import dynamic from "next/dynamic";
 import { useRouter } from "next/router";
 import { Skeleton } from "@mui/joy";
 import List from "@mui/joy/List";
 import Typography from "@mui/joy/Typography";
 import { Accordion, AccordionItem } from "@radix-ui/react-accordion";
+import { get } from "@vercel/edge-config";
 
 import { type ExecutionPlusGraph, type GoalPlusExe } from "@acme/db";
 
@@ -33,7 +35,66 @@ const ErrorBoundary = lazy(() => import("../error/ErrorBoundary"));
 const PageTitle = lazy(
   () => import("~/features/MainLayout/components/PageTitle"),
 );
-const GoalPage = () => {
+type AlertConfig = {
+  title: string;
+  description: string;
+  color: string;
+  footer: string;
+};
+
+type StaticProps = {
+  alertConfigs: AlertConfig[];
+};
+export const getStaticProps = async (): Promise<
+  GetStaticPropsResult<StaticProps>
+> => {
+  // Fetch your alerts array from Vercel edge-config here
+
+  const revalidate = 300; // ISR, revalidate every 5 minutes
+  const alertConfigs = await get("alerts");
+  const errorResponse: GetStaticPropsResult<StaticProps> = {
+    notFound: true,
+    revalidate: 10,
+  };
+
+  if (!alertConfigs) {
+    return errorResponse;
+  }
+  const typedAlertConfigs = alertConfigs as AlertConfig[];
+
+  if (!typedAlertConfigs) {
+    return errorResponse;
+  }
+
+  return {
+    props: { alertConfigs: typedAlertConfigs },
+    revalidate,
+  };
+};
+
+export function getStaticPaths() {
+  return {
+    paths: [],
+    fallback: "blocking",
+  };
+}
+
+// export const getStaticPaths: GetStaticPaths = async () => {
+//   return {
+//     paths: [
+//       {
+//         params: {
+//           goal: null,
+//           alertConfig: [],
+//         },
+//       }, // See the "paths" section below
+//     ],
+//     fallback: true, // false or "blocking"
+//   };
+// };
+
+type Props = InferGetStaticPropsType<typeof getStaticProps>;
+const GoalPage = ({ alertConfigs }: Props) => {
   const router = useRouter();
   const { goalMap, selectedGoal, upsertGoals, selectGoal } = useGoalStore();
   const { isRunning, setExecution } = useWaggleDanceMachineStore();
@@ -93,7 +154,7 @@ const GoalPage = () => {
   }, [goal?.id, execution?.id, destinationRoute]);
 
   return (
-    <MainLayout>
+    <MainLayout alertConfigs={alertConfigs}>
       <Suspense>
         <ErrorBoundary router={router}>
           {state === "input" ? (
@@ -144,7 +205,7 @@ const GoalPage = () => {
   );
 };
 
-export default React.memo(GoalPage);
+export default GoalPage;
 
 function getRoute(query: ParsedUrlQuery): {
   goalId: string | undefined;

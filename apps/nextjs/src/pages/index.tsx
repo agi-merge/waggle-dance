@@ -1,13 +1,14 @@
 // pages/index.tsx
 
-import { lazy, Suspense } from "react";
+import { type InferGetServerSidePropsType } from "next";
 
-const LazyGoalDynamicRoute = lazy(() => import("~/pages/goal/[[...goal]]"));
+import GoalDynamicRoute from "~/pages/goal/[[...goal]]";
+import { getStaticProps as getStaticPropsMain } from "./goal/[[...goal]]";
 
-export default function Home() {
-  return (
-    <Suspense>
-      <LazyGoalDynamicRoute />
-    </Suspense>
-  );
+export const getStaticProps = getStaticPropsMain;
+
+export default function Home({
+  alertConfigs,
+}: InferGetServerSidePropsType<typeof getStaticPropsMain>) {
+  return <GoalDynamicRoute alertConfigs={alertConfigs} />;
 }
