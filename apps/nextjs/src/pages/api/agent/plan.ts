@@ -1,6 +1,7 @@
 // api/agent/plan.ts
 
 import { type NextRequest } from "next/server";
+import { stringify as jsonStringify } from "superjson";
 import { parse, stringify } from "yaml";
 
 import { getBaseUrl } from "@acme/api/utils";
@@ -184,7 +185,7 @@ export async function updateExecution(
       Cookie: req.headers.get("cookie") || "", // pass cookie so session logic still works
       "Content-Type": "application/json",
     },
-    body: JSON.stringify(params),
+    body: jsonStringify(params),
   });
 
   if (!response.ok) {
