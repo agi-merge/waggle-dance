@@ -4,9 +4,14 @@ import { lazy, Suspense, useEffect, useMemo, useRef } from "react";
 import { type GetStaticPropsResult, type InferGetStaticPropsType } from "next";
 import dynamic from "next/dynamic";
 import { useRouter } from "next/router";
-import { Skeleton } from "@mui/joy";
+import {
+  Skeleton,
+  type AlertPropsColorOverrides,
+  type ColorPaletteProp,
+} from "@mui/joy";
 import List from "@mui/joy/List";
 import Typography from "@mui/joy/Typography";
+import { type OverridableStringUnion } from "@mui/types";
 import { Accordion, AccordionItem } from "@radix-ui/react-accordion";
 import { get } from "@vercel/edge-config";
 
@@ -35,16 +40,19 @@ const ErrorBoundary = lazy(() => import("../error/ErrorBoundary"));
 const PageTitle = lazy(
   () => import("~/features/MainLayout/components/PageTitle"),
 );
+
 type AlertConfig = {
+  id: string;
   title: string;
   description: string;
-  color: string;
+  color: OverridableStringUnion<ColorPaletteProp, AlertPropsColorOverrides>;
   footer: string;
 };
 
 type StaticProps = {
   alertConfigs: AlertConfig[];
 };
+
 export const getStaticProps = async (): Promise<
   GetStaticPropsResult<StaticProps>
 > => {
