@@ -2,10 +2,10 @@
 
 import { LLMChain } from "langchain/chains";
 
-import { type ModelCreationProps } from "../..";
 import { createRefinePrompt } from "../prompts/createRefinePrompt";
 import { AgentPromptingMethod } from "../utils/llms";
 import { createModel } from "../utils/model";
+import { type ModelCreationProps } from "../utils/OpenAIPropsBridging";
 
 export async function callRefiningAgent(params: {
   creationProps: ModelCreationProps;

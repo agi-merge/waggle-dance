@@ -4,7 +4,10 @@ import { OpenAIEmbeddings } from "langchain/embeddings/openai";
 import { OpenAI } from "langchain/llms/openai";
 
 import { AgentPromptingMethod } from "./llms";
-import { type EmbeddingsCreationProps, type ModelCreationProps } from "./types";
+import {
+  type EmbeddingsCreationProps,
+  type ModelCreationProps,
+} from "./OpenAIPropsBridging";
 
 export const createModel = (
   creationProps: ModelCreationProps,

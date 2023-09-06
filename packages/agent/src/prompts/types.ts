@@ -1,9 +1,9 @@
-import { type ModelCreationProps } from "../..";
+import { type ModelCreationProps } from "../utils/OpenAIPropsBridging";
 
-export type ChainType = "plan" | "execute" | "criticize" | "refine";
+export type AgentType = "plan" | "execute" | "criticize" | "refine";
 
 export interface PromptParams {
-  type: ChainType;
+  type: AgentType;
   creationProps?: ModelCreationProps;
   goal?: string;
   goalId?: string;

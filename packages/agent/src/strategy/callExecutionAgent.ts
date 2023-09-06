@@ -33,7 +33,8 @@ import {
   type InitializeAgentExecutorOptionsStructuredAgentType,
 } from "../utils/llms";
 import { createEmbeddings, createModel } from "../utils/model";
-import { type Geo, type ModelCreationProps } from "../utils/types";
+import { type ModelCreationProps } from "../utils/OpenAIPropsBridging";
+import type Geo from "./Geo";
 
 export async function callExecutionAgent(creation: {
   creationProps: ModelCreationProps;
@@ -113,10 +114,11 @@ export async function callExecutionAgent(creation: {
 
     const ltmChain = VectorDBQAChain.fromLLM(llm, vectorStore, {
       tags: [taskObj.id],
+      callbacks: creationProps.callbacks,
     });
 
     // const ltm = await ltmChain.call({ input: "What are your main contents?" })
-    const description = `a comprehensive database extending your knowledge/memory; use this tool before other tools.`;
+    const description = `*MANDATORY: ONLY CALL UP TO ONCE PER STEP* a comprehensive database extending your knowledge/memory; use this tool before other tools.`;
     const ltmTool = new ChainTool({
       name: "memory database",
       description,

@@ -9,7 +9,7 @@ import { getBaseUrl } from "@acme/api/utils";
 import { type ExecuteRequestBody } from "~/features/WaggleDance/types";
 import {
   callExecutionAgent,
-  type ChainPacket,
+  type AgentPacket,
 } from "../../../../../../packages/agent";
 
 export const config = {
@@ -52,7 +52,7 @@ export default async function ExecuteStream(req: NextRequest) {
         creationProps.callbacks = [
           BaseCallbackHandler.fromMethods({
             handleLLMStart(): void | Promise<void> {
-              const packet: ChainPacket = { type: "handleLLMStart" };
+              const packet: AgentPacket = { type: "handleLLMStart" };
               controller.enqueue(encoder.encode(stringify([packet])));
             },
             handleLLMError(
@@ -66,7 +66,7 @@ export default async function ExecuteStream(req: NextRequest) {
               } else {
                 errorMessage = stringify(err);
               }
-              const packet: ChainPacket = {
+              const packet: AgentPacket = {
                 type: "handleLLMError",
                 err: errorMessage,
               };
@@ -84,7 +84,7 @@ export default async function ExecuteStream(req: NextRequest) {
               } else {
                 errorMessage = stringify(err);
               }
-              const packet: ChainPacket = {
+              const packet: AgentPacket = {
                 type: "handleChainError",
                 err: errorMessage,
               };
@@ -97,7 +97,7 @@ export default async function ExecuteStream(req: NextRequest) {
               _runId: string,
               _parentRunId?: string | undefined,
             ): void | Promise<void> {
-              const packet: ChainPacket = {
+              const packet: AgentPacket = {
                 type: "handleToolStart",
                 tool,
                 input,
@@ -115,7 +115,7 @@ export default async function ExecuteStream(req: NextRequest) {
               } else {
                 errorMessage = stringify(err);
               }
-              const packet: ChainPacket = {
+              const packet: AgentPacket = {
                 type: "handleToolError",
                 err: errorMessage,
               };
@@ -127,7 +127,7 @@ export default async function ExecuteStream(req: NextRequest) {
               _runId: string,
               _parentRunId?: string | undefined,
             ): void | Promise<void> {
-              const packet: ChainPacket = { type: "handleToolEnd", output };
+              const packet: AgentPacket = { type: "handleToolEnd", output };
               controller.enqueue(encoder.encode(stringify([packet])));
             },
             handleAgentAction(
@@ -135,7 +135,7 @@ export default async function ExecuteStream(req: NextRequest) {
               _runId: string,
               _parentRunId?: string | undefined,
             ): void | Promise<void> {
-              const packet: ChainPacket = { type: "handleAgentAction", action };
+              const packet: AgentPacket = { type: "handleAgentAction", action };
               controller.enqueue(encoder.encode(stringify([packet])));
             },
             handleRetrieverError(
@@ -150,7 +150,7 @@ export default async function ExecuteStream(req: NextRequest) {
               } else {
                 errorMessage = stringify(err);
               }
-              const packet: ChainPacket = {
+              const packet: AgentPacket = {
                 type: "handleRetrieverError",
                 err: errorMessage,
               };
@@ -166,14 +166,14 @@ export default async function ExecuteStream(req: NextRequest) {
                 action.returnValues && action.returnValues["output"];
               if (output === "Agent stopped due to max iterations.") {
                 // not sure why this isn't an error…
-                const packet: ChainPacket = {
+                const packet: AgentPacket = {
                   type: "handleAgentError",
                   err: "Agent stopped due to max iterations.",
                 };
                 controller.enqueue(encoder.encode(stringify([packet])));
               } else {
                 const value = stringify(output);
-                const packet: ChainPacket = { type: "handleAgentEnd", value };
+                const packet: AgentPacket = { type: "handleAgentEnd", value };
                 controller.enqueue(encoder.encode(stringify([packet])));
               }
             },
@@ -249,7 +249,7 @@ export default async function ExecuteStream(req: NextRequest) {
 
     const all = { stack, message, status };
     console.error("execute error", all);
-    const errorPacket: ChainPacket = {
+    const errorPacket: AgentPacket = {
       type: "error",
       severity: "fatal",
       message: stringify(all),
@@ -289,7 +289,7 @@ export default async function ExecuteStream(req: NextRequest) {
         const error = new Error(
           `Could not save result: ${response.statusText}`,
         );
-        const errorPacket: ChainPacket = {
+        const errorPacket: AgentPacket = {
           type: "error",
           severity: "fatal",
           message: stringify(error),

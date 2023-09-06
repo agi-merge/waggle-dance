@@ -6,12 +6,12 @@ import {
 import { stringify as jsonStringify } from "superjson";
 import { stringify as yamlStringify } from "yaml";
 
-import { type ChainPacket } from "../..";
+import { type AgentPacket, type AgentPacketType } from "../..";
 
 // Helper function to generate the base schema
 function executeBaseSchema(_format: string, _llmName: string) {
   return `
-ChainPacket
+AgentPacket
 | type: "done"; value: string // result of TASK
 | type: "error"; severity: "warn" | "human" | "fatal", message: string
 | type: "requestHumanInput"; reason: string
@@ -22,7 +22,7 @@ const constraints = (_format: string) =>
   `
 - When outputting URLs, ensure that they do not produce a HTTP error or error/empty page.
 - If a tool error occurs, try another route. (e.g. a new search, url, or tool.)
-- If the TASK is not sufficiently complete, return an error or requestHumanInput ChainPacket.
+- If the TASK is not sufficiently complete, return an error or requestHumanInput AgentPacket.
 - Do not get stuck in a loop. (e.g. repeating the same action over and over again.)
 - Your output will be reviewed, so ensure it is an accurate and complete execution of the TASK.
 - Follow multiple routes; avoid final responses such as "I'm sorry, but I was unable to find information [x]. It may be necessary to try a different approach or check the website at a later time."
@@ -40,8 +40,8 @@ AGAIN, THE ONLY THING YOU MUST OUTPUT IS ${format} that represents the execution
 function criticizeSchema(format: string, _llmName: string) {
   return `${executeBaseSchema(format, _llmName)}
 The RETURN VALUE IN SCHEMA should represent the result of the execution of your TASK.
-Since we request our criticism data to be wrapped in a ChainPacket, the EXAMPLE output values represent ChainPackets of
-Within a ChainPacket, the return value shall represent a weighted score (0.0≤1.0) in context for each of the following criteria: [Coherence (15%), Creativity (15%), Efficiency (10%), Estimated Rigor (10%), Directness (10%), Resourcefulness (10%), Accuracy (20%), Ethics (10%), Overall (Weighted rank-based))]
+Since we request our criticism data to be wrapped in a AgentPacket, the EXAMPLE output values represent AgentPackets of
+Within a AgentPacket, the return value shall represent a weighted score (0.0≤1.0) in context for each of the following criteria: [Coherence (15%), Creativity (15%), Efficiency (10%), Estimated Rigor (10%), Directness (10%), Resourcefulness (10%), Accuracy (20%), Ethics (10%), Overall (Weighted rank-based))]
 AGAIN, THE ONLY THING YOU MUST OUTPUT IS ${format} that represents the execution of your TASK:
 `.trim();
 }
@@ -234,9 +234,9 @@ export interface DAGEdge {
 
 export type TaskState = DAGNode & {
   status: TaskStatus;
-  fromPacketType: ChainPacket["type"] | "idle";
+  fromPacketType: AgentPacketType | "idle";
   result: string | null;
-  packets: ChainPacket[];
+  packets: AgentPacket[];
   updatedAt: Date;
 };
 
@@ -254,7 +254,7 @@ export async function createCriticizePrompt(params: {
 Server TIME: ${new Date().toString()}
 CONSTRAINTS: ${constraints(returnType)}
 SCHEMA: ${schema}
-RETURN: ONLY a single ChainPacket with the results of your TASK in SCHEMA${
+RETURN: ONLY a single AgentPacket with the results of your TASK in SCHEMA${
     returnType === "JSON" ? ":" : ". Do NOT return JSON:"
   }
 TASK: Review REVIEWEE OUTPUT of REVIEWEE TASK using the SCHEMA.

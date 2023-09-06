@@ -2,7 +2,7 @@
 import { parse, stringify } from "yaml";
 
 import {
-  type ChainPacket,
+  type AgentPacket,
   type DAGNode,
 } from "../../../../../../packages/agent";
 import { type DAGNodeClass } from "../DAG";
@@ -24,8 +24,8 @@ async function fetchTaskData(
   return response;
 }
 
-function processResponseBuffer(tokens: string): Partial<ChainPacket> {
-  const packets = parse(tokens) as Partial<ChainPacket>[];
+function processResponseBuffer(tokens: string): Partial<AgentPacket> {
+  const packets = parse(tokens) as Partial<AgentPacket>[];
   const packet = packets.findLast(
     (packet) =>
       packet.type === "handleAgentEnd" ||
@@ -47,8 +47,8 @@ function processResponseBuffer(tokens: string): Partial<ChainPacket> {
 
 export type ExecuteTaskProps = {
   request: ExecuteRequestBody;
-  sendChainPacket: (
-    chainPacket: ChainPacket,
+  sendAgentPacket: (
+    chainPacket: AgentPacket,
     node: DAGNode | DAGNodeClass,
   ) => void;
   log: (...args: (string | number | object)[]) => void;
@@ -57,7 +57,7 @@ export type ExecuteTaskProps = {
 
 export default async function executeTask({
   request,
-  sendChainPacket,
+  sendAgentPacket,
   log,
   abortSignal,
 }: ExecuteTaskProps): Promise<string> {
@@ -66,7 +66,7 @@ export default async function executeTask({
   if (abortSignal.aborted) throw new Error("Signal aborted");
 
   log(`About to execute task ${task.id} -${task.name}...`);
-  sendChainPacket({ type: "starting", nodeId: task.id }, task);
+  sendAgentPacket({ type: "starting", nodeId: task.id }, task);
 
   const response = await fetchTaskData(request, abortSignal);
   const stream = response.body;
@@ -76,7 +76,7 @@ export default async function executeTask({
     );
   }
 
-  sendChainPacket({ type: "working", nodeId: task.id }, task);
+  sendAgentPacket({ type: "working", nodeId: task.id }, task);
   log(`Task ${task.id} -${task.name} stream began!`);
 
   let buffer = Buffer.alloc(0);

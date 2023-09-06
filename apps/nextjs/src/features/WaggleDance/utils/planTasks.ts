@@ -1,7 +1,7 @@
 // features/WaggleDance/utils/planTasks.ts
 
 import {
-  type ChainPacket,
+  type AgentPacket,
   type DAGNode,
   type ModelCreationProps,
 } from "../../../../../../packages/agent";
@@ -17,8 +17,8 @@ export type PlanTasksProps = {
   creationProps: ModelCreationProps;
   graphDataState: [DAG, (dag: DAG) => void];
   log: (...args: (string | number | object)[]) => void;
-  sendChainPacket: (
-    chainPacket: ChainPacket,
+  sendAgentPacket: (
+    chainPacket: AgentPacket,
     node: DAGNode | DAGNodeClass,
   ) => void;
   abortSignal: AbortSignal;
@@ -32,7 +32,7 @@ export default async function planTasks({
   creationProps,
   graphDataState: [_initDag, setDAG],
   log,
-  sendChainPacket,
+  sendAgentPacket,
   startFirstTask,
   abortSignal,
 }: PlanTasksProps): Promise<DAG> {
@@ -57,7 +57,7 @@ export default async function planTasks({
     log(`started planning!`);
     initialNode = initialNodes(goal)[0];
     if (initialNode) {
-      sendChainPacket({ type: "working", nodeId: rootPlanId }, initialNode);
+      sendAgentPacket({ type: "working", nodeId: rootPlanId }, initialNode);
     } else {
       log({ type: "error", nodeId: rootPlanId, message: "No initial node" });
       throw new Error("No initial node");

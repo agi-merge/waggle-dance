@@ -2,7 +2,7 @@
 import { v4 } from "uuid";
 import { parse } from "yaml";
 
-import { type ChainPacket } from "../../../../../../packages/agent";
+import { type AgentPacket } from "../../../../../../packages/agent";
 import DAG from "../DAG";
 import {
   findNodesWithNoIncomingEdges,
@@ -25,7 +25,7 @@ self.onmessage = function (
 ) {
   const { buffer, goal } = event.data;
   try {
-    const newPackets = parse(buffer) as Partial<ChainPacket>[];
+    const newPackets = parse(buffer) as Partial<AgentPacket>[];
     newPackets.forEach((packet) => {
       if (packet.type === "token" && packet.token) {
         tokens += packet.token;

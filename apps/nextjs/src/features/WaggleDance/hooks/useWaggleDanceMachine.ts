@@ -10,7 +10,7 @@ import useGoalStore from "~/stores/goalStore";
 import useWaggleDanceMachineStore from "~/stores/waggleDanceStore";
 import {
   TaskStatus,
-  type ChainPacket,
+  type AgentPacket,
   type DAGNode,
   type TaskState,
 } from "../../../../../../packages/agent";
@@ -76,7 +76,7 @@ const useWaggleDanceMachine = () => {
       return {
         status: "done",
         result: r.value,
-        packets: [] as ChainPacket[],
+        packets: [] as AgentPacket[],
       } as TaskState;
     });
   }, [goal?.results]);
@@ -97,16 +97,16 @@ const useWaggleDanceMachine = () => {
     resultsMap ?? {},
   );
   const [logs, setLogs] = useState<LogMessage[]>([]);
-  const [chainPackets, setChainPackets] = useState<Record<string, TaskState>>(
+  const [chainPackets, setAgentPackets] = useState<Record<string, TaskState>>(
     {},
   );
   const [abortController, setAbortController] = useState<AbortController>(
     new AbortController(),
   );
 
-  // takes a ChainPacket type and maps it to an appropriate TaskStatus, or idle if it does not match or is undefined
+  // takes a AgentPacket type and maps it to an appropriate TaskStatus, or idle if it does not match or is undefined
   const mapPacketTypeToStatus = (
-    packetType: ChainPacket["type"] | undefined,
+    packetType: AgentPacket["type"] | undefined,
   ): TaskStatus => {
     switch (packetType) {
       case "token":
@@ -194,8 +194,8 @@ const useWaggleDanceMachine = () => {
     return taskStates;
   }, [chainPackets, dag.nodes, taskResults]);
 
-  const sendChainPacket = useCallback(
-    (chainPacket: ChainPacket, node: DAGNode | DAGNodeClass) => {
+  const sendAgentPacket = useCallback(
+    (chainPacket: AgentPacket, node: DAGNode | DAGNodeClass) => {
       if (!node || !node.id) {
         throw new Error("a node does not exist to receive data");
       }
@@ -207,8 +207,8 @@ const useWaggleDanceMachine = () => {
           );
           return;
         } else {
-          setChainPackets((prevChainPackets) => ({
-            ...prevChainPackets,
+          setAgentPackets((prevAgentPackets) => ({
+            ...prevAgentPackets,
             [node.id]: {
               ...node,
               status: TaskStatus.idle,
@@ -238,19 +238,19 @@ const useWaggleDanceMachine = () => {
           packets: [...existingTask.packets, chainPacket],
           updatedAt: new Date(),
         };
-        setChainPackets((prevChainPackets) => ({
-          ...prevChainPackets,
+        setAgentPackets((prevAgentPackets) => ({
+          ...prevAgentPackets,
           [node.id]: updatedTask,
         }));
       }
     },
-    [chainPackets, setChainPackets, log],
+    [chainPackets, setAgentPackets, log],
   );
 
   const reset = useCallback(() => {
     setIsDonePlanning(false);
     setDAG(new DAG(initialNodes(goal?.prompt ?? ""), []));
-    setChainPackets({});
+    setAgentPackets({});
     setTaskResults({});
   }, [goal?.prompt]);
 
@@ -279,7 +279,7 @@ const useWaggleDanceMachine = () => {
       setAbortController(ac);
 
       setIsDonePlanning(false);
-      setChainPackets({});
+      setAgentPackets({});
       setTaskResults({});
       setDAG(new DAG(initialNodes(goal?.prompt ?? ""), []));
 
@@ -308,7 +308,7 @@ const useWaggleDanceMachine = () => {
           graphDataState: [dag, setDAG],
           isDonePlanningState: [isDonePlanning, setIsDonePlanning],
           taskResultsState: [taskResults, setTaskResults],
-          sendChainPacket,
+          sendAgentPacket,
           log,
           abortController: ac,
         });
@@ -349,7 +349,7 @@ const useWaggleDanceMachine = () => {
       dag,
       isDonePlanning,
       taskResults,
-      sendChainPacket,
+      sendAgentPacket,
       log,
       updateExecutionState,
     ],

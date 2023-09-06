@@ -5,7 +5,7 @@ import { LLMChain } from "langchain/chains";
 import { createPlanPrompt } from "../prompts/createPlanPrompt";
 import { AgentPromptingMethod } from "../utils/llms";
 import { createModel } from "../utils/model";
-import { type ModelCreationProps } from "../utils/types";
+import { type ModelCreationProps } from "../utils/OpenAIPropsBridging";
 
 export async function callPlanningAgent(
   creationProps: ModelCreationProps,

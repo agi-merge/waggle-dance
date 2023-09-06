@@ -8,7 +8,7 @@
 import { type AgentSettings } from "~/stores/waggleDanceStore";
 import {
   TaskStatus,
-  type ChainPacket,
+  type AgentPacket,
   type DAGNode,
   type TaskState,
 } from "../../../../../packages/agent";
@@ -36,8 +36,8 @@ export type RunParams = {
   graphDataState: GraphDataState;
   taskResultsState: TaskResultsState;
   isDonePlanningState: IsDonePlanningState;
-  sendChainPacket: (
-    chainPacket: ChainPacket,
+  sendAgentPacket: (
+    chainPacket: AgentPacket,
     node: DAGNode | DAGNodeClass,
   ) => void;
   log: (...args: (string | number | object)[]) => void;
@@ -57,7 +57,7 @@ export default class WaggleDanceMachine {
     graphDataState: [initDAG, setDAG],
     isDonePlanningState: [isDonePlanning, setIsDonePlanning],
     taskResultsState: [taskResults, _setTaskResults],
-    sendChainPacket,
+    sendAgentPacket,
     log,
     abortController,
   }: RunParams): Promise<WaggleDanceResult | Error> {
@@ -108,12 +108,12 @@ export default class WaggleDanceMachine {
           };
           const result = await executeTask({
             request: executeRequest,
-            sendChainPacket,
+            sendAgentPacket,
             log,
             abortSignal: abortController.signal,
           });
 
-          sendChainPacket(
+          sendAgentPacket(
             {
               type: "done",
               value: result,
@@ -133,7 +133,7 @@ export default class WaggleDanceMachine {
           taskResults[task.id] = taskState;
         } catch (error) {
           const message = (error as Error).message;
-          sendChainPacket(
+          sendAgentPacket(
             {
               type: "error",
               severity: "warn",
@@ -167,13 +167,13 @@ export default class WaggleDanceMachine {
           creationProps,
           graphDataState: [initDAG, setDAG],
           log,
-          sendChainPacket,
+          sendAgentPacket,
           startFirstTask,
           abortSignal: abortController.signal,
         });
       } catch (error) {
         if (initNodes[0]) {
-          sendChainPacket(
+          sendAgentPacket(
             {
               type: "error",
               severity: "fatal",
@@ -192,7 +192,7 @@ export default class WaggleDanceMachine {
         if (!rootNode) {
           throw new Error("no root node");
         }
-        sendChainPacket(
+        sendAgentPacket(
           {
             type: "done",
             value: `Planned an execution graph with ${dag.nodes.length} tasks and ${dag.edges.length} edges.`,
@@ -277,12 +277,12 @@ export default class WaggleDanceMachine {
         try {
           result = await executeTask({
             request: executeRequest,
-            sendChainPacket,
+            sendAgentPacket,
             log,
             abortSignal: abortController.signal,
           });
         } catch (error) {
-          sendChainPacket(
+          sendAgentPacket(
             {
               type: "error",
               severity: "warn",
@@ -306,17 +306,17 @@ export default class WaggleDanceMachine {
         const node = dag.nodes.find((n) => task.id === n.id);
         if (!node) {
           abortController.abort();
-          throw new Error("no node to sendChainPacket");
+          throw new Error("no node to sendAgentPacket");
         } else {
           if (!result) {
-            sendChainPacket(
+            sendAgentPacket(
               { type: "error", severity: "warn", message: "no task result" },
               node,
             );
             abortController.abort();
             return;
           } else if (typeof result === "string") {
-            sendChainPacket({ type: "done", value: result }, node);
+            sendAgentPacket({ type: "done", value: result }, node);
           }
         }
       })();

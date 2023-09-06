@@ -9,7 +9,7 @@ import { getBaseUrl } from "@acme/api/utils";
 import { type PlanRequestBody } from "~/features/WaggleDance/types";
 import {
   callPlanningAgent,
-  type ChainPacket,
+  type AgentPacket,
 } from "../../../../../../packages/agent";
 import { type UpdateGraphParams } from "../execution/graph";
 
@@ -47,7 +47,7 @@ export default async function PlanStream(req: NextRequest) {
       async start(controller) {
         const inlineCallback = {
           handleLLMNewToken(token: string) {
-            const packet: ChainPacket = { type: "token", token };
+            const packet: AgentPacket = { type: "token", token };
             controller.enqueue(encoder.encode(stringify([packet])));
           },
 
@@ -62,7 +62,7 @@ export default async function PlanStream(req: NextRequest) {
             } else {
               errorMessage = stringify(err);
             }
-            const packet: ChainPacket = {
+            const packet: AgentPacket = {
               type: "handleChainError",
               err: errorMessage,
             };
@@ -81,7 +81,7 @@ export default async function PlanStream(req: NextRequest) {
             } else {
               errorMessage = stringify(err);
             }
-            const packet: ChainPacket = {
+            const packet: AgentPacket = {
               type: "handleLLMError",
               err: errorMessage,
             };
@@ -137,7 +137,7 @@ export default async function PlanStream(req: NextRequest) {
     const all = { stack, message, status };
     planResult = stringify(all);
     console.error("plan error", all);
-    const errorPacket: ChainPacket = {
+    const errorPacket: AgentPacket = {
       type: "error",
       severity: "fatal",
       message: planResult,

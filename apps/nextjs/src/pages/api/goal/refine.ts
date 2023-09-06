@@ -14,7 +14,7 @@ import { env } from "~/env.mjs";
 import { type RefineRequestBody } from "~/features/WaggleDance/types";
 import {
   callRefiningAgent,
-  type ChainPacket,
+  type AgentPacket,
   type ModelCreationProps,
 } from "../../../../../../packages/agent";
 
@@ -54,7 +54,7 @@ export default async function RefineStream(req: NextRequest) {
     // async start(controller) {
     //   const inlineCallback = {
     //     handleLLMNewToken(token: string) {
-    //       const packet: ChainPacket = { type: "token", token };
+    //       const packet: AgentPacket = { type: "token", token };
     //       controller.enqueue(encoder.encode(stringify([packet])));
     //     },
 
@@ -69,7 +69,7 @@ export default async function RefineStream(req: NextRequest) {
     //       } else {
     //         errorMessage = stringify(err);
     //       }
-    //       const packet: ChainPacket = {
+    //       const packet: AgentPacket = {
     //         type: "handleChainError",
     //         err: errorMessage,
     //       };
@@ -88,7 +88,7 @@ export default async function RefineStream(req: NextRequest) {
     //       } else {
     //         errorMessage = stringify(err);
     //       }
-    //       const packet: ChainPacket = {
+    //       const packet: AgentPacket = {
     //         type: "handleLLMError",
     //         err: errorMessage,
     //       };
@@ -151,7 +151,7 @@ export default async function RefineStream(req: NextRequest) {
     const all = { stack, message, status };
     refineResult = stringify(all);
     console.error("refine error", all);
-    const errorPacket: ChainPacket = {
+    const errorPacket: AgentPacket = {
       type: "error",
       severity: "fatal",
       message: refineResult,
