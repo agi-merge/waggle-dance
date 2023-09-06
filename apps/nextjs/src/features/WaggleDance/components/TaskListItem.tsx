@@ -69,11 +69,7 @@ const TaskListItem = ({
           gap={{ xs: "0.5rem", sm: "0.25rem" }}
           alignItems={{ xs: "center", sm: "flex-end" }}
         >
-          <Typography
-            level="title-md"
-            color="primary"
-            sx={{ wordBreak: "break-word" }}
-          >
+          <Typography level="title-md" sx={{ wordBreak: "break-word" }}>
             {t.name}
           </Typography>
           <Typography level="title-sm" color="neutral" fontFamily="monospace">
