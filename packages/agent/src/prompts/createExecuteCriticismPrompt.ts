@@ -3,6 +3,8 @@ import {
   HumanMessagePromptTemplate,
   SystemMessagePromptTemplate,
 } from "langchain/prompts";
+import { stringify as jsonStringify } from "superjson";
+import { stringify as yamlStringify } from "yaml";
 
 import { type ChainPacket } from "../..";
 
@@ -38,17 +40,18 @@ AGAIN, THE ONLY THING YOU MUST OUTPUT IS ${format} that represents the execution
 function criticizeSchema(format: string, _llmName: string) {
   return `${executeBaseSchema(format, _llmName)}
 The RETURN VALUE IN SCHEMA should represent the result of the execution of your TASK.
-For example, if the task is repeating, loops, or has a low score, the result would be to return an error ChainPacket with suggestions to improve.
+Since we request our criticism data to be wrapped in a ChainPacket, the EXAMPLE output values represent ChainPackets of
+Within a ChainPacket, the return value shall represent a weighted score (0.0≤1.0) in context for each of the following criteria: [Coherence (15%), Creativity (15%), Efficiency (10%), Estimated Rigor (10%), Directness (10%), Resourcefulness (10%), Accuracy (20%), Ethics (10%), Overall (Weighted rank-based))]
 AGAIN, THE ONLY THING YOU MUST OUTPUT IS ${format} that represents the execution of your TASK:
 `.trim();
 }
 
-const _highQualityExamples = [
+const highQualityExamples = [
   {
     input:
       "Create a markdown document that compares and contrasts the costs, benefits, regional differences, and risks of implementing rooftop distributed solar, versus utility-scale solar, versus community solar.",
     output: {
-      type: "success",
+      type: "done",
       value: {
         task: "Create a markdown document that compares and contrasts the costs, benefits, regional differences, and risks of implementing rooftop distributed solar, versus utility-scale solar, versus community solar.",
         revieweeOutput:
@@ -57,7 +60,7 @@ const _highQualityExamples = [
           coherence: 0.85,
           creativity: 0.75,
           efficiency: 0.9,
-          estimatedIQ: 0.8,
+          rigor: 0.8,
           directness: 0.8,
           resourcefulness: 0.7,
           accuracy: 0.95,
@@ -88,7 +91,7 @@ const _highQualityExamples = [
   },
 ];
 
-const _counterExamples = [
+const counterExamples = [
   {
     input:
       "Create a markdown document that compares and contrasts the costs, benefits, regional differences, and risks of implementing rooftop distributed solar, versus utility-scale solar, versus community solar.",
@@ -101,7 +104,7 @@ const _counterExamples = [
           coherence: 0.95,
           creativity: 0.9,
           efficiency: 0.95,
-          estimatedIQ: 0.9,
+          rigor: 0.9,
           directness: 0.9,
           resourcefulness: 0.9,
           accuracy: 0.95,
@@ -127,7 +130,7 @@ const _counterExamples = [
           coherence: 0.85,
           creativity: 0.75,
           efficiency: 0.9,
-          estimatedIQ: 0.8,
+          rigor: 0.8,
           directness: 0.8,
           resourcefulness: 0.7,
           accuracy: 0.95,
@@ -254,13 +257,30 @@ SCHEMA: ${schema}
 RETURN: ONLY a single ChainPacket with the results of your TASK in SCHEMA${
     returnType === "JSON" ? ":" : ". Do NOT return JSON:"
   }
-TASK: Review REVIEWEE OUTPUT of REVIEWEE TASK. Calculate a weighted score (0.0≤1.0) in context for each of the following criteria: [Coherence (15%), Creativity (15%), Efficiency (10%), Estimated IQ (10%), Directness (10%), Resourcefulness (10%), Accuracy (20%), Ethics (10%), Overall (Weighted rank-based))]
+TASK: Review REVIEWEE OUTPUT of REVIEWEE TASK using the SCHEMA.
 `.trimEnd();
 
   const systemMessagePrompt =
     SystemMessagePromptTemplate.fromTemplate(systemTemplate);
 
-  // todo: convert to use map for each task and result
+  // Convert highQualityExamples to the desired format
+  const formattedHighQualityExamples = highQualityExamples.map((example) => {
+    const formattedOutput =
+      returnType === "JSON" ? jsonStringify(example) : yamlStringify(example);
+
+    return {
+      ...example,
+      output: formattedOutput,
+    };
+  });
+  const examplesSystemMessagePrompt = SystemMessagePromptTemplate.fromTemplate(
+    `EXAMPLES: [${formattedHighQualityExamples}]`,
+  );
+
+  const counterExamplesSystemMessagePrompt =
+    SystemMessagePromptTemplate.fromTemplate(
+      `COUNTER EXAMPLES: [${counterExamples}]`,
+    );
 
   const tasksAsHumanMessages = Object.entries(revieweeTaskResults).map(
     (task, i) => {
@@ -275,7 +295,12 @@ ${task[1].result}`,
     },
   );
 
-  const promptMessages = [systemMessagePrompt, ...tasksAsHumanMessages];
+  const promptMessages = [
+    systemMessagePrompt,
+    examplesSystemMessagePrompt,
+    counterExamplesSystemMessagePrompt,
+    ...tasksAsHumanMessages,
+  ];
 
   return ChatPromptTemplate.fromPromptMessages(promptMessages);
 }
