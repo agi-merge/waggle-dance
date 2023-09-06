@@ -12,7 +12,6 @@ import { type InitializeAgentExecutorOptionsStructured } from "langchain/dist/ag
 import { type Tool } from "langchain/dist/tools/base";
 import { PlanAndExecuteAgentExecutor } from "langchain/experimental/plan_and_execute";
 import { ChainTool, SerpAPI } from "langchain/tools";
-import { Calculator } from "langchain/tools/calculator";
 import { WebBrowser } from "langchain/tools/webbrowser";
 import { PineconeStore } from "langchain/vectorstores/pinecone";
 import { parse } from "yaml";
@@ -88,7 +87,6 @@ export async function callExecutionAgent(creation: {
 
   const tools: Tool[] = [
     new WebBrowser({ model: llm, embeddings }),
-    new Calculator(),
     saveMemorySkill,
   ];
 
