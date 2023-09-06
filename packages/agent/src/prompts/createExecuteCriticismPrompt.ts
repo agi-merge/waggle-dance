@@ -271,7 +271,12 @@ export async function createCriticizePrompt(params: {
   const tasksAsHumanMessages = Object.entries(revieweeTaskResults).map(
     (task, i) => {
       return HumanMessagePromptTemplate.fromTemplate(
-        `REVIEWEE TASK${i > 0 ? ` ${i}` : ""}: ${task[1].result}`,
+        `REVIEWEE TASK${i > 0 ? ` ${i}` : ""}:
+name: ${task[1].name}
+context: ${task[1].context}
+act: ${task[1].act}
+REVIEWEE OUTPUT:
+${task[1].result}`,
       );
     },
   );
