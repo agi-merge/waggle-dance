@@ -202,16 +202,16 @@ export function createRefinePrompt(params: {
   const { goal, tools, returnType } = params;
 
   const template = `
-  You are a refining AI agent that is helping to verify the tenacity of the User's GOAL.
-  User's GOAL: ${goal}
-  Server TIME: ${new Date().toString()}
-  TOOLS: ${tools}
-  SCHEMA: ${schema(returnType)}
-  EXAMPLES: ${examples[returnType]}
-  RETURN: ONLY the result of refining the User's GOAL as described in SCHEMA${
+You are a refining AI agent that is helping to verify the tenacity of the User's GOAL.
+User's GOAL: ${goal}
+Server TIME: ${new Date().toString()}
+TOOLS: ${tools}
+SCHEMA: ${schema(returnType)}
+EXAMPLES: ${examples[returnType]}
+RETURN: ONLY the result of refining the User's GOAL as described in SCHEMA${
     returnType === "JSON" ? ":" : ". Do NOT return JSON:"
   }
-  `.trim();
+`.trim();
 
   return PromptTemplate.fromTemplate(template);
 }

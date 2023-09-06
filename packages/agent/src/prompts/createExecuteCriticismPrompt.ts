@@ -1,17 +1,10 @@
 import {
   ChatPromptTemplate,
-  FewShotPromptTemplate,
   HumanMessagePromptTemplate,
-  PromptTemplate,
-  SemanticSimilarityExampleSelector,
   SystemMessagePromptTemplate,
 } from "langchain/prompts";
-import { MemoryVectorStore } from "langchain/vectorstores/memory";
-import { stringify as jsonStringify } from "superjson";
-import { stringify as yamlStringify } from "yaml";
 
-import { createEmbeddings, type ChainPacket } from "../..";
-import { LLM } from "../utils/llms";
+import { type ChainPacket } from "../..";
 
 // Helper function to generate the base schema
 function executeBaseSchema(_format: string, _llmName: string) {
@@ -50,7 +43,7 @@ AGAIN, THE ONLY THING YOU MUST OUTPUT IS ${format} that represents the execution
 `.trim();
 }
 
-const highQualityExamples = [
+const _highQualityExamples = [
   {
     input:
       "Create a markdown document that compares and contrasts the costs, benefits, regional differences, and risks of implementing rooftop distributed solar, versus utility-scale solar, versus community solar.",
@@ -146,6 +139,7 @@ const _counterExamples = [
   },
 ];
 
+// eslint-disable-next-line @typescript-eslint/require-await
 export async function createExecutePrompt(params: {
   task: string;
   returnType: "YAML" | "JSON";
@@ -155,53 +149,52 @@ export async function createExecutePrompt(params: {
   const schema = executeSchema(returnType, "unknown");
 
   const systemTemplate = `
-  Execute TASK: ${task}
-  Server TIME: ${new Date().toString()}
-  CONSTRAINTS: ${constraints(returnType)}
-  SCHEMA: ${schema}
-  `.trim();
+Execute TASK: ${task}
+Server TIME: ${new Date().toString()}
+CONSTRAINTS: ${constraints(returnType)}
+SCHEMA: ${schema}`;
 
   // Convert highQualityExamples to the desired format
-  const formattedHighQualityExamples = highQualityExamples.map((example) => {
-    const formattedOutput =
-      returnType === "JSON" ? jsonStringify(example) : yamlStringify(example);
+  // const formattedHighQualityExamples = highQualityExamples.map((example) => {
+  //   const formattedOutput =
+  //     returnType === "JSON" ? jsonStringify(example) : yamlStringify(example);
 
-    return {
-      ...example,
-      output: formattedOutput,
-    };
-  });
+  //   return {
+  //     ...example,
+  //     output: formattedOutput,
+  //   };
+  // });
 
-  const exampleSelector = await SemanticSimilarityExampleSelector.fromExamples(
-    formattedHighQualityExamples,
-    createEmbeddings({ modelName: LLM.embeddings }),
-    MemoryVectorStore,
-    { k: 2 },
-  );
+  // const exampleSelector = await SemanticSimilarityExampleSelector.fromExamples(
+  //   formattedHighQualityExamples,
+  //   createEmbeddings({ modelName: LLM.embeddings }),
+  //   MemoryVectorStore,
+  //   { k: 2 },
+  // );
 
   // Create a prompt template that will be used to format the examples.
-  const examplePrompt = new PromptTemplate({
-    inputVariables: ["input", "output"],
-    template: `Input:\n{input}\nOutput:\n{output}`,
-  });
+  // const examplePrompt = new PromptTemplate({
+  //   inputVariables: ["input", "output"],
+  //   template: `Input:\n{input}\nOutput:\n{output}`,
+  // });
 
   // Create a FewShotPromptTemplate that will use the example selector.
-  const dynamicPrompt = new FewShotPromptTemplate({
-    exampleSelector,
-    examplePrompt,
-    prefix: "",
-    suffix: "",
-    inputVariables: [],
-  });
+  // const dynamicPrompt = new FewShotPromptTemplate({
+  //   exampleSelector,
+  //   examplePrompt,
+  //   prefix: "",
+  //   suffix: "",
+  //   inputVariables: [],
+  // });
 
-  const exampleTemplate = await dynamicPrompt.format({ task });
-  console.debug(`examples: ${exampleTemplate}`);
+  // const exampleTemplate = await dynamicPrompt.format({ task });
+  // console.debug(`examples: ${exampleTemplate}`);
 
   const systemMessagePrompt =
     SystemMessagePromptTemplate.fromTemplate(systemTemplate);
 
-  const _examplesSystemMessagePrompt =
-    SystemMessagePromptTemplate.fromTemplate(exampleTemplate);
+  // const _examplesSystemMessagePrompt =
+  //   SystemMessagePromptTemplate.fromTemplate(exampleTemplate);
 
   const humanTemplate = `My TASK is: ${task}`;
   const humanMessagePrompt =
@@ -254,14 +247,15 @@ export async function createCriticizePrompt(params: {
   const schema = criticizeSchema(returnType, "unknown");
 
   const systemTemplate = `
-    Server TIME: ${new Date().toString()}
-    CONSTRAINTS: ${constraints(returnType)}
-    SCHEMA: ${schema}
-    RETURN: ONLY a single ChainPacket with the results of your TASK in SCHEMA${
-      returnType === "JSON" ? ":" : ". Do NOT return JSON:"
-    }
-    TASK: Review REVIEWEE OUTPUT of REVIEWEE TASK. Calculate a weighted score (0.0≤1.0) in context for each of the following criteria: [Coherence (15%), Creativity (15%), Efficiency (10%), Estimated IQ (10%), Directness (10%), Resourcefulness (10%), Accuracy (20%), Ethics (10%), Overall (Weighted rank-based))]
-    `.trim();
+
+Server TIME: ${new Date().toString()}
+CONSTRAINTS: ${constraints(returnType)}
+SCHEMA: ${schema}
+RETURN: ONLY a single ChainPacket with the results of your TASK in SCHEMA${
+    returnType === "JSON" ? ":" : ". Do NOT return JSON:"
+  }
+TASK: Review REVIEWEE OUTPUT of REVIEWEE TASK. Calculate a weighted score (0.0≤1.0) in context for each of the following criteria: [Coherence (15%), Creativity (15%), Efficiency (10%), Estimated IQ (10%), Directness (10%), Resourcefulness (10%), Accuracy (20%), Ethics (10%), Overall (Weighted rank-based))]
+`.trimEnd();
 
   const systemMessagePrompt =
     SystemMessagePromptTemplate.fromTemplate(systemTemplate);
@@ -280,16 +274,6 @@ ${task[1].result}`,
       );
     },
   );
-
-  // const humanTemplate = `My REVIEWEE TASK: ${revieweeTask}
-  // and my REVIEWEE OUTPUT: ${result}`;
-  // const humanMessagePrompt =
-  //   HumanMessagePromptTemplate.fromTemplate(humanTemplate);
-
-  // const chatPrompt = ChatPromptTemplate.fromPromptMessages([
-  //   systemMessagePrompt,
-  //   humanMessagePrompt,
-  // ]);
 
   const promptMessages = [systemMessagePrompt, ...tasksAsHumanMessages];
 
