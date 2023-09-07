@@ -12,6 +12,10 @@ import { useRouter } from "next/router";
 //   };
 // }
 
+export const config = {
+  runtime: "edge",
+};
+
 export default function Home() {
   const router = useRouter();
   useEffect(() => {
