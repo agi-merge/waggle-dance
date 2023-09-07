@@ -282,7 +282,7 @@ const GoalPage = ({ alertConfigs }: Props) => {
                   <List
                     type="multiple"
                     component={Accordion}
-                    color="primary"
+                    color="neutral"
                     className="mt-2"
                     sx={{ padding: 0 }}
                   >
