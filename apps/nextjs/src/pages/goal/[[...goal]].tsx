@@ -21,7 +21,6 @@ import { Accordion, AccordionItem } from "@radix-ui/react-accordion";
 import { get } from "@vercel/edge-config";
 
 import { defaultAgentSettings } from "@acme/agent";
-import { iqEstimate, latencyEstimate } from "@acme/agent/src/utils/llms";
 import { type ExecutionPlusGraph, type GoalPlusExe } from "@acme/db";
 
 import { api } from "~/utils/api";
@@ -34,6 +33,15 @@ import {
   AccordionHeader,
 } from "~/features/HeadlessUI/JoyAccordion";
 import MainLayout from "~/features/MainLayout";
+import { Latency } from "~/features/SettingsAnalysis/Latency";
+import {
+  getIQLevel,
+  iqEstimate,
+} from "~/features/SettingsAnalysis/utils/iqEstimate";
+import {
+  getLatencyLevel,
+  latencyEstimate,
+} from "~/features/SettingsAnalysis/utils/latencyEstimate";
 import SkillSelect from "~/features/Skills/SkillSelect";
 import useSkillStore from "~/stores/skillStore";
 import useWaggleDanceMachineStore from "~/stores/waggleDanceStore";
@@ -98,45 +106,6 @@ export function getStaticPaths() {
   };
 }
 
-// Define the latency scale and corresponding colors
-const latencyScale: {
-  limit: number;
-  color: OverridableStringUnion<ColorPaletteProp, AlertPropsColorOverrides>;
-  label: string;
-  description: string;
-}[] = [
-  {
-    limit: 0,
-    color: "success",
-    label: "Lowest",
-    description: `Your latency score is the lowest possible, which reduces costs and time to achieve goals, possibly at the expense of rigor`,
-  },
-  {
-    limit: 0.5,
-    color: "success",
-    label: "Low",
-    description: `Your latency score is on the low end, which reduces costs and time to achieve goals, possibly at the expense of some rigor`,
-  },
-  {
-    limit: 0.78,
-    color: "neutral",
-    label: "Medium",
-    description: `Your latency score is near the middle range, which balances costs and time to achieve goals with rigor`,
-  },
-  {
-    limit: 0.86,
-    color: "warning",
-    label: "⚠ High",
-    description: `Your latency score is the second highest possible, which increases costs and time to achieve goals, but increases rigor`,
-  },
-  {
-    limit: 1,
-    color: "danger",
-    label: "⚠ Highest",
-    description: `Your latency score is the highest possible, which increases costs and time to achieve goals, but increases rigor`,
-  },
-];
-
 const rigorScale: {
   limit: number;
   color: OverridableStringUnion<ColorPaletteProp, AlertPropsColorOverrides>;
@@ -175,63 +144,12 @@ const rigorScale: {
   },
 ];
 
-const iqScale: {
-  limit: number;
-  color: OverridableStringUnion<ColorPaletteProp, AlertPropsColorOverrides>;
-  label: string;
-  description: string;
-}[] = [
-  {
-    limit: 0.56,
-    color: "danger",
-    label: "⚠ Lowest",
-    description: `Your "IQ" score is the lowest possible, which reduces accuracy, possibly at the expense of costs and time to achieve goals`,
-  },
-  {
-    limit: 0.62,
-    color: "warning",
-    label: "⚠️ Low",
-    description: `Your "IQ" score is on the low end, which reduces accuracy, possibly at the expense of some costs and time to achieve goals`,
-  },
-  {
-    limit: 0.75,
-    color: "neutral",
-    label: "Medium",
-    description: `Your "IQ" score is near the middle range, which balances accuracy with costs and time to achieve goals`,
-  },
-  {
-    limit: 0.86,
-    color: "success",
-    label: "High",
-    description: `Your "IQ" score is the second highest possible, which increases accuracy, but increases costs and time to achieve goals`,
-  },
-  {
-    limit: 1,
-    color: "success",
-    label: "Highest",
-    description: `Your "IQ" score is the highest possible, which increases accuracy, but increases costs and time to achieve goals`,
-  },
-];
-
-// Get latency level based on the latency value
-function getLatencyLevel(latency: number) {
-  return (latencyScale.find((scale) => latency <= scale.limit) ||
-    latencyScale[latencyScale.length - 1])!; // idk tsc was complaining without the bang
-}
-
 function getRigorLevel(rigor: number) {
   const rl =
     rigorScale.find((scale) => rigor <= scale.limit)! ||
     rigorScale[rigorScale.length - 1];
 
   return rl;
-}
-
-function getIQLevel(iq: number) {
-  const n =
-    iqScale.find((scale) => iq <= scale.limit)! || iqScale[iqScale.length - 1];
-
-  return n;
 }
 
 type Props = InferGetStaticPropsType<typeof getStaticProps>;
@@ -411,25 +329,8 @@ const GoalPage = ({ alertConfigs }: Props) => {
                                   direction="row"
                                   gap={1}
                                 >
-                                  <Tooltip
-                                    title={`(Lower is better) ${latencyLevel.description}`}
-                                  >
-                                    <Typography
-                                      noWrap
-                                      level="body-sm"
-                                      color="neutral"
-                                      sx={{
-                                        fontSize: { xs: "xs", sm: "sm" },
-                                      }}
-                                    >
-                                      Latency:{" "}
-                                      <Typography color={latencyLevel.color}>
-                                        {latencyLevel.label}{" "}
-                                      </Typography>
-                                    </Typography>
-                                  </Tooltip>
+                                  <Latency latencyLevel={latencyLevel} />
                                   {" · "}
-
                                   <Tooltip
                                     title={`(Higher is better) ${rigorLevel.description}`}
                                   >
