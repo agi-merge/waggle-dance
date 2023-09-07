@@ -21,7 +21,7 @@ import { Accordion, AccordionItem } from "@radix-ui/react-accordion";
 import { get } from "@vercel/edge-config";
 
 import { defaultAgentSettings } from "@acme/agent";
-import { latencyEstimate } from "@acme/agent/src/utils/llms";
+import { iqEstimate, latencyEstimate } from "@acme/agent/src/utils/llms";
 import { type ExecutionPlusGraph, type GoalPlusExe } from "@acme/db";
 
 import { api } from "~/utils/api";
@@ -151,7 +151,7 @@ const rigorScale: {
   {
     limit: 0.45,
     color: "warning",
-    label: "⚠️ Low",
+    label: "⚠ Low",
     description: `Your rigor score is on the low end, which reduces rigor, possibly at the expense of some costs and time to achieve goals`,
   },
   {
@@ -162,6 +162,44 @@ const rigorScale: {
   },
   {
     limit: 0.85,
+    color: "success",
+    label: "☑ High",
+    description: `Your rigor score is the second highest possible, which increases rigor, but increases costs and time to achieve goals`,
+  },
+  {
+    limit: 1,
+    color: "success",
+    label: "✅ Highest",
+    description: `Your rigor score is the highest possible, which increases rigor, but increases costs and time to achieve goals`,
+  },
+];
+
+const iqScale: {
+  limit: number;
+  color: OverridableStringUnion<ColorPaletteProp, AlertPropsColorOverrides>;
+  label: string;
+  description: string;
+}[] = [
+  {
+    limit: 0.56,
+    color: "danger",
+    label: "⚠ Lowest",
+    description: `Your rigor score is the lowest possible, which reduces rigor, possibly at the expense of costs and time to achieve goals`,
+  },
+  {
+    limit: 0.62,
+    color: "warning",
+    label: "⚠️ Low",
+    description: `Your rigor score is on the low end, which reduces rigor, possibly at the expense of some costs and time to achieve goals`,
+  },
+  {
+    limit: 0.75,
+    color: "neutral",
+    label: "Medium",
+    description: `Your rigor score is near the middle range, which balances rigor with costs and time to achieve goals`,
+  },
+  {
+    limit: 0.86,
     color: "success",
     label: "☑ High",
     description: `Your rigor score is the second highest possible, which increases rigor, but increases costs and time to achieve goals`,
@@ -186,6 +224,13 @@ function getRigorLevel(rigor: number) {
     rigorScale[rigorScale.length - 1];
 
   return rl;
+}
+
+function getIQLevel(iq: number) {
+  const n =
+    iqScale.find((scale) => iq <= scale.limit)! || iqScale[iqScale.length - 1];
+
+  return n;
 }
 
 type Props = InferGetStaticPropsType<typeof getStaticProps>;
@@ -214,6 +259,16 @@ const GoalPage = ({ alertConfigs }: Props) => {
     return 1 + Math.log(latency);
   }, [latency]);
   const rigorLevel = useMemo(() => getRigorLevel(rigor), [rigor]);
+
+  const iq = useMemo(() => {
+    return iqEstimate(agentSettings);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [
+    agentSettings.execute.modelName,
+    agentSettings.plan.modelName,
+    agentSettings.review.modelName,
+  ]);
+  const iqLevel = useMemo(() => getIQLevel(iq), [iq]);
 
   const [serverGoals] = api.goal.topByUser.useSuspenseQuery(undefined, {
     refetchOnMount: true,
@@ -299,20 +354,34 @@ const GoalPage = ({ alertConfigs }: Props) => {
                             variant="outlined"
                             color="primary"
                             openText={
-                              <Typography
-                                noWrap
-                                level="title-sm"
-                                className="pb-2"
-                              >
-                                🍯 Your goal
-                              </Typography>
+                              <>
+                                <Typography noWrap level="title-sm">
+                                  🍯 Goal
+                                </Typography>
+                                <Typography
+                                  noWrap
+                                  level="body-sm"
+                                  sx={{
+                                    opacity: 0,
+                                    fontSize: { xs: "xs", sm: "sm" },
+                                  }}
+                                >
+                                  {goal?.prompt}
+                                </Typography>
+                              </>
                             }
                             closedText={
                               <>
                                 <Typography level="title-sm">
-                                  🍯 Your goal
+                                  🍯 Goal
                                 </Typography>
-                                <Typography noWrap level="body-sm">
+                                <Typography
+                                  noWrap
+                                  level="body-sm"
+                                  sx={{
+                                    fontSize: { xs: "xs", sm: "sm" },
+                                  }}
+                                >
                                   {goal?.prompt}
                                 </Typography>
                               </>
@@ -324,17 +393,85 @@ const GoalPage = ({ alertConfigs }: Props) => {
                         </AccordionItem>
                         <AccordionItem value="item-2">
                           <AccordionHeader
+                            isLast={true}
                             variant="outlined"
                             color="primary"
                             openText={
-                              <Typography noWrap level="title-sm">
-                                📊 Understanding your settings
-                              </Typography>
+                              <>
+                                <Typography level="title-sm">
+                                  📊 Settings
+                                </Typography>
+                                <Box
+                                  sx={{
+                                    display: "flex",
+                                    alignItems: "center",
+                                  }}
+                                  component={Stack}
+                                  direction="row"
+                                  gap={1}
+                                >
+                                  <Tooltip
+                                    title={`(Lower is better) ${latencyLevel.description}`}
+                                  >
+                                    <Typography
+                                      noWrap
+                                      level="body-sm"
+                                      color="neutral"
+                                      sx={{
+                                        fontSize: { xs: "xs", sm: "sm" },
+                                      }}
+                                    >
+                                      Latency:{" "}
+                                      <Typography color={latencyLevel.color}>
+                                        {latencyLevel.label}{" "}
+                                      </Typography>
+                                    </Typography>
+                                  </Tooltip>
+                                  {" · "}
+
+                                  <Tooltip
+                                    title={`(Higher is better) ${rigorLevel.description}`}
+                                  >
+                                    <Typography
+                                      flexWrap={"wrap"}
+                                      level="body-sm"
+                                      color="neutral"
+                                      sx={{
+                                        fontSize: { xs: "xs", sm: "sm" },
+                                      }}
+                                    >
+                                      Rigor:{" "}
+                                      <Typography color={rigorLevel.color}>
+                                        {rigorLevel.label}
+                                      </Typography>
+                                    </Typography>
+                                  </Tooltip>
+                                  {" · "}
+
+                                  <Tooltip
+                                    title={`(Higher is better) ${iqLevel.description}`}
+                                  >
+                                    <Typography
+                                      flexWrap={"wrap"}
+                                      level="body-sm"
+                                      color="neutral"
+                                      sx={{
+                                        fontSize: { xs: "xs", sm: "sm" },
+                                      }}
+                                    >
+                                      IQ:{" "}
+                                      <Typography color={iqLevel.color}>
+                                        {iqLevel.label}
+                                      </Typography>
+                                    </Typography>
+                                  </Tooltip>
+                                </Box>
+                              </>
                             }
                             closedText={
                               <>
                                 <Typography level="title-sm">
-                                  📊 Understanding your settings
+                                  📊 Settings
                                 </Typography>
                                 <Box
                                   sx={{ display: "flex", alignItems: "center" }}
@@ -349,11 +486,13 @@ const GoalPage = ({ alertConfigs }: Props) => {
                                       noWrap
                                       level="body-sm"
                                       color="neutral"
+                                      sx={{
+                                        fontSize: { xs: "xs", sm: "sm" },
+                                      }}
                                     >
                                       Latency:{" "}
                                       <Typography color={latencyLevel.color}>
                                         {latencyLevel.label}{" "}
-                                        {latency.toFixed(3)}{" "}
                                       </Typography>
                                     </Typography>
                                   </Tooltip>
@@ -366,10 +505,32 @@ const GoalPage = ({ alertConfigs }: Props) => {
                                       flexWrap={"wrap"}
                                       level="body-sm"
                                       color="neutral"
+                                      sx={{
+                                        fontSize: { xs: "xs", sm: "sm" },
+                                      }}
                                     >
                                       Rigor:{" "}
                                       <Typography color={rigorLevel.color}>
-                                        {rigorLevel.label} {rigor.toFixed(3)}{" "}
+                                        {rigorLevel.label}
+                                      </Typography>
+                                    </Typography>
+                                  </Tooltip>
+                                  {" · "}
+
+                                  <Tooltip
+                                    title={`(Higher is better) ${iqLevel.description}`}
+                                  >
+                                    <Typography
+                                      flexWrap={"wrap"}
+                                      level="body-sm"
+                                      color="neutral"
+                                      sx={{
+                                        fontSize: { xs: "xs", sm: "sm" },
+                                      }}
+                                    >
+                                      IQ:{" "}
+                                      <Typography color={iqLevel.color}>
+                                        {iqLevel.label}
                                       </Typography>
                                     </Typography>
                                   </Tooltip>
@@ -377,10 +538,7 @@ const GoalPage = ({ alertConfigs }: Props) => {
                               </>
                             }
                           />
-                          <AccordionContent
-                            isLast={false}
-                            defaultChecked={true}
-                          >
+                          <AccordionContent isLast={true} defaultChecked={true}>
                             <Tooltip
                               title={`(Lower is better) ${latencyLevel.description}`}
                             >
@@ -397,7 +555,6 @@ const GoalPage = ({ alertConfigs }: Props) => {
                                   <Typography color={latencyLevel.color}>
                                     {latencyLevel.label}
                                   </Typography>{" "}
-                                  {latency.toFixed(3)}{" "}
                                   <IconButton
                                     color={latencyLevel.color}
                                     variant="outlined"
@@ -430,7 +587,6 @@ const GoalPage = ({ alertConfigs }: Props) => {
                                 <Typography color={rigorLevel.color}>
                                   {rigorLevel.label}
                                 </Typography>{" "}
-                                {rigor.toFixed(3)}{" "}
                                 <IconButton
                                   color={rigorLevel.color}
                                   variant="outlined"
@@ -459,6 +615,7 @@ const GoalPage = ({ alertConfigs }: Props) => {
                       >
                         <AccordionItem value="item-3">
                           <AccordionHeader
+                            isFirst
                             variant="outlined"
                             color="primary"
                             openText={
@@ -466,7 +623,13 @@ const GoalPage = ({ alertConfigs }: Props) => {
                                 <Typography level="title-sm">
                                   🌺 Data
                                 </Typography>
-                                <Typography noWrap level="body-sm">
+                                <Typography
+                                  noWrap
+                                  level="body-sm"
+                                  sx={{
+                                    fontSize: { xs: "xs", sm: "sm" },
+                                  }}
+                                >
                                   xxx documents in yyy collections
                                 </Typography>
                               </>
@@ -476,7 +639,13 @@ const GoalPage = ({ alertConfigs }: Props) => {
                                 <Typography level="title-sm">
                                   🌺 Data
                                 </Typography>
-                                <Typography noWrap level="body-sm">
+                                <Typography
+                                  noWrap
+                                  level="body-sm"
+                                  sx={{
+                                    fontSize: { xs: "xs", sm: "sm" },
+                                  }}
+                                >
                                   xxx documents in yyy collections
                                 </Typography>
                               </>
@@ -496,7 +665,13 @@ const GoalPage = ({ alertConfigs }: Props) => {
                                 <Typography level="title-sm">
                                   🔨 Skills
                                 </Typography>
-                                <Typography noWrap level="body-sm">
+                                <Typography
+                                  noWrap
+                                  level="body-sm"
+                                  sx={{
+                                    fontSize: { xs: "xs", sm: "sm" },
+                                  }}
+                                >
                                   {skillsLabel}
                                 </Typography>
                               </>
@@ -506,7 +681,13 @@ const GoalPage = ({ alertConfigs }: Props) => {
                                 <Typography level="title-sm">
                                   🔨 Skills
                                 </Typography>
-                                <Typography noWrap level="body-sm">
+                                <Typography
+                                  noWrap
+                                  level="body-sm"
+                                  sx={{
+                                    fontSize: { xs: "xs", sm: "sm" },
+                                  }}
+                                >
                                   {skillsLabel}
                                 </Typography>
                               </>

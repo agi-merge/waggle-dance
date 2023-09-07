@@ -176,6 +176,47 @@ export function latencyEstimate(
   return minMax(guh);
 }
 
+// the minimum IQ is 4.5, the maximum IQ is (2 * 2.7) + (1 * 2.7) + (1.5 * 2.7) = 12.15
+export function iqEstimate(agentSettingsMap: AgentSettingsMap): number {
+  const iqMultiplePairs = Object.entries(agentSettingsMap).map((entry) => {
+    const [type, agentSettings] = entry;
+
+    if (type !== "plan" && type !== "review" && type !== "execute") {
+      throw new Error(`Invalid agent type: ${type}`);
+    }
+    let typeMultiplier: number;
+    switch (type) {
+      case "execute":
+        typeMultiplier = 2;
+      case "review":
+        typeMultiplier = 1;
+      case "plan":
+        typeMultiplier = 1.5;
+    }
+    const base = 1;
+    let multiplier = 1; // gpt-3.5
+    // could be an enum mapping instead of ifs
+    if (agentSettings.modelName.startsWith("gpt-4")) {
+      multiplier = 2.7; // source: https://www.taivo.ai/__gpt-3-5-and-gpt-4-response-times/
+    }
+    return { base, multiplier, typeMultiplier };
+  });
+
+  const minMax = (n: number, lb: number = 0, ub: number = 1) =>
+    Math.min(ub, Math.max(lb, n));
+
+  const totalIQForAgentSettings = iqMultiplePairs.reduce((acc, curr, _i) => {
+    return acc + curr.base * curr.multiplier * curr.typeMultiplier;
+  }, 0);
+
+  // normalize somewhat
+  const highIQ = 12.15;
+  const iqNormal = minMax(totalIQForAgentSettings, 0, highIQ);
+  const ratio = iqNormal / highIQ;
+  const guh = Math.log(1.379 + ratio);
+  return minMax(guh);
+}
+
 export function rigorEstimate(
   agentSettingsMap: AgentSettingsMap,
   skillsCount: number,
