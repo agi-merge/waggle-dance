@@ -7,7 +7,6 @@ import { useRouter } from "next/router";
 import { QuestionMarkOutlined } from "@mui/icons-material";
 import {
   Box,
-  Divider,
   IconButton,
   Skeleton,
   Stack,
@@ -34,6 +33,7 @@ import {
   AccordionHeader,
 } from "~/features/HeadlessUI/JoyAccordion";
 import MainLayout from "~/features/MainLayout";
+import SkillSelect from "~/features/Skills/SkillSelect";
 import useSkillStore from "~/stores/skillStore";
 import useWaggleDanceMachineStore from "~/stores/waggleDanceStore";
 import useGoalStore from "../../stores/goalStore";
@@ -277,12 +277,15 @@ const GoalPage = ({ alertConfigs }: Props) => {
                     type="multiple"
                     component={Accordion}
                     variant="outlined"
+                    color="primary"
                     className="mt-2"
                     sx={{ padding: 0 }}
                   >
                     <AccordionItem value="item-1">
                       <AccordionHeader
                         isFirst
+                        variant="outlined"
+                        color="primary"
                         openText={
                           <Typography noWrap level="title-sm" className="pb-2">
                             Your goal
@@ -301,9 +304,10 @@ const GoalPage = ({ alertConfigs }: Props) => {
                         {goal?.prompt}
                       </AccordionContent>
                     </AccordionItem>
-                    <Divider />
                     <AccordionItem value="item-2">
                       <AccordionHeader
+                        variant="outlined"
+                        color="primary"
                         openText={
                           <Typography noWrap level="title-sm" className="pb-2">
                             Understanding your settings
@@ -356,7 +360,7 @@ const GoalPage = ({ alertConfigs }: Props) => {
                           </>
                         }
                       ></AccordionHeader>
-                      <AccordionContent isLast={true} defaultChecked={true}>
+                      <AccordionContent isLast={false} defaultChecked={true}>
                         <Tooltip
                           title={`(Lower is better) ${latencyLevel.description}`}
                         >
@@ -422,6 +426,57 @@ const GoalPage = ({ alertConfigs }: Props) => {
                             </IconButton>
                           </Typography>
                         </Tooltip>
+                      </AccordionContent>
+                    </AccordionItem>
+                    <AccordionItem value="item-3">
+                      <AccordionHeader
+                        variant="outlined"
+                        color="primary"
+                        openText={
+                          <>
+                            <Typography level="title-sm">Data</Typography>
+                            <Typography noWrap level="body-sm">
+                              xxx documents in yyy collections
+                            </Typography>
+                          </>
+                        }
+                        closedText={
+                          <>
+                            <Typography level="title-sm">Data</Typography>
+                            <Typography noWrap level="body-sm">
+                              xxx documents in yyy collections
+                            </Typography>
+                          </>
+                        }
+                      ></AccordionHeader>
+                      <AccordionContent isLast={false}>
+                        <AddDocuments />
+                      </AccordionContent>
+                    </AccordionItem>
+                    <AccordionItem value="item-4">
+                      <AccordionHeader
+                        variant="outlined"
+                        color="primary"
+                        isLast={true}
+                        openText={
+                          <>
+                            <Typography level="title-sm">Skills</Typography>
+                            <Typography noWrap level="body-sm">
+                              xxx skills in yyy skillsets
+                            </Typography>
+                          </>
+                        }
+                        closedText={
+                          <>
+                            <Typography level="title-sm">Skills</Typography>
+                            <Typography noWrap level="body-sm">
+                              xxx skills in yyy skillsets
+                            </Typography>
+                          </>
+                        }
+                      ></AccordionHeader>
+                      <AccordionContent isLast={true} sx={{ p: 1 }}>
+                        <SkillSelect />
                       </AccordionContent>
                     </AccordionItem>
                   </List>

@@ -8,7 +8,7 @@ import React, {
   type KeyboardEvent,
 } from "react";
 import { CheckCircle } from "@mui/icons-material";
-import Box from "@mui/joy/Box";
+import Box, { type BoxProps } from "@mui/joy/Box";
 import IconButton from "@mui/joy/IconButton";
 import Input from "@mui/joy/Input";
 import LinearProgress from "@mui/joy/LinearProgress";
@@ -68,10 +68,10 @@ function isValidUrl(url: string) {
   }
 }
 
-type Props = {
+type Props = BoxProps & {
   onClose?: () => void;
 };
-const AddDocuments = ({ onClose: _onClose }: Props) => {
+const AddDocuments = ({ onClose: _onClose, ...props }: Props) => {
   const [ingestFiles, setIngestFiles] = useState<IngestFiles>({});
   const [ingestUrls, setIngestUrls] = useState<IngestUrls>({});
 
@@ -134,7 +134,7 @@ const AddDocuments = ({ onClose: _onClose }: Props) => {
   );
 
   return (
-    <>
+    <Box {...props}>
       <Title title="💰 Documents, Data, and Tools">
         <Typography
           level="body-lg"
@@ -232,7 +232,7 @@ const AddDocuments = ({ onClose: _onClose }: Props) => {
         </Typography>
         <DropZoneUploader />
       </Stack>
-    </>
+    </Box>
   );
 };
 
