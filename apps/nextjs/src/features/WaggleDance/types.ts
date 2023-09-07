@@ -63,7 +63,7 @@ export function mapAgentSettingsToCreationProps(
   return {
     modelName: agentSettings.modelName,
     temperature: TEMPERATURE_VALUES[agentSettings.temperature],
-    maxTokens: -1,
+    maxTokens: agentSettings.maxTokens,
     topP: agentSettings.topP,
     maxConcurrency: agentSettings.maxConcurrency,
     frequencyPenalty: agentSettings.frequencyPenalty,

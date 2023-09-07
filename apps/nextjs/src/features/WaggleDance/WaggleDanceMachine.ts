@@ -171,6 +171,7 @@ export default class WaggleDanceMachine {
           startFirstTask,
           abortSignal: abortController.signal,
         });
+        console.debug("dag", dag);
       } catch (error) {
         if (initNodes[0]) {
           sendAgentPacket(

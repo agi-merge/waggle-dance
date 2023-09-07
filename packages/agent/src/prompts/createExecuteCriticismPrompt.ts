@@ -277,7 +277,7 @@ TASK: Review REVIEWEE OUTPUT of REVIEWEE TASK using the SCHEMA.
     `EXAMPLES: [${formattedHighQualityExamples}]`,
   );
 
-  const counterExamplesSystemMessagePrompt =
+  const _counterExamplesSystemMessagePrompt =
     SystemMessagePromptTemplate.fromTemplate(
       `COUNTER EXAMPLES: [${counterExamples}]`,
     );
@@ -298,7 +298,7 @@ ${task[1].result}`,
   const promptMessages = [
     systemMessagePrompt,
     examplesSystemMessagePrompt,
-    counterExamplesSystemMessagePrompt,
+    // counterExamplesSystemMessagePrompt,
     ...tasksAsHumanMessages,
   ];
 

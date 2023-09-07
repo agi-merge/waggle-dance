@@ -3,10 +3,12 @@ import {
   HumanMessagePromptTemplate,
   SystemMessagePromptTemplate,
 } from "langchain/prompts";
+import { stringify as jsonStringify } from "superjson";
+import { stringify as yamlStringify } from "yaml";
 
 import { criticismSuffix } from "./types";
 
-const schema = (_format: string) =>
+export const schema = (_format: string) =>
   `
 Node
   id: uuid // e.g. "1-1", "2-0", "2-1" (first number is the level, second number is the concurrent node number)
@@ -21,146 +23,286 @@ DAG
   edges: Edge[]
 It is extremely important to return only valid(⚠) ${_format} representation of DAG, with nodes and edges as the keys.
 `.trim();
-// const _highQualityExamples = [
-//   {
-//     input:
-//       "Create a markdown document that compares and contrasts the costs, benefits, regional differences, and risks of implementing rooftop distributed solar, versus utility-scale solar, versus community solar.",
-//     output: {
-//       nodes: [
-//         {
-//           id: "1-1",
-//           name: "Research rooftop distributed solar",
-//           act: "research",
-//           context:
-//             "Conduct an in-depth research on the costs, benefits, regional differences, and risks of implementing rooftop distributed solar. Gather data from reliable sources.",
-//         },
-//         {
-//           id: "1-2",
-//           name: "Research utility-scale solar",
-//           act: "research",
-//           context:
-//             "Investigate the costs, benefits, regional differences, and risks of utility-scale solar. Ensure the information is up-to-date and accurate.",
-//         },
-//         {
-//           id: "1-3",
-//           name: "Research community solar",
-//           act: "research",
-//           context:
-//             "Study the costs, benefits, regional differences, and risks of community solar. Information should be comprehensive and relevant.",
-//         },
-//         {
-//           id: "2-1",
-//           name: "Compile Research",
-//           act: "compile",
-//           context:
-//             "Compile the researched data in a structured format for easy comparison.",
-//         },
-//         {
-//           id: "2-2",
-//           name: "Write markdown document",
-//           act: "write",
-//           context:
-//             "Write a markdown document that compares and contrasts the researched information. The document should be clear, concise, and well-structured.",
-//         },
-//       ],
-//       edges: [
-//         { sId: "1-1", tId: "2-1" },
-//         { sId: "1-2", tId: "2-1" },
-//         { sId: "1-3", tId: "2-1" },
-//         { sId: "2-1", tId: "2-2" },
-//       ],
-//     },
-//   },
-//   {
-//     input:
-//       "I need to find the most talked-about books in the self-help genre in 2023. Provide a list of top 10 books along with their brief summaries.",
-//     output: {
-//       nodes: [
-//         {
-//           id: "1-1",
-//           name: "Research books",
-//           act: "research",
-//           context:
-//             "Research the most talked-about books in the self-help genre in 2023. Use reliable sources like top book review sites, bestseller lists, and reader reviews.",
-//         },
-//         {
-//           id: "2-1",
-//           name: "Select top 10 books",
-//           act: "select",
-//           context:
-//             "From the researched books, select the top 10 based on factors like popularity, reviews, and relevance.",
-//         },
-//         {
-//           id: "3-1",
-//           name: "Summarize books",
-//           act: "summarize",
-//           context:
-//             "Provide brief summaries for the top 10 books. Each summary should highlight the key points of the book.",
-//         },
-//       ],
-//       edges: [
-//         { sId: "1-1", tId: "2-1" },
-//         { sId: "2-1", tId: "3-1" },
-//       ],
-//     },
-//   },
-//   {
-//     input:
-//       "What are the top trending toys for 6-8 year olds on Amazon in April 2023? Provide a list with their prices and customer ratings.",
-//     output: {
-//       nodes: [
-//         {
-//           id: "1-1",
-//           name: "Research trending toys",
-//           act: "research",
-//           context:
-//             "Research the top trending toys for 6-8 year olds on Amazon in April 2023. Find reliable sources that provide accurate trends.",
-//         },
-//         {
-//           id: "2-1",
-//           name: "List toys with prices and ratings",
-//           act: "list",
-//           context:
-//             "From the researched toys, list them along with their prices and customer ratings. Ensure the information is accurate and up-to-date.",
-//         },
-//       ],
-//       edges: [{ sId: "1-1", tId: "2-1" }],
-//     },
-//   },
-//   {
-//     input:
-//       "I am starting a digital marketing agency. What are the key steps and strategies used by successful digital marketing startups in the last two years?",
-//     output: {
-//       nodes: [
-//         {
-//           id: "1-1",
-//           name: "Research successful digital marketing startups",
-//           act: "research",
-//           context:
-//             "Research successful digital marketing startups in the last two years. Find reliable sources that provide detailed information about their strategies.",
-//         },
-//         {
-//           id: "2-1",
-//           name: "Identify key steps and strategies",
-//           act: "identify",
-//           context:
-//             "From the researched startups, identify the key steps and strategies they used. Look for common trends and unique approaches.",
-//         },
-//         {
-//           id: "3-1",
-//           name: "Compile steps and strategies",
-//           act: "compile",
-//           context:
-//             "Compile the identified steps and strategies in a clear and organized manner. The information should be easy to understand and apply.",
-//         },
-//       ],
-//       edges: [
-//         { sId: "1-1", tId: "2-1" },
-//         { sId: "2-1", tId: "3-1" },
-//       ],
-//     },
-//   },
-// ];
+
+const highQualityExamples = [
+  {
+    input:
+      "Create a detailed project plan for a new software product, considering the available resources, budget constraints, project deadline, potential risks, stakeholder expectations, and regulatory requirements",
+    output: {
+      nodes: [
+        {
+          id: "1-0",
+          name: "🧠 Understand the product requirements",
+          act: "Understand",
+          context:
+            "Read the product requirements document and understand the product features",
+        },
+        {
+          id: "1-1",
+          name: "📝 Define the project scope",
+          act: "Define",
+          context:
+            "Based on the product requirements, define the project scope",
+        },
+        {
+          id: "1-criticize",
+          name: "🔍 Review the understanding and definition of the project",
+          act: "Review",
+          context:
+            "Review the understanding of the product requirements and the defined project scope",
+        },
+        {
+          id: "2-0",
+          name: "💼 Identify available resources",
+          act: "Identify",
+          context: "Identify the resources available for the project",
+        },
+        {
+          id: "2-1",
+          name: "💰 Estimate the project budget",
+          act: "Estimate",
+          context:
+            "Estimate the budget for the project based on the available resources and project scope",
+        },
+        {
+          id: "2-criticize",
+          name: "🔍 Review the resources and budget estimation",
+          act: "Review",
+          context: "Review the identified resources and budget estimation",
+        },
+        {
+          id: "3-0",
+          name: "📆 Create a project timeline",
+          act: "Create",
+          context:
+            "Based on the project scope, create a detailed project timeline",
+        },
+        {
+          id: "3-1",
+          name: "⚠️ Identify potential risks",
+          act: "Identify",
+          context:
+            "Identify potential risks and issues that could arise during the project",
+        },
+        {
+          id: "3-2",
+          name: "👥 Identify the project team",
+          act: "Identify",
+          context:
+            "Based on the project scope, identify the necessary team members",
+        },
+        {
+          id: "3-criticize",
+          name: "🔍 Review the project timeline, risks, and team",
+          act: "Review",
+          context:
+            "Review the project timeline, identified risks, and team members",
+        },
+        {
+          id: "4-0",
+          name: "🗂️ Ensure regulatory compliance",
+          act: "Ensure",
+          context:
+            "Ensure that the project plan meets all necessary regulatory requirements",
+        },
+        {
+          id: "4-criticize",
+          name: "🔍 Review regulatory compliance",
+          act: "Review",
+          context: "Review the regulatory compliance of the project plan",
+        },
+        {
+          id: "5-0",
+          name: "🍯 Goal Delivery",
+          act: "Deliver",
+          context: "Deliver the final project plan",
+        },
+      ],
+      edges: [
+        { sId: "1-0", tId: "1-criticize" },
+        { sId: "1-1", tId: "1-criticize" },
+        { sId: "1-criticize", tId: "2-0" },
+        { sId: "1-criticize", tId: "2-1" },
+        { sId: "2-0", tId: "2-criticize" },
+        { sId: "2-1", tId: "2-criticize" },
+        { sId: "2-criticize", tId: "3-0" },
+        { sId: "2-criticize", tId: "3-1" },
+        { sId: "2-criticize", tId: "3-2" },
+        { sId: "3-0", tId: "3-criticize" },
+        { sId: "3-1", tId: "3-criticize" },
+        { sId: "3-2", tId: "3-criticize" },
+        { sId: "3-criticize", tId: "4-0" },
+        { sId: "4-0", tId: "4-criticize" },
+        { sId: "4-criticize", tId: "5-0" },
+      ],
+    },
+  },
+  {
+    nodes: [
+      {
+        id: "1-0",
+        name: "📚 Research AgentGPT",
+        act: "Research",
+        context:
+          "Gather information about AgentGPT, its features, capabilities, and limitations",
+      },
+      {
+        id: "1-1",
+        name: "📚 Research AutoGPT",
+        act: "Research",
+        context:
+          "Gather information about AutoGPT, its features, capabilities, and limitations",
+      },
+      {
+        id: "1-2",
+        name: "📚 Research BabyAGI",
+        act: "Research",
+        context:
+          "Gather information about BabyAGI, its features, capabilities, and limitations",
+      },
+      {
+        id: "1-3",
+        name: "🌐 Visit https://waggledance.ai",
+        act: "Visit",
+        context:
+          "Explore the website of Waggledance.ai to gather information about the project",
+      },
+      {
+        id: "1-4",
+        name: "📚 Research SuperAGI",
+        act: "Research",
+        context:
+          "Gather information about SuperAGI, its features, capabilities, and limitations",
+      },
+      {
+        id: "1-criticize",
+        name: "🔍 Review the research findings",
+        act: "Review",
+        context:
+          "Review the gathered information about the projects and identify key similarities and differences",
+      },
+      {
+        id: "2-0",
+        name: "📝 Create report outline",
+        act: "Create",
+        context:
+          "Create an outline for the report, including sections for each project and their comparisons",
+      },
+      {
+        id: "2-1",
+        name: "📝 Write introduction",
+        act: "Write",
+        context:
+          "Write an introduction to the report, providing an overview of the projects and their significance",
+      },
+      {
+        id: "2-2",
+        name: "📝 Write project descriptions",
+        act: "Write",
+        context:
+          "Write detailed descriptions of each project, highlighting their key features and capabilities",
+      },
+      {
+        id: "2-3",
+        name: "📝 Compare and contrast projects",
+        act: "Compare",
+        context:
+          "Analyze the gathered information and identify similarities and differences between the projects",
+      },
+      {
+        id: "2-4",
+        name: "📝 Write conclusion",
+        act: "Write",
+        context:
+          "Summarize the findings and provide a conclusion on the compared projects",
+      },
+      {
+        id: "2-5",
+        name: "📝 Format report in GFM",
+        act: "Format",
+        context:
+          "Format the report using GitHub Flavored Markdown (GFM) syntax",
+      },
+      {
+        id: "2-criticize",
+        name: "🔍 Review the report",
+        act: "Review",
+        context: "Review the report for accuracy, clarity, and completeness",
+      },
+      {
+        id: "3-0",
+        name: "📝 Finalize report",
+        act: "Finalize",
+        context:
+          "Make any necessary revisions to the report based on the review and finalize it for submission",
+      },
+      {
+        id: "4-0",
+        name: "🍯 Goal Delivery",
+        act: "Deliver",
+        context: "Deliver the final report to the User",
+      },
+    ],
+    edges: [
+      {
+        sId: "1-0",
+        tId: "1-criticize",
+      },
+      {
+        sId: "1-1",
+        tId: "1-criticize",
+      },
+      {
+        sId: "1-2",
+        tId: "1-criticize",
+      },
+      {
+        sId: "1-3",
+        tId: "1-criticize",
+      },
+      {
+        sId: "1-4",
+        tId: "1-criticize",
+      },
+      {
+        sId: "1-criticize",
+        tId: "2-0",
+      },
+      {
+        sId: "2-0",
+        tId: "2-1",
+      },
+      {
+        sId: "2-1",
+        tId: "2-2",
+      },
+      {
+        sId: "2-2",
+        tId: "2-3",
+      },
+      {
+        sId: "2-3",
+        tId: "2-4",
+      },
+      {
+        sId: "2-4",
+        tId: "2-5",
+      },
+      {
+        sId: "2-5",
+        tId: "2-criticize",
+      },
+      {
+        sId: "2-criticize",
+        tId: "3-0",
+      },
+      {
+        sId: "3-0",
+        tId: "4-0",
+      },
+    ],
+  },
+];
 
 const constraints = (format: string) =>
   `
@@ -173,36 +315,15 @@ Do NOT ever output curly braces or brackets as they are used for template string
 All nodes must eventually lead to a "🍯 Goal Delivery" task which, after executing, ensures that the GOAL has been satisfactorily completed.
 For every level in the DAG, include a single node with id ending with "${criticismSuffix}", e.g. 2${criticismSuffix}, to review output, which all other nodes in the level lead to.
 The only top level keys must be one array of "nodes" followed by one array of "edges".
-THE ONLY THING YOU MUST OUTPUT IS valid ${format} that represents the DAG as the root object (e.g. ( nodes, edges ))`.trim();
+THE ONLY THING YOU MUST OUTPUT IS valid ${format} that represents the DAG as the root object (e.g. ( nodes, edges))`.trim();
 
-// eslint-disable-next-line @typescript-eslint/require-await
-export async function createPlanPrompt(params: {
+export function createPlanPrompt(params: {
   goal: string;
   goalId: string;
   tools: string;
   returnType: "JSON" | "YAML";
-}): Promise<ChatPromptTemplate> {
+}): ChatPromptTemplate {
   const { goal, tools, returnType } = params;
-
-  // Convert highQualityExamples to the desired format
-  // const formattedHighQualityExamples = highQualityExamples.map((example) => {
-  //   const formattedOutput =
-  //     returnType === "JSON"
-  //       ? jsonStringify(example.output)
-  //       : yamlStringify(example.output);
-
-  //   return {
-  //     ...example,
-  //     output: formattedOutput,
-  //   };
-  // });
-
-  // const exampleSelector = await SemanticSimilarityExampleSelector.fromExamples(
-  //   formattedHighQualityExamples,
-  //   createEmbeddings({ modelName: LLM.embeddings }),
-  //   MemoryVectorStore,
-  //   { k: 2 },
-  // );
 
   const template = `
 YOU: A general goal-solving AI employed by the User to solve the User's GOAL.
@@ -211,48 +332,26 @@ GOAL: ${goal}
 NOW: ${new Date().toString()}
 SCHEMA: ${schema(returnType)}
 CONSTRAINTS: ${constraints(returnType)}
+EXAMPLES:
+
+  ${
+    returnType === "JSON"
+      ? jsonStringify(highQualityExamples)
+      : yamlStringify(highQualityExamples)
+  }
+]
 TASK: To come up with an efficient and expert plan to solve the User's GOAL, according to SCHEMA:
 `.trimEnd();
 
-  // Create a prompt template that will be used to format the examples.
-  // const examplePrompt = new PromptTemplate({
-  //   inputVariables: ["input", "output"],
-  //   template: `Input:\n{input}\nOutput:\n{output}`,
-  // });
-  // Create a FewShotPromptTemplate that will use the example selector.
-  // const dynamicPrompt = new FewShotPromptTemplate({
-  //   // We provide an ExampleSelector instead of examples.
-  //   exampleSelector,
-  //   examplePrompt,
-  //   prefix: "",
-  //   suffix: "",
-  //   inputVariables: [],
-  // });
-  // Input is about the weather, so should select eg. the sunny/gloomy example
-
-  // const examples = await Promise.all(
-  //   exampleInputs.map((input) => dynamicPrompt.format(input)),
-  // );
-  // const examples = await dynamicPrompt.format({ goal });
-  // console.debug(`examples: ${examples}`);
-
-  // Create a SystemMessagePromptTemplate instance
   const systemMessagePrompt =
     SystemMessagePromptTemplate.fromTemplate(template);
 
-  // const examplesTemplate = `Here are some example GOAL and DAG pairs: ${examples}`;
-  // const _examplesMessagePrompt =
-  // SystemMessagePromptTemplate.fromTemplate(examplesTemplate);
-
-  // Create a human message prompt template
   const humanTemplate = `My GOAL is: ${goal}`;
   const humanMessagePrompt =
     HumanMessagePromptTemplate.fromTemplate(humanTemplate);
 
-  // Create a chat prompt template from the system and human message prompts
   const chatPrompt = ChatPromptTemplate.fromPromptMessages([
     systemMessagePrompt,
-    // examplesMessagePrompt,
     humanMessagePrompt,
   ]);
 

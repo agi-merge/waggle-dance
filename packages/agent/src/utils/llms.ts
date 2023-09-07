@@ -19,7 +19,7 @@ export enum LLM {
 export const LLM_ALIASES = {
   fast: LLM["gpt-3.5-turbo"],
   "fast-large": LLM["gpt-3.5-turbo-16k"],
-  smart: LLM["gpt-4-0314"],
+  smart: LLM["gpt-4-0613"],
   // "smart-large": LLM["gpt-4-32k"],
   embeddings: LLM["embeddings"],
 };

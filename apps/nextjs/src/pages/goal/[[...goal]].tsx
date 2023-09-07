@@ -362,7 +362,10 @@ const GoalPage = ({ alertConfigs }: Props) => {
                                       }}
                                     >
                                       IQ:{" "}
-                                      <Typography color={iqLevel.color}>
+                                      <Typography
+                                        color={iqLevel.color}
+                                        className="align-end"
+                                      >
                                         {iqLevel.label}
                                       </Typography>
                                     </Typography>

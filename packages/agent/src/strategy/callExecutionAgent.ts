@@ -1,19 +1,14 @@
 // agent/strategy/callExecutionAgent.ts
 
-import { PineconeClient } from "@pinecone-database/pinecone";
 import {
   initializeAgentExecutorWithOptions,
   type InitializeAgentExecutorOptions,
 } from "langchain/agents";
-import { VectorDBQAChain } from "langchain/chains";
 import { type ChatOpenAI } from "langchain/chat_models/openai";
 import { type OpenAI } from "langchain/dist";
 import { type InitializeAgentExecutorOptionsStructured } from "langchain/dist/agents/initialize";
 import { type Tool } from "langchain/dist/tools/base";
 import { PlanAndExecuteAgentExecutor } from "langchain/experimental/plan_and_execute";
-import { ChainTool, SerpAPI } from "langchain/tools";
-import { WebBrowser } from "langchain/tools/webbrowser";
-import { PineconeStore } from "langchain/vectorstores/pinecone";
 import { parse } from "yaml";
 
 import {
@@ -22,7 +17,6 @@ import {
   type TaskState,
 } from "../prompts/createExecuteCriticismPrompt";
 import { isTaskCriticism } from "../prompts/types";
-import saveMemorySkill from "../skills/saveMemory";
 import {
   getAgentPromptingMethodValue,
   InitializeAgentExecutorOptionsAgentTypes,
@@ -34,6 +28,7 @@ import {
 } from "../utils/llms";
 import { createEmbeddings, createModel } from "../utils/model";
 import { type ModelCreationProps } from "../utils/OpenAIPropsBridging";
+import createSkills from "../utils/skills";
 import type Geo from "./Geo";
 
 export async function callExecutionAgent(creation: {
@@ -86,71 +81,28 @@ export async function callExecutionAgent(creation: {
     .map((m) => `${m._getType()}: ${m.content}`)
     .join("\n");
 
-  const tools: Tool[] = [
-    new WebBrowser({ model: llm, embeddings }),
-    saveMemorySkill,
-  ];
-
   // optional tools
-
-  if (namespace) {
-    if (process.env.PINECONE_API_KEY === undefined)
-      throw new Error("No pinecone api key found");
-    if (process.env.PINECONE_ENVIRONMENT === undefined)
-      throw new Error("No pinecone environment found");
-    if (process.env.PINECONE_INDEX === undefined)
-      throw new Error("No pinecone index found");
-    const client = new PineconeClient();
-    await client.init({
-      apiKey: process.env.PINECONE_API_KEY,
-      environment: process.env.PINECONE_ENVIRONMENT,
-    });
-    const pineconeIndex = client.Index(process.env.PINECONE_INDEX);
-
-    const vectorStore = await PineconeStore.fromExistingIndex(embeddings, {
-      pineconeIndex,
-      namespace,
-    });
-
-    const ltmChain = VectorDBQAChain.fromLLM(llm, vectorStore, {
-      tags: [taskObj.id],
-      callbacks: creationProps.callbacks,
-    });
-
-    // const ltm = await ltmChain.call({ input: "What are your main contents?" })
-    const description = `*MANDATORY: ONLY CALL UP TO ONCE PER STEP* a comprehensive database extending your knowledge/memory; use this tool before other tools.`;
-    const ltmTool = new ChainTool({
-      name: "memory database",
-      description,
-      chain: ltmChain,
-    });
-
-    tools.push(ltmTool);
-  }
-
-  if (process.env.SERPAPI_API_KEY?.length) {
-    tools.push(
-      new SerpAPI(process.env.SERPAPI_API_KEY, {
-        location: "Los Angeles,California,United States",
-        hl: "en",
-        gl: "us",
-      }),
-    );
-  }
   const tags = [
     isReview ? "criticize" : "execute",
     agentPromptingMethod,
     taskObj.id,
   ];
-
   creationProps.modelName && tags.push(creationProps.modelName);
+
+  const skills = await createSkills(
+    namespace,
+    llm,
+    embeddings,
+    tags,
+    callbacks,
+  );
 
   const executor = await initializeExecutor(
     goal,
     agentPromptingMethod,
     taskObj,
     creationProps,
-    tools,
+    skills,
     llm,
     tags,
   );
@@ -165,8 +117,6 @@ export async function callExecutionAgent(creation: {
       },
       callbacks,
     );
-
-    call;
 
     const response = call?.output ? (call.output as string) : "";
     if (response === "Agent stopped due to max iterations.") {

@@ -4,9 +4,9 @@ export const defaultAgentSettings = {
   plan: {
     modelName: LLM_ALIASES["fast"],
     temperature: Temperature.Stable,
-    maxTokens: 700,
+    maxTokens: 2000,
     agentPromptingMethod: null,
-    maxConcurrency: 2,
+    maxConcurrency: 4,
   },
   review: {
     modelName: LLM_ALIASES["fast"],

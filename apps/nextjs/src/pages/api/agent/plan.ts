@@ -99,6 +99,7 @@ export default async function PlanStream(req: NextRequest) {
           goal,
           goalId!,
           abortController.signal,
+          `${goalId}_${executionId}`,
         );
 
         console.debug("plan result", planResult);
