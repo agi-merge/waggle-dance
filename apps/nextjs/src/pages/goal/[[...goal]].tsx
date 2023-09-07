@@ -195,6 +195,12 @@ const GoalPage = ({ alertConfigs }: Props) => {
   const { isRunning, setExecution, agentSettings } =
     useWaggleDanceMachineStore();
   const { selectedSkills } = useSkillStore();
+  const skillsLabel = useMemo(() => {
+    return selectedSkills
+      .map((s) => s?.label)
+      .filter(Boolean)
+      .join(", ");
+  }, [selectedSkills]);
 
   const latency = useMemo(() => {
     return latencyEstimate(
@@ -462,7 +468,7 @@ const GoalPage = ({ alertConfigs }: Props) => {
                           <>
                             <Typography level="title-sm">Skills</Typography>
                             <Typography noWrap level="body-sm">
-                              xxx skills in yyy skillsets
+                              {skillsLabel}
                             </Typography>
                           </>
                         }
@@ -470,7 +476,7 @@ const GoalPage = ({ alertConfigs }: Props) => {
                           <>
                             <Typography level="title-sm">Skills</Typography>
                             <Typography noWrap level="body-sm">
-                              xxx skills in yyy skillsets
+                              {skillsLabel}
                             </Typography>
                           </>
                         }
