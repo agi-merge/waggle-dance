@@ -27,6 +27,7 @@ import { type ExecutionPlusGraph, type GoalPlusExe } from "@acme/db";
 import { api } from "~/utils/api";
 import routes from "~/utils/routes";
 import AddDocuments from "~/features/AddDocuments/AddDocuments";
+import AgentSettings from "~/features/AgentSettings/AgentSettings";
 import GoalPrompt from "~/features/GoalPrompt/GoalPrompt";
 import {
   AccordionContent,
@@ -107,13 +108,13 @@ const latencyScale: {
   {
     limit: 0,
     color: "success",
-    label: "✅ Lowest",
+    label: "Lowest",
     description: `Your latency score is the lowest possible, which reduces costs and time to achieve goals, possibly at the expense of rigor`,
   },
   {
     limit: 0.5,
     color: "success",
-    label: "✅ Low",
+    label: "Low",
     description: `Your latency score is on the low end, which reduces costs and time to achieve goals, possibly at the expense of some rigor`,
   },
   {
@@ -151,7 +152,7 @@ const rigorScale: {
   {
     limit: 0.45,
     color: "warning",
-    label: "⚠ Low",
+    label: "Low",
     description: `Your rigor score is on the low end, which reduces rigor, possibly at the expense of some costs and time to achieve goals`,
   },
   {
@@ -163,13 +164,13 @@ const rigorScale: {
   {
     limit: 0.85,
     color: "success",
-    label: "☑ High",
+    label: "High",
     description: `Your rigor score is the second highest possible, which increases rigor, but increases costs and time to achieve goals`,
   },
   {
     limit: 1,
     color: "success",
-    label: "✅ Highest",
+    label: "Highest",
     description: `Your rigor score is the highest possible, which increases rigor, but increases costs and time to achieve goals`,
   },
 ];
@@ -184,31 +185,31 @@ const iqScale: {
     limit: 0.56,
     color: "danger",
     label: "⚠ Lowest",
-    description: `Your rigor score is the lowest possible, which reduces rigor, possibly at the expense of costs and time to achieve goals`,
+    description: `Your "IQ" score is the lowest possible, which reduces accuracy, possibly at the expense of costs and time to achieve goals`,
   },
   {
     limit: 0.62,
     color: "warning",
     label: "⚠️ Low",
-    description: `Your rigor score is on the low end, which reduces rigor, possibly at the expense of some costs and time to achieve goals`,
+    description: `Your "IQ" score is on the low end, which reduces accuracy, possibly at the expense of some costs and time to achieve goals`,
   },
   {
     limit: 0.75,
     color: "neutral",
     label: "Medium",
-    description: `Your rigor score is near the middle range, which balances rigor with costs and time to achieve goals`,
+    description: `Your "IQ" score is near the middle range, which balances accuracy with costs and time to achieve goals`,
   },
   {
     limit: 0.86,
     color: "success",
-    label: "☑ High",
-    description: `Your rigor score is the second highest possible, which increases rigor, but increases costs and time to achieve goals`,
+    label: "High",
+    description: `Your "IQ" score is the second highest possible, which increases accuracy, but increases costs and time to achieve goals`,
   },
   {
     limit: 1,
     color: "success",
-    label: "✅ Highest",
-    description: `Your rigor score is the highest possible, which increases rigor, but increases costs and time to achieve goals`,
+    label: "Highest",
+    description: `Your "IQ" score is the highest possible, which increases accuracy, but increases costs and time to achieve goals`,
   },
 ];
 
@@ -539,56 +540,93 @@ const GoalPage = ({ alertConfigs }: Props) => {
                             }
                           />
                           <AccordionContent isLast={true} defaultChecked={true}>
+                            <AgentSettings />
                             <Tooltip
                               title={`(Lower is better) ${latencyLevel.description}`}
+                              sx={{ cursor: "pointer" }}
                             >
-                              <Box
-                                sx={{ display: "flex", alignItems: "center" }}
+                              <Typography
+                                noWrap
+                                level="title-sm"
+                                color="neutral"
                               >
+                                Latency:{" "}
                                 <Typography
-                                  noWrap
+                                  color={latencyLevel.color}
                                   level="body-sm"
-                                  fontFamily={"monospace"}
-                                  color="neutral"
                                 >
-                                  Latency:{" "}
-                                  <Typography color={latencyLevel.color}>
-                                    {latencyLevel.label}
-                                  </Typography>{" "}
-                                  <IconButton
-                                    color={latencyLevel.color}
-                                    variant="outlined"
-                                    size="sm"
-                                    sx={{ p: 0, m: 0, borderRadius: "50%" }}
-                                  >
-                                    <QuestionMarkOutlined
-                                      sx={{
-                                        fontSize: "8pt",
-                                        p: 0,
-                                        m: "auto",
-                                        minWidth: 20,
-                                      }}
-                                    />
-                                  </IconButton>
-                                </Typography>
-                              </Box>
+                                  {latencyLevel.label}
+                                </Typography>{" "}
+                                <IconButton
+                                  color={latencyLevel.color}
+                                  variant="outlined"
+                                  size="sm"
+                                  sx={{ p: 0, m: 0, borderRadius: "50%" }}
+                                >
+                                  <QuestionMarkOutlined
+                                    sx={{
+                                      fontSize: "8pt",
+                                      p: 0,
+                                      m: "auto",
+                                      minWidth: 20,
+                                    }}
+                                  />
+                                </IconButton>
+                              </Typography>
                             </Tooltip>
 
                             <Tooltip
                               title={`(Higher is better) ${rigorLevel.description}`}
+                              sx={{ cursor: "pointer" }}
                             >
                               <Typography
                                 flexWrap={"wrap"}
                                 level="title-sm"
-                                fontFamily={"monospace"}
                                 color="neutral"
                               >
                                 Rigor:{" "}
-                                <Typography color={rigorLevel.color}>
+                                <Typography
+                                  color={rigorLevel.color}
+                                  level="title-sm"
+                                >
                                   {rigorLevel.label}
                                 </Typography>{" "}
                                 <IconButton
                                   color={rigorLevel.color}
+                                  variant="outlined"
+                                  size="sm"
+                                  sx={{ p: 0, m: 0, borderRadius: "50%" }}
+                                >
+                                  <QuestionMarkOutlined
+                                    sx={{
+                                      fontSize: "8pt",
+                                      p: 0,
+                                      m: "auto",
+                                      minWidth: 20,
+                                    }}
+                                  />
+                                </IconButton>
+                              </Typography>
+                            </Tooltip>
+
+                            <Tooltip
+                              title={`(Higher is better) ${iqLevel.description}`}
+                              sx={{ cursor: "pointer" }}
+                            >
+                              <Typography
+                                flexWrap={"wrap"}
+                                level="title-sm"
+                                color="neutral"
+                              >
+                                IQ:{" "}
+                                <Typography
+                                  color={iqLevel.color}
+                                  level="title-sm"
+                                >
+                                  {iqLevel.label}
+                                </Typography>{" "}
+                                <IconButton
+                                  color={iqLevel.color}
                                   variant="outlined"
                                   size="sm"
                                   sx={{ p: 0, m: 0, borderRadius: "50%" }}

@@ -13,7 +13,7 @@ import { type Session } from "@acme/auth";
 import { type GoalPlusExe } from "@acme/db";
 
 import routes from "~/utils/routes";
-import GoalSettings from "~/features/GoalMenu/components/GoalSettings";
+import { AgentSettingsToggle } from "~/features/AgentSettings/AgentSettings";
 import type DAG from "../DAG";
 import { ExecutionSelect } from "./ExecutionSelect";
 import { StartStopButton } from "./StartStopButton";
@@ -136,7 +136,7 @@ const BottomControls: React.FC<BottomControlsProps> = ({
                 Autostart
               </Checkbox>
 
-              <GoalSettings />
+              <AgentSettingsToggle />
             </Box>
             <StartStopButton
               isRunning={isRunning}

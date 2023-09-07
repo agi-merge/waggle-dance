@@ -23,15 +23,15 @@ import routes from "~/utils/routes";
 import useApp from "~/stores/appStore";
 import useGoalStore from "~/stores/goalStore";
 import useWaggleDanceMachineStore from "~/stores/waggleDanceStore";
-import AutoRefineGoalToggle from "../GoalMenu/components/AutoRefineGoalToggle";
+import AutoRefineGoalToggle from "../AgentSettings/components/AutoRefineGoalToggle";
 
-const GoalSettings = lazy(() => import("../GoalMenu/components/GoalSettings"));
+const GoalSettings = lazy(() => import("../AgentSettings/AgentSettings"));
 const AutoRefineFeedbackList = lazy(
   () => import("./components/AutoRefineGoalFeedbackList"),
 );
 const GoalForm = lazy(() => import("./components/GoalForm"));
 const TemplatesModal = lazy(
-  () => import("../GoalMenu/components/TemplatesModal"),
+  () => import("../AgentSettings/components/TemplatesModal"),
 );
 
 type GoalInputProps = CardProps;

@@ -19,19 +19,24 @@ import Tabs from "@mui/joy/Tabs";
 import Typography from "@mui/joy/Typography";
 import { useSession } from "next-auth/react";
 
+import {
+  AgentPromptingMethod,
+  LLM,
+  Temperature,
+} from "@acme/agent/src/utils/llms";
+
 import routes from "~/utils/routes";
 import AddDocuments from "~/features/AddDocuments/AddDocuments";
 import DocsModal from "~/features/AddDocuments/components/DocsModal";
 import SkillsModal from "~/features/Skills/components/SkillsModal";
 import SkillSelect from "~/features/Skills/SkillSelect";
 import useWaggleDanceMachineStore from "~/stores/waggleDanceStore";
-import {
-  AgentPromptingMethod,
-  LLM,
-  Temperature,
-} from "../../../../../../packages/agent/src/utils/llms";
 
-function AdvancedSettingsToggle({ children }: { children: React.ReactNode }) {
+function AgentSettingsToggleButton({
+  children,
+}: {
+  children: React.ReactNode;
+}) {
   const [isOpen, setIsOpen] = React.useState(false);
   const [anchorEl, setAnchorEl] = React.useState<null | HTMLElement>(null);
 
@@ -89,7 +94,7 @@ function AdvancedSettingsToggle({ children }: { children: React.ReactNode }) {
     </Stack>
   );
 }
-function GoalSettings({}: CardProps) {
+export function AgentSettings() {
   const { agentSettings, setAgentSettings, isRunning } =
     useWaggleDanceMachineStore();
   const [isShowingAlert, setIsShowingAlert] = React.useState(false);
@@ -111,7 +116,7 @@ function GoalSettings({}: CardProps) {
   };
 
   return (
-    <AdvancedSettingsToggle>
+    <>
       <Tabs
         defaultValue={0}
         value={currentTabIndex}
@@ -206,8 +211,16 @@ function GoalSettings({}: CardProps) {
           </Typography>
         </Alert>
       )}
-    </AdvancedSettingsToggle>
+    </>
   );
 }
 
-export default GoalSettings;
+export function AgentSettingsToggle({}: CardProps) {
+  return (
+    <AgentSettingsToggleButton>
+      <AgentSettings />
+    </AgentSettingsToggleButton>
+  );
+}
+
+export default AgentSettings;
