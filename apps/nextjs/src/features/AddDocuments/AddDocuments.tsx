@@ -135,7 +135,7 @@ const AddDocuments = ({ onClose: _onClose, ...props }: Props) => {
 
   return (
     <Box {...props}>
-      <Title title="💰 Documents, Data, and Tools">
+      <Title title="🌺 Documents, Data, and Tools">
         <Typography
           level="body-lg"
           sx={{

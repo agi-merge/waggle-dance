@@ -282,209 +282,242 @@ const GoalPage = ({ alertConfigs }: Props) => {
                   <List
                     type="multiple"
                     component={Accordion}
-                    variant="outlined"
                     color="primary"
                     className="mt-2"
                     sx={{ padding: 0 }}
                   >
-                    <AccordionItem value="item-1">
-                      <AccordionHeader
-                        isFirst
-                        variant="outlined"
-                        color="primary"
-                        openText={
-                          <Typography noWrap level="title-sm" className="pb-2">
-                            Your goal
-                          </Typography>
-                        }
-                        closedText={
-                          <>
-                            <Typography level="title-sm">Your goal</Typography>
-                            <Typography noWrap level="body-sm">
-                              {goal?.prompt}
-                            </Typography>
-                          </>
-                        }
-                      ></AccordionHeader>
-                      <AccordionContent isLast={false}>
-                        {goal?.prompt}
-                      </AccordionContent>
-                    </AccordionItem>
-                    <AccordionItem value="item-2">
-                      <AccordionHeader
-                        variant="outlined"
-                        color="primary"
-                        openText={
-                          <Typography noWrap level="title-sm" className="pb-2">
-                            Understanding your settings
-                          </Typography>
-                        }
-                        closedText={
-                          <>
-                            <Typography level="title-sm">
-                              Understanding your settings
-                            </Typography>
-                            <Box
-                              sx={{ display: "flex", alignItems: "center" }}
-                              component={Stack}
-                              direction="row"
-                              gap={1}
+                    <Box sx={{ display: { xs: "block", md: "flex" } }}>
+                      <Box
+                        sx={{
+                          flex: 1,
+                          maxWidth: { xs: "100%", md: "50%" },
+                        }}
+                      >
+                        <AccordionItem value="item-1">
+                          <AccordionHeader
+                            isFirst
+                            variant="outlined"
+                            color="primary"
+                            openText={
+                              <Typography
+                                noWrap
+                                level="title-sm"
+                                className="pb-2"
+                              >
+                                🍯 Your goal
+                              </Typography>
+                            }
+                            closedText={
+                              <>
+                                <Typography level="title-sm">
+                                  🍯 Your goal
+                                </Typography>
+                                <Typography noWrap level="body-sm">
+                                  {goal?.prompt}
+                                </Typography>
+                              </>
+                            }
+                          />
+                          <AccordionContent isLast={false}>
+                            {goal?.prompt}
+                          </AccordionContent>
+                        </AccordionItem>
+                        <AccordionItem value="item-2">
+                          <AccordionHeader
+                            variant="outlined"
+                            color="primary"
+                            openText={
+                              <Typography noWrap level="title-sm">
+                                📊 Understanding your settings
+                              </Typography>
+                            }
+                            closedText={
+                              <>
+                                <Typography level="title-sm">
+                                  📊 Understanding your settings
+                                </Typography>
+                                <Box
+                                  sx={{ display: "flex", alignItems: "center" }}
+                                  component={Stack}
+                                  direction="row"
+                                  gap={1}
+                                >
+                                  <Tooltip
+                                    title={`(Lower is better) ${latencyLevel.description}`}
+                                  >
+                                    <Typography
+                                      noWrap
+                                      level="body-sm"
+                                      color="neutral"
+                                    >
+                                      Latency:{" "}
+                                      <Typography color={latencyLevel.color}>
+                                        {latencyLevel.label}{" "}
+                                        {latency.toFixed(3)}{" "}
+                                      </Typography>
+                                    </Typography>
+                                  </Tooltip>
+                                  {" · "}
+
+                                  <Tooltip
+                                    title={`(Higher is better) ${rigorLevel.description}`}
+                                  >
+                                    <Typography
+                                      flexWrap={"wrap"}
+                                      level="body-sm"
+                                      color="neutral"
+                                    >
+                                      Rigor:{" "}
+                                      <Typography color={rigorLevel.color}>
+                                        {rigorLevel.label} {rigor.toFixed(3)}{" "}
+                                      </Typography>
+                                    </Typography>
+                                  </Tooltip>
+                                </Box>
+                              </>
+                            }
+                          />
+                          <AccordionContent
+                            isLast={false}
+                            defaultChecked={true}
+                          >
+                            <Tooltip
+                              title={`(Lower is better) ${latencyLevel.description}`}
                             >
-                              <Tooltip
-                                title={`(Lower is better) ${latencyLevel.description}`}
+                              <Box
+                                sx={{ display: "flex", alignItems: "center" }}
                               >
                                 <Typography
                                   noWrap
-                                  level="body-xs"
+                                  level="body-sm"
                                   fontFamily={"monospace"}
                                   color="neutral"
                                 >
                                   Latency:{" "}
                                   <Typography color={latencyLevel.color}>
-                                    {latencyLevel.label} {latency.toFixed(3)}{" "}
-                                  </Typography>
+                                    {latencyLevel.label}
+                                  </Typography>{" "}
+                                  {latency.toFixed(3)}{" "}
+                                  <IconButton
+                                    color={latencyLevel.color}
+                                    variant="outlined"
+                                    size="sm"
+                                    sx={{ p: 0, m: 0, borderRadius: "50%" }}
+                                  >
+                                    <QuestionMarkOutlined
+                                      sx={{
+                                        fontSize: "8pt",
+                                        p: 0,
+                                        m: "auto",
+                                        minWidth: 20,
+                                      }}
+                                    />
+                                  </IconButton>
                                 </Typography>
-                              </Tooltip>
-                              {" · "}
+                              </Box>
+                            </Tooltip>
 
-                              <Tooltip
-                                title={`(Higher is better) ${rigorLevel.description}`}
+                            <Tooltip
+                              title={`(Higher is better) ${rigorLevel.description}`}
+                            >
+                              <Typography
+                                flexWrap={"wrap"}
+                                level="title-sm"
+                                fontFamily={"monospace"}
+                                color="neutral"
                               >
-                                <Typography
-                                  flexWrap={"wrap"}
-                                  level="body-xs"
-                                  fontFamily={"monospace"}
-                                  color="neutral"
+                                Rigor:{" "}
+                                <Typography color={rigorLevel.color}>
+                                  {rigorLevel.label}
+                                </Typography>{" "}
+                                {rigor.toFixed(3)}{" "}
+                                <IconButton
+                                  color={rigorLevel.color}
+                                  variant="outlined"
+                                  size="sm"
+                                  sx={{ p: 0, m: 0, borderRadius: "50%" }}
                                 >
-                                  Rigor:{" "}
-                                  <Typography color={rigorLevel.color}>
-                                    {rigorLevel.label} {rigor.toFixed(3)}{" "}
-                                  </Typography>
+                                  <QuestionMarkOutlined
+                                    sx={{
+                                      fontSize: "8pt",
+                                      p: 0,
+                                      m: "auto",
+                                      minWidth: 20,
+                                    }}
+                                  />
+                                </IconButton>
+                              </Typography>
+                            </Tooltip>
+                          </AccordionContent>
+                        </AccordionItem>
+                      </Box>
+                      <Box
+                        sx={{
+                          flex: 1,
+                          maxWidth: { xs: "100%", md: "50%" },
+                        }}
+                      >
+                        <AccordionItem value="item-3">
+                          <AccordionHeader
+                            variant="outlined"
+                            color="primary"
+                            openText={
+                              <>
+                                <Typography level="title-sm">
+                                  🌺 Data
                                 </Typography>
-                              </Tooltip>
-                            </Box>
-                          </>
-                        }
-                      ></AccordionHeader>
-                      <AccordionContent isLast={false} defaultChecked={true}>
-                        <Tooltip
-                          title={`(Lower is better) ${latencyLevel.description}`}
-                        >
-                          <Box sx={{ display: "flex", alignItems: "center" }}>
-                            <Typography
-                              noWrap
-                              level="body-sm"
-                              fontFamily={"monospace"}
-                              color="neutral"
-                            >
-                              Latency:{" "}
-                              <Typography color={latencyLevel.color}>
-                                {latencyLevel.label}
-                              </Typography>{" "}
-                              {latency.toFixed(3)}{" "}
-                              <IconButton
-                                color={latencyLevel.color}
-                                variant="outlined"
-                                size="sm"
-                                sx={{ p: 0, m: 0, borderRadius: "50%" }}
-                              >
-                                <QuestionMarkOutlined
-                                  sx={{
-                                    fontSize: "8pt",
-                                    p: 0,
-                                    m: "auto",
-                                    minWidth: 20,
-                                  }}
-                                />
-                              </IconButton>
-                            </Typography>
-                          </Box>
-                        </Tooltip>
-
-                        <Tooltip
-                          title={`(Higher is better) ${rigorLevel.description}`}
-                        >
-                          <Typography
-                            flexWrap={"wrap"}
-                            level="title-sm"
-                            fontFamily={"monospace"}
-                            color="neutral"
-                          >
-                            Rigor:{" "}
-                            <Typography color={rigorLevel.color}>
-                              {rigorLevel.label}
-                            </Typography>{" "}
-                            {rigor.toFixed(3)}{" "}
-                            <IconButton
-                              color={rigorLevel.color}
-                              variant="outlined"
-                              size="sm"
-                              sx={{ p: 0, m: 0, borderRadius: "50%" }}
-                            >
-                              <QuestionMarkOutlined
-                                sx={{
-                                  fontSize: "8pt",
-                                  p: 0,
-                                  m: "auto",
-                                  minWidth: 20,
-                                }}
-                              />
-                            </IconButton>
-                          </Typography>
-                        </Tooltip>
-                      </AccordionContent>
-                    </AccordionItem>
-                    <AccordionItem value="item-3">
-                      <AccordionHeader
-                        variant="outlined"
-                        color="primary"
-                        openText={
-                          <>
-                            <Typography level="title-sm">Data</Typography>
-                            <Typography noWrap level="body-sm">
-                              xxx documents in yyy collections
-                            </Typography>
-                          </>
-                        }
-                        closedText={
-                          <>
-                            <Typography level="title-sm">Data</Typography>
-                            <Typography noWrap level="body-sm">
-                              xxx documents in yyy collections
-                            </Typography>
-                          </>
-                        }
-                      ></AccordionHeader>
-                      <AccordionContent isLast={false}>
-                        <AddDocuments />
-                      </AccordionContent>
-                    </AccordionItem>
-                    <AccordionItem value="item-4">
-                      <AccordionHeader
-                        variant="outlined"
-                        color="primary"
-                        isLast={true}
-                        openText={
-                          <>
-                            <Typography level="title-sm">Skills</Typography>
-                            <Typography noWrap level="body-sm">
-                              {skillsLabel}
-                            </Typography>
-                          </>
-                        }
-                        closedText={
-                          <>
-                            <Typography level="title-sm">Skills</Typography>
-                            <Typography noWrap level="body-sm">
-                              {skillsLabel}
-                            </Typography>
-                          </>
-                        }
-                      ></AccordionHeader>
-                      <AccordionContent isLast={true} sx={{ p: 1 }}>
-                        <SkillSelect />
-                      </AccordionContent>
-                    </AccordionItem>
+                                <Typography noWrap level="body-sm">
+                                  xxx documents in yyy collections
+                                </Typography>
+                              </>
+                            }
+                            closedText={
+                              <>
+                                <Typography level="title-sm">
+                                  🌺 Data
+                                </Typography>
+                                <Typography noWrap level="body-sm">
+                                  xxx documents in yyy collections
+                                </Typography>
+                              </>
+                            }
+                          />
+                          <AccordionContent isLast={false}>
+                            <AddDocuments />
+                          </AccordionContent>
+                        </AccordionItem>
+                        <AccordionItem value="item-4">
+                          <AccordionHeader
+                            variant="outlined"
+                            color="primary"
+                            isLast={true}
+                            openText={
+                              <>
+                                <Typography level="title-sm">
+                                  🔨 Skills
+                                </Typography>
+                                <Typography noWrap level="body-sm">
+                                  {skillsLabel}
+                                </Typography>
+                              </>
+                            }
+                            closedText={
+                              <>
+                                <Typography level="title-sm">
+                                  🔨 Skills
+                                </Typography>
+                                <Typography noWrap level="body-sm">
+                                  {skillsLabel}
+                                </Typography>
+                              </>
+                            }
+                          />
+                          <AccordionContent isLast={true}>
+                            <SkillSelect />
+                          </AccordionContent>
+                        </AccordionItem>
+                      </Box>
+                    </Box>
                   </List>
                 )}
               </PageTitle>

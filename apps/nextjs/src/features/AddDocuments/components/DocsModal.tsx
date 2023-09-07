@@ -25,7 +25,7 @@ export default function DocsModal({ children }: Props) {
             className="flex-shrink"
             onClick={() => setOpen(true)}
           >
-            💰 Data
+            🌺 Data
           </Link>
         </Tooltip>
       </Box>
