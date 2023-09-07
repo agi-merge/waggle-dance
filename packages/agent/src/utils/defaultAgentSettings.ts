@@ -18,7 +18,7 @@ export const defaultAgentSettings = {
   execute: {
     modelName: LLM_ALIASES["fast-large"],
     temperature: Temperature.Stable,
-    maxTokens: 2000,
+    maxTokens: 1200,
     agentPromptingMethod: AgentPromptingMethod.ChatConversationalReAct,
     maxConcurrency: 6,
   },
