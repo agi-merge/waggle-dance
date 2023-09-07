@@ -4,28 +4,11 @@ import { v4 } from "uuid";
 import { create } from "zustand";
 import { createJSONStorage, persist } from "zustand/middleware";
 
+import { defaultAgentSettings, type AgentSettings } from "@acme/agent";
 import { type ExecutionPlusGraph, type GoalPlusExe } from "@acme/db";
 
 import { app } from "~/constants";
 import type DAG from "~/features/WaggleDance/DAG";
-import {
-  AgentPromptingMethod,
-  LLM_ALIASES,
-  Temperature,
-  type LLM,
-} from "../../../../packages/agent/src/utils/llms";
-
-export interface AgentSettings {
-  modelName: LLM;
-  temperature: Temperature;
-  agentPromptingMethod: AgentPromptingMethod | null;
-  // see: https://platform.openai.com/docs/api-reference/chat/create
-  topP?: number | undefined;
-  maxConcurrency: number;
-  frequencyPenalty?: number | undefined;
-  presencePenalty?: number | undefined;
-  logitBias?: Record<string, number> | undefined;
-}
 
 export interface WaggleDanceMachineStore {
   isRunning: boolean;
@@ -81,26 +64,7 @@ const useWaggleDanceMachineStore = create(
       isAutoStartEnabled: false,
       setIsAutoStartEnabled: (newState) =>
         set({ isAutoStartEnabled: newState }),
-      agentSettings: {
-        plan: {
-          modelName: LLM_ALIASES["fast"],
-          temperature: Temperature.Stable,
-          agentPromptingMethod: null,
-          maxConcurrency: 2,
-        },
-        review: {
-          modelName: LLM_ALIASES["fast"],
-          temperature: Temperature.Stable,
-          agentPromptingMethod: AgentPromptingMethod.ZeroShotReAct,
-          maxConcurrency: 4,
-        },
-        execute: {
-          modelName: LLM_ALIASES["fast-large"],
-          temperature: Temperature.Stable,
-          agentPromptingMethod: AgentPromptingMethod.ChatConversationalReAct,
-          maxConcurrency: 6,
-        },
-      },
+      agentSettings: defaultAgentSettings,
       setAgentSettings: (type, newValue) =>
         set((state) => ({
           agentSettings: {

@@ -4,8 +4,14 @@ import { lazy, Suspense, useEffect, useMemo, useRef } from "react";
 import { type GetStaticPropsResult, type InferGetStaticPropsType } from "next";
 import dynamic from "next/dynamic";
 import { useRouter } from "next/router";
+import { QuestionMarkOutlined } from "@mui/icons-material";
 import {
+  Box,
+  Divider,
+  IconButton,
   Skeleton,
+  Stack,
+  Tooltip,
   type AlertPropsColorOverrides,
   type ColorPaletteProp,
 } from "@mui/joy";
@@ -15,16 +21,20 @@ import { type OverridableStringUnion } from "@mui/types";
 import { Accordion, AccordionItem } from "@radix-ui/react-accordion";
 import { get } from "@vercel/edge-config";
 
+import { defaultAgentSettings } from "@acme/agent";
+import { latencyEstimate } from "@acme/agent/src/utils/llms";
 import { type ExecutionPlusGraph, type GoalPlusExe } from "@acme/db";
 
 import { api } from "~/utils/api";
 import routes from "~/utils/routes";
+import AddDocuments from "~/features/AddDocuments/AddDocuments";
 import GoalPrompt from "~/features/GoalPrompt/GoalPrompt";
 import {
   AccordionContent,
   AccordionHeader,
 } from "~/features/HeadlessUI/JoyAccordion";
 import MainLayout from "~/features/MainLayout";
+import useSkillStore from "~/stores/skillStore";
 import useWaggleDanceMachineStore from "~/stores/waggleDanceStore";
 import useGoalStore from "../../stores/goalStore";
 
@@ -87,25 +97,117 @@ export function getStaticPaths() {
   };
 }
 
-// export const getStaticPaths: GetStaticPaths = async () => {
-//   return {
-//     paths: [
-//       {
-//         params: {
-//           goal: null,
-//           alertConfig: [],
-//         },
-//       }, // See the "paths" section below
-//     ],
-//     fallback: true, // false or "blocking"
-//   };
-// };
+// Define the latency scale and corresponding colors
+const latencyScale: {
+  limit: number;
+  color: OverridableStringUnion<ColorPaletteProp, AlertPropsColorOverrides>;
+  label: string;
+  description: string;
+}[] = [
+  {
+    limit: 0,
+    color: "success",
+    label: "✅ Lowest",
+    description: `Your latency score is the lowest possible, which reduces costs and time to achieve goals, possibly at the expense of rigor`,
+  },
+  {
+    limit: 0.5,
+    color: "success",
+    label: "✅ Low",
+    description: `Your latency score is on the low end, which reduces costs and time to achieve goals, possibly at the expense of some rigor`,
+  },
+  {
+    limit: 0.78,
+    color: "neutral",
+    label: "Medium",
+    description: `Your latency score is near the middle range, which balances costs and time to achieve goals with rigor`,
+  },
+  {
+    limit: 0.86,
+    color: "warning",
+    label: "⚠ High",
+    description: `Your latency score is the second highest possible, which increases costs and time to achieve goals, but increases rigor`,
+  },
+  {
+    limit: 1,
+    color: "danger",
+    label: "⚠ Highest",
+    description: `Your latency score is the highest possible, which increases costs and time to achieve goals, but increases rigor`,
+  },
+];
+
+const rigorScale: {
+  limit: number;
+  color: OverridableStringUnion<ColorPaletteProp, AlertPropsColorOverrides>;
+  label: string;
+  description: string;
+}[] = [
+  {
+    limit: 0.35,
+    color: "danger",
+    label: "⚠ Lowest",
+    description: `Your rigor score is the lowest possible, which reduces rigor, possibly at the expense of costs and time to achieve goals`,
+  },
+  {
+    limit: 0.45,
+    color: "warning",
+    label: "⚠️ Low",
+    description: `Your rigor score is on the low end, which reduces rigor, possibly at the expense of some costs and time to achieve goals`,
+  },
+  {
+    limit: 0.8,
+    color: "neutral",
+    label: "Medium",
+    description: `Your rigor score is near the middle range, which balances rigor with costs and time to achieve goals`,
+  },
+  {
+    limit: 0.85,
+    color: "success",
+    label: "☑ High",
+    description: `Your rigor score is the second highest possible, which increases rigor, but increases costs and time to achieve goals`,
+  },
+  {
+    limit: 1,
+    color: "success",
+    label: "✅ Highest",
+    description: `Your rigor score is the highest possible, which increases rigor, but increases costs and time to achieve goals`,
+  },
+];
+
+// Get latency level based on the latency value
+function getLatencyLevel(latency: number) {
+  return (latencyScale.find((scale) => latency <= scale.limit) ||
+    latencyScale[latencyScale.length - 1])!; // idk tsc was complaining without the bang
+}
+
+function getRigorLevel(rigor: number) {
+  const rl =
+    rigorScale.find((scale) => rigor <= scale.limit)! ||
+    rigorScale[rigorScale.length - 1];
+
+  return rl;
+}
 
 type Props = InferGetStaticPropsType<typeof getStaticProps>;
 const GoalPage = ({ alertConfigs }: Props) => {
   const router = useRouter();
   const { goalMap, selectedGoal, upsertGoals, selectGoal } = useGoalStore();
-  const { isRunning, setExecution } = useWaggleDanceMachineStore();
+  const { isRunning, setExecution, agentSettings } =
+    useWaggleDanceMachineStore();
+  const { selectedSkills } = useSkillStore();
+
+  const latency = useMemo(() => {
+    return latencyEstimate(
+      agentSettings,
+      selectedSkills.length,
+      defaultAgentSettings,
+    );
+  }, [agentSettings, selectedSkills]);
+  const latencyLevel = useMemo(() => getLatencyLevel(latency), [latency]);
+  const rigor = useMemo(() => {
+    return 1 + Math.log(latency);
+  }, [latency]);
+  const rigorLevel = useMemo(() => getRigorLevel(rigor), [rigor]);
 
   const [serverGoals] = api.goal.topByUser.useSuspenseQuery(undefined, {
     refetchOnMount: true,
@@ -195,8 +297,131 @@ const GoalPage = ({ alertConfigs }: Props) => {
                           </>
                         }
                       ></AccordionHeader>
-                      <AccordionContent isLast={true}>
+                      <AccordionContent isLast={false}>
                         {goal?.prompt}
+                      </AccordionContent>
+                    </AccordionItem>
+                    <Divider />
+                    <AccordionItem value="item-2">
+                      <AccordionHeader
+                        openText={
+                          <Typography noWrap level="title-sm" className="pb-2">
+                            Understanding your settings
+                          </Typography>
+                        }
+                        closedText={
+                          <>
+                            <Typography level="title-sm">
+                              Understanding your settings
+                            </Typography>
+                            <Box
+                              sx={{ display: "flex", alignItems: "center" }}
+                              component={Stack}
+                              direction="row"
+                              gap={1}
+                            >
+                              <Tooltip
+                                title={`(Lower is better) ${latencyLevel.description}`}
+                              >
+                                <Typography
+                                  noWrap
+                                  level="body-xs"
+                                  fontFamily={"monospace"}
+                                  color="neutral"
+                                >
+                                  Latency:{" "}
+                                  <Typography color={latencyLevel.color}>
+                                    {latencyLevel.label} {latency.toFixed(3)}{" "}
+                                  </Typography>
+                                </Typography>
+                              </Tooltip>
+                              {" · "}
+
+                              <Tooltip
+                                title={`(Higher is better) ${rigorLevel.description}`}
+                              >
+                                <Typography
+                                  flexWrap={"wrap"}
+                                  level="body-xs"
+                                  fontFamily={"monospace"}
+                                  color="neutral"
+                                >
+                                  Rigor:{" "}
+                                  <Typography color={rigorLevel.color}>
+                                    {rigorLevel.label} {rigor.toFixed(3)}{" "}
+                                  </Typography>
+                                </Typography>
+                              </Tooltip>
+                            </Box>
+                          </>
+                        }
+                      ></AccordionHeader>
+                      <AccordionContent isLast={true} defaultChecked={true}>
+                        <Tooltip
+                          title={`(Lower is better) ${latencyLevel.description}`}
+                        >
+                          <Box sx={{ display: "flex", alignItems: "center" }}>
+                            <Typography
+                              noWrap
+                              level="body-sm"
+                              fontFamily={"monospace"}
+                              color="neutral"
+                            >
+                              Latency:{" "}
+                              <Typography color={latencyLevel.color}>
+                                {latencyLevel.label}
+                              </Typography>{" "}
+                              {latency.toFixed(3)}{" "}
+                              <IconButton
+                                color={latencyLevel.color}
+                                variant="outlined"
+                                size="sm"
+                                sx={{ p: 0, m: 0, borderRadius: "50%" }}
+                              >
+                                <QuestionMarkOutlined
+                                  sx={{
+                                    fontSize: "8pt",
+                                    p: 0,
+                                    m: "auto",
+                                    minWidth: 20,
+                                  }}
+                                />
+                              </IconButton>
+                            </Typography>
+                          </Box>
+                        </Tooltip>
+
+                        <Tooltip
+                          title={`(Higher is better) ${rigorLevel.description}`}
+                        >
+                          <Typography
+                            flexWrap={"wrap"}
+                            level="title-sm"
+                            fontFamily={"monospace"}
+                            color="neutral"
+                          >
+                            Rigor:{" "}
+                            <Typography color={rigorLevel.color}>
+                              {rigorLevel.label}
+                            </Typography>{" "}
+                            {rigor.toFixed(3)}{" "}
+                            <IconButton
+                              color={rigorLevel.color}
+                              variant="outlined"
+                              size="sm"
+                              sx={{ p: 0, m: 0, borderRadius: "50%" }}
+                            >
+                              <QuestionMarkOutlined
+                                sx={{
+                                  fontSize: "8pt",
+                                  p: 0,
+                                  m: "auto",
+                                  minWidth: 20,
+                                }}
+                              />
+                            </IconButton>
+                          </Typography>
+                        </Tooltip>
                       </AccordionContent>
                     </AccordionItem>
                   </List>

@@ -2,6 +2,7 @@
 import { type Dispatch, type SetStateAction } from "react";
 
 import {
+  type AgentSettings,
   type DAGNode,
   type ModelCreationProps,
   type TaskState,
@@ -12,7 +13,6 @@ import {
 } from "@acme/agent/src/utils/llms";
 
 import { env } from "~/env.mjs";
-import { type AgentSettings } from "~/stores/waggleDanceStore";
 import type DAG from "./DAG";
 
 export type PlanResult = DAG;

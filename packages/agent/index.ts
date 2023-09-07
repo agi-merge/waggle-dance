@@ -13,3 +13,6 @@ export * from "./src/strategy/AgentPacket";
 export * from "./src/strategy/Geo";
 
 export * from "./src/utils/OpenAIPropsBridging";
+
+export * from "./src/utils/agentSettings";
+export * from "./src/utils/defaultAgentSettings";

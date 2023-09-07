@@ -5,10 +5,10 @@
 // It starts by generating an execution DAG and then executes the tasks concurrently.
 // When a task completes, a new dependent review task should be added to the DAG to ensure quality results.
 
-import { type AgentSettings } from "~/stores/waggleDanceStore";
 import {
   TaskStatus,
   type AgentPacket,
+  type AgentSettingsMap,
   type DAGNode,
   type TaskState,
 } from "../../../../../packages/agent";
@@ -32,7 +32,7 @@ export type RunParams = {
   goal: string;
   goalId: string;
   executionId: string;
-  agentSettings: Record<"plan" | "review" | "execute", AgentSettings>;
+  agentSettings: AgentSettingsMap;
   graphDataState: GraphDataState;
   taskResultsState: TaskResultsState;
   isDonePlanningState: IsDonePlanningState;

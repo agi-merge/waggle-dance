@@ -143,6 +143,8 @@ export async function callExecutionAgent(creation: {
     taskObj.id,
   ];
 
+  creationProps.modelName && tags.push(creationProps.modelName);
+
   const executor = await initializeExecutor(
     goal,
     agentPromptingMethod,

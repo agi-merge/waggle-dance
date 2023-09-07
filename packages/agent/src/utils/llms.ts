@@ -1,5 +1,7 @@
 // utils/llms.ts
 
+import { type AgentSettingsMap } from "../..";
+
 // TODO: use APIs to list eligible models
 
 export enum LLM {
@@ -82,6 +84,178 @@ export function getAgentPromptingMethodValue(
     case AgentPromptingMethod.PlanAndExecute:
       return null; //throw new Error("PlanAndExecute is not a valid prompting method");
   }
+}
+
+export function latencyEstimate(
+  agentSettingsMap: AgentSettingsMap,
+  skillsCount: number,
+  defaultAgentSettings: AgentSettingsMap,
+): number {
+  const latencyMultiplierPairs = Object.entries(agentSettingsMap).map(
+    (entry) => {
+      const [type, agentSettings] = entry;
+
+      if (type !== "plan" && type !== "review" && type !== "execute") {
+        throw new Error(`Invalid agent type: ${type}`);
+      }
+      let promptingMethod =
+        agentSettings.agentPromptingMethod ||
+        defaultAgentSettings[type].agentPromptingMethod;
+      if (promptingMethod === null) {
+        switch (type) {
+          case "execute":
+            promptingMethod = AgentPromptingMethod.ChatConversationalReAct;
+          case "plan":
+            promptingMethod = AgentPromptingMethod.ZeroShotReAct;
+          case "review":
+            promptingMethod = AgentPromptingMethod.ZeroShotReAct;
+        }
+        // throw new Error("Agent prompting method is null");
+      }
+      let typeMultiplier: number;
+      switch (type) {
+        case "execute":
+          typeMultiplier = 2;
+        case "review":
+          typeMultiplier = 1.25;
+        case "plan":
+          typeMultiplier = 1;
+      }
+      let latency = 0;
+      let multiplier = 1; // gpt-3.5
+      // could be an enum mapping instead of ifs
+      if (agentSettings.modelName.startsWith("gpt-4")) {
+        multiplier = 2.7; // source: https://www.taivo.ai/__gpt-3-5-and-gpt-4-response-times/
+      }
+      switch (promptingMethod) {
+        case AgentPromptingMethod.ZeroShotReAct:
+          latency += 1;
+        case AgentPromptingMethod.OpenAIFunctions:
+          latency += 1.1;
+          break;
+        case AgentPromptingMethod.ChatZeroShotReAct:
+          latency += 1.1;
+          break;
+        case AgentPromptingMethod.ChatConversationalReAct:
+          latency += 2;
+          break;
+        case AgentPromptingMethod.OpenAIStructuredChat:
+          latency += 1.15;
+          break;
+        case AgentPromptingMethod.PlanAndExecute:
+          latency += 3;
+          break;
+      }
+      return { latency, multiplier, typeMultiplier };
+    },
+  );
+
+  const minMax = (n: number, lb: number = 0, ub: number = 1) =>
+    Math.min(ub, Math.max(lb, n));
+
+  const totalLatencyForAgentSettings = latencyMultiplierPairs.reduce(
+    (acc, curr, _i) => {
+      return acc + curr.latency * curr.multiplier * curr.typeMultiplier;
+    },
+    0,
+  );
+
+  const skillsFactor = skillsCount * 0.1;
+
+  // TODO: normalize ln
+
+  // const totalMultiplier = latencyMultiplierPairs.reduce(
+
+  // const totalMultipler = latencyMultiplierPairs.reduce()
+  // return totalLatencyForAgentSettings + skillsCount * 0.1;
+  const latencyRaw = totalLatencyForAgentSettings + skillsFactor;
+  const highLatency = 22;
+  const latencyNormal = minMax(latencyRaw, 0, highLatency);
+  const ratio = latencyNormal / highLatency;
+  const guh = Math.log(1.379 + ratio) / 1;
+  return minMax(guh);
+}
+
+export function rigorEstimate(
+  agentSettingsMap: AgentSettingsMap,
+  skillsCount: number,
+  defaultAgentSettings: AgentSettingsMap,
+): number {
+  const latencyMultiplierPairs = Object.entries(agentSettingsMap).map(
+    (entry) => {
+      const [type, agentSettings] = entry;
+
+      if (type !== "plan" && type !== "review" && type !== "execute") {
+        throw new Error(`Invalid agent type: ${type}`);
+      }
+      let promptingMethod =
+        agentSettings.agentPromptingMethod ||
+        defaultAgentSettings[type].agentPromptingMethod;
+      if (promptingMethod === null) {
+        switch (type) {
+          case "execute":
+            promptingMethod = AgentPromptingMethod.ChatConversationalReAct;
+          case "plan":
+            promptingMethod = AgentPromptingMethod.ZeroShotReAct;
+          case "review":
+            promptingMethod = AgentPromptingMethod.ZeroShotReAct;
+        }
+        // throw new Error("Agent prompting method is null");
+      }
+      let typeMultiplier: number;
+      switch (type) {
+        case "execute":
+          typeMultiplier = 1.5;
+        case "review":
+          typeMultiplier = 1.25;
+        case "plan":
+          typeMultiplier = 1;
+      }
+      let latency = 0;
+      let multiplier = 1; // gpt-3.5
+      // could be an enum mapping instead of ifs
+      if (agentSettings.modelName.startsWith("gpt-4")) {
+        multiplier = 2.7; // source: https://www.taivo.ai/__gpt-3-5-and-gpt-4-response-times/
+      }
+      switch (promptingMethod) {
+        case AgentPromptingMethod.ZeroShotReAct:
+          latency += 1;
+        case AgentPromptingMethod.OpenAIFunctions:
+          latency += 1.1;
+          break;
+        case AgentPromptingMethod.ChatZeroShotReAct:
+          latency += 1.5;
+          break;
+        case AgentPromptingMethod.ChatConversationalReAct:
+          latency += 2.25;
+          break;
+        case AgentPromptingMethod.OpenAIStructuredChat:
+          latency += 1.5;
+          break;
+        case AgentPromptingMethod.PlanAndExecute:
+          latency += 3;
+          break;
+      }
+      return { latency, multiplier, typeMultiplier };
+    },
+  );
+
+  const totalLatencyForAgentSettings = latencyMultiplierPairs.reduce(
+    (acc, curr, _i) => {
+      return acc + curr.latency * curr.multiplier * curr.typeMultiplier;
+    },
+    0,
+  );
+
+  const skillsFactor = skillsCount * 0.1;
+
+  // TODO: normalize ln
+
+  // const totalMultiplier = latencyMultiplierPairs.reduce(
+
+  // const totalMultipler = latencyMultiplierPairs.reduce()
+  // return totalLatencyForAgentSettings + skillsCount * 0.1;
+  return totalLatencyForAgentSettings + skillsFactor;
 }
 
 export interface Model {

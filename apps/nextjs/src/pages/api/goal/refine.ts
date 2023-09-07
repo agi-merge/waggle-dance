@@ -42,7 +42,7 @@ export default async function RefineStream(req: NextRequest) {
     const creationProps: ModelCreationProps = {
       modelName: LLM_ALIASES["fast"],
       temperature: TEMPERATURE_VALUES[Temperature.Stable],
-      maxTokens: -1,
+      maxTokens: 350,
       streaming: true,
       basePath: env.NEXT_PUBLIC_LANGCHAIN_API_URL,
       verbose: env.NEXT_PUBLIC_LANGCHAIN_VERBOSE === "true",
