@@ -1,17 +1,11 @@
-// GoalSettings.tsx
+// features/AgentSettings.tsx
 
 import React, { type SyntheticEvent } from "react";
-import { ClickAwayListener } from "@mui/base";
 import { InfoOutlined } from "@mui/icons-material";
 import Alert from "@mui/joy/Alert";
-import Box from "@mui/joy/Box";
-import { type CardProps } from "@mui/joy/Card";
-import Divider from "@mui/joy/Divider";
 import Link from "@mui/joy/Link";
-import Menu from "@mui/joy/Menu";
 import Option from "@mui/joy/Option";
 import Select from "@mui/joy/Select";
-import Stack from "@mui/joy/Stack";
 import Tab from "@mui/joy/Tab";
 import TabList from "@mui/joy/TabList";
 import TabPanel from "@mui/joy/TabPanel";
@@ -26,74 +20,8 @@ import {
 } from "@acme/agent/src/utils/llms";
 
 import routes from "~/utils/routes";
-import AddDocuments from "~/features/AddDocuments/AddDocuments";
-import DocsModal from "~/features/AddDocuments/components/DocsModal";
-import SkillsModal from "~/features/Skills/components/SkillsModal";
-import SkillSelect from "~/features/Skills/SkillSelect";
 import useWaggleDanceMachineStore from "~/stores/waggleDanceStore";
 
-function AgentSettingsToggleButton({
-  children,
-}: {
-  children: React.ReactNode;
-}) {
-  const [isOpen, setIsOpen] = React.useState(false);
-  const [anchorEl, setAnchorEl] = React.useState<null | HTMLElement>(null);
-
-  const handleClose = (e?: MouseEvent | TouchEvent | undefined) => {
-    e?.preventDefault();
-    setAnchorEl(null);
-    setIsOpen(false);
-  };
-
-  return (
-    <Stack direction="row" gap="0.5rem">
-      <Box className="align-start flex flex-shrink">
-        <DocsModal>
-          <AddDocuments />
-        </DocsModal>
-        <Divider orientation="vertical" sx={{ marginX: "0.5rem" }} />
-        <SkillsModal>
-          <SkillSelect />
-        </SkillsModal>
-      </Box>
-      <Divider orientation="vertical" />
-      <>
-        <Link
-          className="m-0 mt-0 p-0"
-          onClick={(event) => {
-            event.preventDefault();
-            setAnchorEl(event.currentTarget);
-            setIsOpen(!isOpen);
-          }}
-          aria-haspopup="menu"
-          id="agent-settings-button"
-          aria-controls={"agent-settings-menu"}
-          aria-expanded={isOpen}
-        >
-          <Typography level="body-sm" className="m-0 p-0">
-            {isOpen ? "▼" : "▲"} Agent Settings
-          </Typography>
-        </Link>
-        {isOpen && (
-          <ClickAwayListener onClickAway={handleClose}>
-            <Menu
-              aria-labelledby="agent-settings-button"
-              id="agent-settings-menu"
-              anchorEl={anchorEl}
-              open={isOpen}
-              onClose={handleClose}
-              placement="top-start"
-              className="w-64"
-            >
-              {children}
-            </Menu>
-          </ClickAwayListener>
-        )}
-      </>
-    </Stack>
-  );
-}
 export function AgentSettings() {
   const { agentSettings, setAgentSettings, isRunning } =
     useWaggleDanceMachineStore();
@@ -212,14 +140,6 @@ export function AgentSettings() {
         </Alert>
       )}
     </>
-  );
-}
-
-export function AgentSettingsToggle({}: CardProps) {
-  return (
-    <AgentSettingsToggleButton>
-      <AgentSettings />
-    </AgentSettingsToggleButton>
   );
 }
 

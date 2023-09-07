@@ -25,7 +25,9 @@ import useGoalStore from "~/stores/goalStore";
 import useWaggleDanceMachineStore from "~/stores/waggleDanceStore";
 import AutoRefineGoalToggle from "../AgentSettings/components/AutoRefineGoalToggle";
 
-const GoalSettings = lazy(() => import("../AgentSettings/AgentSettings"));
+const AgentSettingsToggleButton = lazy(
+  () => import("../AgentSettings/components/AgentSettingsToggleButton"),
+);
 const AutoRefineFeedbackList = lazy(
   () => import("./components/AutoRefineGoalFeedbackList"),
 );
@@ -297,7 +299,7 @@ export default function GoalInput({}: GoalInputProps) {
                 />
               }
             >
-              <GoalSettings />
+              <AgentSettingsToggleButton />
             </Suspense>
           </Box>
         </Stack>
