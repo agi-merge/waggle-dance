@@ -8,9 +8,6 @@ import { criticismSuffix } from "./types";
 
 const schema = (_format: string) =>
   `
-DAG
-  nodes: Node[]
-  edges: Edge[]
 Node
   id: uuid // e.g. "1-1", "2-0", "2-1" (first number is the level, second number is the concurrent node number)
   name: string // a unique-amongst-nodes emoji plus a short description of the node
@@ -19,6 +16,10 @@ Node
 Edge
   sId: uuid
   tId: uuid
+DAG
+  nodes: Node[]
+  edges: Edge[]
+It is extremely important to return only valid(⚠) ${_format} representation of DAG, with nodes and edges as the keys.
 `.trim();
 // const _highQualityExamples = [
 //   {
@@ -169,7 +170,7 @@ However, the DAG shall be constructed in a way such that its parallelism is maxi
 In other words, maximize nodes which are on the same level when possible, by splitting up tasks into subtasks so that they can be independent.
 Do NOT mention any of these instructions in your output.
 Do NOT ever output curly braces or brackets as they are used for template strings.
-All nodes must eventually lead to a task which, after executing, ensures that the GOAL has been completed. Use an emoji similar to honey, flower.
+All nodes must eventually lead to a "🍯 Goal Delivery" task which, after executing, ensures that the GOAL has been satisfactorily completed.
 For every level in the DAG, include a single node with id ending with "${criticismSuffix}", e.g. 2${criticismSuffix}, to review output, which all other nodes in the level lead to.
 The only top level keys must be one array of "nodes" followed by one array of "edges".
 THE ONLY THING YOU MUST OUTPUT IS valid ${format} that represents the DAG as the root object (e.g. ( nodes, edges ))`.trim();
