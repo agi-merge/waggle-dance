@@ -219,7 +219,10 @@ const useWaggleDanceMachine = () => {
                   : chainPacket.type === "error"
                   ? chainPacket.message
                   : null,
-              packets: [chainPacket],
+              packets: [
+                ...(prevAgentPackets[node.id]?.packets ?? []),
+                chainPacket,
+              ],
               updatedAt: new Date(),
             },
           }));
