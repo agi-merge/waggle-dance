@@ -5,7 +5,7 @@ import dynamic from "next/dynamic";
 import { useRouter } from "next/router";
 import { Skeleton } from "@mui/joy";
 
-import ErrorBoundary from "./error/ErrorBoundary";
+import ErrorBoundary from "../features/error/ErrorBoundary";
 
 const MainLayout = dynamic(() => import("~/features/MainLayout"));
 

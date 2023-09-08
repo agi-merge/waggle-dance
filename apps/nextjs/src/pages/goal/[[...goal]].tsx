@@ -54,7 +54,7 @@ const NoSSRWaggleDance = dynamic(
   },
 );
 
-const ErrorBoundary = lazy(() => import("../error/ErrorBoundary"));
+const ErrorBoundary = lazy(() => import("../../features/error/ErrorBoundary"));
 
 const PageTitle = lazy(
   () => import("~/features/MainLayout/components/PageTitle"),
