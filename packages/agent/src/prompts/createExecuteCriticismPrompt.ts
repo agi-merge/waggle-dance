@@ -142,6 +142,24 @@ const counterExamples = [
   },
 ];
 
+const examplesExecute: {
+  input: string;
+  output: AgentPacket;
+  reason: string;
+}[] = [
+  {
+    input:
+      "Gather information about AutoGPT, its features, capabilities, and limitations.",
+    output: {
+      type: "requestHumanInput",
+      reason:
+        "The Notify Human for Help skill is available and we exhausted several attempts to browse the AutoGPT website and related web resources, but each resources returned an error page.",
+    },
+    reason:
+      "This type of AgentPacket is appropriate. The reason provides adequate hardship, and provides context to the human so that they  can help resolve.",
+  },
+];
+
 const counterExamplesExecute: {
   input: string;
   output: AgentPacket;
@@ -214,6 +232,13 @@ SCHEMA: ${schema}`;
   const systemMessagePrompt =
     SystemMessagePromptTemplate.fromTemplate(systemTemplate);
 
+  const examplesSystemMessagePrompt = SystemMessagePromptTemplate.fromTemplate(
+    `EXAMPLES: ${
+      returnType === "JSON"
+        ? jsonStringify(examplesExecute)
+        : yamlStringify(examplesExecute)
+    }`,
+  );
   const counterExamplesSystemMessagePrompt =
     SystemMessagePromptTemplate.fromTemplate(
       `COUNTER EXAMPLES: ${
@@ -229,6 +254,7 @@ SCHEMA: ${schema}`;
 
   const chatPrompt = ChatPromptTemplate.fromPromptMessages([
     systemMessagePrompt,
+    examplesSystemMessagePrompt,
     counterExamplesSystemMessagePrompt,
     humanMessagePrompt,
   ]);
