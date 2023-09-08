@@ -7,7 +7,7 @@ import {
   type LinkObject,
   type NodeObject,
 } from "../components/ForceGraph";
-import type DAG from "../DAG";
+import type DAG from "../types/DAG";
 
 export function dagToGraphData(dag: DAG, taskStates: TaskState[]): GraphData {
   const nodes = dag.nodes.map((node) => {

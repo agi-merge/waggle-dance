@@ -11,7 +11,7 @@ import {
 } from "@acme/agent/src/utils/llms";
 
 import { env } from "~/env.mjs";
-import { type RefineRequestBody } from "~/features/WaggleDance/types";
+import { type RefineRequestBody } from "~/features/WaggleDance/types/types";
 import {
   callRefiningAgent,
   type AgentPacket,

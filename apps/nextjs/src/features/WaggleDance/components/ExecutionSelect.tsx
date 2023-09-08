@@ -16,8 +16,8 @@ import { type ExecutionPlusGraph } from "@acme/db";
 
 import routes from "~/utils/routes";
 import useWaggleDanceMachineStore from "~/stores/waggleDanceStore";
-import type DAG from "../DAG";
-import { rootPlanId } from "../initialNodes";
+import type DAG from "../types/DAG";
+import { rootPlanId } from "../types/initialNodes";
 import timeAgo from "../utils/timeAgo";
 
 type ExecutionSelectProps = BoxProps & {

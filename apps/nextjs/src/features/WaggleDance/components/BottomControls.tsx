@@ -14,7 +14,7 @@ import { type GoalPlusExe } from "@acme/db";
 
 import routes from "~/utils/routes";
 import AgentSettingsToggleButton from "~/features/AgentSettings/components/AgentSettingsToggleButton";
-import type DAG from "../DAG";
+import type DAG from "../types/DAG";
 import { ExecutionSelect } from "./ExecutionSelect";
 import { StartStopButton } from "./StartStopButton";
 import { TaskProgress } from "./TaskProgress";

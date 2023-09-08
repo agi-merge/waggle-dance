@@ -3,12 +3,12 @@ import { v4 } from "uuid";
 import { parse } from "yaml";
 
 import { type AgentPacket } from "../../../../../../packages/agent";
-import DAG from "../DAG";
+import DAG from "../types/DAG";
 import {
   findNodesWithNoIncomingEdges,
   initialNodes,
   rootPlanId,
-} from "../initialNodes";
+} from "../types/initialNodes";
 
 interface MyWorkerGlobalScope {
   onmessage: (event: MessageEvent) => void;

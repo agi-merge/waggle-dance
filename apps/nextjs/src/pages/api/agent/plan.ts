@@ -6,7 +6,7 @@ import { parse, stringify } from "yaml";
 
 import { getBaseUrl } from "@acme/api/utils";
 
-import { type PlanRequestBody } from "~/features/WaggleDance/types";
+import { type PlanRequestBody } from "~/features/WaggleDance/types/types";
 import {
   callPlanningAgent,
   type AgentPacket,

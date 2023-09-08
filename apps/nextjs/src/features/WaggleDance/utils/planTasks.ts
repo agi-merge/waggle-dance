@@ -5,9 +5,9 @@ import {
   type DAGNode,
   type ModelCreationProps,
 } from "../../../../../../packages/agent";
-import type DAG from "../DAG";
-import { type DAGNodeClass } from "../DAG";
-import { initialNodes, rootPlanId } from "../initialNodes";
+import type DAG from "../types/DAG";
+import { type DAGNodeClass } from "../types/DAG";
+import { initialNodes, rootPlanId } from "../types/initialNodes";
 import { sleep } from "./sleep";
 
 export type PlanTasksProps = {

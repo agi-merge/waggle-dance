@@ -6,7 +6,7 @@ import { stringify } from "yaml";
 
 import { getBaseUrl } from "@acme/api/utils";
 
-import { type ExecuteRequestBody } from "~/features/WaggleDance/types";
+import { type ExecuteRequestBody } from "~/features/WaggleDance/types/types";
 import {
   callExecutionAgent,
   type AgentPacket,

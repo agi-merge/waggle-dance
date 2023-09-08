@@ -12,8 +12,9 @@ import {
   type DAGNode,
   type TaskState,
 } from "../../../../../packages/agent";
-import DAG, { type DAGNodeClass } from "./DAG";
-import { initialNodes, rootPlanId } from "./initialNodes";
+import DAG, { type DAGNodeClass } from "./types/DAG";
+import { initialNodes, rootPlanId } from "./types/initialNodes";
+import TaskExecutor from "./types/TaskExecutor";
 import {
   mapAgentSettingsToCreationProps,
   type BaseResultType,
@@ -22,7 +23,7 @@ import {
   type IsDonePlanningState,
   type TaskResultsState,
   type WaggleDanceResult,
-} from "./types";
+} from "./types/types";
 import executeTask from "./utils/executeTask";
 import { isGoalReached } from "./utils/isGoalReached";
 import planTasks from "./utils/planTasks";
@@ -47,7 +48,7 @@ export type RunParams = {
 // The main class for the WaggleDanceMachine that coordinates the planning and execution of tasks
 export default class WaggleDanceMachine {
   constructor() {
-    console.warn("WaggleDanceMachine constructor");
+    console.debug("WaggleDanceMachine.constructor");
   }
   async run({
     goal,
@@ -84,72 +85,19 @@ export default class WaggleDanceMachine {
       rejectFirstTask = reject;
     });
 
-    const startFirstTask = async (task: DAGNode | DAGNodeClass, dag: DAG) => {
-      log(
-        "speed optimization: we are able to execute the first task while still planning.",
-      );
-      completedTasks.add(task.id);
-      if (!abortController.signal.aborted) {
-        try {
-          const creationProps = mapAgentSettingsToCreationProps(
-            agentSettings["execute"],
-          );
-          const executeRequest = {
-            goal,
-            goalId,
-            executionId,
-            agentPromptingMethod:
-              agentSettings["execute"].agentPromptingMethod!,
-            task,
-            dag,
-            revieweeTaskResults: null, // intentionally left blank, first task cant be criticism
-            completedTasks,
-            creationProps,
-          };
-          const result = await executeTask({
-            request: executeRequest,
-            sendAgentPacket,
-            log,
-            abortSignal: abortController.signal,
-          });
-
-          sendAgentPacket(
-            {
-              type: "done",
-              value: result,
-            },
-            task,
-          );
-          resolveFirstTask(result);
-
-          const taskState: TaskState = {
-            ...task,
-            status: TaskStatus.done,
-            fromPacketType: "done",
-            result,
-            packets: [],
-            updatedAt: new Date(),
-          };
-          taskResults[task.id] = taskState;
-        } catch (error) {
-          const message = (error as Error).message;
-          sendAgentPacket(
-            {
-              type: "error",
-              severity: "warn",
-              message,
-            },
-            task,
-          );
-          rejectFirstTask(message);
-          abortController.abort();
-        }
-      } else {
-        console.warn("aborted startFirstTask");
-        rejectFirstTask("Signal aborted");
-        abortController.abort();
-      }
-    };
+    const taskExecutor = new TaskExecutor(
+      agentSettings,
+      goal,
+      goalId,
+      executionId,
+      completedTasks,
+      [taskResults, _setTaskResults],
+      abortController,
+      sendAgentPacket,
+      log,
+      resolveFirstTask,
+      rejectFirstTask,
+    );
 
     if (initDAG.edges.length > 1 && isDonePlanning) {
       log("skipping planning because it is done - initDAG", initDAG);
@@ -168,7 +116,7 @@ export default class WaggleDanceMachine {
           graphDataState: [initDAG, setDAG],
           log,
           sendAgentPacket,
-          startFirstTask,
+          startFirstTask: taskExecutor.startFirstTask.bind(taskExecutor),
           abortSignal: abortController.signal,
         });
         console.debug("dag", dag);

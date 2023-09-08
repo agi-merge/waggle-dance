@@ -37,7 +37,7 @@ import useWaggleDanceMachineStore, {
 } from "~/stores/waggleDanceStore";
 import ForceGraph from "./components/ForceGraph";
 import useWaggleDanceMachine from "./hooks/useWaggleDanceMachine";
-import { rootPlanId } from "./initialNodes";
+import { rootPlanId } from "./types/initialNodes";
 
 const ResultsTab = lazy(() => import("./components/ResultsTab"));
 const TaskListTab = lazy(() => import("./components/TaskListTab"));

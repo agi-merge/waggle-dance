@@ -15,13 +15,13 @@ import {
   type TaskState,
 } from "../../../../../../packages/agent";
 import { type GraphData } from "../components/ForceGraph";
-import DAG, { type DAGNodeClass } from "../DAG";
+import DAG, { type DAGNodeClass } from "../types/DAG";
 import {
   findNodesWithNoIncomingEdges,
   initialNodes,
   rootPlanId,
-} from "../initialNodes";
-import { type WaggleDanceResult } from "../types";
+} from "../types/initialNodes";
+import { type WaggleDanceResult } from "../types/types";
 import { dagToGraphData } from "../utils/conversions";
 import WaggleDanceMachine from "../WaggleDanceMachine";
 

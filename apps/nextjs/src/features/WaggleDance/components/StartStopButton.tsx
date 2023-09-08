@@ -3,7 +3,7 @@ import React from "react";
 import { PlayCircle, StopCircle } from "@mui/icons-material";
 import { Button, CircularProgress, Stack, Typography } from "@mui/joy";
 
-import type DAG from "../DAG";
+import type DAG from "../types/DAG";
 
 interface StartStopButtonProps {
   isRunning: boolean;

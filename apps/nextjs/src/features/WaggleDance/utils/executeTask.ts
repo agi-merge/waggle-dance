@@ -5,8 +5,8 @@ import {
   type AgentPacket,
   type DAGNode,
 } from "../../../../../../packages/agent";
-import { type DAGNodeClass } from "../DAG";
-import { type ExecuteRequestBody } from "../types";
+import { type DAGNodeClass } from "../types/DAG";
+import { type ExecuteRequestBody } from "../types/types";
 
 async function fetchTaskData(
   request: ExecuteRequestBody,
