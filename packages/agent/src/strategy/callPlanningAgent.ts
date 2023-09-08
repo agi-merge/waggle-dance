@@ -1,13 +1,14 @@
 // agent/strategy/callPlanningAgent.ts
 
-import {
-  ConstitutionalChain,
-  ConstitutionalPrinciple,
-  LLMChain,
-} from "langchain/chains";
-import { stringify } from "yaml";
+import { LLMChain } from "langchain/chains";
+import { parse as jsonParse, stringify as jsonStringify } from "superjson";
+import { parse as yamlParse, stringify as yamlStringify } from "yaml";
 
-import { createPlanPrompt, schema } from "../prompts/createPlanPrompt";
+import { type DAGNode } from "../..";
+import {
+  createPlanFormattingPrompt,
+  createPlanPrompt,
+} from "../prompts/createPlanPrompt";
 import { AgentPromptingMethod, LLM, LLM_ALIASES } from "../utils/llms";
 import { createEmbeddings, createModel } from "../utils/model";
 import { type ModelCreationProps } from "../utils/OpenAIPropsBridging";
@@ -19,8 +20,8 @@ export async function callPlanningAgent(
   goalId: string,
   signal: AbortSignal,
   namespace: string,
-) {
-  const returnType = "YAML";
+  returnType: "YAML" | "JSON" = "YAML",
+): Promise<string> {
   const tags = [
     "plan",
     goalId,
@@ -45,44 +46,91 @@ export async function callPlanningAgent(
     goal,
     goalId,
     returnType,
-    tools: stringify(skills),
+    tools: skills,
   });
-  const createPlanchain = new LLMChain({
+  const createPlanChain = new LLMChain({
     // memory,
     prompt,
     tags,
     llm,
   });
 
-  const principle = new ConstitutionalPrinciple({
-    name: "Format According To Schema",
-    critiqueRequest: `Rewrite the response such that it exactly matches and only contains the schema, as well as validates as ${returnType}.`,
-    revisionRequest: schema(returnType),
-  });
+  // const formattingLLM = createModel(
+  //   { ...creationProps, modelName: LLM_ALIASES["fast-large"], maxTokens: -1 },
+  //   AgentPromptingMethod.OpenAIStructuredChat,
+  // ); // this is used to select a chat model (required for system message prompt)]
 
-  const formattingLLM = createModel(
-    { ...creationProps, modelName: LLM_ALIASES["fast-large"], maxTokens: -1 },
-    AgentPromptingMethod.OpenAIStructuredChat,
-  ); // this is used to select a chat model (required for system message prompt)]
-
-  const formattingChain = ConstitutionalChain.fromLLM(formattingLLM, {
-    chain: createPlanchain,
-    constitutionalPrinciples: [principle],
-  });
+  // const formattingChain = ConstitutionalChain.fromLLM(formattingLLM, {
+  //   chain: createPlanChain,
+  //   constitutionalPrinciples: [principle],
+  // });
 
   const [call] = await Promise.all([
     // prompt.format({ goal, schema: "string[]" }),
-    formattingChain.call({
+    createPlanChain.call({
       signal,
-      tags: ["plan", goalId],
+      tags,
     }),
   ]);
 
-  const dag = call?.response
+  const error = {
+    type: "error",
+    severity: "fatal",
+    message: "no response from callPlanningAgent",
+  };
+  const stringError =
+    returnType === "JSON" ? jsonStringify(error) : yamlStringify(error);
+  const response = call?.response
     ? (call.response as string)
     : call?.text
     ? (call.text as string)
-    : "error";
+    : stringError;
 
-  return dag;
+  try {
+    const parsedDAG =
+      returnType === "JSON"
+        ? jsonParse(response)
+        : (yamlParse(response) as
+            | { nodes: DAGNode[]; edges: DAGNode[] }
+            | null
+            | undefined);
+
+    return parsedDAG ? response : stringError;
+  } catch (error) {
+    console.error("error parsing dag", error);
+    const formattingPrompt = createPlanFormattingPrompt(
+      // eslint-disable-next-line @typescript-eslint/no-unsafe-argument
+      await createPlanChain.prompt.lc_kwargs["content"],
+      response,
+      returnType,
+    );
+
+    const formattingLLM = createModel(
+      { ...creationProps, modelName: LLM_ALIASES["fast-large"], maxTokens: -1 },
+      AgentPromptingMethod.OpenAIFunctions,
+    ); // this is used to select a chat model (required for system message prompt)]
+
+    const formattingChain = new LLMChain({
+      // memory,
+      prompt: formattingPrompt,
+      tags,
+      llm: formattingLLM,
+    });
+
+    const [call] = await Promise.all([
+      // prompt.format({ goal, schema: "string[]" }),
+      formattingChain.call({
+        signal,
+        tags,
+      }),
+    ]);
+
+    const dag = call?.response
+      ? (call.response as string)
+      : call?.text
+      ? (call.text as string)
+      : stringError;
+
+    return dag;
+  }
 }

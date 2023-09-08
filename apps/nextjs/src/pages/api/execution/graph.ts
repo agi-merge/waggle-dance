@@ -31,7 +31,7 @@ export default async function updateGraphProxy(
   try {
     const session = await getServerSession({ req, res });
 
-    const params = req.body as UpdateGraphParams;
+    const { json: params } = req.body as { json: UpdateGraphParams };
     params["session"] = session;
 
     const result = await updateGraph(params);

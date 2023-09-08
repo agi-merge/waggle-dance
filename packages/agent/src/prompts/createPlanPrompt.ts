@@ -1,3 +1,4 @@
+import { type Tool } from "langchain/dist/tools/base";
 import {
   ChatPromptTemplate,
   HumanMessagePromptTemplate,
@@ -320,14 +321,15 @@ THE ONLY THING YOU MUST OUTPUT IS valid ${format} that represents the DAG as the
 export function createPlanPrompt(params: {
   goal: string;
   goalId: string;
-  tools: string;
+  tools: Tool[];
   returnType: "JSON" | "YAML";
 }): ChatPromptTemplate {
   const { goal, tools, returnType } = params;
-
+  const stringifiedTools =
+    returnType === "JSON" ? jsonStringify(tools) : yamlStringify(tools);
   const template = `
 YOU: A general goal-solving AI employed by the User to solve the User's GOAL.
-TEAM TOOLS: ${tools}
+TEAM TOOLS: ${stringifiedTools}
 GOAL: ${goal}
 NOW: ${new Date().toString()}
 SCHEMA: ${schema(returnType)}
@@ -347,6 +349,31 @@ TASK: To come up with an efficient and expert plan to solve the User's GOAL, acc
     SystemMessagePromptTemplate.fromTemplate(template);
 
   const humanTemplate = `My GOAL is: ${goal}`;
+  const humanMessagePrompt =
+    HumanMessagePromptTemplate.fromTemplate(humanTemplate);
+
+  const chatPrompt = ChatPromptTemplate.fromPromptMessages([
+    systemMessagePrompt,
+    humanMessagePrompt,
+  ]);
+
+  return chatPrompt;
+}
+
+export function createPlanFormattingPrompt(
+  initialPrompt: string,
+  output: string,
+  returnType: "JSON" | "YAML",
+) {
+  const template = `You are to re-write and re-output ONLY the OUTPUT of a large language model for a given INPUT, ensuring that it is valid ${returnType}, validates for the SCHEMA, and adequately addresses the INPUT.
+SCHEMA: ${schema(returnType)}
+`;
+
+  const systemMessagePrompt =
+    SystemMessagePromptTemplate.fromTemplate(template);
+
+  const humanTemplate = `INPUT: ${initialPrompt}
+  OUTPUT: ${output}`;
   const humanMessagePrompt =
     HumanMessagePromptTemplate.fromTemplate(humanTemplate);
 
