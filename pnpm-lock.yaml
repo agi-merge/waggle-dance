@@ -228,6 +228,9 @@ importers:
 
   packages/agent:
     dependencies:
+      '@acme/db':
+        specifier: ^0.1.0
+        version: link:../db
       cheerio:
         specifier: 1.0.0-rc.12
         version: 1.0.0-rc.12

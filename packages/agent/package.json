@@ -11,6 +11,7 @@
     "type-check": "tsc --noEmit"
   },
   "dependencies": {
+    "@acme/db": "^0.1.0",
     "cheerio": "1.0.0-rc.12",
     "net": "^1.0.2",
     "redis": "^4.6.8",
