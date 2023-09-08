@@ -97,7 +97,7 @@ const useWaggleDanceMachine = () => {
     resultsMap ?? {},
   );
   const [logs, setLogs] = useState<LogMessage[]>([]);
-  const [chainPackets, setAgentPackets] = useState<Record<string, TaskState>>(
+  const [agentPackets, setAgentPackets] = useState<Record<string, TaskState>>(
     {},
   );
   const [abortController, setAbortController] = useState(
@@ -158,13 +158,13 @@ const useWaggleDanceMachine = () => {
   const taskStates = useMemo(() => {
     const reduceTaskStates = (
       dagNodes: DAGNode[],
-      chainPackets: Record<string, TaskState>,
+      agentPackets: Record<string, TaskState>,
     ): TaskState[] => {
       return dagNodes.map((node) => {
-        const chainPacket = chainPackets[node.id];
-        const packets = chainPacket?.packets ?? [];
+        const agentPacket = agentPackets[node.id];
+        const packets = agentPacket?.packets ?? [];
         const status = mapPacketTypeToStatus(packets[packets.length - 1]?.type);
-        const result = chainPacket?.result ?? null;
+        const result = agentPacket?.result ?? null;
 
         // Get the existing task state
         const existingTaskState = taskResults[node.id];
@@ -190,20 +190,20 @@ const useWaggleDanceMachine = () => {
         };
       });
     };
-    const taskStates = reduceTaskStates(dag.nodes, chainPackets);
+    const taskStates = reduceTaskStates(dag.nodes, agentPackets);
     return taskStates;
-  }, [chainPackets, dag.nodes, taskResults]);
+  }, [agentPackets, dag.nodes, taskResults]);
 
   const sendAgentPacket = useCallback(
-    (chainPacket: AgentPacket, node: DAGNode | DAGNodeClass) => {
+    (agentPacket: AgentPacket, node: DAGNode | DAGNodeClass) => {
       if (!node || !node.id) {
         throw new Error("a node does not exist to receive data");
       }
-      const existingTask = chainPackets[node.id];
+      const existingTask = agentPackets[node.id];
       if (!existingTask) {
         if (!node) {
           log(
-            `Warning: node not found in the dag during chain packet update: ${chainPacket.type}`,
+            `Warning: node not found in the dag during chain packet update: ${agentPacket.type}`,
           );
           return;
         } else {
@@ -212,16 +212,16 @@ const useWaggleDanceMachine = () => {
             [node.id]: {
               ...node,
               status: TaskStatus.idle,
-              fromPacketType: chainPacket.type,
+              fromPacketType: agentPacket.type,
               result:
-                chainPacket.type === "done"
-                  ? chainPacket.value
-                  : chainPacket.type === "error"
-                  ? chainPacket.message
+                agentPacket.type === "done"
+                  ? agentPacket.value
+                  : agentPacket.type === "error"
+                  ? agentPacket.message
                   : null,
               packets: [
                 ...(prevAgentPackets[node.id]?.packets ?? []),
-                chainPacket,
+                agentPacket,
               ],
               updatedAt: new Date(),
             },
@@ -230,15 +230,15 @@ const useWaggleDanceMachine = () => {
       } else {
         const updatedTask = {
           ...existingTask,
-          status: mapPacketTypeToStatus(chainPacket.type),
-          fromPacketType: chainPacket.type,
+          status: mapPacketTypeToStatus(agentPacket.type),
+          fromPacketType: agentPacket.type,
           result:
-            chainPacket.type === "done"
-              ? chainPacket.value
-              : chainPacket.type === "error"
-              ? chainPacket.message
+            agentPacket.type === "done"
+              ? agentPacket.value
+              : agentPacket.type === "error"
+              ? agentPacket.message
               : null,
-          packets: [...existingTask.packets, chainPacket],
+          packets: [...existingTask.packets, agentPacket],
           updatedAt: new Date(),
         };
         setAgentPackets((prevAgentPackets) => ({
@@ -247,7 +247,7 @@ const useWaggleDanceMachine = () => {
         }));
       }
     },
-    [chainPackets, setAgentPackets, log],
+    [agentPackets, setAgentPackets, log],
   );
 
   const reset = useCallback(() => {

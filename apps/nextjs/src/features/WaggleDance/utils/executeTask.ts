@@ -48,7 +48,7 @@ function processResponseBuffer(tokens: string): Partial<AgentPacket> {
 export type ExecuteTaskProps = {
   request: ExecuteRequestBody;
   sendAgentPacket: (
-    chainPacket: AgentPacket,
+    agentPacket: AgentPacket,
     node: DAGNode | DAGNodeClass,
   ) => void;
   log: (...args: (string | number | object)[]) => void;

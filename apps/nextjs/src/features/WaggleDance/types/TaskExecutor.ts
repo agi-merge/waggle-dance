@@ -17,7 +17,7 @@ import {
 
 type LogType = (...args: (string | number | object)[]) => void;
 type SendAgentPacketType = (
-  chainPacket: AgentPacket,
+  agentPacket: AgentPacket,
   node: DAGNode | DAGNodeClass,
 ) => void;
 type ResolveFirstTaskType = (

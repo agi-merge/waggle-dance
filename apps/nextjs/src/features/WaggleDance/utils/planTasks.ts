@@ -18,7 +18,7 @@ export type PlanTasksProps = {
   graphDataState: [DAG, (dag: DAG) => void];
   log: (...args: (string | number | object)[]) => void;
   sendAgentPacket: (
-    chainPacket: AgentPacket,
+    agentPacket: AgentPacket,
     node: DAGNode | DAGNodeClass,
   ) => void;
   abortSignal: AbortSignal;
