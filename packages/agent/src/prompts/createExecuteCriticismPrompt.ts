@@ -142,6 +142,24 @@ const counterExamples = [
   },
 ];
 
+const counterExamplesExecute: {
+  input: string;
+  output: AgentPacket;
+  reason: string;
+}[] = [
+  {
+    input:
+      "Create a markdown document that compares and contrasts the costs, benefits, regional differences, and risks of implementing rooftop distributed solar, versus utility-scale solar, versus community solar.",
+    output: {
+      type: "done",
+      value:
+        "I'm sorry, but I was unable to gather information about the Waggledance.ai project due to network errors. It may be necessary to try a different approach or check the website at a later time.",
+    },
+    reason:
+      "This should be of type error or requestHumanInput, depending on whether the notify human skill is enabled.",
+  },
+];
+
 // eslint-disable-next-line @typescript-eslint/require-await
 export async function createExecutePrompt(params: {
   task: string;
@@ -196,8 +214,14 @@ SCHEMA: ${schema}`;
   const systemMessagePrompt =
     SystemMessagePromptTemplate.fromTemplate(systemTemplate);
 
-  // const _examplesSystemMessagePrompt =
-  //   SystemMessagePromptTemplate.fromTemplate(exampleTemplate);
+  const counterExamplesSystemMessagePrompt =
+    SystemMessagePromptTemplate.fromTemplate(
+      `COUNTER EXAMPLES: ${
+        returnType === "JSON"
+          ? jsonStringify(counterExamplesExecute)
+          : yamlStringify(counterExamplesExecute)
+      }`,
+    );
 
   const humanTemplate = `My TASK is: ${task}`;
   const humanMessagePrompt =
@@ -205,7 +229,7 @@ SCHEMA: ${schema}`;
 
   const chatPrompt = ChatPromptTemplate.fromPromptMessages([
     systemMessagePrompt,
-    // examplesSystemMessagePrompt,
+    counterExamplesSystemMessagePrompt,
     humanMessagePrompt,
   ]);
 
