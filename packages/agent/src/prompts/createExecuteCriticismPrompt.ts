@@ -285,7 +285,7 @@ export interface DAGEdge {
 export type TaskState = DAGNode & {
   status: TaskStatus;
   fromPacketType: AgentPacketType | "idle";
-  result: string | null;
+  result: AgentPacket | null;
   packets: AgentPacket[];
   updatedAt: Date;
 };

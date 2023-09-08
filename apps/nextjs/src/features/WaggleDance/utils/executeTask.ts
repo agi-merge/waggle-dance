@@ -25,7 +25,7 @@ async function fetchTaskData(
 }
 
 function processResponseBuffer(tokens: string): Partial<AgentPacket> {
-  const packets = parse(tokens) as Partial<AgentPacket>[];
+  const packets = parse(tokens) as AgentPacket[];
   const packet = packets.findLast(
     (packet) =>
       packet.type === "handleAgentEnd" ||

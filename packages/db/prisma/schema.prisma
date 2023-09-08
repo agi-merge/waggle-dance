@@ -127,7 +127,9 @@ model Result {
   goalId      String
   execution   Execution @relation(fields: [executionId], references: [id], onDelete: Cascade)
   executionId String
-  value       String
+  value       Json
+  packets     Json[]
+  version     Int
   createdAt   DateTime  @default(now())
   updatedAt   DateTime  @default(now()) @updatedAt
 }

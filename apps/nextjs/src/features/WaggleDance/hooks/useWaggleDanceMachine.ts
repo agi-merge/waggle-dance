@@ -73,10 +73,11 @@ const useWaggleDanceMachine = () => {
 
   const results = useMemo(() => {
     return goal?.results?.map((r) => {
+      const result = r.value as AgentPacket;
       return {
-        status: "done",
-        result: r.value,
-        packets: [] as AgentPacket[],
+        status: result.type,
+        result,
+        packets: r.packets as AgentPacket[],
       } as TaskState;
     });
   }, [goal?.results]);
@@ -92,6 +93,7 @@ const useWaggleDanceMachine = () => {
       ),
     [results],
   );
+
   const [isDonePlanning, setIsDonePlanning] = useState(false);
   const [taskResults, setTaskResults] = useState<Record<string, TaskState>>(
     resultsMap ?? {},
