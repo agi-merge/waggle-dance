@@ -1,8 +1,8 @@
+// DAG.ts
+
 import { v4 } from "uuid";
 
 import { type ExecutionEdge, type ExecutionNode } from "@acme/db";
-
-// DAG.ts
 
 export type DAGNodeClass = ExecutionNode;
 
@@ -35,7 +35,3 @@ export default class DAG {
     this.id = id;
   }
 }
-
-// export type DAG = ExecutionGraphPlusNodesAndEdges;
-
-// export default DAG;
