@@ -100,8 +100,8 @@ const useWaggleDanceMachine = () => {
   const [chainPackets, setAgentPackets] = useState<Record<string, TaskState>>(
     {},
   );
-  const [abortController, setAbortController] = useState<AbortController>(
-    new AbortController(),
+  const [abortController, setAbortController] = useState(
+    () => new AbortController(),
   );
 
   // takes a AgentPacket type and maps it to an appropriate TaskStatus, or idle if it does not match or is undefined
