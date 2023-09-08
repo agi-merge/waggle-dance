@@ -151,14 +151,15 @@ const TaskListItem = ({
           >
             <Typography level="title-lg">
               {t.result ? <>Result: </> : <>Status: </>}
-              <Typography color={statusColor(t)} level="body-md">
-                {isRunning
-                  ? t.fromPacketType
-                  : t.status === TaskStatus.working ||
-                    t.status === TaskStatus.starting ||
-                    t.status === TaskStatus.wait
-                  ? "stopped"
-                  : t.fromPacketType}
+              <Typography level="body-md" color="neutral">
+                {t.packets.slice(0, -1).map((p, index) => (
+                  <span key={index}>{p.type} → </span>
+                ))}
+                {t.packets.length > 0 && (
+                  <Typography color={statusColor(t)} level="body-md">
+                    {t.packets[t.packets.length - 1]?.type}
+                  </Typography>
+                )}
               </Typography>
             </Typography>
 
