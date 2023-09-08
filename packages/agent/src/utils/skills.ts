@@ -10,6 +10,8 @@ import { WebBrowser } from "langchain/tools/webbrowser";
 import { PineconeStore } from "langchain/vectorstores/pinecone";
 
 import saveMemorySkill from "../skills/saveMemory";
+import { AgentPromptingMethod, LLM_ALIASES } from "./llms";
+import { createModel } from "./model";
 
 // skill === tool
 async function createSkills(
@@ -37,25 +39,37 @@ async function createSkills(
       environment: process.env.PINECONE_ENVIRONMENT,
     });
     const pineconeIndex = client.Index(process.env.PINECONE_INDEX);
-
-    const vectorStore = await PineconeStore.fromExistingIndex(embeddings, {
-      pineconeIndex,
-      namespace,
+    const stats = await pineconeIndex.describeIndexStats({
+      describeIndexStatsRequest: {},
     });
+    // TODO: it may be possible to have the namespace be created partway through the execution of the agent
+    if (stats.namespaces?.length && stats.namespaces[namespace]) {
+      const vectorStore = await PineconeStore.fromExistingIndex(embeddings, {
+        pineconeIndex,
+        namespace,
+      });
 
-    const ltmChain = VectorDBQAChain.fromLLM(llm, vectorStore, {
-      tags,
-      callbacks,
-    });
+      const ltmChain = VectorDBQAChain.fromLLM(
+        createModel(
+          { modelName: LLM_ALIASES["fast"], maxTokens: 300 },
+          AgentPromptingMethod.OpenAIFunctions,
+        ),
+        vectorStore,
+        {
+          tags,
+          callbacks,
+        },
+      );
 
-    const description = `*MANDATORY: ONLY CALL UP TO ONCE PER STEP* a comprehensive database extending your knowledge/memory; use this tool before other tools.`;
-    const ltmTool = new ChainTool({
-      name: "memory database",
-      description,
-      chain: ltmChain,
-    });
+      const description = `*MANDATORY: ONLY CALL UP TO ONCE PER STEP* a comprehensive database extending your knowledge/memory; use this tool before other tools. Provide as much context as necessary to do a semantic search.`;
+      const ltmTool = new ChainTool({
+        name: "memory database",
+        description,
+        chain: ltmChain,
+      });
 
-    tools.push(ltmTool);
+      tools.push(ltmTool);
+    }
   }
 
   if (process.env.SERPAPI_API_KEY?.length) {
