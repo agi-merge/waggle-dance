@@ -24,6 +24,7 @@ import useApp from "~/stores/appStore";
 import useGoalStore from "~/stores/goalStore";
 import useWaggleDanceMachineStore from "~/stores/waggleDanceStore";
 import AutoRefineGoalToggle from "../AgentSettings/components/AutoRefineGoalToggle";
+import { TokenChip } from "./components/TokenChip";
 
 const AgentSettingsToggleButton = lazy(
   () => import("../AgentSettings/components/AgentSettingsToggleButton"),
@@ -185,6 +186,7 @@ export default function GoalInput({}: GoalInputProps) {
         }}
       >
         <Stack direction="row" gap="0.5rem">
+          <TokenChip prompt={selectedGoal?.prompt || ""} />
           <Button
             size="sm"
             variant="outlined"
