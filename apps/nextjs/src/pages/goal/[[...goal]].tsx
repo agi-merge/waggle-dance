@@ -274,7 +274,7 @@ const GoalPage = ({ alertConfigs }: Props) => {
                             variant="outlined"
                             color="primary"
                             openText={
-                              <>
+                              <Box height={"3rem"}>
                                 <Typography noWrap level="title-sm">
                                   🍯 Goal
                                 </Typography>
@@ -288,10 +288,10 @@ const GoalPage = ({ alertConfigs }: Props) => {
                                 >
                                   {goal?.prompt}
                                 </Typography>
-                              </>
+                              </Box>
                             }
                             closedText={
-                              <>
+                              <Box height={"3rem"}>
                                 <Typography level="title-sm">
                                   🍯 Goal
                                 </Typography>
@@ -304,7 +304,7 @@ const GoalPage = ({ alertConfigs }: Props) => {
                                 >
                                   {goal?.prompt}
                                 </Typography>
-                              </>
+                              </Box>
                             }
                           />
                           <AccordionContent isLast={false}>
@@ -317,7 +317,7 @@ const GoalPage = ({ alertConfigs }: Props) => {
                             variant="outlined"
                             color="primary"
                             openText={
-                              <>
+                              <Box height={"3rem"}>
                                 <Typography level="title-sm">
                                   📊 Settings
                                 </Typography>
@@ -372,10 +372,10 @@ const GoalPage = ({ alertConfigs }: Props) => {
                                     </Typography>
                                   </Tooltip>
                                 </Box>
-                              </>
+                              </Box>
                             }
                             closedText={
-                              <>
+                              <Box height={"3rem"}>
                                 <Typography level="title-sm">
                                   📊 Settings
                                 </Typography>
@@ -441,7 +441,7 @@ const GoalPage = ({ alertConfigs }: Props) => {
                                     </Typography>
                                   </Tooltip>
                                 </Box>
-                              </>
+                              </Box>
                             }
                           />
                           <AccordionContent isLast={true} defaultChecked={true}>
@@ -562,7 +562,7 @@ const GoalPage = ({ alertConfigs }: Props) => {
                             variant="outlined"
                             color="primary"
                             openText={
-                              <>
+                              <Box height={"3rem"}>
                                 <Typography level="title-sm">
                                   🌺 Data
                                 </Typography>
@@ -575,10 +575,10 @@ const GoalPage = ({ alertConfigs }: Props) => {
                                 >
                                   xxx documents in yyy collections
                                 </Typography>
-                              </>
+                              </Box>
                             }
                             closedText={
-                              <>
+                              <Box height={"3rem"}>
                                 <Typography level="title-sm">
                                   🌺 Data
                                 </Typography>
@@ -591,7 +591,7 @@ const GoalPage = ({ alertConfigs }: Props) => {
                                 >
                                   xxx documents in yyy collections
                                 </Typography>
-                              </>
+                              </Box>
                             }
                           />
                           <AccordionContent isLast={false}>
@@ -604,7 +604,7 @@ const GoalPage = ({ alertConfigs }: Props) => {
                             color="primary"
                             isLast={true}
                             openText={
-                              <>
+                              <Box height={"3rem"}>
                                 <Typography level="title-sm">
                                   🔨 Skills ({selectedSkillsLength})
                                 </Typography>
@@ -617,10 +617,10 @@ const GoalPage = ({ alertConfigs }: Props) => {
                                 >
                                   {skillsLabel}
                                 </Typography>
-                              </>
+                              </Box>
                             }
                             closedText={
-                              <>
+                              <Box height={"3rem"}>
                                 <Typography level="title-sm">
                                   🔨 Skills ({selectedSkillsLength})
                                 </Typography>
@@ -633,7 +633,7 @@ const GoalPage = ({ alertConfigs }: Props) => {
                                 >
                                   {skillsLabel}
                                 </Typography>
-                              </>
+                              </Box>
                             }
                           />
                           <AccordionContent isLast={true}>
