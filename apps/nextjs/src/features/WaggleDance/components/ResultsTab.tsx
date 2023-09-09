@@ -1,6 +1,7 @@
 // ResultsTab.tsx
 import Box from "@mui/joy/Box";
 import List from "@mui/joy/List";
+import { stringify } from "yaml";
 
 import { type TaskState } from "@acme/agent";
 
@@ -18,9 +19,9 @@ export const ResultsTab = ({ taskStates }: ResultsTabProps) => {
       aria-label="Results List"
     >
       {taskStates
-        .filter((t) => !!t.result)
+        .filter((t) => !!t.value)
         .map((t) => (
-          <Box key={t.id}>{t.result}</Box>
+          <Box key={t.id}>{stringify(t.value)}</Box>
         ))}
     </List>
   );

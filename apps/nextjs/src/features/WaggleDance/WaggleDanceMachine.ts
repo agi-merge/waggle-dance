@@ -6,15 +6,13 @@
 // When a task completes, a new dependent review task should be added to the DAG to ensure quality results.
 
 import {
-  TaskStatus,
+  TaskState,
   type AgentPacket,
   type AgentSettingsMap,
-  type DAGNode,
-  type TaskState,
 } from "../../../../../packages/agent";
-import DAG, { type DAGNodeClass } from "./types/DAG";
+import DAG from "./types/DAG";
 import { initialNodes, rootPlanId } from "./types/initialNodes";
-import TaskExecutor from "./types/TaskExecutor";
+import TaskExecutor, { type InjectAgentPacketType } from "./types/TaskExecutor";
 import {
   mapAgentSettingsToCreationProps,
   type BaseResultType,
@@ -37,10 +35,7 @@ export type RunParams = {
   graphDataState: GraphDataState;
   taskResultsState: TaskResultsState;
   isDonePlanningState: IsDonePlanningState;
-  sendAgentPacket: (
-    agentPacket: AgentPacket,
-    node: DAGNode | DAGNodeClass,
-  ) => void;
+  injectAgentPacket: InjectAgentPacketType;
   log: (...args: (string | number | object)[]) => void;
   abortController: AbortController;
 };
@@ -58,7 +53,7 @@ export default class WaggleDanceMachine {
     graphDataState: [initDAG, setDAG],
     isDonePlanningState: [isDonePlanning, setIsDonePlanning],
     taskResultsState: [taskResults, _setTaskResults],
-    sendAgentPacket,
+    injectAgentPacket: injectAgentPacket,
     log,
     abortController,
   }: RunParams): Promise<WaggleDanceResult | Error> {
@@ -93,7 +88,7 @@ export default class WaggleDanceMachine {
       completedTasks,
       [taskResults, _setTaskResults],
       abortController,
-      sendAgentPacket,
+      injectAgentPacket,
       log,
       resolveFirstTask,
       rejectFirstTask,
@@ -115,14 +110,14 @@ export default class WaggleDanceMachine {
           creationProps,
           graphDataState: [initDAG, setDAG],
           log,
-          sendAgentPacket,
+          injectAgentPacket,
           startFirstTask: taskExecutor.startFirstTask.bind(taskExecutor),
           abortSignal: abortController.signal,
         });
         console.debug("dag", dag);
       } catch (error) {
         if (initNodes[0]) {
-          sendAgentPacket(
+          injectAgentPacket(
             {
               type: "error",
               severity: "fatal",
@@ -141,7 +136,7 @@ export default class WaggleDanceMachine {
         if (!rootNode) {
           throw new Error("no root node");
         }
-        sendAgentPacket(
+        injectAgentPacket(
           {
             type: "done",
             value: `Planned an execution graph with ${dag.nodes.length} tasks and ${dag.edges.length} edges.`,
@@ -222,16 +217,16 @@ export default class WaggleDanceMachine {
       } as ExecuteRequestBody;
 
       void (async () => {
-        let result: BaseResultType | undefined | null;
+        let result: AgentPacket | undefined | null;
         try {
           result = await executeTask({
             request: executeRequest,
-            sendAgentPacket,
+            injectAgentPacket,
             log,
             abortSignal: abortController.signal,
           });
         } catch (error) {
-          sendAgentPacket(
+          injectAgentPacket(
             {
               type: "error",
               severity: "warn",
@@ -242,30 +237,33 @@ export default class WaggleDanceMachine {
           abortController.abort();
           return;
         }
-        const taskState: TaskState = {
+        // const taskState: TaskState = {
+        //
+        // };
+        const taskState = new TaskState({
           ...task,
-          status: TaskStatus.done,
-          fromPacketType: "done",
-          result,
-          packets: [],
+          ...result,
+          nodeId: task.id,
+          value: result,
+          packets: [result],
           updatedAt: new Date(),
-        };
+        });
         taskResults[executeRequest.task.id] = taskState;
         completedTasks.add(executeRequest.task.id);
         const node = dag.nodes.find((n) => task.id === n.id);
         if (!node) {
           abortController.abort();
-          throw new Error("no node to sendAgentPacket");
+          throw new Error("no node to injectAgentPacket");
         } else {
           if (!result) {
-            sendAgentPacket(
+            injectAgentPacket(
               { type: "error", severity: "warn", message: "no task result" },
               node,
             );
             abortController.abort();
             return;
           } else if (typeof result === "string") {
-            sendAgentPacket({ type: "done", value: result }, node);
+            injectAgentPacket({ type: "done", value: result }, node);
           }
         }
       })();

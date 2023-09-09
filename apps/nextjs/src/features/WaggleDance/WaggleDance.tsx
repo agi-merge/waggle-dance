@@ -246,7 +246,7 @@ const WaggleDance = ({}: Props) => {
   };
 
   const results = useMemo(
-    () => taskStates.filter((n) => !!n.result),
+    () => taskStates.filter((n) => n.value),
     [taskStates],
   );
 
@@ -356,6 +356,7 @@ const WaggleDance = ({}: Props) => {
             <>
               <TabPanel value={0} className="w-full overflow-y-scroll p-4">
                 <TaskListTab
+                  nodes={dag.nodes}
                   sortedTaskStates={sortedTaskStates}
                   statusColor={statusColor}
                   isRunning={isRunning}

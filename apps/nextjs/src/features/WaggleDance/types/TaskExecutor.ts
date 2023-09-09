@@ -1,9 +1,8 @@
 import {
-  TaskStatus,
+  TaskState,
   type AgentPacket,
   type AgentSettingsMap,
   type DAGNode,
-  type TaskState,
 } from "@acme/agent";
 
 import executeTask from "../utils/executeTask";
@@ -16,7 +15,7 @@ import {
 } from "./types";
 
 type LogType = (...args: (string | number | object)[]) => void;
-type SendAgentPacketType = (
+export type InjectAgentPacketType = (
   agentPacket: AgentPacket,
   node: DAGNode | DAGNodeClass,
 ) => void;
@@ -34,13 +33,12 @@ class TaskExecutor {
     private completedTasks: Set<string>,
     private taskResultsState: TaskResultsState,
     private abortController: AbortController,
-    private sendAgentPacket: SendAgentPacketType,
+    private injectAgentPacket: InjectAgentPacketType,
     private log: LogType,
     private resolveFirstTask: ResolveFirstTaskType,
     private rejectFirstTask: RejectFirstTaskType,
   ) {}
   async startFirstTask(task: DAGNode | DAGNodeClass, dag: DAG): Promise<void> {
-    const taskResults = this.taskResultsState[0];
     this.log(
       "speed optimization: we are able to execute the first task while still planning.",
     );
@@ -65,32 +63,26 @@ class TaskExecutor {
         };
         const result = await executeTask({
           request: executeRequest,
-          sendAgentPacket: this.sendAgentPacket,
+          injectAgentPacket: this.injectAgentPacket,
           log: this.log,
           abortSignal: this.abortController.signal,
         });
 
-        this.sendAgentPacket(
-          {
-            type: "done",
-            value: result,
-          },
-          task,
-        );
         this.resolveFirstTask(result);
 
-        const taskState: TaskState = {
+        // this.injectAgentPacket(result, task);
+
+        const taskState = new TaskState({
           ...task,
-          status: TaskStatus.done,
-          fromPacketType: "done",
-          result,
-          packets: [],
+          nodeId: task.id,
+          value: result,
+          packets: [result],
           updatedAt: new Date(),
-        };
-        taskResults[task.id] = taskState;
+        });
+        this.taskResultsState[0][task.id] = taskState;
       } catch (error) {
         const message = (error as Error).message;
-        this.sendAgentPacket(
+        this.injectAgentPacket(
           {
             type: "error",
             severity: "warn",

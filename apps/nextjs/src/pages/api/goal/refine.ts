@@ -25,7 +25,7 @@ export const config = {
   runtime: "edge",
 };
 
-export type CreateResultParams = {
+export type CreateRefineParams = {
   prompt: string;
 };
 

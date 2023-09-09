@@ -1,11 +1,8 @@
 // features/WaggleDance/utils/executeTask.ts
-import { parse, stringify } from "yaml";
+import { parse } from "yaml";
 
-import {
-  type AgentPacket,
-  type DAGNode,
-} from "../../../../../../packages/agent";
-import { type DAGNodeClass } from "../types/DAG";
+import { type AgentPacket } from "../../../../../../packages/agent";
+import { type InjectAgentPacketType } from "../types/TaskExecutor";
 import { type ExecuteRequestBody } from "../types/types";
 
 async function fetchTaskData(
@@ -24,7 +21,7 @@ async function fetchTaskData(
   return response;
 }
 
-function processResponseBuffer(tokens: string): Partial<AgentPacket> {
+function processResponseBuffer(tokens: string): AgentPacket {
   const packets = parse(tokens) as AgentPacket[];
   const packet = packets.findLast(
     (packet) =>
@@ -47,26 +44,23 @@ function processResponseBuffer(tokens: string): Partial<AgentPacket> {
 
 export type ExecuteTaskProps = {
   request: ExecuteRequestBody;
-  sendAgentPacket: (
-    agentPacket: AgentPacket,
-    node: DAGNode | DAGNodeClass,
-  ) => void;
+  injectAgentPacket: InjectAgentPacketType;
   log: (...args: (string | number | object)[]) => void;
   abortSignal: AbortSignal;
 };
 
 export default async function executeTask({
   request,
-  sendAgentPacket,
+  injectAgentPacket,
   log,
   abortSignal,
-}: ExecuteTaskProps): Promise<string> {
+}: ExecuteTaskProps): Promise<AgentPacket> {
   const { task } = request;
 
   if (abortSignal.aborted) throw new Error("Signal aborted");
 
   log(`About to execute task ${task.id} -${task.name}...`);
-  sendAgentPacket({ type: "starting", nodeId: task.id }, task);
+  injectAgentPacket({ type: "starting", nodeId: task.id }, task);
 
   const response = await fetchTaskData(request, abortSignal);
   const stream = response.body;
@@ -76,7 +70,7 @@ export default async function executeTask({
     );
   }
 
-  sendAgentPacket({ type: "working", nodeId: task.id }, task);
+  injectAgentPacket({ type: "working", nodeId: task.id }, task);
   log(`Task ${task.id} -${task.name} stream began!`);
 
   let buffer = Buffer.alloc(0);
@@ -116,13 +110,5 @@ export default async function executeTask({
   }
   const packet = processResponseBuffer(tokens);
 
-  if (packet.type === "handleAgentEnd" || packet.type === "done") {
-    return stringify(packet.value);
-  } else {
-    throw new Error(
-      `Error retrieving task result ${task.id} -${task.name}: ${stringify(
-        packet,
-      )}`,
-    );
-  }
+  return packet;
 }

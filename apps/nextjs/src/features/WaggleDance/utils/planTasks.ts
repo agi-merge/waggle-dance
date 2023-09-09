@@ -1,13 +1,13 @@
 // features/WaggleDance/utils/planTasks.ts
 
 import {
-  type AgentPacket,
   type DAGNode,
   type ModelCreationProps,
 } from "../../../../../../packages/agent";
 import type DAG from "../types/DAG";
 import { type DAGNodeClass } from "../types/DAG";
 import { initialNodes, rootPlanId } from "../types/initialNodes";
+import { type InjectAgentPacketType } from "../types/TaskExecutor";
 import { sleep } from "./sleep";
 
 export type PlanTasksProps = {
@@ -17,10 +17,7 @@ export type PlanTasksProps = {
   creationProps: ModelCreationProps;
   graphDataState: [DAG, (dag: DAG) => void];
   log: (...args: (string | number | object)[]) => void;
-  sendAgentPacket: (
-    agentPacket: AgentPacket,
-    node: DAGNode | DAGNodeClass,
-  ) => void;
+  injectAgentPacket: InjectAgentPacketType;
   abortSignal: AbortSignal;
   startFirstTask?: (task: DAGNode, dag: DAG) => Promise<void>;
 };
@@ -32,7 +29,7 @@ export default async function planTasks({
   creationProps,
   graphDataState: [_initDag, setDAG],
   log,
-  sendAgentPacket,
+  injectAgentPacket,
   startFirstTask,
   abortSignal,
 }: PlanTasksProps): Promise<DAG> {
@@ -57,7 +54,7 @@ export default async function planTasks({
     log(`started planning!`);
     initialNode = initialNodes(goal)[0];
     if (initialNode) {
-      sendAgentPacket({ type: "working", nodeId: rootPlanId }, initialNode);
+      injectAgentPacket({ type: "working", nodeId: rootPlanId }, initialNode);
     } else {
       log({ type: "error", nodeId: rootPlanId, message: "No initial node" });
       throw new Error("No initial node");

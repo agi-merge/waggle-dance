@@ -55,12 +55,13 @@ export const resultRouter = createTRPCRouter({
       z.object({
         goalId: z.string().nonempty(),
         executionId: z.string().cuid(),
+        nodeId: z.string().cuid(),
         packets: z.array(z.any()),
         state: z.nativeEnum(ExecutionState),
       }),
     )
     .mutation(async ({ ctx, input }) => {
-      const { goalId, executionId, packets, state } = input;
+      const { goalId, executionId, nodeId, packets, state } = input;
 
       // start transaction
       const [result] = await ctx.prisma.$transaction([
@@ -74,7 +75,8 @@ export const resultRouter = createTRPCRouter({
             goal: { connect: { id: goalId } },
             value: findValuePacket(packets as BaseAgentPacket[]),
             packets: packets as Prisma.InputJsonValue[],
-            version: 1,
+            packetVersion: 1,
+            node: { connect: { realId: nodeId } },
           },
         }),
         ctx.prisma.execution.update({

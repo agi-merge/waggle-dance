@@ -14,6 +14,7 @@ import { parse } from "yaml";
 import {
   createCriticizePrompt,
   createExecutePrompt,
+  type DAGNode,
   type TaskState,
 } from "../prompts/createExecuteCriticismPrompt";
 import { isTaskCriticism } from "../prompts/types";
@@ -49,6 +50,7 @@ export async function callExecutionAgent(creation: {
     goal,
     agentPromptingMethod,
     task,
+    dag,
     revieweeTaskResults,
     abortSignal,
     namespace,
@@ -69,9 +71,11 @@ export async function callExecutionAgent(creation: {
   //   result,
   //   returnType,
   // } as const;
+  const nodes = parse(dag) as DAGNode[];
   const prompt = isReview
     ? await createCriticizePrompt({
         revieweeTaskResults: revieweeTaskResults!,
+        nodes,
         returnType,
       })
     : await createExecutePrompt({ task, returnType });

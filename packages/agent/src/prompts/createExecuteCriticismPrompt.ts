@@ -6,6 +6,8 @@ import {
 import { stringify as jsonStringify } from "superjson";
 import { stringify as yamlStringify } from "yaml";
 
+import { type Result } from "@acme/db";
+
 import { type AgentPacket, type AgentPacketType } from "../..";
 
 // Helper function to generate the base schema
@@ -282,20 +284,92 @@ export interface DAGEdge {
   tId: string;
 }
 
-export type TaskState = DAGNode & {
-  status: TaskStatus;
-  fromPacketType: AgentPacketType | "idle";
-  result: AgentPacket | null;
-  packets: AgentPacket[];
-  updatedAt: Date;
+// export type TaskState = DAGNode & {
+//   status: TaskStatus;
+//   packets: AgentPacket[];
+//   updatedAt: Date;
+// };
+
+// takes a AgentPacket type and maps it to an appropriate TaskStatus, or idle if it does not match or is undefined
+export const mapPacketTypeToStatus = (
+  packetType: AgentPacketType | undefined,
+): TaskStatus => {
+  switch (packetType) {
+    case "done":
+    case "handleAgentEnd":
+    case "handleChainEnd":
+    case "handleLLMEnd":
+      return TaskStatus.done;
+    case "error":
+    case "handleLLMError":
+    case "handleChainError":
+    case "handleToolError":
+    case "handleAgentError":
+      return TaskStatus.error;
+    case "working":
+    case "token":
+    case "handleLLMStart":
+    case "handleChainStart":
+    case "handleToolStart":
+    case "handleAgentAction":
+    case "handleRetrieverError":
+    case "handleText":
+    case "handleToolEnd":
+    case "starting":
+      return TaskStatus.working;
+    case "requestHumanInput":
+      return TaskStatus.wait;
+    case "idle":
+    case undefined:
+      return TaskStatus.idle;
+  }
 };
+type EnhancedResponse = { packets: AgentPacket[]; value: AgentPacket } & Omit<
+  Result,
+  "goalId" | "executionId" | "value" | "packets" | "packetVersion" | "createdAt"
+  // id: string
+  //     goalId: string
+  //     executionId: string
+  //     value: Prisma.JsonValue
+  //     packets: Prisma.JsonValue[]
+  //     packetVersion: number
+  //     edgeId: string
+  //     createdAt: Date
+  //     updatedAt: Date
+>;
+
+export class TaskState implements EnhancedResponse {
+  id: string;
+  packets: AgentPacket[];
+  value: AgentPacket;
+  updatedAt: Date;
+  nodeId: string;
+
+  constructor(result: EnhancedResponse) {
+    this.id = result.id;
+    this.packets = result.packets;
+    this.value = result.value;
+    this.updatedAt = result.updatedAt;
+    this.nodeId = result.nodeId;
+  }
+
+  get status(): TaskStatus {
+    // Compute the status from the value packet
+    return mapPacketTypeToStatus(this.value.type);
+  }
+
+  node(nodes: DAGNode[]): DAGNode | undefined {
+    return nodes.find((n) => n.id === this.nodeId);
+  }
+}
 
 // eslint-disable-next-line @typescript-eslint/require-await
 export async function createCriticizePrompt(params: {
   revieweeTaskResults: TaskState[];
+  nodes: DAGNode[];
   returnType: "JSON" | "YAML";
 }): Promise<ChatPromptTemplate> {
-  const { revieweeTaskResults, returnType } = params;
+  const { revieweeTaskResults, nodes, returnType } = params;
 
   const schema = criticizeSchema(returnType, "unknown");
 
@@ -332,18 +406,25 @@ TASK: Review REVIEWEE OUTPUT of REVIEWEE TASK using the SCHEMA.
       `COUNTER EXAMPLES: [${counterExamples}]`,
     );
 
-  const tasksAsHumanMessages = Object.entries(revieweeTaskResults).map(
-    (task, i) => {
-      return HumanMessagePromptTemplate.fromTemplate(
-        `REVIEWEE TASK${i > 0 ? ` ${i}` : ""}:
-name: ${task[1].name}
-context: ${task[1].context}
-act: ${task[1].act}
+  const tasksAsHumanMessages = Object.entries(revieweeTaskResults)
+    .map((task, i) => {
+      const node = task[1].node(nodes);
+      return node
+        ? HumanMessagePromptTemplate.fromTemplate(
+            `REVIEWEE TASK${i > 0 ? ` ${i}` : ""}:
+name: ${node.name}
+context: ${node.context}
+act: ${node.act}
 REVIEWEE OUTPUT:
-${task[1].result}`,
-      );
-    },
-  );
+${
+  returnType === "JSON"
+    ? jsonStringify(task[1].packets)
+    : yamlStringify(task[1].packets)
+}`,
+          )
+        : undefined;
+    })
+    .filter((m) => !!m) as HumanMessagePromptTemplate[];
 
   const promptMessages = [
     systemMessagePrompt,

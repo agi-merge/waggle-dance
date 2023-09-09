@@ -109,6 +109,7 @@ model ExecutionNode {
   act     String
   context String
   params  String?
+  results Result[]
   graph   ExecutionGraph @relation(fields: [graphId], references: [id], onDelete: Cascade)
   graphId String
 }
@@ -129,7 +130,9 @@ model Result {
   executionId String
   value       Json
   packets     Json[]
-  version     Int
+  packetVersion Int
+  node        ExecutionNode @relation(fields: [nodeId], references: [realId], onDelete: Cascade)
+  nodeId      String
   createdAt   DateTime  @default(now())
   updatedAt   DateTime  @default(now()) @updatedAt
 }

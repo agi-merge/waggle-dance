@@ -5,12 +5,14 @@ import { type AgentAction, type AgentFinish } from "langchain/schema";
 import { stringify } from "yaml";
 
 import { getBaseUrl } from "@acme/api/utils";
+import { type ExecutionState } from "@acme/db";
 
 import { type ExecuteRequestBody } from "~/features/WaggleDance/types/types";
 import {
   callExecutionAgent,
   type AgentPacket,
 } from "../../../../../../packages/agent";
+import { type CreateResultParams } from "../result";
 
 export const config = {
   api: {
@@ -21,7 +23,9 @@ export const config = {
 
 export default async function ExecuteStream(req: NextRequest) {
   console.log("execute request");
-  let executionResult: { packetString: string; state: string } | undefined;
+  let executionResult:
+    | { packet: AgentPacket; state: ExecutionState }
+    | undefined;
   let goalId: string | undefined;
   let executionId: string | undefined;
   let resolveStreamEnded: () => void;
@@ -31,6 +35,7 @@ export default async function ExecuteStream(req: NextRequest) {
     rejectStreamEnded = reject;
   });
   const abortController = new AbortController();
+  let nodeId: string | undefined;
   try {
     const {
       creationProps,
@@ -42,7 +47,7 @@ export default async function ExecuteStream(req: NextRequest) {
       dag,
       revieweeTaskResults,
     } = (await req.json()) as ExecuteRequestBody;
-
+    nodeId = task.id;
     goalId = parsedGoalId;
     executionId = parsedExecutionId;
 
@@ -197,24 +202,25 @@ export default async function ExecuteStream(req: NextRequest) {
         });
 
         let state: string;
-        let packetString: string;
+        let packet: AgentPacket;
         if (exeResult instanceof Error) {
           state = "ERROR";
-          packetString = stringify({
+          packet = {
             type: "error",
             severity: "fatal",
             message: exeResult.message,
-          });
+          };
         } else {
           state =
             dag.nodes[dag.nodes.length - 1]?.id == task.id
               ? "DONE"
               : "EXECUTING";
-          packetString = stringify({ type: "done", value: exeResult });
+          packet = { type: "done", value: exeResult };
         }
-        const packet = encoder.encode(packetString);
-        executionResult = { packetString, state };
-        controller.enqueue(encoder.encode(stringify([packet])));
+        executionResult = { packet, state: state as ExecutionState };
+        controller.enqueue(
+          encoder.encode(stringify([encoder.encode(stringify(packet))])),
+        );
         resolveStreamEnded();
         controller.close();
       },
@@ -269,21 +275,34 @@ export default async function ExecuteStream(req: NextRequest) {
         // TODO: save a new error for this case?
         return console.error("no execution result");
       }
-      const { packetString: exeResult, state } = executionResult;
-      const createResultParams = {
-        goalId,
-        executionId,
-        exeResult,
-        state,
-      };
-      const response = await fetch(`${getBaseUrl()}/api/result`, {
-        method: "POST",
-        headers: {
-          Cookie: req.headers.get("cookie") || "", // pass cookie so session logic still works
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify(createResultParams),
-      });
+      const { packet, state } = executionResult;
+      let response:
+        | Response
+        | { ok: boolean; status: number; statusText: string };
+      if (goalId && executionId && state && nodeId) {
+        const createResultParams: CreateResultParams = {
+          goalId,
+          nodeId,
+          executionId,
+          packet,
+          packets: [packet],
+          state,
+        };
+        response = await fetch(`${getBaseUrl()}/api/result`, {
+          method: "POST",
+          headers: {
+            Cookie: req.headers.get("cookie") || "", // pass cookie so session logic still works
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify(createResultParams),
+        });
+      } else {
+        response = {
+          ok: false,
+          status: 500,
+          statusText: "!(goalId && executionId && state)",
+        };
+      }
 
       if (!response.ok && response.status !== 401) {
         const error = new Error(

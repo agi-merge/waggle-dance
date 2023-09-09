@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useMemo } from "react";
 import { Edit, Send } from "@mui/icons-material";
 import {
   Card,
@@ -13,12 +13,13 @@ import {
   Typography,
 } from "@mui/joy";
 
-import { TaskStatus, type TaskState } from "@acme/agent";
+import { TaskStatus, type DAGNode, type TaskState } from "@acme/agent";
 
 import { stringifyMax } from "../utils/stringifyMax";
 
 interface TaskListItemProps {
   task: TaskState;
+  nodes: DAGNode[];
   i: number;
   statusColor: (
     n: TaskState,
@@ -29,11 +30,16 @@ interface TaskListItemProps {
 
 const TaskListItem = ({
   task: t,
+  nodes,
   i,
   statusColor,
   isRunning,
   listItemsRef,
 }: TaskListItemProps) => {
+  const node = useMemo(() => t.node(nodes), [nodes, t]);
+  if (!node) {
+    return null;
+  }
   return (
     <ListItem
       sx={{
@@ -70,7 +76,7 @@ const TaskListItem = ({
           alignItems={{ xs: "center", sm: "flex-end" }}
         >
           <Typography level="title-md" sx={{ wordBreak: "break-word" }}>
-            {t.name}
+            {node.name}
           </Typography>
           <Typography level="title-sm" color="neutral" fontFamily="monospace">
             id: <Typography level="body-sm">{t.id}</Typography>
@@ -104,20 +110,7 @@ const TaskListItem = ({
                 overflowWrap: "break-word",
               }}
             >
-              {t.act}
-              <Typography
-                fontFamily="monospace"
-                level="body-sm"
-                className="text-wrap"
-                style={{
-                  overflowWrap: "break-word",
-                  width: "100%",
-                }}
-              >
-                {" ("}
-                {t.params}
-                {")"}
-              </Typography>
+              {node.act}
             </Typography>
             <Divider inset="context" />
             <Typography
@@ -128,7 +121,7 @@ const TaskListItem = ({
                 overflowWrap: "break-word",
               }}
             >
-              {stringifyMax(t.context, 200)}
+              {stringifyMax(node.context, 200)}
             </Typography>
           </Stack>
 
@@ -150,7 +143,7 @@ const TaskListItem = ({
             })}
           >
             <Typography level="title-lg">
-              {t.result ? <>Result: </> : <>Status: </>}
+              {t.value ? <>Result: </> : <>Status: </>}
               <Typography level="body-md" color="neutral">
                 {t.packets.slice(0, -1).map((p, index) => (
                   <span key={index}>{p.type} → </span>
@@ -163,7 +156,7 @@ const TaskListItem = ({
               </Typography>
             </Typography>
 
-            {t.result && (
+            {t.value && (
               <Typography
                 level="body-sm"
                 className="max-h-72 overflow-x-clip overflow-y-scroll  break-words pt-2"
@@ -171,7 +164,7 @@ const TaskListItem = ({
                   t.status === TaskStatus.error ? "monospace" : undefined
                 }
               >
-                {t.result}
+                {JSON.stringify(t.value)}
               </Typography>
             )}
           </Card>
