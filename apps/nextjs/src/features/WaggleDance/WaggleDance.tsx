@@ -61,14 +61,18 @@ const WaggleDance = ({}: Props) => {
     run: startWaggleDance,
     reset,
     logs,
-    taskStates,
+    results,
+    agentPackets: agentPacketsMap,
   } = useWaggleDanceMachine();
   const listItemsRef = useRef<HTMLLIElement[]>([]);
   const taskListRef = useRef<HTMLUListElement>(null);
-
+  const agentPackets = useMemo(
+    () => Object.values(agentPacketsMap),
+    [agentPacketsMap],
+  );
   const { data: session } = useSession();
   const sortedTaskStates = useMemo(() => {
-    return taskStates.sort((a: TaskState, b: TaskState) => {
+    return Object.values(agentPackets).sort((a: TaskState, b: TaskState) => {
       if (a.id === rootPlanId) {
         return -1;
       }
@@ -109,7 +113,7 @@ const WaggleDance = ({}: Props) => {
       // unhandled use alphabetical
       return 1;
     });
-  }, [taskStates]);
+  }, [agentPackets]);
 
   const { setIsPageLoading, isAutoScrollToBottom, setIsAutoScrollToBottom } =
     useApp();
@@ -207,7 +211,7 @@ const WaggleDance = ({}: Props) => {
     }
 
     // Find the task with the most recent update
-    const recentTask = taskStates.reduce(
+    const recentTask = results.reduce(
       (recent: TaskState | null, task: TaskState) => {
         if (!recent || task.updatedAt > recent.updatedAt) {
           return task;
@@ -230,7 +234,7 @@ const WaggleDance = ({}: Props) => {
         listItemsRef.current[taskIndex]?.scrollIntoView({ behavior: "smooth" });
       }
     }
-  }, [taskStates, isAutoScrollToBottom, recentTaskId, sortedTaskStates]);
+  }, [results, isAutoScrollToBottom, recentTaskId, sortedTaskStates]);
 
   const statusColor = (n: TaskState) => {
     switch (n.status) {
@@ -245,39 +249,34 @@ const WaggleDance = ({}: Props) => {
     }
   };
 
-  const results = useMemo(
-    () => taskStates.filter((n) => n.value),
-    [taskStates],
-  );
-
   const progressPercent = useMemo(() => {
-    return (results.length / taskStates.length) * 100;
-  }, [results.length, taskStates.length]);
+    return (results.length / agentPackets.length) * 100;
+  }, [results.length, agentPackets.length]);
 
   const notIdleTasks = useMemo(() => {
-    return taskStates.filter((s) => s.status !== TaskStatus.idle).length;
-  }, [taskStates]);
+    return agentPackets.filter((s) => s.status !== TaskStatus.idle).length;
+  }, [agentPackets]);
 
   const inProgressOrDonePercent = useMemo(() => {
-    return (notIdleTasks / taskStates.length) * 100;
-  }, [notIdleTasks, taskStates.length]);
+    return (notIdleTasks / agentPackets.length) * 100;
+  }, [notIdleTasks, agentPackets.length]);
 
   const inProgress = useMemo(() => {
-    return taskStates.filter(
+    return agentPackets.filter(
       (s) =>
         s.status === TaskStatus.starting ||
         s.status === TaskStatus.working ||
         s.status === TaskStatus.wait,
     ).length;
-  }, [taskStates]);
+  }, [agentPackets]);
 
   const progressLabel = useMemo(() => {
     return `# Tasks in progress: ${inProgress}, done: ${
       results.length
-    }, scheduled: ${taskStates.length - notIdleTasks}, total: ${
-      taskStates.length
+    }, scheduled: ${agentPackets.length - notIdleTasks}, total: ${
+      agentPackets.length
     }`;
-  }, [inProgress, notIdleTasks, results.length, taskStates.length]);
+  }, [inProgress, notIdleTasks, results.length, agentPackets.length]);
 
   const shouldShowProgress = useMemo(() => {
     return isRunning || results.length > 0;
@@ -352,7 +351,7 @@ const WaggleDance = ({}: Props) => {
             </Tab>
           </TabList>
 
-          {taskStates.length > 0 ? (
+          {agentPackets.length > 0 ? (
             <>
               <TabPanel value={0} className="w-full overflow-y-scroll p-4">
                 <TaskListTab
@@ -374,7 +373,7 @@ const WaggleDance = ({}: Props) => {
               </TabPanel>
 
               <TabPanel value={2} className="w-full overflow-y-scroll p-4">
-                <ResultsTab taskStates={taskStates} />
+                <ResultsTab taskStates={agentPackets} />
               </TabPanel>
 
               <TabPanel value={3} className="w-full overflow-y-scroll p-4">

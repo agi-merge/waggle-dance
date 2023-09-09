@@ -6,20 +6,18 @@
 // When a task completes, a new dependent review task should be added to the DAG to ensure quality results.
 
 import {
-  TaskState,
   type AgentPacket,
   type AgentSettingsMap,
+  type TaskState,
 } from "../../../../../packages/agent";
 import DAG from "./types/DAG";
 import { initialNodes, rootPlanId } from "./types/initialNodes";
 import TaskExecutor, { type InjectAgentPacketType } from "./types/TaskExecutor";
 import {
   mapAgentSettingsToCreationProps,
-  type BaseResultType,
   type ExecuteRequestBody,
   type GraphDataState,
   type IsDonePlanningState,
-  type TaskResultsState,
   type WaggleDanceResult,
 } from "./types/types";
 import executeTask from "./utils/executeTask";
@@ -33,7 +31,6 @@ export type RunParams = {
   executionId: string;
   agentSettings: AgentSettingsMap;
   graphDataState: GraphDataState;
-  taskResultsState: TaskResultsState;
   isDonePlanningState: IsDonePlanningState;
   injectAgentPacket: InjectAgentPacketType;
   log: (...args: (string | number | object)[]) => void;
@@ -52,7 +49,6 @@ export default class WaggleDanceMachine {
     agentSettings,
     graphDataState: [initDAG, setDAG],
     isDonePlanningState: [isDonePlanning, setIsDonePlanning],
-    taskResultsState: [taskResults, _setTaskResults],
     injectAgentPacket: injectAgentPacket,
     log,
     abortController,
@@ -70,12 +66,10 @@ export default class WaggleDanceMachine {
     })();
     const completedTasks: Set<string> = new Set([rootPlanId]);
 
-    let resolveFirstTask: (
-      value?: BaseResultType | PromiseLike<BaseResultType>,
-    ) => void = () => {}; // these are just placeholders, overwritten within firstTaskPromise
-    let rejectFirstTask: (reason?: string | Error) => void = () => {}; // these are just placeholders, overwritten within firstTaskPromise
+    let resolveFirstTask: () => void = () => {}; // these are just placeholders, overwritten within firstTaskPromise
+    let rejectFirstTask: () => void = () => {}; // these are just placeholders, overwritten within firstTaskPromise
 
-    const firstTaskPromise = new Promise<BaseResultType>((resolve, reject) => {
+    const firstTaskPromise = new Promise<void>((resolve, reject) => {
       resolveFirstTask = resolve;
       rejectFirstTask = reject;
     });
@@ -86,7 +80,6 @@ export default class WaggleDanceMachine {
       goalId,
       executionId,
       completedTasks,
-      [taskResults, _setTaskResults],
       abortController,
       injectAgentPacket,
       log,
@@ -151,6 +144,7 @@ export default class WaggleDanceMachine {
     // prepend our initial nodes to the DAG
 
     const toDoNodes = Array.from(dag.nodes);
+    const taskResults: Record<string, TaskState> = {};
     await firstTaskPromise;
     // Continue executing tasks and updating DAG until the goal is reached
     while (!isGoalReached(dag, completedTasks)) {
@@ -240,15 +234,16 @@ export default class WaggleDanceMachine {
         // const taskState: TaskState = {
         //
         // };
-        const taskState = new TaskState({
-          ...task,
-          ...result,
-          nodeId: task.id,
-          value: result,
-          packets: [result],
-          updatedAt: new Date(),
-        });
-        taskResults[executeRequest.task.id] = taskState;
+        // const taskState = new TaskState({
+        //   ...task,
+        //   ...result,
+        //   nodeId: task.id,
+        //   value: result,
+        //   packets: [result],
+        //   updatedAt: new Date(),
+        // });
+        // taskResults[executeRequest.task.id] = taskState;
+        injectAgentPacket(result, task);
         completedTasks.add(executeRequest.task.id);
         const node = dag.nodes.find((n) => task.id === n.id);
         if (!node) {
@@ -272,6 +267,6 @@ export default class WaggleDanceMachine {
     console.debug("WaggleDanceMachine.run: completedTasks", completedTasks);
     console.groupEnd();
 
-    return { results: taskResults, completedTasks };
+    return { taskResults, completedTasks };
   }
 }

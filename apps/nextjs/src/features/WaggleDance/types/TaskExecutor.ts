@@ -1,5 +1,4 @@
 import {
-  TaskState,
   type AgentPacket,
   type AgentSettingsMap,
   type DAGNode,
@@ -8,11 +7,7 @@ import {
 import executeTask from "../utils/executeTask";
 import type DAG from "./DAG";
 import { type DAGNodeClass } from "./DAG";
-import {
-  mapAgentSettingsToCreationProps,
-  type BaseResultType,
-  type TaskResultsState,
-} from "./types";
+import { mapAgentSettingsToCreationProps } from "./types";
 
 type LogType = (...args: (string | number | object)[]) => void;
 export type InjectAgentPacketType = (
@@ -20,7 +15,7 @@ export type InjectAgentPacketType = (
   node: DAGNode | DAGNodeClass,
 ) => void;
 type ResolveFirstTaskType = (
-  value?: BaseResultType | PromiseLike<BaseResultType>,
+  value?: AgentPacket | PromiseLike<AgentPacket>,
 ) => void;
 type RejectFirstTaskType = (reason?: string | Error) => void;
 
@@ -31,7 +26,6 @@ class TaskExecutor {
     private goalId: string,
     private executionId: string,
     private completedTasks: Set<string>,
-    private taskResultsState: TaskResultsState,
     private abortController: AbortController,
     private injectAgentPacket: InjectAgentPacketType,
     private log: LogType,
@@ -70,16 +64,16 @@ class TaskExecutor {
 
         this.resolveFirstTask(result);
 
-        // this.injectAgentPacket(result, task);
+        this.injectAgentPacket(result, task);
 
-        const taskState = new TaskState({
-          ...task,
-          nodeId: task.id,
-          value: result,
-          packets: [result],
-          updatedAt: new Date(),
-        });
-        this.taskResultsState[0][task.id] = taskState;
+        // const taskState = new TaskState({
+        //   ...task,
+        //   nodeId: task.id,
+        //   value: result,
+        //   packets: [result],
+        //   updatedAt: new Date(),
+        // });
+        // this.taskResultsState[0][task.id] = taskState;
       } catch (error) {
         const message = (error as Error).message;
         this.injectAgentPacket(

@@ -38,7 +38,7 @@ export type ReviewResult = {
 
 export type BaseResultType = JsonValue | void;
 export interface WaggleDanceResult {
-  results: Record<string, BaseResultType>;
+  taskResults: Record<string, TaskState>;
   completedTasks: Set<string>;
 }
 

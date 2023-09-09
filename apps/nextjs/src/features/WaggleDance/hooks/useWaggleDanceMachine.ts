@@ -71,27 +71,50 @@ const useWaggleDanceMachine = () => {
     });
 
   const results = useMemo(() => {
-    return goal?.results?.map((r) => {
-      const result = r.value as AgentPacket;
+    return (
+      goal?.results?.map((r) => {
+        const result = r.value as AgentPacket;
 
-      const taskState = new TaskState({
-        ...r,
-        packets: r.packets as AgentPacket[],
-        value: result,
-      });
+        const taskState = new TaskState({
+          ...r,
+          packets: r.packets as AgentPacket[],
+          value: result,
+        });
 
-      return taskState;
-    });
-  }, [goal?.results]);
+        return taskState;
+      }) || []
+    );
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [goal?.id]);
 
-  const [isDonePlanning, setIsDonePlanning] = useState(false);
-  const [logs, setLogs] = useState<LogMessage[]>([]);
+  const resultsMap = useMemo(
+    () =>
+      results?.reduce(
+        (acc: Record<string, TaskState>, cur: TaskState) => {
+          return { ...acc, [cur.id]: cur };
+        },
+        {} as Record<string, TaskState>,
+      ) || {},
+    [results],
+  );
+
   const [agentPackets, setAgentPackets] = useState<Record<string, TaskState>>(
     {},
   );
+
+  // const combinedAgentPackets = useMemo(() => {
+
+  // });
+
+  // const taskStates = useMemo(() => {
+  //   return agentPackets;
+  // }, [agentPackets]);
+
+  const [logs, setLogs] = useState<LogMessage[]>([]);
   const [abortController, setAbortController] = useState(
     () => new AbortController(),
   );
+  const [isDonePlanning, setIsDonePlanning] = useState(false);
 
   const log = useCallback(
     (...args: (string | number | object)[]) => {
@@ -116,17 +139,13 @@ const useWaggleDanceMachine = () => {
     [setLogs],
   );
 
-  const taskStates = useMemo(() => {
-    return results || [];
-  }, [results]);
-
   // Since agents stream packets, as well as return packets as their final result, we need to pass this callback around so that we can update state
   const injectAgentPacket = useCallback(
     (agentPacket: AgentPacket, node: DAGNode | DAGNodeClass) => {
       if (!node || !node.id) {
         throw new Error("a node does not exist to receive data");
       }
-      const existingTask = agentPackets[node.id];
+      const existingTask = resultsMap[node.id];
       if (!existingTask) {
         if (!node) {
           log(
@@ -182,7 +201,7 @@ const useWaggleDanceMachine = () => {
         }));
       }
     },
-    [agentPackets, setAgentPackets, log],
+    [resultsMap, log],
   );
 
   const reset = useCallback(() => {
@@ -197,8 +216,8 @@ const useWaggleDanceMachine = () => {
   });
 
   useEffect(() => {
-    setGraphData(dagToGraphData(dag, taskStates));
-  }, [dag, taskStates, setGraphData]);
+    setGraphData(dagToGraphData(dag, results));
+  }, [dag, results, setGraphData]);
 
   const stop = useCallback(() => {
     if (!abortController.signal.aborted) {
@@ -243,7 +262,6 @@ const useWaggleDanceMachine = () => {
           agentSettings,
           graphDataState: [dag, setDAG],
           isDonePlanningState: [isDonePlanning, setIsDonePlanning],
-          taskResultsState: [agentPackets, setAgentPackets],
           injectAgentPacket: injectAgentPacket,
           log,
           abortController: ac,
@@ -269,8 +287,8 @@ const useWaggleDanceMachine = () => {
         return;
       } else {
         console.log("result", result);
-        const res = result.results[0] as Record<string, TaskState>;
-        res && setAgentPackets(res);
+        const res = result.taskResults;
+        res ? setAgentPackets(res) : undefined;
         updateExecutionState({ executionId, state: "DONE" });
         return result;
       }
@@ -284,7 +302,6 @@ const useWaggleDanceMachine = () => {
       agentSettings,
       dag,
       isDonePlanning,
-      agentPackets,
       injectAgentPacket,
       log,
       updateExecutionState,
@@ -300,7 +317,9 @@ const useWaggleDanceMachine = () => {
     reset,
     isDonePlanning,
     logs,
-    taskStates,
+    agentPackets,
+    results,
+    resultsMap,
   };
 };
 
