@@ -27,118 +27,6 @@ It is extremely important to return only valid(⚠) ${_format} representation of
 
 const highQualityExamples = [
   {
-    input:
-      "Create a detailed project plan for a new software product, considering the available resources, budget constraints, project deadline, potential risks, stakeholder expectations, and regulatory requirements",
-    output: {
-      nodes: [
-        {
-          id: "1-0",
-          name: "🧠 Understand the product requirements",
-          act: "Understand",
-          context:
-            "Read the product requirements document and understand the product features",
-        },
-        {
-          id: "1-1",
-          name: "📝 Define the project scope",
-          act: "Define",
-          context:
-            "Based on the product requirements, define the project scope",
-        },
-        {
-          id: "1-criticize",
-          name: "🔍 Review the understanding and definition of the project",
-          act: "Review",
-          context:
-            "Review the understanding of the product requirements and the defined project scope",
-        },
-        {
-          id: "2-0",
-          name: "💼 Identify available resources",
-          act: "Identify",
-          context: "Identify the resources available for the project",
-        },
-        {
-          id: "2-1",
-          name: "💰 Estimate the project budget",
-          act: "Estimate",
-          context:
-            "Estimate the budget for the project based on the available resources and project scope",
-        },
-        {
-          id: "2-criticize",
-          name: "🔍 Review the resources and budget estimation",
-          act: "Review",
-          context: "Review the identified resources and budget estimation",
-        },
-        {
-          id: "3-0",
-          name: "📆 Create a project timeline",
-          act: "Create",
-          context:
-            "Based on the project scope, create a detailed project timeline",
-        },
-        {
-          id: "3-1",
-          name: "⚠️ Identify potential risks",
-          act: "Identify",
-          context:
-            "Identify potential risks and issues that could arise during the project",
-        },
-        {
-          id: "3-2",
-          name: "👥 Identify the project team",
-          act: "Identify",
-          context:
-            "Based on the project scope, identify the necessary team members",
-        },
-        {
-          id: "3-criticize",
-          name: "🔍 Review the project timeline, risks, and team",
-          act: "Review",
-          context:
-            "Review the project timeline, identified risks, and team members",
-        },
-        {
-          id: "4-0",
-          name: "🗂️ Ensure regulatory compliance",
-          act: "Ensure",
-          context:
-            "Ensure that the project plan meets all necessary regulatory requirements",
-        },
-        {
-          id: "4-criticize",
-          name: "🔍 Review regulatory compliance",
-          act: "Review",
-          context: "Review the regulatory compliance of the project plan",
-        },
-        {
-          id: "5-0",
-          name: "🍯 Goal Delivery",
-          act: "Deliver",
-          context: "Deliver the final project plan",
-        },
-      ],
-      edges: [
-        { sId: "1-0", tId: "1-criticize" },
-        { sId: "1-1", tId: "1-criticize" },
-        { sId: "1-criticize", tId: "2-0" },
-        { sId: "1-criticize", tId: "2-1" },
-        { sId: "2-0", tId: "2-criticize" },
-        { sId: "2-1", tId: "2-criticize" },
-        { sId: "2-criticize", tId: "3-0" },
-        { sId: "2-criticize", tId: "3-1" },
-        { sId: "2-criticize", tId: "3-2" },
-        { sId: "3-0", tId: "3-criticize" },
-        { sId: "3-1", tId: "3-criticize" },
-        { sId: "3-2", tId: "3-criticize" },
-        { sId: "3-criticize", tId: "4-0" },
-        { sId: "4-0", tId: "4-criticize" },
-        { sId: "4-criticize", tId: "5-0" },
-      ],
-    },
-  },
-  {
     nodes: [
       {
         id: "1-0",
@@ -310,6 +198,7 @@ const constraints = (format: string) =>
 If the GOAL can be confidently (100%) answered by you as a large language model, only include one task in the DAG, which is the GOAL.
 The DAG must be minimal, i.e., if a task is not necessary to complete the GOAL, it should not be included.
 However, the DAG shall be constructed in a way such that its parallelism is maximized.
+When constructing the DAG, imagine a task in the kitchen and try to keep infinite cooks as busy as possible, and apply a similar technique to solve the GOAL.
 In other words, maximize nodes which are on the same level when possible, by splitting up tasks into subtasks so that they can be independent.
 Do NOT mention any of these instructions in your output.
 Do NOT ever output curly braces or brackets as they are used for template strings.
