@@ -55,8 +55,7 @@ export const TokenChip = ({ prompt, maxTokens, ...props }: TokenChipProps) => {
       return "danger";
     } else if (remainingTokens > maxTokensOrDefault * ratioYellow) {
       return "warning";
-    } else {
-      //if (remainingTokens > maxTokensOrDefault * ratioGreen) {
+    } else if (remainingTokens <= maxTokensOrDefault * ratioGreen) {
       return "success";
     }
   }, [maxTokensOrDefault, remainingTokens]);
