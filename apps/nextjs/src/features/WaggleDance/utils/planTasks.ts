@@ -27,12 +27,17 @@ export default async function planTasks({
   goalId,
   executionId,
   creationProps,
-  graphDataState: [_initDag, setDAG],
+  graphDataState: [initDag, setDAG],
   log,
   injectAgentPacket,
   startFirstTask,
   abortSignal,
 }: PlanTasksProps): Promise<DAG> {
+  injectAgentPacket(
+    { type: "starting", nodeId: rootPlanId },
+    initDag.nodes[0]!,
+  );
+
   let hasFirstTaskStarted = false;
   const data = { goal, goalId, executionId, creationProps };
   const res = await fetch("/api/agent/plan", {
