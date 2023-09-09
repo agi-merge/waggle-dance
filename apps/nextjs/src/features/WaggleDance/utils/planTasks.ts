@@ -1,5 +1,7 @@
 // features/WaggleDance/utils/planTasks.ts
 
+import { parse } from "yaml";
+
 import {
   type DAGNode,
   type ModelCreationProps,
@@ -154,11 +156,11 @@ export default async function planTasks({
     while (postMessageCount > 0) {
       await sleep(10);
     }
+
+    return buffer.toString();
   }
 
-  await streamToString(stream);
-  if (!dag) {
-    throw new Error("No planTasks result");
-  }
-  return dag;
+  const streamString = await streamToString(stream);
+  const partialDAG = parse(streamString) as DAG;
+  return partialDAG || dag;
 }

@@ -98,17 +98,16 @@ const useWaggleDanceMachine = () => {
     [results],
   );
 
-  const [agentPackets, setAgentPackets] = useState<Record<string, TaskState>>(
-    {},
-  );
+  const [agentPackets, setAgentPackets] =
+    useState<Record<string, TaskState>>(resultsMap);
 
-  // const combinedAgentPackets = useMemo(() => {
+  useEffect(() => {
+    setAgentPackets(resultsMap);
+  }, [resultsMap]);
+
+  // const combinedResultsPackets = useMemo(() => {
 
   // });
-
-  // const taskStates = useMemo(() => {
-  //   return agentPackets;
-  // }, [agentPackets]);
 
   const [logs, setLogs] = useState<LogMessage[]>([]);
   const [abortController, setAbortController] = useState(
@@ -161,27 +160,7 @@ const useWaggleDanceMachine = () => {
             updatedAt: new Date(),
             nodeId: node.id,
           });
-          // {
-          //   ...node,
-          //   nodeId: node.id,
 
-          //   status: TaskStatus.idle,
-          //   value: agentPacket,
-          //   packets: [
-          //     ...(prevAgentPackets[node.id]?.packets ?? []),
-          //     agentPacket,
-          //   ],
-          //   updatedAt: new Date(),
-          // },
-
-          // const taskState = new TaskState({
-          //   ...task,
-          //   ...result,
-          //   nodeId: task.id,
-          //   value: result,
-          //   packets: [result],
-          //   updatedAt: new Date(),
-          // });
           setAgentPackets((prevAgentPackets) => ({
             ...prevAgentPackets,
             [node.id]: taskState,
@@ -262,7 +241,7 @@ const useWaggleDanceMachine = () => {
           agentSettings,
           graphDataState: [dag, setDAG],
           isDonePlanningState: [isDonePlanning, setIsDonePlanning],
-          injectAgentPacket: injectAgentPacket,
+          injectAgentPacket,
           log,
           abortController: ac,
         });

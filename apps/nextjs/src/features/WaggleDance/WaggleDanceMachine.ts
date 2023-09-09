@@ -5,6 +5,8 @@
 // It starts by generating an execution DAG and then executes the tasks concurrently.
 // When a task completes, a new dependent review task should be added to the DAG to ensure quality results.
 
+import { stringify } from "yaml";
+
 import {
   type AgentPacket,
   type AgentSettingsMap,
@@ -107,6 +109,7 @@ export default class WaggleDanceMachine {
           startFirstTask: taskExecutor.startFirstTask.bind(taskExecutor),
           abortSignal: abortController.signal,
         });
+        setDAG(dag);
         console.debug("dag", dag);
       } catch (error) {
         if (initNodes[0]) {
@@ -219,48 +222,22 @@ export default class WaggleDanceMachine {
             log,
             abortSignal: abortController.signal,
           });
+          injectAgentPacket(result, task);
         } catch (error) {
+          const message =
+            error instanceof Error ? error.message : stringify(error);
           injectAgentPacket(
             {
               type: "error",
               severity: "warn",
-              message: JSON.stringify(error, Object.getOwnPropertyNames(error)),
+              message,
             },
             task,
           );
           abortController.abort();
           return;
         }
-        // const taskState: TaskState = {
-        //
-        // };
-        // const taskState = new TaskState({
-        //   ...task,
-        //   ...result,
-        //   nodeId: task.id,
-        //   value: result,
-        //   packets: [result],
-        //   updatedAt: new Date(),
-        // });
-        // taskResults[executeRequest.task.id] = taskState;
-        injectAgentPacket(result, task);
         completedTasks.add(executeRequest.task.id);
-        const node = dag.nodes.find((n) => task.id === n.id);
-        if (!node) {
-          abortController.abort();
-          throw new Error("no node to injectAgentPacket");
-        } else {
-          if (!result) {
-            injectAgentPacket(
-              { type: "error", severity: "warn", message: "no task result" },
-              node,
-            );
-            abortController.abort();
-            return;
-          } else if (typeof result === "string") {
-            injectAgentPacket({ type: "done", value: result }, node);
-          }
-        }
       })();
     }
 

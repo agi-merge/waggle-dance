@@ -21,7 +21,7 @@ export async function callPlanningAgent(
   signal: AbortSignal,
   namespace: string,
   returnType: "YAML" | "JSON" = "YAML",
-): Promise<string> {
+): Promise<string | Error> {
   const tags = [
     "plan",
     goalId,
@@ -65,72 +65,80 @@ export async function callPlanningAgent(
   //   constitutionalPrinciples: [principle],
   // });
 
-  const [call] = await Promise.all([
-    // prompt.format({ goal, schema: "string[]" }),
-    createPlanChain.call({
-      signal,
-      tags,
-    }),
-  ]);
-
-  const error = {
-    type: "error",
-    severity: "fatal",
-    message: "no response from callPlanningAgent",
-  };
-  const stringError =
-    returnType === "JSON" ? jsonStringify(error) : yamlStringify(error);
-  const response = call?.response
-    ? (call.response as string)
-    : call?.text
-    ? (call.text as string)
-    : stringError;
-
   try {
-    const parsedDAG =
-      returnType === "JSON"
-        ? jsonParse(response)
-        : (yamlParse(response) as
-            | { nodes: DAGNode[]; edges: DAGNode[] }
-            | null
-            | undefined);
-
-    return parsedDAG ? response : stringError;
-  } catch (error) {
-    console.error("error parsing dag", error);
-    const formattingPrompt = createPlanFormattingPrompt(
-      // eslint-disable-next-line @typescript-eslint/no-unsafe-argument
-      await createPlanChain.prompt.lc_kwargs["content"],
-      response,
-      returnType,
-    );
-
-    const formattingLLM = createModel(
-      { ...creationProps, modelName: LLM_ALIASES["fast-large"], maxTokens: -1 },
-      AgentPromptingMethod.OpenAIFunctions,
-    ); // this is used to select a chat model (required for system message prompt)]
-
-    const formattingChain = new LLMChain({
-      // memory,
-      prompt: formattingPrompt,
-      tags,
-      llm: formattingLLM,
-    });
-
     const [call] = await Promise.all([
       // prompt.format({ goal, schema: "string[]" }),
-      formattingChain.call({
+      createPlanChain.call({
         signal,
         tags,
       }),
     ]);
 
-    const dag = call?.response
+    const error = {
+      type: "error",
+      severity: "fatal",
+      message: "no response from callPlanningAgent",
+    };
+    const stringError =
+      returnType === "JSON" ? jsonStringify(error) : yamlStringify(error);
+    const response = call?.response
       ? (call.response as string)
       : call?.text
       ? (call.text as string)
       : stringError;
 
-    return dag;
+    try {
+      const parsedDAG =
+        returnType === "JSON"
+          ? jsonParse(response)
+          : (yamlParse(response) as
+              | { nodes: DAGNode[]; edges: DAGNode[] }
+              | null
+              | undefined);
+
+      return parsedDAG ? response : stringError;
+    } catch (error) {
+      console.error("error parsing dag", error);
+      const formattingPrompt = createPlanFormattingPrompt(
+        // eslint-disable-next-line @typescript-eslint/no-unsafe-argument
+        await createPlanChain.prompt.lc_kwargs["content"],
+        response,
+        returnType,
+      );
+
+      const formattingLLM = createModel(
+        {
+          ...creationProps,
+          modelName: LLM_ALIASES["fast-large"],
+          maxTokens: -1,
+        },
+        AgentPromptingMethod.OpenAIFunctions,
+      ); // this is used to select a chat model (required for system message prompt)]
+
+      const formattingChain = new LLMChain({
+        // memory,
+        prompt: formattingPrompt,
+        tags,
+        llm: formattingLLM,
+      });
+
+      const [call] = await Promise.all([
+        // prompt.format({ goal, schema: "string[]" }),
+        formattingChain.call({
+          signal,
+          tags,
+        }),
+      ]);
+
+      const dag = call?.response
+        ? (call.response as string)
+        : call?.text
+        ? (call.text as string)
+        : stringError;
+
+      return dag;
+    }
+  } catch (error) {
+    return error as Error;
   }
 }

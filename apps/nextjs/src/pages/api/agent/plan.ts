@@ -23,11 +23,11 @@ export const config = {
 export default async function PlanStream(req: NextRequest) {
   console.debug("plan request");
   const abortController = new AbortController();
-  let planResult: string | undefined;
+  let planResult: string | Error | undefined;
   let goalId: string | undefined;
   let executionId: string | undefined;
   let resolveStreamEnded: () => void;
-  let rejectStreamEnded: (reason?: string) => void;
+  let rejectStreamEnded: ((reason?: string) => void) | undefined = undefined;
   const streamEndedPromise = new Promise<void>((resolve, reject) => {
     resolveStreamEnded = resolve;
     rejectStreamEnded = reject;
@@ -102,15 +102,20 @@ export default async function PlanStream(req: NextRequest) {
           `${goalId}_${executionId}`,
         );
 
+        if (planResult instanceof Error) {
+          rejectStreamEnded!(planResult.message);
+        } else {
+          resolveStreamEnded();
+        }
+
         console.debug("plan result", planResult);
         controller.close();
-        resolveStreamEnded();
       },
 
       cancel() {
         abortController.abort();
         console.warn("cancel plan request");
-        rejectStreamEnded("Stream cancelled");
+        rejectStreamEnded!("Stream cancelled");
       },
     });
 
@@ -134,7 +139,7 @@ export default async function PlanStream(req: NextRequest) {
       status = 500;
       stack = "";
     }
-
+    rejectStreamEnded!(message);
     const all = { stack, message, status };
     planResult = stringify(all);
     console.error("plan error", all);
@@ -155,7 +160,7 @@ export default async function PlanStream(req: NextRequest) {
     void (async () => {
       await streamEndedPromise;
 
-      if (goalId && executionId) {
+      if (goalId && executionId && typeof planResult === "string") {
         // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
         const graph = (planResult && parse(planResult)) || null;
         await updateExecution(
