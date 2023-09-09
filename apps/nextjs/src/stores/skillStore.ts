@@ -15,6 +15,7 @@ const defaultSkills = skillDatabase.map((skill) => {
 
 interface SkillStore {
   selectedSkills: NullableSkillset[];
+  selectedSkillsLength: number;
   toggleSkill: (skill: Skillset) => void;
   setSkills: (skills: NullableSkillset[]) => void;
   selectOnlyRecommended: () => void;
@@ -26,6 +27,7 @@ const useSkillStore = create<SkillStore>()(
   logger(
     (set) => ({
       selectedSkills: [...defaultSkills],
+      selectedSkillsLength: defaultSkills.length,
       toggleSkill: (skill: Skillset) =>
         set((state) => {
           const isSkillSelected = state.selectedSkills
@@ -36,20 +38,25 @@ const useSkillStore = create<SkillStore>()(
           return { selectedSkills: newValues };
         }),
       setSkills: (skills: NullableSkillset[]) => {
-        set({ selectedSkills: skills });
+        set({ selectedSkills: skills, selectedSkillsLength: skills.length });
       },
       selectOnlyRecommended: () => {
         set({
           selectedSkills: [...defaultSkills],
+          selectedSkillsLength: defaultSkills.length,
         });
       },
       selectAll: () => {
         set({
           selectedSkills: [...skillDatabase],
+          selectedSkillsLength: skillDatabase.length,
         });
       },
       deselectAll: () => {
-        set({ selectedSkills: Array(skillDatabase.length).map(() => null) });
+        set({
+          selectedSkills: Array(skillDatabase.length).map(() => null),
+          selectedSkillsLength: 0,
+        });
       },
     }),
 

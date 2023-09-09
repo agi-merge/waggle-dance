@@ -15,6 +15,7 @@ type Props = {
   children: React.ReactNode;
 };
 export default function SkillsModal({ children }: Props) {
+  const { selectedSkillsLength } = useSkillStore();
   const [open, setOpen] = React.useState<boolean>(false);
   const { deselectAll, selectOnlyRecommended, selectAll } = useSkillStore();
   return (
@@ -31,7 +32,7 @@ export default function SkillsModal({ children }: Props) {
             className="flex-shrink"
             onClick={() => setOpen(true)}
           >
-            🔨 Skills
+            🔨 Skills ({selectedSkillsLength})
           </Link>
         </Tooltip>
       </Box>

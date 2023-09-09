@@ -158,12 +158,13 @@ const GoalPage = ({ alertConfigs }: Props) => {
   const { goalMap, selectedGoal, upsertGoals, selectGoal } = useGoalStore();
   const { isRunning, setExecution, agentSettings } =
     useWaggleDanceMachineStore();
-  const { selectedSkills } = useSkillStore();
+  const { selectedSkills, selectedSkillsLength } = useSkillStore();
   const skillsLabel = useMemo(() => {
-    return selectedSkills
+    const label = selectedSkills
       .map((s) => s?.label)
       .filter(Boolean)
       .join(", ");
+    return label.length > 0 ? label : "No skills enabled";
   }, [selectedSkills]);
 
   const latency = useMemo(() => {
@@ -605,7 +606,7 @@ const GoalPage = ({ alertConfigs }: Props) => {
                             openText={
                               <>
                                 <Typography level="title-sm">
-                                  🔨 Skills
+                                  🔨 Skills ({selectedSkillsLength})
                                 </Typography>
                                 <Typography
                                   noWrap
@@ -621,7 +622,7 @@ const GoalPage = ({ alertConfigs }: Props) => {
                             closedText={
                               <>
                                 <Typography level="title-sm">
-                                  🔨 Skills
+                                  🔨 Skills ({selectedSkillsLength})
                                 </Typography>
                                 <Typography
                                   noWrap
