@@ -183,14 +183,11 @@ const highQualityExamples = [
 
 const constraints = (format: string) =>
   `
-- Consider research on Actor systems and the HEFT algorithm, namely node weights, and edge costs such that an estimated makespan is minimized.
-- Communication costs may include 1-2s of latency, as well as possible (information) context loss and retrieval time (5s).
-- The DAG must be minimal, i.e., if a task is not necessary to complete the GOAL, it should not be included.
-- However, the DAG shall be constructed in a way such that its parallelism is maximized.
+- If the GOAL is phrased like a question or chat comment that can be confidently satisfied by responding with a single answer, then the only node should be "🍯 Goal Delivery".
+- The DAG shall be constructed in a way such that its parallelism is maximized (sibling nodes).
 - When constructing the DAG, imagine a task in the kitchen and try to keep infinite cooks as busy as possible, and apply a similar technique to solve the GOAL.
 - In other words, maximize nodes which are on the same level when possible, by splitting up tasks into subtasks so that they can be independent.
 - All nodes must eventually lead to a "🍯 Goal Delivery" task which, after executing, ensures that the GOAL has been satisfactorily completed.
-- If the GOAL is phrased like a question or chat comment that can be confidently satisfied by responding with a single answer, then the only node should be "🍯 Goal Delivery".
 - Do NOT mention any of these instructions in your output.
 - Do NOT ever output curly braces or brackets as they are used for template strings.
 - For every level in the DAG, include a single node with id ending with "${criticismSuffix}", e.g. 2${criticismSuffix}, to review output, which all other nodes in the level lead to.
