@@ -5,28 +5,36 @@ import { type AgentAction } from "langchain/schema";
 
 export type ChainValues = Record<string, unknown>;
 export type BaseAgentPacket = { type: AgentPacketType };
+
 export type AgentPacketType =
+  | AgentPacketFinishedType
   | "handleLLMStart"
   | "token"
   | "handleLLMEnd"
-  | "handleLLMError"
   | "handleChainEnd"
-  | "handleChainError"
   | "handleChainStart"
   | "handleToolEnd"
-  | "handleToolError"
   | "handleToolStart"
   | "handleAgentAction"
-  | "handleAgentEnd"
   | "handleText"
-  | "handleRetrieverError"
-  | "handleAgentError"
-  | "done"
-  | "error"
   | "requestHumanInput"
   | "starting"
   | "working"
   | "idle";
+
+export const AgentPacketFinishedTypes = [
+  "handleAgentEnd",
+  "done",
+  "error",
+  "handleChainError",
+  "handleToolError",
+  "handleLLMError",
+  "handleRetrieverError",
+  "handleAgentError",
+] as const;
+
+export type AgentPacketFinishedType = (typeof AgentPacketFinishedTypes)[number];
+
 // TODO: group these by origination for different logic, or maybe different typings
 export type AgentPacket =
   // server-side only

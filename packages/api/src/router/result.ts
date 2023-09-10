@@ -1,47 +1,30 @@
 import { type Prisma } from "@prisma/client";
 import { z } from "zod";
 
-import { ExecutionState } from "@acme/db";
+import {
+  AgentPacketFinishedTypes,
+  type AgentPacketFinishedType,
+  type AgentPacketType,
+  type BaseAgentPacket,
+} from "@acme/agent";
+import { ExecutionState, type ExecutionNode } from "@acme/db";
 
 import { createTRPCRouter, protectedProcedure } from "../trpc";
 
-export type BaseAgentPacket = { type: AgentPacketType };
-export type AgentPacketType =
-  | "handleLLMStart"
-  | "token"
-  | "handleLLMEnd"
-  | "handleLLMError"
-  | "handleChainEnd"
-  | "handleChainError"
-  | "handleChainStart"
-  | "handleToolEnd"
-  | "handleToolError"
-  | "handleToolStart"
-  | "handleAgentAction"
-  | "handleAgentEnd"
-  | "handleText"
-  | "handleRetrieverError"
-  | "handleAgentError"
-  | "done"
-  | "error"
-  | "requestHumanInput"
-  | "starting"
-  | "working"
-  | "idle";
-// TODO: group these by origination for different logic, or maybe different typings
-
 export const findValuePacket = (packets: BaseAgentPacket[]) => {
-  const packet = packets.findLast(
-    (packet) =>
-      packet.type === "handleAgentEnd" ||
-      packet.type === "done" ||
-      packet.type === "error" ||
-      packet.type === "handleChainError" ||
-      packet.type === "handleToolError" ||
-      packet.type === "handleLLMError" ||
-      packet.type === "handleRetrieverError" ||
-      packet.type === "handleAgentError",
-  ) ?? {
+  const agentPacketFinishedTypesSet = new Set(AgentPacketFinishedTypes);
+  const isAgentPacketFinishedType = (type: AgentPacketType) => {
+    return agentPacketFinishedTypesSet.has(type as AgentPacketFinishedType);
+  };
+
+  const packet = packets.findLast((packet) => {
+    try {
+      isAgentPacketFinishedType(packet.type);
+      return true;
+    } catch (err) {
+      return false;
+    }
+  }) ?? {
     type: "error",
     severity: "fatal",
     message: `No exe result packet found in ${packets.length} packets`,
@@ -49,19 +32,22 @@ export const findValuePacket = (packets: BaseAgentPacket[]) => {
 
   return packet;
 };
+
+export type TRPCExecutionNode = Omit<ExecutionNode, "realId"> | ExecutionNode;
+
 export const resultRouter = createTRPCRouter({
   create: protectedProcedure
     .input(
       z.object({
         goalId: z.string().nonempty(),
         executionId: z.string().cuid(),
-        nodeId: z.string().cuid(),
+        node: z.custom<TRPCExecutionNode>(),
         packets: z.array(z.any()),
         state: z.nativeEnum(ExecutionState),
       }),
     )
     .mutation(async ({ ctx, input }) => {
-      const { goalId, executionId, nodeId, packets, state } = input;
+      const { goalId, executionId, node, packets, state } = input;
 
       // start transaction
       const [result] = await ctx.prisma.$transaction([
@@ -76,7 +62,12 @@ export const resultRouter = createTRPCRouter({
             value: findValuePacket(packets as BaseAgentPacket[]),
             packets: packets as Prisma.InputJsonValue[],
             packetVersion: 1,
-            node: { connect: { realId: nodeId } },
+            node: {
+              connectOrCreate: {
+                create: node,
+                where: { realId: node.realId }, // TSC issue here, realId may not be avail
+              },
+            },
           },
         }),
         ctx.prisma.execution.update({

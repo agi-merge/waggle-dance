@@ -265,6 +265,9 @@ importers:
 
   packages/api:
     dependencies:
+      '@acme/agent':
+        specifier: ^0.1.0
+        version: link:../agent
       '@acme/auth':
         specifier: ^0.1.0
         version: link:../auth
