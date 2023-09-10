@@ -275,9 +275,7 @@ export enum TaskStatus {
 export interface DAGNode {
   id: string;
   name: string;
-  act: string;
   context: string;
-  params: string | null;
 }
 export interface DAGEdge {
   sId: string;
@@ -414,7 +412,6 @@ TASK: Review REVIEWEE OUTPUT of REVIEWEE TASK using the SCHEMA.
             `REVIEWEE TASK${i > 0 ? ` ${i}` : ""}:
 name: ${node.name}
 context: ${node.context}
-act: ${node.act}
 REVIEWEE OUTPUT:
 ${
   returnType === "JSON"

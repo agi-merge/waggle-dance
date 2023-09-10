@@ -14,7 +14,6 @@ export const schema = (_format: string) =>
 Node
   id: uuid // e.g. "1-1", "2-0", "2-1" (first number is the level, second number is the concurrent node number)
   name: string // a unique-amongst-nodes emoji plus a short description of the node
-  act: string
   context: string // paragraph describing what this node is about and how to properly execute the act
 Edge
   sId: uuid
@@ -31,104 +30,89 @@ const highQualityExamples = [
       {
         id: "1-0",
         name: "📚 Research AgentGPT",
-        act: "Research",
         context:
           "Gather information about AgentGPT, its features, capabilities, and limitations",
       },
       {
         id: "1-1",
         name: "📚 Research AutoGPT",
-        act: "Research",
         context:
           "Gather information about AutoGPT, its features, capabilities, and limitations",
       },
       {
         id: "1-2",
         name: "📚 Research BabyAGI",
-        act: "Research",
         context:
           "Gather information about BabyAGI, its features, capabilities, and limitations",
       },
       {
         id: "1-3",
         name: "🌐 Visit https://waggledance.ai",
-        act: "Visit",
         context:
           "Explore the website of Waggledance.ai to gather information about the project",
       },
       {
         id: "1-4",
         name: "📚 Research SuperAGI",
-        act: "Research",
         context:
           "Gather information about SuperAGI, its features, capabilities, and limitations",
       },
       {
         id: "1-criticize",
         name: "🔍 Review the research findings",
-        act: "Review",
         context:
           "Review the gathered information about the projects and identify key similarities and differences",
       },
       {
         id: "2-0",
         name: "📝 Create report outline",
-        act: "Create",
         context:
           "Create an outline for the report, including sections for each project and their comparisons",
       },
       {
         id: "2-1",
         name: "📝 Write introduction",
-        act: "Write",
         context:
           "Write an introduction to the report, providing an overview of the projects and their significance",
       },
       {
         id: "2-2",
         name: "📝 Write project descriptions",
-        act: "Write",
         context:
           "Write detailed descriptions of each project, highlighting their key features and capabilities",
       },
       {
         id: "2-3",
         name: "📝 Compare and contrast projects",
-        act: "Compare",
         context:
           "Analyze the gathered information and identify similarities and differences between the projects",
       },
       {
         id: "2-4",
         name: "📝 Write conclusion",
-        act: "Write",
         context:
           "Summarize the findings and provide a conclusion on the compared projects",
       },
       {
         id: "2-5",
         name: "📝 Format report in GFM",
-        act: "Format",
         context:
           "Format the report using GitHub Flavored Markdown (GFM) syntax",
       },
       {
         id: "2-criticize",
         name: "🔍 Review the report",
-        act: "Review",
         context: "Review the report for accuracy, clarity, and completeness",
       },
       {
         id: "3-0",
         name: "📝 Finalize report",
-        act: "Finalize",
         context:
           "Make any necessary revisions to the report based on the review and finalize it for submission",
       },
       {
         id: "4-0",
         name: "🍯 Goal Delivery",
-        act: "Deliver",
         context: "Deliver the final report to the User",
       },
     ],

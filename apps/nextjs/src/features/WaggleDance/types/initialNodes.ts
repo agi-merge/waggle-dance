@@ -10,9 +10,7 @@ export const initialNodes = (prompt: string): ExecutionNode[] => [
     realId: v4(),
     id: rootPlanId,
     name: `👸🐝 Queen Bee`,
-    act: `Plan initial strategy to help achieve your goal`,
-    context: prompt,
-    params: null,
+    context: `Plan initial strategy to help achieve your goal: ${prompt}`,
     graphId: v4(),
   },
 ];

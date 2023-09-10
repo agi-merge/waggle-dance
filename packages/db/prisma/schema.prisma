@@ -106,9 +106,7 @@ model ExecutionNode {
   realId  String         @id @default(cuid())
   id      String
   name    String
-  act     String
   context String
-  params  String?
   results Result[]
   graph   ExecutionGraph @relation(fields: [graphId], references: [id], onDelete: Cascade)
   graphId String
