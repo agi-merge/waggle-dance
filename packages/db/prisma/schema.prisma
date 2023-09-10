@@ -108,8 +108,8 @@ model ExecutionNode {
   name    String
   context String
   results Result[]
-  graph   ExecutionGraph @relation(fields: [graphId], references: [id], onDelete: Cascade)
-  graphId String
+  graph   ExecutionGraph? @relation(fields: [graphId], references: [id], onDelete: SetNull)
+  graphId String?
 }
 
 model ExecutionEdge {

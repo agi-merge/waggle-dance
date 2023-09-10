@@ -45,7 +45,7 @@ self.onmessage = function (
           return {
             sId: rootPlanId,
             tId: node.id,
-            graphId: node.graphId,
+            graphId: node.graphId || optDag.id || "",
             id: v4(),
           };
         });

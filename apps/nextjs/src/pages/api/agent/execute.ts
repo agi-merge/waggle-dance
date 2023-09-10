@@ -11,6 +11,7 @@ import { type ExecuteRequestBody } from "~/features/WaggleDance/types/types";
 import {
   callExecutionAgent,
   type AgentPacket,
+  type DAGNode,
 } from "../../../../../../packages/agent";
 import { type CreateResultParams } from "../result";
 
@@ -35,7 +36,7 @@ export default async function ExecuteStream(req: NextRequest) {
     rejectStreamEnded = reject;
   });
   const abortController = new AbortController();
-  let nodeId: string | undefined;
+  let node: DAGNode | undefined;
   try {
     const {
       creationProps,
@@ -47,7 +48,7 @@ export default async function ExecuteStream(req: NextRequest) {
       dag,
       revieweeTaskResults,
     } = (await req.json()) as ExecuteRequestBody;
-    nodeId = task.id;
+    node = task;
     goalId = parsedGoalId;
     executionId = parsedExecutionId;
 
@@ -279,10 +280,10 @@ export default async function ExecuteStream(req: NextRequest) {
       let response:
         | Response
         | { ok: boolean; status: number; statusText: string };
-      if (goalId && executionId && state && nodeId) {
+      if (goalId && executionId && state && node) {
         const createResultParams: CreateResultParams = {
           goalId,
-          nodeId,
+          node,
           executionId,
           packet,
           packets: [packet],

@@ -1,6 +1,12 @@
 import { z } from "zod";
 
-import { ExecutionState, type ExecutionEdge } from "@acme/db";
+import {
+  ExecutionState,
+  type ExecutionEdge,
+  type ExecutionGraph,
+  type ExecutionNode,
+  type PrismaPromise,
+} from "@acme/db";
 
 import { createTRPCRouter, protectedProcedure } from "../trpc";
 import { type TRPCExecutionNode } from "./result";
@@ -59,21 +65,63 @@ export const executionRouter = createTRPCRouter({
         graph: dagShape,
       }),
     )
-    .mutation(({ ctx, input }) => {
+    .mutation(async ({ ctx, input }) => {
       const { executionId, graph } = input;
 
-      return ctx.prisma.executionGraph.upsert({
+      const existingNodes = await ctx.prisma.executionNode.findMany({
+        where: { graph: { executionId } },
+      });
+
+      const operations: PrismaPromise<ExecutionNode>[] = graph.nodes
+        .map((node) => {
+          // Check against the fetched list of existing nodes
+          const existingNode = existingNodes.find((n) => n.id === node.id);
+          if (!existingNode) {
+            return ctx.prisma.executionNode.create({
+              data: {
+                id: node.id,
+                name: node.name,
+                context: node.context,
+                graph: { connect: { executionId: executionId } },
+              },
+            });
+          } else {
+            return null;
+          }
+        })
+        .filter(Boolean) as PrismaPromise<ExecutionNode>[];
+
+      const upsert = ctx.prisma.executionGraph.upsert({
         where: { executionId: executionId },
         create: {
           executionId: executionId,
-          nodes: { createMany: { data: graph.nodes } },
-          edges: { createMany: { data: graph.edges } },
+          nodes: { createMany: { data: graph.nodes } }, // create empty nodes
+          edges: { createMany: { data: graph.edges } }, // create edges
         },
-        update: {
-          nodes: { createMany: { data: graph.nodes } },
-          edges: { createMany: { data: graph.edges } },
-        },
+        update: {},
       });
+      const result: Array<PrismaPromise<ExecutionGraph | ExecutionNode>> = [
+        upsert,
+        ...operations,
+      ];
+
+      // | Promise<{
+      //     realId: string;
+      //     id: string;
+      //     name: string;
+      //     context: string;
+      //     graphId: string | null;
+      //   } | null>[]
+      // | PromiseLike<{
+      //     id: string;
+      //     executionId: string;
+      //     createdAt: Date;
+      //     updatedAt: Date;
+      //   }> = [upsert, ...operations];
+      // operations.push(upsert);
+      // start transaction
+
+      return await ctx.prisma.$transaction(result);
     }),
 
   updateState: protectedProcedure

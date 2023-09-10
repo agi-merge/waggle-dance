@@ -2,7 +2,7 @@
 
 import { type NextApiRequest, type NextApiResponse } from "next";
 
-import { type AgentPacket } from "@acme/agent";
+import { type AgentPacket, type DAGNode } from "@acme/agent";
 import { appRouter } from "@acme/api";
 import { getServerSession, type Session } from "@acme/auth";
 import { prisma, type ExecutionState, type Result } from "@acme/db";
@@ -13,7 +13,7 @@ export const config = {
 
 export type CreateResultParams = {
   goalId: string;
-  nodeId: string;
+  node: DAGNode;
   executionId: string;
   packet: AgentPacket;
   packets: AgentPacket[];
@@ -46,12 +46,6 @@ async function createResult(
   const { session } = createResultOptions;
   if (session?.user.id) {
     const caller = appRouter.createCaller({ session, prisma });
-
-    // goalId: z.string().nonempty(),
-    // executionId: z.string().cuid(),
-    // nodeId: z.string().cuid(),
-    // packets: z.array(z.any()),
-    // state: z.nativeEnum(ExecutionState),
     const createResult = await caller.result.create(createResultOptions);
     console.debug("createResult", createResult);
     return createResult;
