@@ -16,7 +16,8 @@ export const createModel = (
   console.log(`createModel: ${creationProps.modelName} `);
   if (
     agentPromptingMethod === AgentPromptingMethod.ChatConversationalReAct ||
-    agentPromptingMethod === AgentPromptingMethod.ChatZeroShotReAct
+    agentPromptingMethod === AgentPromptingMethod.ChatZeroShotReAct ||
+    agentPromptingMethod === AgentPromptingMethod.OpenAIStructuredChat
   ) {
     return new ChatOpenAI(
       { ...creationProps },
