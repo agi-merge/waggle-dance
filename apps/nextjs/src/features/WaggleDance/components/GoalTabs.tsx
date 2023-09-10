@@ -96,6 +96,7 @@ const GoalTab: React.FC<GoalTabProps> = ({
         opacity: isRunning ? 0.33 : 1,
         flex: "1 1 auto",
         maxWidth: `${100 / goalList.length}%`,
+        width: { xs: "4rem", sm: "5rem" },
         minWidth: 0,
       }}
       href={routes.goal({ id: tab.id })}
@@ -148,7 +149,7 @@ const GoalTab: React.FC<GoalTabProps> = ({
 // The main goal tabber component
 const GoalTabs: React.FC<GoalTabsProps> = ({ children }) => {
   const router = useRouter();
-  const { goalMap, newGoal, selectedGoal } = useGoalStore();
+  const { goalMap, newDraftGoal, selectedGoal } = useGoalStore();
   const { isRunning } = useWaggleDanceMachineStore();
 
   const goalList = useMemo(() => {
@@ -211,7 +212,7 @@ const GoalTabs: React.FC<GoalTabsProps> = ({ children }) => {
             size="md"
             variant="plain"
             onClick={() => {
-              const newId = newGoal();
+              const newId = newDraftGoal();
               void router.replace(routes.goal({ id: newId }), undefined, {
                 shallow: true,
               });

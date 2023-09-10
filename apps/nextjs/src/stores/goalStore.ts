@@ -14,7 +14,7 @@ export interface GoalStore {
   goalMap: Record<string, GoalPlusExe>;
   selectedGoal: GoalPlusExe | undefined;
   prevSelectedGoal: GoalPlusExe | undefined;
-  newGoal: () => string;
+  newDraftGoal: () => string;
   deleteGoal: (id: string) => void;
   selectGoal: (id: string) => void;
   upsertGoal: (goal: GoalPlusExe, replaceDraftId?: string | null) => void;
@@ -46,7 +46,7 @@ const useGoalStore = () =>
         goalMap: { [baseGoal.id]: baseGoal },
         selectedGoal: baseGoal,
         prevSelectedGoal: undefined,
-        newGoal() {
+        newDraftGoal() {
           return newGoalInner(set);
         },
         deleteGoal(id: string) {

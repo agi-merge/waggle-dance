@@ -105,15 +105,6 @@ const TaskListItem = ({
         >
           <Stack className="text-wrap" gap={1.5}>
             <Typography
-              level="title-sm"
-              style={{
-                overflowWrap: "break-word",
-              }}
-            >
-              {node.act}
-            </Typography>
-            <Divider inset="context" />
-            <Typography
               level="body-sm"
               className="text-wrap"
               color="neutral"
