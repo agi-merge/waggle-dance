@@ -16,7 +16,7 @@ import {
   createExecutePrompt,
   type DAGNode,
   type TaskState,
-} from "../prompts/createExecuteCriticismPrompt";
+} from "../..";
 import { isTaskCriticism } from "../prompts/types";
 import {
   getAgentPromptingMethodValue,
@@ -74,12 +74,12 @@ export async function callExecutionAgent(creation: {
   // } as const;
   const nodes = parse(dag) as DAGNode[];
   const prompt = isReview
-    ? await createCriticizePrompt({
+    ? createCriticizePrompt({
         revieweeTaskResults: revieweeTaskResults!,
         nodes,
         returnType,
       })
-    : await createExecutePrompt({
+    : createExecutePrompt({
         task,
         returnType,
         modelName: creationProps.modelName || LLM_ALIASES["fast"],

@@ -1,0 +1,1 @@
+These prompts are mostly unlike langchain prompts. They are more straightforward and prefer simple string templates with js ${replacement} over the composition features of langchain. It may be confusing to have both in the same project, so there is potential for refactoring.

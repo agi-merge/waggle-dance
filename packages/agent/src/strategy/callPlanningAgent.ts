@@ -4,11 +4,11 @@ import { LLMChain } from "langchain/chains";
 import { parse as jsonParse, stringify as jsonStringify } from "superjson";
 import { parse as yamlParse, stringify as yamlStringify } from "yaml";
 
-import { type DAGNode } from "../..";
 import {
   createPlanFormattingPrompt,
   createPlanPrompt,
 } from "../prompts/createPlanPrompt";
+import { type DAGNode } from "../prompts/types/DAGNode";
 import { AgentPromptingMethod, LLM, LLM_ALIASES } from "../utils/llms";
 import { createEmbeddings, createModel } from "../utils/model";
 import { type ModelCreationProps } from "../utils/OpenAIPropsBridging";
