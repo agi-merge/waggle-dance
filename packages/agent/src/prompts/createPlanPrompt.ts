@@ -98,23 +98,35 @@ const highQualityExamples = [
             "Summarize the findings and provide a conclusion on the compared projects",
         },
         {
-          id: "2-5",
+          id: "2-c",
+          name: "🔍 Review the sections",
+          context:
+            "Review the sections for accuracy, clarity, and completeness",
+        },
+        {
+          id: "3-0",
           name: "📝 Merge documents",
           context: "Merge all the written sections into a single document",
         },
         {
-          id: "2-6",
+          id: "3-c",
+          name: "🔍 Review the merged documents",
+          context:
+            "Ensure the merge was successful, the document is valid, and the content remains accurate",
+        },
+        {
+          id: "4-0",
           name: "📝 Format report in GFM",
           context:
             "Format the report using GitHub Flavored Markdown (GFM) syntax",
         },
         {
-          id: "2-c",
+          id: "4-c",
           name: "🔍 Review the report",
           context: "Review the report for accuracy, clarity, and completeness",
         },
         {
-          id: "3-0",
+          id: "5-0",
           name: "🍯 Goal Delivery",
           context: "Deliver the final report to the User",
         },
@@ -146,35 +158,39 @@ const highQualityExamples = [
         },
         {
           sId: "2-0",
-          tId: "2-1",
+          tId: "2-c",
         },
         {
           sId: "2-1",
-          tId: "2-2",
+          tId: "2-c",
         },
         {
           sId: "2-2",
-          tId: "2-3",
+          tId: "2-c",
         },
         {
           sId: "2-3",
-          tId: "2-4",
-        },
-        {
-          sId: "2-4",
-          tId: "2-5",
-        },
-        {
-          sId: "2-5",
-          tId: "2-6",
-        },
-        {
-          sId: "2-6",
           tId: "2-c",
         },
         {
           sId: "2-c",
           tId: "3-0",
+        },
+        {
+          sId: "3-0",
+          tId: "3-c",
+        },
+        {
+          sId: "3-c",
+          tId: "4-0",
+        },
+        {
+          sId: "4-0",
+          tId: "4-c",
+        },
+        {
+          sId: "4-c",
+          tId: "5-0",
         },
       ],
     },
