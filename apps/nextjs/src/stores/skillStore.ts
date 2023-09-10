@@ -35,15 +35,21 @@ const useSkillStore = create<SkillStore>()(
             .includes(skill?.id);
           const newValues = [...state.selectedSkills];
           newValues[skill.index] = isSkillSelected ? null : skill;
-          return { selectedSkills: newValues };
+          return {
+            selectedSkills: newValues,
+            selectedSkillsLength: newValues.filter(Boolean).length,
+          };
         }),
       setSkills: (skills: NullableSkillset[]) => {
-        set({ selectedSkills: skills, selectedSkillsLength: skills.length });
+        set({
+          selectedSkills: skills,
+          selectedSkillsLength: skills.filter(Boolean).length,
+        });
       },
       selectOnlyRecommended: () => {
         set({
           selectedSkills: [...defaultSkills],
-          selectedSkillsLength: defaultSkills.length,
+          selectedSkillsLength: defaultSkills.filter(Boolean).length,
         });
       },
       selectAll: () => {
