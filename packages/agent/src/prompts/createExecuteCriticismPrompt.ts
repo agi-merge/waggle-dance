@@ -48,7 +48,7 @@ AGAIN, THE ONLY THING YOU MUST OUTPUT IS ${format} that represents the execution
 `.trim();
 }
 
-const highQualityExamples = [
+const highQualityCriticismExamples = [
   {
     input:
       "Create a markdown document that compares and contrasts the costs, benefits, regional differences, and risks of implementing rooftop distributed solar, versus utility-scale solar, versus community solar.",
@@ -164,7 +164,7 @@ const examplesExecute: {
 
 const counterExamplesExecute: {
   input: string;
-  output: AgentPacket;
+  output: AgentPacket | string;
   reason: string;
 }[] = [
   {
@@ -176,7 +176,19 @@ const counterExamplesExecute: {
         "I'm sorry, but I was unable to gather information about the Waggledance.ai project due to network errors. It may be necessary to try a different approach or check the website at a later time.",
     },
     reason:
-      "This should be of type error or requestHumanInput, depending on whether the notify human skill is enabled.",
+      "The output should be an AgentPacket of type error or requestHumanInput, depending on whether the notify human skill is enabled.",
+  },
+  {
+    input:
+      "Gather information about AutoGPT, its features, capabilities, and limitations.",
+    output:
+      "The response to your last comment is that the Notify Human for Help skill is\navailable and we exhausted several attempts to browse the AutoGPT website and\nrelated web resources, but each resource returned an error page.\n",
+    reason: "The output should be an AgentPacket with type requestHumanInput.",
+  },
+  {
+    input: "Do XYZ",
+    output: "XYZ was successfully done.",
+    reason: "The output should be an AgentPacket with type done.",
   },
 ];
 
@@ -184,9 +196,10 @@ const counterExamplesExecute: {
 export async function createExecutePrompt(params: {
   task: string;
   returnType: "YAML" | "JSON";
+  modelName: string;
 }): Promise<ChatPromptTemplate> {
-  const { task, returnType } = params;
-
+  const { task, returnType, modelName } = params;
+  const useSystemPrompt = modelName.startsWith("GPT-4"); // 3.5 is not so good at following system prompts
   const schema = executeSchema(returnType, "unknown");
 
   const systemTemplate = `
@@ -231,31 +244,35 @@ SCHEMA: ${schema}`;
   // const exampleTemplate = await dynamicPrompt.format({ task });
   // console.debug(`examples: ${exampleTemplate}`);
 
-  const systemMessagePrompt =
-    SystemMessagePromptTemplate.fromTemplate(systemTemplate);
+  const promptTypeForModel = (template: string) => {
+    return useSystemPrompt
+      ? SystemMessagePromptTemplate.fromTemplate(template)
+      : HumanMessagePromptTemplate.fromTemplate(systemTemplate);
+  };
 
-  const examplesSystemMessagePrompt = SystemMessagePromptTemplate.fromTemplate(
+  const mainPrompt = promptTypeForModel(systemTemplate);
+
+  const examplesSystemMessagePrompt = promptTypeForModel(
     `EXAMPLES: ${
       returnType === "JSON"
         ? jsonStringify(examplesExecute)
         : yamlStringify(examplesExecute)
     }`,
   );
-  const counterExamplesSystemMessagePrompt =
-    SystemMessagePromptTemplate.fromTemplate(
-      `COUNTER EXAMPLES: ${
-        returnType === "JSON"
-          ? jsonStringify(counterExamplesExecute)
-          : yamlStringify(counterExamplesExecute)
-      }`,
-    );
+  const counterExamplesSystemMessagePrompt = promptTypeForModel(
+    `COUNTER examples: ${
+      returnType === "JSON"
+        ? jsonStringify(counterExamplesExecute)
+        : yamlStringify(counterExamplesExecute)
+    }`,
+  );
 
   const humanTemplate = `My TASK is: ${task}`;
   const humanMessagePrompt =
     HumanMessagePromptTemplate.fromTemplate(humanTemplate);
 
   const chatPrompt = ChatPromptTemplate.fromPromptMessages([
-    systemMessagePrompt,
+    mainPrompt,
     examplesSystemMessagePrompt,
     counterExamplesSystemMessagePrompt,
     humanMessagePrompt,
@@ -386,15 +403,17 @@ TASK: Review REVIEWEE OUTPUT of REVIEWEE TASK using the SCHEMA.
     SystemMessagePromptTemplate.fromTemplate(systemTemplate);
 
   // Convert highQualityExamples to the desired format
-  const formattedHighQualityExamples = highQualityExamples.map((example) => {
-    const formattedOutput =
-      returnType === "JSON" ? jsonStringify(example) : yamlStringify(example);
+  const formattedHighQualityExamples = highQualityCriticismExamples.map(
+    (example) => {
+      const formattedOutput =
+        returnType === "JSON" ? jsonStringify(example) : yamlStringify(example);
 
-    return {
-      ...example,
-      output: formattedOutput,
-    };
-  });
+      return {
+        ...example,
+        output: formattedOutput,
+      };
+    },
+  );
   const examplesSystemMessagePrompt = SystemMessagePromptTemplate.fromTemplate(
     `EXAMPLES: [${formattedHighQualityExamples}]`,
   );

@@ -23,6 +23,7 @@ import {
   InitializeAgentExecutorOptionsAgentTypes,
   InitializeAgentExecutorOptionsStructuredAgentTypes,
   LLM,
+  LLM_ALIASES,
   type AgentPromptingMethod,
   type InitializeAgentExecutorOptionsAgentType,
   type InitializeAgentExecutorOptionsStructuredAgentType,
@@ -78,7 +79,11 @@ export async function callExecutionAgent(creation: {
         nodes,
         returnType,
       })
-    : await createExecutePrompt({ task, returnType });
+    : await createExecutePrompt({
+        task,
+        returnType,
+        modelName: creationProps.modelName || LLM_ALIASES["fast"],
+      });
   const formattedMessages = await prompt.formatMessages({});
 
   const input: string = formattedMessages
