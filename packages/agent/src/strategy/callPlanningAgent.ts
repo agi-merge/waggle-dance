@@ -115,6 +115,7 @@ export async function callPlanningAgent(
         AgentPromptingMethod.OpenAIFunctions,
       ); // this is used to select a chat model (required for system message prompt)]
 
+      tags.push("fix");
       const formattingChain = new LLMChain({
         // memory,
         prompt: formattingPrompt,
