@@ -4,12 +4,7 @@ import { type NextApiRequest, type NextApiResponse } from "next";
 
 import { appRouter } from "@acme/api";
 import { getServerSession, type Session } from "@acme/auth";
-import {
-  ExecutionState,
-  prisma,
-  type Execution,
-  type ExecutionGraph,
-} from "@acme/db";
+import { ExecutionState, prisma, type Execution } from "@acme/db";
 
 export const config = {
   runtime: "nodejs",
@@ -46,7 +41,25 @@ async function updateGraph({
   executionId,
   graph,
   session,
-}: UpdateGraphParams): Promise<Execution | ExecutionGraph> {
+}: UpdateGraphParams): Promise<
+  | Execution
+  | [
+      {
+        id: string;
+        executionId: string;
+        createdAt: Date;
+        updatedAt: Date;
+      },
+      {
+        id: string;
+        goalId: string;
+        userId: string;
+        state: ExecutionState;
+        createdAt: Date;
+        updatedAt: Date;
+      },
+    ]
+> {
   if (session?.user.id) {
     const caller = appRouter.createCaller({ session, prisma });
     if (graph == null) {
