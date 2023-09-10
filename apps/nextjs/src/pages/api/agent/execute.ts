@@ -37,6 +37,7 @@ export default async function ExecuteStream(req: NextRequest) {
   });
   const abortController = new AbortController();
   let node: DAGNode | undefined;
+  const packets: AgentPacket[] = [];
   try {
     const {
       creationProps,
@@ -60,6 +61,7 @@ export default async function ExecuteStream(req: NextRequest) {
             handleLLMStart(): void | Promise<void> {
               const packet: AgentPacket = { type: "handleLLMStart" };
               controller.enqueue(encoder.encode(stringify([packet])));
+              packets.push(packet);
             },
             handleLLMError(
               err: unknown,
@@ -77,6 +79,7 @@ export default async function ExecuteStream(req: NextRequest) {
                 err: errorMessage,
               };
               controller.enqueue(encoder.encode(stringify([packet])));
+              packets.push(packet);
               console.error("handleLLMError", packet);
             },
             handleChainError(
@@ -95,6 +98,7 @@ export default async function ExecuteStream(req: NextRequest) {
                 err: errorMessage,
               };
               controller.enqueue(encoder.encode(stringify([packet])));
+              packets.push(packet);
               console.error("handleChainError", packet);
             },
             handleToolStart(
@@ -109,6 +113,7 @@ export default async function ExecuteStream(req: NextRequest) {
                 input,
               };
               controller.enqueue(encoder.encode(stringify([packet])));
+              packets.push(packet);
             },
             handleToolError(
               err: unknown,
@@ -126,6 +131,7 @@ export default async function ExecuteStream(req: NextRequest) {
                 err: errorMessage,
               };
               controller.enqueue(encoder.encode(stringify([packet])));
+              packets.push(packet);
               console.error("handleToolError", packet);
             },
             handleToolEnd(
@@ -135,6 +141,7 @@ export default async function ExecuteStream(req: NextRequest) {
             ): void | Promise<void> {
               const packet: AgentPacket = { type: "handleToolEnd", output };
               controller.enqueue(encoder.encode(stringify([packet])));
+              packets.push(packet);
             },
             handleAgentAction(
               action: AgentAction,
@@ -143,6 +150,7 @@ export default async function ExecuteStream(req: NextRequest) {
             ): void | Promise<void> {
               const packet: AgentPacket = { type: "handleAgentAction", action };
               controller.enqueue(encoder.encode(stringify([packet])));
+              packets.push(packet);
             },
             handleRetrieverError(
               err: Error,
@@ -161,6 +169,7 @@ export default async function ExecuteStream(req: NextRequest) {
                 err: errorMessage,
               };
               controller.enqueue(encoder.encode(stringify([packet])));
+              packets.push(packet);
             },
             handleAgentEnd(
               action: AgentFinish,
@@ -177,10 +186,12 @@ export default async function ExecuteStream(req: NextRequest) {
                   err: "Agent stopped due to max iterations.",
                 };
                 controller.enqueue(encoder.encode(stringify([packet])));
+                packets.push(packet);
               } else {
                 const value = stringify(output);
                 const packet: AgentPacket = { type: "handleAgentEnd", value };
                 controller.enqueue(encoder.encode(stringify([packet])));
+                packets.push(packet);
               }
             },
           }),
@@ -286,7 +297,7 @@ export default async function ExecuteStream(req: NextRequest) {
           node,
           executionId,
           packet,
-          packets: [packet],
+          packets: packets,
           state,
         };
         response = await fetch(`${getBaseUrl()}/api/result`, {
