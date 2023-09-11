@@ -27,7 +27,7 @@ import { api } from "~/utils/api";
 import routes from "~/utils/routes";
 import AddDocuments from "~/features/AddDocuments/AddDocuments";
 import AgentSettings from "~/features/AgentSettings/AgentSettings";
-import GoalPrompt from "~/features/GoalPrompt/GoalPrompt";
+import ErrorBoundary from "~/features/error/ErrorBoundary";
 import {
   AccordionContent,
   AccordionHeader,
@@ -54,11 +54,13 @@ const NoSSRWaggleDance = dynamic(
   },
 );
 
-const ErrorBoundary = lazy(() => import("../../features/error/ErrorBoundary"));
-
 const PageTitle = lazy(
   () => import("~/features/MainLayout/components/PageTitle"),
 );
+
+const GoalPrompt = lazy(() => import("~/features/GoalPrompt/GoalPrompt"));
+
+// const MainLayout = lazy(() => import("~/features/MainLayout"));
 
 type AlertConfig = {
   id: string;
@@ -246,11 +248,20 @@ const GoalPage = ({ alertConfigs }: Props) => {
 
   return (
     <MainLayout alertConfigs={alertConfigs}>
-      <Suspense>
-        <ErrorBoundary router={router}>
-          {state === "input" ? (
-            <GoalPrompt />
-          ) : (
+      <ErrorBoundary router={router}>
+        {state === "input" ? (
+          <GoalPrompt />
+        ) : (
+          <Suspense
+            fallback={
+              <Skeleton
+                variant="rectangular"
+                height="20rem"
+                animation="wave"
+                loading={true}
+              />
+            }
+          >
             <>
               <PageTitle title={isRunning ? "💃 Waggling!" : "💃 Waggle"}>
                 {goal?.prompt && (
@@ -645,13 +656,15 @@ const GoalPage = ({ alertConfigs }: Props) => {
                   </List>
                 )}
               </PageTitle>
-              <Suspense fallback={<Skeleton variant="rectangular" />}>
+              <Suspense
+                fallback={<Skeleton variant="rectangular" height="10rem" />}
+              >
                 <NoSSRWaggleDance />
               </Suspense>
             </>
-          )}
-        </ErrorBoundary>
-      </Suspense>
+          </Suspense>
+        )}
+      </ErrorBoundary>
     </MainLayout>
   );
 };
