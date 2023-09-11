@@ -103,8 +103,7 @@ model ExecutionGraph {
 }
 
 model ExecutionNode {
-  realId  String         @id @default(cuid())
-  id      String
+  id      String         @id
   name    String
   context String
   results Result[]
@@ -129,7 +128,7 @@ model Result {
   value       Json
   packets     Json[]
   packetVersion Int
-  node        ExecutionNode @relation(fields: [nodeId], references: [realId], onDelete: Cascade)
+  node        ExecutionNode @relation(fields: [nodeId], references: [id], onDelete: Cascade)
   nodeId      String
   createdAt   DateTime  @default(now())
   updatedAt   DateTime  @default(now()) @updatedAt

@@ -2,11 +2,12 @@
 import { v4 } from "uuid";
 import { parse } from "yaml";
 
+import { type ExecutionNode } from "@acme/db";
+
 import { type AgentPacket } from "../../../../../../packages/agent";
 import DAG from "../types/DAG";
 import {
   findNodesWithNoIncomingEdges,
-  initialNodes,
   rootPlanId,
 } from "../types/initialNodes";
 
@@ -19,11 +20,20 @@ declare const self: MyWorkerGlobalScope;
 console.debug("parseWorker.ts");
 let dag: DAG | null | undefined;
 let tokens = "";
-
+let executionId = "";
+let initialNodes: ExecutionNode[] = [];
 self.onmessage = function (
-  event: MessageEvent<{ buffer: string; goal: string }>,
+  event: MessageEvent<
+    { buffer: string } | { executionId: string; initialNodes: ExecutionNode[] }
+  >,
 ) {
-  const { buffer, goal } = event.data;
+  if ("executionId" in event.data && "initialNodes" in event.data) {
+    executionId = event.data.executionId;
+    initialNodes = event.data.initialNodes;
+    return;
+  }
+
+  const { buffer } = event.data;
   try {
     const newPackets = parse(buffer) as Partial<AgentPacket>[];
     newPackets.forEach((packet) => {
@@ -50,7 +60,10 @@ self.onmessage = function (
           };
         });
         const partialDAG = new DAG(
-          [...initialNodes(goal), ...validNodes],
+          [
+            ...initialNodes,
+            ...validNodes.map((n) => ({ ...n, id: `${executionId}.${n.id}` })),
+          ],
           [...(validEdges ?? []), ...hookupEdges],
         );
         dag = partialDAG;

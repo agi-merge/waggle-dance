@@ -32,7 +32,7 @@ export function createDraftExecution(selectedGoal: GoalPlusExe, dag: DAG) {
   const graphId = newDraftExecutionId();
   const goalId = selectedGoal.id;
   const nodes = dag.nodes.map((node) => {
-    return { ...node, graphId, realId: v4() };
+    return { ...node, graphId, id: `${executionId}.${node.id}` };
   });
   const edges = dag.edges.map((edge) => {
     return { ...edge, graphId, id: v4() };

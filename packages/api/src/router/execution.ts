@@ -105,22 +105,6 @@ export const executionRouter = createTRPCRouter({
         ...operations,
       ];
 
-      // | Promise<{
-      //     realId: string;
-      //     id: string;
-      //     name: string;
-      //     context: string;
-      //     graphId: string | null;
-      //   } | null>[]
-      // | PromiseLike<{
-      //     id: string;
-      //     executionId: string;
-      //     createdAt: Date;
-      //     updatedAt: Date;
-      //   }> = [upsert, ...operations];
-      // operations.push(upsert);
-      // start transaction
-
       return await ctx.prisma.$transaction(result);
     }),
 

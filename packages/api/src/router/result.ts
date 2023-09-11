@@ -33,9 +33,8 @@ export const findValuePacket = (packets: BaseAgentPacket[]) => {
   return packet;
 };
 
-export type TRPCExecutionNode =
-  | Omit<ExecutionNode, "realId" | "graphId">
-  | ExecutionNode;
+export type TRPCExecutionNode = Omit<ExecutionNode, "graphId"> | ExecutionNode;
+
 export const resultRouter = createTRPCRouter({
   create: protectedProcedure
     .input(
@@ -50,7 +49,21 @@ export const resultRouter = createTRPCRouter({
     .mutation(async ({ ctx, input }) => {
       const { goalId, executionId, node, packets, state } = input;
 
-      // start transaction
+      const nodeOperation = ctx.prisma.executionNode.upsert({
+        where: { id: node.id },
+        create: {
+          id: node.id,
+          name: node.name,
+          context: node.context,
+          graph: { connect: { executionId: executionId } },
+        },
+        update: {
+          name: node.name,
+          context: node.context,
+          graph: { connect: { executionId: executionId } },
+        },
+      });
+
       const [result, _execution, _graph] = await ctx.prisma.$transaction([
         ctx.prisma.result.create({
           data: {
@@ -60,7 +73,7 @@ export const resultRouter = createTRPCRouter({
             packets: packets as Prisma.InputJsonValue[],
             packetVersion: 1,
             node: {
-              create: node,
+              connect: { id: node.id },
             },
           },
         }),
@@ -73,12 +86,13 @@ export const resultRouter = createTRPCRouter({
           create: {
             executionId: executionId,
             nodes: {
-              create: [{ id: node.id, name: node.name, context: node.context }],
-            }, // create empty nodes
+              connect: [{ id: node.id }],
+            }, // connect to existing nodes
             edges: { create: [] }, // create empty edges
           },
           update: {},
         }),
+        nodeOperation,
       ]);
 
       return result;

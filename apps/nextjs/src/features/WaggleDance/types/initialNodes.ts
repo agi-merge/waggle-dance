@@ -7,7 +7,6 @@ import type DAG from "./DAG";
 export const rootPlanId = `👸🐝`;
 export const initialNodes = (prompt: string): ExecutionNode[] => [
   {
-    realId: v4(),
     id: rootPlanId,
     name: `👸🐝 Queen Bee`,
     context: `Plan initial strategy to help achieve your goal: ${prompt}`,
