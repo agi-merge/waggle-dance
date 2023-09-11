@@ -27,7 +27,6 @@ async function fetchTaskData(
 function processResponseBuffer(tokens: string): AgentPacket {
   const packets = parse(tokens) as AgentPacket[];
   const packet = findFinishPacket(packets);
-
   return packet;
 }
 

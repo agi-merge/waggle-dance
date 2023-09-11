@@ -34,13 +34,17 @@ export const AgentPacketFinishedTypes = [
   "handleAgentError",
 ] as const;
 
+export const AgentPacketFinishedStrings = Array.from(
+  AgentPacketFinishedTypes as unknown as string[],
+);
+
 export type AgentPacketFinishedType = (typeof AgentPacketFinishedTypes)[number];
 
-const agentPacketFinishedTypesSet = new Set(AgentPacketFinishedTypes);
+const agentPacketFinishedTypesSet = new Set(AgentPacketFinishedStrings);
 
 export const findFinishPacket = (packets: AgentPacket[]): AgentPacket => {
   const isAgentPacketFinishedType = (type: AgentPacketType) => {
-    return agentPacketFinishedTypesSet.has(type as AgentPacketFinishedType);
+    return agentPacketFinishedTypesSet.has(type);
   };
 
   const packet = packets.findLast((packet) => {
