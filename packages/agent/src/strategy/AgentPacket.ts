@@ -95,6 +95,6 @@ export type AgentPacket =
   | ({ type: "requestHumanInput"; reason: string } & BaseAgentPacket)
   // client-side only
   | ({ type: "starting"; nodeId: string } & BaseAgentPacket)
-  | ({ type: "working"; nodeId: string } & BaseAgentPacket);
-
+  | ({ type: "working"; nodeId: string } & BaseAgentPacket)
+  | ({ type: "idle"; nodeId: string } & BaseAgentPacket);
 export default AgentPacket;

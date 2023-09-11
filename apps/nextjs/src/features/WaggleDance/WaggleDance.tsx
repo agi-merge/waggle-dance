@@ -37,7 +37,6 @@ import useWaggleDanceMachineStore, {
 } from "~/stores/waggleDanceStore";
 import ForceGraph from "./components/ForceGraph";
 import useWaggleDanceMachine from "./hooks/useWaggleDanceMachine";
-import { rootPlanId } from "./types/initialNodes";
 
 const ResultsTab = lazy(() => import("./components/ResultsTab"));
 const TaskListTab = lazy(() => import("./components/TaskListTab"));
@@ -62,63 +61,20 @@ const WaggleDance = ({}: Props) => {
     reset,
     logs,
     results,
-    agentPackets: agentPacketsMap,
+    agentPacketsMap,
+    sortedTaskStates,
   } = useWaggleDanceMachine();
   const listItemsRef = useRef<HTMLLIElement[]>([]);
   const taskListRef = useRef<HTMLUListElement>(null);
+  const [recentTaskId, setRecentTaskId] = useState<string | null>(null);
+  const { data: session } = useSession();
+  const { setIsPageLoading, isAutoScrollToBottom, setIsAutoScrollToBottom } =
+    useApp();
   const agentPackets = useMemo(
     () => Object.values(agentPacketsMap),
     [agentPacketsMap],
   );
-  const { data: session } = useSession();
-  const sortedTaskStates = useMemo(() => {
-    return Object.values(agentPackets).sort((a: TaskState, b: TaskState) => {
-      const aid = a.displayId();
-      const bid = b.displayId();
-      if (aid === rootPlanId) {
-        return -1;
-      }
-      if (bid === rootPlanId) {
-        return 1;
-      }
-      if (aid === rootPlanId) {
-        return -1;
-      }
-      if (bid === rootPlanId) {
-        return 1;
-      }
-      if (a.status === b.status) {
-        // Split the IDs into parts and parse them into numbers
-        const aIdParts = aid.split("-").map(Number);
-        const bIdParts = bid.split("-").map(Number);
 
-        // Compare the parts
-        for (let i = 0; i < aIdParts.length && i < bIdParts.length; i++) {
-          if (aIdParts[i] !== bIdParts[i]) {
-            return (aIdParts[i] ?? 0) - (bIdParts[i] ?? 0); // Wrap the subtraction in parentheses
-          }
-        }
-
-        // If all parts are equal, the one with fewer parts should come first
-        return aIdParts.length - bIdParts.length;
-      }
-      if (a.status === TaskStatus.done) return -1;
-      if (b.status === TaskStatus.done) return 1;
-      if (a.status === TaskStatus.error) return -1;
-      if (b.status === TaskStatus.error) return 1;
-      if (a.status === TaskStatus.working) return -1;
-      if (b.status === TaskStatus.working) return 1;
-      if (a.status === TaskStatus.starting) return -1;
-      if (b.status === TaskStatus.starting) return 1;
-      if (a.status === TaskStatus.idle) return -1;
-      if (b.status === TaskStatus.idle) return 1;
-      // unhandled use alphabetical
-      return 1;
-    });
-  }, [agentPackets]);
-
-  const { setIsPageLoading, isAutoScrollToBottom, setIsAutoScrollToBottom } =
-    useApp();
   const { mutate: createExecution } = api.execution.create.useMutation({
     onSettled: (data, error) => {
       console.debug(
@@ -204,8 +160,6 @@ const WaggleDance = ({}: Props) => {
       }, 0);
     }
   }, [handleStart, hasMountedRef, isAutoStartEnabled, setIsAutoStartEnabled]);
-
-  const [recentTaskId, setRecentTaskId] = useState<string | null>(null);
 
   useEffect(() => {
     if (!isAutoScrollToBottom) {

@@ -5,6 +5,7 @@ import { mapPacketTypeToStatus } from "../utils/mapPacketToStatus";
 import { type DAGNode } from "./DAGNode";
 import { type TaskStatus } from "./TaskStatus";
 
+// Wrapper of Result that adds some useful methods
 export class TaskState implements EnhancedResponse {
   id: string;
   packets: AgentPacket[];

@@ -10,6 +10,7 @@ import useGoalStore from "~/stores/goalStore";
 import useWaggleDanceMachineStore from "~/stores/waggleDanceStore";
 import {
   TaskState,
+  TaskStatus,
   type AgentPacket,
   type DAGNode,
 } from "../../../../../../packages/agent";
@@ -98,8 +99,72 @@ const useWaggleDanceMachine = () => {
     [results],
   );
 
-  const [agentPackets, setAgentPackets] =
+  const [agentPacketsMap, setAgentPackets] =
     useState<Record<string, TaskState>>(resultsMap);
+
+  const taskStates: TaskState[] = useMemo(() => {
+    return dag.nodes.map((dagNode) => {
+      const taskState = agentPacketsMap[dagNode.id];
+      return new TaskState({
+        id: taskState?.nodeId ?? dagNode.id,
+        packets: taskState?.packets ?? [],
+        value:
+          taskState?.value ??
+          ({
+            type: "idle",
+            nodeId: taskState?.nodeId ?? dagNode.id,
+          } as AgentPacket),
+        updatedAt: taskState?.updatedAt ?? new Date(),
+        nodeId: dagNode.id,
+      });
+    });
+  }, [dag.nodes, agentPacketsMap]);
+
+  const sortedTaskStates = useMemo(() => {
+    return Object.values(taskStates).sort((a: TaskState, b: TaskState) => {
+      const aid = a.displayId();
+      const bid = b.displayId();
+      if (aid === rootPlanId) {
+        return -1;
+      }
+      if (bid === rootPlanId) {
+        return 1;
+      }
+      if (aid === rootPlanId) {
+        return -1;
+      }
+      if (bid === rootPlanId) {
+        return 1;
+      }
+      if (a.status === b.status) {
+        // Split the IDs into parts and parse them into numbers
+        const aIdParts = aid.split("-").map(Number);
+        const bIdParts = bid.split("-").map(Number);
+
+        // Compare the parts
+        for (let i = 0; i < aIdParts.length && i < bIdParts.length; i++) {
+          if (aIdParts[i] !== bIdParts[i]) {
+            return (aIdParts[i] ?? 0) - (bIdParts[i] ?? 0); // Wrap the subtraction in parentheses
+          }
+        }
+
+        // If all parts are equal, the one with fewer parts should come first
+        return aIdParts.length - bIdParts.length;
+      }
+      if (a.status === TaskStatus.done) return -1;
+      if (b.status === TaskStatus.done) return 1;
+      if (a.status === TaskStatus.error) return -1;
+      if (b.status === TaskStatus.error) return 1;
+      if (a.status === TaskStatus.working) return -1;
+      if (b.status === TaskStatus.working) return 1;
+      if (a.status === TaskStatus.starting) return -1;
+      if (b.status === TaskStatus.starting) return 1;
+      if (a.status === TaskStatus.idle) return -1;
+      if (b.status === TaskStatus.idle) return 1;
+      // unhandled use alphabetical
+      return 1;
+    });
+  }, [taskStates]);
 
   useEffect(() => {
     setAgentPackets(resultsMap);
@@ -296,9 +361,10 @@ const useWaggleDanceMachine = () => {
     reset,
     isDonePlanning,
     logs,
-    agentPackets,
+    agentPacketsMap,
     results,
     resultsMap,
+    sortedTaskStates,
   };
 };
 
