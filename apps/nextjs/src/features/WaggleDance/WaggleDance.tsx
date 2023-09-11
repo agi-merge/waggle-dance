@@ -73,22 +73,24 @@ const WaggleDance = ({}: Props) => {
   const { data: session } = useSession();
   const sortedTaskStates = useMemo(() => {
     return Object.values(agentPackets).sort((a: TaskState, b: TaskState) => {
-      if (a.id === rootPlanId) {
+      const aid = a.displayId();
+      const bid = b.displayId();
+      if (aid === rootPlanId) {
         return -1;
       }
-      if (b.id === rootPlanId) {
+      if (bid === rootPlanId) {
         return 1;
       }
-      if (a.id === rootPlanId) {
+      if (aid === rootPlanId) {
         return -1;
       }
-      if (b.id === rootPlanId) {
+      if (bid === rootPlanId) {
         return 1;
       }
       if (a.status === b.status) {
         // Split the IDs into parts and parse them into numbers
-        const aIdParts = a.id.split("-").map(Number);
-        const bIdParts = b.id.split("-").map(Number);
+        const aIdParts = aid.split("-").map(Number);
+        const bIdParts = bid.split("-").map(Number);
 
         // Compare the parts
         for (let i = 0; i < aIdParts.length && i < bIdParts.length; i++) {

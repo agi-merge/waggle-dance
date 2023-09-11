@@ -79,7 +79,7 @@ const TaskListItem = ({
             {node.name}
           </Typography>
           <Typography level="title-sm" color="neutral" fontFamily="monospace">
-            id: <Typography level="body-sm">{t.id}</Typography>
+            id: <Typography level="body-sm">{t.displayId()}</Typography>
           </Typography>
           <Stack gap="0.3rem" direction="row">
             <Tooltip title="Chat">

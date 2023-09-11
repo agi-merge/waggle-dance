@@ -28,6 +28,15 @@ export class TaskState implements EnhancedResponse {
   node(nodes: DAGNode[]): DAGNode | undefined {
     return nodes.find((n) => n.id === this.nodeId);
   }
+
+  displayId(): string {
+    const executionSplit = this.id.split(".")[1];
+    if (!executionSplit) {
+      return this.id;
+    } else {
+      return executionSplit;
+    }
+  }
 }
 
 type EnhancedResponse = { packets: AgentPacket[]; value: AgentPacket } & Omit<
