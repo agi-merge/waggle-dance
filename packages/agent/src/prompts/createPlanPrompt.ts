@@ -217,11 +217,17 @@ export function createPlanPrompt(params: {
   returnType: "JSON" | "YAML";
 }): ChatPromptTemplate {
   const { goal, tools, returnType } = params;
+  const prettyTools = tools.map((tool) => {
+    return { name: tool.name, description: tool.description };
+  });
   const stringifiedTools =
-    returnType === "JSON" ? jsonStringify(tools) : yamlStringify(tools);
+    returnType === "JSON"
+      ? jsonStringify(prettyTools)
+      : yamlStringify(prettyTools);
   const template = `
 YOU: A general goal-solving AI employed by the User to solve the User's GOAL.
-TEAM TOOLS: ${stringifiedTools}
+TEAM TOOLS:
+${stringifiedTools}
 GOAL: ${goal}
 NOW: ${new Date().toString()}
 SCHEMA: ${schema(returnType)}
