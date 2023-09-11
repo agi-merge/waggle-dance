@@ -83,39 +83,23 @@ export default class WaggleDanceMachine {
       log("skipping planning because it is done - dag", dag);
     } else {
       setIsDonePlanning(false);
-      try {
-        const creationProps = mapAgentSettingsToCreationProps(
-          agentSettings["plan"],
-        );
+      const creationProps = mapAgentSettingsToCreationProps(
+        agentSettings["plan"],
+      );
 
-        dag = await planTasks({
-          goal,
-          goalId,
-          executionId,
-          creationProps,
-          graphDataState: [dag, setDAG],
-          log,
-          injectAgentPacket,
-          startFirstTask: taskExecutor.startFirstTask.bind(taskExecutor),
-          abortSignal: abortController.signal,
-        });
-        setDAG(dag);
-        console.debug("dag", dag);
-      } catch (error) {
-        if (initNodes[0]) {
-          injectAgentPacket(
-            {
-              type: "error",
-              severity: "fatal",
-              error: error as Error,
-            },
-            initNodes[0],
-          );
-          return error as Error;
-        } else {
-          throw new Error("no initial node");
-        }
-      }
+      dag = await planTasks({
+        goal,
+        goalId,
+        executionId,
+        creationProps,
+        graphDataState: [dag, setDAG],
+        log,
+        injectAgentPacket,
+        startFirstTask: taskExecutor.startFirstTask.bind(taskExecutor),
+        abortSignal: abortController.signal,
+      });
+      setDAG(dag);
+      console.debug("dag", dag);
 
       if (dag && initNodes[0]) {
         if (dag.nodes.length < 2) {

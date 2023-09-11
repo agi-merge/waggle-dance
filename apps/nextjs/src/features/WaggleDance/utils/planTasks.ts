@@ -89,11 +89,12 @@ export default async function planTasks({
     postMessageCount--;
     const { dag: newDag, error, finishPacket } = event.data;
 
-    if (!!error) {
-      return;
-    }
     if (!!finishPacket) {
       injectAgentPacket(finishPacket, initialNode!);
+      return;
+    }
+
+    if (!!error) {
       return;
     }
 
@@ -167,10 +168,6 @@ export default async function planTasks({
   const streamString = await streamToString(stream);
   const partialDAG = parse(streamString) as DAG;
   if (!partialDAG) {
-    injectAgentPacket(
-      { type: "error", severity: "fatal", error: new Error("No DAG") },
-      initialNode,
-    );
     throw new Error("No DAG");
   }
   return partialDAG;
