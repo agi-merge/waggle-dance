@@ -230,9 +230,7 @@ export default async function ExecuteStream(req: NextRequest) {
           packet = { type: "done", value: exeResult };
         }
         executionResult = { packet, state: state as ExecutionState };
-        controller.enqueue(
-          encoder.encode(stringify([encoder.encode(stringify(packet))])),
-        );
+        controller.enqueue(encoder.encode(stringify([packet])));
         resolveStreamEnded();
         controller.close();
       },
