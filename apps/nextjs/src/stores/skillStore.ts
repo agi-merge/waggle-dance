@@ -27,7 +27,7 @@ const useSkillStore = create<SkillStore>()(
   logger(
     (set) => ({
       selectedSkills: [...defaultSkills],
-      selectedSkillsLength: defaultSkills.length,
+      selectedSkillsLength: defaultSkills.filter(Boolean).length,
       toggleSkill: (skill: Skillset) =>
         set((state) => {
           const isSkillSelected = state.selectedSkills
