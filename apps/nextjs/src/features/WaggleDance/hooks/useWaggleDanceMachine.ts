@@ -170,10 +170,6 @@ const useWaggleDanceMachine = () => {
     setAgentPackets(resultsMap);
   }, [resultsMap]);
 
-  // const combinedResultsPackets = useMemo(() => {
-
-  // });
-
   const [logs, setLogs] = useState<LogMessage[]>([]);
   const [abortController, setAbortController] = useState(
     () => new AbortController(),
