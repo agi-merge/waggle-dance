@@ -12,7 +12,6 @@ import {
   type AgentSettingsMap,
   type TaskState,
 } from "../../../../../packages/agent";
-import DAG from "./types/DAG";
 import { initialNodes, rootPlanId } from "./types/initialNodes";
 import TaskExecutor, { type InjectAgentPacketType } from "./types/TaskExecutor";
 import {
@@ -49,23 +48,14 @@ export default class WaggleDanceMachine {
     goalId,
     executionId,
     agentSettings,
-    graphDataState: [initDAG, setDAG],
+    graphDataState: [dag, setDAG],
     isDonePlanningState: [isDonePlanning, setIsDonePlanning],
     injectAgentPacket: injectAgentPacket,
     log,
     abortController,
   }: RunParams): Promise<WaggleDanceResult | Error> {
-    setDAG({ ...initDAG });
-
     const initNodes = initialNodes(goal);
 
-    let dag = ((): DAG => {
-      return new DAG(
-        [...initNodes],
-        // connect our initial nodes to the DAG: gotta find them and create edges
-        [],
-      );
-    })();
     const completedTasks: Set<string> = new Set([rootPlanId]);
 
     let resolveFirstTask: () => void = () => {}; // these are just placeholders, overwritten within firstTaskPromise
@@ -89,8 +79,8 @@ export default class WaggleDanceMachine {
       rejectFirstTask,
     );
 
-    if (initDAG.edges.length > 1 && isDonePlanning) {
-      log("skipping planning because it is done - initDAG", initDAG);
+    if (dag.edges.length > 1 && isDonePlanning) {
+      log("skipping planning because it is done - dag", dag);
     } else {
       setIsDonePlanning(false);
       try {
@@ -103,7 +93,7 @@ export default class WaggleDanceMachine {
           goalId,
           executionId,
           creationProps,
-          graphDataState: [initDAG, setDAG],
+          graphDataState: [dag, setDAG],
           log,
           injectAgentPacket,
           startFirstTask: taskExecutor.startFirstTask.bind(taskExecutor),

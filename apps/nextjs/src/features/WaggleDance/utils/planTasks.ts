@@ -29,16 +29,13 @@ export default async function planTasks({
   goalId,
   executionId,
   creationProps,
-  graphDataState: [initDag, setDAG],
+  graphDataState: [dag, setDAG],
   log,
   injectAgentPacket,
   startFirstTask,
   abortSignal,
 }: PlanTasksProps): Promise<DAG> {
-  injectAgentPacket(
-    { type: "starting", nodeId: rootPlanId },
-    initDag.nodes[0]!,
-  );
+  injectAgentPacket({ type: "starting", nodeId: rootPlanId }, dag.nodes[0]!);
 
   let hasFirstTaskStarted = false;
   const data = { goal, goalId, executionId, creationProps };
@@ -69,7 +66,6 @@ export default async function planTasks({
   }
 
   let postMessageCount = 0;
-  let dag: DAG | null | undefined;
   const parseWorker = new Worker(new URL("./parseWorker.ts", import.meta.url));
 
   parseWorker.onerror = function (event) {
