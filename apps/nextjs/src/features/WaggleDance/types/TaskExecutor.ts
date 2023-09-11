@@ -119,6 +119,88 @@ class TaskExecutor {
       this.abortController.abort();
     }
   }
+
+  async executeTasks(
+    tasks: Array<DAGNode | DAGNodeClass>,
+    dag: DAG,
+    agentSettings: AgentSettingsMap,
+  ): Promise<void> {
+    for (const task of tasks) {
+      if (!this.abortController.signal.aborted) {
+        try {
+          const creationProps = mapAgentSettingsToCreationProps(
+            agentSettings["execute"],
+          );
+          const executeRequest = {
+            goal: this.goal,
+            goalId: this.goalId,
+            executionId: this.executionId,
+            agentPromptingMethod:
+              agentSettings["execute"].agentPromptingMethod!,
+            task,
+            dag,
+            revieweeTaskResults: null, // intentionally left blank, first task can't be criticism
+            completedTasks: this.completedTasks,
+            creationProps,
+          };
+          const result = await executeTask({
+            request: executeRequest,
+            injectAgentPacket: this.injectAgentPacket,
+            log: this.log,
+            abortSignal: this.abortController.signal,
+          });
+
+          this.injectAgentPacket(result, task);
+
+          // The task is completed, so add it to the set of completed tasks
+          this.completedTasks.add(task.id);
+        } catch (error) {
+          // Handle errors during task execution
+          if (error instanceof Error) {
+            this.injectAgentPacket(
+              {
+                type: "error",
+                severity: "warn",
+                error,
+              },
+              task,
+            );
+            this.rejectFirstTask(error.message);
+          } else if (error as AgentPacket) {
+            const packet = error as AgentPacket;
+            this.injectAgentPacket(packet, task);
+            this.rejectFirstTask(packet.type);
+          } else if (typeof error === "string") {
+            this.injectAgentPacket(
+              {
+                type: "error",
+                severity: "warn",
+                error: new Error(error),
+              },
+              task,
+            );
+            this.rejectFirstTask(error);
+          } else {
+            this.injectAgentPacket(
+              {
+                type: "error",
+                severity: "warn",
+                error: new Error("Unknown error"),
+              },
+              task,
+            );
+            this.rejectFirstTask("Unknown error");
+          }
+
+          this.abortController.abort();
+        }
+      } else {
+        console.warn("aborted executeTasks");
+        this.rejectFirstTask("Signal aborted");
+        this.abortController.abort();
+      }
+    }
+  }
 }
 
 export default TaskExecutor;

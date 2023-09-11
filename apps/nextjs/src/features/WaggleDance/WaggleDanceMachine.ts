@@ -5,10 +5,7 @@
 // It starts by generating an execution DAG and then executes the tasks concurrently.
 // When a task completes, a new dependent review task should be added to the DAG to ensure quality results.
 
-import { stringify } from "yaml";
-
 import {
-  type AgentPacket,
   type AgentSettingsMap,
   type TaskState,
 } from "../../../../../packages/agent";
@@ -16,12 +13,10 @@ import { initialNodes, rootPlanId } from "./types/initialNodes";
 import TaskExecutor, { type InjectAgentPacketType } from "./types/TaskExecutor";
 import {
   mapAgentSettingsToCreationProps,
-  type ExecuteRequestBody,
   type GraphDataState,
   type IsDonePlanningState,
   type WaggleDanceResult,
 } from "./types/types";
-import executeTask from "./utils/executeTask";
 import { isGoalReached } from "./utils/isGoalReached";
 import planTasks from "./utils/planTasks";
 import { sleep } from "./utils/sleep";
@@ -148,7 +143,6 @@ export default class WaggleDanceMachine {
     while (!isGoalReached(dag, completedTasks)) {
       if (abortController.signal.aborted) throw new Error("Signal aborted");
 
-      // console.group("WaggleDanceMachine.run")
       const pendingTasks = toDoNodes.filter(
         (node) => !completedTasks.has(node.id),
       );
@@ -171,68 +165,12 @@ export default class WaggleDanceMachine {
           );
         }
       }
-      if (pendingCurrentDagLayerTasks.length > 0) {
-        log(
-          "relevantPendingTasks",
-          pendingCurrentDagLayerTasks.map((task) => task.name),
-        );
-      }
 
-      const task = pendingCurrentDagLayerTasks.splice(0, 1)[0]; // pop first task
-      if (!task) {
-        await sleep(100); // wait for tasks to end
-        continue;
-      }
-      toDoNodes.splice(toDoNodes.indexOf(task), 1); // remove from toDoNodes
-
-      const creationProps = mapAgentSettingsToCreationProps(
-        agentSettings["execute"],
-      );
-
-      const idMinusSuffix = task.id.split("-")[0];
-      const revieweeTaskResults = Object.entries(taskResults)
-        .filter((task) => task[0].startsWith(idMinusSuffix + "-"))
-        .map((task) => task[1]);
-      // const revieweeTaskResults = dag.edges.filter(
-      //   (edge) => edge.tId === task.id,
-      // );
-      const executeRequest = {
-        goal,
-        goalId,
-        executionId,
-        agentPromptingMethod: agentSettings["execute"].agentPromptingMethod!,
-        task,
+      await taskExecutor.executeTasks(
+        pendingCurrentDagLayerTasks,
         dag,
-        revieweeTaskResults,
-        completedTasks,
-        creationProps,
-      } as ExecuteRequestBody;
-
-      void (async () => {
-        let result: AgentPacket | undefined | null;
-        try {
-          result = await executeTask({
-            request: executeRequest,
-            injectAgentPacket,
-            log,
-            abortSignal: abortController.signal,
-          });
-          injectAgentPacket(result, task);
-        } catch (e) {
-          const error = e instanceof Error ? e : new Error(stringify(e));
-          injectAgentPacket(
-            {
-              type: "error",
-              severity: "fatal",
-              error,
-            },
-            task,
-          );
-          abortController.abort();
-          return;
-        }
-        completedTasks.add(executeRequest.task.id);
-      })();
+        agentSettings,
+      );
     }
 
     console.debug("WaggleDanceMachine.run: completedTasks", completedTasks);
