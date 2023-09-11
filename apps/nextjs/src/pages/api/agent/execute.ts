@@ -220,7 +220,7 @@ export default async function ExecuteStream(req: NextRequest) {
           packet = {
             type: "error",
             severity: "fatal",
-            message: exeResult.message,
+            error: exeResult,
           };
         } else {
           state =
@@ -252,26 +252,36 @@ export default async function ExecuteStream(req: NextRequest) {
       },
     });
   } catch (e) {
-    let message;
-    let status: number;
-    let stack;
+    let errorPacket: AgentPacket;
     if (e instanceof Error) {
-      message = e.message;
-      status = 500;
-      stack = e.stack;
+      errorPacket = {
+        type: "error",
+        severity: "fatal",
+        error: e,
+      };
+    } else if (e as AgentPacket) {
+      errorPacket = e as AgentPacket;
+    } else if (typeof e === "string") {
+      errorPacket = {
+        type: "error",
+        severity: "fatal",
+        error: new Error(stringify(e)),
+      };
     } else {
-      message = String(e);
-      status = 500;
-      stack = "";
+      errorPacket = {
+        type: "error",
+        severity: "fatal",
+        error: new Error(stringify(e)),
+      };
+    }
+    executionResult = { packet: errorPacket, state: "ERROR" };
+    console.error("plan error", e);
+
+    let status = 500;
+    if (e as { status: number }) {
+      status = (e as { status: number }).status;
     }
 
-    const all = { stack, message, status };
-    console.error("execute error", all);
-    const errorPacket: AgentPacket = {
-      type: "error",
-      severity: "fatal",
-      message: stringify(all),
-    };
     return new Response(stringify([errorPacket]), {
       headers: {
         "Content-Type": "application/yaml",
@@ -323,7 +333,7 @@ export default async function ExecuteStream(req: NextRequest) {
         const errorPacket: AgentPacket = {
           type: "error",
           severity: "fatal",
-          message: stringify(error),
+          error,
         };
         return new Response(stringify([errorPacket]), {
           headers: {

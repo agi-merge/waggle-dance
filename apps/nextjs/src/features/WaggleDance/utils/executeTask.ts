@@ -1,7 +1,10 @@
 // features/WaggleDance/utils/executeTask.ts
 import { parse } from "yaml";
 
-import { type AgentPacket } from "../../../../../../packages/agent";
+import {
+  findFinishPacket,
+  type AgentPacket,
+} from "../../../../../../packages/agent";
 import { type InjectAgentPacketType } from "../types/TaskExecutor";
 import { type ExecuteRequestBody } from "../types/types";
 
@@ -23,21 +26,7 @@ async function fetchTaskData(
 
 function processResponseBuffer(tokens: string): AgentPacket {
   const packets = parse(tokens) as AgentPacket[];
-  const packet = packets.findLast(
-    (packet) =>
-      packet.type === "handleAgentEnd" ||
-      packet.type === "done" ||
-      packet.type === "error" ||
-      packet.type === "handleChainError" ||
-      packet.type === "handleToolError" ||
-      packet.type === "handleLLMError" ||
-      packet.type === "handleRetrieverError" ||
-      packet.type === "handleAgentError",
-  ) ?? {
-    type: "error",
-    severity: "fatal",
-    message: `No exe result packet found in ${packets.length} packets`,
-  }; // Use Nullish Coalescing to provide a default value
+  const packet = findFinishPacket(packets);
 
   return packet;
 }

@@ -3,6 +3,7 @@
 import { parse } from "yaml";
 
 import {
+  type AgentPacket,
   type DAGNode,
   type ModelCreationProps,
 } from "../../../../../../packages/agent";
@@ -82,12 +83,17 @@ export default async function planTasks({
     event: MessageEvent<{
       dag: DAG | null | undefined;
       error: Error | undefined;
+      finishPacket: AgentPacket | undefined;
     }>,
   ) {
     postMessageCount--;
-    const { dag: newDag, error } = event.data;
+    const { dag: newDag, error, finishPacket } = event.data;
 
     if (!!error) {
+      return;
+    }
+    if (!!finishPacket) {
+      injectAgentPacket(finishPacket, initialNode!);
       return;
     }
 
@@ -126,7 +132,7 @@ export default async function planTasks({
     const reader = readableStream.getReader();
 
     let result;
-    while ((result = await reader.read()) && !result.done) {
+    while ((result = await reader.read()) && result.value) {
       if (abortSignal.aborted) {
         throw new Error("Signal aborted");
       }
@@ -160,5 +166,12 @@ export default async function planTasks({
 
   const streamString = await streamToString(stream);
   const partialDAG = parse(streamString) as DAG;
-  return partialDAG || dag;
+  if (!partialDAG) {
+    injectAgentPacket(
+      { type: "error", severity: "fatal", error: new Error("No DAG") },
+      initialNode,
+    );
+    throw new Error("No DAG");
+  }
+  return partialDAG;
 }

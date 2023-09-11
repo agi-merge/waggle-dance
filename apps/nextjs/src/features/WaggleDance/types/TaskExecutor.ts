@@ -75,16 +75,42 @@ class TaskExecutor {
         // });
         // this.taskResultsState[0][task.id] = taskState;
       } catch (error) {
-        const message = (error as Error).message;
-        this.injectAgentPacket(
-          {
-            type: "error",
-            severity: "warn",
-            message,
-          },
-          task,
-        );
-        this.rejectFirstTask(message);
+        if (error instanceof Error) {
+          this.injectAgentPacket(
+            {
+              type: "error",
+              severity: "warn",
+              error,
+            },
+            task,
+          );
+          this.rejectFirstTask(error.message);
+        } else if (error as AgentPacket) {
+          const packet = error as AgentPacket;
+          this.injectAgentPacket(packet, task);
+          this.rejectFirstTask(packet.type);
+        } else if (typeof error === "string") {
+          this.injectAgentPacket(
+            {
+              type: "error",
+              severity: "warn",
+              error: new Error(error),
+            },
+            task,
+          );
+          this.rejectFirstTask(error);
+        } else {
+          this.injectAgentPacket(
+            {
+              type: "error",
+              severity: "warn",
+              error: new Error("Unknown error"),
+            },
+            task,
+          );
+          this.rejectFirstTask("Unknown error");
+        }
+
         this.abortController.abort();
       }
     } else {

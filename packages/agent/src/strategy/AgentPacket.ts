@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 // chain/utils/types.ts
 
 import { type Serialized } from "langchain/load/serializable";
@@ -35,18 +36,41 @@ export const AgentPacketFinishedTypes = [
 
 export type AgentPacketFinishedType = (typeof AgentPacketFinishedTypes)[number];
 
+const agentPacketFinishedTypesSet = new Set(AgentPacketFinishedTypes);
+
+export const findFinishPacket = (packets: AgentPacket[]): AgentPacket => {
+  const isAgentPacketFinishedType = (type: AgentPacketType) => {
+    return agentPacketFinishedTypesSet.has(type as AgentPacketFinishedType);
+  };
+
+  const packet = packets.findLast((packet) => {
+    try {
+      isAgentPacketFinishedType(packet.type);
+      return true;
+    } catch (err) {
+      return false;
+    }
+  }) ?? {
+    type: "error",
+    severity: "fatal",
+    error: new Error(`No result packet found in ${packets.length} packets`),
+  };
+
+  return packet;
+};
+
 // TODO: group these by origination for different logic, or maybe different typings
 export type AgentPacket =
   // server-side only
   | ({ type: "handleLLMStart" } & BaseAgentPacket)
   | ({ type: "token"; token: string } & BaseAgentPacket) // handleLLMNewToken (shorted on purpose)
   | ({ type: "handleLLMEnd"; output: string } & BaseAgentPacket)
-  | ({ type: "handleLLMError"; err: unknown } & BaseAgentPacket)
+  | ({ type: "handleLLMError"; err: any } & BaseAgentPacket)
   | ({ type: "handleChainEnd"; outputs: ChainValues } & BaseAgentPacket)
-  | ({ type: "handleChainError"; err: unknown } & BaseAgentPacket)
+  | ({ type: "handleChainError"; err: any } & BaseAgentPacket)
   | ({ type: "handleChainStart" } & BaseAgentPacket)
   | ({ type: "handleToolEnd"; output: string } & BaseAgentPacket)
-  | ({ type: "handleToolError"; err: unknown } & BaseAgentPacket)
+  | ({ type: "handleToolError"; err: any } & BaseAgentPacket)
   | ({
       type: "handleToolStart";
       tool: Serialized;
@@ -55,14 +79,14 @@ export type AgentPacket =
   | ({ type: "handleAgentAction"; action: AgentAction } & BaseAgentPacket)
   | ({ type: "handleAgentEnd"; value: string } & BaseAgentPacket)
   | ({ type: "handleText"; text: string } & BaseAgentPacket)
-  | ({ type: "handleRetrieverError"; err: unknown } & BaseAgentPacket)
+  | ({ type: "handleRetrieverError"; err: any } & BaseAgentPacket)
   // our callbacks
-  | ({ type: "handleAgentError"; err: unknown } & BaseAgentPacket) // synthetic; used for max iterations only
+  | ({ type: "handleAgentError"; err: any } & BaseAgentPacket) // synthetic; used for max iterations only
   | ({ type: "done"; value: string } & BaseAgentPacket)
   | ({
       type: "error";
       severity: "warn" | "human" | "fatal";
-      message: string;
+      error: Error;
     } & BaseAgentPacket)
   | ({ type: "requestHumanInput"; reason: string } & BaseAgentPacket)
   // client-side only

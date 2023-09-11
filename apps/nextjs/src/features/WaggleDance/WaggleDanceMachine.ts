@@ -107,7 +107,7 @@ export default class WaggleDanceMachine {
             {
               type: "error",
               severity: "fatal",
-              message: JSON.stringify(error, Object.getOwnPropertyNames(error)),
+              error: error as Error,
             },
             initNodes[0],
           );
@@ -117,19 +117,40 @@ export default class WaggleDanceMachine {
         }
       }
 
-      if (dag && dag.nodes) {
-        const rootNode = dag.nodes.find((n) => n.id === rootPlanId);
-        if (!rootNode) {
-          throw new Error("no root node");
+      if (dag && initNodes[0]) {
+        if (dag.nodes.length < 2) {
+          injectAgentPacket(
+            {
+              type: "error",
+              severity: "fatal",
+              error: new Error(
+                "No tasks planned, this is likely due to another uncaught error",
+              ),
+            },
+            initNodes[0],
+          );
+        } else if (dag.edges.length < 1) {
+          injectAgentPacket(
+            {
+              type: "error",
+              severity: "fatal",
+              error: new Error(
+                "No edges planned, this is likely due to another uncaught error",
+              ),
+            },
+            initNodes[0],
+          );
         }
         injectAgentPacket(
           {
             type: "done",
             value: `Planned an execution graph with ${dag.nodes.length} tasks and ${dag.edges.length} edges.`,
           },
-          rootNode,
+          initNodes[0],
         );
         setIsDonePlanning(true);
+      } else {
+        throw new Error("either no dag or no initial node");
       }
 
       log("done planning");
@@ -213,14 +234,13 @@ export default class WaggleDanceMachine {
             abortSignal: abortController.signal,
           });
           injectAgentPacket(result, task);
-        } catch (error) {
-          const message =
-            error instanceof Error ? error.message : stringify(error);
+        } catch (e) {
+          const error = e instanceof Error ? e : new Error(stringify(e));
           injectAgentPacket(
             {
               type: "error",
-              severity: "warn",
-              message,
+              severity: "fatal",
+              error,
             },
             task,
           );

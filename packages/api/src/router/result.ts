@@ -1,37 +1,10 @@
 import { type Prisma } from "@prisma/client";
 import { z } from "zod";
 
-import {
-  AgentPacketFinishedTypes,
-  type AgentPacketFinishedType,
-  type AgentPacketType,
-  type BaseAgentPacket,
-} from "@acme/agent";
+import { findFinishPacket, type AgentPacket } from "@acme/agent";
 import { ExecutionState, type ExecutionNode } from "@acme/db";
 
 import { createTRPCRouter, protectedProcedure } from "../trpc";
-
-export const findValuePacket = (packets: BaseAgentPacket[]) => {
-  const agentPacketFinishedTypesSet = new Set(AgentPacketFinishedTypes);
-  const isAgentPacketFinishedType = (type: AgentPacketType) => {
-    return agentPacketFinishedTypesSet.has(type as AgentPacketFinishedType);
-  };
-
-  const packet = packets.findLast((packet) => {
-    try {
-      isAgentPacketFinishedType(packet.type);
-      return true;
-    } catch (err) {
-      return false;
-    }
-  }) ?? {
-    type: "error",
-    severity: "fatal",
-    message: `No exe result packet found in ${packets.length} packets`,
-  }; // Use Nullish Coalescing to provide a default value
-
-  return packet;
-};
 
 export type TRPCExecutionNode = Omit<ExecutionNode, "graphId"> | ExecutionNode;
 
@@ -69,7 +42,9 @@ export const resultRouter = createTRPCRouter({
           data: {
             execution: { connect: { id: executionId } },
             goal: { connect: { id: goalId } },
-            value: findValuePacket(packets as BaseAgentPacket[]),
+            value: findFinishPacket(
+              packets as AgentPacket[],
+            ) as Prisma.InputJsonValue,
             packets: packets as Prisma.InputJsonValue[],
             packetVersion: 1,
             node: {

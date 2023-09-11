@@ -27,7 +27,7 @@ export default async function PlanStream(req: NextRequest) {
   let goalId: string | undefined;
   let executionId: string | undefined;
   let resolveStreamEnded: () => void;
-  let rejectStreamEnded: ((reason?: string) => void) | undefined = undefined;
+  let rejectStreamEnded: ((error: Error) => void) | undefined = undefined;
   const streamEndedPromise = new Promise<void>((resolve, reject) => {
     resolveStreamEnded = resolve;
     rejectStreamEnded = reject;
@@ -103,7 +103,7 @@ export default async function PlanStream(req: NextRequest) {
         );
 
         if (planResult instanceof Error) {
-          rejectStreamEnded!(planResult.message);
+          rejectStreamEnded!(planResult);
         } else {
           resolveStreamEnded();
         }
@@ -112,10 +112,10 @@ export default async function PlanStream(req: NextRequest) {
         controller.close();
       },
 
-      cancel() {
+      cancel(reason) {
         abortController.abort();
-        console.warn("cancel plan request");
-        rejectStreamEnded!("Stream cancelled");
+        console.warn("cancel plan request", reason);
+        rejectStreamEnded!(new Error("Stream cancelled"));
       },
     });
 
@@ -127,27 +127,34 @@ export default async function PlanStream(req: NextRequest) {
       },
     });
   } catch (e) {
-    let message;
-    let status: number;
-    let stack;
+    let errorPacket: AgentPacket;
     if (e instanceof Error) {
-      message = e.message;
-      status = 500;
-      stack = e.stack;
+      errorPacket = {
+        type: "error",
+        severity: "fatal",
+        error: e,
+      };
+    } else if (e as AgentPacket) {
+      errorPacket = e as AgentPacket;
+    } else if (typeof e === "string") {
+      errorPacket = {
+        type: "error",
+        severity: "fatal",
+        error: new Error(stringify(e)),
+      };
     } else {
-      message = String(e);
-      status = 500;
-      stack = "";
+      errorPacket = {
+        type: "error",
+        severity: "fatal",
+        error: new Error(stringify(e)),
+      };
     }
-    rejectStreamEnded!(message);
-    const all = { stack, message, status };
-    planResult = stringify(all);
-    console.error("plan error", all);
-    const errorPacket: AgentPacket = {
-      type: "error",
-      severity: "fatal",
-      message: planResult,
-    };
+    console.error("plan error", e);
+
+    let status = 500;
+    if (e as { status: number }) {
+      status = (e as { status: number }).status;
+    }
 
     return new Response(stringify([errorPacket]), {
       headers: {

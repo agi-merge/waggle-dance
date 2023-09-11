@@ -4,7 +4,11 @@ import { parse } from "yaml";
 
 import { type ExecutionNode } from "@acme/db";
 
-import { type AgentPacket } from "../../../../../../packages/agent";
+import {
+  AgentPacketFinishedTypes,
+  type AgentPacket,
+  type AgentPacketFinishedType,
+} from "../../../../../../packages/agent";
 import DAG from "../types/DAG";
 import {
   findNodesWithNoIncomingEdges,
@@ -39,6 +43,12 @@ self.onmessage = function (
     newPackets.forEach((packet) => {
       if (packet.type === "token" && packet.token) {
         tokens += packet.token;
+      } else if (
+        AgentPacketFinishedTypes.includes(
+          packet.type as AgentPacketFinishedType,
+        )
+      ) {
+        self.postMessage({ finishPacket: packet });
       }
     });
     const yaml = parse(tokens) as Partial<DAG>;
@@ -72,7 +82,7 @@ self.onmessage = function (
       dag = null;
     }
   } catch (error) {
-    self.postMessage({ dag, error: "partial parse" });
+    // self.postMessage({ dag, error: "partial parse" });
     // normal, we're streaming and receive partial data
   }
   if (dag) {
