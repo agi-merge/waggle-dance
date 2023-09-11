@@ -15,7 +15,7 @@ export const resultRouter = createTRPCRouter({
         goalId: z.string().nonempty(),
         executionId: z.string().cuid(),
         node: z.custom<TRPCExecutionNode>(),
-        packets: z.array(z.any()),
+        packets: z.array(z.custom<AgentPacket>()),
         state: z.nativeEnum(ExecutionState),
       }),
     )
@@ -42,9 +42,7 @@ export const resultRouter = createTRPCRouter({
           data: {
             execution: { connect: { id: executionId } },
             goal: { connect: { id: goalId } },
-            value: findFinishPacket(
-              packets as AgentPacket[],
-            ) as Prisma.InputJsonValue,
+            value: findFinishPacket(packets) as Prisma.InputJsonValue,
             packets: packets as Prisma.InputJsonValue[],
             packetVersion: 1,
             node: {
