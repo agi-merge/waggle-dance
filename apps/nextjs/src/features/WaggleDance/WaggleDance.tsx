@@ -18,7 +18,6 @@ import {
   type ColorPaletteProp,
 } from "@mui/joy";
 import Box from "@mui/joy/Box";
-import Divider from "@mui/joy/Divider";
 import Stack, { type StackProps } from "@mui/joy/Stack";
 import Tab from "@mui/joy/Tab";
 import TabList from "@mui/joy/TabList";
@@ -249,18 +248,16 @@ const WaggleDance = ({}: Props) => {
 
   return (
     <Stack gap="1rem" sx={{ mx: -3 }}>
-      {!session && (
-        <Box className="text-center">
-          <Typography level="body-sm">
-            <Link href={routes.auth} target="_blank" color="primary">
-              {isRunning
-                ? "Sign in to save your next waggle"
-                : "Sign in to save waggles, change settings and more"}
-            </Link>
-          </Typography>
-          <Divider />
-        </Box>
-      )}
+      <Box className="text-center">
+        <Typography level="body-sm" sx={{ opacity: session?.user.id ? 0 : 1 }}>
+          <Link href={routes.auth} target="_blank" color="primary">
+            Sign in
+          </Link>
+          {isRunning
+            ? " to save your next run"
+            : " to save and use better models"}
+        </Typography>
+      </Box>
       {dag.nodes.length > 0 && (
         <Tabs
           size="sm"
