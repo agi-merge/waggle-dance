@@ -50,7 +50,7 @@ const BottomControls: React.FC<BottomControlsProps> = ({
 }) => {
   return (
     <Box
-      className="z-100 sticky "
+      className="sticky z-10"
       sx={{
         bottom: "calc(env(safe-area-inset-bottom))",
         padding: 0,

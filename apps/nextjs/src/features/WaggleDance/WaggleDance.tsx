@@ -323,9 +323,9 @@ const WaggleDance = ({}: Props) => {
               <Suspense
                 fallback={
                   <Skeleton
-                    variant="text"
+                    variant="rectangular"
                     width="100%"
-                    height={160}
+                    height="25rem"
                     animation="wave"
                   />
                 }
@@ -343,9 +343,9 @@ const WaggleDance = ({}: Props) => {
               <Suspense
                 fallback={
                   <Skeleton
-                    variant="text"
+                    variant="rectangular"
                     width="100%"
-                    height={160}
+                    height="30rem"
                     animation="wave"
                   />
                 }
@@ -356,9 +356,9 @@ const WaggleDance = ({}: Props) => {
               <Suspense
                 fallback={
                   <Skeleton
-                    variant="text"
+                    variant="rectangular"
                     width="100%"
-                    height={160}
+                    height="25rem"
                     animation="wave"
                   />
                 }
@@ -369,9 +369,9 @@ const WaggleDance = ({}: Props) => {
               <Suspense
                 fallback={
                   <Skeleton
-                    variant="text"
+                    variant="rectangular"
                     width="100%"
-                    height={160}
+                    height="25rem"
                     animation="wave"
                   />
                 }
