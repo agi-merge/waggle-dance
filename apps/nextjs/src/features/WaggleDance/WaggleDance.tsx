@@ -386,7 +386,12 @@ const WaggleDance = ({}: Props) => {
       )}
       <Suspense
         fallback={
-          <Skeleton variant="text" width="100%" height={160} animation="wave" />
+          <Skeleton
+            variant="text"
+            width="100%"
+            height={"2rem"}
+            animation="wave"
+          />
         }
       >
         <BottomControls
