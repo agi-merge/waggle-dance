@@ -41,6 +41,10 @@ const useWaggleDanceMachine = () => {
 
   const [dag, setDAG] = useState<DAG>(execution?.graph ?? new DAG([], []));
 
+  const getDAG = useCallback(() => {
+    return dag;
+  }, [dag]);
+
   useEffect(() => {
     const graph = execution?.graph;
     if (graph && goal?.prompt) {
@@ -300,7 +304,7 @@ const useWaggleDanceMachine = () => {
           goalId,
           executionId,
           agentSettings,
-          graphDataState: [dag, setDAG],
+          graphDataState: [getDAG, setDAG],
           isDonePlanningState: [isDonePlanning, setIsDonePlanning],
           injectAgentPacket,
           log,
@@ -340,7 +344,7 @@ const useWaggleDanceMachine = () => {
       setIsRunning,
       waggleDanceMachine,
       agentSettings,
-      dag,
+      getDAG,
       isDonePlanning,
       injectAgentPacket,
       log,

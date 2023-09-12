@@ -43,7 +43,7 @@ export default class WaggleDanceMachine {
     goalId,
     executionId,
     agentSettings,
-    graphDataState: [dag, setDAG],
+    graphDataState: [getDAG, setDAG],
     isDonePlanningState: [isDonePlanning, setIsDonePlanning],
     injectAgentPacket: injectAgentPacket,
     log,
@@ -74,8 +74,8 @@ export default class WaggleDanceMachine {
       rejectFirstTask,
     );
 
-    if (dag.edges.length > 1 && isDonePlanning) {
-      log("skipping planning because it is done - dag", dag);
+    if (getDAG().edges.length > 1 && isDonePlanning) {
+      log("skipping planning because it is done - dag", getDAG());
     } else {
       setIsDonePlanning(false);
       const creationProps = mapAgentSettingsToCreationProps(
@@ -87,7 +87,7 @@ export default class WaggleDanceMachine {
         goalId,
         executionId,
         creationProps,
-        graphDataState: [dag, setDAG],
+        graphDataState: [getDAG, setDAG],
         log,
         injectAgentPacket,
         startFirstTask: taskExecutor.startFirstTask.bind(taskExecutor),
@@ -95,12 +95,11 @@ export default class WaggleDanceMachine {
       });
       if (fullPlanDAG) {
         setDAG(fullPlanDAG);
-        dag = fullPlanDAG;
       }
-      console.debug("dag", dag);
+      console.debug("dag", getDAG());
 
-      if (dag && initNodes[0]) {
-        if (dag.nodes.length < 2) {
+      if (getDAG() && initNodes[0]) {
+        if (getDAG().nodes.length < 2) {
           injectAgentPacket(
             {
               type: "error",
@@ -111,7 +110,7 @@ export default class WaggleDanceMachine {
             },
             initNodes[0],
           );
-        } else if (dag.edges.length < 1) {
+        } else if (getDAG().edges.length < 1) {
           injectAgentPacket(
             {
               type: "error",
@@ -126,7 +125,9 @@ export default class WaggleDanceMachine {
         injectAgentPacket(
           {
             type: "done",
-            value: `Planned an execution graph with ${dag.nodes.length} tasks and ${dag.edges.length} edges.`,
+            value: `Planned an execution graph with ${
+              getDAG().nodes.length
+            } tasks and ${getDAG().edges.length} edges.`,
           },
           initNodes[0],
         );
@@ -139,11 +140,11 @@ export default class WaggleDanceMachine {
     }
     // prepend our initial nodes to the DAG
 
-    const toDoNodes = Array.from(dag.nodes);
+    const toDoNodes = Array.from(getDAG().nodes);
     const taskResults: Record<string, TaskState> = {};
     await firstTaskPromise;
     // Continue executing tasks and updating DAG until the goal is reached
-    while (!isGoalReached(dag, completedTasks)) {
+    while (!isGoalReached(getDAG(), completedTasks)) {
       if (abortController.signal.aborted) throw new Error("Signal aborted");
 
       const pendingTasks = toDoNodes.filter(
@@ -156,8 +157,8 @@ export default class WaggleDanceMachine {
       }
 
       const pendingCurrentDagLayerTasks = pendingTasks.filter((task) =>
-        dag.edges
-          .filter((edge) => edge.tId === task.id)
+        getDAG()
+          .edges.filter((edge) => edge.tId === task.id)
           .every((edge) => completedTasks.has(edge.sId)),
       );
 
@@ -171,7 +172,7 @@ export default class WaggleDanceMachine {
 
       await taskExecutor.executeTasks(
         pendingCurrentDagLayerTasks,
-        dag,
+        getDAG(),
         agentSettings,
       );
     }

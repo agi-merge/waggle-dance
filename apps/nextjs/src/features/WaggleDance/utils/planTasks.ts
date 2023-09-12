@@ -11,6 +11,7 @@ import type DAG from "../types/DAG";
 import { type DAGNodeClass } from "../types/DAG";
 import { initialNodes, rootPlanId } from "../types/initialNodes";
 import { type InjectAgentPacketType } from "../types/TaskExecutor";
+import { type GraphDataState } from "../types/types";
 import { sleep } from "./sleep";
 
 export type PlanTasksProps = {
@@ -18,7 +19,7 @@ export type PlanTasksProps = {
   goalId: string;
   executionId: string;
   creationProps: ModelCreationProps;
-  graphDataState: [DAG, (dag: DAG) => void];
+  graphDataState: GraphDataState;
   log: (...args: (string | number | object)[]) => void;
   injectAgentPacket: InjectAgentPacketType;
   abortSignal: AbortSignal;
@@ -30,13 +31,16 @@ export default async function planTasks({
   goalId,
   executionId,
   creationProps,
-  graphDataState: [dag, setDAG],
+  graphDataState: [getDAG, setDAG],
   log,
   injectAgentPacket,
   startFirstTask,
   abortSignal,
 }: PlanTasksProps): Promise<DAG | undefined> {
-  injectAgentPacket({ type: "starting", nodeId: rootPlanId }, dag.nodes[0]!);
+  injectAgentPacket(
+    { type: "starting", nodeId: rootPlanId },
+    getDAG().nodes[0]!,
+  );
 
   let hasFirstTaskStarted = false;
   const data = { goal, goalId, executionId, creationProps };
@@ -99,11 +103,11 @@ export default async function planTasks({
     }
 
     if (newDag) {
-      const diffNodesCount = newDag.nodes.length - (dag?.nodes.length ?? 0);
-      const newEdgesCount = newDag.edges.length - (dag?.edges.length ?? 0);
+      const diffNodesCount =
+        newDag.nodes.length - (getDAG()?.nodes.length ?? 0);
+      const newEdgesCount = newDag.edges.length - (getDAG()?.edges.length ?? 0);
       if (diffNodesCount || newEdgesCount) {
         setDAG(newDag);
-        dag = newDag;
       }
 
       const firstNode = newDag.nodes[1];
@@ -111,11 +115,11 @@ export default async function planTasks({
         !hasFirstTaskStarted &&
         startFirstTask &&
         firstNode &&
-        dag.nodes.length > 0
+        getDAG().nodes.length > 0
       ) {
         hasFirstTaskStarted = true;
         console.log("starting first task", firstNode.id);
-        void startFirstTask(firstNode, dag);
+        void startFirstTask(firstNode, getDAG());
       }
     }
   };
