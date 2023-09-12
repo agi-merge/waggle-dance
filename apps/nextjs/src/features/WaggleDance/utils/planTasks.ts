@@ -159,7 +159,7 @@ export default async function planTasks({
     }
 
     while (postMessageCount > 0) {
-      await sleep(10);
+      await sleep(100);
     }
 
     return buffer.toString();
