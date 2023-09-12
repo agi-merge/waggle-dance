@@ -1,4 +1,4 @@
-// DAG.ts
+// features/WaggleDance/types/DAG.ts
 
 import { v4 } from "uuid";
 
@@ -35,3 +35,22 @@ export default class DAG {
     this.id = id;
   }
 }
+
+// export function mergeDAGs(
+//   agentPacketsMap: Record<string, TaskState>,
+//   localDAG: DAG,
+//   serverDAG: DAG,
+// ): DAG {
+//   const mergedNodes = [...localDAG.nodes, ...serverDAG.nodes];
+//   const mergedEdges = [...localDAG.edges, ...serverDAG.edges];
+
+//   // Attach packets to nodes
+//   for (const node of mergedNodes) {
+//     const taskState = agentPacketsMap[node.id];
+//     if (taskState) {
+//       node.packets = taskState.packets;
+//     }
+//   }
+
+//   return new DAG(mergedNodes, mergedEdges);
+// }

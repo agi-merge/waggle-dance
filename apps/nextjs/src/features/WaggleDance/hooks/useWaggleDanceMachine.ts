@@ -107,27 +107,29 @@ const useWaggleDanceMachine = () => {
     useState<Record<string, TaskState>>(resultsMap);
 
   const taskStates: TaskState[] = useMemo(() => {
-    return dag.nodes.map((dagNode) => {
-      const taskState = agentPacketsMap[dagNode.id];
-      return new TaskState({
-        id: taskState?.nodeId ?? dagNode.id,
-        packets: taskState?.packets ?? [],
-        value:
-          taskState?.value ??
-          ({
-            type: taskState?.status ?? "idle",
-            nodeId: taskState?.nodeId ?? dagNode.id,
-          } as AgentPacket),
-        updatedAt: taskState?.updatedAt ?? new Date(),
-        nodeId: dagNode.id,
-      });
+    const taskStates = Object.entries(resultsMap).map((tuple) => {
+      const [id, taskStateA] = tuple;
+      const taskStateB =
+        agentPacketsMap[taskStateA.id] ??
+        agentPacketsMap[id] ??
+        Object.values(agentPacketsMap).find((ts) => ts.nodeId === id);
+      const updatedAt = new Date();
+      const merged = {
+        ...taskStateB,
+        ...taskStateA,
+        updatedAt: updatedAt,
+      };
+      return new TaskState(merged);
     });
-  }, [dag.nodes, agentPacketsMap]);
+    console.debug("taskStates", taskStates);
+    return taskStates;
+  }, [resultsMap, agentPacketsMap]);
 
   const sortedTaskStates = useMemo(() => {
-    return Object.values(taskStates).sort((a: TaskState, b: TaskState) => {
+    const sortedTaskStates = taskStates.sort((a: TaskState, b: TaskState) => {
       const aid = a.displayId();
       const bid = b.displayId();
+      console.debug("aid", aid, "bid", bid);
       if (aid === rootPlanId) {
         return -1;
       }
@@ -168,6 +170,8 @@ const useWaggleDanceMachine = () => {
       // unhandled use alphabetical
       return 1;
     });
+    console.debug("sortedTaskStates", sortedTaskStates);
+    return sortedTaskStates;
   }, [taskStates]);
 
   useEffect(() => {

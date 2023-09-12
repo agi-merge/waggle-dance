@@ -27,11 +27,11 @@ export class TaskState implements EnhancedResponse {
   }
 
   node(nodes: DAGNode[]): DAGNode | undefined {
-    return nodes.find((n) => n.id === this.nodeId);
+    return nodes.find((n) => n.id === this.nodeId || n.id === this.displayId());
   }
 
   displayId(): string {
-    const executionSplit = this.id.split(".")[1];
+    const executionSplit = this.nodeId.split(".")[1];
     if (!executionSplit) {
       return this.id;
     } else {
