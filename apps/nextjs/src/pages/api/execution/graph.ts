@@ -9,7 +9,6 @@ import {
   prisma,
   type Execution,
   type ExecutionGraph,
-  type ExecutionNode,
 } from "@acme/db";
 
 export const config = {
@@ -47,7 +46,7 @@ async function updateGraph({
   executionId,
   graph,
   session,
-}: UpdateGraphParams): Promise<(ExecutionGraph | ExecutionNode)[] | Execution> {
+}: UpdateGraphParams): Promise<ExecutionGraph | Execution> {
   if (session?.user.id) {
     const caller = appRouter.createCaller({ session, prisma });
     if (graph == null) {

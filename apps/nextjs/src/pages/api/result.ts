@@ -5,7 +5,12 @@ import { type NextApiRequest, type NextApiResponse } from "next";
 import { type AgentPacket, type DAGNode } from "@acme/agent";
 import { appRouter } from "@acme/api";
 import { getServerSession, type Session } from "@acme/auth";
-import { prisma, type ExecutionState, type Result } from "@acme/db";
+import {
+  prisma,
+  type Execution,
+  type ExecutionState,
+  type Result,
+} from "@acme/db";
 
 export const config = {
   runtime: "nodejs",
@@ -42,11 +47,11 @@ export default async function createResultProxy(
 
 async function createResult(
   createResultOptions: CreateResultParams,
-): Promise<Result> {
+): Promise<[Result, Execution]> {
   const { session } = createResultOptions;
   if (session?.user.id) {
     const caller = appRouter.createCaller({ session, prisma });
-    const createResult = await caller.result.create(createResultOptions);
+    const createResult = caller.result.create(createResultOptions);
     console.debug("createResult", createResult);
     return createResult;
   } else {
