@@ -8,8 +8,7 @@ import {
   type AgentSettingsMap,
 } from "@acme/agent";
 import { AgentPromptingMethod } from "@acme/agent/src/utils/llms";
-
-import { type NullableSkillset } from "/Users/jon/src/waggle-dance/packages/db/skills";
+import { type NullableSkillset } from "@acme/db/skills";
 
 export type LatencyScaleItem = {
   limit: number;
