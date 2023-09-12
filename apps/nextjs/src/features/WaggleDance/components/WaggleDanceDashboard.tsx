@@ -25,7 +25,7 @@ import { type LatencyScaleItem } from "~/features/SettingsAnalysis/hooks/useLate
 import { Latency } from "~/features/SettingsAnalysis/Latency";
 import SkillSelect from "~/features/Skills/SkillSelect";
 
-type WaggleDanceSettingsAccordionProps = {
+type WaggleDanceDashboardProps = {
   goal: GoalPlusExe; // replace with the proper type
   latencyLevel: LatencyScaleItem; // replace with the proper type
   rigorLevel: {
@@ -39,14 +39,14 @@ type WaggleDanceSettingsAccordionProps = {
   selectedSkillsLength: number;
 };
 
-const WaggleDanceSettingsAccordion = ({
+const WaggleDanceDashboard = ({
   goal,
   latencyLevel,
   rigorLevel,
   iqLevel,
   skillsLabel,
   selectedSkillsLength,
-}: WaggleDanceSettingsAccordionProps) => {
+}: WaggleDanceDashboardProps) => {
   return (
     <List
       type="multiple"
@@ -404,4 +404,4 @@ const WaggleDanceSettingsAccordion = ({
   );
 };
 
-export default WaggleDanceSettingsAccordion;
+export default WaggleDanceDashboard;
