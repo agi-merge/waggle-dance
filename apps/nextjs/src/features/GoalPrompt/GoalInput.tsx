@@ -167,7 +167,12 @@ export default function GoalInput({}: GoalInputProps) {
   };
 
   return (
-    <Box className="relative">
+    <Box
+      display="flex"
+      flexDirection="column"
+      justifyContent="space-between"
+      height="100%"
+    >
       <Suspense fallback={<Skeleton variant="rectangular" height={100} />}>
         <GoalForm
           isPageLoading={isPageLoading}
@@ -177,15 +182,18 @@ export default function GoalInput({}: GoalInputProps) {
         />
       </Suspense>
 
-      <Box
-        className="absolute"
-        sx={{
-          bottom: { xs: "6rem", sm: "5.5rem" },
-          left: "1rem",
-        }}
-      >
-        <Stack direction="row" gap="0.5rem">
+      <Box>
+        <Stack
+          direction="row"
+          gap="0.5rem"
+          sx={{
+            marginTop: { xs: "-4.1rem", sm: "-4.25rem" },
+            paddingX: { xs: 1, sm: 2 },
+            borderRadius: 2,
+          }}
+        >
           <TokenChip prompt={selectedGoal?.prompt || ""} />
+          <Divider orientation="vertical" />
           <Button
             size="sm"
             variant="outlined"
@@ -198,6 +206,7 @@ export default function GoalInput({}: GoalInputProps) {
               marginRight: -0.4,
               paddingX: { xs: 0.5, sm: 2 },
               borderRadius: 2,
+              fontSize: { xs: "xs", sm: "sm" },
             }}
           >
             Clear
