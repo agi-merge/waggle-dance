@@ -130,7 +130,6 @@ export default function GoalInput({}: GoalInputProps) {
                     setIsPageLoading(false);
                     setError(new Error(stringify(errorFeedback)));
                   } else {
-                    debugger;
                     // setFeedback(da);
                   }
                 }
