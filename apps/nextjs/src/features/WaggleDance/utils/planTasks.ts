@@ -111,11 +111,11 @@ export default async function planTasks({
         !hasFirstTaskStarted &&
         startFirstTask &&
         firstNode &&
-        newDag.nodes.length > 0
+        dag.nodes.length > 0
       ) {
         hasFirstTaskStarted = true;
         console.log("starting first task", firstNode.id);
-        void startFirstTask(firstNode, newDag);
+        void startFirstTask(firstNode, dag);
       }
     }
   };
