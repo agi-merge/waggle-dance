@@ -106,11 +106,6 @@ export default async function PlanStream(req: NextRequest) {
           rejectStreamEnded!(planResult);
         } else {
           resolveStreamEnded();
-          const packet: AgentPacket = {
-            type: "done",
-            value: planResult,
-          };
-          controller.enqueue(encoder.encode(stringify([packet])));
         }
 
         console.debug("plan result", planResult);
