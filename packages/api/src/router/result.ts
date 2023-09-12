@@ -22,6 +22,11 @@ export const resultRouter = createTRPCRouter({
     .mutation(async ({ ctx, input }) => {
       const { goalId, executionId, node, packets, state } = input;
 
+      const exeSplit = node.id.split(".");
+      if (exeSplit.length <= 1) {
+        // no exe id embedded, add it
+        node.id = `${executionId}.${node.id}`;
+      }
       const result = ctx.prisma.result.create({
         data: {
           execution: { connect: { id: executionId } },
