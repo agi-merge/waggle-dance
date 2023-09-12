@@ -88,6 +88,6 @@ self.onmessage = function (
   if (dag) {
     self.postMessage({ dag });
   } else {
-    self.postMessage({ dag, error: "no dag" });
+    self.postMessage({ error: "no dag" });
   }
 };

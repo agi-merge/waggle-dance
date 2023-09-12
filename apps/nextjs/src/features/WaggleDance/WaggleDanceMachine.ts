@@ -82,7 +82,7 @@ export default class WaggleDanceMachine {
         agentSettings["plan"],
       );
 
-      dag = await planTasks({
+      const fullPlanDAG = await planTasks({
         goal,
         goalId,
         executionId,
@@ -93,7 +93,10 @@ export default class WaggleDanceMachine {
         startFirstTask: taskExecutor.startFirstTask.bind(taskExecutor),
         abortSignal: abortController.signal,
       });
-      setDAG(dag);
+      if (fullPlanDAG) {
+        setDAG(fullPlanDAG);
+        dag = fullPlanDAG;
+      }
       console.debug("dag", dag);
 
       if (dag && initNodes[0]) {

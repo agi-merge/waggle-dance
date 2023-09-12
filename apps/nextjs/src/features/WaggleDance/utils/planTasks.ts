@@ -35,7 +35,7 @@ export default async function planTasks({
   injectAgentPacket,
   startFirstTask,
   abortSignal,
-}: PlanTasksProps): Promise<DAG> {
+}: PlanTasksProps): Promise<DAG | undefined> {
   injectAgentPacket({ type: "starting", nodeId: rootPlanId }, dag.nodes[0]!);
 
   let hasFirstTaskStarted = false;
@@ -166,9 +166,6 @@ export default async function planTasks({
   }
 
   const streamString = await streamToString(stream);
-  const partialDAG = parse(streamString) as DAG;
-  if (!partialDAG) {
-    throw new Error("No DAG");
-  }
+  const partialDAG = parse(streamString) as DAG | undefined;
   return partialDAG;
 }
