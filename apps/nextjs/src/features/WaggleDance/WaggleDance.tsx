@@ -225,7 +225,7 @@ const WaggleDance = ({}: Props) => {
     return (notIdleTasks / agentPackets.length) * 100;
   }, [notIdleTasks, agentPackets.length]);
 
-  const inProgress = useMemo(() => {
+  const inProgressLength = useMemo(() => {
     return agentPackets.filter(
       (s) =>
         s.status === TaskStatus.starting ||
@@ -233,18 +233,23 @@ const WaggleDance = ({}: Props) => {
         s.status === TaskStatus.wait,
     ).length;
   }, [agentPackets]);
+  const done = useMemo(() => {
+    return sortedTaskStates.filter(
+      (t) => t.status === TaskStatus.done || t.status === TaskStatus.error,
+    );
+  }, [sortedTaskStates]);
 
   const progressLabel = useMemo(() => {
-    return `# Tasks in progress: ${inProgress}, done: ${
-      results.length
+    return `# Tasks in progress: ${inProgressLength}, done: ${
+      done.length
     }, scheduled: ${agentPackets.length - notIdleTasks}, total: ${
       agentPackets.length
     }`;
-  }, [inProgress, notIdleTasks, results.length, agentPackets.length]);
+  }, [inProgressLength, done.length, agentPackets.length, notIdleTasks]);
 
   const shouldShowProgress = useMemo(() => {
-    return isRunning || results.length > 0;
-  }, [isRunning, results]);
+    return isRunning || done.length > 0;
+  }, [done.length, isRunning]);
 
   return (
     <Stack gap="1rem" sx={{ mx: -3 }}>
@@ -298,8 +303,8 @@ const WaggleDance = ({}: Props) => {
             </Tab>
             <Tab
               value={2}
-              disabled={results.length < 1}
-              sx={{ opacity: results.length < 1 ? 0.2 : 1, flex: "1 1 auto" }}
+              disabled={done.length < 1}
+              sx={{ opacity: done.length < 1 ? 0.2 : 1, flex: "1 1 auto" }}
             >
               <Science />
               <Typography>Results</Typography>
