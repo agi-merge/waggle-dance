@@ -73,6 +73,37 @@ export const ExecutionSelect = ({
             className="flex flex-shrink content-center items-center text-left"
             sx={{ overflowX: "clip", maxWidth: "50vw" }}
           >
+            <Box
+              sx={{ ml: "auto", mr: "0.25rem", minWidth: "fit-content" }}
+              component={Stack}
+              direction="row"
+            >
+              <Chip
+                size="sm"
+                variant="solid"
+                color="neutral"
+                sx={{
+                  borderRadius: "2px",
+                  fontSize: { xs: "6pt", sm: "sm" },
+                  paddingX: { xs: "0.1rem", sm: "0.25rem" },
+                }}
+              >
+                {timeAgo(execution.updatedAt)}
+              </Chip>
+              <Chip
+                size="sm"
+                variant="outlined"
+                color={colors[execution.state]}
+                sx={{
+                  borderRadius: "2px",
+                  fontSize: { xs: "6pt", sm: "sm" },
+                  bgcolor: `${colors[execution.state]}.softBg`,
+                  paddingX: { xs: "0.1rem", sm: "0.25rem" },
+                }}
+              >
+                {execution.state}
+              </Chip>
+            </Box>
             {names?.length && names[i] && (
               <Tooltip
                 title={names && names[i]}
@@ -108,37 +139,6 @@ export const ExecutionSelect = ({
                   `id:${executions[i]!.id.slice(-4)}`}
               </Typography>
             </Typography>
-          </Box>
-          <Box
-            sx={{ ml: "auto", minWidth: "fit-content" }}
-            component={Stack}
-            direction="row"
-          >
-            <Chip
-              size="sm"
-              variant="solid"
-              color="neutral"
-              sx={{
-                borderRadius: "2px",
-                fontSize: { xs: "6pt", sm: "sm" },
-                paddingX: { xs: "0.1rem", sm: "0.25rem" },
-              }}
-            >
-              {timeAgo(execution.updatedAt)}
-            </Chip>
-            <Chip
-              size="sm"
-              variant="outlined"
-              color={colors[execution.state]}
-              sx={{
-                borderRadius: "2px",
-                fontSize: { xs: "6pt", sm: "sm" },
-                bgcolor: `${colors[execution.state]}.softBg`,
-                paddingX: { xs: "0.1rem", sm: "0.25rem" },
-              }}
-            >
-              {execution.state}
-            </Chip>
           </Box>
         </>
       );
