@@ -27,24 +27,32 @@ export const draftGoalPrefix = "draft-";
 export const newDraftGoal = () => `${draftGoalPrefix}${v4()}`;
 export const newDraftGoalRoute = () => routes.goal({ id: newDraftGoal() });
 
-const baseGoal = {
-  id: newDraftGoal(),
-  prompt: "",
-  tooltip: "",
-  executions: [],
-  results: [],
-  createdAt: new Date(),
-  updatedAt: new Date(),
-  userId: "",
-} as GoalPlusExe;
+const baseGoal = () => {
+  return {
+    id: newDraftGoal(),
+    prompt: "",
+    tooltip: "",
+    executions: [],
+    results: [],
+    createdAt: new Date(),
+    updatedAt: new Date(),
+    userId: "",
+  } as GoalPlusExe;
+};
+
+const defaultGoal1 = baseGoal();
+const defaultGoal2 = baseGoal();
 
 const useGoalStore = () =>
   create(
     persist<GoalStore>(
       (set, get) => ({
         getState: get,
-        goalMap: { [baseGoal.id]: baseGoal },
-        selectedGoal: baseGoal,
+        goalMap: {
+          [defaultGoal1.id]: defaultGoal1,
+          [defaultGoal2.id]: defaultGoal2,
+        },
+        selectedGoal: defaultGoal1,
         prevSelectedGoal: undefined,
         newDraftGoal() {
           return newGoalInner(set);
@@ -196,7 +204,7 @@ function newGoalInner(
 ) {
   const id = newDraftGoal();
   const newGoal = {
-    ...baseGoal,
+    ...baseGoal(),
     id,
   };
   set((state) => ({
