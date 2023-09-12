@@ -1,6 +1,5 @@
 // ForceGraph.tsx
-import React from "react";
-import dynamic from "next/dynamic";
+import React, { lazy } from "react";
 
 export interface GraphData {
   nodes: NodeObject[];
@@ -26,9 +25,7 @@ export interface ForceGraphProps {
   data: GraphData;
 }
 
-const NoSSRForceGraph = dynamic(() => import("./NoSSRForceGraph"), {
-  ssr: false,
-});
+const NoSSRForceGraph = lazy(() => import("./NoSSRForceGraph"));
 
 const ForceGraph: React.FC<ForceGraphProps> = ({ data }) => {
   return <NoSSRForceGraph data={data} />;

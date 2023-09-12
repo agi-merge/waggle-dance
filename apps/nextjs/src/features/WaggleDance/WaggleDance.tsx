@@ -10,18 +10,21 @@ import {
 } from "react";
 import router from "next/router";
 import { BugReport, Lan, ListAlt, Science } from "@mui/icons-material";
-import { Link, Skeleton } from "@mui/joy";
+import {
+  Card,
+  Link,
+  Skeleton,
+  type AlertPropsColorOverrides,
+  type ColorPaletteProp,
+} from "@mui/joy";
 import Box from "@mui/joy/Box";
 import Divider from "@mui/joy/Divider";
-import List from "@mui/joy/List";
-import ListDivider from "@mui/joy/ListDivider";
-import ListItem from "@mui/joy/ListItem";
 import Stack, { type StackProps } from "@mui/joy/Stack";
 import Tab from "@mui/joy/Tab";
 import TabList from "@mui/joy/TabList";
-import TabPanel from "@mui/joy/TabPanel";
 import Tabs from "@mui/joy/Tabs";
 import Typography from "@mui/joy/Typography";
+import { type OverridableStringUnion } from "@mui/types";
 import { TRPCClientError } from "@trpc/client";
 import { useSession } from "next-auth/react";
 
@@ -35,12 +38,14 @@ import useGoalStore from "~/stores/goalStore";
 import useWaggleDanceMachineStore, {
   createDraftExecution,
 } from "~/stores/waggleDanceStore";
-import ForceGraph from "./components/ForceGraph";
 import useWaggleDanceMachine from "./hooks/useWaggleDanceMachine";
 
-const ResultsTab = lazy(() => import("./components/ResultsTab"));
-const TaskListTab = lazy(() => import("./components/TaskListTab"));
 const BottomControls = lazy(() => import("./components/BottomControls"));
+
+const TaskTabPanel = lazy(() => import("./components/TaskTabPanel"));
+const GraphTabPanel = lazy(() => import("./components/GraphTabPanel"));
+const ResultsTabPanel = lazy(() => import("./components/ResultsTabPanel"));
+const LogsTabPanel = lazy(() => import("./components/LogsTabPanel"));
 
 type Props = StackProps;
 // shows the graph, agents, results, general messages and chat input
@@ -192,15 +197,19 @@ const WaggleDance = ({}: Props) => {
     }
   }, [results, isAutoScrollToBottom, recentTaskId, sortedTaskStates]);
 
-  const statusColor = (n: TaskState) => {
+  const statusColor = (
+    n: TaskState,
+  ): OverridableStringUnion<ColorPaletteProp, AlertPropsColorOverrides> => {
     switch (n.status) {
       case TaskStatus.done:
         return "success";
       case TaskStatus.error:
         return "danger";
-      case (TaskStatus.idle, TaskStatus.wait):
+      case TaskStatus.idle:
+      case TaskStatus.wait:
         return "neutral";
-      case (TaskStatus.starting, TaskStatus.working):
+      case TaskStatus.starting:
+      case TaskStatus.working:
         return "primary";
     }
   };
@@ -309,8 +318,17 @@ const WaggleDance = ({}: Props) => {
 
           {agentPackets.length > 0 ? (
             <>
-              <TabPanel value={0} className="w-full overflow-y-scroll p-4">
-                <TaskListTab
+              <Suspense
+                fallback={
+                  <Skeleton
+                    variant="text"
+                    width="100%"
+                    height={160}
+                    animation="wave"
+                  />
+                }
+              >
+                <TaskTabPanel
                   nodes={dag.nodes}
                   sortedTaskStates={sortedTaskStates}
                   statusColor={statusColor}
@@ -318,64 +336,51 @@ const WaggleDance = ({}: Props) => {
                   listItemsRef={listItemsRef}
                   taskListRef={taskListRef}
                 />
-              </TabPanel>
+              </Suspense>
 
-              <TabPanel
-                value={1}
-                className="h-fit w-full items-center overflow-y-scroll"
-                sx={{ padding: { xs: 0, sm: 2 } }}
+              <Suspense
+                fallback={
+                  <Skeleton
+                    variant="text"
+                    width="100%"
+                    height={160}
+                    animation="wave"
+                  />
+                }
               >
-                <ForceGraph data={graphData} />
-              </TabPanel>
+                <GraphTabPanel data={graphData} />
+              </Suspense>
 
-              <TabPanel value={2} className="w-full overflow-y-scroll p-4">
-                <ResultsTab taskStates={agentPackets} />
-              </TabPanel>
+              <Suspense
+                fallback={
+                  <Skeleton
+                    variant="text"
+                    width="100%"
+                    height={160}
+                    animation="wave"
+                  />
+                }
+              >
+                <ResultsTabPanel taskStates={sortedTaskStates} />
+              </Suspense>
 
-              <TabPanel value={3} className="w-full overflow-y-scroll p-4">
-                <List
-                  className="absolute left-0 top-0 mt-3"
-                  sx={{
-                    marginX: { xs: -2, sm: 0 },
-                  }}
-                  aria-label="Log List"
-                >
-                  {logs.map((log) => (
-                    <Box key={`${log.timestamp.toString()}-${log.message}`}>
-                      <ListItem className="overflow-x-scroll">
-                        <Stack
-                          direction="row"
-                          className="max-h-24 overflow-x-scroll"
-                          gap="1rem"
-                        >
-                          <Typography
-                            fontFamily="Monospace"
-                            variant="soft"
-                            color="neutral"
-                            level="body-md"
-                          >
-                            {log.timestamp.toISOString().split("T")[1]}
-                          </Typography>
-                          <Typography fontFamily="Monospace" color="success">
-                            {log.type}
-                          </Typography>
-                          <Typography
-                            fontFamily="Monospace"
-                            color="neutral"
-                            className="max-w-24 max-h-24 flex-shrink"
-                          >
-                            {log.message}
-                          </Typography>
-                        </Stack>
-                      </ListItem>
-                      <ListDivider inset="gutter" />
-                    </Box>
-                  ))}
-                </List>
-              </TabPanel>
+              <Suspense
+                fallback={
+                  <Skeleton
+                    variant="text"
+                    width="100%"
+                    height={160}
+                    animation="wave"
+                  />
+                }
+              >
+                <LogsTabPanel logs={logs} />
+              </Suspense>
             </>
           ) : (
-            <Typography>Loading</Typography>
+            <Card>
+              <Skeleton variant="rectangular" height="10rem" width="100%" />
+            </Card>
           )}
         </Tabs>
       )}
