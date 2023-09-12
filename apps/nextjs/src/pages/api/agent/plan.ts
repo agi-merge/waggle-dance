@@ -206,7 +206,7 @@ export async function updateExecution(
     body: jsonStringify(params),
   });
 
-  if (!response.ok) {
+  if (!response.ok && response.status !== 401) {
     throw new Error(`Could not save execution: ${response.statusText}`);
   }
 }

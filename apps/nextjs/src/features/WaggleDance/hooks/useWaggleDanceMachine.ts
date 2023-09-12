@@ -111,7 +111,7 @@ const useWaggleDanceMachine = () => {
         value:
           taskState?.value ??
           ({
-            type: "idle",
+            type: taskState?.status ?? "idle",
             nodeId: taskState?.nodeId ?? dagNode.id,
           } as AgentPacket),
         updatedAt: taskState?.updatedAt ?? new Date(),
