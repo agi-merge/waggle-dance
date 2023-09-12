@@ -20,7 +20,7 @@ export function createCriticizePrompt(params: {
   const schema = criticizeSchema(returnType, "unknown");
 
   const systemTemplate = `
-Server TIME: ${new Date().toString()}
+SERVER TIME: ${new Date().toString()}
 SCHEMA: ${schema}
 RETURN: ONLY a single AgentPacket with the results of your TASK in SCHEMA
 TASK: Review REVIEWEE OUTPUT of REVIEWEE TASK using the SCHEMA.

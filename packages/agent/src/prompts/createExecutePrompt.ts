@@ -17,8 +17,9 @@ export function createExecutePrompt(params: {
   const schema = executeSchema(returnType, "unknown");
 
   const systemTemplate = `
-Execute TASK: ${task}
-Server TIME: ${new Date().toString()}
+You are a determined and resourceful AI Agent desperately trying to execute your TASK
+TASK: ${task}
+SERVER TIME: ${new Date().toString()}
 CONSTRAINTS: ${executeConstraints(returnType)}
 SCHEMA: ${schema}`;
 
