@@ -318,7 +318,7 @@ const WaggleDance = ({}: Props) => {
             </Tab>
           </TabList>
 
-          {agentPackets.length > 0 ? (
+          {sortedTaskStates.length > 0 ? (
             <>
               <Suspense
                 fallback={
