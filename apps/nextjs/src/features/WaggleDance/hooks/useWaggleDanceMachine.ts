@@ -178,7 +178,7 @@ const useWaggleDanceMachine = () => {
       if (!node || !node.id) {
         throw new Error("a node does not exist to receive data");
       }
-      const existingTask = agentPacketsMap[node.id];
+      const existingTask = agentPacketsMap[node.id] || resultsMap[node.id];
       if (!existingTask) {
         if (!node) {
           log(
@@ -214,7 +214,7 @@ const useWaggleDanceMachine = () => {
         }));
       }
     },
-    [agentPacketsMap, log],
+    [agentPacketsMap, log, resultsMap],
   );
 
   const reset = useCallback(() => {
