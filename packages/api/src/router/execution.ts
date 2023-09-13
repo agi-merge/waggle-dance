@@ -1,5 +1,6 @@
 import { z } from "zod";
 
+import { makeServerIdIfNeeded } from "@acme/agent";
 import { ExecutionState, type ExecutionEdge } from "@acme/db";
 
 import { createTRPCRouter, protectedProcedure } from "../trpc";
@@ -67,7 +68,7 @@ export const executionRouter = createTRPCRouter({
           executionId,
           nodes: {
             connectOrCreate: graph.nodes.map((node) => ({
-              where: { id: node.id },
+              where: { id: makeServerIdIfNeeded(node.id, executionId) },
               create: node,
             })),
           },
@@ -76,7 +77,7 @@ export const executionRouter = createTRPCRouter({
         update: {
           nodes: {
             connectOrCreate: graph.nodes.map((node) => ({
-              where: { id: node.id },
+              where: { id: makeServerIdIfNeeded(node.id, executionId) },
               create: node,
             })),
           },

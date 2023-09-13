@@ -1,7 +1,11 @@
 import { type Prisma } from "@prisma/client";
 import { z } from "zod";
 
-import { findFinishPacket, type AgentPacket } from "@acme/agent";
+import {
+  findFinishPacket,
+  makeServerIdIfNeeded,
+  type AgentPacket,
+} from "@acme/agent";
 import { ExecutionState, type ExecutionNode } from "@acme/db";
 
 import { createTRPCRouter, protectedProcedure } from "../trpc";
@@ -21,12 +25,7 @@ export const resultRouter = createTRPCRouter({
     )
     .mutation(async ({ ctx, input }) => {
       const { goalId, executionId, node, packets, state } = input;
-
-      const exeSplit = node.id.split(".");
-      if (exeSplit.length <= 1) {
-        // no exe id embedded, add it
-        node.id = `${executionId}.${node.id}`;
-      }
+      node.id = makeServerIdIfNeeded(node.id, executionId);
       const result = ctx.prisma.result.create({
         data: {
           execution: { connect: { id: executionId } },

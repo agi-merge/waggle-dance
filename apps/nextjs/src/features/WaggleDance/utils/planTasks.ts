@@ -2,14 +2,17 @@
 
 import { parse } from "yaml";
 
+import type DAG from "@acme/agent/src/prompts/types/DAG";
+
 import {
+  initialNodes,
+  makeServerIdIfNeeded,
+  rootPlanId,
   type AgentPacket,
   type DAGNode,
+  type DAGNodeClass,
   type ModelCreationProps,
 } from "../../../../../../packages/agent";
-import type DAG from "../types/DAG";
-import { type DAGNodeClass } from "../types/DAG";
-import { initialNodes, rootPlanId } from "../types/initialNodes";
 import { type InjectAgentPacketType } from "../types/TaskExecutor";
 import { type GraphDataState } from "../types/types";
 import { sleep } from "./sleep";
@@ -107,6 +110,15 @@ export default async function planTasks({
         newDag.nodes.length - (getDAG()?.nodes.length ?? 0);
       const newEdgesCount = newDag.edges.length - (getDAG()?.edges.length ?? 0);
       if (diffNodesCount || newEdgesCount) {
+        // slice the new portion and makeServerIdIfNeeded() on each id
+        newDag.nodes
+          .slice(newDag.nodes.length - diffNodesCount)
+          .forEach((n) => (n.id = makeServerIdIfNeeded(n.id, executionId)));
+        newDag.edges.slice(newDag.edges.length - newEdgesCount).forEach((e) => {
+          e.sId = makeServerIdIfNeeded(e.sId, executionId);
+          e.tId = makeServerIdIfNeeded(e.tId, executionId);
+        });
+        console.debug("newDag", newDag);
         setDAG(newDag);
       }
 
@@ -170,6 +182,6 @@ export default async function planTasks({
   }
 
   const streamString = await streamToString(stream);
-  const partialDAG = parse(streamString) as DAG | undefined;
+  const partialDAG = parse(streamString) as DAG;
   return partialDAG;
 }

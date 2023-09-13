@@ -12,12 +12,12 @@ import Stack from "@mui/joy/Stack";
 import Tooltip from "@mui/joy/Tooltip";
 import Typography from "@mui/joy/Typography";
 
+import { rootPlanId } from "@acme/agent";
+import type DAG from "@acme/agent/src/prompts/types/DAG";
 import { type ExecutionPlusGraph } from "@acme/db";
 
 import routes from "~/utils/routes";
 import useWaggleDanceMachineStore from "~/stores/waggleDanceStore";
-import type DAG from "../types/DAG";
-import { rootPlanId } from "../types/initialNodes";
 import timeAgo from "../utils/timeAgo";
 
 type ExecutionSelectProps = BoxProps & {

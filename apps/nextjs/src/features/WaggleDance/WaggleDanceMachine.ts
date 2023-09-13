@@ -6,10 +6,11 @@
 // When a task completes, a new dependent review task should be added to the DAG to ensure quality results.
 
 import {
+  initialNodes,
+  rootPlanId,
   type AgentSettingsMap,
   type TaskState,
 } from "../../../../../packages/agent";
-import { initialNodes, rootPlanId } from "./types/initialNodes";
 import TaskExecutor, { type InjectAgentPacketType } from "./types/TaskExecutor";
 import {
   mapAgentSettingsToCreationProps,

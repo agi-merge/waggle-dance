@@ -7,13 +7,13 @@ import {
   type ModelCreationProps,
   type TaskState,
 } from "@acme/agent";
+import type DAG from "@acme/agent/src/prompts/types/DAG";
 import {
   TEMPERATURE_VALUES,
   type AgentPromptingMethod,
 } from "@acme/agent/src/utils/llms";
 
 import { env } from "~/env.mjs";
-import type DAG from "./DAG";
 
 export type PlanResult = DAG;
 

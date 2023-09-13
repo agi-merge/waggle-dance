@@ -9,10 +9,10 @@ import {
   makeServerIdIfNeeded,
   type AgentSettings,
 } from "@acme/agent";
+import type DAG from "@acme/agent/src/prompts/types/DAG";
 import { type ExecutionPlusGraph, type GoalPlusExe } from "@acme/db";
 
 import { app } from "~/constants";
-import type DAG from "~/features/WaggleDance/types/DAG";
 
 export interface WaggleDanceMachineStore {
   isRunning: boolean;

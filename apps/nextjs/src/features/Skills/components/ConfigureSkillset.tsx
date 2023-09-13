@@ -1,6 +1,7 @@
-import { type Skillset } from "@acme/db"
-import { Settings } from "@mui/icons-material"
-import { IconButton } from "@mui/joy"
+import { Settings } from "@mui/icons-material";
+import { IconButton } from "@mui/joy";
+
+import { type Skillset } from "@acme/db";
 
 type Props = {
   skill: Skillset;

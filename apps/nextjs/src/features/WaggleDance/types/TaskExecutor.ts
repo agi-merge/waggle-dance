@@ -2,11 +2,11 @@ import {
   type AgentPacket,
   type AgentSettingsMap,
   type DAGNode,
+  type DAGNodeClass,
 } from "@acme/agent";
+import type DAG from "@acme/agent/src/prompts/types/DAG";
 
 import executeTask from "../utils/executeTask";
-import type DAG from "./DAG";
-import { type DAGNodeClass } from "./DAG";
 import { mapAgentSettingsToCreationProps } from "./types";
 
 type LogType = (...args: (string | number | object)[]) => void;

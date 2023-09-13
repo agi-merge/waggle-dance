@@ -3,24 +3,23 @@
 import { useCallback, useEffect, useMemo, useState } from "react";
 import { stringify } from "yaml";
 
+import DAG from "@acme/agent/src/prompts/types/DAG";
 import { type ExecutionEdge, type ExecutionPlusGraph } from "@acme/db";
 
 import { api } from "~/utils/api";
 import useGoalStore from "~/stores/goalStore";
 import useWaggleDanceMachineStore from "~/stores/waggleDanceStore";
 import {
+  findNodesWithNoIncomingEdges,
+  initialNodes,
+  rootPlanId,
   TaskState,
   TaskStatus,
   type AgentPacket,
   type DAGNode,
+  type DAGNodeClass,
 } from "../../../../../../packages/agent";
 import { type GraphData } from "../components/ForceGraph";
-import DAG, { type DAGNodeClass } from "../types/DAG";
-import {
-  findNodesWithNoIncomingEdges,
-  initialNodes,
-  rootPlanId,
-} from "../types/initialNodes";
 import { type WaggleDanceResult } from "../types/types";
 import { dagToGraphData } from "../utils/conversions";
 import WaggleDanceMachine from "../WaggleDanceMachine";
@@ -39,7 +38,9 @@ const useWaggleDanceMachine = () => {
     useWaggleDanceMachineStore();
   const { selectedGoal: goal } = useGoalStore();
 
-  const [dag, setDAG] = useState<DAG>(execution?.graph ?? new DAG([], []));
+  const [dag, setDAG] = useState<DAG>(
+    execution?.graph ?? new DAG(initialNodes(goal?.prompt ?? ""), []),
+  );
 
   const getDAG = useCallback(() => {
     return dag;
@@ -64,8 +65,6 @@ const useWaggleDanceMachine = () => {
         [...graph.edges, ...hookupEdges],
       );
       setDAG(rootAddedToGraph);
-    } else {
-      setDAG(new DAG([], []));
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [goal?.id, execution?.graph]);
@@ -77,31 +76,34 @@ const useWaggleDanceMachine = () => {
 
   const results = useMemo(() => {
     return (
-      goal?.results?.map((r) => {
-        const result = r.value as AgentPacket;
+      goal?.results
+        .filter((r) => r.executionId === execution?.id)
+        ?.map((r) => {
+          const result = r.value as AgentPacket;
 
-        const taskState = new TaskState({
-          ...r,
-          packets: r.packets as AgentPacket[],
-          value: result,
-        });
+          const taskState = new TaskState({
+            ...r,
+            packets: r.packets as AgentPacket[],
+            value: result,
+          });
 
-        return taskState;
-      }) || []
+          return taskState;
+        }) || []
     );
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [goal?.id]);
 
-  const resultsMap = useMemo(
-    () =>
+  const resultsMap = useMemo(() => {
+    const resultsMap =
       results?.reduce(
         (acc: Record<string, TaskState>, cur: TaskState) => {
           return { ...acc, [cur.id]: cur };
         },
         {} as Record<string, TaskState>,
-      ) || {},
-    [results],
-  );
+      ) || {};
+    console.debug("resultsMap", resultsMap);
+    return resultsMap;
+  }, [results]);
 
   const [agentPacketsMap, setAgentPackets] =
     useState<Record<string, TaskState>>(resultsMap);
@@ -119,6 +121,7 @@ const useWaggleDanceMachine = () => {
         ...taskStateA,
         updatedAt: updatedAt,
       };
+      console.log("merged", merged, "a", taskStateA, "b", taskStateB);
       return new TaskState(merged);
     });
     console.debug("taskStates", taskStates);
@@ -127,8 +130,8 @@ const useWaggleDanceMachine = () => {
 
   const sortedTaskStates = useMemo(() => {
     const sortedTaskStates = taskStates.sort((a: TaskState, b: TaskState) => {
-      const aid = a.displayId();
-      const bid = b.displayId();
+      const aid = a.nodeId;
+      const bid = b.nodeId;
       console.debug("aid", aid, "bid", bid);
       if (aid === rootPlanId) {
         return -1;
@@ -281,10 +284,7 @@ const useWaggleDanceMachine = () => {
         abortController.abort();
       }
       setAbortController(ac);
-
-      setIsDonePlanning(false);
-      setAgentPackets({});
-      setDAG(new DAG(initialNodes(goal?.prompt ?? ""), []));
+      reset();
 
       const prompt = goal?.prompt;
       if (!prompt) {
@@ -343,6 +343,7 @@ const useWaggleDanceMachine = () => {
     },
     [
       abortController,
+      reset,
       goal?.prompt,
       goal?.id,
       setIsRunning,

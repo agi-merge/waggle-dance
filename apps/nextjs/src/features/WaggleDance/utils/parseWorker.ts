@@ -2,18 +2,17 @@
 import { v4 } from "uuid";
 import { parse } from "yaml";
 
+import DAG from "@acme/agent/src/prompts/types/DAG";
 import { type ExecutionNode } from "@acme/db";
 
 import {
   AgentPacketFinishedTypes,
+  findNodesWithNoIncomingEdges,
+  makeServerIdIfNeeded,
+  rootPlanId,
   type AgentPacket,
   type AgentPacketFinishedType,
 } from "../../../../../../packages/agent";
-import DAG from "../types/DAG";
-import {
-  findNodesWithNoIncomingEdges,
-  rootPlanId,
-} from "../types/initialNodes";
 
 interface MyWorkerGlobalScope {
   onmessage: (event: MessageEvent) => void;
@@ -57,22 +56,32 @@ self.onmessage = function (
       const validNodes = optDag.nodes?.filter(
         (n) => n.name.length > 0 && n.id.length > 0 && n.context,
       );
+      validNodes?.forEach(
+        (n) => (n.id = makeServerIdIfNeeded(n.id, executionId)),
+      );
       const validEdges = optDag.edges?.filter(
         (n) => n.sId.length > 0 && n.tId.length > 0,
       );
+      validEdges?.forEach((e) => {
+        e.sId = makeServerIdIfNeeded(e.sId, executionId);
+        e.tId = makeServerIdIfNeeded(e.tId, executionId);
+      });
       if (validNodes?.length) {
         const hookupEdges = findNodesWithNoIncomingEdges(optDag).map((node) => {
           return {
             sId: rootPlanId,
             tId: node.id,
-            graphId: node.graphId || optDag.id || "",
+            graphId: node.graphId || "",
             id: v4(),
           };
         });
         const partialDAG = new DAG(
           [
             ...initialNodes,
-            ...validNodes.map((n) => ({ ...n, id: `${executionId}.${n.id}` })),
+            ...validNodes.map((n) => ({
+              ...n,
+              id: makeServerIdIfNeeded(n.id, executionId),
+            })),
           ],
           [...(validEdges ?? []), ...hookupEdges],
         );
