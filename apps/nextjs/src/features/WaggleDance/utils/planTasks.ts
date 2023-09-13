@@ -45,7 +45,7 @@ export default async function planTasks({
     // FIXME: we could change to non-draft return type if we return the DB draft from the backend
     injectAgentPacket({ type: "starting", nodeId: rootPlanId }, dag.nodes[0]!);
 
-    const partialDAG: DraftExecutionGraph = dag;
+    let partialDAG: DraftExecutionGraph = dag;
     let hasFirstTaskStarted = false;
     const data = { goal, goalId, executionId, creationProps };
     const res = await fetch("/api/agent/plan", {
@@ -112,6 +112,7 @@ export default async function planTasks({
 
       if (newDag) {
         intervalHandler.updateDAG(newDag);
+        partialDAG = newDag;
         // if we have an edges array, we should start the first task. additionally, if there are more than two nodes, we should start the first task
         // this ensures that single-node/zero-edge plans start the first task and that multi-node plans start the first task
         const firstNode = newDag.nodes[1];
