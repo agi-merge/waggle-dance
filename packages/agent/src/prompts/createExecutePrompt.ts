@@ -31,7 +31,7 @@ SCHEMA: ${schema}`;
   const promptTypeForModel = (template: string) => {
     return useSystemPrompt
       ? SystemMessagePromptTemplate.fromTemplate(template)
-      : HumanMessagePromptTemplate.fromTemplate(systemTemplate);
+      : HumanMessagePromptTemplate.fromTemplate(template);
   };
 
   const mainPrompt = promptTypeForModel(systemTemplate);
