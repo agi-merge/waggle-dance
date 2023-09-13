@@ -4,15 +4,18 @@ import { useCallback, useEffect, useMemo, useState } from "react";
 import { stringify } from "yaml";
 
 import DAG from "@acme/agent/src/prompts/types/DAG";
-import { type ExecutionEdge, type ExecutionPlusGraph } from "@acme/db";
+import {
+  type ExecutionEdge,
+  type ExecutionGraph,
+  type ExecutionNode,
+  type ExecutionPlusGraph,
+} from "@acme/db";
 
 import { api } from "~/utils/api";
 import useGoalStore from "~/stores/goalStore";
 import useWaggleDanceMachineStore from "~/stores/waggleDanceStore";
 import {
-  findNodesWithNoIncomingEdges,
   initialNodes,
-  makeServerIdIfNeeded,
   rootPlanId,
   TaskState,
   TaskStatus,
@@ -35,40 +38,66 @@ const wdm = new WaggleDanceMachine();
 
 const useWaggleDanceMachine = () => {
   const [waggleDanceMachine] = useState(wdm);
-  const { setIsRunning, agentSettings, execution } =
+  const { setIsRunning, agentSettings, execution, setExecution } =
     useWaggleDanceMachineStore();
   const { selectedGoal: goal } = useGoalStore();
 
-  const [dag, setDAG] = useState<DAG>(
-    execution?.graph ?? new DAG(initialNodes(goal?.prompt ?? ""), []),
+  // const [dag, setDAG] = useState<DAG>(new DAG([], []));
+
+  type ExecutionGraphPlusNodesEdges = ExecutionGraph & {
+    nodes: ExecutionNode[];
+    edges: ExecutionEdge[];
+  };
+  const setDAGCallback = useCallback(
+    (newDAG: DAG) => {
+      const graph: ExecutionGraphPlusNodesEdges = {
+        id: execution?.graph?.id ?? "",
+        executionId: execution?.id ?? "",
+        createdAt: execution?.graph?.createdAt ?? new Date(),
+        updatedAt: new Date(),
+        nodes: newDAG.nodes,
+        edges: newDAG.edges,
+      };
+      execution && graph ? setExecution({ ...execution, graph }) : undefined;
+    },
+    [execution, setExecution],
   );
 
   const getDAG = useCallback(() => {
-    return dag;
-  }, [dag]);
+    const dag = execution?.graph
+      ? new DAG(execution.graph.nodes, execution.graph.edges)
+      : new DAG([...initialNodes(goal?.prompt ?? "")], []);
+    console.debug("getDAG", dag);
 
-  useEffect(() => {
-    const graph = execution?.graph;
-    if (graph && goal?.prompt) {
-      const hookupEdges: ExecutionEdge[] = findNodesWithNoIncomingEdges(
-        graph,
-      ).map((node) => {
-        return {
-          id: makeServerIdIfNeeded(node.id, execution.id),
-          sId: rootPlanId,
-          tId: makeServerIdIfNeeded(node.id, execution.id),
-          graphId: graph.id,
-        };
-      });
-      const rootAddedToGraph = new DAG(
-        [...initialNodes(goal.prompt), ...graph.nodes],
-        // connect our initial nodes to the DAG: gotta find them and create edges
-        [...graph.edges, ...hookupEdges],
-      );
-      setDAG(rootAddedToGraph);
-    }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [goal?.id, execution?.graph]);
+    return dag;
+  }, [execution?.graph?.nodes, execution?.graph?.edges, goal?.prompt]);
+
+  const dag = useMemo(() => {
+    return getDAG();
+  }, [getDAG]);
+
+  // useEffect(() => {
+  //   const graph = execution?.graph;
+  //   if (graph && goal?.prompt) {
+  //     const hookupEdges: ExecutionEdge[] = findNodesWithNoIncomingEdges(
+  //       graph,
+  //     ).map((node) => {
+  //       return {
+  //         id: makeServerIdIfNeeded(node.id, execution.id),
+  //         sId: rootPlanId,
+  //         tId: makeServerIdIfNeeded(node.id, execution.id),
+  //         graphId: graph.id,
+  //       };
+  //     });
+  //     const rootAddedToGraph = new DAG(
+  //       [...initialNodes(goal.prompt), ...graph.nodes],
+  //       // connect our initial nodes to the DAG: gotta find them and create edges
+  //       [...graph.edges, ...hookupEdges],
+  //     );
+  //     setDAG(rootAddedToGraph);
+  //   }
+  //   // eslint-disable-next-line react-hooks/exhaustive-deps
+  // }, [goal?.id, execution?.graph]);
 
   const { mutate: updateExecutionState } =
     api.execution.updateState.useMutation({
@@ -109,9 +138,9 @@ const useWaggleDanceMachine = () => {
     useState<Record<string, TaskState>>(resultsMap);
 
   const taskStates: TaskState[] = useMemo(() => {
-    const taskStates = dag.nodes.map((dagNode) => {
+    const taskStates = getDAG().nodes.map((dagNode) => {
       const taskStateB = resultsMap[dagNode.id] ?? agentPacketsMap[dagNode.id];
-      console.log("dagNode", dagNode.id, "taskStateB", taskStateB?.id);
+      // console.log("dagNode", dagNode.id, "taskStateB", taskStateB?.id);
       // Object.values(agentPacketsMap).find((ts) => ts.nodeId === taskStateA.id);
       const updatedAt = new Date();
       const merged = {
@@ -128,7 +157,7 @@ const useWaggleDanceMachine = () => {
     });
     console.debug("taskStates", taskStates);
     return taskStates;
-  }, [dag.nodes.length, agentPacketsMap, resultsMap]);
+  }, [getDAG, resultsMap, agentPacketsMap]);
 
   const sortedTaskStates = useMemo(() => {
     const sortedTaskStates = taskStates.sort((a: TaskState, b: TaskState) => {
@@ -259,9 +288,9 @@ const useWaggleDanceMachine = () => {
 
   const reset = useCallback(() => {
     setIsDonePlanning(false);
-    setDAG(new DAG(initialNodes(goal?.prompt ?? ""), []));
+    setDAGCallback(new DAG(initialNodes(goal?.prompt ?? ""), []));
     setAgentPackets({});
-  }, [goal?.prompt]);
+  }, [goal?.prompt, setDAGCallback]);
 
   const [graphData, setGraphData] = useState<GraphData>({
     nodes: [],
@@ -269,8 +298,11 @@ const useWaggleDanceMachine = () => {
   });
 
   useEffect(() => {
+    const dag = execution?.graph
+      ? new DAG(execution.graph.nodes, execution.graph.edges)
+      : new DAG([...initialNodes(goal?.prompt ?? "")], []);
     setGraphData(dagToGraphData(dag, results));
-  }, [dag, results, setGraphData]);
+  }, [execution?.graph, goal?.prompt, results, setGraphData]);
 
   const stop = useCallback(() => {
     if (!abortController.signal.aborted) {
@@ -310,7 +342,7 @@ const useWaggleDanceMachine = () => {
           goalId,
           executionId,
           agentSettings,
-          graphDataState: [getDAG, setDAG],
+          graphDataState: [getDAG, setDAGCallback],
           isDonePlanningState: [isDonePlanning, setIsDonePlanning],
           injectAgentPacket,
           log,
@@ -352,6 +384,7 @@ const useWaggleDanceMachine = () => {
       waggleDanceMachine,
       agentSettings,
       getDAG,
+      setDAGCallback,
       isDonePlanning,
       injectAgentPacket,
       log,
