@@ -61,9 +61,6 @@ async function updateGraph({
     if (graph.nodes.length < 1) {
       throw new Error("no nodes planned");
     }
-    if (graph.edges.length < 1) {
-      throw new Error("no edges planned");
-    }
     const updated = await caller.execution.updateGraph({
       executionId,
       graph,

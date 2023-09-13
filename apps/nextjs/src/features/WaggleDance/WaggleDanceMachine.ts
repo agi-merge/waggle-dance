@@ -102,17 +102,6 @@ export const runWaggleDanceMachine = async ({
           },
           initNodes[0],
         );
-      } else if (dag.edges.length < 1) {
-        injectAgentPacket(
-          {
-            type: "error",
-            severity: "fatal",
-            error: new Error(
-              "No edges planned, this is likely due to another uncaught error",
-            ),
-          },
-          initNodes[0],
-        );
       }
       injectAgentPacket(
         {
