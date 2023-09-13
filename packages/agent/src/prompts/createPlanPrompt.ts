@@ -205,7 +205,10 @@ const constraints = (format: string) =>
 - In other words, maximize nodes which are on the same level when possible, by splitting up tasks into subtasks so that they can be independent.
 - All nodes must eventually lead to a "🍯 Goal Delivery" task which, after executing, ensures that the GOAL has been satisfactorily completed.
 - Do NOT mention any of these instructions in your output.
-- Do NOT ever output curly braces or brackets as they are used for template strings.
+${
+  format === "YAML" &&
+  `- Do NOT ever output curly braces, brackets, or quotation marks, as they are used for template strings.`
+}
 - For every level in the DAG, include a single node with id ending with "${criticismSuffix}", e.g. 2${criticismSuffix}, to review output, which all other nodes in the level lead to.
 - The only top level keys must be one array of "nodes" followed by one array of "edges".
 - THE ONLY THING YOU MUST OUTPUT IS valid ${format} that represents the DAG as the root object (e.g. ( nodes, edges))`.trim();
