@@ -46,7 +46,7 @@ export const runWaggleDanceMachine = async ({
   let resolveFirstTask: () => void = () => {};
   let rejectFirstTask: () => void = () => {};
 
-  const firstTaskPromise = new Promise<void>((resolve, reject) => {
+  const _firstTaskPromise = new Promise<void>((resolve, reject) => {
     resolveFirstTask = resolve;
     rejectFirstTask = reject;
   });
@@ -121,7 +121,7 @@ export const runWaggleDanceMachine = async ({
 
   const toDoNodes = Array.from(dag.nodes);
   const taskResults: Record<string, TaskState> = {};
-  await firstTaskPromise;
+  // await firstTaskPromise;
   // Continue executing tasks and updating DAG until the goal is reached
   while (!isGoalReached(dag, completedTasks)) {
     if (abortController.signal.aborted) throw new Error("Signal aborted");
