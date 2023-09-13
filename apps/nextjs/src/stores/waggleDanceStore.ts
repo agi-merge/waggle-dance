@@ -5,8 +5,12 @@ import { create } from "zustand";
 import { createJSONStorage, persist } from "zustand/middleware";
 
 import { defaultAgentSettings, type AgentSettings } from "@acme/agent";
-import type DAG from "@acme/agent/src/prompts/types/DAG";
-import { type ExecutionPlusGraph, type GoalPlusExe } from "@acme/db";
+import {
+  type DraftExecutionGraph,
+  type Execution,
+  type ExecutionPlusGraph,
+  type GoalPlusExe,
+} from "@acme/db";
 
 import { app } from "~/constants";
 
@@ -22,38 +26,20 @@ export interface WaggleDanceMachineStore {
   ) => void;
   execution: ExecutionPlusGraph | null;
   setExecution: (newExecution: ExecutionPlusGraph | undefined | null) => void;
+  graph: DraftExecutionGraph;
+  setGraph: (newGraph: DraftExecutionGraph) => void;
 }
 
 export const draftExecutionPrefix = "draft-";
 export const newDraftExecutionId = () => `${draftExecutionPrefix}${v4()}`;
 
-export function createDraftExecution(selectedGoal: GoalPlusExe, dag: DAG) {
+export function createDraftExecution(selectedGoal: GoalPlusExe) {
   const executionId = newDraftExecutionId();
-  const graphId = newDraftExecutionId();
   const goalId = selectedGoal.id;
-  // const nodes = dag.nodes.map((node) => {
-  //   return { ...node, graphId, id: makeServerIdIfNeeded(node.id, executionId) };
-  // });
-  // const edges = dag.edges.map((edge) => {
-  //   return {
-  //     ...edge,
-  //     graphId,
-  //     sId: makeServerIdIfNeeded(edge.sId, executionId),
-  //     tId: makeServerIdIfNeeded(edge.tId, executionId),
-  //   };
-  // });
-  const draftExecution: ExecutionPlusGraph = {
+  const draftExecution: Execution = {
     id: executionId,
     goalId,
     userId: "guest",
-    graph: {
-      id: graphId,
-      executionId,
-      nodes: dag.nodes,
-      edges: dag.edges,
-      createdAt: new Date(),
-      updatedAt: new Date(),
-    },
     state: "EXECUTING",
     createdAt: new Date(),
     updatedAt: new Date(),
@@ -80,7 +66,21 @@ const useWaggleDanceMachineStore = create(
       execution: null,
       setExecution: (newExecution) => {
         console.debug("setExecution", newExecution);
-        set({ execution: newExecution || null });
+        // TODO: set graph to newExecution.graph if it is not null
+        set((state) => ({
+          execution: newExecution || null,
+          graph: newExecution?.graph || state.graph,
+        }));
+      },
+      graph: {
+        nodes: [],
+        edges: [],
+        executionId: "",
+      } as DraftExecutionGraph,
+      setGraph: (graph) => {
+        set((_state) => ({
+          graph,
+        }));
       },
     }),
     {

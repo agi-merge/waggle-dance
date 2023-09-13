@@ -9,9 +9,8 @@ import {
   Typography,
 } from "@mui/joy";
 
-import type DAG from "@acme/agent/src/prompts/types/DAG";
 import { type Session } from "@acme/auth";
-import { type GoalPlusExe } from "@acme/db";
+import { type DraftExecutionGraph, type GoalPlusExe } from "@acme/db";
 
 import routes from "~/utils/routes";
 import AgentSettingsToggleButton from "~/features/AgentSettings/components/AgentSettingsToggleButton";
@@ -23,7 +22,7 @@ interface BottomControlsProps {
   session: Session | null;
   isRunning: boolean;
   selectedGoal: GoalPlusExe | undefined;
-  dag: DAG;
+  dag: DraftExecutionGraph;
   handleStart: () => void;
   handleStop: () => void;
   setIsAutoScrollToBottom: (value: boolean) => void;

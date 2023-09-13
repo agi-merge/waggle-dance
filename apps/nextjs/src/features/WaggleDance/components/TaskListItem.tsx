@@ -13,13 +13,14 @@ import {
   Typography,
 } from "@mui/joy";
 
-import { TaskStatus, type DAGNode, type TaskState } from "@acme/agent";
+import { TaskStatus, type TaskState } from "@acme/agent";
+import { type DraftExecutionNode } from "@acme/db";
 
 import { stringifyMax } from "../utils/stringifyMax";
 
 interface TaskListItemProps {
   task: TaskState;
-  nodes: DAGNode[];
+  nodes: DraftExecutionNode[];
   i: number;
   statusColor: (
     n: TaskState,

@@ -2,11 +2,12 @@
 
 import { type NextApiRequest, type NextApiResponse } from "next";
 
-import { type AgentPacket, type DAGNode } from "@acme/agent";
+import { type AgentPacket } from "@acme/agent";
 import { appRouter } from "@acme/api";
 import { getServerSession, type Session } from "@acme/auth";
 import {
   prisma,
+  type DraftExecutionNode,
   type Execution,
   type ExecutionState,
   type Result,
@@ -18,7 +19,7 @@ export const config = {
 
 export type CreateResultParams = {
   goalId: string;
-  node: DAGNode;
+  node: DraftExecutionNode;
   executionId: string;
   packet: AgentPacket;
   packets: AgentPacket[];

@@ -1,10 +1,5 @@
-import {
-  type AgentPacket,
-  type AgentSettingsMap,
-  type DAGNode,
-  type DAGNodeClass,
-} from "@acme/agent";
-import type DAG from "@acme/agent/src/prompts/types/DAG";
+import { type AgentPacket, type AgentSettingsMap } from "@acme/agent";
+import { type DraftExecutionGraph, type DraftExecutionNode } from "@acme/db";
 
 import executeTask from "../utils/executeTask";
 import { mapAgentSettingsToCreationProps } from "./types";
@@ -12,7 +7,7 @@ import { mapAgentSettingsToCreationProps } from "./types";
 type LogType = (...args: (string | number | object)[]) => void;
 export type InjectAgentPacketType = (
   agentPacket: AgentPacket,
-  node: DAGNode | DAGNodeClass,
+  node: DraftExecutionNode,
 ) => void;
 type ResolveFirstTaskType = (
   value?: AgentPacket | PromiseLike<AgentPacket>,
@@ -32,7 +27,10 @@ class TaskExecutor {
     private resolveFirstTask: ResolveFirstTaskType,
     private rejectFirstTask: RejectFirstTaskType,
   ) {}
-  async startFirstTask(task: DAGNode | DAGNodeClass, dag: DAG): Promise<void> {
+  async startFirstTask(
+    task: DraftExecutionNode,
+    dag: DraftExecutionGraph,
+  ): Promise<void> {
     this.log(
       "speed optimization: we are able to execute the first task while still planning.",
     );
@@ -121,8 +119,8 @@ class TaskExecutor {
   }
 
   async executeTasks(
-    tasks: Array<DAGNode | DAGNodeClass>,
-    dag: DAG,
+    tasks: Array<DraftExecutionNode>,
+    dag: DraftExecutionGraph,
     agentSettings: AgentSettingsMap,
   ): Promise<void> {
     for (const task of tasks) {

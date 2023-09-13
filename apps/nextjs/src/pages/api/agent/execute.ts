@@ -5,13 +5,12 @@ import { type AgentAction, type AgentFinish } from "langchain/schema";
 import { stringify } from "yaml";
 
 import { getBaseUrl } from "@acme/api/utils";
-import { type ExecutionState } from "@acme/db";
+import { type DraftExecutionNode, type ExecutionState } from "@acme/db";
 
 import { type ExecuteRequestBody } from "~/features/WaggleDance/types/types";
 import {
   callExecutionAgent,
   type AgentPacket,
-  type DAGNode,
 } from "../../../../../../packages/agent";
 import { type CreateResultParams } from "../result";
 
@@ -36,7 +35,7 @@ export default async function ExecuteStream(req: NextRequest) {
     rejectStreamEnded = reject;
   });
   const abortController = new AbortController();
-  let node: DAGNode | undefined;
+  let node: DraftExecutionNode | undefined;
   const packets: AgentPacket[] = [];
   try {
     const {

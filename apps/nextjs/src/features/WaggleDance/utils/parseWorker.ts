@@ -2,8 +2,7 @@
 import { v4 } from "uuid";
 import { parse } from "yaml";
 
-import DAG from "@acme/agent/src/prompts/types/DAG";
-import { type ExecutionNode } from "@acme/db";
+import { type DraftExecutionGraph, type ExecutionNode } from "@acme/db";
 
 import {
   AgentPacketFinishedTypes,
@@ -21,7 +20,7 @@ interface MyWorkerGlobalScope {
 
 declare const self: MyWorkerGlobalScope;
 console.debug("parseWorker.ts");
-let dag: DAG | null | undefined;
+let dag: DraftExecutionGraph | null | undefined;
 let tokens = "";
 let executionId = "";
 let initialNodes: ExecutionNode[] = [];
@@ -50,7 +49,7 @@ self.onmessage = function (
         self.postMessage({ finishPacket: packet });
       }
     });
-    const yaml = parse(tokens) as Partial<DAG>;
+    const yaml = parse(tokens) as Partial<DraftExecutionGraph>;
     if (yaml && yaml.nodes && yaml.nodes.length > 0) {
       const optDag = yaml;
       const validNodes = optDag.nodes?.filter(
@@ -75,16 +74,22 @@ self.onmessage = function (
             id: v4(),
           };
         });
-        const partialDAG = new DAG(
-          [
-            ...initialNodes,
-            ...validNodes.map((n) => ({
-              ...n,
-              id: makeServerIdIfNeeded(n.id, executionId),
-            })),
-          ],
-          [...(validEdges ?? []), ...hookupEdges],
-        );
+        // const partialDAG = new DAG(
+        //   [
+        //     ...initialNodes,
+        //     ...validNodes.map((n) => ({
+        //       ...n,
+        //       id: makeServerIdIfNeeded(n.id, executionId),
+        //     })),
+        //   ],
+        //   [...(validEdges ?? []), ...hookupEdges],
+        // );
+        // dag = partialDAG;
+        const partialDAG: DraftExecutionGraph = {
+          executionId,
+          nodes: [...initialNodes, ...validNodes],
+          edges: [...(validEdges ?? []), ...hookupEdges],
+        };
         dag = partialDAG;
       }
     } else {

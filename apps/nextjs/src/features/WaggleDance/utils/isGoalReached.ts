@@ -1,6 +1,9 @@
-import type DAG from "@acme/agent/src/prompts/types/DAG";
+import { type DraftExecutionGraph } from "@acme/db";
 
-export function isGoalReached(dag: DAG, completedTasks: Set<string>): boolean {
+export function isGoalReached(
+  dag: DraftExecutionGraph,
+  completedTasks: Set<string>,
+): boolean {
   const isGoalReached = dag.nodes.every((node) => completedTasks.has(node.id));
   if (isGoalReached) {
     debugger;

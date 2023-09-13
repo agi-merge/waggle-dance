@@ -13,7 +13,6 @@ import Tooltip from "@mui/joy/Tooltip";
 import Typography from "@mui/joy/Typography";
 
 import { rootPlanId } from "@acme/agent";
-import type DAG from "@acme/agent/src/prompts/types/DAG";
 import { type ExecutionPlusGraph } from "@acme/db";
 
 import routes from "~/utils/routes";
@@ -38,7 +37,7 @@ export const ExecutionSelect = ({
   const names = useMemo(() => {
     return executions?.map((e) => {
       // Cast the graph unsafely to DAG and get the nodes
-      const nodes = (e?.graph as unknown as DAG)?.nodes || [];
+      const nodes = e?.graph?.nodes || [];
 
       // Use reduce to build the names string
       return nodes.reduce((acc, node) => {

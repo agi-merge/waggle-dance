@@ -3,23 +3,22 @@ import { type Dispatch, type SetStateAction } from "react";
 
 import {
   type AgentSettings,
-  type DAGNode,
   type ModelCreationProps,
   type TaskState,
 } from "@acme/agent";
-import type DAG from "@acme/agent/src/prompts/types/DAG";
 import {
   TEMPERATURE_VALUES,
   type AgentPromptingMethod,
 } from "@acme/agent/src/utils/llms";
+import { type DraftExecutionGraph, type DraftExecutionNode } from "@acme/db";
 
 import { env } from "~/env.mjs";
 
-export type PlanResult = DAG;
+export type PlanResult = DraftExecutionGraph;
 
 export type WaggleDanceContextType = {
-  dag: DAG;
-  updateDAG: (dag: DAG) => void;
+  dag: DraftExecutionGraph;
+  updateDAG: (dag: DraftExecutionGraph) => void;
 };
 
 export type TaskResult = {
@@ -42,7 +41,10 @@ export interface WaggleDanceResult {
   completedTasks: Set<string>;
 }
 
-export type GraphDataState = [DAG, (dag: DAG) => void];
+export type GraphDataState = [
+  DraftExecutionGraph,
+  (dag: DraftExecutionGraph) => void,
+];
 export type IsDonePlanningState = [boolean, Dispatch<SetStateAction<boolean>>];
 export type TaskResultsState = [
   Record<string, TaskState>,
@@ -89,10 +91,10 @@ export type PlanRequestBody = BaseRequestBody & {
 
 export type ExecuteRequestBody = PlanRequestBody & {
   executionId: string;
-  task: DAGNode;
+  task: DraftExecutionNode;
   revieweeTaskResults: TaskState[] | null;
   // completedTasks: Set<string>;
   // taskResults: Record<string, BaseResultType>;
-  dag: DAG;
+  dag: DraftExecutionGraph;
   agentPromptingMethod: AgentPromptingMethod;
 };

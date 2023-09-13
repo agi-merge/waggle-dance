@@ -3,13 +3,14 @@ import React from "react";
 import List from "@mui/joy/List";
 import ListDivider from "@mui/joy/ListDivider";
 
-import { type DAGNode, type TaskState } from "@acme/agent";
+import { type TaskState } from "@acme/agent";
+import { type DraftExecutionNode } from "@acme/db";
 
 import TaskListItem from "./TaskListItem";
 
 type TaskListTabProps = {
   sortedTaskStates: TaskState[];
-  nodes: DAGNode[];
+  nodes: DraftExecutionNode[];
   statusColor: (
     n: TaskState,
   ) => "danger" | "success" | "warning" | "primary" | "neutral" | undefined;

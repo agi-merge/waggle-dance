@@ -9,6 +9,7 @@ import {
 } from "@prisma/client";
 
 export * from "@prisma/client";
+export * from "./skills";
 
 // TODO: find better way to share this with skillset trpc router
 
@@ -41,4 +42,10 @@ export type ExecutionGraphNodesAndEdges = {
   edges: ExecutionEdge[];
 };
 
-export * from "./skills";
+export type DraftExecutionGraph = Omit<
+  ExecutionGraphPlusNodesAndEdges,
+  "id" | "updatedAt" | "createdAt"
+> & { nodes: DraftExecutionNode[]; edges: DraftExecutionEdge[] };
+
+export type DraftExecutionNode = Omit<ExecutionNode, "graphId">;
+export type DraftExecutionEdge = Omit<ExecutionEdge, "graphId" | "id">;

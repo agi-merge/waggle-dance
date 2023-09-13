@@ -6,13 +6,14 @@ import {
 import { stringify as jsonStringify } from "superjson";
 import { stringify as yamlStringify } from "yaml";
 
+import { type DraftExecutionNode } from "@acme/db";
+
 import { criticizeSchema } from "./schemas/criticizeSchema";
-import { type DAGNode } from "./types/DAGNode";
 import { type TaskState } from "./types/TaskState";
 
 export function createCriticizePrompt(params: {
   revieweeTaskResults: TaskState[];
-  nodes: DAGNode[];
+  nodes: DraftExecutionNode[];
   returnType: "JSON" | "YAML";
 }): ChatPromptTemplate {
   const { revieweeTaskResults, nodes, returnType } = params;

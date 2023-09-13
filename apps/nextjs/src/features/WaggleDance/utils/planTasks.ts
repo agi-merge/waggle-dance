@@ -1,13 +1,11 @@
 // features/WaggleDance/utils/planTasks.ts
 
-import type DAG from "@acme/agent/src/prompts/types/DAG";
+import { type DraftExecutionGraph, type DraftExecutionNode } from "@acme/db";
 
 import {
   initialNodes,
   rootPlanId,
   type AgentPacket,
-  type DAGNode,
-  type DAGNodeClass,
   type ModelCreationProps,
 } from "../../../../../../packages/agent";
 import { type InjectAgentPacketType } from "../types/TaskExecutor";
@@ -23,7 +21,10 @@ export type PlanTasksProps = {
   log: (...args: (string | number | object)[]) => void;
   injectAgentPacket: InjectAgentPacketType;
   abortSignal: AbortSignal;
-  startFirstTask?: (task: DAGNode, dag: DAG) => Promise<void>;
+  startFirstTask?: (
+    task: DraftExecutionNode,
+    dag: DraftExecutionGraph,
+  ) => Promise<void>;
 };
 
 export default async function planTasks({
@@ -36,10 +37,11 @@ export default async function planTasks({
   injectAgentPacket,
   startFirstTask,
   abortSignal,
-}: PlanTasksProps): Promise<DAG | undefined> {
+}: PlanTasksProps): Promise<DraftExecutionGraph | undefined> {
+  // FIXME: we could change to non-draft return type if we return the DB draft from the backend
   injectAgentPacket({ type: "starting", nodeId: rootPlanId }, dag.nodes[0]!);
 
-  let partialDAG: DAG = dag;
+  let partialDAG: DraftExecutionGraph = dag;
   let hasFirstTaskStarted = false;
   const data = { goal, goalId, executionId, creationProps };
   const res = await fetch("/api/agent/plan", {
@@ -54,7 +56,7 @@ export default async function planTasks({
     throw new Error(`Error fetching plan: ${res.status} ${res.statusText}`);
   }
   const stream = res.body;
-  let initialNode: DAGNode | DAGNodeClass | undefined;
+  let initialNode: DraftExecutionNode | undefined;
   if (!stream) {
     throw new Error(`No stream: ${res.statusText} `);
   } else {
@@ -83,7 +85,7 @@ export default async function planTasks({
   };
   parseWorker.onmessage = function (
     event: MessageEvent<{
-      dag: DAG | null | undefined;
+      dag: DraftExecutionGraph | null | undefined;
       error: Error | undefined;
       finishPacket: AgentPacket | undefined;
     }>,

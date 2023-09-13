@@ -96,7 +96,7 @@ const WaggleDance = ({}: Props) => {
           const data = error.data as HTTPStatusy;
           // route for anonymous users
           if (data.httpStatus === 401 && selectedGoal) {
-            const draftExecution = createDraftExecution(selectedGoal, dag);
+            const draftExecution = createDraftExecution(selectedGoal);
             createdExecution = draftExecution;
           }
           if (!createdExecution) {
@@ -263,7 +263,7 @@ const WaggleDance = ({}: Props) => {
             : " to save and use better models"}
         </Typography>
       </Box>
-      {dag.nodes.length > 0 && (
+      {dag && dag.nodes.length > 0 && (
         <Tabs
           size="sm"
           key={execution?.id}

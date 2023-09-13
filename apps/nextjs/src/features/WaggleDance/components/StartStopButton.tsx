@@ -3,13 +3,13 @@ import React from "react";
 import { PlayCircle, StopCircle } from "@mui/icons-material";
 import { Button, CircularProgress, Stack, Typography } from "@mui/joy";
 
-import type DAG from "@acme/agent/src/prompts/types/DAG";
+import { type DraftExecutionGraph } from "@acme/db";
 
 interface StartStopButtonProps {
   isRunning: boolean;
   handleStart: () => void;
   handleStop: () => void;
-  dag: DAG;
+  dag: DraftExecutionGraph;
 }
 
 export const StartStopButton: React.FC<StartStopButtonProps> = ({

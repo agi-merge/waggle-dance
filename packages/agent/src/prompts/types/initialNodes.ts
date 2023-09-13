@@ -1,8 +1,6 @@
 import { v4 } from "uuid";
 
-import { type ExecutionNode } from "@acme/db";
-
-import type DAG from "./DAG";
+import { type DraftExecutionGraph, type ExecutionNode } from "@acme/db";
 
 export const rootPlanId = `👸🐝`;
 export const initialNodes = (prompt: string): ExecutionNode[] => [
@@ -14,7 +12,9 @@ export const initialNodes = (prompt: string): ExecutionNode[] => [
   },
 ];
 
-export function findNodesWithNoIncomingEdges(dag: Partial<DAG>) {
+export function findNodesWithNoIncomingEdges(
+  dag: Partial<DraftExecutionGraph>,
+) {
   const nodesWithIncomingEdges = new Set<string>();
   for (const edge of dag.edges ?? []) {
     nodesWithIncomingEdges.add(edge.tId);
