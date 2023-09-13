@@ -107,28 +107,6 @@ export default async function planTasks({
       const diffNodesCount = newDag.nodes.length - nodesLength ?? 0;
       const newEdgesCount = newDag.edges.length - (dag?.edges.length ?? 0);
       if (diffNodesCount || newEdgesCount) {
-        // slice the new portion and makeServerIdIfNeeded() on each id
-        // for (let i = 0; i < diffNodesCount; i++) {
-        //   const node = newDag.nodes[nodesLength + i];
-        //   if (node) {
-        //     node.id = makeServerIdIfNeeded(node.id, executionId);
-        //   }
-        // }
-        // for (let i = 0; i < newEdgesCount; i++) {
-        //   const edge = newDag.edges[nodesLength + i];
-        //   if (edge) {
-        //     edge.sId = makeServerIdIfNeeded(edge.sId, executionId);
-        //     edge.tId = makeServerIdIfNeeded(edge.tId, executionId);
-        //   }
-        // }
-        // newDag.nodes
-        //   .slice(newDag.nodes.length - diffNodesCount)
-        //   .forEach((n) => (n.id = makeServerIdIfNeeded(n.id, executionId)));
-        // newDag.edges.slice(newDag.edges.length - newEdgesCount).forEach((e) => {
-        //   e.sId = makeServerIdIfNeeded(e.sId, executionId);
-        //   e.tId = makeServerIdIfNeeded(e.tId, executionId);
-        // });
-        // console.debug("newDag", newDag);
         setDAG(newDag, goal);
         partialDAG = newDag;
       }
@@ -138,7 +116,7 @@ export default async function planTasks({
         !hasFirstTaskStarted &&
         startFirstTask &&
         firstNode &&
-        newDag.nodes.length > 0
+        newDag.nodes.length > 1
       ) {
         hasFirstTaskStarted = true;
         console.log("starting first task", firstNode.id);
