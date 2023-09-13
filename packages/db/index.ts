@@ -26,11 +26,11 @@ if (process.env.NODE_ENV !== "production") globalForPrisma.prisma = prisma;
 
 export type GoalPlusExe = Goal & {
   executions: ExecutionPlusGraph[];
-  results: Result[];
 };
 
 export type ExecutionPlusGraph = Execution & {
   graph?: ExecutionGraphPlusNodesAndEdges | null;
+  results?: Result[] | null;
 };
 
 export type ExecutionGraphPlusNodesAndEdges = ExecutionGraph &

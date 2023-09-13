@@ -39,12 +39,12 @@ export const executionRouter = createTRPCRouter({
                       edges: true,
                     },
                   },
-                },
-              },
-              results: {
-                take: 40,
-                orderBy: {
-                  updatedAt: "desc",
+                  results: {
+                    take: 100,
+                    orderBy: {
+                      updatedAt: "desc",
+                    },
+                  },
                 },
               },
             },

@@ -76,19 +76,17 @@ const useWaggleDanceMachine = () => {
 
   const results = useMemo(() => {
     return (
-      goal?.results
-        .filter((r) => r.executionId === execution?.id)
-        ?.map((r) => {
-          const result = r.value as AgentPacket;
+      execution?.results?.map((r) => {
+        const result = r.value as AgentPacket;
 
-          const taskState = new TaskState({
-            ...r,
-            packets: r.packets as AgentPacket[],
-            value: result,
-          });
+        const taskState = new TaskState({
+          ...r,
+          packets: r.packets as AgentPacket[],
+          value: result,
+        });
 
-          return taskState;
-        }) || []
+        return taskState;
+      }) || []
     );
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [goal?.id]);
