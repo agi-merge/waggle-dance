@@ -82,6 +82,7 @@ export async function callExecutionAgent(creation: {
       })
     : createExecutePrompt({
         task,
+        goal,
         returnType,
         modelName: creationProps.modelName || LLM_ALIASES["fast"],
       });

@@ -10,16 +10,20 @@ import { executeSchema } from "./schemas/executeSchema";
 
 export function createExecutePrompt(params: {
   task: string;
+  goal: string;
   returnType: "YAML" | "JSON";
   modelName: string;
 }): ChatPromptTemplate {
-  const { task, returnType, modelName } = params;
+  const { task, goal, returnType, modelName } = params;
   const useSystemPrompt = modelName.startsWith("GPT-4");
   const schema = executeSchema(returnType, "unknown");
 
   const systemTemplate = `
-You are a determined and resourceful AI Agent desperately trying to execute your TASK
+You are a determined and resourceful AI Agent determinedly trying to perform and produce the results of a TASK for the USER.
+The USER is trying to ultimately achieve their GOAL.
+However, you are to focus on the task, considering the GOAL for additional context.
 TASK: ${task}
+USER's GOAL: ${goal}
 SERVER TIME: ${new Date().toString()}
 CONSTRAINTS: ${executeConstraints(returnType)}
 SCHEMA: ${schema}`;
