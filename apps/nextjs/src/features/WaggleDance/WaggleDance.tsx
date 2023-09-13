@@ -326,7 +326,7 @@ const WaggleDance = ({}: Props) => {
                     variant="rectangular"
                     width="100%"
                     height="25rem"
-                    animation="wave"
+                    animation="pulse"
                   />
                 }
               >

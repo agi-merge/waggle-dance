@@ -12,6 +12,7 @@ import useWaggleDanceMachineStore from "~/stores/waggleDanceStore";
 import {
   findNodesWithNoIncomingEdges,
   initialNodes,
+  makeServerIdIfNeeded,
   rootPlanId,
   TaskState,
   TaskStatus,
@@ -53,9 +54,9 @@ const useWaggleDanceMachine = () => {
         graph,
       ).map((node) => {
         return {
-          id: node.id,
+          id: makeServerIdIfNeeded(node.id, execution.id),
           sId: rootPlanId,
-          tId: node.id,
+          tId: makeServerIdIfNeeded(node.id, execution.id),
           graphId: graph.id,
         };
       });
@@ -83,6 +84,7 @@ const useWaggleDanceMachine = () => {
           ...r,
           packets: r.packets as AgentPacket[],
           value: result,
+          id: r.nodeId,
         });
 
         return taskState;
@@ -107,30 +109,32 @@ const useWaggleDanceMachine = () => {
     useState<Record<string, TaskState>>(resultsMap);
 
   const taskStates: TaskState[] = useMemo(() => {
-    const taskStates = Object.entries(resultsMap).map((tuple) => {
-      const [id, taskStateA] = tuple;
-      const taskStateB =
-        agentPacketsMap[taskStateA.id] ??
-        agentPacketsMap[id] ??
-        Object.values(agentPacketsMap).find((ts) => ts.nodeId === id);
+    const taskStates = dag.nodes.map((dagNode) => {
+      const taskStateB = resultsMap[dagNode.id] ?? agentPacketsMap[dagNode.id];
+      console.log("dagNode", dagNode.id, "taskStateB", taskStateB?.id);
+      // Object.values(agentPacketsMap).find((ts) => ts.nodeId === taskStateA.id);
       const updatedAt = new Date();
       const merged = {
-        ...taskStateB,
-        ...taskStateA,
+        id: taskStateB?.id ?? dagNode.id,
+        packets: taskStateB?.packets ?? [],
+        value: taskStateB?.value ?? {
+          type: "idle",
+          nodeId: taskStateB?.nodeId ?? dagNode.id ?? "",
+        },
+        nodeId: taskStateB?.nodeId ?? dagNode.id,
         updatedAt: updatedAt,
       };
-      console.log("merged", merged, "a", taskStateA, "b", taskStateB);
       return new TaskState(merged);
     });
     console.debug("taskStates", taskStates);
     return taskStates;
-  }, [resultsMap, agentPacketsMap]);
+  }, [dag.nodes.length, agentPacketsMap, resultsMap]);
 
   const sortedTaskStates = useMemo(() => {
     const sortedTaskStates = taskStates.sort((a: TaskState, b: TaskState) => {
       const aid = a.nodeId;
       const bid = b.nodeId;
-      console.debug("aid", aid, "bid", bid);
+      // console.debug("aid", aid, "bid", bid);
       if (aid === rootPlanId) {
         return -1;
       }
