@@ -4,7 +4,11 @@ import { v4 } from "uuid";
 import { create } from "zustand";
 import { createJSONStorage, persist } from "zustand/middleware";
 
-import { defaultAgentSettings, type AgentSettings } from "@acme/agent";
+import {
+  defaultAgentSettings,
+  makeServerIdIfNeeded,
+  type AgentSettings,
+} from "@acme/agent";
 import { type ExecutionPlusGraph, type GoalPlusExe } from "@acme/db";
 
 import { app } from "~/constants";
@@ -32,10 +36,15 @@ export function createDraftExecution(selectedGoal: GoalPlusExe, dag: DAG) {
   const graphId = newDraftExecutionId();
   const goalId = selectedGoal.id;
   const nodes = dag.nodes.map((node) => {
-    return { ...node, graphId, id: `${executionId}.${node.id}` };
+    return { ...node, graphId, id: makeServerIdIfNeeded(node.id, executionId) };
   });
   const edges = dag.edges.map((edge) => {
-    return { ...edge, graphId, id: v4() };
+    return {
+      ...edge,
+      graphId,
+      sId: makeServerIdIfNeeded(edge.sId, executionId),
+      tId: makeServerIdIfNeeded(edge.tId, executionId),
+    };
   });
   const draftExecution: ExecutionPlusGraph = {
     id: executionId,

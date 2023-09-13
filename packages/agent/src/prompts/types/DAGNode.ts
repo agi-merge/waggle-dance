@@ -4,3 +4,11 @@ export interface DAGNode {
   name: string;
   context: string;
 }
+
+export function isServerId(id: string): boolean {
+  return id.includes(".");
+}
+
+export function makeServerIdIfNeeded(id: string, executionId: string): string {
+  return isServerId(id) ? id : `${executionId}.${id}`;
+}
