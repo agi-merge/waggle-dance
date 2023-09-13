@@ -42,11 +42,11 @@ export type AgentPacketFinishedType = (typeof AgentPacketFinishedTypes)[number];
 
 const agentPacketFinishedTypesSet = new Set(AgentPacketFinishedStrings);
 
-export const findFinishPacket = (packets: AgentPacket[]): AgentPacket => {
-  const isAgentPacketFinishedType = (type: AgentPacketType) => {
-    return agentPacketFinishedTypesSet.has(type);
-  };
+export const isAgentPacketFinishedType = (type: AgentPacketType) => {
+  return agentPacketFinishedTypesSet.has(type);
+};
 
+export const findFinishPacket = (packets: AgentPacket[]): AgentPacket => {
   const packet = packets.findLast((packet) => {
     try {
       isAgentPacketFinishedType(packet.type);

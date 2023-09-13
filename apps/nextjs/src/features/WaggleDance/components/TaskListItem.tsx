@@ -13,7 +13,11 @@ import {
   Typography,
 } from "@mui/joy";
 
-import { TaskStatus, type TaskState } from "@acme/agent";
+import {
+  isAgentPacketFinishedType,
+  TaskStatus,
+  type TaskState,
+} from "@acme/agent";
 import { type DraftExecutionNode } from "@acme/db";
 
 import { stringifyMax } from "../utils/stringifyMax";
@@ -135,7 +139,11 @@ const TaskListItem = ({
             })}
           >
             <Typography level="title-lg">
-              {t.value ? <>Result: </> : <>Status: </>}
+              {isAgentPacketFinishedType(t.value.type) ? (
+                <>Result: </>
+              ) : (
+                <>Status: </>
+              )}
               <Typography level="body-md" color="neutral">
                 {t.packets.slice(0, -1).map((p, index) => (
                   <span key={index}>{p.type} → </span>
@@ -145,25 +153,24 @@ const TaskListItem = ({
                     {t.packets[t.packets.length - 1]?.type}
                   </Typography>
                 )}
+                {t.value.type === "idle" && "idle"}
               </Typography>
             </Typography>
 
-            {t.value && (
-              <Typography
-                level="body-sm"
-                className="max-h-72 overflow-x-clip overflow-y-scroll  break-words pt-2"
-                fontFamily={
-                  t.status === TaskStatus.error ? "monospace" : undefined
-                }
-              >
-                {t.value.type === "done" && t.value.value}
-                {t.value.type === "error" && String(t.value.error)}
-                {t.value.type === "handleAgentEnd" && t.value.value}
-                {t.value.type === "handleLLMError" && String(t.value.err)}
-                {t.value.type === "handleAgentError" && String(t.value.err)}
-                {t.value.type === "handleRetrieverError" && String(t.value.err)}
-              </Typography>
-            )}
+            <Typography
+              level="body-sm"
+              className="max-h-72 overflow-x-clip overflow-y-scroll  break-words pt-2"
+              fontFamily={
+                t.status === TaskStatus.error ? "monospace" : undefined
+              }
+            >
+              {t.value.type === "done" && t.value.value}
+              {t.value.type === "error" && String(t.value.error)}
+              {t.value.type === "handleAgentEnd" && t.value.value}
+              {t.value.type === "handleLLMError" && String(t.value.err)}
+              {t.value.type === "handleAgentError" && String(t.value.err)}
+              {t.value.type === "handleRetrieverError" && String(t.value.err)}
+            </Typography>
           </Card>
         </Card>
       </ListItemContent>

@@ -66,7 +66,7 @@ const WaggleDanceDashboard = ({
             <AccordionHeader
               isFirst
               variant="outlined"
-              color="primary"
+              color="neutral"
               openText={
                 <Box height={"3rem"}>
                   <Typography noWrap level="title-sm">
@@ -105,7 +105,7 @@ const WaggleDanceDashboard = ({
             <AccordionHeader
               isLast={true}
               variant="outlined"
-              color="primary"
+              color="neutral"
               openText={
                 <Box height={"3rem"}>
                   <Typography level="title-sm">📊 Settings</Typography>
@@ -322,7 +322,7 @@ const WaggleDanceDashboard = ({
             <AccordionHeader
               isFirst
               variant="outlined"
-              color="primary"
+              color="neutral"
               openText={
                 <Box height={"3rem"}>
                   <Typography level="title-sm">🌺 Data</Typography>
@@ -359,7 +359,7 @@ const WaggleDanceDashboard = ({
           <AccordionItem value="item-4">
             <AccordionHeader
               variant="outlined"
-              color="primary"
+              color="neutral"
               isLast={true}
               openText={
                 <Box height={"3rem"}>
