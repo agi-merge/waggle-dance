@@ -155,7 +155,7 @@ const GoalPage = ({ alertConfigs }: Props) => {
 
   useEffect(() => {
     goal && selectGoal(goal.id);
-    setExecution(execution);
+    setExecution(execution, goal?.prompt ?? "");
     if (destinationRoute && router.asPath !== destinationRoute) {
       void (async () => {
         await router.replace(destinationRoute, undefined, { shallow: true });

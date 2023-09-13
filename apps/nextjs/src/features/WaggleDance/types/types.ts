@@ -43,7 +43,7 @@ export interface WaggleDanceResult {
 
 export type GraphDataState = [
   DraftExecutionGraph,
-  (dag: DraftExecutionGraph) => void,
+  (dag: DraftExecutionGraph, goal: string) => void,
 ];
 export type IsDonePlanningState = [boolean, Dispatch<SetStateAction<boolean>>];
 export type TaskResultsState = [

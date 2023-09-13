@@ -4,7 +4,13 @@ import { v4 } from "uuid";
 import { create } from "zustand";
 import { createJSONStorage, persist } from "zustand/middleware";
 
-import { defaultAgentSettings, type AgentSettings } from "@acme/agent";
+import {
+  defaultAgentSettings,
+  findNodesWithNoIncomingEdges,
+  initialNodes,
+  rootPlanId,
+  type AgentSettings,
+} from "@acme/agent";
 import {
   type DraftExecutionGraph,
   type Execution,
@@ -25,9 +31,12 @@ export interface WaggleDanceMachineStore {
     newValue: Partial<AgentSettings>,
   ) => void;
   execution: ExecutionPlusGraph | null;
-  setExecution: (newExecution: ExecutionPlusGraph | undefined | null) => void;
+  setExecution: (
+    newExecution: ExecutionPlusGraph | undefined | null,
+    goal: string,
+  ) => void;
   graph: DraftExecutionGraph;
-  setGraph: (newGraph: DraftExecutionGraph) => void;
+  setGraph: (newGraph: DraftExecutionGraph, goal: string) => void;
 }
 
 export const draftExecutionPrefix = "draft-";
@@ -47,6 +56,28 @@ export function createDraftExecution(selectedGoal: GoalPlusExe) {
   return draftExecution;
 }
 
+const hookRootUpToServerGraph = (
+  graph: DraftExecutionGraph,
+  executionId: string | null | undefined,
+  goal: string,
+) => {
+  const hookupEdges = findNodesWithNoIncomingEdges(graph).map((node) => {
+    return {
+      sId: rootPlanId,
+      tId: node.id,
+      graphId: node.graphId || "",
+      id: v4(),
+    };
+  });
+  const graphWithRoot = {
+    ...graph,
+    nodes: [...initialNodes(goal), ...graph.nodes],
+    edges: [...graph.edges, ...hookupEdges],
+    executionId: executionId ?? graph.executionId,
+  };
+  return graphWithRoot;
+};
+
 const useWaggleDanceMachineStore = create(
   persist<WaggleDanceMachineStore>(
     (set, _get) => ({
@@ -64,12 +95,18 @@ const useWaggleDanceMachineStore = create(
           },
         })),
       execution: null,
-      setExecution: (newExecution) => {
+      setExecution: (newExecution, goal) => {
         console.debug("setExecution", newExecution);
-        // TODO: set graph to newExecution.graph if it is not null
         set((state) => ({
           execution: newExecution || null,
-          graph: newExecution?.graph || state.graph,
+          graph:
+            (newExecution?.graph &&
+              hookRootUpToServerGraph(
+                newExecution.graph,
+                newExecution.id,
+                goal,
+              )) ||
+            state.graph,
         }));
       },
       graph: {
@@ -77,9 +114,12 @@ const useWaggleDanceMachineStore = create(
         edges: [],
         executionId: "",
       } as DraftExecutionGraph,
-      setGraph: (graph) => {
-        set((_state) => ({
-          graph,
+      setGraph: (graph, goal) => {
+        set((state) => ({
+          graph:
+            graph.nodes[0]?.id === rootPlanId
+              ? graph
+              : hookRootUpToServerGraph(graph, state.execution?.id, goal),
         }));
       },
     }),

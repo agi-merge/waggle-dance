@@ -129,7 +129,7 @@ export default async function planTasks({
         //   e.tId = makeServerIdIfNeeded(e.tId, executionId);
         // });
         // console.debug("newDag", newDag);
-        setDAG(newDag);
+        setDAG(newDag, goal);
         partialDAG = newDag;
       }
 

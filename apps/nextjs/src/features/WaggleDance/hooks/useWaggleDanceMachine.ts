@@ -31,42 +31,6 @@ const useWaggleDanceMachine = () => {
     useWaggleDanceMachineStore();
   const { selectedGoal: goal } = useGoalStore();
 
-  // // const [dag, setDAG] = useState<DAG>(new DAG([], []));
-
-  // const setDAG = useCallback(
-  //   (newDAG: DraftExecutionGraph) => {
-  //     // if (newDAG.nodes.length === 1) {
-  //     //   debugger;
-  //     // }
-  //     const graph: ExecutionGraphPlusNodesEdges = {
-  //       id: execution?.graph?.id ?? "",
-  //       executionId: execution?.id ?? "",
-  //       createdAt: execution?.graph?.createdAt ?? new Date(),
-  //       updatedAt: new Date(),
-  //       nodes: newDAG.nodes,
-  //       edges: newDAG.edges,
-  //     };
-  //     console.debug("setDAG", graph);
-  //     execution && graph ? setExecution({ ...execution, graph }) : undefined;
-  //   },
-  //   [execution, setExecution],
-  // );
-
-  // const getDAG = useCallback(() => {
-  //   const dag = execution?.graph
-  //     ? new DAG(execution.graph.nodes, execution.graph.edges)
-  //     : new DAG([], []);
-  //   console.debug("getDAG", dag);
-
-  //   if (!dag.nodes.find((n) => n.id === rootPlanId)) {
-  //     return new DAG(
-  //       [...initialNodes(goal?.prompt ?? ""), ...dag.nodes],
-  //       dag.edges,
-  //     );
-  //   }
-  //   return dag;
-  // }, [goal?.prompt, execution]);
-
   const { mutate: updateExecutionState } =
     api.execution.updateState.useMutation({
       onSettled: () => {},
@@ -256,11 +220,14 @@ const useWaggleDanceMachine = () => {
   const reset = useCallback(() => {
     console.warn("resetting waggle dance machine");
     setIsDonePlanning(false);
-    setGraph({
-      nodes: initialNodes(goal?.prompt ?? ""),
-      edges: [],
-      executionId: execution?.id ?? "",
-    });
+    setGraph(
+      {
+        nodes: initialNodes(goal?.prompt ?? ""),
+        edges: [],
+        executionId: execution?.id ?? "",
+      },
+      goal?.prompt ?? "",
+    );
     setAgentPackets({});
   }, [execution?.id, goal?.prompt, setGraph]);
 
@@ -270,8 +237,8 @@ const useWaggleDanceMachine = () => {
   });
 
   useEffect(() => {
-    setGraphData(dagToGraphData(execution?.graph, results));
-  }, [execution?.graph, goal?.prompt, results, setGraphData]);
+    setGraphData(dagToGraphData(graph, results));
+  }, [graph, results, setGraphData]);
 
   const stop = useCallback(() => {
     if (!abortController.signal.aborted) {

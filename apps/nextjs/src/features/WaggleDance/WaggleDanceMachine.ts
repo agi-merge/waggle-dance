@@ -84,7 +84,7 @@ export const runWaggleDanceMachine = async ({
       abortSignal: abortController.signal,
     });
     if (fullPlanDAG) {
-      setDAG(fullPlanDAG);
+      setDAG(fullPlanDAG, goal);
       dag = fullPlanDAG;
     }
     console.debug("dag", dag);

@@ -74,17 +74,6 @@ self.onmessage = function (
             id: v4(),
           };
         });
-        // const partialDAG = new DAG(
-        //   [
-        //     ...initialNodes,
-        //     ...validNodes.map((n) => ({
-        //       ...n,
-        //       id: makeServerIdIfNeeded(n.id, executionId),
-        //     })),
-        //   ],
-        //   [...(validEdges ?? []), ...hookupEdges],
-        // );
-        // dag = partialDAG;
         const partialDAG: DraftExecutionGraph = {
           executionId,
           nodes: [...initialNodes, ...validNodes],
