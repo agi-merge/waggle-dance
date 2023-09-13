@@ -116,7 +116,7 @@ export default async function planTasks({
         !hasFirstTaskStarted &&
         startFirstTask &&
         firstNode &&
-        newDag.nodes.length > 1
+        (newDag.edges.length || newDag.nodes.length > 2)
       ) {
         hasFirstTaskStarted = true;
         console.log("starting first task", firstNode.id);
