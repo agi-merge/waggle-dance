@@ -1,7 +1,5 @@
 // features/WaggleDance/utils/planTasks.ts
 
-import { parse } from "yaml";
-
 import type DAG from "@acme/agent/src/prompts/types/DAG";
 
 import {
@@ -41,6 +39,7 @@ export default async function planTasks({
 }: PlanTasksProps): Promise<DAG | undefined> {
   injectAgentPacket({ type: "starting", nodeId: rootPlanId }, dag.nodes[0]!);
 
+  let partialDAG: DAG = dag;
   let hasFirstTaskStarted = false;
   const data = { goal, goalId, executionId, creationProps };
   const res = await fetch("/api/agent/plan", {
@@ -129,7 +128,7 @@ export default async function planTasks({
         // });
         // console.debug("newDag", newDag);
         setDAG(newDag);
-        dag = newDag;
+        partialDAG = newDag;
       }
 
       const firstNode = newDag.nodes[1];
@@ -137,7 +136,7 @@ export default async function planTasks({
         !hasFirstTaskStarted &&
         startFirstTask &&
         firstNode &&
-        dag.nodes.length > 0
+        newDag.nodes.length > 0
       ) {
         hasFirstTaskStarted = true;
         console.log("starting first task", firstNode.id);
@@ -187,12 +186,8 @@ export default async function planTasks({
     while (postMessageCount > 0) {
       await sleep(100);
     }
-
-    return buffer.toString();
   }
 
-  const streamString = await streamToString(stream);
-  debugger;
-  const partialDAG = parse(streamString) as DAG;
+  await streamToString(stream);
   return partialDAG;
 }
