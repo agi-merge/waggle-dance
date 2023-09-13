@@ -35,7 +35,7 @@ export const resultRouter = createTRPCRouter({
           packetVersion: 1,
           node: {
             connectOrCreate: {
-              where: { id: node.id },
+              where: { id: makeServerIdIfNeeded(node.id, executionId) },
               create: node,
             },
           },

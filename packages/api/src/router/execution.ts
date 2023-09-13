@@ -62,26 +62,30 @@ export const executionRouter = createTRPCRouter({
     .mutation(({ ctx, input }) => {
       const { executionId, graph } = input;
 
+      const connectOrCreateNodes = graph.nodes.map((node) => ({
+        where: { id: makeServerIdIfNeeded(node.id, executionId) },
+        create: { ...node, id: makeServerIdIfNeeded(node.id, executionId) },
+      }));
+
+      const createEdges = graph.edges.map((edge) => ({
+        sId: makeServerIdIfNeeded(edge.sId, executionId),
+        tId: makeServerIdIfNeeded(edge.tId, executionId),
+      }));
+
       return ctx.prisma.executionGraph.upsert({
         where: { executionId },
         create: {
           executionId,
           nodes: {
-            connectOrCreate: graph.nodes.map((node) => ({
-              where: { id: makeServerIdIfNeeded(node.id, executionId) },
-              create: node,
-            })),
+            connectOrCreate: connectOrCreateNodes,
           },
-          edges: { create: graph.edges },
+          edges: { create: createEdges },
         },
         update: {
           nodes: {
-            connectOrCreate: graph.nodes.map((node) => ({
-              where: { id: makeServerIdIfNeeded(node.id, executionId) },
-              create: node,
-            })),
+            connectOrCreate: connectOrCreateNodes,
           },
-          edges: { create: graph.edges },
+          edges: { create: createEdges },
         },
       });
     }),
