@@ -21,14 +21,14 @@ export type AgentPacketType =
   | "requestHumanInput"
   | "starting"
   | "working"
-  | "idle";
+  | "idle"
+  | "handleToolError";
 
 export const AgentPacketFinishedTypes = [
   "handleAgentEnd",
   "done",
   "error",
   "handleChainError",
-  "handleToolError",
   "handleLLMError",
   "handleRetrieverError",
   "handleAgentError",
