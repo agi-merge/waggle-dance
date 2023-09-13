@@ -218,8 +218,8 @@ const WaggleDance = ({}: Props) => {
   }, [results.length, agentPackets.length]);
 
   const notIdleTasks = useMemo(() => {
-    return agentPackets.filter((s) => s.status !== TaskStatus.idle).length;
-  }, [agentPackets]);
+    return sortedTaskStates.filter((s) => s.status !== TaskStatus.idle).length;
+  }, [sortedTaskStates]);
 
   const inProgressOrDonePercent = useMemo(() => {
     return (notIdleTasks / agentPackets.length) * 100;
@@ -242,10 +242,10 @@ const WaggleDance = ({}: Props) => {
   const progressLabel = useMemo(() => {
     return `# Tasks in progress: ${inProgressLength}, done: ${
       done.length
-    }, scheduled: ${agentPackets.length - notIdleTasks}, total: ${
-      agentPackets.length
+    }, remaining: ${sortedTaskStates.length - notIdleTasks}, total: ${
+      sortedTaskStates.length
     }`;
-  }, [inProgressLength, done.length, agentPackets.length, notIdleTasks]);
+  }, [inProgressLength, done.length, sortedTaskStates.length, notIdleTasks]);
 
   const shouldShowProgress = useMemo(() => {
     return isRunning || done.length > 0;
