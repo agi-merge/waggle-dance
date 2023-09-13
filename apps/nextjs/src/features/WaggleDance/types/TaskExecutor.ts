@@ -50,7 +50,6 @@ class TaskExecutor {
           task,
           dag,
           revieweeTaskResults: null, // intentionally left blank, first task can't be criticism
-          completedTasks: this.completedTasks,
           creationProps,
         };
         const result = await executeTask({
