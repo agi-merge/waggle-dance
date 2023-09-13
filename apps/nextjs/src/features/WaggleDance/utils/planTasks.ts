@@ -6,7 +6,6 @@ import type DAG from "@acme/agent/src/prompts/types/DAG";
 
 import {
   initialNodes,
-  makeServerIdIfNeeded,
   rootPlanId,
   type AgentPacket,
   type DAGNode,
@@ -34,16 +33,13 @@ export default async function planTasks({
   goalId,
   executionId,
   creationProps,
-  graphDataState: [getDAG, setDAG],
+  graphDataState: [dag, setDAG],
   log,
   injectAgentPacket,
   startFirstTask,
   abortSignal,
 }: PlanTasksProps): Promise<DAG | undefined> {
-  injectAgentPacket(
-    { type: "starting", nodeId: rootPlanId },
-    getDAG().nodes[0]!,
-  );
+  injectAgentPacket({ type: "starting", nodeId: rootPlanId }, dag.nodes[0]!);
 
   let hasFirstTaskStarted = false;
   const data = { goal, goalId, executionId, creationProps };
@@ -106,20 +102,34 @@ export default async function planTasks({
     }
 
     if (newDag) {
-      const diffNodesCount =
-        newDag.nodes.length - (getDAG()?.nodes.length ?? 0);
-      const newEdgesCount = newDag.edges.length - (getDAG()?.edges.length ?? 0);
+      const nodesLength = dag?.nodes.length;
+      const diffNodesCount = newDag.nodes.length - nodesLength ?? 0;
+      const newEdgesCount = newDag.edges.length - (dag?.edges.length ?? 0);
       if (diffNodesCount || newEdgesCount) {
         // slice the new portion and makeServerIdIfNeeded() on each id
-        newDag.nodes
-          .slice(newDag.nodes.length - diffNodesCount)
-          .forEach((n) => (n.id = makeServerIdIfNeeded(n.id, executionId)));
-        newDag.edges.slice(newDag.edges.length - newEdgesCount).forEach((e) => {
-          e.sId = makeServerIdIfNeeded(e.sId, executionId);
-          e.tId = makeServerIdIfNeeded(e.tId, executionId);
-        });
-        console.debug("newDag", newDag);
+        // for (let i = 0; i < diffNodesCount; i++) {
+        //   const node = newDag.nodes[nodesLength + i];
+        //   if (node) {
+        //     node.id = makeServerIdIfNeeded(node.id, executionId);
+        //   }
+        // }
+        // for (let i = 0; i < newEdgesCount; i++) {
+        //   const edge = newDag.edges[nodesLength + i];
+        //   if (edge) {
+        //     edge.sId = makeServerIdIfNeeded(edge.sId, executionId);
+        //     edge.tId = makeServerIdIfNeeded(edge.tId, executionId);
+        //   }
+        // }
+        // newDag.nodes
+        //   .slice(newDag.nodes.length - diffNodesCount)
+        //   .forEach((n) => (n.id = makeServerIdIfNeeded(n.id, executionId)));
+        // newDag.edges.slice(newDag.edges.length - newEdgesCount).forEach((e) => {
+        //   e.sId = makeServerIdIfNeeded(e.sId, executionId);
+        //   e.tId = makeServerIdIfNeeded(e.tId, executionId);
+        // });
+        // console.debug("newDag", newDag);
         setDAG(newDag);
+        dag = newDag;
       }
 
       const firstNode = newDag.nodes[1];
@@ -127,11 +137,11 @@ export default async function planTasks({
         !hasFirstTaskStarted &&
         startFirstTask &&
         firstNode &&
-        getDAG().nodes.length > 0
+        dag.nodes.length > 0
       ) {
         hasFirstTaskStarted = true;
         console.log("starting first task", firstNode.id);
-        void startFirstTask(firstNode, getDAG());
+        void startFirstTask(firstNode, dag);
       }
     }
   };
@@ -182,6 +192,7 @@ export default async function planTasks({
   }
 
   const streamString = await streamToString(stream);
+  debugger;
   const partialDAG = parse(streamString) as DAG;
   return partialDAG;
 }

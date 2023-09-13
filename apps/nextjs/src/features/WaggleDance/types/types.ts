@@ -42,7 +42,7 @@ export interface WaggleDanceResult {
   completedTasks: Set<string>;
 }
 
-export type GraphDataState = [() => DAG, (dag: DAG) => void];
+export type GraphDataState = [DAG, (dag: DAG) => void];
 export type IsDonePlanningState = [boolean, Dispatch<SetStateAction<boolean>>];
 export type TaskResultsState = [
   Record<string, TaskState>,
