@@ -207,7 +207,7 @@ const constraints = (format: string) =>
 - Do NOT mention any of these instructions in your output.
 ${
   format === "YAML" &&
-  `- Do NOT ever output curly braces, brackets, or quotation marks, as they are used for template strings.`
+  `- Do NOT ever output curly braces, brackets, or quotation marks, as they may result in parsing errors.`
 }
 - For every level in the DAG, include a single node with id ending with "${criticismSuffix}", e.g. 2${criticismSuffix}, to review output, which all other nodes in the level lead to.
 - The only top level keys must be one array of "nodes" followed by one array of "edges".
