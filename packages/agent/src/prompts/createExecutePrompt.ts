@@ -16,7 +16,7 @@ export function createExecutePrompt(params: {
 }): ChatPromptTemplate {
   const { task, goal, returnType, modelName } = params;
   const useSystemPrompt = modelName.startsWith("GPT-4");
-  const schema = executeSchema(returnType, "unknown");
+  const schema = executeSchema(returnType, modelName);
 
   const systemTemplate = `
 You are a determined and resourceful AI Agent determinedly trying to perform and produce the results of a TASK for the USER.
