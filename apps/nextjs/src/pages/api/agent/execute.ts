@@ -304,7 +304,7 @@ export default async function ExecuteStream(req: NextRequest) {
           node,
           executionId,
           packet,
-          packets: packets,
+          packets,
           state,
         };
         response = await fetch(`${getBaseUrl()}/api/result`, {

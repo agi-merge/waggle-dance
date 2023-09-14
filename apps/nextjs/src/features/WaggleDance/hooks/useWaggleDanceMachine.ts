@@ -1,24 +1,24 @@
 // useWaggleDanceMachine.ts
 
-import { useCallback, useEffect, useMemo, useState } from "react"
-import { stringify } from "yaml"
+import { useCallback, useEffect, useMemo, useState } from "react";
+import { stringify } from "yaml";
 
-import { type DraftExecutionNode, type ExecutionPlusGraph } from "@acme/db"
+import { type DraftExecutionNode, type ExecutionPlusGraph } from "@acme/db";
 
-import useGoalStore from "~/stores/goalStore"
-import useWaggleDanceMachineStore from "~/stores/waggleDanceStore"
-import { api } from "~/utils/api"
+import { api } from "~/utils/api";
+import useGoalStore from "~/stores/goalStore";
+import useWaggleDanceMachineStore from "~/stores/waggleDanceStore";
 import {
-  TaskState,
-  TaskStatus,
   initialNodes,
   rootPlanId,
+  TaskState,
+  TaskStatus,
   type AgentPacket,
-} from "../../../../../../packages/agent"
-import { type GraphData } from "../components/ForceGraph"
-import { startWaggleDance } from "../startWaggleDance"
-import { type WaggleDanceResult } from "../types/types"
-import { dagToGraphData } from "../utils/conversions"
+} from "../../../../../../packages/agent";
+import { type GraphData } from "../components/ForceGraph";
+import { startWaggleDance } from "../startWaggleDance";
+import { type WaggleDanceResult } from "../types/types";
+import { dagToGraphData } from "../utils/conversions";
 
 export type LogMessage = {
   message: string;
@@ -171,21 +171,14 @@ const useWaggleDanceMachine = () => {
     },
     [setLogs],
   );
-
-  // Since agents stream packets, as well as return packets as their final result, we need to pass this callback around so that we can update state
   const injectAgentPacket = useCallback(
     (agentPacket: AgentPacket, node: DraftExecutionNode) => {
       if (!node || !node.id) {
         throw new Error("a node does not exist to receive data");
       }
-      const existingTask = agentPacketsMap[node.id] || resultsMap[node.id];
-      if (!existingTask) {
-        if (!node) {
-          log(
-            `Warning: node not found in the dag during chain packet update: ${agentPacket.type}`,
-          );
-          return;
-        } else {
+      setAgentPackets((prevAgentPackets) => {
+        const existingTask = prevAgentPackets[node.id] || resultsMap[node.id];
+        if (!existingTask) {
           // its for a brand new task
           const taskState = new TaskState({
             ...node,
@@ -195,26 +188,26 @@ const useWaggleDanceMachine = () => {
             nodeId: node.id,
           });
 
-          setAgentPackets((prevAgentPackets) => ({
+          return {
             ...prevAgentPackets,
             [node.id]: taskState,
-          }));
+          };
+        } else {
+          // append to existing packets
+          const updatedTask = new TaskState({
+            ...existingTask,
+            value: agentPacket,
+            packets: [...existingTask.packets, agentPacket],
+            updatedAt: new Date(),
+          });
+          return {
+            ...prevAgentPackets,
+            [node.id]: updatedTask,
+          };
         }
-      } else {
-        // append to existing packets
-        const updatedTask = new TaskState({
-          ...existingTask,
-          value: agentPacket,
-          packets: [...existingTask.packets, agentPacket],
-          updatedAt: new Date(),
-        });
-        setAgentPackets((prevAgentPackets) => ({
-          ...prevAgentPackets,
-          [node.id]: updatedTask,
-        }));
-      }
+      });
     },
-    [agentPacketsMap, log, resultsMap],
+    [log, resultsMap],
   );
 
   const reset = useCallback(() => {
