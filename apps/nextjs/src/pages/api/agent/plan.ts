@@ -47,7 +47,7 @@ export default async function PlanStream(req: NextRequest) {
       async start(controller) {
         const inlineCallback = {
           handleLLMNewToken(token: string) {
-            const packet: AgentPacket = { type: "token", token };
+            const packet: AgentPacket = { type: "t", t: token };
             controller.enqueue(encoder.encode(stringify([packet])));
           },
 

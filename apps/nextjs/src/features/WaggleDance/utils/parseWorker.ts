@@ -45,8 +45,8 @@ self.onmessage = function (
   try {
     const newPackets = parse(buffer) as Partial<AgentPacket>[];
     newPackets.forEach((packet) => {
-      if (packet.type === "token" && packet.token) {
-        tokens += packet.token;
+      if (packet.type === "t" && packet.t) {
+        tokens += packet.t;
       } else if (
         AgentPacketFinishedTypes.includes(
           packet.type as AgentPacketFinishedType,

@@ -10,7 +10,7 @@ export type BaseAgentPacket = { type: AgentPacketType };
 export type AgentPacketType =
   | AgentPacketFinishedType
   | "handleLLMStart"
-  | "token"
+  | "t" // token
   | "handleLLMEnd"
   | "handleChainEnd"
   | "handleChainStart"
@@ -67,7 +67,7 @@ export const findFinishPacket = (packets: AgentPacket[]): AgentPacket => {
 export type AgentPacket =
   // server-side only
   | ({ type: "handleLLMStart" } & BaseAgentPacket)
-  | ({ type: "token"; token: string } & BaseAgentPacket) // handleLLMNewToken (shorted on purpose)
+  | ({ type: "t"; t: string } & BaseAgentPacket) // handleLLMNewToken (shortened on purpose)
   | ({ type: "handleLLMEnd"; output: string } & BaseAgentPacket)
   | ({ type: "handleLLMError"; err: any } & BaseAgentPacket)
   | ({ type: "handleChainEnd"; outputs: ChainValues } & BaseAgentPacket)
