@@ -86,7 +86,6 @@ const useWaggleDanceMachine = () => {
       };
       return new TaskState(merged);
     });
-    console.debug("taskStates", taskStates);
     return taskStates || Object.values(resultsMap);
   }, [graph, resultsMap, agentPacketsMap]);
 
@@ -135,7 +134,6 @@ const useWaggleDanceMachine = () => {
       // unhandled use alphabetical
       return 1;
     });
-    console.debug("sortedTaskStates", sortedTaskStates);
     return sortedTaskStates;
   }, [taskStates]);
 
@@ -178,6 +176,8 @@ const useWaggleDanceMachine = () => {
       }
       setAgentPackets((prevAgentPackets) => {
         const existingTask = prevAgentPackets[node.id] || resultsMap[node.id];
+
+        log(`injectAgentPacket: ${existingTask}  -> ${agentPacket.type}`);
         if (!existingTask) {
           // its for a brand new task
           const taskState = new TaskState({
