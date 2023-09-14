@@ -10,26 +10,15 @@ import {
 import { stringify as jsonStringify } from "superjson";
 import { stringify as yamlStringify } from "yaml";
 
-import { type DraftExecutionEdge, type DraftExecutionNode } from "@acme/db";
-
 import { criticismSuffix } from "./types";
-
-export type PlanWireFormat = {
-  [key: number]: [({ parents: number[] } | DraftExecutionNode)[]];
-};
-
-export type OldPlanWireFormat = {
-  nodes: DraftExecutionNode[];
-  edges: DraftExecutionEdge[];
-};
 
 // FIXME: auto-gen this
 export const schema = (_format: string) =>
   `
   DAG = Level[] // top-level array of levels, level keys shall be numbers not strings
-  Level = [levelNumber: (Parents | Node)[]] // an array of mixed Parents and Nodes in this level
+  Level = [key: string]: (Parents | Node)[]] // an array of mixed Parents and Nodes in this level
   Parents
-    parents: number[] // an array of level ids that this level is dependent on
+    parents: string[] // an array of level ids that this level is dependent on
   Node
     id: string // e.g. "0", "1", "c" (the node id)
     name: string // a unique-amongst-nodes emoji plus a short description of the node

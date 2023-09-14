@@ -62,15 +62,6 @@ class TaskExecutor {
         this.resolveFirstTask(result);
 
         this.injectAgentPacket(result, task);
-
-        // const taskState = new TaskState({
-        //   ...task,
-        //   nodeId: task.id,
-        //   value: result,
-        //   packets: [result],
-        //   updatedAt: new Date(),
-        // });
-        // this.taskResultsState[0][task.id] = taskState;
       } catch (error) {
         if (error instanceof Error) {
           this.injectAgentPacket(
