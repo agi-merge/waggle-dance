@@ -13,7 +13,7 @@ import { stringify as yamlStringify } from "yaml";
 import { criticismSuffix } from "./types";
 
 // FIXME: auto-gen this
-export const schema = (_format: string) =>
+export const schema = (format: string) =>
   `
   DAG = Level[] // top-level array of levels, level keys shall be numbers not strings
   Level = [key: string]: (Parents | Node)[]] // an array of mixed Parents and Nodes in this level
@@ -23,8 +23,7 @@ export const schema = (_format: string) =>
     id: string // e.g. "0", "1", "c" (the node id)
     name: string // a unique-amongst-nodes emoji plus a short description of the node
     context: string // useful description that provides context that improves the likelihood that the node will be executed correctly and efficiently
-  It is extremely important to return only valid(⚠) ${_format} representation of DAG, with levels as the keys.
-It is extremely important to return only valid(⚠) ${_format} representation of DAG, with nodes and edges as the keys.
+It is extremely important to return only valid(⚠) ${format} representation of DAG, with levels as the keys.
 `.trim();
 
 const highQualityExamples = [
@@ -160,18 +159,12 @@ const highQualityExamples = [
 const constraints = (format: string) =>
   `
 - If the GOAL is phrased like a question or chat comment that can be confidently satisfied by responding with a single answer, then the only node should be "🍯 Goal Delivery".
-- The DAG shall be constructed in a way such that its parallelism is maximized (siblings maximized, levels minimized)
-- Sibling nodes within each level can be run in parallel since they will not logically depend on one another.
+- The DAG shall be constructed in a way such that its parallelism is maximized (siblings maximized, levels minimized.)
+- Sibling nodes within each level can be run in parallel since they will not logically depend on one another, except the criticism node.
 - All levels must eventually lead to a "🍯 Goal Delivery" task which, after executing, ensures that the GOAL has been satisfactorily completed.
-- The 'parents' field in a node is optional and if provided, should be an array of ids of parent nodes.
-- The 'parents' field in a node should only include ids of other levels, not nodes.
-${
-  format === "YAML" &&
-  `- Do NOT ever output curly braces, brackets, or quotation marks, as they may result in parsing errors.`
-}
+- Escape all special characters such as quotation marks, curly braces, etc.
 - For every level in the DAG, include a single node with id "${criticismSuffix}". It will run after all other nodes in the level have been executed.
-- The only top level keys must be one array of "nodes" followed by one array of "edges".
-- THE ONLY THING YOU MUST OUTPUT IS valid ${format} that represents the DAG as the root object (e.g. ( nodes, edges))`.trim();
+- THE ONLY THING YOU MUST OUTPUT IS valid ${format} that represents the DAG as the root object.`.trim();
 
 export function createPlanPrompt(params: {
   goal: string;
