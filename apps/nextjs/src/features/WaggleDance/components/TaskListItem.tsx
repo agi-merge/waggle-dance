@@ -12,6 +12,7 @@ import {
   Tooltip,
   Typography,
 } from "@mui/joy";
+import { stringify } from "yaml";
 
 import {
   isAgentPacketFinishedType,
@@ -167,10 +168,11 @@ const TaskListItem = ({
               {t.value.type === "done" && t.value.value}
               {t.value.type === "error" && String(t.value.error)}
               {t.value.type === "handleAgentEnd" && t.value.value}
-              {t.value.type === "handleLLMError" && String(t.value.err)}
-              {t.value.type === "handleChainError" && String(t.value.err)}
-              {t.value.type === "handleAgentError" && String(t.value.err)}
-              {t.value.type === "handleRetrieverError" && String(t.value.err)}
+              {t.value.type === "handleLLMError" && stringify(t.value.err)}
+              {t.value.type === "handleChainError" && stringify(t.value.err)}
+              {t.value.type === "handleAgentError" && stringify(t.value.err)}
+              {t.value.type === "handleRetrieverError" &&
+                stringify(t.value.err)}
             </Typography>
           </Card>
         </Card>

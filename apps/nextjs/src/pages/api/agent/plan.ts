@@ -57,15 +57,9 @@ export default async function PlanStream(req: NextRequest) {
             _runId: string,
             _parentRunId?: string,
           ) {
-            let errorMessage = "";
-            if (err instanceof Error) {
-              errorMessage = err.message;
-            } else {
-              errorMessage = stringify(err);
-            }
             const packet: AgentPacket = {
               type: "handleChainError",
-              err: errorMessage,
+              err: err,
             };
             controller.enqueue(encoder.encode(stringify([packet])));
             console.debug("handleChainError", packet);
@@ -76,15 +70,9 @@ export default async function PlanStream(req: NextRequest) {
             _runId: string,
             _parentRunId?: string | undefined,
           ): void | Promise<void> {
-            let errorMessage = "";
-            if (err instanceof Error) {
-              errorMessage = err.message;
-            } else {
-              errorMessage = stringify(err);
-            }
             const packet: AgentPacket = {
               type: "handleLLMError",
-              err: errorMessage,
+              err: err,
             };
             controller.enqueue(encoder.encode(stringify([packet])));
             console.debug("handleLLMError", packet);

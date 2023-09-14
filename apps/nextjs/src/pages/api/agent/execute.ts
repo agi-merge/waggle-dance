@@ -67,15 +67,9 @@ export default async function ExecuteStream(req: NextRequest) {
               _runId: string,
               _parentRunId?: string | undefined,
             ): void | Promise<void> {
-              let errorMessage = "";
-              if (err instanceof Error) {
-                errorMessage = err.message;
-              } else {
-                errorMessage = stringify(err);
-              }
               const packet: AgentPacket = {
                 type: "handleLLMError",
-                err: errorMessage,
+                err,
               };
               controller.enqueue(encoder.encode(stringify([packet])));
               packets.push(packet);
@@ -86,15 +80,9 @@ export default async function ExecuteStream(req: NextRequest) {
               _runId: string,
               _parentRunId?: string | undefined,
             ): void | Promise<void> {
-              let errorMessage = "";
-              if (err instanceof Error) {
-                errorMessage = err.message;
-              } else {
-                errorMessage = stringify(err);
-              }
               const packet: AgentPacket = {
                 type: "handleChainError",
-                err: errorMessage,
+                err,
               };
               controller.enqueue(encoder.encode(stringify([packet])));
               packets.push(packet);
@@ -119,15 +107,9 @@ export default async function ExecuteStream(req: NextRequest) {
               _runId: string,
               _parentRunId?: string | undefined,
             ): void | Promise<void> {
-              let errorMessage = "";
-              if (err instanceof Error) {
-                errorMessage = err.message;
-              } else {
-                errorMessage = stringify(err);
-              }
               const packet: AgentPacket = {
                 type: "handleToolError",
-                err: errorMessage,
+                err,
               };
               controller.enqueue(encoder.encode(stringify([packet])));
               packets.push(packet);
@@ -157,15 +139,9 @@ export default async function ExecuteStream(req: NextRequest) {
               _parentRunId?: string,
               _tags?: string[],
             ) {
-              let errorMessage = "";
-              if (err instanceof Error) {
-                errorMessage = err.message;
-              } else {
-                errorMessage = stringify(err);
-              }
               const packet: AgentPacket = {
                 type: "handleRetrieverError",
-                err: errorMessage,
+                err,
               };
               controller.enqueue(encoder.encode(stringify([packet])));
               packets.push(packet);
