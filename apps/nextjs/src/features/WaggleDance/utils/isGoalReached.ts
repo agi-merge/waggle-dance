@@ -5,8 +5,5 @@ export function isGoalReached(
   completedTasks: Set<string>,
 ): boolean {
   const isGoalReached = dag.nodes.every((node) => completedTasks.has(node.id));
-  if (isGoalReached) {
-    debugger;
-  }
   return isGoalReached;
 }
