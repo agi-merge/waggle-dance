@@ -83,16 +83,19 @@ export default async function executeTask({
       tokens += buffer.toString();
       buffer = partialLine; // Store the remaining partial line in the buffer
       if (tokens.length > 0) {
-        const parsed = parse(tokens) as AgentPacket[];
-        if (parsed.length - lastParsedPackets.length > 0) {
-          // loop and inject packets
-          // injectAgentPacket(packet, task);
-          parsed.slice(lastParsedPackets.length).forEach((packet) => {
-            injectAgentPacket(packet, task);
-          });
-          lastParsedPackets = parsed;
+        try {
+          const parsed = parse(tokens) as AgentPacket[];
+          if (parsed.length - lastParsedPackets.length > 0) {
+            // loop and inject packets
+            // injectAgentPacket(packet, task);
+            parsed.slice(lastParsedPackets.length).forEach((packet) => {
+              injectAgentPacket(packet, task);
+            });
+            lastParsedPackets = parsed;
+          }
+        } catch (error) {
+          // ignore
         }
-        tokens = "";
       }
     } else {
       buffer = Buffer.concat([buffer, newData]);
