@@ -5,8 +5,8 @@ import {
   findFinishPacket,
   type AgentPacket,
 } from "../../../../../../packages/agent";
-import { type InjectAgentPacketType } from "../types/TaskExecutor";
 import { type ExecuteRequestBody } from "../types/types";
+import { type InjectAgentPacketType } from "../types/WaggleDanceAgentExecutor";
 
 async function fetchTaskData(
   request: ExecuteRequestBody,

@@ -8,8 +8,8 @@ import {
   type AgentPacket,
   type ModelCreationProps,
 } from "../../../../../../packages/agent";
-import { type InjectAgentPacketType } from "../types/TaskExecutor";
 import { type GraphDataState } from "../types/types";
+import { type InjectAgentPacketType } from "../types/WaggleDanceAgentExecutor";
 import PlanUpdateIntervalHandler from "./PlanUpdateIntervalHandler";
 import { sleep } from "./sleep";
 
