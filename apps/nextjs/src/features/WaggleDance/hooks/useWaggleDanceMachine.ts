@@ -187,31 +187,43 @@ const useWaggleDanceMachine = () => {
           return;
         } else {
           // its for a brand new task
-          const taskState = new TaskState({
-            ...node,
-            packets: [agentPacket] as AgentPacket[],
-            value: agentPacket,
-            updatedAt: new Date(),
-            nodeId: node.id,
-          });
 
-          setAgentPackets((prevAgentPackets) => ({
-            ...prevAgentPackets,
-            [node.id]: taskState,
-          }));
+          setAgentPackets((prevAgentPackets) => {
+            const taskState = new TaskState({
+              ...node,
+              packets: [agentPacket] as AgentPacket[],
+              value: agentPacket,
+              updatedAt: new Date(),
+              nodeId: node.id,
+            });
+
+            return {
+              ...prevAgentPackets,
+              [node.id]: taskState,
+            };
+          });
         }
       } else {
         // append to existing packets
-        const updatedTask = new TaskState({
-          ...existingTask,
-          value: agentPacket,
-          packets: [...existingTask.packets, agentPacket],
-          updatedAt: new Date(),
+        setAgentPackets((prevAgentPackets) => {
+          const existingTask = prevAgentPackets[node.id];
+          if (!existingTask) {
+            throw new Error(
+              `existingTask not found for ${node.id} ${agentPacket.type}`,
+            );
+          }
+          const updatedTask = new TaskState({
+            ...existingTask,
+            value: agentPacket,
+            packets: [...existingTask.packets, agentPacket],
+            updatedAt: new Date(),
+            nodeId: node.id,
+          });
+          return {
+            ...prevAgentPackets,
+            [node.id]: updatedTask,
+          };
         });
-        setAgentPackets((prevAgentPackets) => ({
-          ...prevAgentPackets,
-          [node.id]: updatedTask,
-        }));
       }
     },
     [agentPacketsMap, log, resultsMap],
