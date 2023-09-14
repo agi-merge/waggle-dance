@@ -1,4 +1,4 @@
-// features/WaggleDance/WaggleDanceMachine.ts
+// features/WaggleDance/startWaggleDance.ts
 
 import {
   initialNodes,

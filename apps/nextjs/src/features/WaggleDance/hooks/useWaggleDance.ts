@@ -1,20 +1,20 @@
-// useWaggleDanceMachine.ts
+// features/WaggleDance/hooks/useWaggleDance.ts
 
 import { useCallback, useEffect, useMemo, useState } from "react";
 import { stringify } from "yaml";
 
-import { type DraftExecutionNode, type ExecutionPlusGraph } from "@acme/db";
-
-import { api } from "~/utils/api";
-import useGoalStore from "~/stores/goalStore";
-import useWaggleDanceMachineStore from "~/stores/waggleDanceStore";
 import {
   initialNodes,
   rootPlanId,
   TaskState,
   TaskStatus,
   type AgentPacket,
-} from "../../../../../../packages/agent";
+} from "@acme/agent";
+import { type DraftExecutionNode, type ExecutionPlusGraph } from "@acme/db";
+
+import { api } from "~/utils/api";
+import useGoalStore from "~/stores/goalStore";
+import useWaggleDanceMachineStore from "~/stores/waggleDanceStore";
 import { type GraphData } from "../components/ForceGraph";
 import { startWaggleDance } from "../startWaggleDance";
 import { type WaggleDanceResult } from "../types/types";
@@ -26,7 +26,7 @@ export type LogMessage = {
   timestamp: Date;
 };
 
-const useWaggleDanceMachine = () => {
+const useWaggleDance = () => {
   const { setIsRunning, agentSettings, execution, graph, setGraph } =
     useWaggleDanceMachineStore();
   const { selectedGoal: goal } = useGoalStore();
@@ -335,4 +335,4 @@ const useWaggleDanceMachine = () => {
   };
 };
 
-export default useWaggleDanceMachine;
+export default useWaggleDance;
