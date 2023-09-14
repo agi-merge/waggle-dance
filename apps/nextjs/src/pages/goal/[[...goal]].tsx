@@ -148,7 +148,8 @@ const GoalPage = ({ alertConfigs }: Props) => {
 
   const destinationRoute = useMemo(
     () => getDestinationRoute(route, goal, execution, router.asPath),
-    [goal, execution, router.asPath, route],
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+    [goal?.id, execution?.id, router.asPath, route],
   );
 
   const prevDestinationRouteRef = useRef<string | undefined>(undefined);
