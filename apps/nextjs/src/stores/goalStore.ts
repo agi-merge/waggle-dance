@@ -140,6 +140,19 @@ const useGoalStore = () =>
               newGoalsMap = goals;
             }
 
+            // if server goals are not empty,
+            // if the goal map only contains the initial nodes,
+            // then we are adding goals from the server, and can remove those nodes
+            if (
+              Object.keys(goals).length > 0 &&
+              state.goalMap[defaultGoal1.id] &&
+              state.goalMap[defaultGoal2.id] &&
+              Object.keys(state.goalMap).length === 2
+            ) {
+              delete state.goalMap[defaultGoal1.id];
+              delete state.goalMap[defaultGoal2.id];
+            }
+
             const goalMap = {
               ...newGoalsMap,
               ...Object.fromEntries(
