@@ -4,7 +4,7 @@ import { LLMChain } from "langchain/chains";
 import { parse as jsonParse, stringify as jsonStringify } from "superjson";
 import { parse as yamlParse, stringify as yamlStringify } from "yaml";
 
-import { type ExecutionGraphNodesAndEdges } from "@acme/db";
+import { type PlanWireFormat } from "@acme/db";
 
 import {
   createPlanFormattingPrompt,
@@ -92,10 +92,7 @@ export async function callPlanningAgent(
       const parsedDAG =
         returnType === "JSON"
           ? jsonParse(response)
-          : (yamlParse(response) as
-              | ExecutionGraphNodesAndEdges
-              | null
-              | undefined);
+          : (yamlParse(response) as PlanWireFormat | null | undefined);
 
       return parsedDAG ? response : stringError;
     } catch (error) {

@@ -6,11 +6,9 @@ import {
   makeServerIdIfNeeded,
   type AgentPacket,
 } from "@acme/agent";
-import { ExecutionState, type ExecutionNode } from "@acme/db";
+import { ExecutionState, type DraftExecutionNode } from "@acme/db";
 
 import { createTRPCRouter, protectedProcedure } from "../trpc";
-
-export type TRPCExecutionNode = Omit<ExecutionNode, "graphId"> | ExecutionNode;
 
 export const resultRouter = createTRPCRouter({
   create: protectedProcedure
@@ -18,7 +16,7 @@ export const resultRouter = createTRPCRouter({
       z.object({
         goalId: z.string().nonempty(),
         executionId: z.string().cuid(),
-        node: z.custom<TRPCExecutionNode>(),
+        node: z.custom<DraftExecutionNode>(),
         packets: z.array(z.custom<AgentPacket>()),
         state: z.nativeEnum(ExecutionState),
       }),

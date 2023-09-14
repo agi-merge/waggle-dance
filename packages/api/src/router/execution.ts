@@ -1,14 +1,17 @@
 import { z } from "zod";
 
 import { makeServerIdIfNeeded } from "@acme/agent";
-import { ExecutionState, type ExecutionEdge } from "@acme/db";
+import {
+  ExecutionState,
+  type DraftExecutionEdge,
+  type DraftExecutionNode,
+} from "@acme/db";
 
 import { createTRPCRouter, protectedProcedure } from "../trpc";
-import { type TRPCExecutionNode } from "./result";
 
 export const dagShape = z.object({
-  nodes: z.array(z.custom<TRPCExecutionNode>()),
-  edges: z.array(z.custom<Omit<ExecutionEdge, "id"> | ExecutionEdge>()),
+  nodes: z.array(z.custom<DraftExecutionNode>()),
+  edges: z.array(z.custom<DraftExecutionEdge>()),
 });
 
 export const executionRouter = createTRPCRouter({

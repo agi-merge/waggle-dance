@@ -5,6 +5,7 @@ import { stringify as jsonStringify } from "superjson";
 import { parse, stringify } from "yaml";
 
 import { getBaseUrl } from "@acme/api/utils";
+import { transformWireFormat, type PlanWireFormat } from "@acme/db";
 
 import { type PlanRequestBody } from "~/features/WaggleDance/types/types";
 import {
@@ -168,12 +169,10 @@ export default async function PlanStream(req: NextRequest) {
       await streamEndedPromise;
 
       if (goalId && executionId && typeof planResult === "string") {
-        // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
-        const graph = (planResult && parse(planResult)) || null;
+        const graph = transformWireFormat(parse(planResult) as PlanWireFormat);
         await updateExecution(
           {
             goalId,
-            // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
             graph,
             executionId,
           },

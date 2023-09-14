@@ -3,14 +3,13 @@
 import { type NextApiRequest, type NextApiResponse } from "next";
 
 import { appRouter } from "@acme/api";
-import { type TRPCExecutionNode } from "@acme/api/src/router/result";
 import { getServerSession, type Session } from "@acme/auth";
 import {
   ExecutionState,
   prisma,
   type Execution,
-  type ExecutionEdge,
   type ExecutionGraph,
+  type OldPlanWireFormat,
 } from "@acme/db";
 
 export const config = {
@@ -20,8 +19,7 @@ export const config = {
 export type UpdateGraphParams = {
   goalId: string;
   executionId: string;
-
-  graph: { nodes: TRPCExecutionNode[]; edges: ExecutionEdge[] } | null;
+  graph: OldPlanWireFormat | null;
   session?: Session | null;
 };
 
