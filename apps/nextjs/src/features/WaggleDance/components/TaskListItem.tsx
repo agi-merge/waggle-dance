@@ -168,6 +168,7 @@ const TaskListItem = ({
               {t.value.type === "error" && String(t.value.error)}
               {t.value.type === "handleAgentEnd" && t.value.value}
               {t.value.type === "handleLLMError" && String(t.value.err)}
+              {t.value.type === "handleChainError" && String(t.value.err)}
               {t.value.type === "handleAgentError" && String(t.value.err)}
               {t.value.type === "handleRetrieverError" && String(t.value.err)}
             </Typography>
