@@ -5,7 +5,8 @@ import {
   rootPlanId,
   type AgentSettingsMap,
   type TaskState,
-} from "../../../../../packages/agent";
+} from "@acme/agent";
+
 import TaskExecutor, { type InjectAgentPacketType } from "./types/TaskExecutor";
 import {
   mapAgentSettingsToCreationProps,
@@ -29,7 +30,7 @@ export type RunParams = {
   abortController: AbortController;
 };
 
-export const runWaggleDanceMachine = async ({
+export const startWaggleDance = async ({
   goal,
   goalId,
   executionId,

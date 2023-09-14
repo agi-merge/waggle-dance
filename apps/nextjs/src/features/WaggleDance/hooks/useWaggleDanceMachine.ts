@@ -1,24 +1,24 @@
 // useWaggleDanceMachine.ts
 
-import { useCallback, useEffect, useMemo, useState } from "react";
-import { stringify } from "yaml";
+import { useCallback, useEffect, useMemo, useState } from "react"
+import { stringify } from "yaml"
 
-import { type DraftExecutionNode, type ExecutionPlusGraph } from "@acme/db";
+import { type DraftExecutionNode, type ExecutionPlusGraph } from "@acme/db"
 
-import { api } from "~/utils/api";
-import useGoalStore from "~/stores/goalStore";
-import useWaggleDanceMachineStore from "~/stores/waggleDanceStore";
+import useGoalStore from "~/stores/goalStore"
+import useWaggleDanceMachineStore from "~/stores/waggleDanceStore"
+import { api } from "~/utils/api"
 import {
-  initialNodes,
-  rootPlanId,
   TaskState,
   TaskStatus,
+  initialNodes,
+  rootPlanId,
   type AgentPacket,
-} from "../../../../../../packages/agent";
-import { type GraphData } from "../components/ForceGraph";
-import { type WaggleDanceResult } from "../types/types";
-import { dagToGraphData } from "../utils/conversions";
-import { runWaggleDanceMachine } from "../WaggleDanceMachine";
+} from "../../../../../../packages/agent"
+import { type GraphData } from "../components/ForceGraph"
+import { startWaggleDance } from "../startWaggleDance"
+import { type WaggleDanceResult } from "../types/types"
+import { dagToGraphData } from "../utils/conversions"
 
 export type LogMessage = {
   message: string;
@@ -273,7 +273,7 @@ const useWaggleDanceMachine = () => {
 
       let result: WaggleDanceResult | Error;
       try {
-        result = await runWaggleDanceMachine({
+        result = await startWaggleDance({
           goal: prompt,
           goalId,
           executionId,
