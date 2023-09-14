@@ -13,7 +13,7 @@ export interface PromptParams {
   tools?: string;
 }
 
-export const criticismSuffix = "-c";
+export const criticismSuffix = "c";
 export function isTaskCriticism(id: string) {
-  return id.endsWith(criticismSuffix);
+  return id === criticismSuffix;
 }
