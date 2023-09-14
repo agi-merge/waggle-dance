@@ -16,8 +16,8 @@ import { api } from "~/utils/api";
 import useGoalStore from "~/stores/goalStore";
 import useWaggleDanceMachineStore from "~/stores/waggleDanceStore";
 import { type GraphData } from "../components/ForceGraph";
-import { startWaggleDance } from "../startWaggleDance";
 import { type WaggleDanceResult } from "../types/types";
+import WaggleDanceAgentExecutor from "../types/WaggleDanceAgentExecutor";
 import { dagToGraphData } from "../utils/conversions";
 
 export type LogMessage = {
@@ -266,17 +266,18 @@ const useWaggleDance = () => {
 
       let result: WaggleDanceResult | Error;
       try {
-        result = await startWaggleDance({
-          goal: prompt,
+        const agentExecutor = new WaggleDanceAgentExecutor(
+          agentSettings,
+          goal.prompt,
           goalId,
           executionId,
-          agentSettings,
-          graphDataState: [graph, setGraph],
-          isDonePlanningState: [isDonePlanning, setIsDonePlanning],
+          new Set(),
+          abortController,
+          [graph, setGraph],
           injectAgentPacket,
           log,
-          abortController: ac,
-        });
+        );
+        result = await agentExecutor.run();
       } catch (error) {
         if (error instanceof Error) {
           result = error;
@@ -313,7 +314,6 @@ const useWaggleDance = () => {
       agentSettings,
       graph,
       setGraph,
-      isDonePlanning,
       injectAgentPacket,
       log,
       updateExecutionState,
@@ -321,7 +321,7 @@ const useWaggleDance = () => {
   );
 
   return {
-    dag: graph,
+    graph,
     graphData,
     stop,
     run,

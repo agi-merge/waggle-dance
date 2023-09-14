@@ -22,7 +22,7 @@ interface BottomControlsProps {
   session: Session | null;
   isRunning: boolean;
   selectedGoal: GoalPlusExe | undefined;
-  dag: DraftExecutionGraph;
+  graph: DraftExecutionGraph;
   handleStart: () => void;
   handleStop: () => void;
   setIsAutoScrollToBottom: (value: boolean) => void;
@@ -37,7 +37,7 @@ const BottomControls: React.FC<BottomControlsProps> = ({
   session,
   isRunning,
   selectedGoal,
-  dag,
+  graph,
   handleStart,
   handleStop,
   setIsAutoScrollToBottom,
@@ -141,7 +141,7 @@ const BottomControls: React.FC<BottomControlsProps> = ({
               isRunning={isRunning}
               handleStart={handleStart}
               handleStop={handleStop}
-              dag={dag}
+              dag={graph}
             />
           </Box>
         </Stack>

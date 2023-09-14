@@ -1,4 +1,22 @@
-import assert from "assert";
+import { BugReport, Lan, ListAlt, Science } from "@mui/icons-material"
+import {
+  Card,
+  Link,
+  Skeleton,
+  type AlertPropsColorOverrides,
+  type ColorPaletteProp,
+} from "@mui/joy"
+import Box from "@mui/joy/Box"
+import Stack, { type StackProps } from "@mui/joy/Stack"
+import Tab from "@mui/joy/Tab"
+import TabList from "@mui/joy/TabList"
+import Tabs from "@mui/joy/Tabs"
+import Typography from "@mui/joy/Typography"
+import { type OverridableStringUnion } from "@mui/types"
+import { TRPCClientError } from "@trpc/client"
+import assert from "assert"
+import { useSession } from "next-auth/react"
+import router from "next/router"
 import {
   lazy,
   Suspense,
@@ -7,37 +25,19 @@ import {
   useMemo,
   useRef,
   useState,
-} from "react";
-import router from "next/router";
-import { BugReport, Lan, ListAlt, Science } from "@mui/icons-material";
-import {
-  Card,
-  Link,
-  Skeleton,
-  type AlertPropsColorOverrides,
-  type ColorPaletteProp,
-} from "@mui/joy";
-import Box from "@mui/joy/Box";
-import Stack, { type StackProps } from "@mui/joy/Stack";
-import Tab from "@mui/joy/Tab";
-import TabList from "@mui/joy/TabList";
-import Tabs from "@mui/joy/Tabs";
-import Typography from "@mui/joy/Typography";
-import { type OverridableStringUnion } from "@mui/types";
-import { TRPCClientError } from "@trpc/client";
-import { useSession } from "next-auth/react";
+} from "react"
 
-import { TaskStatus, type TaskState } from "@acme/agent";
-import { type ExecutionPlusGraph } from "@acme/db";
+import { TaskStatus, type TaskState } from "@acme/agent"
+import { type ExecutionPlusGraph } from "@acme/db"
 
-import { api } from "~/utils/api";
-import routes from "~/utils/routes";
-import useApp from "~/stores/appStore";
-import useGoalStore from "~/stores/goalStore";
+import useApp from "~/stores/appStore"
+import useGoalStore from "~/stores/goalStore"
 import useWaggleDanceMachineStore, {
   createDraftExecution,
-} from "~/stores/waggleDanceStore";
-import useWaggleDance from "./hooks/useWaggleDance";
+} from "~/stores/waggleDanceStore"
+import { api } from "~/utils/api"
+import routes from "~/utils/routes"
+import useWaggleDance from "./hooks/useWaggleDance"
 
 const BottomControls = lazy(() => import("./components/BottomControls"));
 
@@ -59,7 +59,7 @@ const WaggleDance = ({}: Props) => {
   } = useWaggleDanceMachineStore();
   const {
     graphData,
-    dag,
+    graph,
     stop,
     run: startWaggleDance,
     reset,
@@ -263,7 +263,7 @@ const WaggleDance = ({}: Props) => {
             : " to save and use better models"}
         </Typography>
       </Box>
-      {dag && dag.nodes.length > 0 && (
+      {graph && graph.nodes.length > 0 && (
         <Tabs
           size="sm"
           key={execution?.id}
@@ -295,8 +295,11 @@ const WaggleDance = ({}: Props) => {
             </Tab>
             <Tab
               value={1}
-              disabled={dag.nodes.length < 2}
-              sx={{ opacity: dag.nodes.length < 2 ? 0.2 : 1, flex: "1 1 auto" }}
+              disabled={graph.nodes.length < 2}
+              sx={{
+                opacity: graph.nodes.length < 2 ? 0.2 : 1,
+                flex: "1 1 auto",
+              }}
             >
               <Lan />
               <Typography className="px-1">Graph</Typography>
@@ -331,7 +334,7 @@ const WaggleDance = ({}: Props) => {
                 }
               >
                 <TaskTabPanel
-                  nodes={dag.nodes}
+                  nodes={graph.nodes}
                   sortedTaskStates={sortedTaskStates}
                   statusColor={statusColor}
                   isRunning={isRunning}
@@ -400,7 +403,7 @@ const WaggleDance = ({}: Props) => {
           session={session}
           isRunning={isRunning}
           selectedGoal={selectedGoal}
-          dag={dag}
+          graph={graph}
           handleStart={handleStart}
           handleStop={handleStop}
           setIsAutoScrollToBottom={setIsAutoScrollToBottom}
