@@ -43,13 +43,6 @@ export const runWaggleDanceMachine = async ({
   console.debug("Running WaggleDanceMachine");
   const initNodes = initialNodes(goal);
   const completedTasks: Set<string> = new Set([rootPlanId]);
-  let resolveFirstTask: () => void = () => {};
-  let rejectFirstTask: () => void = () => {};
-
-  const _firstTaskPromise = new Promise<void>((resolve, reject) => {
-    resolveFirstTask = resolve;
-    rejectFirstTask = reject;
-  });
 
   const taskExecutor = new TaskExecutor(
     agentSettings,
@@ -60,8 +53,6 @@ export const runWaggleDanceMachine = async ({
     abortController,
     injectAgentPacket,
     log,
-    resolveFirstTask,
-    rejectFirstTask,
   );
 
   if (dag.edges.length > 1 && isDonePlanning) {
@@ -80,7 +71,6 @@ export const runWaggleDanceMachine = async ({
       graphDataState: [dag, setDAG],
       log,
       injectAgentPacket,
-      startFirstTask: taskExecutor.startFirstTask.bind(taskExecutor),
       abortSignal: abortController.signal,
     });
     if (fullPlanDAG) {
@@ -121,7 +111,7 @@ export const runWaggleDanceMachine = async ({
 
   const toDoNodes = Array.from(dag.nodes);
   const taskResults: Record<string, TaskState> = {};
-  // await firstTaskPromise;
+
   // Continue executing tasks and updating DAG until the goal is reached
   while (!isGoalReached(dag, completedTasks)) {
     if (abortController.signal.aborted) throw new Error("Signal aborted");
@@ -149,11 +139,7 @@ export const runWaggleDanceMachine = async ({
       }
     }
 
-    await taskExecutor.executeTasks(
-      pendingCurrentDagLayerTasks,
-      dag,
-      agentSettings,
-    );
+    await taskExecutor.executeTasks(pendingCurrentDagLayerTasks, dag);
   }
 
   console.debug("WaggleDanceMachine.run: completedTasks", completedTasks);
