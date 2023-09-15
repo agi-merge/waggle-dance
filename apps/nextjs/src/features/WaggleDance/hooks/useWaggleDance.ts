@@ -290,7 +290,6 @@ const useWaggleDance = () => {
 
       setIsRunning(false);
       if (!ac.signal.aborted) {
-        debugger;
         ac.abort();
       }
 
@@ -300,8 +299,7 @@ const useWaggleDance = () => {
         return;
       } else {
         console.log("result", result);
-        const res = result.taskResults;
-        res ? setAgentPackets(res) : undefined;
+        result ? setAgentPackets(result) : undefined;
         updateExecutionState({ executionId, state: "DONE" });
         return result;
       }

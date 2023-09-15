@@ -36,10 +36,7 @@ export type ReviewResult = {
 };
 
 export type BaseResultType = JsonValue | void;
-export interface WaggleDanceResult {
-  taskResults: Record<string, TaskState>;
-  completedTasks: Set<string>;
-}
+export type WaggleDanceResult = Record<string, TaskState>;
 
 export type GraphDataState = [
   DraftExecutionGraph,

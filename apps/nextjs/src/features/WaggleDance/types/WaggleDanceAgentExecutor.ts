@@ -44,7 +44,6 @@ class WaggleDanceAgentExecutor {
     private goal: string,
     private goalId: string,
     private executionId: string,
-    private completedTasks: Set<string>,
     private abortController: AbortController,
     private graphDataState: GraphDataState,
     private injectAgentPacket: InjectAgentPacketType,
@@ -128,12 +127,7 @@ class WaggleDanceAgentExecutor {
       }
     }
 
-    return (
-      this.error || {
-        taskResults: this.taskResults,
-        completedTasks: this.completedTasks,
-      }
-    );
+    return this.error || this.taskResults;
   }
 
   async planAndSetDAG(): Promise<DraftExecutionGraph | null> {
@@ -177,7 +171,6 @@ class WaggleDanceAgentExecutor {
             task,
             dag,
             revieweeTaskResults: null, // intentionally left blank, first task can't be criticism
-            completedTasks: this.completedTasks,
             creationProps,
           };
           const result = await executeTask({
