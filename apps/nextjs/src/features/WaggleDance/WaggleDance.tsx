@@ -335,6 +335,7 @@ const WaggleDance = ({}: Props) => {
               >
                 <TaskTabPanel
                   nodes={graph.nodes}
+                  edges={graph.edges}
                   sortedTaskStates={sortedTaskStates}
                   statusColor={statusColor}
                   isRunning={isRunning}

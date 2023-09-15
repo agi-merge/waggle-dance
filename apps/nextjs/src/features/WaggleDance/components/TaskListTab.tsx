@@ -4,13 +4,14 @@ import List from "@mui/joy/List";
 import ListDivider from "@mui/joy/ListDivider";
 
 import { type TaskState } from "@acme/agent";
-import { type DraftExecutionNode } from "@acme/db";
+import { type DraftExecutionEdge, type DraftExecutionNode } from "@acme/db";
 
 import TaskListItem from "./TaskListItem";
 
 type TaskListTabProps = {
   sortedTaskStates: TaskState[];
   nodes: DraftExecutionNode[];
+  edges: DraftExecutionEdge[];
   statusColor: (
     n: TaskState,
   ) => "danger" | "success" | "warning" | "primary" | "neutral" | undefined;
@@ -22,6 +23,7 @@ type TaskListTabProps = {
 export const TaskListTab = ({
   sortedTaskStates,
   nodes,
+  edges,
   statusColor,
   isRunning,
   taskListRef,
@@ -34,6 +36,7 @@ export const TaskListTab = ({
           <TaskListItem
             task={t}
             nodes={nodes}
+            edges={edges}
             i={i}
             statusColor={statusColor}
             listItemsRef={listItemsRef}

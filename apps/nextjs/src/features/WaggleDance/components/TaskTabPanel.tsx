@@ -6,12 +6,13 @@ import {
 import { type OverridableStringUnion } from "@mui/types";
 
 import { type TaskState } from "@acme/agent";
-import { type ExecutionNode } from "@acme/db";
+import { type DraftExecutionEdge, type DraftExecutionNode } from "@acme/db";
 
 import TaskListTab from "./TaskListTab";
 
 type TaskTabPanelProps = {
-  nodes: ExecutionNode[];
+  nodes: DraftExecutionNode[];
+  edges: DraftExecutionEdge[];
   sortedTaskStates: TaskState[];
   statusColor: (
     n: TaskState,
@@ -23,6 +24,7 @@ type TaskTabPanelProps = {
 
 const TaskTabPanel = ({
   nodes,
+  edges,
   sortedTaskStates,
   statusColor,
   isRunning,
@@ -33,6 +35,7 @@ const TaskTabPanel = ({
     <TabPanel value={0} className="w-full overflow-y-scroll p-4">
       <TaskListTab
         nodes={nodes}
+        edges={edges}
         sortedTaskStates={sortedTaskStates}
         statusColor={statusColor}
         isRunning={isRunning}

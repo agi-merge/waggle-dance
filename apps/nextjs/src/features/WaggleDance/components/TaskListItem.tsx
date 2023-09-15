@@ -16,16 +16,18 @@ import { stringify } from "yaml";
 
 import {
   isAgentPacketFinishedType,
+  rootPlanId,
   TaskStatus,
   type TaskState,
 } from "@acme/agent";
-import { type DraftExecutionNode } from "@acme/db";
+import { type DraftExecutionEdge, type DraftExecutionNode } from "@acme/db";
 
 import { stringifyMax } from "../utils/stringifyMax";
 
 interface TaskListItemProps {
   task: TaskState;
   nodes: DraftExecutionNode[];
+  edges: DraftExecutionEdge[];
   i: number;
   statusColor: (
     n: TaskState,
@@ -37,6 +39,7 @@ interface TaskListItemProps {
 const TaskListItem = ({
   task: t,
   nodes,
+  edges,
   i,
   statusColor,
   isRunning,
@@ -173,6 +176,9 @@ const TaskListItem = ({
               {t.value.type === "handleAgentError" && stringify(t.value.err)}
               {t.value.type === "handleRetrieverError" &&
                 stringify(t.value.err)}
+              {t.value.type === "working" &&
+                t.nodeId === rootPlanId &&
+                `...${nodes.length} tasks and ${edges.length} interependencies`}
             </Typography>
           </Card>
         </Card>
