@@ -1,22 +1,4 @@
-import { BugReport, Lan, ListAlt, Science } from "@mui/icons-material"
-import {
-  Card,
-  Link,
-  Skeleton,
-  type AlertPropsColorOverrides,
-  type ColorPaletteProp,
-} from "@mui/joy"
-import Box from "@mui/joy/Box"
-import Stack, { type StackProps } from "@mui/joy/Stack"
-import Tab from "@mui/joy/Tab"
-import TabList from "@mui/joy/TabList"
-import Tabs from "@mui/joy/Tabs"
-import Typography from "@mui/joy/Typography"
-import { type OverridableStringUnion } from "@mui/types"
-import { TRPCClientError } from "@trpc/client"
-import assert from "assert"
-import { useSession } from "next-auth/react"
-import router from "next/router"
+import assert from "assert";
 import {
   lazy,
   Suspense,
@@ -25,19 +7,37 @@ import {
   useMemo,
   useRef,
   useState,
-} from "react"
+} from "react";
+import router from "next/router";
+import { BugReport, Lan, ListAlt, Science } from "@mui/icons-material";
+import {
+  Card,
+  Link,
+  Skeleton,
+  type AlertPropsColorOverrides,
+  type ColorPaletteProp,
+} from "@mui/joy";
+import Box from "@mui/joy/Box";
+import Stack, { type StackProps } from "@mui/joy/Stack";
+import Tab from "@mui/joy/Tab";
+import TabList from "@mui/joy/TabList";
+import Tabs from "@mui/joy/Tabs";
+import Typography from "@mui/joy/Typography";
+import { type OverridableStringUnion } from "@mui/types";
+import { TRPCClientError } from "@trpc/client";
+import { useSession } from "next-auth/react";
 
-import { TaskStatus, type TaskState } from "@acme/agent"
-import { type ExecutionPlusGraph } from "@acme/db"
+import { TaskStatus, type TaskState } from "@acme/agent";
+import { type ExecutionPlusGraph } from "@acme/db";
 
-import useApp from "~/stores/appStore"
-import useGoalStore from "~/stores/goalStore"
+import { api } from "~/utils/api";
+import routes from "~/utils/routes";
+import useApp from "~/stores/appStore";
+import useGoalStore from "~/stores/goalStore";
 import useWaggleDanceMachineStore, {
   createDraftExecution,
-} from "~/stores/waggleDanceStore"
-import { api } from "~/utils/api"
-import routes from "~/utils/routes"
-import useWaggleDance from "./hooks/useWaggleDance"
+} from "~/stores/waggleDanceStore";
+import useWaggleDance from "./hooks/useWaggleDance";
 
 const BottomControls = lazy(() => import("./components/BottomControls"));
 

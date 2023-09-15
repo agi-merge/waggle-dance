@@ -1,4 +1,5 @@
 import {
+  initialNodes,
   type AgentPacket,
   type AgentSettingsMap,
   type TaskState,
@@ -8,6 +9,7 @@ import { type DraftExecutionGraph, type DraftExecutionNode } from "@acme/db";
 import executeTask from "../utils/executeTask";
 import { isGoalReached } from "../utils/isGoalReached";
 import planTasks from "../utils/planTasks";
+import { sleep } from "../utils/sleep";
 import {
   mapAgentSettingsToCreationProps,
   type GraphDataState,
@@ -34,6 +36,8 @@ export type RunParams = {
 };
 
 class WaggleDanceAgentExecutor {
+  private error: Error | null = null;
+
   constructor(
     private agentSettings: AgentSettingsMap,
     private goal: string,
@@ -46,24 +50,43 @@ class WaggleDanceAgentExecutor {
     private log: LogType,
   ) {}
 
-  async run(): Promise<WaggleDanceResult> {
+  async run(): Promise<WaggleDanceResult | Error> {
     const taskResults: Record<string, TaskState> = {};
+    this.error = null;
+    const initialNode = initialNodes(this.goal)[0]!;
+    void (async () => {
+      try {
+        const result = await this.planAndSetDAG();
+        console.log("hiya");
+        if (!result || result.nodes.length === 1) {
+          this.setError(new Error("No plan found"));
+        }
+      } catch (error) {
+        debugger;
+        this.setError(error);
+      }
+    })();
 
-    const dag = await this.planAndSetDAG();
+    while (true) {
+      const dag = this.graphDataState[0]; // Use the shared state to get the updated dag
+      // if (!dag) {
+      //   continue;
+      // }
 
-    if (!dag) {
-      throw new Error("Planning failed");
-    }
-
-    const toDoNodes = Array.from(dag.nodes);
-
-    while (!isGoalReached(dag, this.completedTasks)) {
-      if (this.abortController.signal.aborted) {
-        throw new Error("Signal aborted");
+      if (isGoalReached(dag, this.completedTasks) || this.error) {
+        debugger;
+        break;
       }
 
-      const pendingTasks = toDoNodes.filter(
-        (node) => !this.completedTasks.has(node.id),
+      if (this.abortController.signal.aborted) {
+        console.warn("aborted run");
+        break;
+      }
+
+      // plan does not count as a pending task
+      const pendingTasks = dag.nodes.filter(
+        (node) =>
+          node.id != initialNode.id && !this.completedTasks.has(node.id),
       );
 
       // Logic to filter tasks for the current layer
@@ -73,27 +96,32 @@ class WaggleDanceAgentExecutor {
           .every((edge) => this.completedTasks.has(edge.sId)),
       );
 
-      if (
-        pendingCurrentDagLayerTasks.length === 0 &&
-        pendingTasks.length === 0
-      ) {
-        throw new Error(
-          "No pending tasks, and no executable tasks, but goal not reached.",
-        );
-      }
+      const isDonePlanning = this.completedTasks.has(initialNode.id);
 
-      await this.executeTasks(pendingCurrentDagLayerTasks, dag);
+      if (pendingTasks.length === 0 && isDonePlanning) {
+        // sanity check for invalid state
+        throw new Error(
+          "No pending tasks while we are not planning, yet the goal is not reached.",
+        );
+      } else {
+        if (pendingCurrentDagLayerTasks.length === 0) {
+          console.log("sleeping");
+          await sleep(100);
+        } else {
+          await this.executeTasks(pendingCurrentDagLayerTasks, dag);
+        }
+      }
     }
 
-    return {
-      taskResults,
-      completedTasks: this.completedTasks,
-    };
+    return (
+      this.error || {
+        taskResults,
+        completedTasks: this.completedTasks,
+      }
+    );
   }
 
   async planAndSetDAG(): Promise<DraftExecutionGraph | null> {
-    const [dag, setDAG] = this.graphDataState;
-
     const creationProps = mapAgentSettingsToCreationProps(
       this.agentSettings["plan"],
     );
@@ -102,14 +130,14 @@ class WaggleDanceAgentExecutor {
       goalId: this.goalId,
       executionId: this.executionId,
       creationProps,
-      graphDataState: [dag, setDAG],
+      graphDataState: this.graphDataState,
       log: this.log,
       injectAgentPacket: this.injectAgentPacket,
       abortSignal: this.abortController.signal,
     });
 
     if (fullPlanDAG) {
-      setDAG(fullPlanDAG, this.goal);
+      this.graphDataState[1](fullPlanDAG, this.goal);
       return fullPlanDAG;
     }
     return null;
@@ -146,7 +174,7 @@ class WaggleDanceAgentExecutor {
 
           this.injectAgentPacket(result, task);
         } catch (error) {
-          this.injectError(error, task);
+          this.setError(error);
         }
       } else {
         console.warn("aborted executeTasks");
@@ -154,25 +182,9 @@ class WaggleDanceAgentExecutor {
     }
   }
 
-  private injectError(error: unknown, task: DraftExecutionNode) {
-    // let packet: AgentPacket;
-
-    // if (error instanceof Error) {
-    //   packet = { type: "error", severity: "warn", error };
-    // } else if (typeof error === "string") {
-    //   packet = { type: "error", severity: "warn", error: new Error(error) };
-    // } else if (error as AgentPacket) {
-    //   packet = error as AgentPacket;
-    // } else {
-    //   packet = {
-    //     type: "error",
-    //     severity: "warn",
-    //     error: new Error("Unknown error"),
-    //   };
-    // }
-
-    // this.injectAgentPacket(packet, task);
-    this.abortController.abort();
+  private setError(error: unknown) {
+    this.error =
+      error instanceof Error ? error : new Error(`Unknown error: ${error}`);
   }
 }
 

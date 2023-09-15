@@ -156,20 +156,27 @@ export default async function PlanStream(req: NextRequest) {
     void (async () => {
       await streamEndedPromise;
 
-      if (goalId && executionId && typeof planResult === "string") {
-        const graph = transformWireFormat(parse(planResult) as PlanWireFormat);
-        await updateExecution(
-          {
-            goalId,
-            graph,
-            executionId,
-          },
-          req,
-        );
-      } else {
-        console.error(
-          "could not save execution, it must be manually cleaned up",
-        );
+      try {
+        if (goalId && executionId && typeof planResult === "string") {
+          const graph = transformWireFormat(
+            parse(planResult) as PlanWireFormat,
+          );
+          await updateExecution(
+            {
+              goalId,
+              graph,
+              executionId,
+            },
+            req,
+          );
+        } else {
+          console.error(
+            "could not save execution, it must be manually cleaned up",
+          );
+        }
+      } catch (e) {
+        // TODO: make sure it is a 401 unauth
+        console.error("could not save execution", e);
       }
     })();
   }

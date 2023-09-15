@@ -243,11 +243,10 @@ const useWaggleDance = () => {
   const run = useCallback(
     async (execution: ExecutionPlusGraph) => {
       const ac = new AbortController();
-      if (!abortController.signal.aborted) {
-        abortController.abort();
-      }
+      // if (!abortController.signal.aborted) {
+      //   abortController.abort();
+      // }
       setAbortController(ac);
-      reset();
 
       const prompt = goal?.prompt;
       if (!prompt) {
@@ -278,6 +277,7 @@ const useWaggleDance = () => {
           log,
         );
         result = await agentExecutor.run();
+        console.debug("result", result);
       } catch (error) {
         if (error instanceof Error) {
           result = error;
@@ -290,6 +290,7 @@ const useWaggleDance = () => {
 
       setIsRunning(false);
       if (!ac.signal.aborted) {
+        debugger;
         ac.abort();
       }
 
@@ -305,19 +306,8 @@ const useWaggleDance = () => {
         return result;
       }
     },
-    [
-      abortController,
-      reset,
-      goal?.prompt,
-      goal?.id,
-      setIsRunning,
-      agentSettings,
-      graph,
-      setGraph,
-      injectAgentPacket,
-      log,
-      updateExecutionState,
-    ],
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+    [],
   );
 
   return {
