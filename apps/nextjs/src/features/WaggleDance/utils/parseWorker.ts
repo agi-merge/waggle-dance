@@ -1,9 +1,9 @@
 // parseWorker.ts
-import { v4 } from "uuid";
 import { parse } from "yaml";
 
 import {
   transformWireFormat,
+  type DraftExecutionEdge,
   type DraftExecutionGraph,
   type ExecutionNode,
   type PlanWireFormat,
@@ -11,7 +11,6 @@ import {
 
 import {
   AgentPacketFinishedTypes,
-  findNodesWithNoIncomingEdges,
   makeServerIdIfNeeded,
   rootPlanId,
   type AgentPacket,
@@ -59,35 +58,37 @@ self.onmessage = function (
     ) as Partial<DraftExecutionGraph>;
     if (yaml && yaml.nodes && yaml.nodes.length > 0) {
       const optDag = yaml;
-      const validNodes = optDag.nodes?.filter(
+      const nodes = optDag.nodes ?? [];
+      const edges = optDag.edges ?? [];
+      const validNodes = nodes.filter(
         (n) => n.name.length > 0 && n.id.length > 0 && n.context.length > 0,
       );
       validNodes?.forEach(
         (n) => (n.id = makeServerIdIfNeeded(n.id, executionId)),
       );
-      const validEdges = optDag.edges?.filter(
+      const validEdges = edges.filter(
         (n) => n.sId.length > 0 && n.tId.length > 0,
       );
-      validEdges?.forEach((e) => {
-        e.sId = makeServerIdIfNeeded(e.sId, executionId);
-        e.tId = makeServerIdIfNeeded(e.tId, executionId);
-      });
-      if (validNodes?.length) {
-        const hookupEdges = findNodesWithNoIncomingEdges(optDag).map((node) => {
-          return {
-            sId: rootPlanId,
-            tId: node.id,
-            graphId: node.graphId || "",
-            id: v4(),
-          };
-        });
-        const partialDAG: DraftExecutionGraph = {
-          executionId,
-          nodes: [...initialNodes, ...validNodes],
-          edges: [...(validEdges ?? []), ...hookupEdges],
-        };
-        dag = partialDAG;
-      }
+      const targetEdgesMap: Record<string, DraftExecutionEdge> = edges.reduce(
+        (acc: Record<string, DraftExecutionEdge>, edge) => {
+          edge.sId = makeServerIdIfNeeded(edge.sId, executionId);
+          edge.tId = makeServerIdIfNeeded(edge.tId, executionId);
+          acc[edge.tId] = edge;
+          return acc;
+        },
+        {} as Record<string, DraftExecutionEdge>,
+      );
+
+      const hookupEdges = edges.filter(
+        (node) => node.id !== rootPlanId && !targetEdgesMap[node.id],
+      );
+
+      const partialDAG: DraftExecutionGraph = {
+        executionId,
+        nodes: [...initialNodes, ...validNodes],
+        edges: [...hookupEdges, ...validEdges],
+      };
+      dag = partialDAG;
     } else {
       dag = null;
     }
