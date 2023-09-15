@@ -10,7 +10,7 @@ import {
   type ColorPaletteProp,
 } from "@mui/joy";
 import { type OverridableStringUnion } from "@mui/types";
-import { get } from "@vercel/edge-config";
+import { get, type EdgeConfigValue } from "@vercel/edge-config";
 
 import { type ExecutionPlusGraph, type GoalPlusExe } from "@acme/db";
 
@@ -60,10 +60,15 @@ export const getStaticProps = async (): Promise<
   // Fetch your alerts array from Vercel edge-config here
 
   const revalidate = 300; // ISR, revalidate every 5 minutes
-  const alertConfigs = await get("alerts");
+  let alertConfigs: EdgeConfigValue | undefined;
+  try {
+    alertConfigs = await get("alerts");
+  } catch {
+    // handled below
+  }
   const errorResponse: GetStaticPropsResult<StaticProps> = {
     notFound: true,
-    revalidate: 10,
+    revalidate: 1,
   };
 
   if (!alertConfigs) {
