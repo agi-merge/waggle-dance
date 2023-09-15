@@ -270,8 +270,7 @@ const useWaggleDance = () => {
           goal.prompt,
           goalId,
           executionId,
-          new Set(),
-          abortController,
+          ac,
           [graph, setGraph],
           injectAgentPacket,
           log,
@@ -305,7 +304,17 @@ const useWaggleDance = () => {
       }
     },
     // eslint-disable-next-line react-hooks/exhaustive-deps
-    [],
+    [
+      abortController,
+      agentSettings,
+      goal?.id,
+      graph,
+      injectAgentPacket,
+      log,
+      setGraph,
+      setIsRunning,
+      updateExecutionState,
+    ],
   );
 
   return {
