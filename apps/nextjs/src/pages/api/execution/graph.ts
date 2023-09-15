@@ -2,6 +2,7 @@
 
 import { type NextApiRequest, type NextApiResponse } from "next";
 
+import { type OldPlanWireFormat } from "@acme/agent";
 import { appRouter } from "@acme/api";
 import { getServerSession, type Session } from "@acme/auth";
 import {
@@ -9,7 +10,6 @@ import {
   prisma,
   type Execution,
   type ExecutionGraph,
-  type OldPlanWireFormat,
 } from "@acme/db";
 
 export const config = {

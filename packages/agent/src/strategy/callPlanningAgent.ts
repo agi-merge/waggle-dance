@@ -4,8 +4,7 @@ import { LLMChain } from "langchain/chains";
 import { parse as jsonParse, stringify as jsonStringify } from "superjson";
 import { parse as yamlParse, stringify as yamlStringify } from "yaml";
 
-import { type PlanWireFormat } from "@acme/db";
-
+import { type PlanWireFormat } from "../..";
 import {
   createPlanFormattingPrompt,
   createPlanPrompt,

@@ -1,20 +1,17 @@
 // parseWorker.ts
 import { parse } from "yaml";
 
-import {
-  transformWireFormat,
-  type DraftExecutionEdge,
-  type DraftExecutionGraph,
-  type ExecutionNode,
-  type PlanWireFormat,
-} from "@acme/db";
+import { type DraftExecutionGraph, type ExecutionNode } from "@acme/db";
 
 import {
   AgentPacketFinishedTypes,
+  generateHookupEdges,
   makeServerIdIfNeeded,
   rootPlanId,
+  transformWireFormat,
   type AgentPacket,
   type AgentPacketFinishedType,
+  type PlanWireFormat,
 } from "../../../../../../packages/agent";
 
 interface MyWorkerGlobalScope {
@@ -66,21 +63,15 @@ self.onmessage = function (
       validNodes?.forEach(
         (n) => (n.id = makeServerIdIfNeeded(n.id, executionId)),
       );
+
       const validEdges = edges.filter(
-        (n) => n.sId.length > 0 && n.tId.length > 0,
-      );
-      const targetEdgesMap: Record<string, DraftExecutionEdge> = edges.reduce(
-        (acc: Record<string, DraftExecutionEdge>, edge) => {
-          edge.sId = makeServerIdIfNeeded(edge.sId, executionId);
-          edge.tId = makeServerIdIfNeeded(edge.tId, executionId);
-          acc[edge.tId] = edge;
-          return acc;
-        },
-        {} as Record<string, DraftExecutionEdge>,
+        (n) => n.sId.length >= 3 && n.tId.length >= 3, // bit of a hack to check if id is of shape "1-0", may break for multi digit
       );
 
-      const hookupEdges = edges.filter(
-        (node) => node.id !== rootPlanId && !targetEdgesMap[node.id],
+      const hookupEdges = generateHookupEdges(
+        { executionId: optDag.executionId || "", nodes, edges },
+        executionId,
+        rootPlanId,
       );
 
       const partialDAG: DraftExecutionGraph = {

@@ -5,12 +5,13 @@ import { stringify as jsonStringify } from "superjson";
 import { parse, stringify } from "yaml";
 
 import { getBaseUrl } from "@acme/api/utils";
-import { transformWireFormat, type PlanWireFormat } from "@acme/db";
 
 import { type PlanRequestBody } from "~/features/WaggleDance/types/types";
 import {
   callPlanningAgent,
+  transformWireFormat,
   type AgentPacket,
+  type PlanWireFormat,
 } from "../../../../../../packages/agent";
 import { type UpdateGraphParams } from "../execution/graph";
 
