@@ -1,9 +1,10 @@
+import { type TaskState } from "@acme/agent";
 import { type DraftExecutionGraph } from "@acme/db";
 
 export function isGoalReached(
   dag: DraftExecutionGraph,
-  completedTasks: Set<string>,
+  taskStates: Record<string, TaskState>,
 ): boolean {
-  const isGoalReached = dag.nodes.every((node) => completedTasks.has(node.id));
+  const isGoalReached = dag.nodes.every((node) => !!taskStates[node.id]);
   return isGoalReached;
 }

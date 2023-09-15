@@ -1,8 +1,8 @@
 import {
   initialNodes,
+  TaskState,
   type AgentPacket,
   type AgentSettingsMap,
-  type TaskState,
 } from "@acme/agent";
 import { type DraftExecutionGraph, type DraftExecutionNode } from "@acme/db";
 
@@ -37,6 +37,7 @@ export type RunParams = {
 
 class WaggleDanceAgentExecutor {
   private error: Error | null = null;
+  private taskResults: Record<string, TaskState> = {};
 
   constructor(
     private agentSettings: AgentSettingsMap,
@@ -51,16 +52,28 @@ class WaggleDanceAgentExecutor {
   ) {}
 
   async run(): Promise<WaggleDanceResult | Error> {
-    const taskResults: Record<string, TaskState> = {};
+    this.taskResults = {};
     this.error = null;
     const initialNode = initialNodes(this.goal)[0]!;
     void (async () => {
       try {
         const result = await this.planAndSetDAG();
-        console.log("hiya");
         if (!result || result.nodes.length === 1) {
           this.setError(new Error("No plan found"));
         }
+
+        this.taskResults[initialNode.id] = new TaskState({
+          ...initialNode,
+          packets: [],
+          value: {
+            type: "done",
+            value: `came up with a plan graph with ${
+              result?.nodes.length ?? 0
+            } tasks with ${result?.edges.length ?? 0} interdependencies`,
+          },
+          updatedAt: new Date(),
+          nodeId: initialNode.id,
+        });
       } catch (error) {
         debugger;
         this.setError(error);
@@ -69,12 +82,13 @@ class WaggleDanceAgentExecutor {
 
     while (true) {
       const dag = this.graphDataState[0]; // Use the shared state to get the updated dag
-      // if (!dag) {
-      //   continue;
-      // }
 
-      if (isGoalReached(dag, this.completedTasks) || this.error) {
-        debugger;
+      if (isGoalReached(dag, this.taskResults)) {
+        console.debug("goal is reached");
+        break;
+      }
+      if (this.error) {
+        console.error("error", this.error);
         break;
       }
 
@@ -85,18 +99,17 @@ class WaggleDanceAgentExecutor {
 
       // plan does not count as a pending task
       const pendingTasks = dag.nodes.filter(
-        (node) =>
-          node.id != initialNode.id && !this.completedTasks.has(node.id),
+        (node) => node.id != initialNode.id && !this.taskResults[node.id],
       );
 
       // Logic to filter tasks for the current layer
       const pendingCurrentDagLayerTasks = pendingTasks.filter((task) =>
         dag.edges
           .filter((edge) => edge.tId === task.id)
-          .every((edge) => this.completedTasks.has(edge.sId)),
+          .every((edge) => this.taskResults[edge.sId]),
       );
 
-      const isDonePlanning = this.completedTasks.has(initialNode.id);
+      const isDonePlanning = this.taskResults[initialNode.id];
 
       if (pendingTasks.length === 0 && isDonePlanning) {
         // sanity check for invalid state
@@ -105,7 +118,9 @@ class WaggleDanceAgentExecutor {
         );
       } else {
         if (pendingCurrentDagLayerTasks.length === 0) {
-          console.log("sleeping");
+          console.debug(
+            "waiting for scheduled tasks (tasks without incomplete dependencies)",
+          );
           await sleep(100);
         } else {
           await this.executeTasks(pendingCurrentDagLayerTasks, dag);
@@ -115,7 +130,7 @@ class WaggleDanceAgentExecutor {
 
     return (
       this.error || {
-        taskResults,
+        taskResults: this.taskResults,
         completedTasks: this.completedTasks,
       }
     );
