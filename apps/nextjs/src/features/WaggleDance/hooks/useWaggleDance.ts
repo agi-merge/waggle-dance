@@ -159,7 +159,6 @@ const useWaggleDance = () => {
   const [abortController, setAbortController] = useState(
     () => new AbortController(),
   );
-  const [isDonePlanning, setIsDonePlanning] = useState(false);
 
   const log = useCallback(
     (...args: (string | number | object)[]) => {
@@ -226,7 +225,6 @@ const useWaggleDance = () => {
 
   const reset = useCallback(() => {
     console.warn("resetting waggle dance machine");
-    setIsDonePlanning(false);
     setGraph(
       {
         nodes: initialNodes(goal?.prompt ?? ""),
@@ -337,7 +335,6 @@ const useWaggleDance = () => {
     stop,
     run,
     reset,
-    isDonePlanning,
     logs,
     agentPacketsMap,
     results,

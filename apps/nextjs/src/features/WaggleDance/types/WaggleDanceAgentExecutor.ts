@@ -15,7 +15,6 @@ import { sleep } from "../utils/sleep";
 import {
   mapAgentSettingsToCreationProps,
   type GraphDataState,
-  type IsDonePlanningState,
   type WaggleDanceResult,
 } from "./types";
 
@@ -31,7 +30,6 @@ export type RunParams = {
   executionId: string;
   agentSettings: AgentSettingsMap;
   graphDataState: MutableRefObject<GraphDataState>;
-  isDonePlanningState: IsDonePlanningState;
   injectAgentPacket: InjectAgentPacketType;
   log: (...args: (string | number | object)[]) => void;
   abortController: AbortController;

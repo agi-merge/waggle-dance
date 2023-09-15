@@ -42,7 +42,6 @@ export type GraphDataState = [
   DraftExecutionGraph,
   (dag: DraftExecutionGraph, goal: string) => void,
 ];
-export type IsDonePlanningState = [boolean, Dispatch<SetStateAction<boolean>>];
 export type TaskResultsState = [
   Record<string, TaskState>,
   Dispatch<SetStateAction<Record<string, TaskState>>>,
