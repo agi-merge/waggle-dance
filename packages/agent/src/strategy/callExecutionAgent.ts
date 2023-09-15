@@ -41,7 +41,7 @@ export async function callExecutionAgent(creation: {
   agentPromptingMethod: AgentPromptingMethod;
   task: string;
   dag: string;
-  revieweeTaskResults: TaskState[] | null;
+  revieweeTaskResults: TaskState[];
   contentType: "application/json" | "application/yaml";
   abortSignal: AbortSignal;
   namespace?: string;
@@ -76,7 +76,7 @@ export async function callExecutionAgent(creation: {
   const nodes = (parse(dag) as DraftExecutionGraph).nodes;
   const prompt = isReview
     ? createCriticizePrompt({
-        revieweeTaskResults: revieweeTaskResults!,
+        revieweeTaskResults,
         nodes,
         returnType,
       })

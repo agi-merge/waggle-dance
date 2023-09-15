@@ -88,9 +88,7 @@ export type PlanRequestBody = BaseRequestBody & {
 export type ExecuteRequestBody = PlanRequestBody & {
   executionId: string;
   task: DraftExecutionNode;
-  revieweeTaskResults: TaskState[] | null;
-  // completedTasks: Set<string>;
-  // taskResults: Record<string, BaseResultType>;
+  revieweeTaskResults: TaskState[];
   dag: DraftExecutionGraph;
   agentPromptingMethod: AgentPromptingMethod;
 };

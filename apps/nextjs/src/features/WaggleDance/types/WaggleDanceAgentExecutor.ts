@@ -170,7 +170,7 @@ class WaggleDanceAgentExecutor {
               this.agentSettings["execute"].agentPromptingMethod!,
             task,
             dag,
-            revieweeTaskResults: null, // intentionally left blank, first task can't be criticism
+            revieweeTaskResults: Object.values(this.taskResults),
             creationProps,
           };
           const result = await executeTask({
