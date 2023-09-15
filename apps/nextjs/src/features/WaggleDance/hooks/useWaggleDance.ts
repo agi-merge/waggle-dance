@@ -1,6 +1,13 @@
 // features/WaggleDance/hooks/useWaggleDance.ts
 
-import { useCallback, useEffect, useMemo, useState } from "react";
+import {
+  useCallback,
+  useEffect,
+  useMemo,
+  useRef,
+  useState,
+  type MutableRefObject,
+} from "react";
 import { stringify } from "yaml";
 
 import {
@@ -16,7 +23,7 @@ import { api } from "~/utils/api";
 import useGoalStore from "~/stores/goalStore";
 import useWaggleDanceMachineStore from "~/stores/waggleDanceStore";
 import { type GraphData } from "../components/ForceGraph";
-import { type WaggleDanceResult } from "../types/types";
+import { type GraphDataState, type WaggleDanceResult } from "../types/types";
 import WaggleDanceAgentExecutor from "../types/WaggleDanceAgentExecutor";
 import { dagToGraphData } from "../utils/conversions";
 
@@ -29,6 +36,13 @@ export type LogMessage = {
 const useWaggleDance = () => {
   const { setIsRunning, agentSettings, execution, graph, setGraph } =
     useWaggleDanceMachineStore();
+
+  const graphDataStateRef: MutableRefObject<GraphDataState> = useRef([
+    graph,
+    setGraph,
+  ]);
+  graphDataStateRef.current = [graph, setGraph];
+
   const { selectedGoal: goal } = useGoalStore();
 
   const { mutate: updateExecutionState } =
@@ -177,7 +191,7 @@ const useWaggleDance = () => {
       setAgentPackets((prevAgentPackets) => {
         const existingTask = prevAgentPackets[node.id] || resultsMap[node.id];
 
-        log(`injectAgentPacket: ${existingTask}  -> ${agentPacket.type}`);
+        log(`injectAgentPacket: ${existingTask?.value} -> ${agentPacket.type}`);
         if (!existingTask) {
           // its for a brand new task
           const taskState = new TaskState({
@@ -271,7 +285,7 @@ const useWaggleDance = () => {
           goalId,
           executionId,
           ac,
-          [graph, setGraph],
+          graphDataStateRef,
           injectAgentPacket,
           log,
         );

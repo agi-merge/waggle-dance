@@ -1,3 +1,5 @@
+import { type MutableRefObject } from "react";
+
 import {
   initialNodes,
   TaskState,
@@ -28,7 +30,7 @@ export type RunParams = {
   goalId: string;
   executionId: string;
   agentSettings: AgentSettingsMap;
-  graphDataState: GraphDataState;
+  graphDataState: MutableRefObject<GraphDataState>;
   isDonePlanningState: IsDonePlanningState;
   injectAgentPacket: InjectAgentPacketType;
   log: (...args: (string | number | object)[]) => void;
@@ -45,7 +47,7 @@ class WaggleDanceAgentExecutor {
     private goalId: string,
     private executionId: string,
     private abortController: AbortController,
-    private graphDataState: GraphDataState,
+    private graphDataState: MutableRefObject<GraphDataState>,
     private injectAgentPacket: InjectAgentPacketType,
     private log: LogType,
   ) {}
@@ -80,8 +82,8 @@ class WaggleDanceAgentExecutor {
     })();
 
     while (true) {
-      const dag = this.graphDataState[0]; // Use the shared state to get the updated dag
-
+      const dag = this.graphDataState.current[0]; // Use the shared state to get the updated dag
+      console.debug("dag", dag);
       if (isGoalReached(dag, this.taskResults)) {
         console.debug("goal is reached");
         break;
@@ -139,14 +141,14 @@ class WaggleDanceAgentExecutor {
       goalId: this.goalId,
       executionId: this.executionId,
       creationProps,
-      graphDataState: this.graphDataState,
+      graphDataState: this.graphDataState.current,
       log: this.log,
       injectAgentPacket: this.injectAgentPacket,
       abortSignal: this.abortController.signal,
     });
 
     if (fullPlanDAG) {
-      this.graphDataState[1](fullPlanDAG, this.goal);
+      this.graphDataState.current[1](fullPlanDAG, this.goal);
       return fullPlanDAG;
     }
     return null;
