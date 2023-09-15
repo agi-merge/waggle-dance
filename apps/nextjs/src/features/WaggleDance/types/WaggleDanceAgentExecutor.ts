@@ -74,7 +74,6 @@ class WaggleDanceAgentExecutor {
           nodeId: initialNode.id,
         });
       } catch (error) {
-        debugger;
         this.setError(error);
       }
     })();
