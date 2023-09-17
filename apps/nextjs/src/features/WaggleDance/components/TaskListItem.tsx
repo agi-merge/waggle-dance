@@ -15,6 +15,7 @@ import {
 import { stringify } from "yaml";
 
 import {
+  display,
   isAgentPacketFinishedType,
   rootPlanId,
   TaskStatus,
@@ -150,7 +151,7 @@ const TaskListItem = ({
               )}
               <Typography level="body-md" color="neutral">
                 {t.packets.slice(0, -1).map((p, index) => (
-                  <span key={index}>{p.type} → </span>
+                  <span key={index}>{display(p)} → </span>
                 ))}
                 {t.packets.length > 0 && (
                   <Typography color={statusColor(t)} level="body-md">

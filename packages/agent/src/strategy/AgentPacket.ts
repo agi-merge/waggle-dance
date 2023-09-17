@@ -98,3 +98,18 @@ export type AgentPacket =
   | ({ type: "working"; nodeId: string } & BaseAgentPacket)
   | ({ type: "idle"; nodeId: string } & BaseAgentPacket);
 export default AgentPacket;
+
+export const display = (packet: AgentPacket): string | null => {
+  switch (packet.type) {
+    case "handleToolStart":
+      return null;
+    case "handleAgentAction":
+      return packet.action.tool;
+    case "handleLLMStart":
+      return null;
+    case "handleToolEnd":
+      return null;
+    default:
+      return packet.type;
+  }
+};
