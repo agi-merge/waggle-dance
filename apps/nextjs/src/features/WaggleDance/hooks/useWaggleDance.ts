@@ -226,7 +226,7 @@ const useWaggleDance = () => {
   const reset = useCallback(() => {
     console.warn("resetting waggle dance machine");
     setGraph(
-      {
+      execution?.graph ?? {
         nodes: initialNodes(goal?.prompt ?? ""),
         edges: [],
         executionId: execution?.id ?? "",
@@ -234,7 +234,7 @@ const useWaggleDance = () => {
       goal?.prompt ?? "",
     );
     setAgentPackets({});
-  }, [execution?.id, goal?.prompt, setGraph]);
+  }, [execution?.graph, execution?.id, goal?.prompt, setGraph]);
 
   const [graphData, setGraphData] = useState<GraphData>({
     nodes: [],
