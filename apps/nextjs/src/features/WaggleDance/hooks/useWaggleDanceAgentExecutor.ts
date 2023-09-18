@@ -33,7 +33,7 @@ export type LogMessage = {
   timestamp: Date;
 };
 
-const useWaggleDance = () => {
+const useWaggleDanceAgentExecutor = () => {
   const { setIsRunning, agentSettings, execution, graph, setGraph } =
     useWaggleDanceMachineStore();
 
@@ -84,7 +84,7 @@ const useWaggleDance = () => {
 
   const taskStates: TaskState[] = useMemo(() => {
     const taskStates = graph.nodes.map((dagNode) => {
-      const taskStateB = resultsMap[dagNode.id] ?? agentPacketsMap[dagNode.id];
+      const taskStateB = agentPacketsMap[dagNode.id] ?? resultsMap[dagNode.id];
       // console.log("dagNode", dagNode.id, "taskStateB", taskStateB?.id);
       // Object.values(agentPacketsMap).find((ts) => ts.nodeId === taskStateA.id);
       const updatedAt = new Date();
@@ -343,4 +343,4 @@ const useWaggleDance = () => {
   };
 };
 
-export default useWaggleDance;
+export default useWaggleDanceAgentExecutor;

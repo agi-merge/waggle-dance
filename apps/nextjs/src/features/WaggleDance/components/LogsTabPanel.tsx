@@ -8,7 +8,7 @@ import {
   Typography,
 } from "@mui/joy";
 
-import { type LogMessage } from "../hooks/useWaggleDance";
+import { type LogMessage } from "../hooks/useWaggleDanceAgentExecutor";
 
 type LogsTabPanelProps = {
   logs: LogMessage[];

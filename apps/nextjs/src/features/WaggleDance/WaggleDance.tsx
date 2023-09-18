@@ -37,7 +37,7 @@ import useGoalStore from "~/stores/goalStore";
 import useWaggleDanceMachineStore, {
   createDraftExecution,
 } from "~/stores/waggleDanceStore";
-import useWaggleDance from "./hooks/useWaggleDance";
+import useWaggleDanceAgentExecutor from "./hooks/useWaggleDanceAgentExecutor";
 
 const BottomControls = lazy(() => import("./components/BottomControls"));
 
@@ -67,7 +67,7 @@ const WaggleDance = ({}: Props) => {
     results,
     agentPacketsMap,
     sortedTaskStates,
-  } = useWaggleDance();
+  } = useWaggleDanceAgentExecutor();
   const listItemsRef = useRef<HTMLLIElement[]>([]);
   const taskListRef = useRef<HTMLUListElement>(null);
   const [recentTaskId, setRecentTaskId] = useState<string | null>(null);
