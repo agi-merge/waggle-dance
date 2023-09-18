@@ -150,9 +150,14 @@ const TaskListItem = ({
                 <>Status: </>
               )}
               <Typography level="body-md" color="neutral">
-                {t.packets.slice(0, -1).map((p, index) => (
-                  <span key={index}>{display(p)} → </span>
-                ))}
+                {t.packets.slice(0, -1).map(
+                  (p, index) =>
+                    display(p) && (
+                      <span key={index}>
+                        {display(p)} {index < t.packets.length - 2 && "→"}{" "}
+                      </span>
+                    ),
+                )}
                 {t.packets.length > 0 && (
                   <Typography color={statusColor(t)} level="body-md">
                     {t.packets[t.packets.length - 1]?.type}
@@ -170,7 +175,7 @@ const TaskListItem = ({
               }
             >
               {t.value.type === "done" && t.value.value}
-              {t.value.type === "error" && String(t.value.error)}
+              {t.value.type === "error" && stringify(t.value.error)}
               {t.value.type === "handleAgentEnd" && t.value.value}
               {t.value.type === "handleLLMError" && stringify(t.value.err)}
               {t.value.type === "handleChainError" && stringify(t.value.err)}
