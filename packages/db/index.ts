@@ -44,8 +44,13 @@ export type ExecutionGraphNodesAndEdges = {
 
 export type DraftExecutionGraph = Omit<
   ExecutionGraphPlusNodesAndEdges,
-  "id" | "updatedAt" | "createdAt"
+  "id" | "updatedAt" | "createdAt" | "nodes" | "edges"
 > & { nodes: DraftExecutionNode[]; edges: DraftExecutionEdge[] };
 
-export type DraftExecutionNode = Omit<ExecutionNode, "graphId">;
-export type DraftExecutionEdge = Omit<ExecutionEdge, "graphId" | "id">;
+export type DraftExecutionNode = Omit<ExecutionNode, "graphId"> & {
+  graphId?: string | null;
+};
+export type DraftExecutionEdge = Omit<ExecutionEdge, "id" | "graphId"> & {
+  id?: string | null;
+  graphId?: string | null;
+};

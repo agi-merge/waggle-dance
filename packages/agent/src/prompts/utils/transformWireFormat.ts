@@ -9,7 +9,7 @@ import {
   type DraftExecutionNode,
 } from "@acme/db";
 
-import { makeServerIdIfNeeded } from "../../..";
+import { initialNodes, makeServerIdIfNeeded, rootPlanId } from "../../..";
 
 // less straightforward than other plan DAG formats
 export type PlanWireFormat = {
@@ -27,7 +27,7 @@ export type OldPlanWireFormat = {
  *
  * This is an optimization. We could have the planning agent send the data
  */
-export function generateHookupEdges(
+function edgesToHookupToRootNode(
   graph: DraftExecutionGraph,
   executionId: string,
   rootPlanId: string,
@@ -43,9 +43,28 @@ export function generateHookupEdges(
   );
 
   return graph.edges.filter(
-    (node) => node.id !== rootPlanId && !targetEdgesMap[node.id],
+    (node) => node.id !== rootPlanId && node.id && !targetEdgesMap[node.id],
   );
 }
+
+export const hookRootUpToServerGraph = (
+  graph: DraftExecutionGraph,
+  rootPlanId: string,
+  executionId: string,
+  goal: string,
+) => {
+  if (graph.executionId != executionId) {
+    debugger;
+  }
+  const hookupEdges = edgesToHookupToRootNode(graph, executionId, rootPlanId);
+  const graphWithRoot = {
+    ...graph,
+    nodes: [...initialNodes(goal), ...graph.nodes],
+    edges: [...graph.edges, ...hookupEdges],
+    executionId: executionId ?? graph.executionId,
+  };
+  return graphWithRoot;
+};
 
 /**
  * Transforms a partial streaming plan from the new format to the old format.
@@ -64,6 +83,8 @@ export function generateHookupEdges(
  */
 export function transformWireFormat(
   newFormat: PlanWireFormat,
+  goal: string,
+  executionId: string,
 ): OldPlanWireFormat {
   const oldFormat: OldPlanWireFormat = { nodes: [], edges: [] };
   const allNodes: { [key: string]: DraftExecutionNode } = {};
@@ -86,7 +107,7 @@ export function transformWireFormat(
           }
         }
       } else {
-        const node = item as unknown as DraftExecutionNode;
+        const node = item as unknown as DraftExecutionNode; // ok because parents handled above
         const newNodeId = `${level}-${node.id}`;
         oldFormat.nodes.push({
           id: newNodeId,
@@ -112,6 +133,27 @@ export function transformWireFormat(
       });
     }
   }
+
+  const nodes: DraftExecutionNode[] = oldFormat.nodes.map((n) => ({
+    id: n.id,
+    name: n.name,
+    context: n.context,
+    graphId: n.graphId || null,
+  }));
+  const edges: DraftExecutionEdge[] = oldFormat.edges.map((e) => ({
+    id: e.id || null,
+    sId: e.sId,
+    tId: e.tId,
+    graphId: e.graphId || null,
+  }));
+
+  const mappedOldFormat: DraftExecutionGraph = {
+    executionId,
+    nodes,
+    edges,
+  };
+
+  hookRootUpToServerGraph(mappedOldFormat, rootPlanId, executionId, goal);
 
   return oldFormat;
 }

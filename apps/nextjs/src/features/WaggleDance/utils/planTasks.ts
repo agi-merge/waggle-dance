@@ -81,7 +81,11 @@ export default async function planTasks({
       new URL("./parseWorker.ts", import.meta.url),
     );
 
-    parseWorker.postMessage({ executionId, initialNodes: initialNodes(goal) });
+    parseWorker.postMessage({
+      goal,
+      executionId,
+      initialNodes: initialNodes(goal),
+    });
 
     parseWorker.onerror = function (event) {
       console.error("parseWorker error", event);

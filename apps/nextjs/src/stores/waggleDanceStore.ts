@@ -6,8 +6,7 @@ import { createJSONStorage, persist } from "zustand/middleware";
 
 import {
   defaultAgentSettings,
-  generateHookupEdges,
-  initialNodes,
+  hookRootUpToServerGraph,
   rootPlanId,
   type AgentSettings,
 } from "@acme/agent";
@@ -56,24 +55,6 @@ export function createDraftExecution(selectedGoal: GoalPlusExe) {
   return draftExecution;
 }
 
-const hookRootUpToServerGraph = (
-  graph: DraftExecutionGraph,
-  executionId: string,
-  goal: string,
-) => {
-  if (graph.executionId != executionId) {
-    debugger;
-  }
-  const hookupEdges = generateHookupEdges(graph, executionId, rootPlanId);
-  const graphWithRoot = {
-    ...graph,
-    nodes: [...initialNodes(goal), ...graph.nodes],
-    edges: [...graph.edges, ...hookupEdges],
-    executionId: executionId ?? graph.executionId,
-  };
-  return graphWithRoot;
-};
-
 const useWaggleDanceMachineStore = create(
   persist<WaggleDanceMachineStore>(
     (set, _get) => ({
@@ -99,6 +80,7 @@ const useWaggleDanceMachineStore = create(
             (newExecution?.graph &&
               hookRootUpToServerGraph(
                 newExecution.graph,
+                rootPlanId,
                 newExecution.id,
                 goal,
               )) ||
@@ -115,7 +97,12 @@ const useWaggleDanceMachineStore = create(
           graph:
             graph.nodes[0]?.id === rootPlanId
               ? graph
-              : hookRootUpToServerGraph(graph, state.execution?.id ?? "", goal),
+              : hookRootUpToServerGraph(
+                  graph,
+                  rootPlanId,
+                  state.execution?.id ?? "",
+                  goal,
+                ),
         }));
       },
     }),

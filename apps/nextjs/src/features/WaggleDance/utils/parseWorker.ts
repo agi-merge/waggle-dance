@@ -1,11 +1,11 @@
 // parseWorker.ts
 import { parse } from "yaml";
 
-import { type DraftExecutionGraph, type ExecutionNode } from "@acme/db";
+import { type DraftExecutionGraph } from "@acme/db";
 
 import {
   AgentPacketFinishedTypes,
-  generateHookupEdges,
+  hookRootUpToServerGraph,
   makeServerIdIfNeeded,
   rootPlanId,
   transformWireFormat,
@@ -23,16 +23,16 @@ declare const self: MyWorkerGlobalScope;
 console.debug("parseWorker.ts");
 let dag: DraftExecutionGraph | null | undefined;
 let tokens = "";
+let goal = "";
 let executionId = "";
-let initialNodes: ExecutionNode[] = [];
 self.onmessage = function (
   event: MessageEvent<
-    { buffer: string } | { executionId: string; initialNodes: ExecutionNode[] }
+    { buffer: string } | { goal: string; executionId: string }
   >,
 ) {
-  if ("executionId" in event.data && "initialNodes" in event.data) {
+  if ("executionId" in event.data && "goal" in event.data) {
+    goal = event.data.goal;
     executionId = event.data.executionId;
-    initialNodes = event.data.initialNodes;
     return;
   }
 
@@ -52,6 +52,8 @@ self.onmessage = function (
     });
     const yaml = transformWireFormat(
       parse(tokens) as PlanWireFormat,
+      goal,
+      executionId,
     ) as Partial<DraftExecutionGraph>;
     if (yaml && yaml.nodes && yaml.nodes.length > 0) {
       const optDag = yaml;
@@ -68,17 +70,12 @@ self.onmessage = function (
         (n) => n.sId.length >= 3 && n.tId.length >= 3, // bit of a hack to check if id is of shape "1-0", may break for multi digit
       );
 
-      const hookupEdges = generateHookupEdges(
-        { executionId: optDag.executionId || "", nodes, edges },
-        executionId,
+      const partialDAG = hookRootUpToServerGraph(
+        { executionId, nodes: validNodes, edges: validEdges },
         rootPlanId,
-      );
-
-      const partialDAG: DraftExecutionGraph = {
         executionId,
-        nodes: [...initialNodes, ...validNodes],
-        edges: [...hookupEdges, ...validEdges],
-      };
+        goal,
+      );
       dag = partialDAG;
     } else {
       dag = null;

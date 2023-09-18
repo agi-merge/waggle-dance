@@ -26,6 +26,7 @@ export default async function PlanStream(req: NextRequest) {
   console.debug("plan request");
   const abortController = new AbortController();
   let planResult: string | Error | undefined;
+  let goal: string | undefined;
   let goalId: string | undefined;
   let executionId: string | undefined;
   let resolveStreamEnded: () => void;
@@ -158,9 +159,11 @@ export default async function PlanStream(req: NextRequest) {
       await streamEndedPromise;
 
       try {
-        if (goalId && executionId && typeof planResult === "string") {
+        if (goal && goalId && executionId && typeof planResult === "string") {
           const graph = transformWireFormat(
             parse(planResult) as PlanWireFormat,
+            goal,
+            executionId,
           );
           await updateExecution(
             {
