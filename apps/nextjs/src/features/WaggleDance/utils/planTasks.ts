@@ -28,6 +28,8 @@ export type PlanTasksProps = {
   ) => Promise<void>;
 };
 
+const parseWorker = new Worker(new URL("./parseWorker.ts", import.meta.url));
+
 export default async function planTasks({
   goal,
   goalId,
@@ -77,9 +79,6 @@ export default async function planTasks({
     intervalHandler.start(setDAG, goal);
 
     let postMessageCount = 0;
-    const parseWorker = new Worker(
-      new URL("./parseWorker.ts", import.meta.url),
-    );
 
     parseWorker.postMessage({
       goal,
