@@ -91,6 +91,7 @@ class WaggleDanceAgentExecutor {
       }
 
       if (this.abortController.signal.aborted) {
+        this.setError("Canceled");
         console.warn("aborted run");
         break;
       }
