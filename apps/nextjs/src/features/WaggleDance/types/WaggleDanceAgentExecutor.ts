@@ -111,7 +111,7 @@ class WaggleDanceAgentExecutor {
         (node) => node.id != initialNode.id && !this.taskResults[node.id],
       );
 
-      // Select tasks that have source edges that are all done
+      // Select tasks that have source edges that are all done or are dependent on the root node
       const pendingCurrentDagLayerTasks = pendingTasks.filter((task) => {
         if (scheduledTasks.has(task.id)) {
           return false;
@@ -119,11 +119,22 @@ class WaggleDanceAgentExecutor {
         const edgesLeadingToTask = dag.edges.filter(
           (edge) => edge.tId === task.id,
         );
-        return edgesLeadingToTask.length > 0
-          ? edgesLeadingToTask.every(
-              (edge) => this.taskResults[edge.sId]?.status === TaskStatus.done,
-            )
-          : false;
+
+        // Check if task is dependent on root node
+        const isDependentOnRoot = edgesLeadingToTask.some(
+          (edge) => edge.sId === initialNode.id,
+        );
+
+        // If task is dependent on root or all its source edges are done, select it
+        return (
+          isDependentOnRoot ||
+          (edgesLeadingToTask.length > 0
+            ? edgesLeadingToTask.every(
+                (edge) =>
+                  this.taskResults[edge.sId]?.status === TaskStatus.done,
+              )
+            : false)
+        );
       });
 
       const isDonePlanning = this.taskResults[initialNode.id];
