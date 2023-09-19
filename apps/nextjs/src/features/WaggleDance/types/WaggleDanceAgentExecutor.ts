@@ -39,6 +39,7 @@ export type RunParams = {
 class WaggleDanceAgentExecutor {
   private error: Error | null = null;
   private taskResults: Record<string, TaskState> = {};
+  private injectAgentPacket: InjectAgentPacketType;
 
   constructor(
     private agentSettings: AgentSettingsMap,
@@ -47,9 +48,17 @@ class WaggleDanceAgentExecutor {
     private executionId: string,
     private abortController: AbortController,
     private graphDataState: MutableRefObject<GraphDataState>,
-    private injectAgentPacket: InjectAgentPacketType,
+    injectAgentPacket: InjectAgentPacketType,
     private log: LogType,
-  ) {}
+  ) {
+    // proxy so we can catch and set errors to properly break from the loop
+    this.injectAgentPacket = (packet, node) => {
+      if (packet.type === "error" || packet.type === "handleAgentError") {
+        this.setError(packet);
+      }
+      injectAgentPacket(packet, node);
+    };
+  }
 
   async run(): Promise<WaggleDanceResult | Error> {
     this.taskResults = {};
@@ -212,9 +221,7 @@ class WaggleDanceAgentExecutor {
               injectAgentPacket: this.injectAgentPacket,
               log: this.log,
               abortSignal: this.abortController.signal,
-            })
-              .then((result) => this.injectAgentPacket(result, task))
-              .catch((error) => this.setError(error)),
+            }).catch((error) => this.setError(error)),
           };
         } catch (error) {
           this.setError(error);
