@@ -221,7 +221,19 @@ class WaggleDanceAgentExecutor {
               injectAgentPacket: this.injectAgentPacket,
               log: this.log,
               abortSignal: this.abortController.signal,
-            }).catch((error) => this.setError(error)),
+            })
+              .then(
+                (packet) =>
+                  (this.taskResults[task.id] = new TaskState({
+                    ...packet,
+                    packets: [packet],
+                    value: packet,
+                    id: task.id,
+                    nodeId: task.id,
+                    updatedAt: new Date(),
+                  })),
+              )
+              .catch((error) => this.setError(error)),
           };
         } catch (error) {
           this.setError(error);
