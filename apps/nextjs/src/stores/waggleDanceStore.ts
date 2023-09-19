@@ -111,7 +111,9 @@ const useWaggleDanceMachineStore = create(
       storage: createJSONStorage(() => sessionStorage), // alternatively use: localStorage
       partialize: (state: WaggleDanceMachineStore) =>
         Object.fromEntries(
-          Object.entries(state).filter(([key]) => !["isRunning"].includes(key)),
+          Object.entries(state).filter(
+            ([key]) => !["isRunning", "graph"].includes(key),
+          ),
         ) as WaggleDanceMachineStore,
     },
   ),
