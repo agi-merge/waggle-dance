@@ -11,9 +11,12 @@ import {
 
 import { initialNodes, makeServerIdIfNeeded, rootPlanId } from "../../..";
 
-// less straightforward than other plan DAG formats
+type ParentsDescriptor = {
+  parents: number[];
+};
+
 export type PlanWireFormat = {
-  [key: string]: [({ parents: number[] } | DraftExecutionNode)[]];
+  [key: string]: (ParentsDescriptor | DraftExecutionNode)[];
 };
 
 export type OldPlanWireFormat = {
@@ -76,7 +79,7 @@ export const hookRootUpToServerGraph = (
  * Nodes is an array of all nodes, each represented as an object with an id, name, and context.
  * Edges is an array of all edges, each represented as an object with a sId (source node id) and tId (target node id).
  *
- * The function also handles the special case of the criticism node (id 'c'), which depends on all other nodes in the same level.
+ * The function also handles the special case of the criticism node (id 'c'), which all other nodes in the same level have edges targeting.
  *
  * @param newFormat - The plan in the new format.
  * @returns - The plan in the old format.
@@ -86,28 +89,33 @@ export function transformWireFormat(
   goal: string,
   executionId: string,
 ): OldPlanWireFormat {
-  const oldFormat: OldPlanWireFormat = { nodes: [], edges: [] };
+  const oldFormat: OldPlanWireFormat = { nodes: initialNodes(goal), edges: [] };
   const allNodes: { [key: string]: DraftExecutionNode } = {};
   const criticismSuffix = "c";
 
+  // Populate allNodes with initial nodes
+  oldFormat.nodes.forEach((node) => {
+    allNodes[node.id] = node;
+  });
+
   for (const level in newFormat) {
-    const nodes = newFormat[level];
-    const currentLevelNodes: DraftExecutionNode[] = [];
-    for (const item of nodes ?? []) {
-      if ("parents" in item && (item.parents as number[])) {
-        const parentIds = item.parents as number[];
-        for (const parentId of parentIds) {
-          const parentNode = allNodes[`${parentId}-${criticismSuffix}`];
-          if (parentNode) {
-            const newNodeId = `${level}-${parentNode.id}`;
-            oldFormat.edges.push({
-              sId: `${parentId}-${parentNode.id}`,
-              tId: newNodeId,
-            });
-          }
-        }
-      } else {
-        const node = item as unknown as DraftExecutionNode; // ok because parents handled above
+    const nodesAndParents = newFormat[level];
+    if (nodesAndParents) {
+      const currentLevelNodes: DraftExecutionNode[] = [];
+
+      // Separate nodes and parents
+      const nodes = nodesAndParents.filter(
+        (item) =>
+          "id" in item &&
+          item.id.length > 0 &&
+          item.name.length > 0 &&
+          item.context.length > 0,
+      ) as unknown as DraftExecutionNode[];
+      const parentsDescriptor = (nodesAndParents.find(
+        (item) => "parents" in item,
+      ) ?? { parents: [] }) as ParentsDescriptor;
+
+      for (const node of nodes) {
         const newNodeId = `${level}-${node.id}`;
         oldFormat.nodes.push({
           id: newNodeId,
@@ -116,21 +124,36 @@ export function transformWireFormat(
         });
         currentLevelNodes.push(node);
         allNodes[newNodeId] = node;
-      }
-    }
 
-    const criticismNode = currentLevelNodes.find(
-      (node) => node.id === criticismSuffix,
-    );
-    if (criticismNode) {
-      currentLevelNodes.forEach((node) => {
-        if (node.id !== criticismSuffix) {
+        // If the node is not a criticism node and it has no parents, create an edge from the root
+        if (
+          node.id !== criticismSuffix &&
+          parentsDescriptor.parents.length === 0
+        ) {
           oldFormat.edges.push({
-            sId: `${level}-${node.id}`,
-            tId: `${level}-${criticismNode.id}`,
+            sId: rootPlanId,
+            tId: newNodeId,
           });
         }
-      });
+
+        // If the node has parents, create an edge from each parent's criticism node to the current node
+        if (parentsDescriptor.parents.length > 0) {
+          for (const parentLevel of parentsDescriptor.parents) {
+            oldFormat.edges.push({
+              sId: `${parentLevel}-${criticismSuffix}`,
+              tId: newNodeId,
+            });
+          }
+        }
+
+        // If the node is not a criticism node, create an edge from the node to the criticism node of the same level
+        if (node.id !== criticismSuffix) {
+          oldFormat.edges.push({
+            sId: newNodeId,
+            tId: `${level}-${criticismSuffix}`,
+          });
+        }
+      }
     }
   }
 
@@ -140,12 +163,14 @@ export function transformWireFormat(
     context: n.context,
     graphId: n.graphId || null,
   }));
-  const edges: DraftExecutionEdge[] = oldFormat.edges.map((e) => ({
-    id: e.id || null,
-    sId: e.sId,
-    tId: e.tId,
-    graphId: e.graphId || null,
-  }));
+  const edges: DraftExecutionEdge[] = oldFormat.edges
+    .filter((e) => e.sId.length >= 3 && e.tId.length >= 3)
+    .map((e) => ({
+      id: e.id || null,
+      sId: e.sId,
+      tId: e.tId,
+      graphId: e.graphId || null,
+    }));
 
   const mappedOldFormat: DraftExecutionGraph = {
     executionId,
@@ -153,9 +178,7 @@ export function transformWireFormat(
     edges,
   };
 
-  hookRootUpToServerGraph(mappedOldFormat, rootPlanId, executionId, goal);
-
-  return oldFormat;
+  return mappedOldFormat;
 }
 
 // Jest test case

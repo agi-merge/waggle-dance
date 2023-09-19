@@ -5,9 +5,6 @@ import { type DraftExecutionGraph } from "@acme/db";
 
 import {
   AgentPacketFinishedTypes,
-  hookRootUpToServerGraph,
-  makeServerIdIfNeeded,
-  rootPlanId,
   transformWireFormat,
   type AgentPacket,
   type AgentPacketFinishedType,
@@ -54,29 +51,13 @@ self.onmessage = function (
       parse(tokens) as PlanWireFormat,
       goal,
       executionId,
-    ) as Partial<DraftExecutionGraph>;
+    );
     if (yaml && yaml.nodes && yaml.nodes.length > 0) {
-      const optDag = yaml;
-      const nodes = optDag.nodes ?? [];
-      const edges = optDag.edges ?? [];
-      const validNodes = nodes.filter(
-        (n) => n.name.length > 0 && n.id.length > 0 && n.context.length > 0,
-      );
-      validNodes?.forEach(
-        (n) => (n.id = makeServerIdIfNeeded(n.id, executionId)),
-      );
-
-      const validEdges = edges.filter(
-        (n) => n.sId.length >= 3 && n.tId.length >= 3, // bit of a hack to check if id is of shape "1-0", may break for multi digit
-      );
-
-      const partialDAG = hookRootUpToServerGraph(
-        { executionId, nodes: validNodes, edges: validEdges },
-        rootPlanId,
+      dag = {
+        nodes: yaml.nodes,
+        edges: yaml.edges,
         executionId,
-        goal,
-      );
-      dag = partialDAG;
+      };
     } else {
       dag = null;
     }
