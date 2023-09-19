@@ -238,7 +238,7 @@ export default async function ExecuteStream(req: NextRequest) {
       errorPacket = {
         type: "error",
         severity: "fatal",
-        error: new Error(stringify(e)),
+        error: new Error(e),
       };
     } else {
       errorPacket = {
