@@ -57,22 +57,28 @@ class WaggleDanceAgentExecutor {
     void (async () => {
       try {
         const result = await this.planAndSetDAG();
+        debugger;
+        console.debug("done planning");
         if (!result || result.nodes.length === 1) {
           this.setError(new Error("No plan found"));
         }
 
+        const donePacket: AgentPacket = {
+          type: "done",
+          value: `came up with a plan graph with ${
+            result?.nodes.length ?? 0
+          } tasks with ${result?.edges.length ?? 0} interdependencies`,
+        };
+
         this.taskResults[initialNode.id] = new TaskState({
           ...initialNode,
-          packets: [],
-          value: {
-            type: "done",
-            value: `came up with a plan graph with ${
-              result?.nodes.length ?? 0
-            } tasks with ${result?.edges.length ?? 0} interdependencies`,
-          },
+          packets: [donePacket],
+          value: donePacket,
           updatedAt: new Date(),
           nodeId: initialNode.id,
         });
+
+        this.injectAgentPacket(donePacket, initialNode);
       } catch (error) {
         this.setError(error);
       }
@@ -80,13 +86,15 @@ class WaggleDanceAgentExecutor {
 
     while (true) {
       const dag = this.graphDataState.current[0]; // Use the shared state to get the updated dag
-      console.debug("dag", dag);
       if (isGoalReached(dag, this.taskResults)) {
         console.debug("goal is reached");
         break;
       }
       if (this.error) {
         console.error("error", this.error);
+        if (!this.abortController.signal.aborted) {
+          this.abortController.abort();
+        }
         break;
       }
 
