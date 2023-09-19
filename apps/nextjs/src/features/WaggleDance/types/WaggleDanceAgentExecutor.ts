@@ -3,6 +3,7 @@ import { type MutableRefObject } from "react";
 import {
   initialNodes,
   TaskState,
+  TaskStatus,
   type AgentPacket,
   type AgentSettingsMap,
 } from "@acme/agent";
@@ -84,6 +85,7 @@ class WaggleDanceAgentExecutor {
       }
     })();
 
+    const scheduledTasks = new Set<string>();
     while (true) {
       const dag = this.graphDataState.current[0]; // Use the shared state to get the updated dag
       if (isGoalReached(dag, this.taskResults)) {
@@ -109,12 +111,20 @@ class WaggleDanceAgentExecutor {
         (node) => node.id != initialNode.id && !this.taskResults[node.id],
       );
 
-      // Logic to filter tasks for the current layer
-      const pendingCurrentDagLayerTasks = pendingTasks.filter((task) =>
-        dag.edges
-          .filter((edge) => edge.tId === task.id)
-          .every((edge) => this.taskResults[edge.sId]),
-      );
+      // Select tasks that have source edges that are all done
+      const pendingCurrentDagLayerTasks = pendingTasks.filter((task) => {
+        if (scheduledTasks.has(task.id)) {
+          return false;
+        }
+        const edgesLeadingToTask = dag.edges.filter(
+          (edge) => edge.tId === task.id,
+        );
+        return edgesLeadingToTask.length > 0
+          ? edgesLeadingToTask.every(
+              (edge) => this.taskResults[edge.sId]?.status === TaskStatus.done,
+            )
+          : false;
+      });
 
       const isDonePlanning = this.taskResults[initialNode.id];
 
@@ -130,7 +140,7 @@ class WaggleDanceAgentExecutor {
           );
           await sleep(100);
         } else {
-          await this.executeTasks(pendingCurrentDagLayerTasks, dag);
+          this.executeTasks(pendingCurrentDagLayerTasks, dag, scheduledTasks);
         }
       }
     }
@@ -160,11 +170,14 @@ class WaggleDanceAgentExecutor {
     return null;
   }
 
-  async executeTasks(
+  executeTasks(
     tasks: Array<DraftExecutionNode>,
     dag: DraftExecutionGraph,
-  ): Promise<void> {
-    for (const task of tasks) {
+    scheduledTasks: Set<string>,
+  ) {
+    const revieweeTaskResults = Object.values(this.taskResults);
+    const startedTaskIds = new Set<string>();
+    const tasksPromisesAndIds = tasks.map((task) => {
       if (!this.abortController.signal.aborted) {
         try {
           const creationProps = mapAgentSettingsToCreationProps(
@@ -178,24 +191,31 @@ class WaggleDanceAgentExecutor {
               this.agentSettings["execute"].agentPromptingMethod!,
             task,
             dag,
-            revieweeTaskResults: Object.values(this.taskResults),
+            revieweeTaskResults,
             creationProps,
           };
-          const result = await executeTask({
-            request: executeRequest,
-            injectAgentPacket: this.injectAgentPacket,
-            log: this.log,
-            abortSignal: this.abortController.signal,
-          });
-
-          this.injectAgentPacket(result, task);
+          scheduledTasks.add(task.id);
+          return {
+            id: task.id,
+            promise: executeTask({
+              request: executeRequest,
+              injectAgentPacket: this.injectAgentPacket,
+              log: this.log,
+              abortSignal: this.abortController.signal,
+            })
+              .then((result) => this.injectAgentPacket(result, task))
+              .catch((error) => this.setError(error)),
+          };
         } catch (error) {
           this.setError(error);
         }
       } else {
         console.warn("aborted executeTasks");
       }
-    }
+    });
+
+    void Promise.all(tasksPromisesAndIds.map((t) => t?.promise));
+    return startedTaskIds;
   }
 
   private setError(error: unknown) {
