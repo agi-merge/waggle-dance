@@ -123,6 +123,11 @@ const WaggleDance = ({}: Props) => {
     },
   });
 
+  // when exe changes, be sure to reset!
+  useEffect(() => {
+    reset();
+  }, [execution?.id, reset]);
+
   const handleStart = useCallback(() => {
     if (!isRunning) {
       if (selectedGoal) {
