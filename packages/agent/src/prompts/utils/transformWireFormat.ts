@@ -56,9 +56,6 @@ export const hookRootUpToServerGraph = (
   executionId: string,
   goal: string,
 ) => {
-  if (graph.executionId != executionId) {
-    debugger;
-  }
   const hookupEdges = edgesToHookupToRootNode(graph, executionId, rootPlanId);
   const graphWithRoot = {
     ...graph,

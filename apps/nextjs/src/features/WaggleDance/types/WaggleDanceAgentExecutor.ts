@@ -58,7 +58,6 @@ class WaggleDanceAgentExecutor {
     void (async () => {
       try {
         const result = await this.planAndSetDAG();
-        debugger;
         console.debug("done planning");
         if (!result || result.nodes.length === 1) {
           this.setError(new Error("No plan found"));
