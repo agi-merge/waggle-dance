@@ -76,9 +76,9 @@ class WaggleDanceAgentExecutor {
 
         const donePacket: AgentPacket = {
           type: "done",
-          value: `came up with a plan graph with ${
+          value: `Achieved a ${this.calculateSpeedupFactor()}x speed-up by planning ${
             result?.nodes.length ?? 0
-          } tasks with ${result?.edges.length ?? 0} interdependencies`,
+          } tasks with ${result?.edges.length ?? 0} task relationships.`,
         };
 
         this.taskResults[initialNode.id] = new TaskState({
@@ -252,6 +252,33 @@ class WaggleDanceAgentExecutor {
   private setError(error: unknown) {
     this.error =
       error instanceof Error ? error : new Error(`Unknown error: ${error}`);
+  }
+  private calculateCriticalPathLength(): number {
+    const graph = this.graphDataState.current[0];
+    let maxPathLength = 0;
+    const nodePathLength = new Map<string, number>();
+
+    for (const node of graph.nodes) {
+      nodePathLength.set(node.id || "", 0);
+    }
+
+    for (const edge of graph.edges) {
+      const sourcePathLength = nodePathLength.get(edge.sId) || 0;
+      const targetPathLength = nodePathLength.get(edge.tId) || 0;
+
+      if (sourcePathLength + 1 > targetPathLength) {
+        nodePathLength.set(edge.tId, sourcePathLength + 1);
+        maxPathLength = Math.max(maxPathLength, sourcePathLength + 1);
+      }
+    }
+
+    return maxPathLength;
+  }
+
+  private calculateSpeedupFactor(): number {
+    const totalTasks = this.graphDataState.current[0].nodes.length;
+    const speedupFactor = totalTasks / this.calculateCriticalPathLength();
+    return Math.round(speedupFactor * 100) / 100; // Round to 2 decimal places
   }
 }
 
