@@ -2,7 +2,7 @@ import { type NextRequest } from "next/server";
 import { BaseCallbackHandler } from "langchain/callbacks";
 import { type Serialized } from "langchain/load/serializable";
 import { type AgentAction, type AgentFinish } from "langchain/schema";
-import { stringify } from "yaml";
+import { parse, stringify } from "yaml";
 
 import { getBaseUrl } from "@acme/api/utils";
 import { type DraftExecutionNode, type ExecutionState } from "@acme/db";
@@ -69,7 +69,8 @@ export default async function ExecuteStream(req: NextRequest) {
             ): void | Promise<void> {
               const packet: AgentPacket = {
                 type: "handleLLMError",
-                err,
+                // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
+                err: parse(stringify(err, Object.getOwnPropertyNames(err))),
               };
               controller.enqueue(encoder.encode(stringify([packet])));
               packets.push(packet);
@@ -82,9 +83,14 @@ export default async function ExecuteStream(req: NextRequest) {
             ): void | Promise<void> {
               const packet: AgentPacket = {
                 type: "handleChainError",
-                err,
+                // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
+                err: parse(stringify(err, Object.getOwnPropertyNames(err))),
               };
-              controller.enqueue(encoder.encode(stringify([packet])));
+              controller.enqueue(
+                encoder.encode(
+                  stringify([packet], Object.getOwnPropertyNames(err)),
+                ),
+              );
               packets.push(packet);
               console.error("handleChainError", packet);
             },
@@ -109,7 +115,8 @@ export default async function ExecuteStream(req: NextRequest) {
             ): void | Promise<void> {
               const packet: AgentPacket = {
                 type: "handleToolError",
-                err,
+                // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
+                err: parse(stringify(err, Object.getOwnPropertyNames(err))),
               };
               controller.enqueue(encoder.encode(stringify([packet])));
               packets.push(packet);
@@ -141,7 +148,8 @@ export default async function ExecuteStream(req: NextRequest) {
             ) {
               const packet: AgentPacket = {
                 type: "handleRetrieverError",
-                err,
+                // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
+                err: parse(stringify(err, Object.getOwnPropertyNames(err))),
               };
               controller.enqueue(encoder.encode(stringify([packet])));
               packets.push(packet);

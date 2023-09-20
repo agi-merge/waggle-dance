@@ -61,7 +61,8 @@ export default async function PlanStream(req: NextRequest) {
           ) {
             const packet: AgentPacket = {
               type: "handleChainError",
-              err: err,
+              // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
+              err: parse(stringify(err, Object.getOwnPropertyNames(err))),
             };
             controller.enqueue(encoder.encode(stringify([packet])));
             console.debug("handleChainError", packet);
@@ -74,7 +75,8 @@ export default async function PlanStream(req: NextRequest) {
           ): void | Promise<void> {
             const packet: AgentPacket = {
               type: "handleLLMError",
-              err: err,
+              // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
+              err: parse(stringify(err, Object.getOwnPropertyNames(err))),
             };
             controller.enqueue(encoder.encode(stringify([packet])));
             console.debug("handleLLMError", packet);
