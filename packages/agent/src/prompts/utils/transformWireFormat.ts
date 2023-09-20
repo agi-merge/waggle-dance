@@ -10,6 +10,7 @@ import {
 } from "@acme/db";
 
 import { initialNodes, makeServerIdIfNeeded, rootPlanId } from "../../..";
+import { criticismSuffix } from "../types";
 
 type ParentsDescriptor = {
   parents: number[];
@@ -88,7 +89,6 @@ export function transformWireFormat(
 ): OldPlanWireFormat {
   const oldFormat: OldPlanWireFormat = { nodes: initialNodes(goal), edges: [] };
   const allNodes: { [key: string]: DraftExecutionNode } = {};
-  const criticismSuffix = "c";
 
   // Populate allNodes with initial nodes
   oldFormat.nodes.forEach((node) => {

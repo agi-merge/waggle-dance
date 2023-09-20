@@ -15,5 +15,5 @@ export interface PromptParams {
 
 export const criticismSuffix = "c";
 export function isTaskCriticism(id: string) {
-  return id === criticismSuffix;
+  return id.endsWith(criticismSuffix);
 }
