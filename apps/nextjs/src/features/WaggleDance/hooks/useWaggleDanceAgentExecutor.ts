@@ -234,7 +234,7 @@ const useWaggleDanceAgentExecutor = () => {
       goal?.prompt ?? "",
     );
     setAgentPackets({});
-  }, [execution?.graph, execution?.id, goal?.prompt, setGraph]);
+  }, [execution?.id, goal?.prompt, setGraph]);
 
   const [graphData, setGraphData] = useState<GraphData>({
     nodes: [],
