@@ -30,9 +30,9 @@ TASK: Review REVIEWEE OUTPUT of REVIEWEE TASK using the SCHEMA.
   const systemMessagePrompt =
     SystemMessagePromptTemplate.fromTemplate(systemTemplate);
 
-  const tasksAsHumanMessages = Object.entries(revieweeTaskResults)
+  const tasksAsHumanMessages = revieweeTaskResults
     .map((task, i) => {
-      const node = task[1].node(nodes);
+      const node = task.node(nodes);
       return node
         ? HumanMessagePromptTemplate.fromTemplate(
             `REVIEWEE TASK${i > 0 ? ` ${i}` : ""}:
@@ -41,8 +41,8 @@ context: ${node.context}
 REVIEWEE OUTPUT:
 ${
   returnType === "JSON"
-    ? jsonStringify(task[1].packets)
-    : yamlStringify(task[1].packets)
+    ? jsonStringify(task.packets)
+    : yamlStringify(task.packets)
 }`,
           )
         : undefined;
