@@ -197,53 +197,53 @@ class WaggleDanceAgentExecutor {
     const revieweeTaskResults = Object.values(this.taskResults);
     const startedTaskIds = new Set<string>();
     const tasksPromisesAndIds = tasks.map((task) => {
-      if (!this.abortController.signal.aborted) {
-        try {
-          const creationProps = mapAgentSettingsToCreationProps(
-            this.agentSettings["execute"],
-          );
-          const executeRequest = {
-            goal: this.goal,
-            goalId: this.goalId,
-            executionId: this.executionId,
-            agentPromptingMethod:
-              this.agentSettings["execute"].agentPromptingMethod!,
-            task,
-            dag,
-            revieweeTaskResults,
-            creationProps,
-          };
-          scheduledTasks.add(task.id);
-          return {
-            id: task.id,
-            promise: executeTask({
-              request: executeRequest,
-              injectAgentPacket: this.injectAgentPacket,
-              log: this.log,
-              abortSignal: this.abortController.signal,
-            })
-              .then(
-                (packet) =>
-                  (this.taskResults[task.id] = new TaskState({
-                    ...packet,
-                    packets: [packet],
-                    value: packet,
-                    id: task.id,
-                    nodeId: task.id,
-                    updatedAt: new Date(),
-                  })),
-              )
-              .catch((error) => this.setError(error)),
-          };
-        } catch (error) {
-          this.setError(error);
-        }
-      } else {
-        console.warn("aborted executeTasks");
-      }
+      const creationProps = mapAgentSettingsToCreationProps(
+        this.agentSettings["execute"],
+      );
+      const executeRequest = {
+        goal: this.goal,
+        goalId: this.goalId,
+        executionId: this.executionId,
+        agentPromptingMethod:
+          this.agentSettings["execute"].agentPromptingMethod!,
+        task,
+        dag,
+        revieweeTaskResults,
+        creationProps,
+      };
+      scheduledTasks.add(task.id);
+      return {
+        id: task.id,
+        promise: executeTask({
+          request: executeRequest,
+          injectAgentPacket: this.injectAgentPacket,
+          log: this.log,
+          abortSignal: this.abortController.signal,
+        }),
+      };
     });
 
-    void Promise.all(tasksPromisesAndIds.map((t) => t?.promise));
+    void (async () => {
+      try {
+        const taskResults = await Promise.all(
+          tasksPromisesAndIds.map((t) => t.promise),
+        );
+
+        taskResults.forEach((packet, i) => {
+          const task = tasks[i]!;
+          this.taskResults[task.id] = new TaskState({
+            ...task,
+            packets: [packet],
+            value: packet,
+            nodeId: task.id,
+            updatedAt: new Date(),
+          });
+        });
+      } catch (error) {
+        this.setError(error);
+      }
+    })();
+    // void Promise.all(tasksPromisesAndIds.map((t) => t?.promise));
     return startedTaskIds;
   }
 
