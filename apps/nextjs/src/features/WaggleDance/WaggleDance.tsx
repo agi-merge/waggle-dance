@@ -218,10 +218,6 @@ const WaggleDance = ({}: Props) => {
     }
   };
 
-  const progressPercent = useMemo(() => {
-    return (results.length / agentPackets.length) * 100;
-  }, [results.length, agentPackets.length]);
-
   const notIdleTasks = useMemo(() => {
     return sortedTaskStates.filter((s) => s.status !== TaskStatus.idle).length;
   }, [sortedTaskStates]);
@@ -238,11 +234,16 @@ const WaggleDance = ({}: Props) => {
         s.status === TaskStatus.wait,
     ).length;
   }, [agentPackets]);
+
   const done = useMemo(() => {
     return sortedTaskStates.filter(
       (t) => t.status === TaskStatus.done || t.status === TaskStatus.error,
     );
   }, [sortedTaskStates]);
+
+  const progressPercent = useMemo(() => {
+    return (done.length / sortedTaskStates.length - notIdleTasks) * 100;
+  }, [done.length, sortedTaskStates.length, notIdleTasks]);
 
   const progressLabel = useMemo(() => {
     return `# Tasks in progress: ${inProgressLength}, done: ${

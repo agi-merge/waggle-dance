@@ -13,11 +13,7 @@ import { parse } from "yaml";
 
 import { type DraftExecutionGraph } from "@acme/db";
 
-import {
-  createCriticizePrompt,
-  createExecutePrompt,
-  type TaskState,
-} from "../..";
+import { createCriticizePrompt, createExecutePrompt, TaskState } from "../..";
 import { isTaskCriticism } from "../prompts/types";
 import {
   getAgentPromptingMethodValue,
@@ -53,7 +49,7 @@ export async function callExecutionAgent(creation: {
     agentPromptingMethod,
     task,
     dag,
-    revieweeTaskResults,
+    revieweeTaskResults: revieweeTaskResultsNeedDeserialization,
     abortSignal,
     namespace,
     contentType,
@@ -65,14 +61,15 @@ export async function callExecutionAgent(creation: {
   const taskObj = parse(task) as { id: string };
   const isReview = isTaskCriticism(taskObj.id);
   const returnType = contentType === "application/json" ? "JSON" : "YAML";
-  if (isReview && !revieweeTaskResults)
+  // methods need to be reattached
+  const revieweeTaskResults = revieweeTaskResultsNeedDeserialization.map(
+    (t) => new TaskState({ ...t }),
+  );
+
+  if (isReview && !revieweeTaskResults) {
     throw new Error("No result found to provide to review task");
-  // const params = {
-  //   goal,
-  //   task,
-  //   result,
-  //   returnType,
-  // } as const;
+  }
+
   const nodes = (parse(dag) as DraftExecutionGraph).nodes;
   const prompt = isReview
     ? createCriticizePrompt({
