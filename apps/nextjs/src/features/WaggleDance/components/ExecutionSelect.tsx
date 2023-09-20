@@ -12,12 +12,11 @@ import Stack from "@mui/joy/Stack";
 import Tooltip from "@mui/joy/Tooltip";
 import Typography from "@mui/joy/Typography";
 
+import { rootPlanId } from "@acme/agent";
 import { type ExecutionPlusGraph } from "@acme/db";
 
 import routes from "~/utils/routes";
 import useWaggleDanceMachineStore from "~/stores/waggleDanceStore";
-import type DAG from "../types/DAG";
-import { rootPlanId } from "../types/initialNodes";
 import timeAgo from "../utils/timeAgo";
 
 type ExecutionSelectProps = BoxProps & {
@@ -38,7 +37,7 @@ export const ExecutionSelect = ({
   const names = useMemo(() => {
     return executions?.map((e) => {
       // Cast the graph unsafely to DAG and get the nodes
-      const nodes = (e?.graph as unknown as DAG)?.nodes || [];
+      const nodes = e?.graph?.nodes || [];
 
       // Use reduce to build the names string
       return nodes.reduce((acc, node) => {
@@ -73,6 +72,37 @@ export const ExecutionSelect = ({
             className="flex flex-shrink content-center items-center text-left"
             sx={{ overflowX: "clip", maxWidth: "50vw" }}
           >
+            <Box
+              sx={{ ml: "auto", mr: "0.25rem", minWidth: "fit-content" }}
+              component={Stack}
+              direction="row"
+            >
+              <Chip
+                size="sm"
+                variant="solid"
+                color="neutral"
+                sx={{
+                  borderRadius: "2px",
+                  fontSize: { xs: "6pt", sm: "sm" },
+                  paddingX: { xs: "0.1rem", sm: "0.25rem" },
+                }}
+              >
+                {timeAgo(execution.updatedAt)}
+              </Chip>
+              <Chip
+                size="sm"
+                variant="outlined"
+                color={colors[execution.state]}
+                sx={{
+                  borderRadius: "2px",
+                  fontSize: { xs: "6pt", sm: "sm" },
+                  bgcolor: `${colors[execution.state]}.softBg`,
+                  paddingX: { xs: "0.1rem", sm: "0.25rem" },
+                }}
+              >
+                {execution.state}
+              </Chip>
+            </Box>
             {names?.length && names[i] && (
               <Tooltip
                 title={names && names[i]}
@@ -108,37 +138,6 @@ export const ExecutionSelect = ({
                   `id:${executions[i]!.id.slice(-4)}`}
               </Typography>
             </Typography>
-          </Box>
-          <Box
-            sx={{ ml: "auto", minWidth: "fit-content" }}
-            component={Stack}
-            direction="row"
-          >
-            <Chip
-              size="sm"
-              variant="solid"
-              color="neutral"
-              sx={{
-                borderRadius: "2px",
-                fontSize: { xs: "6pt", sm: "sm" },
-                paddingX: { xs: "0.1rem", sm: "0.25rem" },
-              }}
-            >
-              {timeAgo(execution.updatedAt)}
-            </Chip>
-            <Chip
-              size="sm"
-              variant="outlined"
-              color={colors[execution.state]}
-              sx={{
-                borderRadius: "2px",
-                fontSize: { xs: "6pt", sm: "sm" },
-                bgcolor: `${colors[execution.state]}.softBg`,
-                paddingX: { xs: "0.1rem", sm: "0.25rem" },
-              }}
-            >
-              {execution.state}
-            </Chip>
           </Box>
         </>
       );

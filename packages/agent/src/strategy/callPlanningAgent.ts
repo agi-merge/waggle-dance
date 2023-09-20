@@ -4,11 +4,11 @@ import { LLMChain } from "langchain/chains";
 import { parse as jsonParse, stringify as jsonStringify } from "superjson";
 import { parse as yamlParse, stringify as yamlStringify } from "yaml";
 
+import { type PlanWireFormat } from "../..";
 import {
   createPlanFormattingPrompt,
   createPlanPrompt,
 } from "../prompts/createPlanPrompt";
-import { type DAGNode } from "../prompts/types/DAGNode";
 import { AgentPromptingMethod, LLM, LLM_ALIASES } from "../utils/llms";
 import { createEmbeddings, createModel } from "../utils/model";
 import { type ModelCreationProps } from "../utils/OpenAIPropsBridging";
@@ -91,10 +91,7 @@ export async function callPlanningAgent(
       const parsedDAG =
         returnType === "JSON"
           ? jsonParse(response)
-          : (yamlParse(response) as
-              | { nodes: DAGNode[]; edges: DAGNode[] }
-              | null
-              | undefined);
+          : (yamlParse(response) as PlanWireFormat | null | undefined);
 
       return parsedDAG ? response : stringError;
     } catch (error) {

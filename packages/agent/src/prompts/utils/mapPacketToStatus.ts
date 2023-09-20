@@ -17,7 +17,7 @@ export const mapPacketTypeToStatus = (
     case "handleAgentError":
       return TaskStatus.error;
     case "working":
-    case "token":
+    case "t":
     case "handleLLMStart":
     case "handleChainStart":
     case "handleToolStart":

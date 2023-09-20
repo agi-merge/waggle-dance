@@ -2,6 +2,7 @@
 
 import { type NextApiRequest, type NextApiResponse } from "next";
 
+import { type OldPlanWireFormat } from "@acme/agent";
 import { appRouter } from "@acme/api";
 import { getServerSession, type Session } from "@acme/auth";
 import {
@@ -9,7 +10,6 @@ import {
   prisma,
   type Execution,
   type ExecutionGraph,
-  type ExecutionNode,
 } from "@acme/db";
 
 export const config = {
@@ -19,8 +19,7 @@ export const config = {
 export type UpdateGraphParams = {
   goalId: string;
   executionId: string;
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  graph: { nodes: any[]; edges: any[] } | null;
+  graph: OldPlanWireFormat | null;
   session?: Session | null;
 };
 
@@ -47,25 +46,24 @@ async function updateGraph({
   executionId,
   graph,
   session,
-}: UpdateGraphParams): Promise<(ExecutionGraph | ExecutionNode)[] | Execution> {
-  if (session?.user.id) {
-    const caller = appRouter.createCaller({ session, prisma });
-    if (graph == null) {
-      const updated = await caller.execution.updateState({
-        state: ExecutionState.ERROR,
-        executionId,
-      });
-      console.warn("updated exe state to error", updated);
-      return updated;
-    } else {
-      const updated = await caller.execution.updateGraph({
-        executionId,
-        graph,
-      });
-      console.debug("updated exe graph", updated);
-      return updated;
-    }
+}: UpdateGraphParams): Promise<ExecutionGraph | Execution> {
+  const caller = appRouter.createCaller({ session: session || null, prisma });
+  if (graph == null) {
+    const updated = await caller.execution.updateState({
+      state: ExecutionState.ERROR,
+      executionId,
+    });
+    console.warn("updated exe state to error", updated);
+    return updated;
   } else {
-    throw new Error("no user id");
+    if (graph.nodes.length < 1) {
+      throw new Error("no nodes planned");
+    }
+    const updated = await caller.execution.updateGraph({
+      executionId,
+      graph,
+    });
+    console.debug("updated exe graph", updated);
+    return updated;
   }
 }

@@ -2,10 +2,16 @@
 
 import { type NextApiRequest, type NextApiResponse } from "next";
 
-import { type AgentPacket, type DAGNode } from "@acme/agent";
+import { type AgentPacket } from "@acme/agent";
 import { appRouter } from "@acme/api";
 import { getServerSession, type Session } from "@acme/auth";
-import { prisma, type ExecutionState, type Result } from "@acme/db";
+import {
+  prisma,
+  type DraftExecutionNode,
+  type Execution,
+  type ExecutionState,
+  type Result,
+} from "@acme/db";
 
 export const config = {
   runtime: "nodejs",
@@ -13,7 +19,7 @@ export const config = {
 
 export type CreateResultParams = {
   goalId: string;
-  node: DAGNode;
+  node: DraftExecutionNode;
   executionId: string;
   packet: AgentPacket;
   packets: AgentPacket[];
@@ -33,6 +39,7 @@ export default async function createResultProxy(
     params["session"] = session;
 
     const result = await createResult(params);
+    console.debug("createResult result", result);
     res.status(200).json(result);
   } catch (error) {
     console.error("createResult error", error);
@@ -42,14 +49,9 @@ export default async function createResultProxy(
 
 async function createResult(
   createResultOptions: CreateResultParams,
-): Promise<Result> {
+): Promise<[Result, Execution]> {
   const { session } = createResultOptions;
-  if (session?.user.id) {
-    const caller = appRouter.createCaller({ session, prisma });
-    const createResult = await caller.result.create(createResultOptions);
-    console.debug("createResult", createResult);
-    return createResult;
-  } else {
-    throw new Error("no user id");
-  }
+  const caller = appRouter.createCaller({ session: session || null, prisma });
+  const createResult = caller.result.create(createResultOptions);
+  return createResult;
 }

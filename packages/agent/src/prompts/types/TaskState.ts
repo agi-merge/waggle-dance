@@ -1,10 +1,10 @@
-import { type Result } from "@acme/db";
+import { type DraftExecutionNode, type Result } from "@acme/db";
 
 import { type AgentPacket } from "../../..";
 import { mapPacketTypeToStatus } from "../utils/mapPacketToStatus";
-import { type DAGNode } from "./DAGNode";
 import { type TaskStatus } from "./TaskStatus";
 
+// Wrapper of Result that adds some useful methods
 export class TaskState implements EnhancedResponse {
   id: string;
   packets: AgentPacket[];
@@ -25,8 +25,17 @@ export class TaskState implements EnhancedResponse {
     return mapPacketTypeToStatus(this.value.type);
   }
 
-  node(nodes: DAGNode[]): DAGNode | undefined {
-    return nodes.find((n) => n.id === this.nodeId);
+  node(nodes: DraftExecutionNode[]): DraftExecutionNode | undefined {
+    return nodes.find((n) => n.id === this.nodeId || n.id === this.displayId());
+  }
+
+  displayId(): string {
+    const executionSplit = this.nodeId.split(".")[1];
+    if (!executionSplit) {
+      return this.id;
+    } else {
+      return executionSplit;
+    }
   }
 }
 

@@ -2,16 +2,15 @@ import { type NextRequest } from "next/server";
 import { BaseCallbackHandler } from "langchain/callbacks";
 import { type Serialized } from "langchain/load/serializable";
 import { type AgentAction, type AgentFinish } from "langchain/schema";
-import { stringify } from "yaml";
+import { parse, stringify } from "yaml";
 
 import { getBaseUrl } from "@acme/api/utils";
-import { type ExecutionState } from "@acme/db";
+import { type DraftExecutionNode, type ExecutionState } from "@acme/db";
 
 import { type ExecuteRequestBody } from "~/features/WaggleDance/types/types";
 import {
   callExecutionAgent,
   type AgentPacket,
-  type DAGNode,
 } from "../../../../../../packages/agent";
 import { type CreateResultParams } from "../result";
 
@@ -36,7 +35,7 @@ export default async function ExecuteStream(req: NextRequest) {
     rejectStreamEnded = reject;
   });
   const abortController = new AbortController();
-  let node: DAGNode | undefined;
+  let node: DraftExecutionNode | undefined;
   const packets: AgentPacket[] = [];
   try {
     const {
@@ -68,15 +67,10 @@ export default async function ExecuteStream(req: NextRequest) {
               _runId: string,
               _parentRunId?: string | undefined,
             ): void | Promise<void> {
-              let errorMessage = "";
-              if (err instanceof Error) {
-                errorMessage = err.message;
-              } else {
-                errorMessage = stringify(err);
-              }
               const packet: AgentPacket = {
                 type: "handleLLMError",
-                err: errorMessage,
+                // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
+                err: parse(stringify(err, Object.getOwnPropertyNames(err))),
               };
               controller.enqueue(encoder.encode(stringify([packet])));
               packets.push(packet);
@@ -87,17 +81,16 @@ export default async function ExecuteStream(req: NextRequest) {
               _runId: string,
               _parentRunId?: string | undefined,
             ): void | Promise<void> {
-              let errorMessage = "";
-              if (err instanceof Error) {
-                errorMessage = err.message;
-              } else {
-                errorMessage = stringify(err);
-              }
               const packet: AgentPacket = {
                 type: "handleChainError",
-                err: errorMessage,
+                // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
+                err: parse(stringify(err, Object.getOwnPropertyNames(err))),
               };
-              controller.enqueue(encoder.encode(stringify([packet])));
+              controller.enqueue(
+                encoder.encode(
+                  stringify([packet], Object.getOwnPropertyNames(err)),
+                ),
+              );
               packets.push(packet);
               console.error("handleChainError", packet);
             },
@@ -120,15 +113,10 @@ export default async function ExecuteStream(req: NextRequest) {
               _runId: string,
               _parentRunId?: string | undefined,
             ): void | Promise<void> {
-              let errorMessage = "";
-              if (err instanceof Error) {
-                errorMessage = err.message;
-              } else {
-                errorMessage = stringify(err);
-              }
               const packet: AgentPacket = {
                 type: "handleToolError",
-                err: errorMessage,
+                // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
+                err: parse(stringify(err, Object.getOwnPropertyNames(err))),
               };
               controller.enqueue(encoder.encode(stringify([packet])));
               packets.push(packet);
@@ -158,15 +146,10 @@ export default async function ExecuteStream(req: NextRequest) {
               _parentRunId?: string,
               _tags?: string[],
             ) {
-              let errorMessage = "";
-              if (err instanceof Error) {
-                errorMessage = err.message;
-              } else {
-                errorMessage = stringify(err);
-              }
               const packet: AgentPacket = {
                 type: "handleRetrieverError",
-                err: errorMessage,
+                // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
+                err: parse(stringify(err, Object.getOwnPropertyNames(err))),
               };
               controller.enqueue(encoder.encode(stringify([packet])));
               packets.push(packet);
@@ -220,7 +203,7 @@ export default async function ExecuteStream(req: NextRequest) {
           packet = {
             type: "error",
             severity: "fatal",
-            message: exeResult.message,
+            error: exeResult,
           };
         } else {
           state =
@@ -230,9 +213,7 @@ export default async function ExecuteStream(req: NextRequest) {
           packet = { type: "done", value: exeResult };
         }
         executionResult = { packet, state: state as ExecutionState };
-        controller.enqueue(
-          encoder.encode(stringify([encoder.encode(stringify(packet))])),
-        );
+        controller.enqueue(encoder.encode(stringify([packet])));
         resolveStreamEnded();
         controller.close();
       },
@@ -252,26 +233,36 @@ export default async function ExecuteStream(req: NextRequest) {
       },
     });
   } catch (e) {
-    let message;
-    let status: number;
-    let stack;
+    let errorPacket: AgentPacket;
     if (e instanceof Error) {
-      message = e.message;
-      status = 500;
-      stack = e.stack;
+      errorPacket = {
+        type: "error",
+        severity: "fatal",
+        error: e,
+      };
+    } else if (e as AgentPacket) {
+      errorPacket = e as AgentPacket;
+    } else if (typeof e === "string") {
+      errorPacket = {
+        type: "error",
+        severity: "fatal",
+        error: new Error(e),
+      };
     } else {
-      message = String(e);
-      status = 500;
-      stack = "";
+      errorPacket = {
+        type: "error",
+        severity: "fatal",
+        error: new Error(stringify(e)),
+      };
+    }
+    executionResult = { packet: errorPacket, state: "ERROR" };
+    console.error("plan error", e);
+
+    let status = 500;
+    if (e as { status: number }) {
+      status = (e as { status: number }).status;
     }
 
-    const all = { stack, message, status };
-    console.error("execute error", all);
-    const errorPacket: AgentPacket = {
-      type: "error",
-      severity: "fatal",
-      message: stringify(all),
-    };
     return new Response(stringify([errorPacket]), {
       headers: {
         "Content-Type": "application/yaml",
@@ -297,7 +288,7 @@ export default async function ExecuteStream(req: NextRequest) {
           node,
           executionId,
           packet,
-          packets: packets,
+          packets,
           state,
         };
         response = await fetch(`${getBaseUrl()}/api/result`, {
@@ -323,7 +314,7 @@ export default async function ExecuteStream(req: NextRequest) {
         const errorPacket: AgentPacket = {
           type: "error",
           severity: "fatal",
-          message: stringify(error),
+          error,
         };
         return new Response(stringify([errorPacket]), {
           headers: {

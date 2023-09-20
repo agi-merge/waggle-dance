@@ -1,19 +1,17 @@
 import { z } from "zod";
 
+import { makeServerIdIfNeeded } from "@acme/agent";
 import {
   ExecutionState,
-  type ExecutionEdge,
-  type ExecutionGraph,
-  type ExecutionNode,
-  type PrismaPromise,
+  type DraftExecutionEdge,
+  type DraftExecutionNode,
 } from "@acme/db";
 
 import { createTRPCRouter, protectedProcedure } from "../trpc";
-import { type TRPCExecutionNode } from "./result";
 
 export const dagShape = z.object({
-  nodes: z.array(z.custom<TRPCExecutionNode>()),
-  edges: z.array(z.custom<Omit<ExecutionEdge, "id"> | ExecutionEdge>()),
+  nodes: z.array(z.custom<DraftExecutionNode>()),
+  edges: z.array(z.custom<DraftExecutionEdge>()),
 });
 
 export const executionRouter = createTRPCRouter({
@@ -44,12 +42,12 @@ export const executionRouter = createTRPCRouter({
                       edges: true,
                     },
                   },
-                },
-              },
-              results: {
-                take: 40,
-                orderBy: {
-                  updatedAt: "desc",
+                  results: {
+                    take: 100,
+                    orderBy: {
+                      updatedAt: "desc",
+                    },
+                  },
                 },
               },
             },
@@ -57,7 +55,6 @@ export const executionRouter = createTRPCRouter({
         },
       });
     }),
-
   updateGraph: protectedProcedure
     .input(
       z.object({
@@ -65,47 +62,35 @@ export const executionRouter = createTRPCRouter({
         graph: dagShape,
       }),
     )
-    .mutation(async ({ ctx, input }) => {
+    .mutation(({ ctx, input }) => {
       const { executionId, graph } = input;
 
-      const existingNodes = await ctx.prisma.executionNode.findMany({
-        where: { graph: { executionId } },
-      });
+      const connectOrCreateNodes = graph.nodes.map((node) => ({
+        where: { id: makeServerIdIfNeeded(node.id, executionId) },
+        create: { ...node, id: makeServerIdIfNeeded(node.id, executionId) },
+      }));
 
-      const operations: PrismaPromise<ExecutionNode>[] = graph.nodes
-        .map((node) => {
-          // Check against the fetched list of existing nodes
-          const existingNode = existingNodes.find((n) => n.id === node.id);
-          if (!existingNode) {
-            return ctx.prisma.executionNode.create({
-              data: {
-                id: node.id,
-                name: node.name,
-                context: node.context,
-                graph: { connect: { executionId: executionId } },
-              },
-            });
-          } else {
-            return null;
-          }
-        })
-        .filter(Boolean) as PrismaPromise<ExecutionNode>[];
+      const createEdges = graph.edges.map((edge) => ({
+        sId: makeServerIdIfNeeded(edge.sId, executionId),
+        tId: makeServerIdIfNeeded(edge.tId, executionId),
+      }));
 
-      const upsert = ctx.prisma.executionGraph.upsert({
-        where: { executionId: executionId },
+      return ctx.prisma.executionGraph.upsert({
+        where: { executionId },
         create: {
-          executionId: executionId,
-          nodes: { createMany: { data: graph.nodes } }, // create empty nodes
-          edges: { createMany: { data: graph.edges } }, // create edges
+          executionId,
+          nodes: {
+            connectOrCreate: connectOrCreateNodes,
+          },
+          edges: { create: createEdges },
         },
-        update: {},
+        update: {
+          nodes: {
+            connectOrCreate: connectOrCreateNodes,
+          },
+          edges: { create: createEdges },
+        },
       });
-      const result: Array<PrismaPromise<ExecutionGraph | ExecutionNode>> = [
-        upsert,
-        ...operations,
-      ];
-
-      return await ctx.prisma.$transaction(result);
     }),
 
   updateState: protectedProcedure

@@ -1,6 +1,7 @@
 import {
   ChatPromptTemplate,
   HumanMessagePromptTemplate,
+  PromptTemplate,
   SystemMessagePromptTemplate,
 } from "langchain/prompts";
 
@@ -9,23 +10,28 @@ import { executeSchema } from "./schemas/executeSchema";
 
 export function createExecutePrompt(params: {
   task: string;
+  goal: string;
   returnType: "YAML" | "JSON";
   modelName: string;
 }): ChatPromptTemplate {
-  const { task, returnType, modelName } = params;
+  const { task, goal, returnType, modelName } = params;
   const useSystemPrompt = modelName.startsWith("GPT-4");
-  const schema = executeSchema(returnType, "unknown");
+  const schema = executeSchema(returnType, modelName);
 
   const systemTemplate = `
-Execute TASK: ${task}
-Server TIME: ${new Date().toString()}
+You are a determined and resourceful AI Agent determinedly trying to perform and produce the results of a TASK for the USER.
+The USER is trying to ultimately achieve their GOAL.
+However, you are to focus on the task, considering the GOAL for additional context.
+TASK: ${task}
+USER's GOAL: ${goal}
+SERVER TIME: ${new Date().toString()}
 CONSTRAINTS: ${executeConstraints(returnType)}
 SCHEMA: ${schema}`;
 
   const promptTypeForModel = (template: string) => {
     return useSystemPrompt
       ? SystemMessagePromptTemplate.fromTemplate(template)
-      : HumanMessagePromptTemplate.fromTemplate(systemTemplate);
+      : HumanMessagePromptTemplate.fromTemplate(template);
   };
 
   const mainPrompt = promptTypeForModel(systemTemplate);
@@ -33,4 +39,21 @@ SCHEMA: ${schema}`;
   const chatPrompt = ChatPromptTemplate.fromPromptMessages([mainPrompt]);
 
   return chatPrompt;
+}
+
+export function createexecuteFormattingPrompt(
+  input: string,
+  output: string,
+  returnType: "JSON" | "YAML",
+): PromptTemplate {
+  const template = `TASK: You are to REWRITE only the OUTPUT of a large language model for a given INPUT, ensuring that it is valid ${returnType}, validates for the SCHEMA, and adequately addresses the INPUT.
+  SCHEMA: ${executeSchema(returnType, "unknown")}
+  CONSTRAINT: **DO NOT** output anything other than the ${returnType}, e.g., do not include prose or markdown formatting.
+  INPUT:
+  ${input}
+  OUTPUT:
+  ${output}
+  REWRITE:
+  `;
+  return PromptTemplate.fromTemplate(template);
 }

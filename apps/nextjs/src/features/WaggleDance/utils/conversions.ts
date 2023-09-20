@@ -1,15 +1,21 @@
 // conversions.ts
 
 import { type TaskState } from "@acme/agent";
+import { type DraftExecutionGraph } from "@acme/db";
 
 import {
   type GraphData,
   type LinkObject,
   type NodeObject,
 } from "../components/ForceGraph";
-import type DAG from "../types/DAG";
 
-export function dagToGraphData(dag: DAG, taskStates: TaskState[]): GraphData {
+export function dagToGraphData(
+  dag: DraftExecutionGraph | null | undefined,
+  taskStates: TaskState[],
+): GraphData {
+  if (!dag) {
+    return { nodes: [], links: [] };
+  }
   const nodes = dag.nodes.map((node) => {
     return {
       id: node.id,

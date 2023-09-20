@@ -1,11 +1,11 @@
 // _app.tsx
 import "../styles/globals.css";
 
-import { useCallback, useEffect } from "react";
+import { Suspense, useCallback, useEffect } from "react";
 import type { AppType } from "next/app";
+import dynamic from "next/dynamic";
 import { useRouter } from "next/router";
 import { CssVarsProvider } from "@mui/joy/styles";
-import { Analytics } from "@vercel/analytics/react";
 import type { Session } from "next-auth";
 import { SessionProvider } from "next-auth/react";
 
@@ -13,6 +13,9 @@ import { api } from "~/utils/api";
 import theme from "~/styles/theme";
 import useApp from "~/stores/appStore";
 
+const Analytics = dynamic(() =>
+  import("@vercel/analytics/react").then((mod) => mod.Analytics),
+);
 type RouteControllerProps = {
   children: React.ReactNode;
 };
@@ -55,7 +58,9 @@ const MyApp: AppType<{ session: Session | null }> = ({
           <Component {...pageProps} />
         </CssVarsProvider>
       </RouteControllerProvider>
-      <Analytics />
+      <Suspense>
+        <Analytics />
+      </Suspense>
     </SessionProvider>
   );
 };

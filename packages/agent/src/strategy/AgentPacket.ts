@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 // chain/utils/types.ts
 
 import { type Serialized } from "langchain/load/serializable";
@@ -9,7 +10,7 @@ export type BaseAgentPacket = { type: AgentPacketType };
 export type AgentPacketType =
   | AgentPacketFinishedType
   | "handleLLMStart"
-  | "token"
+  | "t" // token
   | "handleLLMEnd"
   | "handleChainEnd"
   | "handleChainStart"
@@ -20,33 +21,60 @@ export type AgentPacketType =
   | "requestHumanInput"
   | "starting"
   | "working"
-  | "idle";
+  | "idle"
+  | "handleToolError";
 
 export const AgentPacketFinishedTypes = [
   "handleAgentEnd",
   "done",
   "error",
   "handleChainError",
-  "handleToolError",
   "handleLLMError",
   "handleRetrieverError",
   "handleAgentError",
 ] as const;
 
+export const AgentPacketFinishedStrings = Array.from(
+  AgentPacketFinishedTypes as unknown as string[],
+);
+
 export type AgentPacketFinishedType = (typeof AgentPacketFinishedTypes)[number];
+
+const agentPacketFinishedTypesSet = new Set(AgentPacketFinishedStrings);
+
+export const isAgentPacketFinishedType = (type: AgentPacketType) => {
+  return agentPacketFinishedTypesSet.has(type);
+};
+
+export const findFinishPacket = (packets: AgentPacket[]): AgentPacket => {
+  const packet = packets.findLast((packet) => {
+    try {
+      isAgentPacketFinishedType(packet.type);
+      return true;
+    } catch (err) {
+      return false;
+    }
+  }) ?? {
+    type: "error",
+    severity: "fatal",
+    error: new Error(`No result packet found in ${packets.length} packets`),
+  };
+
+  return packet;
+};
 
 // TODO: group these by origination for different logic, or maybe different typings
 export type AgentPacket =
   // server-side only
   | ({ type: "handleLLMStart" } & BaseAgentPacket)
-  | ({ type: "token"; token: string } & BaseAgentPacket) // handleLLMNewToken (shorted on purpose)
+  | ({ type: "t"; t: string } & BaseAgentPacket) // handleLLMNewToken (shortened on purpose)
   | ({ type: "handleLLMEnd"; output: string } & BaseAgentPacket)
-  | ({ type: "handleLLMError"; err: unknown } & BaseAgentPacket)
+  | ({ type: "handleLLMError"; err: any } & BaseAgentPacket)
   | ({ type: "handleChainEnd"; outputs: ChainValues } & BaseAgentPacket)
-  | ({ type: "handleChainError"; err: unknown } & BaseAgentPacket)
+  | ({ type: "handleChainError"; err: any } & BaseAgentPacket)
   | ({ type: "handleChainStart" } & BaseAgentPacket)
   | ({ type: "handleToolEnd"; output: string } & BaseAgentPacket)
-  | ({ type: "handleToolError"; err: unknown } & BaseAgentPacket)
+  | ({ type: "handleToolError"; err: any } & BaseAgentPacket)
   | ({
       type: "handleToolStart";
       tool: Serialized;
@@ -55,18 +83,33 @@ export type AgentPacket =
   | ({ type: "handleAgentAction"; action: AgentAction } & BaseAgentPacket)
   | ({ type: "handleAgentEnd"; value: string } & BaseAgentPacket)
   | ({ type: "handleText"; text: string } & BaseAgentPacket)
-  | ({ type: "handleRetrieverError"; err: unknown } & BaseAgentPacket)
+  | ({ type: "handleRetrieverError"; err: any } & BaseAgentPacket)
+  | ({ type: "handleAgentError"; err: any } & BaseAgentPacket) // synthetic; used for max iterations only
   // our callbacks
-  | ({ type: "handleAgentError"; err: unknown } & BaseAgentPacket) // synthetic; used for max iterations only
   | ({ type: "done"; value: string } & BaseAgentPacket)
   | ({
       type: "error";
       severity: "warn" | "human" | "fatal";
-      message: string;
+      error: Error;
     } & BaseAgentPacket)
   | ({ type: "requestHumanInput"; reason: string } & BaseAgentPacket)
   // client-side only
   | ({ type: "starting"; nodeId: string } & BaseAgentPacket)
-  | ({ type: "working"; nodeId: string } & BaseAgentPacket);
-
+  | ({ type: "working"; nodeId: string } & BaseAgentPacket)
+  | ({ type: "idle"; nodeId: string } & BaseAgentPacket);
 export default AgentPacket;
+
+export const display = (packet: AgentPacket): string | null => {
+  switch (packet.type) {
+    case "handleToolStart":
+      return null;
+    case "handleAgentAction":
+      return packet.action.tool;
+    case "handleLLMStart":
+      return null;
+    case "handleToolEnd":
+      return null;
+    default:
+      return packet.type;
+  }
+};

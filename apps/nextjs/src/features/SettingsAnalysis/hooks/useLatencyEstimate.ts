@@ -1,8 +1,14 @@
+import { useMemo } from "react";
 import { type AlertPropsColorOverrides, type ColorPaletteProp } from "@mui/joy";
 import { type OverridableStringUnion } from "@mui/types";
 
-import { type AgentSettingsMap } from "@acme/agent";
+import {
+  defaultAgentSettings,
+  type AgentSettings,
+  type AgentSettingsMap,
+} from "@acme/agent";
 import { AgentPromptingMethod } from "@acme/agent/src/utils/llms";
+import { type NullableSkillset } from "@acme/db/skills";
 
 export type LatencyScaleItem = {
   limit: number;
@@ -135,3 +141,20 @@ export function latencyEstimate(
   const guh = Math.log(1.379 + ratio) / 1;
   return minMax(guh);
 }
+
+function useLatencyEstimate(
+  agentSettings: Record<"plan" | "review" | "execute", AgentSettings>,
+  selectedSkills: NullableSkillset[],
+) {
+  const latency = useMemo(() => {
+    return latencyEstimate(
+      agentSettings,
+      selectedSkills.length,
+      defaultAgentSettings,
+    );
+  }, [agentSettings, selectedSkills]);
+  const latencyLevel = useMemo(() => getLatencyLevel(latency), [latency]);
+  return { latency, latencyLevel };
+}
+
+export default useLatencyEstimate;

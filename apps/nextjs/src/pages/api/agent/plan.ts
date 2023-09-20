@@ -9,7 +9,9 @@ import { getBaseUrl } from "@acme/api/utils";
 import { type PlanRequestBody } from "~/features/WaggleDance/types/types";
 import {
   callPlanningAgent,
+  transformWireFormat,
   type AgentPacket,
+  type PlanWireFormat,
 } from "../../../../../../packages/agent";
 import { type UpdateGraphParams } from "../execution/graph";
 
@@ -24,10 +26,11 @@ export default async function PlanStream(req: NextRequest) {
   console.debug("plan request");
   const abortController = new AbortController();
   let planResult: string | Error | undefined;
+  let goal: string | undefined;
   let goalId: string | undefined;
   let executionId: string | undefined;
   let resolveStreamEnded: () => void;
-  let rejectStreamEnded: ((reason?: string) => void) | undefined = undefined;
+  let rejectStreamEnded: ((error: Error) => void) | undefined = undefined;
   const streamEndedPromise = new Promise<void>((resolve, reject) => {
     resolveStreamEnded = resolve;
     rejectStreamEnded = reject;
@@ -47,7 +50,7 @@ export default async function PlanStream(req: NextRequest) {
       async start(controller) {
         const inlineCallback = {
           handleLLMNewToken(token: string) {
-            const packet: AgentPacket = { type: "token", token };
+            const packet: AgentPacket = { type: "t", t: token };
             controller.enqueue(encoder.encode(stringify([packet])));
           },
 
@@ -56,15 +59,10 @@ export default async function PlanStream(req: NextRequest) {
             _runId: string,
             _parentRunId?: string,
           ) {
-            let errorMessage = "";
-            if (err instanceof Error) {
-              errorMessage = err.message;
-            } else {
-              errorMessage = stringify(err);
-            }
             const packet: AgentPacket = {
               type: "handleChainError",
-              err: errorMessage,
+              // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
+              err: parse(stringify(err, Object.getOwnPropertyNames(err))),
             };
             controller.enqueue(encoder.encode(stringify([packet])));
             console.debug("handleChainError", packet);
@@ -75,15 +73,10 @@ export default async function PlanStream(req: NextRequest) {
             _runId: string,
             _parentRunId?: string | undefined,
           ): void | Promise<void> {
-            let errorMessage = "";
-            if (err instanceof Error) {
-              errorMessage = err.message;
-            } else {
-              errorMessage = stringify(err);
-            }
             const packet: AgentPacket = {
               type: "handleLLMError",
-              err: errorMessage,
+              // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
+              err: parse(stringify(err, Object.getOwnPropertyNames(err))),
             };
             controller.enqueue(encoder.encode(stringify([packet])));
             console.debug("handleLLMError", packet);
@@ -103,7 +96,7 @@ export default async function PlanStream(req: NextRequest) {
         );
 
         if (planResult instanceof Error) {
-          rejectStreamEnded!(planResult.message);
+          rejectStreamEnded!(planResult);
         } else {
           resolveStreamEnded();
         }
@@ -112,10 +105,10 @@ export default async function PlanStream(req: NextRequest) {
         controller.close();
       },
 
-      cancel() {
+      cancel(reason) {
         abortController.abort();
-        console.warn("cancel plan request");
-        rejectStreamEnded!("Stream cancelled");
+        console.warn("cancel plan request", reason);
+        rejectStreamEnded!(new Error("Stream cancelled"));
       },
     });
 
@@ -127,27 +120,34 @@ export default async function PlanStream(req: NextRequest) {
       },
     });
   } catch (e) {
-    let message;
-    let status: number;
-    let stack;
+    let errorPacket: AgentPacket;
     if (e instanceof Error) {
-      message = e.message;
-      status = 500;
-      stack = e.stack;
+      errorPacket = {
+        type: "error",
+        severity: "fatal",
+        error: e,
+      };
+    } else if (e as AgentPacket) {
+      errorPacket = e as AgentPacket;
+    } else if (typeof e === "string") {
+      errorPacket = {
+        type: "error",
+        severity: "fatal",
+        error: new Error(stringify(e)),
+      };
     } else {
-      message = String(e);
-      status = 500;
-      stack = "";
+      errorPacket = {
+        type: "error",
+        severity: "fatal",
+        error: new Error(stringify(e)),
+      };
     }
-    rejectStreamEnded!(message);
-    const all = { stack, message, status };
-    planResult = stringify(all);
-    console.error("plan error", all);
-    const errorPacket: AgentPacket = {
-      type: "error",
-      severity: "fatal",
-      message: planResult,
-    };
+    console.error("plan error", e);
+
+    let status = 500;
+    if (e as { status: number }) {
+      status = (e as { status: number }).status;
+    }
 
     return new Response(stringify([errorPacket]), {
       headers: {
@@ -160,22 +160,29 @@ export default async function PlanStream(req: NextRequest) {
     void (async () => {
       await streamEndedPromise;
 
-      if (goalId && executionId && typeof planResult === "string") {
-        // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
-        const graph = (planResult && parse(planResult)) || null;
-        await updateExecution(
-          {
-            goalId,
-            // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
-            graph,
+      try {
+        if (goal && goalId && executionId && typeof planResult === "string") {
+          const graph = transformWireFormat(
+            parse(planResult) as PlanWireFormat,
+            goal,
             executionId,
-          },
-          req,
-        );
-      } else {
-        console.error(
-          "could not save execution, it must be manually cleaned up",
-        );
+          );
+          await updateExecution(
+            {
+              goalId,
+              graph,
+              executionId,
+            },
+            req,
+          );
+        } else {
+          console.error(
+            "could not save execution, it must be manually cleaned up",
+          );
+        }
+      } catch (e) {
+        // TODO: make sure it is a 401 unauth
+        console.error("could not save execution", e);
       }
     })();
   }
@@ -194,7 +201,7 @@ export async function updateExecution(
     body: jsonStringify(params),
   });
 
-  if (!response.ok) {
+  if (!response.ok && response.status !== 401) {
     throw new Error(`Could not save execution: ${response.statusText}`);
   }
 }

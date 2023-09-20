@@ -10,11 +10,10 @@ import {
 } from "@mui/joy";
 
 import { type Session } from "@acme/auth";
-import { type GoalPlusExe } from "@acme/db";
+import { type DraftExecutionGraph, type GoalPlusExe } from "@acme/db";
 
 import routes from "~/utils/routes";
 import AgentSettingsToggleButton from "~/features/AgentSettings/components/AgentSettingsToggleButton";
-import type DAG from "../types/DAG";
 import { ExecutionSelect } from "./ExecutionSelect";
 import { StartStopButton } from "./StartStopButton";
 import { TaskProgress } from "./TaskProgress";
@@ -23,7 +22,7 @@ interface BottomControlsProps {
   session: Session | null;
   isRunning: boolean;
   selectedGoal: GoalPlusExe | undefined;
-  dag: DAG;
+  graph: DraftExecutionGraph;
   handleStart: () => void;
   handleStop: () => void;
   setIsAutoScrollToBottom: (value: boolean) => void;
@@ -38,7 +37,7 @@ const BottomControls: React.FC<BottomControlsProps> = ({
   session,
   isRunning,
   selectedGoal,
-  dag,
+  graph,
   handleStart,
   handleStop,
   setIsAutoScrollToBottom,
@@ -50,7 +49,7 @@ const BottomControls: React.FC<BottomControlsProps> = ({
 }) => {
   return (
     <Box
-      className="z-100 sticky "
+      className="sticky z-10"
       sx={{
         bottom: "calc(env(safe-area-inset-bottom))",
         padding: 0,
@@ -142,7 +141,7 @@ const BottomControls: React.FC<BottomControlsProps> = ({
               isRunning={isRunning}
               handleStart={handleStart}
               handleStop={handleStop}
-              dag={dag}
+              dag={graph}
             />
           </Box>
         </Stack>

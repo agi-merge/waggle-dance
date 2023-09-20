@@ -1,3 +1,4 @@
+import { useMemo } from "react";
 import { type AlertPropsColorOverrides, type ColorPaletteProp } from "@mui/joy";
 import { type OverridableStringUnion } from "@mui/types";
 
@@ -88,3 +89,19 @@ export function iqEstimate(agentSettingsMap: AgentSettingsMap): number {
   const guh = Math.log(1.379 + ratio);
   return minMax(guh);
 }
+
+function useIQEstimate(agentSettings: AgentSettingsMap) {
+  const iq = useMemo(() => {
+    return iqEstimate(agentSettings);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [
+    agentSettings.execute.modelName,
+    agentSettings.plan.modelName,
+    agentSettings.review.modelName,
+  ]);
+  const iqLevel = useMemo(() => getIQLevel(iq), [iq]);
+
+  return { iq, iqLevel };
+}
+
+export default useIQEstimate;

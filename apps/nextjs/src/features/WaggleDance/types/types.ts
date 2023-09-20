@@ -3,7 +3,6 @@ import { type Dispatch, type SetStateAction } from "react";
 
 import {
   type AgentSettings,
-  type DAGNode,
   type ModelCreationProps,
   type TaskState,
 } from "@acme/agent";
@@ -11,15 +10,15 @@ import {
   TEMPERATURE_VALUES,
   type AgentPromptingMethod,
 } from "@acme/agent/src/utils/llms";
+import { type DraftExecutionGraph, type DraftExecutionNode } from "@acme/db";
 
 import { env } from "~/env.mjs";
-import type DAG from "./DAG";
 
-export type PlanResult = DAG;
+export type PlanResult = DraftExecutionGraph;
 
 export type WaggleDanceContextType = {
-  dag: DAG;
-  updateDAG: (dag: DAG) => void;
+  dag: DraftExecutionGraph;
+  updateDAG: (dag: DraftExecutionGraph) => void;
 };
 
 export type TaskResult = {
@@ -37,13 +36,12 @@ export type ReviewResult = {
 };
 
 export type BaseResultType = JsonValue | void;
-export interface WaggleDanceResult {
-  taskResults: Record<string, TaskState>;
-  completedTasks: Set<string>;
-}
+export type WaggleDanceResult = Record<string, TaskState>;
 
-export type GraphDataState = [DAG, Dispatch<SetStateAction<DAG>>];
-export type IsDonePlanningState = [boolean, Dispatch<SetStateAction<boolean>>];
+export type GraphDataState = [
+  DraftExecutionGraph,
+  (dag: DraftExecutionGraph, goal: string) => void,
+];
 export type TaskResultsState = [
   Record<string, TaskState>,
   Dispatch<SetStateAction<Record<string, TaskState>>>,
@@ -89,10 +87,8 @@ export type PlanRequestBody = BaseRequestBody & {
 
 export type ExecuteRequestBody = PlanRequestBody & {
   executionId: string;
-  task: DAGNode;
-  revieweeTaskResults: TaskState[] | null;
-  // completedTasks: Set<string>;
-  // taskResults: Record<string, BaseResultType>;
-  dag: DAG;
+  task: DraftExecutionNode;
+  revieweeTaskResults: TaskState[];
+  dag: DraftExecutionGraph;
   agentPromptingMethod: AgentPromptingMethod;
 };

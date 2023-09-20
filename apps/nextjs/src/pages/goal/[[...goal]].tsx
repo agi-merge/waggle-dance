@@ -4,45 +4,23 @@ import { lazy, Suspense, useEffect, useMemo, useRef } from "react";
 import { type GetStaticPropsResult, type InferGetStaticPropsType } from "next";
 import dynamic from "next/dynamic";
 import { useRouter } from "next/router";
-import { QuestionMarkOutlined } from "@mui/icons-material";
 import {
-  Box,
-  IconButton,
   Skeleton,
-  Stack,
-  Tooltip,
   type AlertPropsColorOverrides,
   type ColorPaletteProp,
 } from "@mui/joy";
-import List from "@mui/joy/List";
-import Typography from "@mui/joy/Typography";
 import { type OverridableStringUnion } from "@mui/types";
-import { Accordion, AccordionItem } from "@radix-ui/react-accordion";
-import { get } from "@vercel/edge-config";
+import { get, type EdgeConfigValue } from "@vercel/edge-config";
 
-import { defaultAgentSettings } from "@acme/agent";
 import { type ExecutionPlusGraph, type GoalPlusExe } from "@acme/db";
 
 import { api } from "~/utils/api";
 import routes from "~/utils/routes";
-import AddDocuments from "~/features/AddDocuments/AddDocuments";
-import AgentSettings from "~/features/AgentSettings/AgentSettings";
-import GoalPrompt from "~/features/GoalPrompt/GoalPrompt";
-import {
-  AccordionContent,
-  AccordionHeader,
-} from "~/features/HeadlessUI/JoyAccordion";
+import ErrorBoundary from "~/features/error/ErrorBoundary";
 import MainLayout from "~/features/MainLayout";
-import { Latency } from "~/features/SettingsAnalysis/Latency";
-import {
-  getIQLevel,
-  iqEstimate,
-} from "~/features/SettingsAnalysis/utils/iqEstimate";
-import {
-  getLatencyLevel,
-  latencyEstimate,
-} from "~/features/SettingsAnalysis/utils/latencyEstimate";
-import SkillSelect from "~/features/Skills/SkillSelect";
+import useIQEstimate from "~/features/SettingsAnalysis/hooks/useIQEstimate";
+import useLatencyEstimate from "~/features/SettingsAnalysis/hooks/useLatencyEstimate";
+import { useRigorEstimate } from "~/features/SettingsAnalysis/hooks/useRigorEstimate";
 import useSkillStore from "~/stores/skillStore";
 import useWaggleDanceMachineStore from "~/stores/waggleDanceStore";
 import useGoalStore from "../../stores/goalStore";
@@ -54,11 +32,15 @@ const NoSSRWaggleDance = dynamic(
   },
 );
 
-const ErrorBoundary = lazy(() => import("../../features/error/ErrorBoundary"));
-
 const PageTitle = lazy(
   () => import("~/features/MainLayout/components/PageTitle"),
 );
+
+const GoalPrompt = lazy(() => import("~/features/GoalPrompt/GoalPrompt"));
+const WaggleDanceSettingsAccordion = lazy(
+  () => import("~/features/WaggleDance/components/WaggleDanceDashboard"),
+);
+// const MainLayout = lazy(() => import("~/features/MainLayout"));
 
 type AlertConfig = {
   id: string;
@@ -78,10 +60,15 @@ export const getStaticProps = async (): Promise<
   // Fetch your alerts array from Vercel edge-config here
 
   const revalidate = 300; // ISR, revalidate every 5 minutes
-  const alertConfigs = await get("alerts");
+  let alertConfigs: EdgeConfigValue | undefined;
+  try {
+    alertConfigs = await get("alerts");
+  } catch {
+    // handled below
+  }
   const errorResponse: GetStaticPropsResult<StaticProps> = {
     notFound: true,
-    revalidate: 10,
+    revalidate: 1,
   };
 
   if (!alertConfigs) {
@@ -106,52 +93,6 @@ export function getStaticPaths() {
   };
 }
 
-const rigorScale: {
-  limit: number;
-  color: OverridableStringUnion<ColorPaletteProp, AlertPropsColorOverrides>;
-  label: string;
-  description: string;
-}[] = [
-  {
-    limit: 0.35,
-    color: "danger",
-    label: "⚠ Lowest",
-    description: `Your rigor score is the lowest possible, which reduces rigor, possibly at the expense of costs and time to achieve goals`,
-  },
-  {
-    limit: 0.45,
-    color: "warning",
-    label: "Low",
-    description: `Your rigor score is on the low end, which reduces rigor, possibly at the expense of some costs and time to achieve goals`,
-  },
-  {
-    limit: 0.8,
-    color: "neutral",
-    label: "Medium",
-    description: `Your rigor score is near the middle range, which balances rigor with costs and time to achieve goals`,
-  },
-  {
-    limit: 0.85,
-    color: "success",
-    label: "High",
-    description: `Your rigor score is the second highest possible, which increases rigor, but increases costs and time to achieve goals`,
-  },
-  {
-    limit: 1,
-    color: "success",
-    label: "Highest",
-    description: `Your rigor score is the highest possible, which increases rigor, but increases costs and time to achieve goals`,
-  },
-];
-
-function getRigorLevel(rigor: number) {
-  const rl =
-    rigorScale.find((scale) => rigor <= scale.limit)! ||
-    rigorScale[rigorScale.length - 1];
-
-  return rl;
-}
-
 type Props = InferGetStaticPropsType<typeof getStaticProps>;
 const GoalPage = ({ alertConfigs }: Props) => {
   const router = useRouter();
@@ -167,28 +108,14 @@ const GoalPage = ({ alertConfigs }: Props) => {
     return label.length > 0 ? label : "No skills enabled";
   }, [selectedSkills]);
 
-  const latency = useMemo(() => {
-    return latencyEstimate(
-      agentSettings,
-      selectedSkills.length,
-      defaultAgentSettings,
-    );
-  }, [agentSettings, selectedSkills]);
-  const latencyLevel = useMemo(() => getLatencyLevel(latency), [latency]);
-  const rigor = useMemo(() => {
-    return 1 + Math.log(latency);
-  }, [latency]);
-  const rigorLevel = useMemo(() => getRigorLevel(rigor), [rigor]);
+  const { latency, latencyLevel } = useLatencyEstimate(
+    agentSettings,
+    selectedSkills,
+  );
 
-  const iq = useMemo(() => {
-    return iqEstimate(agentSettings);
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [
-    agentSettings.execute.modelName,
-    agentSettings.plan.modelName,
-    agentSettings.review.modelName,
-  ]);
-  const iqLevel = useMemo(() => getIQLevel(iq), [iq]);
+  const { rigorLevel } = useRigorEstimate(latency);
+
+  const { iqLevel } = useIQEstimate(agentSettings);
 
   const [serverGoals] = api.goal.topByUser.useSuspenseQuery(undefined, {
     refetchOnMount: true,
@@ -205,6 +132,7 @@ const GoalPage = ({ alertConfigs }: Props) => {
     [goalMap, selectedGoal, route, serverGoals],
   );
 
+  // upsert server-fetched goals into store when server-fetch goals or goal changes
   useEffect(() => {
     if (prevServerGoalsRef.current !== serverGoals) {
       // Batch state updates here
@@ -226,14 +154,16 @@ const GoalPage = ({ alertConfigs }: Props) => {
 
   const destinationRoute = useMemo(
     () => getDestinationRoute(route, goal, execution, router.asPath),
-    [goal, execution, router.asPath, route],
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+    [goal?.id, execution?.id, router.asPath, route],
   );
 
   const prevDestinationRouteRef = useRef<string | undefined>(undefined);
 
+  // update stores and route w/ current values of goal and execution, when ids or the destination route changes
   useEffect(() => {
     goal && selectGoal(goal.id);
-    setExecution(execution);
+    setExecution(execution, goal?.prompt ?? "");
     if (destinationRoute && router.asPath !== destinationRoute) {
       void (async () => {
         await router.replace(destinationRoute, undefined, { shallow: true });
@@ -246,412 +176,44 @@ const GoalPage = ({ alertConfigs }: Props) => {
 
   return (
     <MainLayout alertConfigs={alertConfigs}>
-      <Suspense>
-        <ErrorBoundary router={router}>
-          {state === "input" ? (
-            <GoalPrompt />
-          ) : (
-            <>
-              <PageTitle title={isRunning ? "💃 Waggling!" : "💃 Waggle"}>
-                {goal?.prompt && (
-                  <List
-                    type="multiple"
-                    component={Accordion}
-                    color="neutral"
-                    className="mt-2"
-                    sx={{ padding: 0 }}
-                  >
-                    <Box sx={{ display: { xs: "block", md: "flex" } }}>
-                      <Box
-                        sx={{
-                          flex: 1,
-                          maxWidth: { xs: "100%", md: "50%" },
-                        }}
-                      >
-                        <AccordionItem value="item-1">
-                          <AccordionHeader
-                            isFirst
-                            variant="outlined"
-                            color="primary"
-                            openText={
-                              <Box height={"3rem"}>
-                                <Typography noWrap level="title-sm">
-                                  🍯 Goal
-                                </Typography>
-                                <Typography
-                                  noWrap
-                                  level="body-sm"
-                                  sx={{
-                                    opacity: 0,
-                                    fontSize: { xs: "xs", sm: "sm" },
-                                  }}
-                                >
-                                  {goal?.prompt}
-                                </Typography>
-                              </Box>
-                            }
-                            closedText={
-                              <Box height={"3rem"}>
-                                <Typography level="title-sm">
-                                  🍯 Goal
-                                </Typography>
-                                <Typography
-                                  noWrap
-                                  level="body-sm"
-                                  sx={{
-                                    fontSize: { xs: "xs", sm: "sm" },
-                                  }}
-                                >
-                                  {goal?.prompt}
-                                </Typography>
-                              </Box>
-                            }
-                          />
-                          <AccordionContent isLast={false}>
-                            {goal?.prompt}
-                          </AccordionContent>
-                        </AccordionItem>
-                        <AccordionItem value="item-2">
-                          <AccordionHeader
-                            isLast={true}
-                            variant="outlined"
-                            color="primary"
-                            openText={
-                              <Box height={"3rem"}>
-                                <Typography level="title-sm">
-                                  📊 Settings
-                                </Typography>
-                                <Box
-                                  sx={{
-                                    display: "flex",
-                                    alignItems: "center",
-                                  }}
-                                  component={Stack}
-                                  direction="row"
-                                  gap={1}
-                                >
-                                  <Latency latencyLevel={latencyLevel} />
-                                  {" · "}
-                                  <Tooltip
-                                    title={`(Higher is better) ${rigorLevel.description}`}
-                                  >
-                                    <Typography
-                                      flexWrap={"wrap"}
-                                      level="body-sm"
-                                      color="neutral"
-                                      sx={{
-                                        fontSize: { xs: "xs", sm: "sm" },
-                                      }}
-                                    >
-                                      Rigor:{" "}
-                                      <Typography color={rigorLevel.color}>
-                                        {rigorLevel.label}
-                                      </Typography>
-                                    </Typography>
-                                  </Tooltip>
-                                  {" · "}
-
-                                  <Tooltip
-                                    title={`(Higher is better) ${iqLevel.description}`}
-                                  >
-                                    <Typography
-                                      flexWrap={"wrap"}
-                                      level="body-sm"
-                                      color="neutral"
-                                      sx={{
-                                        fontSize: { xs: "xs", sm: "sm" },
-                                      }}
-                                    >
-                                      IQ:{" "}
-                                      <Typography
-                                        color={iqLevel.color}
-                                        className="align-end"
-                                      >
-                                        {iqLevel.label}
-                                      </Typography>
-                                    </Typography>
-                                  </Tooltip>
-                                </Box>
-                              </Box>
-                            }
-                            closedText={
-                              <Box height={"3rem"}>
-                                <Typography level="title-sm">
-                                  📊 Settings
-                                </Typography>
-                                <Box
-                                  sx={{ display: "flex", alignItems: "center" }}
-                                  component={Stack}
-                                  direction="row"
-                                  gap={1}
-                                >
-                                  <Tooltip
-                                    title={`(Lower is better) ${latencyLevel.description}`}
-                                  >
-                                    <Typography
-                                      noWrap
-                                      level="body-sm"
-                                      color="neutral"
-                                      sx={{
-                                        fontSize: { xs: "xs", sm: "sm" },
-                                      }}
-                                    >
-                                      Latency:{" "}
-                                      <Typography color={latencyLevel.color}>
-                                        {latencyLevel.label}{" "}
-                                      </Typography>
-                                    </Typography>
-                                  </Tooltip>
-                                  {" · "}
-
-                                  <Tooltip
-                                    title={`(Higher is better) ${rigorLevel.description}`}
-                                  >
-                                    <Typography
-                                      flexWrap={"wrap"}
-                                      level="body-sm"
-                                      color="neutral"
-                                      sx={{
-                                        fontSize: { xs: "xs", sm: "sm" },
-                                      }}
-                                    >
-                                      Rigor:{" "}
-                                      <Typography color={rigorLevel.color}>
-                                        {rigorLevel.label}
-                                      </Typography>
-                                    </Typography>
-                                  </Tooltip>
-                                  {" · "}
-
-                                  <Tooltip
-                                    title={`(Higher is better) ${iqLevel.description}`}
-                                  >
-                                    <Typography
-                                      flexWrap={"wrap"}
-                                      level="body-sm"
-                                      color="neutral"
-                                      sx={{
-                                        fontSize: { xs: "xs", sm: "sm" },
-                                      }}
-                                    >
-                                      IQ:{" "}
-                                      <Typography color={iqLevel.color}>
-                                        {iqLevel.label}
-                                      </Typography>
-                                    </Typography>
-                                  </Tooltip>
-                                </Box>
-                              </Box>
-                            }
-                          />
-                          <AccordionContent isLast={true} defaultChecked={true}>
-                            <AgentSettings />
-                            <Tooltip
-                              title={`(Lower is better) ${latencyLevel.description}`}
-                              sx={{ cursor: "pointer" }}
-                            >
-                              <Typography
-                                noWrap
-                                level="title-sm"
-                                color="neutral"
-                              >
-                                Latency:{" "}
-                                <Typography
-                                  color={latencyLevel.color}
-                                  level="body-sm"
-                                >
-                                  {latencyLevel.label}
-                                </Typography>{" "}
-                                <IconButton
-                                  color={latencyLevel.color}
-                                  variant="outlined"
-                                  size="sm"
-                                  sx={{ p: 0, m: 0, borderRadius: "50%" }}
-                                >
-                                  <QuestionMarkOutlined
-                                    sx={{
-                                      fontSize: "8pt",
-                                      p: 0,
-                                      m: "auto",
-                                      minWidth: 20,
-                                    }}
-                                  />
-                                </IconButton>
-                              </Typography>
-                            </Tooltip>
-
-                            <Tooltip
-                              title={`(Higher is better) ${rigorLevel.description}`}
-                              sx={{ cursor: "pointer" }}
-                            >
-                              <Typography
-                                flexWrap={"wrap"}
-                                level="title-sm"
-                                color="neutral"
-                              >
-                                Rigor:{" "}
-                                <Typography
-                                  color={rigorLevel.color}
-                                  level="title-sm"
-                                >
-                                  {rigorLevel.label}
-                                </Typography>{" "}
-                                <IconButton
-                                  color={rigorLevel.color}
-                                  variant="outlined"
-                                  size="sm"
-                                  sx={{ p: 0, m: 0, borderRadius: "50%" }}
-                                >
-                                  <QuestionMarkOutlined
-                                    sx={{
-                                      fontSize: "8pt",
-                                      p: 0,
-                                      m: "auto",
-                                      minWidth: 20,
-                                    }}
-                                  />
-                                </IconButton>
-                              </Typography>
-                            </Tooltip>
-
-                            <Tooltip
-                              title={`(Higher is better) ${iqLevel.description}`}
-                              sx={{ cursor: "pointer" }}
-                            >
-                              <Typography
-                                flexWrap={"wrap"}
-                                level="title-sm"
-                                color="neutral"
-                              >
-                                IQ:{" "}
-                                <Typography
-                                  color={iqLevel.color}
-                                  level="title-sm"
-                                >
-                                  {iqLevel.label}
-                                </Typography>{" "}
-                                <IconButton
-                                  color={iqLevel.color}
-                                  variant="outlined"
-                                  size="sm"
-                                  sx={{ p: 0, m: 0, borderRadius: "50%" }}
-                                >
-                                  <QuestionMarkOutlined
-                                    sx={{
-                                      fontSize: "8pt",
-                                      p: 0,
-                                      m: "auto",
-                                      minWidth: 20,
-                                    }}
-                                  />
-                                </IconButton>
-                              </Typography>
-                            </Tooltip>
-                          </AccordionContent>
-                        </AccordionItem>
-                      </Box>
-                      <Box
-                        sx={{
-                          flex: 1,
-                          maxWidth: { xs: "100%", md: "50%" },
-                        }}
-                      >
-                        <AccordionItem value="item-3">
-                          <AccordionHeader
-                            isFirst
-                            variant="outlined"
-                            color="primary"
-                            openText={
-                              <Box height={"3rem"}>
-                                <Typography level="title-sm">
-                                  🌺 Data
-                                </Typography>
-                                <Typography
-                                  noWrap
-                                  level="body-sm"
-                                  sx={{
-                                    fontSize: { xs: "xs", sm: "sm" },
-                                  }}
-                                >
-                                  xxx documents in yyy collections
-                                </Typography>
-                              </Box>
-                            }
-                            closedText={
-                              <Box height={"3rem"}>
-                                <Typography level="title-sm">
-                                  🌺 Data
-                                </Typography>
-                                <Typography
-                                  noWrap
-                                  level="body-sm"
-                                  sx={{
-                                    fontSize: { xs: "xs", sm: "sm" },
-                                  }}
-                                >
-                                  xxx documents in yyy collections
-                                </Typography>
-                              </Box>
-                            }
-                          />
-                          <AccordionContent isLast={false}>
-                            <AddDocuments />
-                          </AccordionContent>
-                        </AccordionItem>
-                        <AccordionItem value="item-4">
-                          <AccordionHeader
-                            variant="outlined"
-                            color="primary"
-                            isLast={true}
-                            openText={
-                              <Box height={"3rem"}>
-                                <Typography level="title-sm">
-                                  🔨 Skills ({selectedSkillsLength})
-                                </Typography>
-                                <Typography
-                                  noWrap
-                                  level="body-sm"
-                                  sx={{
-                                    fontSize: { xs: "xs", sm: "sm" },
-                                  }}
-                                >
-                                  {skillsLabel}
-                                </Typography>
-                              </Box>
-                            }
-                            closedText={
-                              <Box height={"3rem"}>
-                                <Typography level="title-sm">
-                                  🔨 Skills ({selectedSkillsLength})
-                                </Typography>
-                                <Typography
-                                  noWrap
-                                  level="body-sm"
-                                  sx={{
-                                    fontSize: { xs: "xs", sm: "sm" },
-                                  }}
-                                >
-                                  {skillsLabel}
-                                </Typography>
-                              </Box>
-                            }
-                          />
-                          <AccordionContent isLast={true}>
-                            <SkillSelect />
-                          </AccordionContent>
-                        </AccordionItem>
-                      </Box>
-                    </Box>
-                  </List>
-                )}
-              </PageTitle>
-              <Suspense fallback={<Skeleton variant="rectangular" />}>
-                <NoSSRWaggleDance />
-              </Suspense>
-            </>
-          )}
-        </ErrorBoundary>
-      </Suspense>
+      <ErrorBoundary router={router}>
+        {state === "input" ? (
+          <GoalPrompt />
+        ) : (
+          <Suspense
+            fallback={
+              <Skeleton
+                variant="rectangular"
+                height="20rem"
+                animation="wave"
+                loading={true}
+              />
+            }
+          >
+            <PageTitle title={isRunning ? "💃 Waggling!" : "💃 Waggle"}>
+              {goal?.prompt && (
+                <Suspense
+                  fallback={<Skeleton variant="rectangular" height="6rem" />}
+                >
+                  <WaggleDanceSettingsAccordion
+                    goal={goal}
+                    latencyLevel={latencyLevel}
+                    rigorLevel={rigorLevel}
+                    iqLevel={iqLevel}
+                    skillsLabel={skillsLabel}
+                    selectedSkillsLength={selectedSkillsLength}
+                  />
+                </Suspense>
+              )}
+            </PageTitle>
+            <Suspense
+              fallback={<Skeleton variant="rectangular" height="10rem" />}
+            >
+              <NoSSRWaggleDance />
+            </Suspense>
+          </Suspense>
+        )}
+      </ErrorBoundary>
     </MainLayout>
   );
 };

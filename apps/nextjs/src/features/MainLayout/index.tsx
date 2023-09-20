@@ -4,7 +4,7 @@ import React, { lazy, Suspense, useEffect, useMemo, useState } from "react";
 import { type InferGetStaticPropsType } from "next";
 import Head from "next/head";
 import { useRouter } from "next/router";
-import { Skeleton } from "@mui/joy";
+import { Skeleton, Stack } from "@mui/joy";
 import Box from "@mui/joy/Box";
 import Card from "@mui/joy/Card";
 import GlobalStyles from "@mui/joy/GlobalStyles";
@@ -102,7 +102,7 @@ const MainLayout = ({ children, alertConfigs }: Props) => {
         >
           <Suspense
             fallback={
-              <Skeleton variant="rectangular" width={"100%"} height={60} />
+              <Skeleton variant="rectangular" width={"100%"} height="6rem" />
             }
           >
             <Header />
@@ -121,16 +121,50 @@ const MainLayout = ({ children, alertConfigs }: Props) => {
           >
             <Suspense
               fallback={
-                <Skeleton variant="rectangular" width="100%" height={80} />
+                <Skeleton variant="rectangular" width="100%" height="3rem" />
               }
             >
               <Alerts alertConfigs={alertConfigs} />
             </Suspense>
+
             <Suspense
               fallback={
-                <Skeleton variant="rectangular" width="100%" height={30} />
+                <Stack gap="1rem" component={Card}>
+                  <Skeleton
+                    variant="rectangular"
+                    height="1rem"
+                    width="100%"
+                    animation="wave"
+                    loading={true}
+                  />
+                  <Skeleton
+                    variant="rectangular"
+                    height="3rem"
+                    width="100%"
+                    animation="wave"
+                    loading={true}
+                  />
+                  <Skeleton
+                    sx={{ marginTop: "2.5rem" }}
+                    variant="rectangular"
+                    height="10rem"
+                    width="100%"
+                    animation="wave"
+                    loading={true}
+                  />
+
+                  <Skeleton
+                    variant="rectangular"
+                    height="4rem"
+                    width="25rem"
+                    animation="wave"
+                    loading={true}
+                    sx={{ alignSelf: "end" }}
+                  />
+                </Stack>
               }
             >
+              {" "}
               <GoalTabs>
                 <LinearProgress
                   thickness={3}

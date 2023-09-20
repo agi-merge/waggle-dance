@@ -12,14 +12,23 @@ import {
   Tooltip,
   Typography,
 } from "@mui/joy";
+import { stringify } from "yaml";
 
-import { TaskStatus, type DAGNode, type TaskState } from "@acme/agent";
+import {
+  display,
+  isAgentPacketFinishedType,
+  rootPlanId,
+  TaskStatus,
+  type TaskState,
+} from "@acme/agent";
+import { type DraftExecutionEdge, type DraftExecutionNode } from "@acme/db";
 
 import { stringifyMax } from "../utils/stringifyMax";
 
 interface TaskListItemProps {
   task: TaskState;
-  nodes: DAGNode[];
+  nodes: DraftExecutionNode[];
+  edges: DraftExecutionEdge[];
   i: number;
   statusColor: (
     n: TaskState,
@@ -31,6 +40,7 @@ interface TaskListItemProps {
 const TaskListItem = ({
   task: t,
   nodes,
+  edges,
   i,
   statusColor,
   isRunning,
@@ -79,7 +89,7 @@ const TaskListItem = ({
             {node.name}
           </Typography>
           <Typography level="title-sm" color="neutral" fontFamily="monospace">
-            id: <Typography level="body-sm">{t.id}</Typography>
+            id: <Typography level="body-sm">{t.displayId()}</Typography>
           </Typography>
           <Stack gap="0.3rem" direction="row">
             <Tooltip title="Chat">
@@ -134,30 +144,48 @@ const TaskListItem = ({
             })}
           >
             <Typography level="title-lg">
-              {t.value ? <>Result: </> : <>Status: </>}
+              {isAgentPacketFinishedType(t.value.type) ? (
+                <>Result: </>
+              ) : (
+                <>Status: </>
+              )}
               <Typography level="body-md" color="neutral">
-                {t.packets.slice(0, -1).map((p, index) => (
-                  <span key={index}>{p.type} → </span>
-                ))}
+                {t.packets.slice(0, -1).map(
+                  (p, index) =>
+                    display(p) && (
+                      <span key={index}>
+                        {display(p)} {index < t.packets.length - 2 && "→"}{" "}
+                      </span>
+                    ),
+                )}
                 {t.packets.length > 0 && (
                   <Typography color={statusColor(t)} level="body-md">
                     {t.packets[t.packets.length - 1]?.type}
                   </Typography>
                 )}
+                {t.value.type === "idle" && "idle"}
               </Typography>
             </Typography>
 
-            {t.value && (
-              <Typography
-                level="body-sm"
-                className="max-h-72 overflow-x-clip overflow-y-scroll  break-words pt-2"
-                fontFamily={
-                  t.status === TaskStatus.error ? "monospace" : undefined
-                }
-              >
-                {JSON.stringify(t.value)}
-              </Typography>
-            )}
+            <Typography
+              level="body-sm"
+              className="max-h-72 overflow-x-clip overflow-y-scroll  break-words pt-2"
+              fontFamily={
+                t.status === TaskStatus.error ? "monospace" : undefined
+              }
+            >
+              {t.value.type === "done" && t.value.value}
+              {t.value.type === "error" && stringify(t.value.error)}
+              {t.value.type === "handleAgentEnd" && t.value.value}
+              {t.value.type === "handleLLMError" && stringify(t.value.err)}
+              {t.value.type === "handleChainError" && stringify(t.value.err)}
+              {t.value.type === "handleAgentError" && stringify(t.value.err)}
+              {t.value.type === "handleRetrieverError" &&
+                stringify(t.value.err)}
+              {t.value.type === "working" &&
+                t.nodeId === rootPlanId &&
+                `...${nodes.length} tasks and ${edges.length} interependencies`}
+            </Typography>
           </Card>
         </Card>
       </ListItemContent>

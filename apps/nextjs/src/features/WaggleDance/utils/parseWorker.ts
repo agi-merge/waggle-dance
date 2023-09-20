@@ -1,15 +1,15 @@
 // parseWorker.ts
-import { v4 } from "uuid";
 import { parse } from "yaml";
 
-import { type ExecutionNode } from "@acme/db";
+import { type DraftExecutionGraph } from "@acme/db";
 
-import { type AgentPacket } from "../../../../../../packages/agent";
-import DAG from "../types/DAG";
 import {
-  findNodesWithNoIncomingEdges,
-  rootPlanId,
-} from "../types/initialNodes";
+  AgentPacketFinishedTypes,
+  transformWireFormat,
+  type AgentPacket,
+  type AgentPacketFinishedType,
+  type PlanWireFormat,
+} from "../../../../../../packages/agent";
 
 interface MyWorkerGlobalScope {
   onmessage: (event: MessageEvent) => void;
@@ -18,18 +18,18 @@ interface MyWorkerGlobalScope {
 
 declare const self: MyWorkerGlobalScope;
 console.debug("parseWorker.ts");
-let dag: DAG | null | undefined;
+let dag: DraftExecutionGraph | null | undefined;
 let tokens = "";
+let goal = "";
 let executionId = "";
-let initialNodes: ExecutionNode[] = [];
 self.onmessage = function (
   event: MessageEvent<
-    { buffer: string } | { executionId: string; initialNodes: ExecutionNode[] }
+    { buffer: string } | { goal: string; executionId: string }
   >,
 ) {
-  if ("executionId" in event.data && "initialNodes" in event.data) {
+  if ("executionId" in event.data && "goal" in event.data) {
+    goal = event.data.goal;
     executionId = event.data.executionId;
-    initialNodes = event.data.initialNodes;
     return;
   }
 
@@ -37,47 +37,37 @@ self.onmessage = function (
   try {
     const newPackets = parse(buffer) as Partial<AgentPacket>[];
     newPackets.forEach((packet) => {
-      if (packet.type === "token" && packet.token) {
-        tokens += packet.token;
+      if (packet.type === "t" && packet.t) {
+        tokens += packet.t;
+      } else if (
+        AgentPacketFinishedTypes.includes(
+          packet.type as AgentPacketFinishedType,
+        )
+      ) {
+        self.postMessage({ finishPacket: packet });
       }
     });
-    const yaml = parse(tokens) as Partial<DAG>;
+    const yaml = transformWireFormat(
+      parse(tokens) as PlanWireFormat,
+      goal,
+      executionId,
+    );
     if (yaml && yaml.nodes && yaml.nodes.length > 0) {
-      const optDag = yaml;
-      const validNodes = optDag.nodes?.filter(
-        (n) => n.name.length > 0 && n.id.length > 0 && n.context,
-      );
-      const validEdges = optDag.edges?.filter(
-        (n) => n.sId.length > 0 && n.tId.length > 0,
-      );
-      if (validNodes?.length) {
-        const hookupEdges = findNodesWithNoIncomingEdges(optDag).map((node) => {
-          return {
-            sId: rootPlanId,
-            tId: node.id,
-            graphId: node.graphId || optDag.id || "",
-            id: v4(),
-          };
-        });
-        const partialDAG = new DAG(
-          [
-            ...initialNodes,
-            ...validNodes.map((n) => ({ ...n, id: `${executionId}.${n.id}` })),
-          ],
-          [...(validEdges ?? []), ...hookupEdges],
-        );
-        dag = partialDAG;
-      }
+      dag = {
+        nodes: yaml.nodes,
+        edges: yaml.edges,
+        executionId,
+      };
     } else {
       dag = null;
     }
   } catch (error) {
-    self.postMessage({ dag, error: "partial parse" });
+    // self.postMessage({ dag, error: "partial parse" });
     // normal, we're streaming and receive partial data
   }
   if (dag) {
     self.postMessage({ dag });
   } else {
-    self.postMessage({ dag, error: "no dag" });
+    self.postMessage({ error: "no dag" });
   }
 };

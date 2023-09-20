@@ -11,10 +11,11 @@ import { type Tool } from "langchain/dist/tools/base";
 import { PlanAndExecuteAgentExecutor } from "langchain/experimental/plan_and_execute";
 import { parse } from "yaml";
 
+import { type DraftExecutionGraph } from "@acme/db";
+
 import {
   createCriticizePrompt,
   createExecutePrompt,
-  type DAGNode,
   type TaskState,
 } from "../..";
 import { isTaskCriticism } from "../prompts/types";
@@ -40,7 +41,7 @@ export async function callExecutionAgent(creation: {
   agentPromptingMethod: AgentPromptingMethod;
   task: string;
   dag: string;
-  revieweeTaskResults: TaskState[] | null;
+  revieweeTaskResults: TaskState[];
   contentType: "application/json" | "application/yaml";
   abortSignal: AbortSignal;
   namespace?: string;
@@ -72,15 +73,16 @@ export async function callExecutionAgent(creation: {
   //   result,
   //   returnType,
   // } as const;
-  const nodes = parse(dag) as DAGNode[];
+  const nodes = (parse(dag) as DraftExecutionGraph).nodes;
   const prompt = isReview
     ? createCriticizePrompt({
-        revieweeTaskResults: revieweeTaskResults!,
+        revieweeTaskResults,
         nodes,
         returnType,
       })
     : createExecutePrompt({
         task,
+        goal,
         returnType,
         modelName: creationProps.modelName || LLM_ALIASES["fast"],
       });

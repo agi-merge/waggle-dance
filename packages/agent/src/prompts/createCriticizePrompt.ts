@@ -6,13 +6,14 @@ import {
 import { stringify as jsonStringify } from "superjson";
 import { stringify as yamlStringify } from "yaml";
 
+import { type DraftExecutionNode } from "@acme/db";
+
 import { criticizeSchema } from "./schemas/criticizeSchema";
-import { type DAGNode } from "./types/DAGNode";
 import { type TaskState } from "./types/TaskState";
 
 export function createCriticizePrompt(params: {
   revieweeTaskResults: TaskState[];
-  nodes: DAGNode[];
+  nodes: DraftExecutionNode[];
   returnType: "JSON" | "YAML";
 }): ChatPromptTemplate {
   const { revieweeTaskResults, nodes, returnType } = params;
@@ -20,7 +21,7 @@ export function createCriticizePrompt(params: {
   const schema = criticizeSchema(returnType, "unknown");
 
   const systemTemplate = `
-Server TIME: ${new Date().toString()}
+SERVER TIME: ${new Date().toString()}
 SCHEMA: ${schema}
 RETURN: ONLY a single AgentPacket with the results of your TASK in SCHEMA
 TASK: Review REVIEWEE OUTPUT of REVIEWEE TASK using the SCHEMA.
@@ -29,9 +30,9 @@ TASK: Review REVIEWEE OUTPUT of REVIEWEE TASK using the SCHEMA.
   const systemMessagePrompt =
     SystemMessagePromptTemplate.fromTemplate(systemTemplate);
 
-  const tasksAsHumanMessages = Object.entries(revieweeTaskResults)
+  const tasksAsHumanMessages = revieweeTaskResults
     .map((task, i) => {
-      const node = task[1].node(nodes);
+      const node = task.node(nodes);
       return node
         ? HumanMessagePromptTemplate.fromTemplate(
             `REVIEWEE TASK${i > 0 ? ` ${i}` : ""}:
@@ -40,8 +41,8 @@ context: ${node.context}
 REVIEWEE OUTPUT:
 ${
   returnType === "JSON"
-    ? jsonStringify(task[1].packets)
-    : yamlStringify(task[1].packets)
+    ? jsonStringify(task.packets)
+    : yamlStringify(task.packets)
 }`,
           )
         : undefined;

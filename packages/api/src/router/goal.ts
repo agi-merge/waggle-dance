@@ -34,11 +34,11 @@ export const goalRouter = createTRPCRouter({
                   edges: true,
                 },
               },
+              results: {
+                take: 40,
+                orderBy: { updatedAt: "desc" },
+              },
             },
-          },
-          results: {
-            take: 40,
-            orderBy: { updatedAt: "desc" },
           },
         },
       });
@@ -63,11 +63,11 @@ export const goalRouter = createTRPCRouter({
                 edges: true,
               },
             },
+            results: {
+              take: 40,
+              orderBy: { updatedAt: "desc" },
+            },
           },
-        },
-        results: {
-          take: 40,
-          orderBy: { updatedAt: "desc" },
         },
       },
       take: 6,
@@ -104,10 +104,11 @@ export const goalRouter = createTRPCRouter({
                   edges: true,
                 },
               },
+              results: {
+                take: 40,
+                orderBy: { updatedAt: "desc" },
+              },
             },
-          },
-          results: {
-            orderBy: { updatedAt: "desc" },
           },
         },
       });

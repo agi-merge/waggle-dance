@@ -4,11 +4,20 @@ import { v4 } from "uuid";
 import { create } from "zustand";
 import { createJSONStorage, persist } from "zustand/middleware";
 
-import { defaultAgentSettings, type AgentSettings } from "@acme/agent";
-import { type ExecutionPlusGraph, type GoalPlusExe } from "@acme/db";
+import {
+  defaultAgentSettings,
+  hookRootUpToServerGraph,
+  rootPlanId,
+  type AgentSettings,
+} from "@acme/agent";
+import {
+  type DraftExecutionGraph,
+  type Execution,
+  type ExecutionPlusGraph,
+  type GoalPlusExe,
+} from "@acme/db";
 
 import { app } from "~/constants";
-import type DAG from "~/features/WaggleDance/types/DAG";
 
 export interface WaggleDanceMachineStore {
   isRunning: boolean;
@@ -21,34 +30,24 @@ export interface WaggleDanceMachineStore {
     newValue: Partial<AgentSettings>,
   ) => void;
   execution: ExecutionPlusGraph | null;
-  setExecution: (newExecution: ExecutionPlusGraph | undefined | null) => void;
+  setExecution: (
+    newExecution: ExecutionPlusGraph | undefined | null,
+    goal: string,
+  ) => void;
+  graph: DraftExecutionGraph;
+  setGraph: (newGraph: DraftExecutionGraph, goal: string) => void;
 }
 
 export const draftExecutionPrefix = "draft-";
 export const newDraftExecutionId = () => `${draftExecutionPrefix}${v4()}`;
 
-export function createDraftExecution(selectedGoal: GoalPlusExe, dag: DAG) {
+export function createDraftExecution(selectedGoal: GoalPlusExe) {
   const executionId = newDraftExecutionId();
-  const graphId = newDraftExecutionId();
   const goalId = selectedGoal.id;
-  const nodes = dag.nodes.map((node) => {
-    return { ...node, graphId, id: `${executionId}.${node.id}` };
-  });
-  const edges = dag.edges.map((edge) => {
-    return { ...edge, graphId, id: v4() };
-  });
-  const draftExecution: ExecutionPlusGraph = {
+  const draftExecution: Execution = {
     id: executionId,
     goalId,
     userId: "guest",
-    graph: {
-      id: graphId,
-      executionId,
-      nodes,
-      edges,
-      createdAt: new Date(),
-      updatedAt: new Date(),
-    },
     state: "EXECUTING",
     createdAt: new Date(),
     updatedAt: new Date(),
@@ -73,8 +72,38 @@ const useWaggleDanceMachineStore = create(
           },
         })),
       execution: null,
-      setExecution: (newExecution) => {
-        set({ execution: newExecution || null });
+      setExecution: (newExecution, goal) => {
+        console.debug("setExecution", newExecution);
+        set((state) => ({
+          execution: newExecution || null,
+          graph:
+            (newExecution?.graph &&
+              hookRootUpToServerGraph(
+                newExecution.graph,
+                rootPlanId,
+                newExecution.id,
+                goal,
+              )) ||
+            state.graph,
+        }));
+      },
+      graph: {
+        nodes: [],
+        edges: [],
+        executionId: "",
+      } as DraftExecutionGraph,
+      setGraph: (graph, goal) => {
+        set((state) => ({
+          graph:
+            graph.nodes[0]?.id === rootPlanId
+              ? graph
+              : hookRootUpToServerGraph(
+                  graph,
+                  rootPlanId,
+                  state.execution?.id ?? "",
+                  goal,
+                ),
+        }));
       },
     }),
     {
@@ -82,7 +111,9 @@ const useWaggleDanceMachineStore = create(
       storage: createJSONStorage(() => sessionStorage), // alternatively use: localStorage
       partialize: (state: WaggleDanceMachineStore) =>
         Object.fromEntries(
-          Object.entries(state).filter(([key]) => !["isRunning"].includes(key)),
+          Object.entries(state).filter(
+            ([key]) => !["isRunning", "graph"].includes(key),
+          ),
         ) as WaggleDanceMachineStore,
     },
   ),

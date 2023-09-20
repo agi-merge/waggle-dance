@@ -1,9 +1,12 @@
 // features/WaggleDance/utils/executeTask.ts
 import { parse } from "yaml";
 
-import { type AgentPacket } from "../../../../../../packages/agent";
-import { type InjectAgentPacketType } from "../types/TaskExecutor";
+import {
+  findFinishPacket,
+  type AgentPacket,
+} from "../../../../../../packages/agent";
 import { type ExecuteRequestBody } from "../types/types";
+import { type InjectAgentPacketType } from "../types/WaggleDanceAgentExecutor";
 
 async function fetchTaskData(
   request: ExecuteRequestBody,
@@ -23,22 +26,7 @@ async function fetchTaskData(
 
 function processResponseBuffer(tokens: string): AgentPacket {
   const packets = parse(tokens) as AgentPacket[];
-  const packet = packets.findLast(
-    (packet) =>
-      packet.type === "handleAgentEnd" ||
-      packet.type === "done" ||
-      packet.type === "error" ||
-      packet.type === "handleChainError" ||
-      packet.type === "handleToolError" ||
-      packet.type === "handleLLMError" ||
-      packet.type === "handleRetrieverError" ||
-      packet.type === "handleAgentError",
-  ) ?? {
-    type: "error",
-    severity: "fatal",
-    message: `No exe result packet found in ${packets.length} packets`,
-  }; // Use Nullish Coalescing to provide a default value
-
+  const packet = findFinishPacket(packets);
   return packet;
 }
 
@@ -78,6 +66,7 @@ export default async function executeTask({
 
   const reader = stream.getReader();
   let result;
+  let lastParsedPackets: AgentPacket[] = [];
   while ((result = await reader.read()) && !result.done) {
     if (abortSignal.aborted) {
       throw new Error("Signal aborted");
@@ -93,6 +82,21 @@ export default async function executeTask({
       buffer = Buffer.concat([buffer, completeLine]);
       tokens += buffer.toString();
       buffer = partialLine; // Store the remaining partial line in the buffer
+      if (tokens.length > 0) {
+        try {
+          const parsed = parse(tokens) as AgentPacket[];
+          if (parsed.length - lastParsedPackets.length > 0) {
+            // loop and inject packets
+            // injectAgentPacket(packet, task);
+            parsed.slice(lastParsedPackets.length).forEach((packet) => {
+              injectAgentPacket(packet, task);
+            });
+            lastParsedPackets = parsed;
+          }
+        } catch (error) {
+          // ignore
+        }
+      }
     } else {
       buffer = Buffer.concat([buffer, newData]);
     }

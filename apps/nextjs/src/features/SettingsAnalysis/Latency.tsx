@@ -1,7 +1,7 @@
 // components/Latency.tsx
 import { Tooltip, Typography } from "@mui/joy";
 
-import { type LatencyScaleItem } from "./utils/latencyEstimate";
+import { type LatencyScaleItem } from "./hooks/useLatencyEstimate";
 
 type LatencyProps = {
   latencyLevel: LatencyScaleItem;
