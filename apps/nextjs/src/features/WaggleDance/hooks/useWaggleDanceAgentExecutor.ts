@@ -226,7 +226,7 @@ const useWaggleDanceAgentExecutor = () => {
   const reset = useCallback(() => {
     console.warn("resetting waggle dance machine");
     setGraph(
-      execution?.graph ?? {
+      {
         nodes: initialNodes(goal?.prompt ?? ""),
         edges: [],
         executionId: execution?.id ?? "",
