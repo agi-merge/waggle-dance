@@ -53,8 +53,10 @@ class WaggleDanceAgentExecutor {
   ) {
     // proxy so we can catch and set errors to properly break from the loop
     this.injectAgentPacket = (packet, node) => {
-      if (packet.type === "error" || packet.type === "handleAgentError") {
-        this.setError(packet);
+      if (packet.type === "error") {
+        this.setError(packet.error);
+      } else if (packet.type === "handleAgentError") {
+        this.setError(packet.err);
       }
       injectAgentPacket(packet, node);
     };

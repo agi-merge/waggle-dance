@@ -84,8 +84,8 @@ export type AgentPacket =
   | ({ type: "handleAgentEnd"; value: string } & BaseAgentPacket)
   | ({ type: "handleText"; text: string } & BaseAgentPacket)
   | ({ type: "handleRetrieverError"; err: any } & BaseAgentPacket)
-  // our callbacks
   | ({ type: "handleAgentError"; err: any } & BaseAgentPacket) // synthetic; used for max iterations only
+  // our callbacks
   | ({ type: "done"; value: string } & BaseAgentPacket)
   | ({
       type: "error";
