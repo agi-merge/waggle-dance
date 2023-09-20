@@ -132,6 +132,7 @@ const GoalPage = ({ alertConfigs }: Props) => {
     [goalMap, selectedGoal, route, serverGoals],
   );
 
+  // upsert server-fetched goals into store when server-fetch goals or goal changes
   useEffect(() => {
     if (prevServerGoalsRef.current !== serverGoals) {
       // Batch state updates here
@@ -159,6 +160,7 @@ const GoalPage = ({ alertConfigs }: Props) => {
 
   const prevDestinationRouteRef = useRef<string | undefined>(undefined);
 
+  // update stores and route w/ current values of goal and execution, when ids or the destination route changes
   useEffect(() => {
     goal && selectGoal(goal.id);
     setExecution(execution, goal?.prompt ?? "");
