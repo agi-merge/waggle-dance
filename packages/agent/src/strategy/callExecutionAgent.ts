@@ -5,10 +5,10 @@ import {
   type InitializeAgentExecutorOptions,
 } from "langchain/agents";
 import { type ChatOpenAI } from "langchain/chat_models/openai";
-import { type OpenAI } from "langchain/dist";
 import { type InitializeAgentExecutorOptionsStructured } from "langchain/dist/agents/initialize";
 import { type Tool } from "langchain/dist/tools/base";
 import { PlanAndExecuteAgentExecutor } from "langchain/experimental/plan_and_execute";
+import { type OpenAI } from "langchain/llms/openai";
 import { parse } from "yaml";
 
 import { type DraftExecutionGraph } from "@acme/db";
