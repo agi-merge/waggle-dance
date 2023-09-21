@@ -89,7 +89,6 @@ export async function callExecutionAgent(creation: {
     .map((m) => `${m._getType()}: ${m.content}`)
     .join("\n");
 
-  // optional tools
   const tags = [
     isReview ? "criticize" : "execute",
     agentPromptingMethod,
