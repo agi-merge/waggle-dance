@@ -115,7 +115,7 @@ export async function createMemory(
   }
 }
 
-export async function createVectorStore(namespace: string) {
+export async function createVectorIndex() {
   if (process.env.PINECONE_API_KEY === undefined)
     throw new Error("No pinecone api key found");
   if (process.env.PINECONE_ENVIRONMENT === undefined)
@@ -129,6 +129,11 @@ export async function createVectorStore(namespace: string) {
   });
   const pineconeIndex = client.Index(process.env.PINECONE_INDEX);
 
+  return pineconeIndex;
+}
+
+export async function createVectorStore(namespace: string) {
+  const pineconeIndex = await createVectorIndex();
   const embeddings = createEmbeddings({ modelName: LLM.embeddings });
   const vectorStore = await PineconeStore.fromExistingIndex(embeddings, {
     pineconeIndex,

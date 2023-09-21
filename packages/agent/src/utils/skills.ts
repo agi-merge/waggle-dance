@@ -9,6 +9,7 @@ import { ChainTool, SerpAPI } from "langchain/tools";
 import { WebBrowser } from "langchain/tools/webbrowser";
 import { PineconeStore } from "langchain/vectorstores/pinecone";
 
+import retrieveMemorySkill from "../skills/retrieveMemory";
 import saveMemorySkill from "../skills/saveMemory";
 import { AgentPromptingMethod, LLM_ALIASES } from "./llms";
 import { createModel } from "./model";
@@ -24,6 +25,7 @@ async function createSkills(
   const tools: Tool[] = [
     new WebBrowser({ model: llm, embeddings }),
     saveMemorySkill,
+    retrieveMemorySkill,
   ];
 
   if (namespace) {
