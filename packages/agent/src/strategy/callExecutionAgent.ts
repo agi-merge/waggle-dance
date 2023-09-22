@@ -59,19 +59,19 @@ export async function callExecutionAgent(creation: {
   const llm = createModel(creationProps, agentPromptingMethod);
   const embeddings = createEmbeddings({ modelName: LLM.embeddings });
   const taskObj = parse(task) as { id: string };
-  const isReview = isTaskCriticism(taskObj.id);
+  const isCriticism = isTaskCriticism(taskObj.id);
   const returnType = contentType === "application/json" ? "JSON" : "YAML";
   // methods need to be reattached
   const revieweeTaskResults = revieweeTaskResultsNeedDeserialization.map(
     (t) => new TaskState({ ...t }),
   );
 
-  if (isReview && !revieweeTaskResults) {
+  if (isCriticism && !revieweeTaskResults) {
     throw new Error("No result found to provide to review task");
   }
 
   const nodes = (parse(dag) as DraftExecutionGraph).nodes;
-  const prompt = isReview
+  const prompt = isCriticism
     ? createCriticizePrompt({
         revieweeTaskResults,
         nodes,
@@ -90,7 +90,7 @@ export async function callExecutionAgent(creation: {
     .join("\n");
 
   const tags = [
-    isReview ? "criticize" : "execute",
+    isCriticism ? "criticize" : "execute",
     agentPromptingMethod,
     taskObj.id,
   ];
