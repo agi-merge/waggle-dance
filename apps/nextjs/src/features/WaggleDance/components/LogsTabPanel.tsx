@@ -24,7 +24,7 @@ const LogsTabPanel = ({ logs }: LogsTabPanelProps) => {
         aria-label="Log List"
       >
         {logs.map((log) => (
-          <Box key={`${log.timestamp.toString()}-${log.message}`}>
+          <Box key={`${log.id}-${log.message}`}>
             <ListItem className="overflow-x-scroll">
               <Stack
                 direction="row"

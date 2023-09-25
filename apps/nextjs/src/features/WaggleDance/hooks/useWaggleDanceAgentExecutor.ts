@@ -9,6 +9,7 @@ import {
   type MutableRefObject,
 } from "react";
 import { type GraphData } from "react-force-graph-2d";
+import { v4 } from "uuid";
 // import { type GraphData } from "../components/ForceGraph";
 import { stringify } from "yaml";
 
@@ -32,6 +33,7 @@ export type LogMessage = {
   message: string;
   type: "info" | "error";
   timestamp: Date;
+  id: string;
 };
 
 const useWaggleDanceAgentExecutor = () => {
@@ -175,7 +177,7 @@ const useWaggleDanceAgentExecutor = () => {
 
       setLogs((prevLogs) => [
         ...prevLogs,
-        { message, type: "info", timestamp: new Date() },
+        { message, type: "info", timestamp: new Date(), id: v4() },
       ]);
 
       // Log to the console (optional)
@@ -294,7 +296,12 @@ const useWaggleDanceAgentExecutor = () => {
         if (error instanceof Error) {
           result = error;
         } else {
-          result = new Error(`Unknown error ${JSON.stringify(error)}`);
+          result = new Error(
+            `Unknown error ${stringify(
+              error,
+              Object.getOwnPropertyNames(error),
+            )}`,
+          );
         }
       }
 
