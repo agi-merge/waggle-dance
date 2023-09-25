@@ -12,7 +12,7 @@ const schema = z.object({
 });
 
 const retrieveMemorySkill = new DynamicTool({
-  name: "Retrieve Memory",
+  name: "retrieve_memory",
   description: `Retrieve an important memory from your memory palace.`,
   // func: async () => {
   func: async (input, _runManager) => {

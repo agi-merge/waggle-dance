@@ -24,7 +24,7 @@ const schema = z.object({
 });
 
 const saveMemorySkill = new DynamicTool({
-  name: "Store Memory",
+  name: "store_memory",
   description: `Store memory in your memory palace for later retrieval by other team members.`,
   // func: async () => {
   func: async (input, _runManager) => {

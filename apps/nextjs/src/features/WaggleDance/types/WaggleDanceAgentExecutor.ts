@@ -1,4 +1,5 @@
 import { type MutableRefObject } from "react";
+import { stringify } from "yaml";
 
 import {
   initialNodes,
@@ -251,7 +252,14 @@ class WaggleDanceAgentExecutor {
 
   private setError(error: unknown) {
     this.error =
-      error instanceof Error ? error : new Error(`Unknown error: ${error}`);
+      error instanceof Error
+        ? error
+        : new Error(
+            `Unknown error: ${stringify(
+              error,
+              Object.getOwnPropertyNames(error),
+            )}`,
+          );
   }
   private calculateCriticalPathLength(): number {
     const graph = this.graphDataState.current[0];
