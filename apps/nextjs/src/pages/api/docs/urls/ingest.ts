@@ -1,15 +1,12 @@
 import { type IncomingMessage } from "http";
 import { type NextApiRequest, type NextApiResponse } from "next";
-import { PineconeClient } from "@pinecone-database/pinecone";
 import { PlaywrightWebBaseLoader } from "langchain/document_loaders/web/playwright";
 import { RecursiveCharacterTextSplitter } from "langchain/text_splitter";
-import { PineconeStore } from "langchain/vectorstores/pinecone";
 
+import { insertDocuments } from "@acme/agent/src/utils/vectorStore";
 import { getServerSession } from "@acme/auth";
 
 import { env } from "~/env.mjs";
-import { createEmbeddings } from "../../../../../../../packages/agent";
-import { LLM } from "../../../../../../../packages/agent/src/utils/llms";
 
 export const config = {
   runtime: "nodejs",
@@ -52,12 +49,8 @@ const handler = async (req: IncomingMessage, res: NextApiResponse) => {
       const userId = session.user.id;
       if (!userId) throw new Error("No user id found");
 
-      if (env.PINECONE_API_KEY === undefined)
-        throw new Error("No pinecone api key found");
-      if (env.PINECONE_ENVIRONMENT === undefined)
-        throw new Error("No pinecone environment found");
-      if (env.PINECONE_INDEX === undefined)
-        throw new Error("No pinecone index found");
+      if (env.LONG_TERM_MEMORY_INDEX_NAME === undefined)
+        throw new Error("No long term memory index found");
 
       const loader = new PlaywrightWebBaseLoader(body.url, {
         launchOptions: {
@@ -65,7 +58,7 @@ const handler = async (req: IncomingMessage, res: NextApiResponse) => {
         },
         gotoOptions: {
           waitUntil: "domcontentloaded",
-          timeout: 30000,
+          timeout: 10000,
         },
         /** Pass custom evaluate, in this case you get page and browser instances */
         // async evaluate(page: Page, _browser: Browser) {
@@ -81,22 +74,10 @@ const handler = async (req: IncomingMessage, res: NextApiResponse) => {
         chunkOverlap: 200,
       });
       const docs = await loader.loadAndSplit(splitter);
-      console.log(docs.length);
-      const client = new PineconeClient();
-      await client.init({
-        apiKey: env.PINECONE_API_KEY,
-        environment: env.PINECONE_ENVIRONMENT,
-      });
-      const pineconeIndex = client.Index(env.PINECONE_INDEX);
 
-      await PineconeStore.fromDocuments(
-        docs,
-        createEmbeddings({ modelName: LLM.embeddings }),
-        {
-          pineconeIndex,
-          namespace: userId, // TODO: goal-username
-        },
-      );
+      const store = await insertDocuments(docs, userId);
+
+      console.debug("ingested url", store.toJSON());
 
       const uploadResponse: URLIngestResponse = {
         count: docs.length,

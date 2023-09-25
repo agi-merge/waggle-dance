@@ -14,16 +14,18 @@
     "@acme/db": "^0.1.0",
     "axios": "^1.5.0",
     "cheerio": "1.0.0-rc.12",
+    "graphql": "^16.8.1",
     "net": "^1.0.2",
-    "redis": "^4.6.9",
+    "redis": "^4.6.10",
     "serpapi": "^2.0.0",
     "tls": "^0.0.1",
+    "weaviate-ts-client": "^1.5.0",
     "yaml": "^2.3.2"
   },
   "devDependencies": {
     "@acme/eslint-config": "^0.1.0",
     "@types/crypto-js": "^4.1.2",
-    "eslint": "^8.49.0",
+    "eslint": "^8.50.0",
     "typescript": "^5.2.2"
   }
 }

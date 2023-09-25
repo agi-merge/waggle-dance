@@ -2,7 +2,7 @@ import { Document } from "langchain/document";
 import { DynamicTool } from "langchain/tools";
 import { z } from "zod";
 
-import { createVectorStore } from "../utils/memory";
+import { vectorStoreFromIndex } from "../utils/vectorStore";
 
 // import { createVectorStore } from "../..";
 
@@ -29,7 +29,7 @@ const saveMemorySkill = new DynamicTool({
   // func: async () => {
   func: async (input, _runManager) => {
     const { memory, namespace } = schema.parse(input);
-    const vectorStore = await createVectorStore(namespace);
+    const vectorStore = await vectorStoreFromIndex(namespace);
     const document = new Document({ pageContent: memory, metadata: {} });
     const added = (await vectorStore.addDocuments([document])).join(", ");
     return added;

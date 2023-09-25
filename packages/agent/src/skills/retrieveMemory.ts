@@ -1,11 +1,10 @@
 import { VectorDBQAChain } from "langchain/chains";
 import { ChainTool, DynamicTool } from "langchain/tools";
-import { PineconeStore } from "langchain/vectorstores/pinecone";
 import { z } from "zod";
 
-import { createEmbeddings, createModel } from "../..";
-import { AgentPromptingMethod, LLM, LLM_ALIASES } from "../utils/llms";
-import { createVectorIndex } from "../utils/memory";
+import { createModel } from "../..";
+import { AgentPromptingMethod, LLM_ALIASES } from "../utils/llms";
+import { vectorStoreFromIndex } from "../utils/vectorStore";
 
 const schema = z.object({
   search: z.string().nonempty(),
@@ -18,17 +17,8 @@ const retrieveMemorySkill = new DynamicTool({
   // func: async () => {
   func: async (input, _runManager) => {
     const { search, namespace } = schema.parse(input);
-    // const vectorStore = await createVectorStore(namespace);
-    // const document = new Document({ pageContent: search, metadata: {} });
-    // const added = (await vectorStore.addDocuments([document])).join(", ");
-    // return added;
 
-    const pineconeIndex = await createVectorIndex();
-    const embeddings = createEmbeddings({ modelName: LLM.embeddings });
-    const vectorStore = await PineconeStore.fromExistingIndex(embeddings, {
-      pineconeIndex,
-      namespace,
-    });
+    const vectorStore = await vectorStoreFromIndex(namespace);
 
     const ltmChain = VectorDBQAChain.fromLLM(
       createModel(

@@ -4,7 +4,6 @@ import { createReadStream } from "fs";
 import { type IncomingMessage, type ServerResponse } from "http";
 import { Writable } from "stream";
 import { type NextApiRequest, type NextApiResponse } from "next";
-import { PineconeClient } from "@pinecone-database/pinecone";
 import formidable from "formidable";
 import type IncomingForm from "formidable/Formidable";
 import { type BaseDocumentLoader } from "langchain/dist/document_loaders/base";
@@ -14,13 +13,11 @@ import { JSONLoader } from "langchain/document_loaders/fs/json";
 import { PDFLoader } from "langchain/document_loaders/fs/pdf";
 import { TextLoader } from "langchain/document_loaders/fs/text";
 import { RecursiveCharacterTextSplitter } from "langchain/text_splitter";
-import { PineconeStore } from "langchain/vectorstores/pinecone";
 
+import { insertDocuments } from "@acme/agent/src/utils/vectorStore";
 import { getServerSession } from "@acme/auth";
 
 import { env } from "~/env.mjs";
-import { createEmbeddings } from "../../../../../../packages/agent";
-import { LLM } from "../../../../../../packages/agent/src/utils/llms";
 
 export const config = {
   api: {
@@ -91,26 +88,15 @@ const handler = async (req: IncomingMessage, res: ServerResponse) => {
       };
 
       const flattenedFiles = flattenFiles(files);
-      console.log(`Processing ${JSON.stringify(flattenedFiles)} files`);
+      console.debug(`Processing ${JSON.stringify(flattenedFiles)} files`);
       try {
         const userId = session.user.id;
         if (!userId) throw new Error("No user id found");
 
-        if (env.PINECONE_API_KEY === undefined)
-          throw new Error("No pinecone api key found");
-        if (env.PINECONE_ENVIRONMENT === undefined)
-          throw new Error("No pinecone environment found");
-        if (env.PINECONE_INDEX === undefined)
-          throw new Error("No pinecone index found");
+        if (env.LONG_TERM_MEMORY_INDEX_NAME === undefined)
+          throw new Error("No long term memory index found");
 
-        const client = new PineconeClient();
-        await client.init({
-          apiKey: env.PINECONE_API_KEY,
-          environment: env.PINECONE_ENVIRONMENT,
-        });
-        const pineconeIndex = client.Index(env.PINECONE_INDEX);
-
-        const _ingestResults = await Promise.all(
+        const ingestResults = await Promise.all(
           flattenedFiles
             .filter((file): file is formidable.File => file !== undefined)
             .map(async (file: formidable.File) => {
@@ -147,16 +133,13 @@ const handler = async (req: IncomingMessage, res: ServerResponse) => {
                     });
                     const docs = await loader.loadAndSplit(splitter);
 
-                    console.log(`Loaded ${docs.length} documents`);
+                    const store = await insertDocuments(docs, userId);
 
-                    await PineconeStore.fromDocuments(
-                      docs,
-                      createEmbeddings({ modelName: LLM.embeddings }),
-                      {
-                        pineconeIndex,
-                        namespace: userId, // TODO: goal-username
-                      },
+                    console.debug(
+                      `Loaded ${docs.length} documents`,
+                      store.toJSON(),
                     );
+
                     callback();
                   } catch (error) {
                     callback(error as Error);
@@ -174,6 +157,8 @@ const handler = async (req: IncomingMessage, res: ServerResponse) => {
               return result;
             }),
         );
+
+        console.debug("ingested files", ingestResults);
 
         res.writeHead(200, { "Content-Type": "application/json" });
         const uploadResponse: UploadResponse = {

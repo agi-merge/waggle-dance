@@ -1,6 +1,10 @@
 import { createEnv } from "@t3-oss/env-nextjs";
 import { z } from "zod";
 
+const StartsWithCapital = z.string().refine((value) => /^[A-Z]/.test(value), {
+  message: "Must start with a capital letter",
+});
+
 export const env = createEnv({
   skipValidation: !!process.env.SKIP_ENV_VALIDATION,
   /**
@@ -51,9 +55,7 @@ export const env = createEnv({
     OPENAI_API_KEY: z.string().min(51).max(51).optional(),
     OPENAI_ORGANIZATION_ID: z.string().optional(),
     SERPAPI_API_KEY: z.string().min(64).max(64).optional(),
-    PINECONE_API_KEY: z.string().min(36).max(36).optional(),
-    PINECONE_ENVIRONMENT: z.string().min(1).optional(),
-    PINECONE_INDEX: z.string().min(1).optional(),
+    LONG_TERM_MEMORY_INDEX_NAME: StartsWithCapital.optional(),
     LANGCHAIN_TRACE: z.boolean().optional(),
     EDGE_CONFIG: z.string().url().optional(),
     EDGE_CONFIG_WRITE: z.string().url().optional(),
@@ -91,9 +93,7 @@ export const env = createEnv({
     SERPAPI_API_KEY: process.env.SERPAPI_API_KEY,
     NEXT_PUBLIC_APP_VERSION: process.env.NEXT_PUBLIC_APP_VERSION,
     NEXT_PUBLIC_DISCORD_INVITE_URL: process.env.NEXT_PUBLIC_DISCORD_INVITE_URL,
-    PINECONE_API_KEY: process.env.PINECONE_API_KEY,
-    PINECONE_ENVIRONMENT: process.env.PINECONE_ENVIRONMENT,
-    PINECONE_INDEX: process.env.PINECONE_INDEX,
+    LONG_TERM_MEMORY_INDEX_NAME: process.env.LONG_TERM_MEMORY_INDEX_NAME,
     NEXT_PUBLIC_LANGCHAIN_VERBOSE: process.env.NEXT_PUBLIC_LANGCHAIN_VERBOSE,
     LANGCHAIN_TRACE: process.env.LANGCHAIN_TRACE,
     EDGE_CONFIG: process.env.EDGE_CONFIG,
