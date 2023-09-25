@@ -12,14 +12,14 @@ export const defaultAgentSettings = {
     modelName: LLM_ALIASES["fast"],
     temperature: Temperature.Stable,
     maxTokens: 350,
-    agentPromptingMethod: AgentPromptingMethod.ZeroShotReAct,
+    agentPromptingMethod: AgentPromptingMethod.OpenAIFunctions,
     maxConcurrency: 4,
   },
   execute: {
-    modelName: LLM_ALIASES["fast-large"],
+    modelName: LLM_ALIASES["smart"],
     temperature: Temperature.Stable,
-    maxTokens: 1200,
-    agentPromptingMethod: AgentPromptingMethod.ChatConversationalReAct,
+    maxTokens: 1000,
+    agentPromptingMethod: AgentPromptingMethod.OpenAIStructuredChat,
     maxConcurrency: 6,
   },
 };
