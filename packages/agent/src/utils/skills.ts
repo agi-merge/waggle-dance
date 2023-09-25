@@ -10,13 +10,13 @@ import retrieveMemorySkill from "../skills/retrieveMemory";
 import saveMemorySkill from "../skills/saveMemory";
 
 // skill === tool
-async function createSkills(
+function createSkills(
   namespace: string | undefined,
   llm: OpenAI | ChatOpenAI,
   embeddings: Embeddings,
-  tags: string[],
-  callbacks: Callbacks | undefined,
-): Promise<Tool[]> {
+  _tags: string[],
+  _callbacks: Callbacks | undefined,
+): Tool[] {
   const tools: Tool[] = [
     new WebBrowser({ model: llm, embeddings }),
     saveMemorySkill,

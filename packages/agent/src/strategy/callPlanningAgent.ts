@@ -35,7 +35,7 @@ export async function callPlanningAgent(
   // const planPrompt = createPrompt("plan");
   // const prompt = createPrompt({ type: "plan", creationProps, goal, goalId });
   const embeddings = createEmbeddings({ modelName: LLM.embeddings });
-  const skills = await createSkills(
+  const skills = createSkills(
     namespace,
     llm,
     embeddings,
