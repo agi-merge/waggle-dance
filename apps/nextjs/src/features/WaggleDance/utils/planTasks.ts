@@ -28,8 +28,6 @@ export type PlanTasksProps = {
   ) => Promise<void>;
 };
 
-const parseWorker = new Worker(new URL("./parseWorker.ts", import.meta.url));
-
 export default async function planTasks({
   goal,
   goalId,
@@ -42,6 +40,7 @@ export default async function planTasks({
   abortSignal,
 }: PlanTasksProps): Promise<DraftExecutionGraph | undefined> {
   const intervalHandler = new PlanUpdateIntervalHandler(100); // update at most every...
+  const parseWorker = new Worker(new URL("./parseWorker.ts", import.meta.url));
 
   try {
     // FIXME: we could change to non-draft return type if we return the DB draft from the backend

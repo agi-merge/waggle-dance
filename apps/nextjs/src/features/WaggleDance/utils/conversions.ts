@@ -1,13 +1,13 @@
 // conversions.ts
 
-import { type TaskState } from "@acme/agent";
-import { type DraftExecutionGraph } from "@acme/db";
-
 import {
   type GraphData,
   type LinkObject,
   type NodeObject,
-} from "../components/ForceGraph";
+} from "react-force-graph-2d";
+
+import { type TaskState } from "@acme/agent";
+import { type DraftExecutionGraph } from "@acme/db";
 
 export function dagToGraphData(
   dag: DraftExecutionGraph | null | undefined,
@@ -36,11 +36,13 @@ export function dagToGraphData(
     {},
   );
 
-  const links: LinkObject[] = dag.edges.map((edge) => ({
-    source: nodeLookup[edge.sId],
-    target: nodeLookup[edge.tId],
-    sId: nodeLookup[edge.sId],
-  }));
+  const links: LinkObject[] = dag.edges
+    .map((edge) => ({
+      source: nodeLookup[edge.sId],
+      target: nodeLookup[edge.tId],
+      sId: nodeLookup[edge.sId],
+    }))
+    .filter((link) => !!link.source && !!link.target);
 
   return { nodes, links };
 }

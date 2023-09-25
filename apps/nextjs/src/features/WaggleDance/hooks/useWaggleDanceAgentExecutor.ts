@@ -8,6 +8,8 @@ import {
   useState,
   type MutableRefObject,
 } from "react";
+import { type GraphData } from "react-force-graph-2d";
+// import { type GraphData } from "../components/ForceGraph";
 import { stringify } from "yaml";
 
 import {
@@ -22,7 +24,6 @@ import { type DraftExecutionNode, type ExecutionPlusGraph } from "@acme/db";
 import { api } from "~/utils/api";
 import useGoalStore from "~/stores/goalStore";
 import useWaggleDanceMachineStore from "~/stores/waggleDanceStore";
-import { type GraphData } from "../components/ForceGraph";
 import { type GraphDataState, type WaggleDanceResult } from "../types/types";
 import WaggleDanceAgentExecutor from "../types/WaggleDanceAgentExecutor";
 import { dagToGraphData } from "../utils/conversions";

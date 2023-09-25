@@ -2,7 +2,6 @@
 import { type ParsedUrlQuery } from "querystring";
 import { lazy, Suspense, useEffect, useMemo, useRef } from "react";
 import { type GetStaticPropsResult, type InferGetStaticPropsType } from "next";
-import dynamic from "next/dynamic";
 import { useRouter } from "next/router";
 import {
   Skeleton,
@@ -21,16 +20,10 @@ import MainLayout from "~/features/MainLayout";
 import useIQEstimate from "~/features/SettingsAnalysis/hooks/useIQEstimate";
 import useLatencyEstimate from "~/features/SettingsAnalysis/hooks/useLatencyEstimate";
 import { useRigorEstimate } from "~/features/SettingsAnalysis/hooks/useRigorEstimate";
+import WaggleDance from "~/features/WaggleDance/WaggleDance";
 import useSkillStore from "~/stores/skillStore";
 import useWaggleDanceMachineStore from "~/stores/waggleDanceStore";
 import useGoalStore from "../../stores/goalStore";
-
-const NoSSRWaggleDance = dynamic(
-  () => import("~/features/WaggleDance/WaggleDance"),
-  {
-    ssr: false,
-  },
-);
 
 const PageTitle = lazy(
   () => import("~/features/MainLayout/components/PageTitle"),
@@ -209,7 +202,7 @@ const GoalPage = ({ alertConfigs }: Props) => {
             <Suspense
               fallback={<Skeleton variant="rectangular" height="10rem" />}
             >
-              <NoSSRWaggleDance />
+              <WaggleDance />
             </Suspense>
           </Suspense>
         )}

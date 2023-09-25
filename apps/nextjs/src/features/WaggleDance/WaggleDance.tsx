@@ -360,7 +360,9 @@ const WaggleDance = ({}: Props) => {
                   />
                 }
               >
-                <GraphTabPanel data={graphData} />
+                {graphData.nodes.length > 0 && graphData.links.length > 0 && (
+                  <GraphTabPanel data={graphData} />
+                )}
               </Suspense>
 
               <Suspense

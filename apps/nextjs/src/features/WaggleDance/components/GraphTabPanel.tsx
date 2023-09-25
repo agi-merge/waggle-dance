@@ -1,10 +1,15 @@
 import { TabPanel } from "@mui/joy";
+import { type GraphData } from "react-force-graph-2d";
 
-import ForceGraph, { type GraphData } from "./ForceGraph";
+import PlanForceGraph from "./PlanForceGraph";
 
 type GraphTabPanelProps = {
   data: GraphData;
 };
+
+// const NoSSRForceGraph = dynamic(() => import("react-force-graph-2d"), {
+//   ssr: false,
+// });
 
 const GraphTabPanel = ({ data }: GraphTabPanelProps) => {
   return (
@@ -13,7 +18,8 @@ const GraphTabPanel = ({ data }: GraphTabPanelProps) => {
       className="h-fit w-full items-center overflow-y-scroll"
       sx={{ padding: { xs: 0, sm: 2 } }}
     >
-      <ForceGraph data={data} />
+      <PlanForceGraph graphData={data} />
+      {/* <NoSSRForceGraph graphData={data} /> */}
     </TabPanel>
   );
 };

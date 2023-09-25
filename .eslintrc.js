@@ -25,11 +25,6 @@ const config = {
         message:
           "Importing material component, probably by mistake. Please use @mui/joy instead.",
       },
-      {
-        name: "react-force-graph",
-        message:
-          "Breaks SSR. Ensure that you are dynamically importing this, or the importer is dynamically imported in all uses.",
-      },
     ],
   },
 };

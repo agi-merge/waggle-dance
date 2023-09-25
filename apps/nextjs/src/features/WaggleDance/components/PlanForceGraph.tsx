@@ -1,17 +1,14 @@
 // NoSSRForceGraph.tsx
-import React, { useEffect, useRef, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import useResizeObserver from "@react-hook/resize-observer";
+import ForceGraph, { type ForceGraphProps } from "react-force-graph-2d";
 // ok to do here bc all uses are dynamic (client side)
-// eslint-disable-next-line no-restricted-imports
-import { ForceGraph2D as OriginalForceGraph2D } from "react-force-graph";
+
 import { useDebounce } from "use-debounce";
 
-import { isColorDark } from "../utils/colors";
+import { rootPlanId } from "@acme/agent";
 
-interface GraphData {
-  nodes: NodeObject[];
-  links: LinkObject[];
-}
+import { isColorDark } from "../utils/colors";
 
 type NodeObject = object & {
   id?: string | number;
@@ -27,20 +24,6 @@ type NodeObject = object & {
   containerWidth?: number;
   status?: string;
 };
-
-type LinkObject = object & {
-  source?: string | number | NodeObject;
-  target?: string | number | NodeObject;
-
-  // my props (not on original type)
-  sId?: string;
-};
-
-interface ForceGraphProps {
-  width?: number;
-  height?: number;
-  data: GraphData;
-}
 
 interface ForceGraphRef {
   zoomToFit: (durationMs?: number, padding?: number) => void;
@@ -116,7 +99,7 @@ const renderNodeCanvasObject = (
           0,
           Math.max(
             2,
-            Math.min(30, Math.min(Math.round(globalScale * 2), label.length)),
+            Math.min(30, Math.min(Math.round(globalScale * 1.5), label.length)),
           ),
         ),
       ),
@@ -159,7 +142,7 @@ const renderNodeCanvasObject = (
   ctx.shadowOffsetY = 0;
 };
 
-const NoSSRForceGraph: React.FC<ForceGraphProps> = ({ data }) => {
+const NoSSRForceGraph = ({ graphData }: ForceGraphProps) => {
   const fgRef = useRef<ForceGraphRef | null>(null);
   const containerRef = useRef<HTMLDivElement | null>(null);
   const [containerWidth, setContainerWidth] = useState(0);
@@ -181,11 +164,11 @@ const NoSSRForceGraph: React.FC<ForceGraphProps> = ({ data }) => {
     }
   }, [containerRef]);
 
-  const [debouncedData, _state] = useDebounce(data, 1000);
+  const [debouncedData, _state] = useDebounce(graphData, 1000);
 
   return (
     <div ref={containerRef} style={{ width: "100%", position: "relative" }}>
-      <OriginalForceGraph2D
+      <ForceGraph
         width={containerWidth}
         height={containerWidth / (4 / 3)}
         dagMode={dagMode}
@@ -195,8 +178,10 @@ const NoSSRForceGraph: React.FC<ForceGraphProps> = ({ data }) => {
         // @ts-ignore
         ref={fgRef}
         nodeLabel="name"
-        // nodeAutoColorBy="status"
         nodeColor={(node: NodeObject) => {
+          if (node.id === rootPlanId) {
+            return "#FFD700AA";
+          }
           switch (node.status) {
             case "working":
               return "#ffcc00aa";
@@ -205,14 +190,14 @@ const NoSSRForceGraph: React.FC<ForceGraphProps> = ({ data }) => {
             case "error":
               return "#ff0000aa";
             default:
-              return "#bbbbbb66";
+              return "#bbbbbbaa";
           }
         }}
         graphData={debouncedData}
-        cooldownTicks={60}
+        cooldownTicks={100}
+        warmupTicks={100}
         linkWidth={4}
         linkAutoColorBy={"sId"}
-        // linkAutoColorBy={(link: LinkObject) => stringToColor(String(link.sId))}
         linkDirectionalParticles={2}
         linkDirectionalParticleSpeed={0.007}
         linkDirectionalParticleWidth={5}
@@ -221,27 +206,21 @@ const NoSSRForceGraph: React.FC<ForceGraphProps> = ({ data }) => {
         nodeCanvasObject={renderNodeCanvasObject}
         nodeRelSize={10}
         nodeCanvasObjectMode={() => "after"}
-        linkCurvature={0}
-        d3AlphaDecay={0.7}
-        nodeAutoColorBy={"status"}
-        d3VelocityDecay={0.7}
-        onEngineTick={() => {
-          fgRef.current?.zoomToFit(0, containerWidth / 40);
-          // fgRef.current?.d3ReheatSimulation();
-        }}
-        onEngineStop={() => {
-          fgRef.current?.zoomToFit(0, containerWidth / 40);
-        }}
-        onDagError={(loopNodeIds) => {
-          console.error(`DAG error: ${loopNodeIds}`);
-        }}
+        linkCurvature={0.05}
+        d3AlphaDecay={0}
+        d3VelocityDecay={0.8}
         onNodeDragEnd={(node) => {
           node.fx = node.x;
           node.fy = node.y;
         }}
+        onEngineTick={() => {
+          fgRef.current?.zoomToFit(0, containerWidth / 40);
+        }}
+        onEngineStop={() => {
+          fgRef.current?.zoomToFit(0, containerWidth / 40);
+        }}
         enableZoomInteraction={enableZoomInteraction}
         enablePanInteraction={true}
-        // onNodeClick={handleClick}
         enablePointerInteraction={true}
       />
     </div>
