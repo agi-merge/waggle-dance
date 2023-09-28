@@ -184,7 +184,7 @@ const TaskListItem = ({
                 stringify(t.value.err)}
               {t.value.type === "working" &&
                 t.nodeId === rootPlanId &&
-                `...${nodes.length} tasks and ${edges.length} interependencies`}
+                `...${nodes.length} tasks and ${edges.length} interdependencies`}
             </Typography>
           </Card>
         </Card>
