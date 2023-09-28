@@ -86,12 +86,9 @@ export default async function ExecuteStream(req: NextRequest) {
                 // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
                 err: parse(stringify(err, Object.getOwnPropertyNames(err))),
               };
-              controller.enqueue(
-                encoder.encode(
-                  stringify([packet], Object.getOwnPropertyNames(err)),
-                ),
-              );
+              controller.enqueue(encoder.encode(stringify([packet])));
               packets.push(packet);
+              // can be 'Output parser not set'
               console.error("handleChainError", packet);
             },
             handleToolStart(
