@@ -38,10 +38,11 @@ export default async function PlanStream(req: NextRequest) {
   try {
     const {
       creationProps,
-      goalPrompt,
+      goalPrompt: parsedGoalPrompt,
       goalId: parsedGoalId,
       executionId: parsedExecutionId,
     } = (await req.json()) as PlanRequestBody;
+    goalPrompt = parsedGoalPrompt;
     goalId = parsedGoalId;
     executionId = parsedExecutionId;
 
@@ -89,7 +90,7 @@ export default async function PlanStream(req: NextRequest) {
 
         planResult = await callPlanningAgent(
           creationProps,
-          goalPrompt,
+          goalPrompt!,
           goalId!,
           abortController.signal,
           `${goalId}_${executionId}`,
