@@ -60,6 +60,10 @@ export const env = createEnv({
     EDGE_CONFIG: z.string().url().optional(),
     EDGE_CONFIG_WRITE: z.string().url().optional(),
     VERCEL_ACCESS_TOKEN: z.string().optional(),
+    KV_URL: z.string().url(),
+    KV_REST_API_URL: z.string().url(),
+    KV_REST_API_TOKEN: z.string().nonempty(),
+    KV_REST_API_READ_ONLY_TOKEN: z.string().nonempty(),
   },
   /**
    * Specify your client-side environment variables schema here.
@@ -102,5 +106,9 @@ export const env = createEnv({
     NEXT_PUBLIC_LANGCHAIN_API_URL: process.env.NEXT_PUBLIC_LANGCHAIN_API_URL,
     EMAIL_FROM: process.env.EMAIL_FROM,
     POSTMARK_TOKEN: process.env.POSTMARK_TOKEN,
+    KV_URL: process.env.KV_URL,
+    KV_REST_API_URL: process.env.KV_REST_API_URL,
+    KV_REST_API_TOKEN: process.env.KV_REST_API_TOKEN,
+    KV_REST_API_READ_ONLY_TOKEN: process.env.KV_REST_API_READ_ONLY_TOKEN,
   },
 });

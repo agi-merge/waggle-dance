@@ -8,6 +8,7 @@ import {
 } from "@acme/db";
 
 import { createTRPCRouter, protectedProcedure } from "../trpc";
+import withLock from "./lock";
 
 export const dagShape = z.object({
   nodes: z.array(z.custom<DraftExecutionNode>()),
@@ -55,6 +56,7 @@ export const executionRouter = createTRPCRouter({
         },
       });
     }),
+
   updateGraph: protectedProcedure
     .input(
       z.object({
@@ -62,34 +64,49 @@ export const executionRouter = createTRPCRouter({
         graph: dagShape,
       }),
     )
-    .mutation(({ ctx, input }) => {
-      const { executionId, graph } = input;
+    .mutation(async ({ ctx, input }) => {
+      return await withLock(input.executionId, async () => {
+        const { executionId, graph } = input;
 
-      const connectOrCreateNodes = graph.nodes.map((node) => ({
-        where: { id: makeServerIdIfNeeded(node.id, executionId) },
-        create: { ...node, id: makeServerIdIfNeeded(node.id, executionId) },
-      }));
+        // this is needed because we do not know if the graph already exists or not
+        const connectOrCreateNodes = graph.nodes.map((node) => {
+          const generatedId = makeServerIdIfNeeded(node.id, executionId);
+          return {
+            where: { id: generatedId },
+            create: {
+              id: generatedId,
+              name: node.name,
+              context: node.context,
+              graph: node.graphId
+                ? {
+                    connect: { id: node.graphId },
+                  }
+                : undefined,
+            },
+          };
+        });
 
-      const createEdges = graph.edges.map((edge) => ({
-        sId: makeServerIdIfNeeded(edge.sId, executionId),
-        tId: makeServerIdIfNeeded(edge.tId, executionId),
-      }));
+        const createEdges = graph.edges.map((edge) => ({
+          sId: makeServerIdIfNeeded(edge.sId, executionId),
+          tId: makeServerIdIfNeeded(edge.tId, executionId),
+        }));
 
-      return ctx.prisma.executionGraph.upsert({
-        where: { executionId },
-        create: {
-          executionId,
-          nodes: {
-            connectOrCreate: connectOrCreateNodes,
+        return ctx.prisma.executionGraph.upsert({
+          where: { executionId },
+          create: {
+            executionId,
+            nodes: {
+              connectOrCreate: connectOrCreateNodes,
+            },
+            edges: { create: createEdges },
           },
-          edges: { create: createEdges },
-        },
-        update: {
-          nodes: {
-            connectOrCreate: connectOrCreateNodes,
+          update: {
+            nodes: {
+              connectOrCreate: connectOrCreateNodes,
+            },
+            edges: { create: createEdges },
           },
-          edges: { create: createEdges },
-        },
+        });
       });
     }),
 

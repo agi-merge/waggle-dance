@@ -9,6 +9,7 @@ import {
 import { ExecutionState, type DraftExecutionNode } from "@acme/db";
 
 import { createTRPCRouter, protectedProcedure } from "../trpc";
+import withLock from "./lock";
 
 export const resultRouter = createTRPCRouter({
   create: protectedProcedure
@@ -22,29 +23,31 @@ export const resultRouter = createTRPCRouter({
       }),
     )
     .mutation(async ({ ctx, input }) => {
-      const { goalId, executionId, node, packets, state } = input;
-      node.id = makeServerIdIfNeeded(node.id, executionId);
-      const result = ctx.prisma.result.create({
-        data: {
-          execution: { connect: { id: executionId } },
-          goal: { connect: { id: goalId } },
-          value: findFinishPacket(packets) as Prisma.InputJsonValue,
-          packets: packets as Prisma.InputJsonValue[],
-          packetVersion: 1,
-          node: {
-            connectOrCreate: {
-              where: { id: makeServerIdIfNeeded(node.id, executionId) },
-              create: node,
+      return await withLock(input.executionId, async () => {
+        const { goalId, executionId, node, packets, state } = input;
+        node.id = makeServerIdIfNeeded(node.id, executionId);
+        const result = ctx.prisma.result.create({
+          data: {
+            execution: { connect: { id: executionId } },
+            goal: { connect: { id: goalId } },
+            value: findFinishPacket(packets) as Prisma.InputJsonValue,
+            packets: packets as Prisma.InputJsonValue[],
+            packetVersion: 1,
+            node: {
+              connectOrCreate: {
+                where: { id: node.id },
+                create: node,
+              },
             },
           },
-        },
-      });
+        });
 
-      const updateExecution = ctx.prisma.execution.update({
-        where: { id: executionId },
-        data: { state },
-      });
+        const updateExecution = ctx.prisma.execution.update({
+          where: { id: executionId },
+          data: { state },
+        });
 
-      return await ctx.prisma.$transaction([result, updateExecution]);
+        return await ctx.prisma.$transaction([result, updateExecution]);
+      });
     }),
 });

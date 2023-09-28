@@ -277,6 +277,9 @@ importers:
       '@trpc/server':
         specifier: ^10.38.4
         version: 10.38.4
+      '@vercel/kv':
+        specifier: ^0.2.3
+        version: 0.2.3
       superjson:
         specifier: 1.13.1
         version: 1.13.1
@@ -3255,6 +3258,15 @@ packages:
     engines: {node: '>=14.6'}
     dependencies:
       '@vercel/edge-config-fs': 0.1.0
+    dev: false
+
+  /@vercel/kv@0.2.3:
+    resolution: {integrity: sha512-Wq1+EsRBQmvLlcqCZeYVg1MAARWrnETgLe3Sy3UCqG+zg7LThpkt0YHZe1NN3Aj4IRmCKQamotWrLDdEx+ZB3w==}
+    engines: {node: '>=14.6'}
+    dependencies:
+      '@upstash/redis': 1.22.0
+    transitivePeerDependencies:
+      - encoding
     dev: false
 
   /@xmldom/xmldom@0.8.10:
