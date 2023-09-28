@@ -40,7 +40,7 @@ export default async function ExecuteStream(req: NextRequest) {
   try {
     const {
       creationProps,
-      goal,
+      goalPrompt,
       goalId: parsedGoalId,
       executionId: parsedExecutionId,
       task,
@@ -183,7 +183,7 @@ export default async function ExecuteStream(req: NextRequest) {
 
         const exeResult = await callExecutionAgent({
           creationProps,
-          goal,
+          goalPrompt,
           goalId: parsedGoalId,
           agentPromptingMethod,
           task: stringify(task),

@@ -32,7 +32,7 @@ import type Geo from "./Geo";
 
 export async function callExecutionAgent(creation: {
   creationProps: ModelCreationProps;
-  goal: string;
+  goalPrompt: string;
   goalId: string;
   agentPromptingMethod: AgentPromptingMethod;
   task: string;
@@ -45,7 +45,7 @@ export async function callExecutionAgent(creation: {
 }): Promise<string | Error> {
   const {
     creationProps,
-    goal,
+    goalPrompt,
     agentPromptingMethod,
     task,
     dag,
@@ -79,7 +79,7 @@ export async function callExecutionAgent(creation: {
       })
     : createExecutePrompt({
         task,
-        goal,
+        goalPrompt,
         returnType,
         modelName: creationProps.modelName || LLM_ALIASES["fast"],
       });
@@ -100,7 +100,7 @@ export async function callExecutionAgent(creation: {
   const skills = createSkills(namespace, llm, embeddings, tags, callbacks);
 
   const executor = await initializeExecutor(
-    goal,
+    goalPrompt,
     agentPromptingMethod,
     taskObj,
     creationProps,
@@ -131,9 +131,9 @@ export async function callExecutionAgent(creation: {
   }
 }
 async function initializeExecutor(
-  goal: string,
+  _goalPrompt: string,
   agentPromptingMethod: AgentPromptingMethod,
-  taskObj: { id: string },
+  _taskObj: { id: string },
   creationProps: ModelCreationProps,
   tools: Tool[],
   llm: OpenAI | ChatOpenAI,

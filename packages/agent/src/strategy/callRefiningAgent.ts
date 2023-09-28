@@ -9,16 +9,16 @@ import { type ModelCreationProps } from "../utils/OpenAIPropsBridging";
 
 export async function callRefiningAgent(params: {
   creationProps: ModelCreationProps;
-  goal: string;
+  goalPrompt: string;
   signal: AbortSignal;
   contentType: "application/json" | "application/yaml";
 }) {
-  const { goal, signal, creationProps, contentType } = params;
+  const { goalPrompt, signal, creationProps, contentType } = params;
   const returnType = contentType === "application/json" ? "JSON" : "YAML";
   const llm = createModel(creationProps, AgentPromptingMethod.ZeroShotReAct); // this is used to select OpenAI as the model (non-Chat)
   // const memory = await createMemory(goal);
   // const planPrompt = createPrompt("plan");
-  const prompt = createRefinePrompt({ goal, tools: "", returnType });
+  const prompt = createRefinePrompt({ goalPrompt, tools: "", returnType });
   const chain = new LLMChain({
     // memory,
     prompt,

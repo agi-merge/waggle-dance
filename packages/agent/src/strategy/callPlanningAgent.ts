@@ -16,7 +16,7 @@ import createSkills from "../utils/skills";
 
 export async function callPlanningAgent(
   creationProps: ModelCreationProps,
-  goal: string,
+  goalPrompt: string,
   goalId: string,
   signal: AbortSignal,
   namespace: string,
@@ -43,7 +43,7 @@ export async function callPlanningAgent(
     creationProps.callbacks,
   );
   const prompt = createPlanPrompt({
-    goal,
+    goalPrompt,
     goalId,
     returnType,
     tools: skills,

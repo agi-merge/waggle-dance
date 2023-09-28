@@ -27,7 +27,7 @@ export type InjectAgentPacketType = (
 ) => void;
 
 export type RunParams = {
-  goal: string;
+  goalPrompt: string;
   goalId: string;
   executionId: string;
   agentSettings: AgentSettingsMap;
@@ -44,7 +44,7 @@ class WaggleDanceAgentExecutor {
 
   constructor(
     private agentSettings: AgentSettingsMap,
-    private goal: string,
+    private goalPrompt: string,
     private goalId: string,
     private executionId: string,
     private abortController: AbortController,
@@ -66,7 +66,7 @@ class WaggleDanceAgentExecutor {
   async run(): Promise<WaggleDanceResult | Error> {
     this.taskResults = {};
     this.error = null;
-    const initialNode = initialNodes(this.goal)[0]!;
+    const initialNode = initialNodes(this.goalPrompt)[0]!;
     void (async () => {
       try {
         const result = await this.planAndSetDAG();
@@ -175,7 +175,7 @@ class WaggleDanceAgentExecutor {
       this.agentSettings["plan"],
     );
     const fullPlanDAG = await planTasks({
-      goal: this.goal,
+      goalPrompt: this.goalPrompt,
       goalId: this.goalId,
       executionId: this.executionId,
       creationProps,
@@ -186,7 +186,7 @@ class WaggleDanceAgentExecutor {
     });
 
     if (fullPlanDAG) {
-      this.graphDataState.current[1](fullPlanDAG, this.goal);
+      this.graphDataState.current[1](fullPlanDAG, this.goalPrompt);
       return fullPlanDAG;
     }
     return null;
@@ -204,7 +204,7 @@ class WaggleDanceAgentExecutor {
         this.agentSettings["execute"],
       );
       const executeRequest = {
-        goal: this.goal,
+        goalPrompt: this.goalPrompt,
         goalId: this.goalId,
         executionId: this.executionId,
         agentPromptingMethod:

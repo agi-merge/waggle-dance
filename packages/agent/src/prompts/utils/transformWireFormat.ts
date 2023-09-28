@@ -55,12 +55,12 @@ export const hookRootUpToServerGraph = (
   graph: DraftExecutionGraph,
   rootPlanId: string,
   executionId: string,
-  goal: string,
+  goalPrompt: string,
 ) => {
   const hookupEdges = edgesToHookupToRootNode(graph, executionId, rootPlanId);
   const graphWithRoot = {
     ...graph,
-    nodes: [...initialNodes(goal), ...graph.nodes],
+    nodes: [...initialNodes(goalPrompt), ...graph.nodes],
     edges: [...graph.edges, ...hookupEdges],
     executionId: executionId ?? graph.executionId,
   };
@@ -84,10 +84,13 @@ export const hookRootUpToServerGraph = (
  */
 export function transformWireFormat(
   newFormat: PlanWireFormat,
-  goal: string,
+  goalPrompt: string,
   executionId: string,
 ): OldPlanWireFormat {
-  const oldFormat: OldPlanWireFormat = { nodes: initialNodes(goal), edges: [] };
+  const oldFormat: OldPlanWireFormat = {
+    nodes: initialNodes(goalPrompt),
+    edges: [],
+  };
   const allNodes: { [key: string]: DraftExecutionNode } = {};
 
   // Populate allNodes with initial nodes

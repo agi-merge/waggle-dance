@@ -32,10 +32,10 @@ export interface WaggleDanceMachineStore {
   execution: ExecutionPlusGraph | null;
   setExecution: (
     newExecution: ExecutionPlusGraph | undefined | null,
-    goal: string,
+    goalPrompt: string,
   ) => void;
   graph: DraftExecutionGraph;
-  setGraph: (newGraph: DraftExecutionGraph, goal: string) => void;
+  setGraph: (newGraph: DraftExecutionGraph, goalPrompt: string) => void;
 }
 
 export const draftExecutionPrefix = "draft-";
@@ -72,7 +72,7 @@ const useWaggleDanceMachineStore = create(
           },
         })),
       execution: null,
-      setExecution: (newExecution, goal) => {
+      setExecution: (newExecution, goalPrompt) => {
         console.debug("setExecution", newExecution);
         set((state) => ({
           execution: newExecution || null,
@@ -82,7 +82,7 @@ const useWaggleDanceMachineStore = create(
                 newExecution.graph,
                 rootPlanId,
                 newExecution.id,
-                goal,
+                goalPrompt,
               )) ||
             state.graph,
         }));
@@ -92,7 +92,7 @@ const useWaggleDanceMachineStore = create(
         edges: [],
         executionId: "",
       } as DraftExecutionGraph,
-      setGraph: (graph, goal) => {
+      setGraph: (graph, goalPrompt) => {
         set((state) => ({
           graph:
             graph.nodes[0]?.id === rootPlanId
@@ -101,7 +101,7 @@ const useWaggleDanceMachineStore = create(
                   graph,
                   rootPlanId,
                   state.execution?.id ?? "",
-                  goal,
+                  goalPrompt,
                 ),
         }));
       },
@@ -111,9 +111,7 @@ const useWaggleDanceMachineStore = create(
       storage: createJSONStorage(() => sessionStorage), // alternatively use: localStorage
       partialize: (state: WaggleDanceMachineStore) =>
         Object.fromEntries(
-          Object.entries(state).filter(
-            ([key]) => !["isRunning", "graph"].includes(key),
-          ),
+          Object.entries(state).filter(([key]) => !["isRunning"].includes(key)),
         ) as WaggleDanceMachineStore,
     },
   ),

@@ -42,7 +42,11 @@ const GoalTab: React.FC<GoalTabProps> = ({
 }) => {
   const { setIsPageLoading } = useApp();
   const { isRunning, setIsRunning } = useWaggleDanceMachineStore();
-  const { getGoalInputValue, deleteGoal, selectedGoal } = useGoalStore();
+  const {
+    getGoalInputValue,
+    deleteGoalId: deleteGoal,
+    selectedGoal,
+  } = useGoalStore();
   const del = api.goal.delete.useMutation();
 
   const isAppleDevice = useIsAppleDevice();
@@ -149,7 +153,11 @@ const GoalTab: React.FC<GoalTabProps> = ({
 // The main goal tabber component
 const GoalTabs: React.FC<GoalTabsProps> = ({ children }) => {
   const router = useRouter();
-  const { goalMap, newDraftGoal, selectedGoal } = useGoalStore();
+  const {
+    goalMap,
+    newDraftGoalId: newDraftGoal,
+    selectedGoal,
+  } = useGoalStore();
   const { isRunning } = useWaggleDanceMachineStore();
 
   const goalList = useMemo(() => {

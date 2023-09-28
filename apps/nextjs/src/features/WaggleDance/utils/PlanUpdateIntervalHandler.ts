@@ -11,13 +11,13 @@ export class PlanUpdateIntervalHandler {
   }
 
   public start(
-    setDAG: (dag: DraftExecutionGraph, goal: string) => void,
-    goal: string,
+    setDAG: (dag: DraftExecutionGraph, goalPrompt: string) => void,
+    goalPrompt: string,
   ) {
     if (this.interval === null) {
       this.interval = window.setInterval(() => {
         if (this.newDAGAvailable !== null && this.hasNewNodesOrEdges()) {
-          setDAG(this.newDAGAvailable, goal);
+          setDAG(this.newDAGAvailable, goalPrompt);
           this.previousDAG = this.newDAGAvailable;
           this.newDAGAvailable = null;
         }

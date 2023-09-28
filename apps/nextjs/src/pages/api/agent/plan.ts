@@ -26,7 +26,7 @@ export default async function PlanStream(req: NextRequest) {
   console.debug("plan request");
   const abortController = new AbortController();
   let planResult: string | Error | undefined;
-  let goal: string | undefined;
+  let goalPrompt: string | undefined;
   let goalId: string | undefined;
   let executionId: string | undefined;
   let resolveStreamEnded: () => void;
@@ -38,7 +38,7 @@ export default async function PlanStream(req: NextRequest) {
   try {
     const {
       creationProps,
-      goal,
+      goalPrompt,
       goalId: parsedGoalId,
       executionId: parsedExecutionId,
     } = (await req.json()) as PlanRequestBody;
@@ -89,7 +89,7 @@ export default async function PlanStream(req: NextRequest) {
 
         planResult = await callPlanningAgent(
           creationProps,
-          goal,
+          goalPrompt,
           goalId!,
           abortController.signal,
           `${goalId}_${executionId}`,
@@ -161,10 +161,15 @@ export default async function PlanStream(req: NextRequest) {
       await streamEndedPromise;
 
       try {
-        if (goal && goalId && executionId && typeof planResult === "string") {
+        if (
+          goalPrompt &&
+          goalId &&
+          executionId &&
+          typeof planResult === "string"
+        ) {
           const graph = transformWireFormat(
             parse(planResult) as PlanWireFormat,
-            goal,
+            goalPrompt,
             executionId,
           );
           await updateExecution(

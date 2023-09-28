@@ -24,11 +24,11 @@ let goal = "";
 let executionId = "";
 self.onmessage = function (
   event: MessageEvent<
-    { buffer: string } | { goal: string; executionId: string }
+    { buffer: string } | { goalPrompt: string; executionId: string }
   >,
 ) {
-  if ("executionId" in event.data && "goal" in event.data) {
-    goal = event.data.goal;
+  if ("executionId" in event.data && "goalPrompt" in event.data) {
+    goal = event.data.goalPrompt;
     executionId = event.data.executionId;
     return;
   }

@@ -40,7 +40,7 @@ export type WaggleDanceResult = Record<string, TaskState>;
 
 export type GraphDataState = [
   DraftExecutionGraph,
-  (dag: DraftExecutionGraph, goal: string) => void,
+  (dag: DraftExecutionGraph, goalPrompt: string) => void,
 ];
 export type TaskResultsState = [
   Record<string, TaskState>,
@@ -74,11 +74,11 @@ export function mapAgentSettingsToCreationProps(
 export interface BaseRequestBody {
   creationProps: ModelCreationProps;
   goalId: string;
-  goal: string;
+  goalPrompt: string;
 }
 
 export interface RefineRequestBody {
-  goal: string;
+  goalPrompt: string;
 }
 
 export type PlanRequestBody = BaseRequestBody & {

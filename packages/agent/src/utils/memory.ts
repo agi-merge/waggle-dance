@@ -23,14 +23,13 @@ function hash(str: string): string {
 }
 
 export async function createMemory(
-  goal: string,
   inputKey: "goal" | "task" = "goal",
   namespace?: string,
 ): Promise<BaseChatMemory | BaseMemory | undefined> {
   switch (process.env.MEMORY_TYPE) {
     case "motorhead":
       const memory: MotorheadMemory = new MotorheadMemory({
-        sessionId: hash(goal), //FIXME:
+        sessionId: hash(namespace!),
         url: process.env.MEMORY_URL ?? "http://localhost:8080",
         inputKey,
       });

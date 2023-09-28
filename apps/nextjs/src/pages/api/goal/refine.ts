@@ -37,7 +37,7 @@ export default async function RefineStream(req: NextRequest) {
     // for some reason, since we request this using trpc/undici, we need to await text and parse it manually into json.
     // this may be why: https://undici.nodejs.org/#/?id=body-mixins
     const text = await req.text();
-    const { goal }: RefineRequestBody = parse(text);
+    const { goalPrompt }: RefineRequestBody = parse(text);
 
     const creationProps: ModelCreationProps = {
       modelName: LLM_ALIASES["fast"],
@@ -122,7 +122,7 @@ export default async function RefineStream(req: NextRequest) {
 
     refineResult = await callRefiningAgent({
       creationProps,
-      goal,
+      goalPrompt,
       signal: abortController.signal,
       contentType,
     });

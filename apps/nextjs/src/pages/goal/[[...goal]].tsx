@@ -89,7 +89,12 @@ export function getStaticPaths() {
 type Props = InferGetStaticPropsType<typeof getStaticProps>;
 const GoalPage = ({ alertConfigs }: Props) => {
   const router = useRouter();
-  const { goalMap, selectedGoal, upsertGoals, selectGoal } = useGoalStore();
+  const {
+    goalMap,
+    selectedGoal,
+    upsertGoals,
+    selectGoalId: selectGoal,
+  } = useGoalStore();
   const { isRunning, setExecution, agentSettings } =
     useWaggleDanceMachineStore();
   const { selectedSkills, selectedSkillsLength } = useSkillStore();

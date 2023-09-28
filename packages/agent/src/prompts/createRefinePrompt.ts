@@ -195,15 +195,15 @@ const examples = {
   YAML: yamlStringify(exampleObjects),
 };
 export function createRefinePrompt(params: {
-  goal: string;
+  goalPrompt: string;
   tools: string;
   returnType: "JSON" | "YAML";
 }): PromptTemplate {
-  const { goal, tools, returnType } = params;
+  const { goalPrompt, tools, returnType } = params;
 
   const template = `
 You are a refining AI agent that is helping to verify the tenacity of the User's GOAL.
-User's GOAL: ${goal}
+User's GOAL: ${goalPrompt}
 SERVER TIME: ${new Date().toString()}
 TOOLS: ${tools}
 SCHEMA: ${schema(returnType)}

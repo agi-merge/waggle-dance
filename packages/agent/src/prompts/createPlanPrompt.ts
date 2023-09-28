@@ -167,12 +167,12 @@ const constraints = (format: string) =>
 - THE ONLY THING YOU MUST OUTPUT IS valid ${format} that represents the DAG as the root object.`.trim();
 
 export function createPlanPrompt(params: {
-  goal: string;
+  goalPrompt: string;
   goalId: string;
   tools: Tool[];
   returnType: "JSON" | "YAML";
 }): ChatPromptTemplate {
-  const { goal, tools, returnType } = params;
+  const { goalPrompt, tools, returnType } = params;
   const prettyTools = tools.map((tool) => {
     return { name: tool.name, description: tool.description };
   });
@@ -184,7 +184,7 @@ export function createPlanPrompt(params: {
 YOU: A general goal-solving AI employed by the User to solve the User's GOAL.
 TEAM TOOLS:
 ${stringifiedTools}
-GOAL: ${goal}
+GOAL: ${goalPrompt}
 NOW: ${new Date().toString()}
 SCHEMA: ${schema(returnType)}
 CONSTRAINTS: ${constraints(returnType)}
@@ -202,7 +202,7 @@ TASK: To come up with an efficient and expert plan to solve the User's GOAL, acc
   const systemMessagePrompt =
     SystemMessagePromptTemplate.fromTemplate(template);
 
-  const humanTemplate = `My GOAL is: ${goal}`;
+  const humanTemplate = `My GOAL is: ${goalPrompt}`;
   const humanMessagePrompt =
     HumanMessagePromptTemplate.fromTemplate(humanTemplate);
 

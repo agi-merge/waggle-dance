@@ -14,7 +14,7 @@ import PlanUpdateIntervalHandler from "./PlanUpdateIntervalHandler";
 import { sleep } from "./sleep";
 
 export type PlanTasksProps = {
-  goal: string;
+  goalPrompt: string;
   goalId: string;
   executionId: string;
   creationProps: ModelCreationProps;
@@ -29,7 +29,7 @@ export type PlanTasksProps = {
 };
 
 export default async function planTasks({
-  goal,
+  goalPrompt,
   goalId,
   executionId,
   creationProps,
@@ -48,7 +48,7 @@ export default async function planTasks({
 
     let partialDAG: DraftExecutionGraph = dag;
     let hasFirstTaskStarted = false;
-    const data = { goal, goalId, executionId, creationProps };
+    const data = { goalPrompt, goalId, executionId, creationProps };
     const res = await fetch("/api/agent/plan", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
@@ -66,7 +66,7 @@ export default async function planTasks({
       throw new Error(`No stream: ${res.statusText} `);
     } else {
       log(`started planning!`);
-      initialNode = initialNodes(goal)[0];
+      initialNode = initialNodes(goalPrompt)[0];
       if (initialNode) {
         injectAgentPacket({ type: "working", nodeId: rootPlanId }, initialNode);
       } else {
@@ -75,14 +75,14 @@ export default async function planTasks({
       }
     }
 
-    intervalHandler.start(setDAG, goal);
+    intervalHandler.start(setDAG, goalPrompt);
 
     let postMessageCount = 0;
 
     parseWorker.postMessage({
-      goal,
+      goalPrompt,
       executionId,
-      initialNodes: initialNodes(goal),
+      initialNodes: initialNodes(goalPrompt),
     });
 
     parseWorker.onerror = function (event) {
@@ -157,7 +157,7 @@ export default async function planTasks({
 
           buffer = Buffer.concat([buffer, completeLine]);
           postMessageCount++;
-          parseWorker.postMessage({ buffer: buffer.toString(), goal });
+          parseWorker.postMessage({ buffer: buffer.toString(), goalPrompt });
           buffer = partialLine;
         } else {
           buffer = Buffer.concat([buffer, newData]);
@@ -166,7 +166,7 @@ export default async function planTasks({
 
       if (buffer.length > 0) {
         postMessageCount++;
-        parseWorker.postMessage({ buffer: buffer.toString(), goal });
+        parseWorker.postMessage({ buffer: buffer.toString(), goalPrompt });
       }
 
       while (postMessageCount > 0) {

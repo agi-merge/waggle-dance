@@ -10,13 +10,12 @@ import routes from "~/utils/routes";
 import { app } from "~/constants";
 
 export interface GoalStore {
-  getState: () => GoalStore;
   goalMap: Record<string, GoalPlusExe>;
   selectedGoal: GoalPlusExe | undefined;
   prevSelectedGoal: GoalPlusExe | undefined;
-  newDraftGoal: () => string;
-  deleteGoal: (id: string) => void;
-  selectGoal: (id: string) => void;
+  newDraftGoalId: () => string;
+  deleteGoalId: (id: string) => void;
+  selectGoalId: (id: string) => void;
   upsertGoal: (goal: GoalPlusExe, replaceDraftId?: string | null) => void;
   upsertGoals: (goals: Record<string, GoalPlusExe> | GoalPlusExe[]) => void;
   getGoalInputValue: () => string;
@@ -24,12 +23,12 @@ export interface GoalStore {
 }
 
 export const draftGoalPrefix = "draft-";
-export const newDraftGoal = () => `${draftGoalPrefix}${v4()}`;
-export const newDraftGoalRoute = () => routes.goal({ id: newDraftGoal() });
+export const newDraftGoalId = () => `${draftGoalPrefix}${v4()}`;
+export const newDraftGoalRoute = () => routes.goal({ id: newDraftGoalId() });
 
 const baseGoal = () => {
   return {
-    id: newDraftGoal(),
+    id: newDraftGoalId(),
     prompt: "",
     tooltip: "",
     executions: [],
@@ -47,17 +46,16 @@ const useGoalStore = () =>
   create(
     persist<GoalStore>(
       (set, get) => ({
-        getState: get,
         goalMap: {
           [defaultGoal1.id]: defaultGoal1,
           [defaultGoal2.id]: defaultGoal2,
         },
         selectedGoal: defaultGoal1,
         prevSelectedGoal: undefined,
-        newDraftGoal() {
+        newDraftGoalId() {
           return newGoalInner(set);
         },
-        deleteGoal(id: string) {
+        deleteGoalId(id: string) {
           set((state) => {
             const { [id]: _, ...goalMap } = state.goalMap;
             let selectedGoal =
@@ -78,7 +76,7 @@ const useGoalStore = () =>
             };
           });
         },
-        selectGoal(id: string) {
+        selectGoalId(id: string) {
           const goalMap = get().goalMap;
           const goal = goalMap[id];
           if (!goal) {
@@ -206,6 +204,7 @@ const useGoalStore = () =>
   )();
 
 export default useGoalStore;
+
 function newGoalInner(
   set: (
     partial:
@@ -215,7 +214,7 @@ function newGoalInner(
     replace?: boolean | undefined,
   ) => void,
 ) {
-  const id = newDraftGoal();
+  const id = newDraftGoalId();
   const newGoal = {
     ...baseGoal(),
     id,
