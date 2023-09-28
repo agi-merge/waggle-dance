@@ -151,6 +151,7 @@ async function initializeExecutor(
   ) {
     options = {
       agentType,
+      earlyStoppingMethod: "generate",
       returnIntermediateSteps: false,
       ...creationProps,
       tags,
@@ -165,6 +166,7 @@ async function initializeExecutor(
     options = {
       agentType: agentType,
       returnIntermediateSteps: false,
+      earlyStoppingMethod: "generate",
       ...creationProps,
       tags,
     } as InitializeAgentExecutorOptionsStructured;
