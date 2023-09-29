@@ -2,7 +2,7 @@ import { type MutableRefObject } from "react";
 import { stringify } from "yaml";
 
 import {
-  initialNodes,
+  rootPlanNode,
   TaskState,
   TaskStatus,
   type AgentPacket,
@@ -66,7 +66,7 @@ class WaggleDanceAgentExecutor {
   async run(): Promise<WaggleDanceResult | Error> {
     this.taskResults = {};
     this.error = null;
-    const initialNode = initialNodes(this.goalPrompt)[0]!;
+    const initialNode = rootPlanNode(this.goalPrompt);
     void (async () => {
       try {
         const result = await this.planAndSetDAG();

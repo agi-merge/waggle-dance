@@ -9,7 +9,7 @@ import {
   type DraftExecutionNode,
 } from "@acme/db";
 
-import { initialNodes, makeServerIdIfNeeded, rootPlanId } from "../../..";
+import { makeServerIdIfNeeded, rootPlanId, rootPlanNode } from "../../..";
 import { criticismSuffix } from "../types";
 
 type ParentsDescriptor = {
@@ -66,7 +66,7 @@ export const hookRootUpToServerGraph = (
   const hookupEdges = edgesToHookupToRootNode(graph, executionId, rootPlanId);
   const graphWithRoot = {
     ...graph,
-    nodes: [...initialNodes(goalPrompt), ...graph.nodes],
+    nodes: [rootPlanNode(goalPrompt), ...graph.nodes],
     edges: [...graph.edges, ...hookupEdges],
     executionId: executionId ?? graph.executionId,
   };
@@ -94,7 +94,7 @@ export function transformWireFormat(
   executionId: string,
 ): OldPlanWireFormat {
   const oldFormat: OldPlanWireFormat = {
-    nodes: initialNodes(goalPrompt),
+    nodes: [rootPlanNode(goalPrompt)],
     edges: [],
   };
   const allNodes: { [key: string]: DraftExecutionNode } = {};

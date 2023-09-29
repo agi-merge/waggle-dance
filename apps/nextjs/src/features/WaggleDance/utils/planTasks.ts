@@ -3,8 +3,8 @@
 import { type DraftExecutionGraph, type DraftExecutionNode } from "@acme/db";
 
 import {
-  initialNodes,
   rootPlanId,
+  rootPlanNode,
   type AgentPacket,
   type ModelCreationProps,
 } from "../../../../../../packages/agent";
@@ -66,7 +66,7 @@ export default async function planTasks({
       throw new Error(`No stream: ${res.statusText} `);
     } else {
       log(`started planning!`);
-      initialNode = initialNodes(goalPrompt)[0];
+      initialNode = rootPlanNode(goalPrompt);
       if (initialNode) {
         injectAgentPacket({ type: "working", nodeId: rootPlanId }, initialNode);
       } else {
@@ -82,7 +82,7 @@ export default async function planTasks({
     parseWorker.postMessage({
       goalPrompt,
       executionId,
-      initialNodes: initialNodes(goalPrompt),
+      initialNodes: rootPlanNode(goalPrompt),
     });
 
     parseWorker.onerror = function (event) {

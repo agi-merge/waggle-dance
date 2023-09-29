@@ -14,8 +14,8 @@ import { v4 } from "uuid";
 import { stringify } from "yaml";
 
 import {
-  initialNodes,
   rootPlanId,
+  rootPlanNode,
   TaskState,
   TaskStatus,
   type AgentPacket,
@@ -230,7 +230,7 @@ const useWaggleDanceAgentExecutor = () => {
     console.warn("resetting waggle dance machine");
     setGraph(
       {
-        nodes: initialNodes(goal?.prompt ?? ""),
+        nodes: [rootPlanNode(goal?.prompt ?? "")],
         edges: [],
         executionId: execution?.id ?? "",
       },
