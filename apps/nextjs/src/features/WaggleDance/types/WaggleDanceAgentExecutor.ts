@@ -88,13 +88,16 @@ class WaggleDanceAgentExecutor {
                 } tasks. Due to their dependent nature, the tasks must be executed sequentially.`,
         };
 
-        this.taskResults[initialNode.id] = new TaskState({
-          ...initialNode,
-          packets: [donePacket],
-          value: donePacket,
-          updatedAt: new Date(),
-          nodeId: initialNode.id,
-        });
+        this.setTaskResult(
+          initialNode.id,
+          new TaskState({
+            ...initialNode,
+            packets: [donePacket],
+            value: donePacket,
+            updatedAt: new Date(),
+            nodeId: initialNode.id,
+          }),
+        );
 
         this.injectAgentPacket(donePacket, initialNode);
       } catch (error) {
@@ -174,6 +177,13 @@ class WaggleDanceAgentExecutor {
     }
 
     return this.error || this.taskResults;
+  }
+
+  private setTaskResult(id: string, result: TaskState) {
+    this.taskResults = {
+      ...this.taskResults,
+      [id]: result,
+    };
   }
 
   async planAndSetDAG(): Promise<DraftExecutionGraph | null> {
