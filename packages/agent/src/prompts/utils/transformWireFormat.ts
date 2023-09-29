@@ -57,6 +57,12 @@ export const hookRootUpToServerGraph = (
   executionId: string,
   goalPrompt: string,
 ) => {
+  if (
+    !!graph.nodes.find((node) => node.id === rootPlanId) &&
+    !!graph.edges.find((edge) => edge.sId === rootPlanId)
+  ) {
+    return graph;
+  }
   const hookupEdges = edgesToHookupToRootNode(graph, executionId, rootPlanId);
   const graphWithRoot = {
     ...graph,
