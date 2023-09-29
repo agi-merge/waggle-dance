@@ -75,11 +75,17 @@ class WaggleDanceAgentExecutor {
           this.setError(new Error("No plan found"));
         }
 
+        const speedupFactor = this.calculateSpeedupFactor();
         const donePacket: AgentPacket = {
           type: "done",
-          value: `Achieved a ${this.calculateSpeedupFactor()}x speed-up by planning ${
-            result?.nodes.length ?? 0
-          } tasks with ${result?.edges.length ?? 0} task relationships.`,
+          value:
+            speedupFactor > 1
+              ? `Achieved a ${speedupFactor}x speed-up by planning ${
+                  result?.nodes.length ?? 0
+                } tasks with ${result?.edges.length ?? 0} task relationships.`
+              : `Planned ${
+                  result?.nodes.length ?? 0
+                } tasks. Due to their dependent nature, the tasks must be executed sequentially.`,
         };
 
         this.taskResults[initialNode.id] = new TaskState({
