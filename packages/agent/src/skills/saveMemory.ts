@@ -1,32 +1,29 @@
 import { Document } from "langchain/document";
-import { DynamicTool } from "langchain/tools";
 import { z } from "zod";
 
 import { vectorStoreFromIndex } from "../utils/vectorStore";
-
-// import { createVectorStore } from "../..";
-
-/*
-export interface DocumentInput<Metadata extends Record<string, any> = Record<string, any>> {
-    pageContent: string;
-    metadata?: Metadata;
-}
-export declare class Document<Metadata extends Record<string, any> = Record<string, any>> implements DocumentInput {
-    pageContent: string;
-    metadata: Metadata;
-    constructor(fields: DocumentInput<Metadata>);
-}
-*/
+import AbstractedSkill from "./AbstractedSkill";
 
 const schema = z.object({
-  memory: z.string().nonempty(),
-  namespace: z.string().nonempty(),
+  memory: z
+    .string()
+    .nonempty()
+    .describe("The memory to store in the vector store"),
+  namespace: z
+    .string()
+    .nonempty()
+    .describe(
+      "Use the NAMESPACE variable for user data, and a hash of the task id for task-chain memory isolation. This improves security and prevents context poisoning.",
+    ),
 });
 
-const saveMemorySkill = new DynamicTool({
-  name: "store_memory",
-  description: `Store memory in your memory palace for later retrieval by other team members.`,
-  // func: async () => {
+const saveMemorySkill = new AbstractedSkill({
+  name: "saveMemory",
+  description: `Save memory in your memory palace for later retrieval by other team members. You must use the following schema as input: ${JSON.stringify(
+    schema.shape,
+    null,
+    2,
+  )}`,
   func: async (input, _runManager) => {
     const { memory, namespace } = schema.parse(input);
     const vectorStore = await vectorStoreFromIndex(namespace);
@@ -34,6 +31,7 @@ const saveMemorySkill = new DynamicTool({
     const added = (await vectorStore.addDocuments([document])).join(", ");
     return added;
   },
+  schema,
 });
 
 export default saveMemorySkill;

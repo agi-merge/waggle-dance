@@ -1,6 +1,6 @@
 // agent/prompts/createPlanPrompt.ts
 
-import { type Tool } from "langchain/dist/tools/base";
+import { type StructuredTool } from "langchain/dist/tools/base";
 import {
   ChatPromptTemplate,
   HumanMessagePromptTemplate,
@@ -169,12 +169,14 @@ const constraints = (format: string) =>
 export function createPlanPrompt(params: {
   goalPrompt: string;
   goalId: string;
-  tools: Tool[];
+  tools: StructuredTool[];
   returnType: "JSON" | "YAML";
 }): ChatPromptTemplate {
   const { goalPrompt, tools, returnType } = params;
   const prettyTools = tools.map((tool) => {
-    return { name: tool.name, description: tool.description };
+    const cleanedName = tool.name.replace(/[{}]/g, "");
+    const cleanedDescription = tool.description.replace(/[{}]/g, "");
+    return { name: cleanedName, description: cleanedDescription };
   });
   const stringifiedTools =
     returnType === "JSON"

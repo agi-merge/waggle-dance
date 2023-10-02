@@ -27,21 +27,13 @@ export async function callPlanningAgent(
     goalId,
     ...(creationProps.modelName ? [creationProps.modelName] : []),
   ];
-  const llm = createModel(
-    creationProps,
-    AgentPromptingMethod.ChatConversationalReAct,
-  ); // this is used to select a chat model (required for system message prompt)
+  const agentPromptingMethod = AgentPromptingMethod.ChatConversationalReAct; // this is used to select a chat model (required for system message prompt)
+  const llm = createModel(creationProps, agentPromptingMethod);
   // const memory = await createMemory(goal);
   // const planPrompt = createPrompt("plan");
   // const prompt = createPrompt({ type: "plan", creationProps, goal, goalId });
   const embeddings = createEmbeddings({ modelName: LLM.embeddings });
-  const skills = createSkills(
-    namespace,
-    llm,
-    embeddings,
-    tags,
-    creationProps.callbacks,
-  );
+  const skills = createSkills(namespace, llm, embeddings, agentPromptingMethod);
   const prompt = createPlanPrompt({
     goalPrompt,
     goalId,

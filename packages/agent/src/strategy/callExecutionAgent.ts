@@ -6,7 +6,7 @@ import {
 } from "langchain/agents";
 import { type ChatOpenAI } from "langchain/chat_models/openai";
 import { type InitializeAgentExecutorOptionsStructured } from "langchain/dist/agents/initialize";
-import { type Tool } from "langchain/dist/tools/base";
+import { type StructuredTool, type Tool } from "langchain/dist/tools/base";
 import { PlanAndExecuteAgentExecutor } from "langchain/experimental/plan_and_execute";
 import { type OpenAI } from "langchain/llms/openai";
 import { parse } from "yaml";
@@ -97,7 +97,7 @@ export async function callExecutionAgent(creation: {
   namespace && tags.push(namespace);
   creationProps.modelName && tags.push(creationProps.modelName);
 
-  const skills = createSkills(namespace, llm, embeddings, tags, callbacks);
+  const skills = createSkills(namespace, llm, embeddings, agentPromptingMethod);
 
   const executor = await initializeExecutor(
     goalPrompt,
@@ -135,7 +135,7 @@ async function initializeExecutor(
   agentPromptingMethod: AgentPromptingMethod,
   _taskObj: { id: string },
   creationProps: ModelCreationProps,
-  tools: Tool[],
+  tools: StructuredTool[],
   llm: OpenAI | ChatOpenAI,
   tags: string[],
 ) {
@@ -157,7 +157,11 @@ async function initializeExecutor(
       tags,
     } as InitializeAgentExecutorOptions;
 
-    executor = await initializeAgentExecutorWithOptions(tools, llm, options);
+    executor = await initializeAgentExecutorWithOptions(
+      tools as Tool[],
+      llm,
+      options,
+    );
   } else if (
     InitializeAgentExecutorOptionsStructuredAgentTypes.includes(
       agentType as InitializeAgentExecutorOptionsStructuredAgentType,
@@ -174,7 +178,7 @@ async function initializeExecutor(
   } else {
     executor = PlanAndExecuteAgentExecutor.fromLLMAndTools({
       llm,
-      tools,
+      tools: tools as Tool[],
       tags,
     });
   }

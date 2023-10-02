@@ -1,26 +1,24 @@
-import { type Callbacks } from "langchain/callbacks";
 import { type ChatOpenAI } from "langchain/chat_models/openai";
-import { type Tool } from "langchain/dist/tools/base";
 import { type Embeddings } from "langchain/embeddings/base";
 import { type OpenAI } from "langchain/llms/openai";
-import { SerpAPI } from "langchain/tools";
+import { SerpAPI, type StructuredTool } from "langchain/tools";
 import { WebBrowser } from "langchain/tools/webbrowser";
 
 import retrieveMemorySkill from "../skills/retrieveMemory";
 import saveMemorySkill from "../skills/saveMemory";
+import { type AgentPromptingMethod } from "./llms";
 
 // skill === tool
 function createSkills(
   namespace: string | undefined,
   llm: OpenAI | ChatOpenAI,
   embeddings: Embeddings,
-  _tags: string[],
-  _callbacks: Callbacks | undefined,
-): Tool[] {
-  const tools: Tool[] = [
+  agentPromptingMethod: AgentPromptingMethod,
+): StructuredTool[] {
+  const tools = [
     new WebBrowser({ model: llm, embeddings }),
-    saveMemorySkill,
-    retrieveMemorySkill,
+    saveMemorySkill.toTool(agentPromptingMethod),
+    retrieveMemorySkill.toTool(agentPromptingMethod),
   ];
 
   if (process.env.SERPAPI_API_KEY?.length) {
@@ -33,7 +31,7 @@ function createSkills(
     );
   }
 
-  return tools;
+  return tools as StructuredTool[];
 }
 
 // returns the count that would be created given a config, without actually instantiating the skills
