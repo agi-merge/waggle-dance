@@ -4,16 +4,8 @@
   },
   "crons": [
     {
-      "path": "/",
-      "schedule": "*/4 * * * *"
-    },
-    {
       "path": "/api/execution/cleanup",
       "schedule": "*/5 * * * *"
-    },
-    {
-      "path": "/api/execution/cleanup",
-      "schedule": "2-59/5 * * * *"
     },
     {
       "path": "/api/execution/deleteOld",
