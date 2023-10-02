@@ -89,7 +89,7 @@ export default async function ExecuteStream(req: NextRequest) {
               controller.enqueue(encoder.encode(stringify([packet])));
               packets.push(packet);
               // can be 'Output parser not set'
-              console.error("handleChainError", packet);
+              console.error("handleChainError", err);
             },
             handleToolStart(
               tool: Serialized,
