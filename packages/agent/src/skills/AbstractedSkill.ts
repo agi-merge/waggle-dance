@@ -47,6 +47,13 @@ class AbstractedSkill<T extends z.ZodObject<any, any, any, any>> {
       }
       return new DynamicStructuredTool(options);
     } else {
+      options.description = `${
+        options.description
+      } You must use the following schema as input: ${JSON.stringify(
+        options.schema.shape,
+        null,
+        2,
+      )}`;
       // Add more else if blocks here for other agentTypes, returning the appropriate Tool instance for each one.
       // If none of the conditions match, return a default Tool instance or throw an error.
       return new DynamicTool(options);

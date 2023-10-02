@@ -174,9 +174,7 @@ export function createPlanPrompt(params: {
 }): ChatPromptTemplate {
   const { goalPrompt, tools, returnType } = params;
   const prettyTools = tools.map((tool) => {
-    const cleanedName = tool.name.replace(/[{}]/g, "");
-    const cleanedDescription = tool.description.replace(/[{}]/g, "");
-    return { name: cleanedName, description: cleanedDescription };
+    return { name: tool.name, description: tool.description };
   });
   const stringifiedTools =
     returnType === "JSON"

@@ -19,11 +19,7 @@ const schema = z.object({
 
 const saveMemorySkill = new AbstractedSkill({
   name: "saveMemory",
-  description: `Save memory in your memory palace for later retrieval by other team members. You must use the following schema as input: ${JSON.stringify(
-    schema.shape,
-    null,
-    2,
-  )}`,
+  description: `Save memory in your memory palace for later retrieval by other team members.`,
   func: async (input, _runManager) => {
     const { memory, namespace } = schema.parse(input);
     const vectorStore = await vectorStoreFromIndex(namespace);
