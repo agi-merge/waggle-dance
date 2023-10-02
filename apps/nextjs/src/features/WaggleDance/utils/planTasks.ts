@@ -130,8 +130,9 @@ export default async function planTasks({
         }
       }
     };
-
     let buffer = Buffer.alloc(0);
+    let objectStartIndex = 0; // This index will track the start of the current YAML object.
+
     async function streamToString(stream: ReadableStream<Uint8Array>) {
       const decoder = new TextDecoder();
       const transformStream = new TransformStream<Uint8Array, string>({
@@ -144,32 +145,51 @@ export default async function planTasks({
       const reader = readableStream.getReader();
 
       let result;
-      while ((result = await reader.read()) && result.value) {
+      while ((result = await reader.read()) && !result.done) {
         if (abortSignal.aborted) {
           throw new Error("Signal aborted");
         }
         const newData = Buffer.from(result.value);
-        const lineBreakIndex = newData.lastIndexOf("\n");
+        buffer = Buffer.concat([buffer, newData]);
 
-        if (lineBreakIndex !== -1) {
-          const completeLine = newData.subarray(0, lineBreakIndex + 1);
-          const partialLine = newData.subarray(lineBreakIndex + 1);
-
-          buffer = Buffer.concat([buffer, completeLine]);
+        let lastIndex;
+        while (
+          (lastIndex = buffer
+            .toString("utf-8", objectStartIndex)
+            .indexOf("\n- ")) !== -1
+        ) {
+          // Check for abort signal in each iteration
+          if (abortSignal.aborted) {
+            throw new Error("Signal aborted");
+          }
+          const completeData = buffer.slice(
+            objectStartIndex,
+            objectStartIndex + lastIndex,
+          );
           postMessageCount++;
-          parseWorker.postMessage({ buffer: buffer.toString(), goalPrompt });
-          buffer = partialLine;
-        } else {
-          buffer = Buffer.concat([buffer, newData]);
+          parseWorker.postMessage({
+            buffer: completeData.toString(),
+            goalPrompt,
+          });
+          objectStartIndex += lastIndex + 1; // Update the start index to the start of the next YAML object.
         }
       }
 
-      if (buffer.length > 0) {
+      // Handle the last element
+      if (objectStartIndex < buffer.length) {
+        // If there is still data in the buffer after the last "\n- ", it is the last YAML object.
+        const completeData = buffer.slice(objectStartIndex);
         postMessageCount++;
-        parseWorker.postMessage({ buffer: buffer.toString(), goalPrompt });
+        parseWorker.postMessage({
+          buffer: completeData.toString(),
+          goalPrompt,
+        });
       }
 
       while (postMessageCount > 0) {
+        if (abortSignal.aborted) {
+          throw new Error("Signal aborted");
+        }
         await sleep(100);
       }
     }

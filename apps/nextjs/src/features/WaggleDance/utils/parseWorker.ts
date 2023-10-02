@@ -35,7 +35,7 @@ self.onmessage = function (
 
   const { buffer } = event.data;
   try {
-    const newPackets = parse(buffer) as Partial<AgentPacket>[];
+    const newPackets = parse(buffer) as AgentPacket[];
     newPackets.forEach((packet) => {
       if (packet.type === "t" && packet.t) {
         tokens += packet.t;
