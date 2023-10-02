@@ -49,8 +49,7 @@ export const isAgentPacketFinishedType = (type: AgentPacketType) => {
 export const findFinishPacket = (packets: AgentPacket[]): AgentPacket => {
   const packet = packets.findLast((packet) => {
     try {
-      isAgentPacketFinishedType(packet.type);
-      return true;
+      return isAgentPacketFinishedType(packet.type);
     } catch (err) {
       return false;
     }
