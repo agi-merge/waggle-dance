@@ -13,7 +13,7 @@ const schema = z.object({
     .string()
     .nonempty()
     .describe(
-      "Use the NAMESPACE variable for user data, and a hash of the task id for task-chain memory isolation. This improves security and prevents context poisoning.",
+      "The namespace to save the memory to. Use the NAMESPACE variable for memory isolation. This improves security and prevents context poisoning.",
     ),
 });
 

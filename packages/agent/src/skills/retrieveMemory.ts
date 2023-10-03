@@ -15,7 +15,7 @@ const schema = z.object({
     .string()
     .nonempty()
     .describe(
-      "The namespace from which to retrieve the memory. Use the NAMESPACE variable for user data, and a hash of the task id for task-chain memory isolation.",
+      "The namespace from which to retrieve the memory. Use the NAMESPACE variable for memory isolation. This improves security and prevents context poisoning.",
     ),
 });
 
