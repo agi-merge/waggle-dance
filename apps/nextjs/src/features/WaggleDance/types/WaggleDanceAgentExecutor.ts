@@ -161,7 +161,7 @@ class WaggleDanceAgentExecutor {
         );
       });
 
-      const isDonePlanning = this.taskResults[initialNode.id];
+      const isDonePlanning = !!this.taskResults[initialNode.id];
 
       if (pendingTasks.length === 0 && isDonePlanning) {
         // sanity check for invalid state
@@ -173,10 +173,15 @@ class WaggleDanceAgentExecutor {
           console.debug(
             "waiting for scheduled tasks (tasks without incomplete dependencies)",
           );
-          await sleep(100);
         } else {
-          this.executeTasks(pendingCurrentDagLayerTasks, dag, scheduledTasks);
+          this.executeTasks(
+            pendingCurrentDagLayerTasks,
+            dag,
+            scheduledTasks,
+            isDonePlanning,
+          );
         }
+        await sleep(100);
       }
     }
 
@@ -216,10 +221,26 @@ class WaggleDanceAgentExecutor {
     tasks: Array<DraftExecutionNode>,
     dag: DraftExecutionGraph,
     scheduledTasks: Set<string>,
+    isDonePlanning: boolean,
   ) {
-    const revieweeTaskResults = Object.values(this.taskResults);
+    // Store the results of the tasks that have been started
     const startedTaskIds = new Set<string>();
-    const tasksPromisesAndIds = tasks.map((task) => {
+
+    // Get the results of the tasks that have been reviewed
+    const revieweeTaskResults = Object.values(this.taskResults);
+
+    // Iterate over each task
+    tasks.forEach((task, index) => {
+      // Check if the next task exists or if planning is done
+      // If the next task exists, it means the current task's context is complete
+      // If planning is done, it means all tasks' context are complete
+      const isContextComplete = !!(isDonePlanning || tasks[index + 1]);
+
+      // If the context is not complete, we don't execute the task
+      if (!isContextComplete) {
+        return;
+      }
+
       const creationProps = mapAgentSettingsToCreationProps(
         this.agentSettings["execute"],
       );
@@ -235,25 +256,18 @@ class WaggleDanceAgentExecutor {
         creationProps,
       };
       scheduledTasks.add(task.id);
-      return {
-        id: task.id,
-        promise: executeTask({
-          request: executeRequest,
-          injectAgentPacket: this.injectAgentPacket,
-          log: this.log,
-          abortSignal: this.abortController.signal,
-        }),
-      };
-    });
 
-    void (async () => {
-      try {
-        const taskResults = await Promise.all(
-          tasksPromisesAndIds.map((t) => t.promise),
-        );
+      // Execute the task and store the promise
+      const promise = executeTask({
+        request: executeRequest,
+        injectAgentPacket: this.injectAgentPacket,
+        log: this.log,
+        abortSignal: this.abortController.signal,
+      });
 
-        taskResults.forEach((packet, i) => {
-          const task = tasks[i]!;
+      // Handle the result of the promise
+      promise
+        .then((packet) => {
           this.taskResults[task.id] = new TaskState({
             ...task,
             packets: [packet],
@@ -261,12 +275,15 @@ class WaggleDanceAgentExecutor {
             nodeId: task.id,
             updatedAt: new Date(),
           });
+        })
+        .catch((error) => {
+          this.setError(error);
         });
-      } catch (error) {
-        this.setError(error);
-      }
-    })();
-    // void Promise.all(tasksPromisesAndIds.map((t) => t?.promise));
+
+      // Add the task id to the set of started tasks
+      startedTaskIds.add(task.id);
+    });
+
     return startedTaskIds;
   }
 
