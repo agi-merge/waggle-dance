@@ -33,7 +33,13 @@ export async function callPlanningAgent(
   // const planPrompt = createPrompt("plan");
   // const prompt = createPrompt({ type: "plan", creationProps, goal, goalId });
   const embeddings = createEmbeddings({ modelName: LLM.embeddings });
-  const skills = createSkills(namespace, llm, embeddings, agentPromptingMethod);
+  const skills = createSkills(
+    namespace,
+    llm,
+    embeddings,
+    agentPromptingMethod,
+    returnType,
+  );
   const prompt = createPlanPrompt({
     goalPrompt,
     goalId,

@@ -97,7 +97,13 @@ export async function callExecutionAgent(creation: {
   namespace && tags.push(namespace);
   creationProps.modelName && tags.push(creationProps.modelName);
 
-  const skills = createSkills(namespace, llm, embeddings, agentPromptingMethod);
+  const skills = createSkills(
+    namespace,
+    llm,
+    embeddings,
+    agentPromptingMethod,
+    returnType,
+  );
 
   const executor = await initializeExecutor(
     goalPrompt,

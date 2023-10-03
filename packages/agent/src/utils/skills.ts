@@ -14,11 +14,12 @@ function createSkills(
   llm: OpenAI | ChatOpenAI,
   embeddings: Embeddings,
   agentPromptingMethod: AgentPromptingMethod,
+  returnType: "YAML" | "JSON",
 ): StructuredTool[] {
   const tools = [
     new WebBrowser({ model: llm, embeddings }),
-    saveMemorySkill.toTool(agentPromptingMethod),
-    retrieveMemorySkill.toTool(agentPromptingMethod),
+    saveMemorySkill.toTool(agentPromptingMethod, returnType),
+    retrieveMemorySkill.toTool(agentPromptingMethod, returnType),
   ];
 
   if (process.env.SERPAPI_API_KEY?.length) {

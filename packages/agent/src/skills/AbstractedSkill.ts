@@ -4,6 +4,8 @@ import {
   DynamicTool,
   type StructuredTool,
 } from "langchain/tools";
+import { parse as jsonParse, stringify as jsonStringify } from "superjson";
+import { stringify as yamlStringify } from "yaml";
 import { type z } from "zod";
 
 import { AgentPromptingMethod } from "../utils/llms";
@@ -30,7 +32,10 @@ class AbstractedSkill<T extends z.ZodObject<any, any, any, any>> {
     this.skill = options;
   }
 
-  toTool(agentType: AgentPromptingMethod): StructuredTool {
+  toTool(
+    agentType: AgentPromptingMethod,
+    _returnType: "YAML" | "JSON",
+  ): StructuredTool {
     const options = {
       name: this.skill.name,
       description: this.skill.description,
@@ -42,20 +47,19 @@ class AbstractedSkill<T extends z.ZodObject<any, any, any, any>> {
       agentType === AgentPromptingMethod.OpenAIFunctions ||
       agentType === AgentPromptingMethod.OpenAIStructuredChat
     ) {
-      if (!this.skill.schema) {
-        throw new Error("Schema is required for DynamicStructuredTool");
-      }
       return new DynamicStructuredTool(options);
     } else {
-      options.description = `${
-        options.description
-      } You must use the following schema as input: ${JSON.stringify(
-        options.schema.shape,
-        null,
-        2,
-      ).replaceAll(/[{}]/g, "")}`;
-      // Add more else if blocks here for other agentTypes, returning the appropriate Tool instance for each one.
-      // If none of the conditions match, return a default Tool instance or throw an error.
+      // const schemaString =
+      //   returnType === "JSON"
+      //     ? jsonStringify(options.schema.shape)
+      //     : yamlStringify(
+      //         options.schema.shape,
+      //         Object.getOwnPropertyNames(options.schema),
+      //       );
+      const schemaString = yamlStringify(
+        jsonParse(jsonStringify(options.schema.shape)),
+      );
+      options.description = `${options.description}. Your input must follow this schema: ${schemaString}`;
       return new DynamicTool(options);
     }
   }
