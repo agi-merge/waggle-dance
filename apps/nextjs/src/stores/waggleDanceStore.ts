@@ -94,15 +94,12 @@ const useWaggleDanceMachineStore = create(
       } as DraftExecutionGraph,
       setGraph: (graph, goalPrompt) => {
         set((state) => ({
-          graph:
-            graph.nodes[0]?.id === rootPlanId
-              ? graph
-              : hookRootUpToServerGraph(
-                  graph,
-                  rootPlanId,
-                  state.execution?.id ?? "",
-                  goalPrompt,
-                ),
+          graph: hookRootUpToServerGraph(
+            graph,
+            rootPlanId,
+            state.execution?.id ?? "",
+            goalPrompt,
+          ),
         }));
       },
     }),
