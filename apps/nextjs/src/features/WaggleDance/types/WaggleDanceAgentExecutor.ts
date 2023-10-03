@@ -71,8 +71,12 @@ class WaggleDanceAgentExecutor {
       try {
         const result = await this.planAndSetDAG();
         console.debug("done planning");
+        if (this.error) {
+          return;
+        }
         if (!result || result.nodes.length === 1) {
           this.setError(new Error("No plan found"));
+          return;
         }
 
         const speedupFactor = this.calculateSpeedupFactor();
