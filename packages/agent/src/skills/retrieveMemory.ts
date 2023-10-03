@@ -4,7 +4,7 @@ import { z } from "zod";
 import { createModel } from "../..";
 import { AgentPromptingMethod, LLM_ALIASES } from "../utils/llms";
 import { vectorStoreFromIndex } from "../utils/vectorStore";
-import AbstractedSkill from "./AbstractedSkill";
+import DynamicZodSkill from "./DynamicZodSkill";
 
 const schema = z.object({
   search: z
@@ -19,7 +19,7 @@ const schema = z.object({
     ),
 });
 
-const retrieveMemorySkill = new AbstractedSkill({
+const retrieveMemorySkill = new DynamicZodSkill({
   name: "retrieveMemory",
   description: `Retrieve an important memory from your memory palace.`,
   func: async (input, _runManager) => {

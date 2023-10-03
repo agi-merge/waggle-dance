@@ -2,7 +2,7 @@ import { Document } from "langchain/document";
 import { z } from "zod";
 
 import { vectorStoreFromIndex } from "../utils/vectorStore";
-import AbstractedSkill from "./AbstractedSkill";
+import DynamicZodSkill from "./DynamicZodSkill";
 
 const schema = z.object({
   memory: z
@@ -17,7 +17,7 @@ const schema = z.object({
     ),
 });
 
-const saveMemorySkill = new AbstractedSkill({
+const saveMemorySkill = new DynamicZodSkill({
   name: "saveMemory",
   description: `Save memory in your memory palace for later retrieval by other team members.`,
   func: async (input, _runManager) => {
