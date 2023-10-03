@@ -40,10 +40,11 @@ export async function callExecutionAgent(creation: {
   revieweeTaskResults: TaskState[];
   contentType: "application/json" | "application/yaml";
   abortSignal: AbortSignal;
-  namespace?: string;
+  namespace: string;
   geo?: Geo;
 }): Promise<string | Error> {
   const {
+    goalId,
     creationProps,
     goalPrompt,
     agentPromptingMethod,
@@ -80,6 +81,7 @@ export async function callExecutionAgent(creation: {
     : createExecutePrompt({
         task,
         goalPrompt,
+        namespace: namespace || goalId,
         returnType,
         modelName: creationProps.modelName || LLM_ALIASES["fast"],
       });

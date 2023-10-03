@@ -178,6 +178,9 @@ export default async function ExecuteStream(req: NextRequest) {
         ];
         const contentType = "application/yaml";
 
+        const namespace =
+          goalId || executionId ? `${goalId}_${executionId}` : task.id;
+        console.debug("execution namespace", namespace);
         const exeResult = await callExecutionAgent({
           creationProps,
           goalPrompt,
@@ -188,8 +191,7 @@ export default async function ExecuteStream(req: NextRequest) {
           revieweeTaskResults,
           contentType,
           abortSignal: abortController.signal,
-          namespace:
-            goalId || executionId ? `${goalId}_${executionId}` : undefined,
+          namespace,
           geo: req.geo,
         });
 
