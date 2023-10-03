@@ -89,7 +89,12 @@ export function getStaticPaths() {
 type Props = InferGetStaticPropsType<typeof getStaticProps>;
 const GoalPage = ({ alertConfigs }: Props) => {
   const router = useRouter();
-  const { goalMap, selectedGoal, upsertGoals, selectGoalId } = useGoalStore();
+  const {
+    goalMap,
+    selectedGoal,
+    upsertGoals,
+    selectGoalId: selectGoal,
+  } = useGoalStore();
   const { isRunning, setExecution, agentSettings } =
     useWaggleDanceMachineStore();
   const { selectedSkills, selectedSkillsLength } = useSkillStore();
@@ -130,8 +135,7 @@ const GoalPage = ({ alertConfigs }: Props) => {
     if (prevServerGoalsRef.current !== serverGoals) {
       // Batch state updates here
       upsertGoals(serverGoals);
-      goal && selectGoalId(goal.id);
-      setExecution(undefined, goal?.prompt ?? "");
+      goal && selectGoal(goal.id);
       prevServerGoalsRef.current = serverGoals;
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -156,7 +160,7 @@ const GoalPage = ({ alertConfigs }: Props) => {
 
   // update stores and route w/ current values of goal and execution, when ids or the destination route changes
   useEffect(() => {
-    goal && selectGoalId(goal.id);
+    goal && selectGoal(goal.id);
     setExecution(execution, goal?.prompt ?? "");
     if (destinationRoute && router.asPath !== destinationRoute) {
       void router.replace(destinationRoute, undefined, { shallow: true });
