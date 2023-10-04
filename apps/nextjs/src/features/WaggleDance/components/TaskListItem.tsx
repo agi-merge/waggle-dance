@@ -47,9 +47,22 @@ const TaskListItem = ({
   listItemsRef,
 }: TaskListItemProps) => {
   const node = useMemo(() => t.node(nodes), [nodes, t]);
+
+  const displayPackets = useMemo(() => {
+    return t.packets.slice(0, -1).map(
+      (p, index) =>
+        display(p) && (
+          <span key={index}>
+            {display(p)} {index < t.packets.length - 1 && "→"}{" "}
+          </span>
+        ),
+    );
+  }, [t]);
+
   if (!node) {
     return null;
   }
+
   return (
     <ListItem
       sx={{
@@ -150,17 +163,10 @@ const TaskListItem = ({
                 <>Status: </>
               )}
               <Typography level="body-md" color="neutral">
-                {t.packets.slice(0, -1).map(
-                  (p, index) =>
-                    display(p) && (
-                      <span key={index}>
-                        {display(p)} {index < t.packets.length - 2 && "→"}{" "}
-                      </span>
-                    ),
-                )}
+                {displayPackets}
                 {t.packets.length > 0 && (
                   <Typography color={statusColor(t)} level="body-md">
-                    {t.packets[t.packets.length - 1]?.type}
+                    {display(t.packets[t.packets.length - 1]!)}
                   </Typography>
                 )}
                 {t.value.type === "idle" && "idle"}

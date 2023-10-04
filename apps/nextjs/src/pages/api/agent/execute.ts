@@ -57,7 +57,10 @@ export default async function ExecuteStream(req: NextRequest) {
       async start(controller) {
         creationProps.callbacks = [
           BaseCallbackHandler.fromMethods({
-            handleLLMStart(): void | Promise<void> {
+            handleLLMStart(
+              _llm: Serialized,
+              _prompts: string[],
+            ): void | Promise<void> {
               const packet: AgentPacket = { type: "handleLLMStart" };
               controller.enqueue(encoder.encode(stringify([packet])));
               packets.push(packet);
@@ -67,11 +70,10 @@ export default async function ExecuteStream(req: NextRequest) {
               _runId: string,
               _parentRunId?: string | undefined,
             ): void | Promise<void> {
-              const packet: AgentPacket = {
-                type: "handleLLMError",
-                // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
-                err: parse(stringify(err, Object.getOwnPropertyNames(err))),
-              };
+              const packet: AgentPacket = createErrorPacket(
+                "handleLLMError",
+                err,
+              );
               controller.enqueue(encoder.encode(stringify([packet])));
               packets.push(packet);
               console.error("handleLLMError", packet);
@@ -81,15 +83,14 @@ export default async function ExecuteStream(req: NextRequest) {
               _runId: string,
               _parentRunId?: string | undefined,
             ): void | Promise<void> {
-              const packet: AgentPacket = {
-                type: "handleChainError",
-                // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
-                err: parse(stringify(err, Object.getOwnPropertyNames(err))),
-              };
+              const packet: AgentPacket = createErrorPacket(
+                "handleChainError",
+                err,
+              );
               controller.enqueue(encoder.encode(stringify([packet])));
               packets.push(packet);
               // can be 'Output parser not set'
-              console.error("handleChainError", err);
+              console.error("handleChainError", packet);
             },
             handleToolStart(
               tool: Serialized,
@@ -110,11 +111,10 @@ export default async function ExecuteStream(req: NextRequest) {
               _runId: string,
               _parentRunId?: string | undefined,
             ): void | Promise<void> {
-              const packet: AgentPacket = {
-                type: "handleToolError",
-                // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
-                err: parse(stringify(err, Object.getOwnPropertyNames(err))),
-              };
+              const packet: AgentPacket = createErrorPacket(
+                "handleToolError",
+                err,
+              );
               controller.enqueue(encoder.encode(stringify([packet])));
               packets.push(packet);
               console.error("handleToolError", packet);
@@ -143,11 +143,10 @@ export default async function ExecuteStream(req: NextRequest) {
               _parentRunId?: string,
               _tags?: string[],
             ) {
-              const packet: AgentPacket = {
-                type: "handleRetrieverError",
-                // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
-                err: parse(stringify(err, Object.getOwnPropertyNames(err))),
-              };
+              const packet: AgentPacket = createErrorPacket(
+                "handleRetrieverError",
+                err,
+              );
               controller.enqueue(encoder.encode(stringify([packet])));
               packets.push(packet);
             },
@@ -214,7 +213,39 @@ export default async function ExecuteStream(req: NextRequest) {
         executionResult = { packet, state: state as ExecutionState };
         controller.enqueue(encoder.encode(stringify([packet])));
         resolveStreamEnded();
-        controller.close();
+
+        try {
+          controller.close();
+        } catch {
+          // intentionally left blank
+        }
+
+        function createErrorPacket(
+          type:
+            | "handleAgentError"
+            | "handleChainError"
+            | "handleLLMError"
+            | "handleToolError"
+            | "handleRetrieverError",
+          error: unknown,
+        ) {
+          let err: unknown;
+          if (error instanceof Error) {
+            err = `${error.name}: ${error.message}\n${error.stack}`;
+          } else if (typeof error === "string") {
+            err = error;
+          } else {
+            err = parse(stringify(error, Object.getOwnPropertyNames(err)));
+            if (!err) {
+              err = stringify(error);
+            }
+          }
+          const packet: AgentPacket = {
+            type,
+            err,
+          };
+          return packet;
+        }
       },
 
       cancel() {
@@ -255,7 +286,7 @@ export default async function ExecuteStream(req: NextRequest) {
       };
     }
     executionResult = { packet: errorPacket, state: "ERROR" };
-    console.error("plan error", e);
+    console.error("execute error", e);
 
     let status = 500;
     if (e as { status: number }) {

@@ -103,11 +103,21 @@ export const display = (packet: AgentPacket): string | null => {
     case "handleToolStart":
       return null;
     case "handleAgentAction":
-      return packet.action.tool;
+      return `${packet.action.tool} (🔨`;
     case "handleLLMStart":
-      return null;
+    case "working":
+      return "⏳";
     case "handleToolEnd":
+      return `✅ )`;
+    case "handleToolError":
+      return `❌ )`;
+    case "handleAgentEnd":
       return null;
+    case "handleAgentError":
+      return `error ${(packet.err instanceof Error
+        ? packet.err.name
+        : String(packet.err)
+      ).slice(0, 10)}`;
     default:
       return packet.type;
   }
