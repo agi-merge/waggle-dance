@@ -55,15 +55,13 @@ export default async function PlanStream(req: NextRequest) {
             controller.enqueue(encoder.encode(stringify([packet])));
           },
 
-          handleChainError(
-            err: unknown,
-            _runId: string,
-            _parentRunId?: string,
-          ) {
+          handleChainError(err: unknown, runId: string, parentRunId?: string) {
             const packet: AgentPacket = {
               type: "handleChainError",
               // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
               err: parse(stringify(err, Object.getOwnPropertyNames(err))),
+              runId,
+              parentRunId,
             };
             controller.enqueue(encoder.encode(stringify([packet])));
             console.debug("handleChainError", packet);
@@ -71,13 +69,15 @@ export default async function PlanStream(req: NextRequest) {
 
           handleLLMError(
             err: unknown,
-            _runId: string,
-            _parentRunId?: string | undefined,
+            runId: string,
+            parentRunId?: string | undefined,
           ): void | Promise<void> {
             const packet: AgentPacket = {
               type: "handleLLMError",
               // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
               err: parse(stringify(err, Object.getOwnPropertyNames(err))),
+              runId,
+              parentRunId,
             };
             controller.enqueue(encoder.encode(stringify([packet])));
             console.debug("handleLLMError", packet);

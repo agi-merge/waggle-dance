@@ -5,7 +5,14 @@ import { type Serialized } from "langchain/load/serializable";
 import { type AgentAction } from "langchain/schema";
 
 export type ChainValues = Record<string, unknown>;
-export type BaseAgentPacket = { type: AgentPacketType };
+export type BaseAgentPacket = {
+  type: AgentPacketType;
+};
+
+export type BaseAgentPacketWithIds = BaseAgentPacket & {
+  runId: string;
+  parentRunId?: string;
+};
 
 export type AgentPacketType =
   | AgentPacketFinishedType
@@ -63,27 +70,30 @@ export const findFinishPacket = (packets: AgentPacket[]): AgentPacket => {
 };
 
 // TODO: group these by origination for different logic, or maybe different typings
+
 export type AgentPacket =
-  // server-side only
-  | ({ type: "handleLLMStart" } & BaseAgentPacket)
+  | ({ type: "handleChainError"; err: any } & BaseAgentPacketWithIds)
+  | ({ type: "handleLLMError"; err: any } & BaseAgentPacketWithIds)
+  | ({ type: "handleLLMStart" } & BaseAgentPacketWithIds)
   | ({ type: "t"; t: string } & BaseAgentPacket) // handleLLMNewToken (shortened on purpose)
-  | ({ type: "handleLLMEnd"; output: string } & BaseAgentPacket)
-  | ({ type: "handleLLMError"; err: any } & BaseAgentPacket)
-  | ({ type: "handleChainEnd"; outputs: ChainValues } & BaseAgentPacket)
-  | ({ type: "handleChainError"; err: any } & BaseAgentPacket)
-  | ({ type: "handleChainStart" } & BaseAgentPacket)
-  | ({ type: "handleToolEnd"; output: string } & BaseAgentPacket)
-  | ({ type: "handleToolError"; err: any } & BaseAgentPacket)
+  | ({ type: "handleLLMEnd"; output: string } & BaseAgentPacketWithIds)
+  | ({ type: "handleChainEnd"; outputs: ChainValues } & BaseAgentPacketWithIds)
+  | ({ type: "handleChainStart" } & BaseAgentPacketWithIds)
+  | ({ type: "handleToolEnd"; output: string } & BaseAgentPacketWithIds)
+  | ({ type: "handleToolError"; err: any } & BaseAgentPacketWithIds)
   | ({
       type: "handleToolStart";
       tool: Serialized;
       input: string;
-    } & BaseAgentPacket)
-  | ({ type: "handleAgentAction"; action: AgentAction } & BaseAgentPacket)
-  | ({ type: "handleAgentEnd"; value: string } & BaseAgentPacket)
-  | ({ type: "handleText"; text: string } & BaseAgentPacket)
-  | ({ type: "handleRetrieverError"; err: any } & BaseAgentPacket)
-  | ({ type: "handleAgentError"; err: any } & BaseAgentPacket) // synthetic; used for max iterations only
+    } & BaseAgentPacketWithIds)
+  | ({
+      type: "handleAgentAction";
+      action: AgentAction;
+    } & BaseAgentPacketWithIds)
+  | ({ type: "handleAgentEnd"; value: string } & BaseAgentPacketWithIds)
+  | ({ type: "handleText"; text: string } & BaseAgentPacketWithIds)
+  | ({ type: "handleRetrieverError"; err: any } & BaseAgentPacketWithIds)
+  | ({ type: "handleAgentError"; err: any } & BaseAgentPacketWithIds) // synthetic; used for max iterations only
   // our callbacks
   | ({ type: "done"; value: string } & BaseAgentPacket)
   | ({

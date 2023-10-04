@@ -60,19 +60,27 @@ export default async function ExecuteStream(req: NextRequest) {
             handleLLMStart(
               _llm: Serialized,
               _prompts: string[],
+              runId: string,
+              parentRunId: string,
             ): void | Promise<void> {
-              const packet: AgentPacket = { type: "handleLLMStart" };
+              const packet: AgentPacket = {
+                type: "handleLLMStart",
+                runId,
+                parentRunId,
+              };
               controller.enqueue(encoder.encode(stringify([packet])));
               packets.push(packet);
             },
             handleLLMError(
               err: unknown,
-              _runId: string,
-              _parentRunId?: string | undefined,
+              runId: string,
+              parentRunId?: string | undefined,
             ): void | Promise<void> {
               const packet: AgentPacket = createErrorPacket(
                 "handleLLMError",
                 err,
+                runId,
+                parentRunId,
               );
               controller.enqueue(encoder.encode(stringify([packet])));
               packets.push(packet);
@@ -80,12 +88,14 @@ export default async function ExecuteStream(req: NextRequest) {
             },
             handleChainError(
               err: unknown,
-              _runId: string,
-              _parentRunId?: string | undefined,
+              runId: string,
+              parentRunId?: string | undefined,
             ): void | Promise<void> {
               const packet: AgentPacket = createErrorPacket(
                 "handleChainError",
                 err,
+                runId,
+                parentRunId,
               );
               controller.enqueue(encoder.encode(stringify([packet])));
               packets.push(packet);
@@ -95,25 +105,29 @@ export default async function ExecuteStream(req: NextRequest) {
             handleToolStart(
               tool: Serialized,
               input: string,
-              _runId: string,
-              _parentRunId?: string | undefined,
+              runId: string,
+              parentRunId?: string | undefined,
             ): void | Promise<void> {
               const packet: AgentPacket = {
                 type: "handleToolStart",
                 tool,
                 input,
+                runId,
+                parentRunId,
               };
               controller.enqueue(encoder.encode(stringify([packet])));
               packets.push(packet);
             },
             handleToolError(
               err: unknown,
-              _runId: string,
-              _parentRunId?: string | undefined,
+              runId: string,
+              parentRunId?: string | undefined,
             ): void | Promise<void> {
               const packet: AgentPacket = createErrorPacket(
                 "handleToolError",
                 err,
+                runId,
+                parentRunId,
               );
               controller.enqueue(encoder.encode(stringify([packet])));
               packets.push(packet);
@@ -121,39 +135,51 @@ export default async function ExecuteStream(req: NextRequest) {
             },
             handleToolEnd(
               output: string,
-              _runId: string,
-              _parentRunId?: string | undefined,
+              runId: string,
+              parentRunId?: string | undefined,
             ): void | Promise<void> {
-              const packet: AgentPacket = { type: "handleToolEnd", output };
+              const packet: AgentPacket = {
+                type: "handleToolEnd",
+                output,
+                runId,
+                parentRunId,
+              };
               controller.enqueue(encoder.encode(stringify([packet])));
               packets.push(packet);
             },
             handleAgentAction(
               action: AgentAction,
-              _runId: string,
-              _parentRunId?: string | undefined,
+              runId: string,
+              parentRunId?: string | undefined,
             ): void | Promise<void> {
-              const packet: AgentPacket = { type: "handleAgentAction", action };
+              const packet: AgentPacket = {
+                type: "handleAgentAction",
+                action,
+                runId,
+                parentRunId,
+              };
               controller.enqueue(encoder.encode(stringify([packet])));
               packets.push(packet);
             },
             handleRetrieverError(
               err: Error,
-              _runId: string,
-              _parentRunId?: string,
+              runId: string,
+              parentRunId?: string,
               _tags?: string[],
             ) {
               const packet: AgentPacket = createErrorPacket(
                 "handleRetrieverError",
                 err,
+                runId,
+                parentRunId,
               );
               controller.enqueue(encoder.encode(stringify([packet])));
               packets.push(packet);
             },
             handleAgentEnd(
               action: AgentFinish,
-              _runId: string,
-              _parentRunId?: string | undefined,
+              runId: string,
+              parentRunId?: string | undefined,
             ): void | Promise<void> {
               // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
               const output =
@@ -163,12 +189,19 @@ export default async function ExecuteStream(req: NextRequest) {
                 const packet: AgentPacket = {
                   type: "handleAgentError",
                   err: "Agent stopped due to max iterations.",
+                  runId,
+                  parentRunId,
                 };
                 controller.enqueue(encoder.encode(stringify([packet])));
                 packets.push(packet);
               } else {
                 const value = stringify(output);
-                const packet: AgentPacket = { type: "handleAgentEnd", value };
+                const packet: AgentPacket = {
+                  type: "handleAgentEnd",
+                  value,
+                  runId,
+                  parentRunId,
+                };
                 controller.enqueue(encoder.encode(stringify([packet])));
                 packets.push(packet);
               }
@@ -228,6 +261,8 @@ export default async function ExecuteStream(req: NextRequest) {
             | "handleToolError"
             | "handleRetrieverError",
           error: unknown,
+          runId: string,
+          parentRunId?: string,
         ) {
           let err: unknown;
           if (error instanceof Error) {
@@ -243,6 +278,8 @@ export default async function ExecuteStream(req: NextRequest) {
           const packet: AgentPacket = {
             type,
             err,
+            runId,
+            parentRunId,
           };
           return packet;
         }
