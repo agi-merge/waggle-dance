@@ -6,6 +6,7 @@ const executeConstraints = (_format: string) =>
 - Do not try very similar actions repeatedly if similar outcomes of patterns have not worked in the past.
 - Your output will be reviewed, so ensure it is an accurate and complete execution of the TASK.
 - Avoid reusing a tool with similar input when it is returning similar results too often.
+- Do not give up on a TASK until you have tried multiple tools and approaches.
 `.trim();
 
 export default executeConstraints;
