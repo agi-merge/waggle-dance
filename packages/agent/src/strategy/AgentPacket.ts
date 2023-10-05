@@ -86,6 +86,14 @@ export const findResult = (packets: AgentPacket[]): string => {
   switch (finishPacket.type) {
     case "done":
     case "handleAgentEnd":
+      if (typeof finishPacket.value !== "string") {
+        // some type issue elsewhere is allowing this to not be a string
+        // allows unpacking wrapped packets
+        const parsed: unknown = JSON.parse(finishPacket.value);
+        if (parsed as AgentPacket) {
+          return findResult([parsed as AgentPacket]);
+        }
+      }
       return finishPacket.value;
     case "error":
       return JSON.stringify(finishPacket.error);
