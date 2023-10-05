@@ -33,6 +33,7 @@ import {
   type BaseAgentPacketWithIds,
   type TaskState,
 } from "@acme/agent";
+import { mapPacketTypeToStatus } from "@acme/agent/src/prompts/utils/mapPacketToStatus";
 import { type DraftExecutionEdge, type DraftExecutionNode } from "@acme/db";
 
 import { stringifyMax } from "../utils/stringifyMax";
@@ -423,7 +424,12 @@ const TaskListItem = ({
                   </Typography>
                 </>
               ) : (
-                <>Status: </>
+                <>
+                  Status:{" "}
+                  <Typography color={statusColor(t)} level="body-md">
+                    {mapPacketTypeToStatus(t.value.type)}
+                  </Typography>
+                </>
               )}
             </Typography>
           </Card>
