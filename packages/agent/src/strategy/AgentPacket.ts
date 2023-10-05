@@ -1,8 +1,13 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 // chain/utils/types.ts
 
+import { type Document } from "langchain/document";
 import { type Serialized } from "langchain/load/serializable";
-import { type AgentAction } from "langchain/schema";
+import {
+  type AgentAction,
+  type BaseMessage,
+  type LLMResult,
+} from "langchain/schema";
 
 export type ChainValues = Record<string, unknown>;
 export type BaseAgentPacket = {
@@ -16,6 +21,13 @@ export type BaseAgentPacketWithIds = BaseAgentPacket & {
 
 export type AgentPacketType =
   | AgentPacketFinishedType
+  | "handleChatModelStart"
+  | "handleChatModelEnd"
+  | "handleRetrieverStart"
+  | "handleRetrieverEnd"
+  | "handleRetrieverError"
+  | "handleChainError"
+  | "handleLLMError"
   | "handleLLMStart"
   | "t" // token
   | "handleLLMEnd"
@@ -69,14 +81,67 @@ export const findFinishPacket = (packets: AgentPacket[]): AgentPacket => {
   return packet;
 };
 
+export const findResult = (packets: AgentPacket[]): string => {
+  const finishPacket = findFinishPacket(packets);
+  switch (finishPacket.type) {
+    case "done":
+    case "handleAgentEnd":
+      return finishPacket.value;
+    case "error":
+      return JSON.stringify(finishPacket.error);
+    case "handleLLMError":
+    case "handleChainError":
+    case "handleAgentError":
+    case "handleRetrieverError":
+      return JSON.stringify(finishPacket.err);
+    case "working":
+      return `…${packets.length} packets`;
+    default:
+      return JSON.stringify(finishPacket);
+  }
+};
+
 // TODO: group these by origination for different logic, or maybe different typings
 
 export type AgentPacket =
+  | ({
+      type: "handleChatModelStart";
+      llm: Serialized;
+      messages: BaseMessage[][];
+      runId: string;
+      parentRunId?: string;
+      extraParams?: Record<string, unknown>;
+      tags?: string[];
+      metadata?: Record<string, unknown>;
+    } & BaseAgentPacketWithIds)
+  | ({
+      type: "handleRetrieverStart";
+      retriever: Serialized;
+      query: string;
+      runId: string;
+      parentRunId?: string;
+      tags?: string[];
+      metadata?: Record<string, unknown>;
+    } & BaseAgentPacketWithIds)
+  | ({
+      type: "handleRetrieverEnd";
+      documents: Document[];
+      runId: string;
+      parentRunId?: string;
+      tags?: string[];
+    } & BaseAgentPacketWithIds)
+  | ({
+      type: "handleRetrieverError";
+      err: any;
+      runId: string;
+      parentRunId?: string;
+      tags?: string[];
+    } & BaseAgentPacketWithIds)
   | ({ type: "handleChainError"; err: any } & BaseAgentPacketWithIds)
   | ({ type: "handleLLMError"; err: any } & BaseAgentPacketWithIds)
   | ({ type: "handleLLMStart" } & BaseAgentPacketWithIds)
   | ({ type: "t"; t: string } & BaseAgentPacket) // handleLLMNewToken (shortened on purpose)
-  | ({ type: "handleLLMEnd"; output: string } & BaseAgentPacketWithIds)
+  | ({ type: "handleLLMEnd"; output: LLMResult } & BaseAgentPacketWithIds)
   | ({ type: "handleChainEnd"; outputs: ChainValues } & BaseAgentPacketWithIds)
   | ({ type: "handleChainStart" } & BaseAgentPacketWithIds)
   | ({ type: "handleToolEnd"; output: string } & BaseAgentPacketWithIds)
@@ -92,7 +157,6 @@ export type AgentPacket =
     } & BaseAgentPacketWithIds)
   | ({ type: "handleAgentEnd"; value: string } & BaseAgentPacketWithIds)
   | ({ type: "handleText"; text: string } & BaseAgentPacketWithIds)
-  | ({ type: "handleRetrieverError"; err: any } & BaseAgentPacketWithIds)
   | ({ type: "handleAgentError"; err: any } & BaseAgentPacketWithIds) // synthetic; used for max iterations only
   // our callbacks
   | ({ type: "done"; value: string } & BaseAgentPacket)
@@ -106,29 +170,5 @@ export type AgentPacket =
   | ({ type: "starting"; nodeId: string } & BaseAgentPacket)
   | ({ type: "working"; nodeId: string } & BaseAgentPacket)
   | ({ type: "idle"; nodeId: string } & BaseAgentPacket);
-export default AgentPacket;
 
-export const display = (packet: AgentPacket): string | null => {
-  switch (packet.type) {
-    case "handleToolStart":
-      return null;
-    case "handleAgentAction":
-      return `${packet.action.tool} (🔨`;
-    case "handleLLMStart":
-    case "working":
-      return "⏳";
-    case "handleToolEnd":
-      return `✅ )`;
-    case "handleToolError":
-      return `❌ )`;
-    case "handleAgentEnd":
-      return null;
-    case "handleAgentError":
-      return `error ${(packet.err instanceof Error
-        ? packet.err.name
-        : String(packet.err)
-      ).slice(0, 10)}`;
-    default:
-      return packet.type;
-  }
-};
+export default AgentPacket;

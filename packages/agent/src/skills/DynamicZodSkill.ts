@@ -150,6 +150,18 @@ class DynamicZodStructuredTool<
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   T extends z.ZodObject<any, any, any, any>,
 > extends DynamicStructuredTool<T> {
+  get lc_namespace(): string[] {
+    const namespace = super.lc_namespace;
+    namespace.push(this.name);
+    return namespace;
+  }
+
+  get lc_id(): string[] {
+    const namespace = super.lc_id;
+    namespace.push(this.name);
+    return namespace;
+  }
+
   async _call(
     arg: z.output<T>,
     runManager?: CallbackManagerForToolRun,

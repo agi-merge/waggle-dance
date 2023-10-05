@@ -1,7 +1,15 @@
 import React, { useMemo } from "react";
-import { Edit, Send } from "@mui/icons-material";
+import {
+  AssignmentTurnedIn,
+  Construction,
+  Download,
+  Edit,
+  QuestionAnswer,
+  Send,
+} from "@mui/icons-material";
 import {
   Card,
+  Chip,
   Divider,
   IconButton,
   LinearProgress,
@@ -12,13 +20,16 @@ import {
   Tooltip,
   Typography,
 } from "@mui/joy";
+import { v4 } from "uuid";
 import { stringify } from "yaml";
 
 import {
-  display,
+  findResult,
   isAgentPacketFinishedType,
   rootPlanId,
   TaskStatus,
+  type AgentPacket,
+  type BaseAgentPacketWithIds,
   type TaskState,
 } from "@acme/agent";
 import { type DraftExecutionEdge, type DraftExecutionNode } from "@acme/db";
@@ -36,6 +47,175 @@ interface TaskListItemProps {
   isRunning: boolean;
   listItemsRef: React.MutableRefObject<HTMLLIElement[]>;
 }
+enum GroupType {
+  Skill = "Skill",
+  Retriever = "Retriever",
+  Result = "Result",
+  Working = "Working",
+}
+
+const getGroupType = (group: AgentPacket[]): GroupType => {
+  for (const packet of group) {
+    switch (packet.type) {
+      case "handleAgentAction":
+      case "handleToolStart":
+      case "handleToolEnd":
+      case "handleToolError":
+        return GroupType.Skill;
+
+      case "handleRetrieverStart":
+      case "handleRetrieverEnd":
+      case "handleRetrieverError":
+        return GroupType.Retriever;
+
+      default:
+        if (isAgentPacketFinishedType(packet.type)) {
+          return GroupType.Result;
+        } else {
+          return GroupType.Working;
+        }
+    }
+  }
+  return GroupType.Working;
+};
+
+// Define a type for GroupOutput
+type GroupOutput = {
+  type: GroupType;
+  title: string;
+  output: string; // Replace 'any' with the actual type of the parsed output
+  key: string;
+};
+
+const getGroupOutput = (group: AgentPacket[]): GroupOutput | null => {
+  const groupType = getGroupType(group);
+
+  if (!groupType) {
+    return null;
+  }
+  console.log("groupType", groupType);
+  let parsedOutput = "!";
+  let parsedTitle = `${GroupType[groupType]} `;
+
+  // Get the last packet in the group
+  const lastPacket = group[group.length - 1];
+
+  if (!lastPacket) {
+    console.warn("No last packet in group", group);
+    return null;
+  }
+
+  const key = "runId" in lastPacket ? lastPacket.runId : v4();
+
+  switch (groupType) {
+    case GroupType.Working:
+      // parsedTitle = "";
+      // parsedOutput = "";
+      // break;
+      return null;
+    case GroupType.Skill:
+      // const toolNameFromStart =
+      //   lastPacket.type === "handleToolStart" &&
+      //   lastPacket.tool.id[lastPacket.tool.id.length - 1];
+      const toolName: string | undefined = group.reduce(
+        (acc: string | undefined, packet) => {
+          if (!!acc) {
+            return acc;
+          }
+          if (packet.type === "handleAgentAction") {
+            return packet.action.toolInput;
+          } else if (packet.type === "handleToolStart") {
+            // debugger;
+            return packet.tool.id[packet.tool.id.length - 1];
+          }
+          return acc;
+        },
+        undefined,
+      );
+      parsedTitle = toolName ? toolName : parsedTitle;
+      const output: string | undefined =
+        group.reduce((acc: string | undefined, packet) => {
+          if (!!acc) {
+            return acc;
+          }
+          if (packet.type === "handleToolEnd") {
+            return packet.output.slice(0, 50);
+          } else if (packet.type === "handleToolError") {
+            return String(packet.err);
+          }
+          return acc;
+        }, undefined) || "";
+      parsedOutput = output;
+      break;
+    case GroupType.Retriever:
+      parsedOutput =
+        lastPacket.type === "handleRetrieverError"
+          ? String(lastPacket.err)
+          : lastPacket.type === "handleRetrieverEnd"
+          ? JSON.stringify(lastPacket.documents)
+          : parsedOutput;
+      break;
+    case GroupType.Result:
+      parsedOutput = findResult(group);
+      parsedTitle = "Result";
+      break;
+  }
+
+  return {
+    type: groupType,
+    title: parsedTitle,
+    output: parsedOutput,
+    key,
+  };
+};
+
+const GroupContent = (
+  groupOutput: GroupOutput,
+  color: "success" | "primary",
+): React.ReactNode => {
+  const { type: _type, title, output, key } = groupOutput;
+
+  return (
+    <Typography key={key} level="body-sm" color={color}>
+      {title}: <Typography level="body-xs">{output}</Typography>
+    </Typography>
+  );
+};
+
+const renderPacketGroup = (group: AgentPacket[]) => {
+  const groupOutput = getGroupOutput(group);
+  if (!groupOutput) {
+    return null;
+  }
+  const Icon = () => {
+    switch (groupOutput.type) {
+      case GroupType.Skill:
+        return <Construction />;
+      case GroupType.Retriever:
+        return <Download />;
+      case GroupType.Result:
+        return <AssignmentTurnedIn />;
+      case GroupType.Working:
+        return <QuestionAnswer />;
+    }
+  };
+  const color = groupOutput.type === GroupType.Result ? "success" : "primary";
+  return (
+    <Chip
+      key={groupOutput?.key ?? v4()}
+      variant="soft"
+      color={color}
+      size="sm"
+      startDecorator={<Icon />}
+      endDecorator={"→"}
+      sx={{ m: 0.5, p: 0.5, borderRadius: "0.5rem" }}
+    >
+      {GroupContent(groupOutput, color)}
+    </Chip>
+  );
+};
+
+// Use getDisplayLabel where you need to display the packet...
 
 const TaskListItem = ({
   task: t,
@@ -48,16 +228,32 @@ const TaskListItem = ({
 }: TaskListItemProps) => {
   const node = useMemo(() => t.node(nodes), [nodes, t]);
 
-  const displayPackets = useMemo(() => {
-    return t.packets.slice(0, -1).map(
-      (p, index) =>
-        display(p) && (
-          <span key={index}>
-            {display(p)} {index < t.packets.length - 1 && "→"}{" "}
-          </span>
-        ),
-    );
-  }, [t]);
+  function isBaseAgentPacketWithIds(
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    packet: any,
+  ): packet is BaseAgentPacketWithIds {
+    return "runId" in packet && "parentRunId" in packet;
+  }
+
+  const packetGroups = useMemo(() => {
+    const groups: Record<string, BaseAgentPacketWithIds[]> = {};
+
+    t.packets.forEach((packet) => {
+      if (isBaseAgentPacketWithIds(packet)) {
+        const groupId = packet.runId || packet.parentRunId || v4();
+        if (groupId) {
+          // Check if groupId is not undefined
+          if (!groups[groupId]) {
+            groups[groupId] = []; // Initialize as an empty array if it doesn't exist
+          }
+          groups[groupId]!.push(packet);
+        }
+      }
+    });
+
+    // Convert the groups object to an array of arrays
+    return Object.values(groups);
+  }, [t.packets]);
 
   if (!node) {
     return null;
@@ -162,16 +358,12 @@ const TaskListItem = ({
               ) : (
                 <>Status: </>
               )}
-              <Typography level="body-md" color="neutral">
-                {displayPackets}
-                {t.packets.length > 0 && (
-                  <Typography color={statusColor(t)} level="body-md">
-                    {display(t.packets[t.packets.length - 1]!)}
-                  </Typography>
-                )}
-                {t.value.type === "idle" && "idle"}
-              </Typography>
             </Typography>
+            <span>
+              {packetGroups.map((group) =>
+                renderPacketGroup(group as AgentPacket[]),
+              )}
+            </span>
 
             <Typography
               level="body-sm"
