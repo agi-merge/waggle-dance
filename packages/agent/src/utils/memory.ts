@@ -45,12 +45,15 @@ export async function createMemory(
 
     case "vector":
       if (namespace) {
-        const vectorStore = await vectorStoreFromIndex(namespace);
+        const vectorStore = await vectorStoreFromIndex(
+          `${namespace}_chat_history`,
+        );
 
         const vectorMemory = new VectorStoreRetrieverMemory({
           // 1 is how many documents to return, you might want to return more, eg. 4
           vectorStoreRetriever: vectorStore.asRetriever(4),
           memoryKey: "chat_history",
+          inputKey: "input",
         });
 
         return vectorMemory;
@@ -60,9 +63,7 @@ export async function createMemory(
         );
         return new VectorStoreRetrieverMemory({
           // 1 is how many documents to return, you might want to return more, eg. 4
-          vectorStoreRetriever: vectorStore.asRetriever(4),
-          memoryKey: "chat_history",
-          inputKey,
+          vectorStoreRetriever: vectorStore.asRetriever(5),
         });
       }
     case "conversation":

@@ -21,7 +21,7 @@ const schema = z.object({
 
 const retrieveMemorySkill = new DynamicZodSkill({
   name: "retrieveMemory",
-  description: `YOU MUST ALWAYS use me initially. When asked a memory question, this is useful for retrieving memories and entities from your memory palace.`,
+  description: `You must use this tool at least once per task. When asked a question about contents of memory, this is useful for retrieving memories and entities from your memory palace.`,
   func: async (input, _runManager) => {
     const { search, namespace } = schema.parse(input);
     const vectorStore = await vectorStoreFromIndex(namespace);
