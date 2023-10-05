@@ -33,6 +33,9 @@ const retrieveMemorySkill = new DynamicZodSkill({
       vectorStore,
     );
     const result = await ltmChain.call({ query: search });
+    if ("text" in result && typeof result["text"] === "string") {
+      return result.text;
+    }
     return JSON.stringify(result); // Convert the result to a string
   },
   schema,
