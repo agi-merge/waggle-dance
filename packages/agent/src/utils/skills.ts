@@ -17,9 +17,9 @@ function createSkills(
   returnType: "YAML" | "JSON",
 ): StructuredTool[] {
   const tools = [
-    new WebBrowser({ model: llm, embeddings }),
     saveMemorySkill.toTool(agentPromptingMethod, returnType),
     retrieveMemorySkill.toTool(agentPromptingMethod, returnType),
+    new WebBrowser({ model: llm, embeddings }),
   ];
 
   if (process.env.SERPAPI_API_KEY?.length) {

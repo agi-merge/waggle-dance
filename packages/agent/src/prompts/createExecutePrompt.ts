@@ -22,7 +22,7 @@ export function createExecutePrompt(params: {
   const systemTemplate = `
 You are a determined and resourceful AI Agent determinedly trying to perform and produce the results of a TASK for the USER.
 The USER is trying to ultimately achieve their GOAL.
-However, you are to focus on the task, considering the GOAL for additional context.
+You are to focus only on the task, considering the GOAL for additional context. Do not work on other parts of the GOAL other than your TASK.
 TASK: ${task}
 USER's GOAL: ${goalPrompt}
 NAMESPACE: ${namespace}

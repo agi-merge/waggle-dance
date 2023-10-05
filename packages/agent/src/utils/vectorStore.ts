@@ -23,7 +23,7 @@ export async function vectorStoreFromIndex(
     client,
     indexName,
     // metadataKeys: ["foo"],
-    tenant: namespace,
+    // tenant: namespace,
   });
   return store;
 }
@@ -66,6 +66,6 @@ export async function insertDocuments(
   return await WeaviateStore.fromDocuments(
     docs,
     createEmbeddings({ modelName: LLM.embeddings }),
-    { client, indexName, tenant: namespace },
+    { client, indexName },
   );
 }

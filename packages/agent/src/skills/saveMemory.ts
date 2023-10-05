@@ -19,7 +19,7 @@ const schema = z.object({
 
 const saveMemorySkill = new DynamicZodSkill({
   name: "saveMemory",
-  description: `Save memory in your memory palace for later retrieval by other team members.`,
+  description: `Useful for making sure that important facts and entities are accurately recorded to help other team members achieve the user's GOAL.`,
   func: async (input, _runManager) => {
     const { memory, namespace } = schema.parse(input);
     const vectorStore = await vectorStoreFromIndex(namespace);

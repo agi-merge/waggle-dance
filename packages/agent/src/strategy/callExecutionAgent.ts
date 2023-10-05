@@ -13,7 +13,13 @@ import { parse } from "yaml";
 
 import { type DraftExecutionGraph } from "@acme/db";
 
-import { createCriticizePrompt, createExecutePrompt, TaskState } from "../..";
+import {
+  createCriticizePrompt,
+  createExecutePrompt,
+  createMemory,
+  TaskState,
+  type MemoryType,
+} from "../..";
 import { isTaskCriticism } from "../prompts/types";
 import {
   getAgentPromptingMethodValue,
@@ -62,6 +68,7 @@ export async function callExecutionAgent(creation: {
   const taskObj = parse(task) as { id: string };
   const isCriticism = isTaskCriticism(taskObj.id);
   const returnType = contentType === "application/json" ? "JSON" : "YAML";
+  const memory = await createMemory("task", namespace);
   // methods need to be reattached
   const revieweeTaskResults = revieweeTaskResultsNeedDeserialization.map(
     (t) => new TaskState({ ...t }),
@@ -76,6 +83,7 @@ export async function callExecutionAgent(creation: {
     ? createCriticizePrompt({
         revieweeTaskResults,
         nodes,
+        namespace,
         returnType,
       })
     : createExecutePrompt({
@@ -115,6 +123,7 @@ export async function callExecutionAgent(creation: {
     skills,
     llm,
     tags,
+    memory,
   );
 
   // prompt.pipe(executor).invoke({});
@@ -146,6 +155,7 @@ async function initializeExecutor(
   tools: StructuredTool[],
   llm: OpenAI | ChatOpenAI,
   tags: string[],
+  memory: MemoryType,
 ) {
   let executor;
   const agentType = getAgentPromptingMethodValue(agentPromptingMethod);
@@ -165,6 +175,13 @@ async function initializeExecutor(
       tags,
     } as InitializeAgentExecutorOptions;
 
+    if (
+      agentType !== "zero-shot-react-description" &&
+      agentType !== "chat-zero-shot-react-description"
+    ) {
+      options.memory = memory;
+    }
+
     executor = await initializeAgentExecutorWithOptions(
       tools as Tool[],
       llm,
@@ -182,6 +199,11 @@ async function initializeExecutor(
       ...creationProps,
       tags,
     } as InitializeAgentExecutorOptionsStructured;
+
+    if (agentType !== "structured-chat-zero-shot-react-description") {
+      options.memory = memory;
+    }
+
     executor = await initializeAgentExecutorWithOptions(tools, llm, options);
   } else {
     executor = PlanAndExecuteAgentExecutor.fromLLMAndTools({

@@ -4,6 +4,7 @@ import {
   Construction,
   Download,
   Edit,
+  ErrorOutline,
   QuestionAnswer,
   Send,
 } from "@mui/icons-material";
@@ -50,7 +51,8 @@ interface TaskListItemProps {
 enum GroupType {
   Skill = "Skill",
   Retriever = "Retriever",
-  Result = "Result",
+  Success = "Success",
+  Error = "Error",
   Working = "Working",
 }
 
@@ -70,7 +72,11 @@ const getGroupType = (group: AgentPacket[]): GroupType => {
 
       default:
         if (isAgentPacketFinishedType(packet.type)) {
-          return GroupType.Result;
+          if (packet.type === "handleAgentEnd" || packet.type === "done") {
+            return GroupType.Success;
+          } else {
+            return GroupType.Error;
+          }
         } else {
           return GroupType.Working;
         }
@@ -83,6 +89,8 @@ const getGroupType = (group: AgentPacket[]): GroupType => {
 type GroupOutput = {
   type: GroupType;
   title: string;
+  params?: string;
+  color: "success" | "primary" | "neutral" | "danger" | "warning";
   output: string; // Replace 'any' with the actual type of the parsed output
   key: string;
 };
@@ -96,7 +104,9 @@ const getGroupOutput = (group: AgentPacket[]): GroupOutput | null => {
   console.log("groupType", groupType);
   let parsedOutput = "!";
   let parsedTitle = `${GroupType[groupType]} `;
-
+  let parsedParams = "";
+  let parsedColor: "success" | "primary" | "neutral" | "danger" | "warning" =
+    "neutral";
   // Get the last packet in the group
   const lastPacket = group[group.length - 1];
 
@@ -110,7 +120,8 @@ const getGroupOutput = (group: AgentPacket[]): GroupOutput | null => {
   switch (groupType) {
     case GroupType.Working:
       // parsedTitle = "";
-      // parsedOutput = "";
+      parsedOutput = "working";
+      parsedColor = "primary";
       // break;
       return null;
     case GroupType.Skill:
@@ -123,15 +134,27 @@ const getGroupOutput = (group: AgentPacket[]): GroupOutput | null => {
             return acc;
           }
           if (packet.type === "handleAgentAction") {
-            return packet.action.toolInput;
+            return packet.action.tool;
           } else if (packet.type === "handleToolStart") {
-            // debugger;
             return packet.tool.id[packet.tool.id.length - 1];
           }
           return acc;
         },
         undefined,
       );
+      const toolParams: string | undefined = group.reduce(
+        (acc: string | undefined, packet) => {
+          if (!!acc) {
+            return acc;
+          }
+          if (packet.type === "handleAgentAction") {
+            return packet.action.toolInput.slice(0, 50);
+          }
+          return acc;
+        },
+        undefined,
+      );
+      parsedParams = toolParams ? toolParams : parsedParams;
       parsedTitle = toolName ? toolName : parsedTitle;
       const output: string | undefined =
         group.reduce((acc: string | undefined, packet) => {
@@ -139,8 +162,15 @@ const getGroupOutput = (group: AgentPacket[]): GroupOutput | null => {
             return acc;
           }
           if (packet.type === "handleToolEnd") {
+            const split = packet.output.split(": ");
+            if (split.length && split[0]?.includes("Error")) {
+              parsedColor = "danger";
+            } else {
+              parsedColor = "success";
+            }
             return packet.output.slice(0, 50);
           } else if (packet.type === "handleToolError") {
+            parsedColor = "danger";
             return String(packet.err);
           }
           return acc;
@@ -152,33 +182,48 @@ const getGroupOutput = (group: AgentPacket[]): GroupOutput | null => {
         lastPacket.type === "handleRetrieverError"
           ? String(lastPacket.err)
           : lastPacket.type === "handleRetrieverEnd"
-          ? JSON.stringify(lastPacket.documents)
+          ? stringify(lastPacket.documents)
           : parsedOutput;
       break;
-    case GroupType.Result:
+    case GroupType.Success:
       parsedOutput = findResult(group);
-      parsedTitle = "Result";
+      parsedTitle = "Success";
+      break;
+    case GroupType.Error:
+      parsedOutput =
+        lastPacket.type === "handleAgentError"
+          ? stringify(lastPacket.err)
+          : lastPacket.type === "handleLLMError"
+          ? stringify(lastPacket.err)
+          : lastPacket.type === "handleChainError"
+          ? stringify(lastPacket.err)
+          : parsedOutput;
       break;
   }
 
   return {
     type: groupType,
     title: parsedTitle,
-    output: parsedOutput,
+    output: `${parsedOutput.slice(0, 30)}…`,
+    params: parsedParams,
+    color: parsedColor,
     key,
   };
 };
 
 const GroupContent = (
   groupOutput: GroupOutput,
-  color: "success" | "primary",
+  color: "success" | "primary" | "neutral" | "danger" | "warning",
 ): React.ReactNode => {
-  const { type: _type, title, output, key } = groupOutput;
+  const { type: _type, title, output, params, key } = groupOutput;
 
   return (
-    <Typography key={key} level="body-sm" color={color}>
-      {title}: <Typography level="body-xs">{output}</Typography>
-    </Typography>
+    <>
+      <Typography key={key} level="body-sm" color={color}>
+        {title}: <Typography level="body-xs">{params}</Typography>
+      </Typography>
+      <Typography level="body-xs">{output || "working"}</Typography>
+    </>
   );
 };
 
@@ -193,25 +238,29 @@ const renderPacketGroup = (group: AgentPacket[]) => {
         return <Construction />;
       case GroupType.Retriever:
         return <Download />;
-      case GroupType.Result:
+      case GroupType.Success:
         return <AssignmentTurnedIn />;
+      case GroupType.Error:
+        return <ErrorOutline />;
       case GroupType.Working:
         return <QuestionAnswer />;
     }
   };
-  const color = groupOutput.type === GroupType.Result ? "success" : "primary";
+
   return (
-    <Chip
-      key={groupOutput?.key ?? v4()}
-      variant="soft"
-      color={color}
-      size="sm"
-      startDecorator={<Icon />}
-      endDecorator={"→"}
-      sx={{ m: 0.5, p: 0.5, borderRadius: "0.5rem" }}
-    >
-      {GroupContent(groupOutput, color)}
-    </Chip>
+    <>
+      <Chip
+        key={groupOutput?.key ?? v4()}
+        variant="soft"
+        color={groupOutput.color}
+        size="sm"
+        startDecorator={<Icon />}
+        endDecorator={"→"}
+        sx={{ m: 0.5, p: 0.5, borderRadius: "0.5rem" }}
+      >
+        {GroupContent(groupOutput, groupOutput.color)}
+      </Chip>
+    </>
   );
 };
 
@@ -352,37 +401,30 @@ const TaskListItem = ({
                 },
             })}
           >
-            <Typography level="title-lg">
-              {isAgentPacketFinishedType(t.value.type) ? (
-                <>Result: </>
-              ) : (
-                <>Status: </>
-              )}
-            </Typography>
             <span>
               {packetGroups.map((group) =>
                 renderPacketGroup(group as AgentPacket[]),
               )}
             </span>
-
-            <Typography
-              level="body-sm"
-              className="max-h-72 overflow-x-clip overflow-y-scroll  break-words pt-2"
-              fontFamily={
-                t.status === TaskStatus.error ? "monospace" : undefined
-              }
-            >
-              {t.value.type === "done" && t.value.value}
-              {t.value.type === "error" && stringify(t.value.error)}
-              {t.value.type === "handleAgentEnd" && t.value.value}
-              {t.value.type === "handleLLMError" && stringify(t.value.err)}
-              {t.value.type === "handleChainError" && stringify(t.value.err)}
-              {t.value.type === "handleAgentError" && stringify(t.value.err)}
-              {t.value.type === "handleRetrieverError" &&
-                stringify(t.value.err)}
-              {t.value.type === "working" &&
-                t.nodeId === rootPlanId &&
-                `...${nodes.length} tasks and ${edges.length} interdependencies`}
+            <Typography level="title-lg">
+              {isAgentPacketFinishedType(t.value.type) ? (
+                <>
+                  Result:{" "}
+                  <Typography
+                    level="body-sm"
+                    className="max-h-72 overflow-x-clip overflow-y-scroll  break-words pt-2"
+                    fontFamily={
+                      t.status === TaskStatus.error ? "monospace" : undefined
+                    }
+                  >
+                    {t.value.type === "working" && t.nodeId === rootPlanId
+                      ? `...${nodes.length} tasks and ${edges.length} interdependencies`
+                      : findResult(t.packets)}
+                  </Typography>
+                </>
+              ) : (
+                <>Status: </>
+              )}
             </Typography>
           </Card>
         </Card>

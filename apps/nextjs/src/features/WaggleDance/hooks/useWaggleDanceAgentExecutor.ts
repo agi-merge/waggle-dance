@@ -17,7 +17,6 @@ import {
   rootPlanId,
   rootPlanNode,
   TaskState,
-  TaskStatus,
   type AgentPacket,
 } from "@acme/agent";
 import { type DraftExecutionNode, type ExecutionPlusGraph } from "@acme/db";
@@ -138,18 +137,7 @@ const useWaggleDanceAgentExecutor = () => {
         // If all parts are equal, the one with fewer parts should come first
         return aIdParts.length - bIdParts.length;
       }
-      if (a.status === TaskStatus.done) return -1;
-      if (b.status === TaskStatus.done) return 1;
-      if (a.status === TaskStatus.error) return -1;
-      if (b.status === TaskStatus.error) return 1;
-      if (a.status === TaskStatus.working) return -1;
-      if (b.status === TaskStatus.working) return 1;
-      if (a.status === TaskStatus.starting) return -1;
-      if (b.status === TaskStatus.starting) return 1;
-      if (a.status === TaskStatus.idle) return -1;
-      if (b.status === TaskStatus.idle) return 1;
-      // unhandled use alphabetical
-      return 1;
+      return 0;
     });
     return sortedTaskStates;
   }, [taskStates]);

@@ -158,7 +158,12 @@ class DynamicZodStructuredTool<
 
   get lc_id(): string[] {
     const namespace = super.lc_id;
-    namespace.push(this.name);
+    // move the current name to the end
+    namespace.sort((a, b) => (a === this.name ? 1 : b === this.name ? -1 : 0));
+    // check if the current name is at the end, if not, add it.
+    if (namespace[namespace.length - 1] !== this.name) {
+      namespace.push(this.name);
+    }
     return namespace;
   }
 

@@ -2,11 +2,7 @@ import { type NextRequest } from "next/server";
 import { BaseCallbackHandler } from "langchain/callbacks";
 import { type Document } from "langchain/document";
 import { type Serialized } from "langchain/load/serializable";
-import {
-  type AgentAction,
-  type AgentFinish,
-  type BaseMessage,
-} from "langchain/schema";
+import { type AgentAction, type AgentFinish } from "langchain/schema";
 import { parse, stringify } from "yaml";
 
 import { getBaseUrl } from "@acme/api/utils";
@@ -62,28 +58,28 @@ export default async function ExecuteStream(req: NextRequest) {
       async start(controller) {
         creationProps.callbacks = [
           BaseCallbackHandler.fromMethods({
-            handleChatModelStart(
-              llm: Serialized,
-              messages: BaseMessage[][],
-              runId: string,
-              parentRunId?: string,
-              extraParams?: Record<string, unknown>,
-              tags?: string[],
-              metadata?: Record<string, unknown>,
-            ): void | Promise<void> {
-              const packet: AgentPacket = {
-                type: "handleChatModelStart",
-                llm,
-                messages,
-                runId,
-                parentRunId,
-                extraParams,
-                tags,
-                metadata,
-              };
-              controller.enqueue(encoder.encode(stringify([packet])));
-              packets.push(packet);
-            },
+            // handleChatModelStart(
+            //   llm: Serialized,
+            //   messages: BaseMessage[][],
+            //   runId: string,
+            //   parentRunId?: string,
+            //   extraParams?: Record<string, unknown>,
+            //   tags?: string[],
+            //   metadata?: Record<string, unknown>,
+            // ): void | Promise<void> {
+            // const packet: AgentPacket = {
+            //   type: "handleChatModelStart",
+            //   llm,
+            //   messages,
+            //   runId,
+            //   parentRunId,
+            //   extraParams,
+            //   tags,
+            //   metadata,
+            // };
+            // controller.enqueue(encoder.encode(stringify([packet])));
+            // packets.push(packet);
+            // },
             handleRetrieverStart(
               retriever: Serialized,
               query: string,

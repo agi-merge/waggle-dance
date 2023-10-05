@@ -16,11 +16,9 @@ export async function callRefiningAgent(params: {
   const { goalPrompt, signal, creationProps, contentType } = params;
   const returnType = contentType === "application/json" ? "JSON" : "YAML";
   const llm = createModel(creationProps, AgentPromptingMethod.ZeroShotReAct); // this is used to select OpenAI as the model (non-Chat)
-  // const memory = await createMemory(goal);
-  // const planPrompt = createPrompt("plan");
+
   const prompt = createRefinePrompt({ goalPrompt, tools: "", returnType });
   const chain = new LLMChain({
-    // memory,
     prompt,
     tags: ["refine", contentType],
     llm,

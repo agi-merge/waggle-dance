@@ -22,10 +22,11 @@ function hash(str: string): string {
   return hash.toString(Hex);
 }
 
+export type MemoryType = BaseChatMemory | BaseMemory | undefined;
 export async function createMemory(
   inputKey: "goal" | "task" = "goal",
   namespace?: string,
-): Promise<BaseChatMemory | BaseMemory | undefined> {
+): Promise<MemoryType> {
   switch (process.env.MEMORY_TYPE) {
     case "motorhead":
       const memory: MotorheadMemory = new MotorheadMemory({
