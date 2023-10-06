@@ -44,7 +44,7 @@ export const StartStopButton: React.FC<StartStopButtonProps> = ({
           {isRunning ? (
             <>Stop</>
           ) : (
-            <>{dag.nodes.length > 0 ? "Restart" : "Start"}</>
+            <>{dag.nodes.length > 1 ? "Restart" : "Start"}</>
           )}
         </Typography>
       </Stack>
