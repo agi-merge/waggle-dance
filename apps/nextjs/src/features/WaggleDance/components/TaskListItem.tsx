@@ -102,7 +102,6 @@ const getGroupOutput = (group: AgentPacket[]): GroupOutput | null => {
   if (!groupType) {
     return null;
   }
-  console.log("groupType", groupType);
   let parsedOutput = "!";
   let parsedTitle = `${GroupType[groupType]} `;
   let parsedParams = "";
