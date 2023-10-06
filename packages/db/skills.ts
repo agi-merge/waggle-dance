@@ -79,6 +79,12 @@ const skillsData: SkillsetCreate[] = [
     isRecommended: false,
     // risk: "low",
   },
+  {
+    label: "Wolfram|Alpha",
+    isRecommended: true,
+    description: "Query Wolfram|Alpha",
+    schema: z.object({}),
+  },
 ];
 
 export const skillDatabase: Skillset[] = skillsData.map((skill, index) => ({

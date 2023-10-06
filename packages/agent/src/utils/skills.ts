@@ -1,7 +1,11 @@
 import { type ChatOpenAI } from "langchain/chat_models/openai";
 import { type Embeddings } from "langchain/embeddings/base";
 import { type OpenAI } from "langchain/llms/openai";
-import { SerpAPI, type StructuredTool } from "langchain/tools";
+import {
+  SerpAPI,
+  WolframAlphaTool,
+  type StructuredTool,
+} from "langchain/tools";
 import { WebBrowser } from "langchain/tools/webbrowser";
 
 import retrieveMemorySkill from "../skills/retrieveMemory";
@@ -33,6 +37,15 @@ function createSkills(
         location,
         hl: "en",
         gl: "us",
+      }),
+    );
+  }
+
+  if (process.env.WOLFRAM_APP_ID?.length) {
+    console.debug(`createSkills: adding WolframAlpha`);
+    tools.push(
+      new WolframAlphaTool({
+        appid: process.env.WOLFRAM_APP_ID,
       }),
     );
   }

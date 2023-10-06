@@ -64,6 +64,7 @@ export const env = createEnv({
     KV_REST_API_URL: z.string().url(),
     KV_REST_API_TOKEN: z.string().nonempty(),
     KV_REST_API_READ_ONLY_TOKEN: z.string().nonempty(),
+    WOLFRAM_APP_ID: z.string().optional(),
   },
   /**
    * Specify your client-side environment variables schema here.
@@ -110,5 +111,6 @@ export const env = createEnv({
     KV_REST_API_URL: process.env.KV_REST_API_URL,
     KV_REST_API_TOKEN: process.env.KV_REST_API_TOKEN,
     KV_REST_API_READ_ONLY_TOKEN: process.env.KV_REST_API_READ_ONLY_TOKEN,
+    WOLFRAM_APP_ID: process.env.WOLFRAM_APP_ID,
   },
 });
