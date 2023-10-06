@@ -170,7 +170,7 @@ export type AgentPacket =
   | ({
       type: "error";
       severity: "warn" | "human" | "fatal";
-      error: Error;
+      error: string | Error;
     } & BaseAgentPacket)
   | ({ type: "requestHumanInput"; reason: string } & BaseAgentPacket)
   // client-side only

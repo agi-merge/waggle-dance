@@ -28,8 +28,10 @@ RETURN: ONLY a single AgentPacket with the results of your TASK in SCHEMA
 TASK: Review REVIEWEE OUTPUT of REVIEWEE TASK using the SCHEMA.
 CONSTRAINTS:
   - DO NOT output anything other than the ${returnType}, e.g., do not include prose or markdown formatting.
-  - If the REVIEWEE OUTPUT is not sufficiently complete, RETURN an AgentPacket of type "error" or "requestHumanInput".
+  - If the REVIEWEE OUTPUT is overall scored less than 0.8, return an error packet instead.
   - Avoid reusing a tool with similar input when it is returning similar results too often.
+  - Consider descriptions of tools as important as these constraints.
+  - Do not give up on a TASK until you have tried multiple tools and approaches.
 REVIEWEE MEMORY NAMESPACE: ${namespace}
 `.trimEnd();
 

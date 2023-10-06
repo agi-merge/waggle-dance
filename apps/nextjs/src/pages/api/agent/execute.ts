@@ -1,3 +1,4 @@
+import { isAbortError } from "next/dist/server/pipe-readable";
 import { type NextRequest } from "next/server";
 import { BaseCallbackHandler } from "langchain/callbacks";
 import { type Document } from "langchain/document";
@@ -302,12 +303,19 @@ export default async function ExecuteStream(req: NextRequest) {
 
         let state: string;
         let packet: AgentPacket;
-        if (exeResult instanceof Error) {
+        if (isAbortError(exeResult)) {
+          state = "CANCELLED";
+          packet = {
+            type: "error",
+            severity: "fatal",
+            error: "Cancelled",
+          };
+        } else if (exeResult instanceof Error) {
           state = "ERROR";
           packet = {
             type: "error",
             severity: "fatal",
-            error: exeResult,
+            error: exeResult.message,
           };
         } else {
           state =
@@ -378,7 +386,7 @@ export default async function ExecuteStream(req: NextRequest) {
       errorPacket = {
         type: "error",
         severity: "fatal",
-        error: e,
+        error: e.message,
       };
     } else if (e as AgentPacket) {
       errorPacket = e as AgentPacket;
@@ -389,6 +397,7 @@ export default async function ExecuteStream(req: NextRequest) {
         error: new Error(e),
       };
     } else {
+      // unknown
       errorPacket = {
         type: "error",
         severity: "fatal",

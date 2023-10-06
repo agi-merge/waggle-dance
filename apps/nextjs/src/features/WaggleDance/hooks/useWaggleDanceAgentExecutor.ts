@@ -8,6 +8,7 @@ import {
   useState,
   type MutableRefObject,
 } from "react";
+import { isAbortError } from "next/dist/server/pipe-readable";
 import { type GraphData } from "react-force-graph-2d";
 import { v4 } from "uuid";
 // import { type GraphData } from "../components/ForceGraph";
@@ -300,7 +301,11 @@ const useWaggleDanceAgentExecutor = () => {
         ac.abort();
       }
 
-      if (result instanceof Error) {
+      if (isAbortError(result)) {
+        console.error("Error in WaggleDanceMachine's run:", result);
+        updateExecutionState({ executionId, state: "CANCELLED" });
+        return;
+      } else if (result instanceof Error) {
         console.error("Error in WaggleDanceMachine's run:", result);
         updateExecutionState({ executionId, state: "ERROR" });
         return;

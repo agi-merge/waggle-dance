@@ -62,9 +62,10 @@ export const ExecutionSelect = ({
     (execution: ExecutionPlusGraph, i: number) => {
       const colors = {
         PENDING: "neutral",
-        EXECUTING: "warning",
+        EXECUTING: "primary",
         DONE: "success",
         ERROR: "danger",
+        CANCELLED: "warning",
       } as const;
       return (
         <>

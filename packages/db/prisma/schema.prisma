@@ -74,6 +74,7 @@ enum ExecutionState {
   EXECUTING
   DONE
   ERROR
+  CANCELLED
 }
 
 model Execution {
