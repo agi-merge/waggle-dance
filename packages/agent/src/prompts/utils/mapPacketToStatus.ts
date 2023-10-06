@@ -31,8 +31,6 @@ export const mapPacketTypeToStatus = (
     case "handleChatModelEnd":
     case "handleChatModelStart":
       return TaskStatus.working;
-    case "requestHumanInput":
-      return TaskStatus.wait;
     case "handleChatModelEnd":
     case "handleChatModelStart":
     case "handleRetrieverEnd":

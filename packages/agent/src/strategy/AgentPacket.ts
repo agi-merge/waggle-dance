@@ -37,7 +37,6 @@ export type AgentPacketType =
   | "handleToolStart"
   | "handleAgentAction"
   | "handleText"
-  | "requestHumanInput"
   | "starting"
   | "working"
   | "idle"
@@ -172,7 +171,6 @@ export type AgentPacket =
       severity: "warn" | "human" | "fatal";
       error: string | Error;
     } & BaseAgentPacket)
-  | ({ type: "requestHumanInput"; reason: string } & BaseAgentPacket)
   // client-side only
   | ({ type: "starting"; nodeId: string } & BaseAgentPacket)
   | ({ type: "working"; nodeId: string } & BaseAgentPacket)

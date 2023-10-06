@@ -8,6 +8,7 @@ import {
 } from "langchain/tools";
 import { WebBrowser } from "langchain/tools/webbrowser";
 
+import requestUserHelpSkill from "../skills/requestUserHelpSkill";
 import retrieveMemorySkill from "../skills/retrieveMemory";
 import saveMemorySkill from "../skills/saveMemory";
 import type Geo from "../strategy/Geo";
@@ -24,6 +25,8 @@ function createSkills(
   const tools = [
     saveMemorySkill.toTool(agentPromptingMethod, returnType),
     retrieveMemorySkill.toTool(agentPromptingMethod, returnType),
+    requestUserHelpSkill.toTool(agentPromptingMethod, returnType),
+    // selfHelpSkill.toTool(agentPromptingMethod, returnType),
     new WebBrowser({ model: llm, embeddings }),
   ];
 

@@ -1,3 +1,4 @@
+// FIXME: merge w/ DynamicZodSkill / skills / use the database
 import { z } from "zod";
 
 import { type Skillset } from ".";
@@ -9,10 +10,10 @@ export type NullableSkillset = Skillset | undefined | null;
 
 const skillsData: SkillsetCreate[] = [
   {
-    label: "Notify Human for Help",
+    label: "Help Notifications",
     isRecommended: true,
     description:
-      "Receive notifications when the AI needs clarification or help with something like account access, or an error has occurred.",
+      "Receive notifications when the AI needs clarification or help with something like account access, or if an error has occurred.",
     schema: z.object({}),
   },
   {
