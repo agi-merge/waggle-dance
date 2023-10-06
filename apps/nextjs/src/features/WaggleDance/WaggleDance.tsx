@@ -216,11 +216,13 @@ const WaggleDance = ({}: Props) => {
     return sortedTaskStates.filter((s) => s.status !== TaskStatus.idle).length;
   }, [sortedTaskStates]);
 
-  const inProgressOrDonePercent = useMemo(() => {
-    return (notIdleTasks / agentPackets.length) * 100;
-  }, [notIdleTasks, agentPackets.length]);
+  const doneTasks = useMemo(() => {
+    return sortedTaskStates.filter(
+      (t) => t.status === TaskStatus.done || t.status === TaskStatus.error,
+    ).length;
+  }, [sortedTaskStates]);
 
-  const inProgressLength = useMemo(() => {
+  const inProgressTasks = useMemo(() => {
     return agentPackets.filter(
       (s) =>
         s.status === TaskStatus.starting ||
@@ -229,24 +231,24 @@ const WaggleDance = ({}: Props) => {
     ).length;
   }, [agentPackets]);
 
-  const done = useMemo(() => {
-    return sortedTaskStates.filter(
-      (t) => t.status === TaskStatus.done || t.status === TaskStatus.error,
-    );
-  }, [sortedTaskStates]);
+  const totalTasks = sortedTaskStates.length;
+
+  const inProgressOrDonePercent = useMemo(() => {
+    return (notIdleTasks / totalTasks) * 100;
+  }, [notIdleTasks, totalTasks]);
 
   const progressPercent = useMemo(() => {
-    return (done.length / sortedTaskStates.length - notIdleTasks) * 100;
-  }, [done.length, sortedTaskStates.length, notIdleTasks]);
+    return (doneTasks / totalTasks) * 100;
+  }, [doneTasks, totalTasks]);
 
   const progressLabel = useMemo(() => {
-    return `# Tasks in progress: ${inProgressLength}, done: ${
-      done.length
-    }, remaining: ${sortedTaskStates.length - notIdleTasks}, total: ${
-      sortedTaskStates.length
-    }`;
-  }, [inProgressLength, done.length, sortedTaskStates.length, notIdleTasks]);
-
+    return `Tasks in progress: ${inProgressTasks}, done: ${doneTasks}, remaining: ${
+      totalTasks - notIdleTasks
+    }, total: ${totalTasks}`;
+  }, [inProgressTasks, doneTasks, totalTasks, notIdleTasks]);
+  const done = useMemo(() => {
+    return sortedTaskStates.filter((t) => t.status === TaskStatus.done);
+  }, [sortedTaskStates]);
   const shouldShowProgress = useMemo(() => {
     return isRunning || done.length > 0;
   }, [done.length, isRunning]);

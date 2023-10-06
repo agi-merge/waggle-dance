@@ -27,6 +27,7 @@ export const TaskProgress: React.FC<TaskProgressProps> = ({
           sx={{
             position: "absolute",
             top: 0,
+            bottom: 0,
             width: "100%",
             "--LinearProgress-progressRadius": 0,
           }}
@@ -37,8 +38,8 @@ export const TaskProgress: React.FC<TaskProgressProps> = ({
         >
           {
             <Typography
-              level="body-xs"
-              fontWeight="xl"
+              level="body-md"
+              fontWeight="lg"
               sx={{ mixBlendMode: "difference" }}
             >
               {progressLabel}
@@ -49,8 +50,9 @@ export const TaskProgress: React.FC<TaskProgressProps> = ({
         <LinearProgress
           sx={{
             position: "absolute",
-            opacity: 0.5,
+            opacity: 0.25,
             top: 0,
+            bottom: 0,
             width: "100%",
             "--LinearProgress-progressRadius": 0,
           }}
