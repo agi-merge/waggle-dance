@@ -121,23 +121,27 @@ const getGroupOutput = (group: AgentPacket[]): GroupOutput | null => {
 
   switch (groupType) {
     case GroupType.Working:
-      parsedTitle = "🧠";
+      parsedTitle = `🧠`;
+      const end = group.find((g) => g.type === "handleLLMEnd");
+      const chainEnd = group.find((g) => g.type === "handleChainEnd");
+      if (end?.type === "handleLLMEnd") {
+        parsedOutput = stringify(end.output);
+      } else if (chainEnd?.type === "handleChainEnd") {
+        parsedOutput = stringify(chainEnd.outputs);
+      }
       parsedOutput = "⏳";
     // parsedColor = "primary";
     // break;
     case GroupType.Skill:
-      // const toolNameFromStart =
-      //   lastPacket.type === "handleToolStart" &&
-      //   lastPacket.tool.id[lastPacket.tool.id.length - 1];
       const toolName: string | undefined = group.reduce(
         (acc: string | undefined, packet) => {
           if (!!acc) {
             return acc;
           }
-          if (packet.type === "handleAgentAction") {
-            return packet.action.tool;
-          } else if (packet.type === "handleToolStart") {
+          if (packet.type === "handleToolStart") {
             return packet.tool.id[packet.tool.id.length - 1];
+          } else if (packet.type === "handleAgentAction") {
+            return packet.action.tool;
           }
           return acc;
         },
@@ -148,7 +152,20 @@ const getGroupOutput = (group: AgentPacket[]): GroupOutput | null => {
           if (!!acc) {
             return acc;
           }
-          if (packet.type === "handleAgentAction") {
+          if (packet.type === "handleToolStart") {
+            const input = packet.input.slice(0, 50);
+            if (input.length === 50) {
+              return `${input}…`;
+            } else if (input.length > 0) {
+              return input;
+            }
+          }
+          if (
+            packet.type === "handleAgentAction" &&
+            packet.action &&
+            packet.action.toolInput &&
+            typeof packet.action.toolInput === "string"
+          ) {
             return packet.action.toolInput.slice(0, 50);
           }
           return acc;
@@ -233,7 +250,7 @@ const GroupContent = (
 
 const renderPacketGroup = (group: AgentPacket[], index: number) => {
   const groupOutput = getGroupOutput(group);
-  if (!groupOutput) {
+  if (!groupOutput || groupOutput.type === GroupType.Working) {
     return null;
   }
   const Icon = () => {
