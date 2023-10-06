@@ -386,22 +386,23 @@ export default async function ExecuteStream(req: NextRequest) {
       errorPacket = {
         type: "error",
         severity: "fatal",
-        error: e.message,
+        error: stringify(e),
       };
     } else if (e as AgentPacket) {
+      // unwrap if possible
       errorPacket = e as AgentPacket;
     } else if (typeof e === "string") {
       errorPacket = {
         type: "error",
         severity: "fatal",
-        error: new Error(e),
+        error: e,
       };
     } else {
       // unknown
       errorPacket = {
         type: "error",
         severity: "fatal",
-        error: new Error(stringify(e)),
+        error: stringify(e),
       };
     }
     executionResult = { packet: errorPacket, state: "ERROR" };

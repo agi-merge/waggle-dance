@@ -126,7 +126,7 @@ export default async function PlanStream(req: NextRequest) {
       errorPacket = {
         type: "error",
         severity: "fatal",
-        error: e,
+        error: stringify(e),
       };
     } else if (e as AgentPacket) {
       errorPacket = e as AgentPacket;
@@ -134,13 +134,13 @@ export default async function PlanStream(req: NextRequest) {
       errorPacket = {
         type: "error",
         severity: "fatal",
-        error: new Error(stringify(e)),
+        error: e,
       };
     } else {
       errorPacket = {
         type: "error",
         severity: "fatal",
-        error: new Error(stringify(e)),
+        error: stringify(e),
       };
     }
     console.error("plan error", e);
