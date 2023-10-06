@@ -153,8 +153,8 @@ const getGroupOutput = (group: AgentPacket[]): GroupOutput | null => {
             return acc;
           }
           if (packet.type === "handleToolStart") {
-            const input = packet.input.slice(0, 50);
-            if (input.length === 50) {
+            const input = packet.input.slice(0, 20);
+            if (input.length === 20) {
               return `${input}…`;
             } else if (input.length > 0) {
               return input;
@@ -166,7 +166,7 @@ const getGroupOutput = (group: AgentPacket[]): GroupOutput | null => {
             packet.action.toolInput &&
             typeof packet.action.toolInput === "string"
           ) {
-            return packet.action.toolInput.slice(0, 50);
+            return packet.action.toolInput.slice(0, 40);
           }
           return acc;
         },
@@ -186,7 +186,7 @@ const getGroupOutput = (group: AgentPacket[]): GroupOutput | null => {
             } else {
               parsedColor = "success";
             }
-            return packet.output.slice(0, 50);
+            return packet.output.slice(0, 40);
           } else if (packet.type === "handleToolError") {
             parsedColor = "danger";
             return String(packet.err);
@@ -222,7 +222,7 @@ const getGroupOutput = (group: AgentPacket[]): GroupOutput | null => {
   return {
     type: groupType,
     title: parsedTitle,
-    output: `${parsedOutput.slice(0, 30)}…`,
+    output: `${parsedOutput.slice(0, 40)}…`,
     params: parsedParams,
     color: parsedColor,
     key,
@@ -239,7 +239,13 @@ const GroupContent = (
     <Box>
       <Typography level="body-sm" color={color}>
         {title}{" "}
-        <Typography level="body-xs">
+        <Typography
+          level="body-xs"
+          sx={(theme) => ({
+            color: theme.palette.text.primary,
+            fontFamily: "monospace",
+          })}
+        >
           {params ? ` (${params})` : undefined}
         </Typography>
       </Typography>
@@ -415,8 +421,9 @@ const TaskListItem = ({
             <LinearProgress thickness={2} />
           )}
           <Card
+            size="sm"
             style={{ position: "relative", overflow: "hidden" }}
-            variant="outlined"
+            variant="soft"
           >
             <Typography
               level="title-lg"
