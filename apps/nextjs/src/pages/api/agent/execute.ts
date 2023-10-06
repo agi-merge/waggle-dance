@@ -3,7 +3,12 @@ import { type NextRequest } from "next/server";
 import { BaseCallbackHandler } from "langchain/callbacks";
 import { type Document } from "langchain/document";
 import { type Serialized } from "langchain/load/serializable";
-import { type AgentAction, type AgentFinish } from "langchain/schema";
+import {
+  type AgentAction,
+  type AgentFinish,
+  type ChainValues,
+  type LLMResult,
+} from "langchain/schema";
 import { parse, stringify } from "yaml";
 
 import { getBaseUrl } from "@acme/api/utils";
@@ -130,20 +135,20 @@ export default async function ExecuteStream(req: NextRequest) {
               controller.enqueue(encoder.encode(stringify([packet])));
               packets.push(packet);
             },
-            // handleLLMEnd(
-            //   output: LLMResult,
-            //   runId: string,
-            //   parentRunId?: string,
-            // ): Promise<void> | void {
-            //   const packet: AgentPacket = {
-            //     type: "handleLLMEnd",
-            //     output,
-            //     runId,
-            //     parentRunId,
-            //   };
-            //   controller.enqueue(encoder.encode(stringify([packet])));
-            //   packets.push(packet);
-            // },
+            handleLLMEnd(
+              output: LLMResult,
+              runId: string,
+              parentRunId?: string,
+            ): Promise<void> | void {
+              const packet: AgentPacket = {
+                type: "handleLLMEnd",
+                output,
+                runId,
+                parentRunId,
+              };
+              controller.enqueue(encoder.encode(stringify([packet])));
+              packets.push(packet);
+            },
             handleLLMError(
               err: unknown,
               runId: string,
@@ -278,6 +283,41 @@ export default async function ExecuteStream(req: NextRequest) {
                 controller.enqueue(encoder.encode(stringify([packet])));
                 packets.push(packet);
               }
+            },
+            handleChainStart(
+              chain,
+              inputs,
+              runId,
+              parentRunId,
+              _tags,
+              _metadata,
+              _runType,
+            ) {
+              const packet: AgentPacket = {
+                type: "handleChainStart",
+                runId,
+                parentRunId,
+              };
+              controller.enqueue(encoder.encode(stringify([packet])));
+              packets.push(packet);
+            },
+            handleChainEnd(
+              outputs: ChainValues,
+              runId: string,
+              parentRunId?: string,
+              _tags?: string[],
+              _kwargs?: {
+                inputs?: Record<string, unknown>;
+              },
+            ): Promise<void> | void {
+              const packet: AgentPacket = {
+                type: "handleChainEnd",
+                outputs,
+                runId,
+                parentRunId,
+              };
+              controller.enqueue(encoder.encode(stringify([packet])));
+              packets.push(packet);
             },
           }),
         ];

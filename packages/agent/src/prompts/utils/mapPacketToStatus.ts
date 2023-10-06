@@ -7,7 +7,6 @@ export const mapPacketTypeToStatus = (
   switch (packetType) {
     case "done":
     case "handleAgentEnd":
-    case "handleChainEnd":
       return TaskStatus.done;
     case "error":
     case "handleLLMError":
@@ -27,6 +26,7 @@ export const mapPacketTypeToStatus = (
     case "starting":
     case "handleLLMEnd":
     case "handleRetrieverStart":
+    case "handleChainEnd":
     case "handleRetrieverEnd":
     case "handleChatModelEnd":
     case "handleChatModelStart":
