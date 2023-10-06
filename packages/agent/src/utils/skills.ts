@@ -32,9 +32,20 @@ function createSkills(
 
   if (process.env.SERPAPI_API_KEY?.length) {
     console.debug(`createSkills: adding SerpAPI`);
-    const location = geo
-      ? `${geo.city},${geo.region},${geo.country}`
-      : "Los Angeles,California,United States";
+    const geos: string[] = [];
+    if (geo) {
+      if (geo.city) {
+        geos.push(geo.city);
+      }
+      if (geo.region) {
+        geos.push(geo.region);
+      }
+      if (geo.country) {
+        geos.push(geo.country);
+      }
+    }
+    const location =
+      geos.length > 0 ? geos.join(",") : "Los Angeles,California,United States";
     tools.push(
       new SerpAPI(process.env.SERPAPI_API_KEY, {
         location,
