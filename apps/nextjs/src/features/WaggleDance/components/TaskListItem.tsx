@@ -408,7 +408,7 @@ const TaskListItem = ({
               {t.packets.length > 0 ? `Activity: ` : `State:`}&nbsp;
               {!isAgentPacketFinishedType(t.value.type) && (
                 <Typography color={statusColor(t)} level="body-md">
-                  {`${mapPacketTypeToStatus(t.value.type)}`}
+                  {isRunning ? mapPacketTypeToStatus(t.value.type) : "stopped"}
                 </Typography>
               )}
             </Typography>
