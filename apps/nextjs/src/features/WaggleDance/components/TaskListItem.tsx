@@ -9,12 +9,14 @@ import {
   Send,
 } from "@mui/icons-material";
 import {
+  Box,
   Card,
-  Chip,
   Divider,
   IconButton,
   LinearProgress,
+  List,
   ListItem,
+  ListItemButton,
   ListItemContent,
   ListItemDecorator,
   Stack,
@@ -119,11 +121,10 @@ const getGroupOutput = (group: AgentPacket[]): GroupOutput | null => {
 
   switch (groupType) {
     case GroupType.Working:
-      // parsedTitle = "";
-      parsedOutput = "working";
-      parsedColor = "primary";
-      // break;
-      return null;
+      parsedTitle = "🧠";
+      parsedOutput = "⏳";
+    // parsedColor = "primary";
+    // break;
     case GroupType.Skill:
       // const toolNameFromStart =
       //   lastPacket.type === "handleToolStart" &&
@@ -215,19 +216,22 @@ const GroupContent = (
   groupOutput: GroupOutput,
   color: "success" | "primary" | "neutral" | "danger" | "warning",
 ): React.ReactNode => {
-  const { type: _type, title, output, params, key } = groupOutput;
+  const { type: _type, title, output, params } = groupOutput;
 
   return (
-    <>
-      <Typography key={key} level="body-sm" color={color}>
-        {title}: <Typography level="body-xs">{params}</Typography>
+    <Box>
+      <Typography level="body-sm" color={color}>
+        {title}{" "}
+        <Typography level="body-xs">
+          {params ? ` (${params})` : undefined}
+        </Typography>
       </Typography>
       <Typography level="body-xs">{output || "working"}</Typography>
-    </>
+    </Box>
   );
 };
 
-const renderPacketGroup = (group: AgentPacket[]) => {
+const renderPacketGroup = (group: AgentPacket[], index: number) => {
   const groupOutput = getGroupOutput(group);
   if (!groupOutput) {
     return null;
@@ -248,19 +252,25 @@ const renderPacketGroup = (group: AgentPacket[]) => {
   };
 
   return (
-    <>
-      <Chip
-        key={groupOutput?.key ?? v4()}
-        variant="soft"
-        color={groupOutput.color}
-        size="sm"
-        startDecorator={<Icon />}
-        endDecorator={"→"}
-        sx={{ m: 0.5, p: 0.5, borderRadius: "0.5rem" }}
-      >
-        {GroupContent(groupOutput, groupOutput.color)}
-      </Chip>
-    </>
+    <React.Fragment key={groupOutput?.key ?? v4()}>
+      {index !== 0 && "←"}
+      <ListItem key={groupOutput?.key ?? v4()} sx={{}}>
+        <ListItemButton
+          variant="outlined"
+          color={groupOutput.color}
+          sx={{
+            m: 0,
+            borderRadius: "0.5rem",
+          }}
+        >
+          <ListItemDecorator>
+            <Icon />
+          </ListItemDecorator>
+          <Divider orientation="vertical" sx={{ marginRight: "0.5rem" }} />
+          {GroupContent(groupOutput, groupOutput.color)}
+        </ListItemButton>
+      </ListItem>
+    </React.Fragment>
   );
 };
 
@@ -301,7 +311,7 @@ const TaskListItem = ({
     });
 
     // Convert the groups object to an array of arrays
-    return Object.values(groups);
+    return Object.values(groups).reverse();
   }, [t.packets]);
 
   if (!node) {
@@ -388,50 +398,62 @@ const TaskListItem = ({
             <LinearProgress thickness={2} />
           )}
           <Card
-            size="sm"
-            className="justify-start p-1 text-start"
-            component={Stack}
-            direction={"column"}
+            style={{ position: "relative", overflow: "hidden" }}
             variant="outlined"
-            sx={(theme) => ({
-              backgroundColor: theme.palette.background.backdrop,
-              "@supports not ((-webkit-backdrop-filter: blur) or (backdrop-filter: blur))":
-                {
-                  backgroundColor: theme.palette.background.surface, // Add opacity to the background color
-                },
-            })}
           >
-            <span>
-              {packetGroups.map((group) =>
-                renderPacketGroup(group as AgentPacket[]),
-              )}
-            </span>
-            <Typography level="title-lg">
-              {isAgentPacketFinishedType(t.value.type) ? (
-                <>
-                  Result:{" "}
-                  <Typography
-                    level="body-sm"
-                    className="max-h-72 overflow-x-clip overflow-y-scroll  break-words pt-2"
-                    fontFamily={
-                      t.status === TaskStatus.error ? "monospace" : undefined
-                    }
-                  >
-                    {t.value.type === "working" && t.nodeId === rootPlanId
-                      ? `...${nodes.length} tasks and ${edges.length} interdependencies`
-                      : findResult(t.packets)}
-                  </Typography>
-                </>
-              ) : (
-                <>
-                  Status:{" "}
-                  <Typography color={statusColor(t)} level="body-md">
-                    {mapPacketTypeToStatus(t.value.type)}
-                  </Typography>
-                </>
+            <Typography
+              level="title-lg"
+              sx={{ display: "flex", alignItems: "baseline" }}
+            >
+              {t.packets.length > 0 ? `Activity: ` : `State:`}&nbsp;
+              {!isAgentPacketFinishedType(t.value.type) && (
+                <Typography color={statusColor(t)} level="body-md">
+                  {`${mapPacketTypeToStatus(t.value.type)}`}
+                </Typography>
               )}
             </Typography>
+            <List
+              size="sm"
+              orientation="horizontal"
+              className="max-w-screen max-h-16 overflow-scroll"
+              sx={{ m: 0, p: 0, paddingRight: "50%", alignItems: "center" }} // Add right padding equal to the width of the gradient
+            >
+              {packetGroups.map((group, index) =>
+                renderPacketGroup(group as AgentPacket[], index),
+              )}
+            </List>
+            <Box
+              sx={(theme) => ({
+                overflow: "hidden",
+                content: '""',
+                position: "absolute",
+                top: 0,
+                right: 0,
+                bottom: 0,
+                width: "50%",
+                background: `linear-gradient(to left, ${theme.palette.background.level1}, transparent)`,
+                pointerEvents: "none",
+              })}
+            />
           </Card>
+          <Typography level="title-lg" color={statusColor(t)}>
+            {isAgentPacketFinishedType(t.value.type) && (
+              <>
+                {t.status === TaskStatus.error ? "Error: " : "Result: "}
+                <Typography
+                  level="body-sm"
+                  className="max-h-72 overflow-x-clip overflow-y-scroll  break-words pt-2"
+                  fontFamily={
+                    t.status === TaskStatus.error ? "monospace" : undefined
+                  }
+                >
+                  {t.value.type === "working" && t.nodeId === rootPlanId
+                    ? `...${nodes.length} tasks and ${edges.length} interdependencies`
+                    : findResult(t.packets)}
+                </Typography>
+              </>
+            )}
+          </Typography>
         </Card>
       </ListItemContent>
     </ListItem>
