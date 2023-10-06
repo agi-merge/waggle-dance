@@ -9,11 +9,11 @@ type LatencyProps = {
 export function Latency({ latencyLevel }: LatencyProps) {
   return (
     <Tooltip
-      title={`(Lower is better) ${latencyLevel.description}`}
+      title={`(Higher is better) ${latencyLevel.description}`}
       sx={{ cursor: "pointer" }}
     >
       <Typography noWrap level="title-sm" color="neutral">
-        Latency:{" "}
+        Speed:{" "}
         <Typography color={latencyLevel.color} level="body-sm">
           {latencyLevel.label}
         </Typography>{" "}

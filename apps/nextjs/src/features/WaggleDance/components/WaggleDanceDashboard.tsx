@@ -179,7 +179,7 @@ const WaggleDanceDashboard = ({
                           fontSize: { xs: "xs", sm: "sm" },
                         }}
                       >
-                        Latency:{" "}
+                        Speed:{" "}
                         <Typography color={latencyLevel.color}>
                           {latencyLevel.label}{" "}
                         </Typography>
@@ -234,7 +234,7 @@ const WaggleDanceDashboard = ({
                 sx={{ cursor: "pointer" }}
               >
                 <Typography noWrap level="title-sm" color="neutral">
-                  Latency:{" "}
+                  Speed:{" "}
                   <Typography color={latencyLevel.color} level="body-sm">
                     {latencyLevel.label}
                   </Typography>{" "}
