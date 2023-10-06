@@ -166,7 +166,6 @@ const handler = async (req: IncomingMessage, res: ServerResponse) => {
           files,
         };
         const json = JSON.stringify(uploadResponse);
-        console.log(`json: ${json}`);
         res.end(json);
       } catch (error) {
         console.error(error);

@@ -108,7 +108,6 @@ const WaggleDance = ({}: Props) => {
       }
       assert(createdExecution);
       void (async () => {
-        console.log("replace route");
         await router.push(
           routes.goal({
             id: createdExecution.goalId,

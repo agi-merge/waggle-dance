@@ -24,7 +24,6 @@ export const config = {
 };
 
 export default async function ExecuteStream(req: NextRequest) {
-  console.log("execute request");
   let executionResult:
     | { packet: AgentPacket; state: ExecutionState }
     | undefined;

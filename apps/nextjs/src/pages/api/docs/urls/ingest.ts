@@ -43,7 +43,6 @@ const handler = async (req: IncomingMessage, res: NextApiResponse) => {
 
   if (req.method === "POST") {
     res.writeHead(200, { "Content-Type": "application/json" });
-    console.log(`POST /api/docs/urls/ingest`);
     const body = (req as NextApiRequest).body as URLIngestRequestBody;
     try {
       const userId = session.user.id;
@@ -83,7 +82,6 @@ const handler = async (req: IncomingMessage, res: NextApiResponse) => {
         count: docs.length,
       };
       const json = JSON.stringify(uploadResponse);
-      console.log(`json: ${json}`);
       res.end(json);
     } catch (error) {
       console.error(error);

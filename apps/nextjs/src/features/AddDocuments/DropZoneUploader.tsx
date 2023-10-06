@@ -136,7 +136,6 @@ export default function DropZoneUploader({ sx, ...props }: DropZoneProps) {
         handleFileChange(initialFile);
         try {
           const _uploadResults = (await handleSubmit(event)) ?? [];
-          console.log("success");
           const analyzedFile: IngestFile = {
             file,
             content,

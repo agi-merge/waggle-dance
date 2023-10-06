@@ -13,7 +13,7 @@ export const createModel = (
   creationProps: ModelCreationProps,
   agentPromptingMethod: AgentPromptingMethod,
 ): OpenAI | ChatOpenAI => {
-  console.log(`createModel: ${creationProps.modelName} `);
+  console.debug(`createModel: ${creationProps.modelName} `);
   if (
     agentPromptingMethod === AgentPromptingMethod.ChatConversationalReAct ||
     agentPromptingMethod === AgentPromptingMethod.ChatZeroShotReAct ||

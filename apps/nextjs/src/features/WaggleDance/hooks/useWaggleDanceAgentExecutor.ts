@@ -88,8 +88,6 @@ const useWaggleDanceAgentExecutor = () => {
   const taskStates: TaskState[] = useMemo(() => {
     const taskStates = graph.nodes.map((dagNode) => {
       const taskStateB = agentPacketsMap[dagNode.id] ?? resultsMap[dagNode.id];
-      // console.log("dagNode", dagNode.id, "taskStateB", taskStateB?.id);
-      // Object.values(agentPacketsMap).find((ts) => ts.nodeId === taskStateA.id);
       const updatedAt = new Date();
       const merged = {
         id: taskStateB?.id ?? dagNode.id,
@@ -170,7 +168,7 @@ const useWaggleDanceAgentExecutor = () => {
       ]);
 
       // Log to the console (optional)
-      console.log(message);
+      console.debug(message);
     },
     [setLogs],
   );
@@ -182,7 +180,9 @@ const useWaggleDanceAgentExecutor = () => {
       setAgentPackets((prevAgentPackets) => {
         const existingTask = prevAgentPackets[node.id] || resultsMap[node.id];
 
-        log(`injectAgentPacket: ${existingTask?.value} -> ${agentPacket.type}`);
+        log(
+          `injectAgentPacket: ${existingTask?.value.type} -> ${agentPacket.type}`,
+        );
         if (!existingTask) {
           // its for a brand new task
           const taskState = new TaskState({
@@ -294,7 +294,7 @@ const useWaggleDanceAgentExecutor = () => {
         }
       }
 
-      console.log("waggleDanceMachine.run result", result);
+      console.debug("waggleDanceMachine.run result", result);
 
       setIsRunning(false);
       if (!ac.signal.aborted) {
@@ -310,7 +310,7 @@ const useWaggleDanceAgentExecutor = () => {
         updateExecutionState({ executionId, state: "ERROR" });
         return;
       } else {
-        console.log("result", result);
+        console.debug("result", result);
         result ? setAgentPackets(result) : undefined;
         updateExecutionState({ executionId, state: "DONE" });
         return result;
