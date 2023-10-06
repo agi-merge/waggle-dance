@@ -1,13 +1,5 @@
 import React from "react";
-import {
-  Box,
-  Card,
-  Checkbox,
-  Divider,
-  Link,
-  Stack,
-  Typography,
-} from "@mui/joy";
+import { Box, Card, Divider, Link, Stack, Typography } from "@mui/joy";
 
 import { type Session } from "@acme/auth";
 import { type DraftExecutionGraph, type GoalPlusExe } from "@acme/db";
@@ -40,8 +32,6 @@ const BottomControls: React.FC<BottomControlsProps> = ({
   graph,
   handleStart,
   handleStop,
-  setIsAutoScrollToBottom,
-  isAutoScrollToBottom,
   shouldShowProgress,
   progressPercent,
   inProgressOrDonePercent,
@@ -124,16 +114,6 @@ const BottomControls: React.FC<BottomControlsProps> = ({
                   <Divider />
                 </Box>
               )}
-              <Checkbox
-                size="sm"
-                checked={isAutoScrollToBottom}
-                onChange={(e: React.ChangeEvent<HTMLInputElement>) => {
-                  setIsAutoScrollToBottom(e.target.checked);
-                }}
-                label={<Typography>Auto scroll to task</Typography>}
-              >
-                Autostart
-              </Checkbox>
 
               <AgentSettingsToggleButton />
             </Box>
