@@ -74,7 +74,7 @@ const useWaggleDanceMachineStore = create(
       execution: null,
       setExecution: (newExecution, goalPrompt) => {
         console.debug("setExecution", newExecution);
-        set((state) => ({
+        set(() => ({
           execution: newExecution || null,
           graph:
             (newExecution?.graph &&
@@ -84,7 +84,15 @@ const useWaggleDanceMachineStore = create(
                 newExecution.id,
                 goalPrompt,
               )) ||
-            state.graph,
+            hookRootUpToServerGraph(
+              {
+                nodes: [],
+                edges: [],
+                executionId: "",
+              },
+              rootPlanId,
+              goalPrompt,
+            ),
         }));
       },
       graph: {
@@ -97,8 +105,8 @@ const useWaggleDanceMachineStore = create(
           graph: hookRootUpToServerGraph(
             graph,
             rootPlanId,
-            state.execution?.id ?? "",
             goalPrompt,
+            state.execution?.id,
           ),
         }));
       },

@@ -20,6 +20,7 @@ export type UpdateGraphParams = {
   goalId: string;
   executionId: string;
   graph: OldPlanWireFormat | null;
+  goalPrompt: string;
   session?: Session | null;
 };
 
@@ -45,6 +46,7 @@ export default async function updateGraphProxy(
 async function updateGraph({
   executionId,
   graph,
+  goalPrompt,
   session,
 }: UpdateGraphParams): Promise<ExecutionGraph | Execution> {
   const caller = appRouter.createCaller({ session: session || null, prisma });
@@ -62,6 +64,7 @@ async function updateGraph({
     const updated = await caller.execution.updateGraph({
       executionId,
       graph,
+      goalPrompt,
     });
     console.debug("updated exe graph", updated);
     return updated;

@@ -4,6 +4,9 @@ export function isServerId(id: string): boolean {
   return id !== rootPlanId && id.includes(".");
 }
 
-export function makeServerIdIfNeeded(id: string, executionId: string): string {
+export function makeServerIdIfNeeded(id: string, executionId?: string): string {
+  if (!executionId) {
+    return id;
+  }
   return isServerId(id) ? id : `${executionId}.${id}`;
 }

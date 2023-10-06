@@ -178,6 +178,7 @@ export default async function PlanStream(req: NextRequest) {
               goalId,
               graph,
               executionId,
+              goalPrompt,
             },
             req,
           );

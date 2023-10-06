@@ -1,6 +1,6 @@
 import { z } from "zod";
 
-import { makeServerIdIfNeeded } from "@acme/agent";
+import { hookRootUpToServerGraph, makeServerIdIfNeeded } from "@acme/agent";
 import {
   ExecutionState,
   type DraftExecutionEdge,
@@ -62,12 +62,18 @@ export const executionRouter = createTRPCRouter({
       z.object({
         executionId: z.string().cuid(),
         graph: dagShape,
+        goalPrompt: z.string().nonempty(),
       }),
     )
     .mutation(async ({ ctx, input }) => {
       return await withLock(input.executionId, async () => {
-        const { executionId, graph } = input;
+        const { executionId, graph: unprocessedGraph, goalPrompt } = input;
 
+        const graph = hookRootUpToServerGraph(
+          { ...unprocessedGraph, executionId },
+          executionId,
+          goalPrompt,
+        );
         // this is needed because we do not know if the graph already exists or not
         const connectOrCreateNodes = graph.nodes.map((node) => {
           const generatedId = makeServerIdIfNeeded(node.id, executionId);

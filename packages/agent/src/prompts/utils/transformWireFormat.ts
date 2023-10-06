@@ -33,8 +33,8 @@ export type OldPlanWireFormat = {
  */
 function edgesToHookupToRootNode(
   graph: DraftExecutionGraph,
-  executionId: string,
   rootPlanId: string,
+  executionId?: string,
 ) {
   const targetEdgesMap: Record<string, DraftExecutionEdge> = graph.edges.reduce(
     (acc: Record<string, DraftExecutionEdge>, edge) => {
@@ -54,8 +54,8 @@ function edgesToHookupToRootNode(
 export const hookRootUpToServerGraph = (
   graph: DraftExecutionGraph,
   rootPlanId: string,
-  executionId: string,
   goalPrompt: string,
+  executionId?: string,
 ) => {
   let root = graph.nodes.find((node) => node.id.endsWith(rootPlanId)); // brittle; depends on formulation of server ids
   if (!!root) {
@@ -63,7 +63,7 @@ export const hookRootUpToServerGraph = (
   }
   // add packets representing the graph state to the root node
   root = rootPlanNode(goalPrompt);
-  const hookupEdges = edgesToHookupToRootNode(graph, executionId, rootPlanId);
+  const hookupEdges = edgesToHookupToRootNode(graph, rootPlanId, executionId);
   const graphWithRoot = {
     ...graph,
     nodes: [root, ...graph.nodes],
