@@ -60,6 +60,7 @@ export async function callExecutionAgent(creation: {
     abortSignal,
     namespace,
     contentType,
+    geo,
   } = creation;
   const callbacks = creationProps.callbacks;
   creationProps.callbacks = undefined;
@@ -108,11 +109,11 @@ export async function callExecutionAgent(creation: {
   creationProps.modelName && tags.push(creationProps.modelName);
 
   const skills = createSkills(
-    namespace,
     llm,
     embeddings,
     agentPromptingMethod,
     returnType,
+    geo,
   );
 
   const executor = await initializeExecutor(

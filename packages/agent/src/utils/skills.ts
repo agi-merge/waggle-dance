@@ -6,15 +6,16 @@ import { WebBrowser } from "langchain/tools/webbrowser";
 
 import retrieveMemorySkill from "../skills/retrieveMemory";
 import saveMemorySkill from "../skills/saveMemory";
+import type Geo from "../strategy/Geo";
 import { type AgentPromptingMethod } from "./llms";
 
 // skill === tool
 function createSkills(
-  namespace: string | undefined,
   llm: OpenAI | ChatOpenAI,
   embeddings: Embeddings,
   agentPromptingMethod: AgentPromptingMethod,
   returnType: "YAML" | "JSON",
+  geo?: Geo,
 ): StructuredTool[] {
   const tools = [
     saveMemorySkill.toTool(agentPromptingMethod, returnType),
@@ -23,9 +24,13 @@ function createSkills(
   ];
 
   if (process.env.SERPAPI_API_KEY?.length) {
+    console.debug(`createSkills: adding SerpAPI`);
+    const location = geo
+      ? `${geo.city},${geo.region},${geo.country}`
+      : "Los Angeles,California,United States";
     tools.push(
       new SerpAPI(process.env.SERPAPI_API_KEY, {
-        location: "Los Angeles,California,United States",
+        location,
         hl: "en",
         gl: "us",
       }),
