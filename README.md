@@ -31,7 +31,9 @@ It was originally inspired by [Auto-GPT](https://github.com/Significant-Gravitas
 An (unstable) API is also available via [tRPC](packages/api/src/root.ts) as well an API [implemented within Next.js](apps/nextjs/src/pages/api). The client-side is mostly responsible for orchestrating and rendering the agent executions, while the API and server-side executes the agents and stores the results. This architecture is likely to be adjusted in the future.
 
 <p align="center">
-<img src="https://github.com/agi-merge/waggle-dance/assets/906671/aaa6850d-b6d4-4acb-be50-5f8cdf50a760" height="640" />
+
+<img src="https://github.com/agi-merge/waggle-dance/assets/906671/3380a442-05d9-48be-920f-21e9e6d8ce41" height="640" />
+
 </p>
 </div>
 
