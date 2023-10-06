@@ -57,7 +57,7 @@ export const hookRootUpToServerGraph = (
   executionId: string,
   goalPrompt: string,
 ) => {
-  let root = graph.nodes.find((node) => node.id === rootPlanId);
+  let root = graph.nodes.find((node) => node.id.endsWith(rootPlanId)); // brittle; depends on formulation of server ids
   if (!!root) {
     return graph;
   }
