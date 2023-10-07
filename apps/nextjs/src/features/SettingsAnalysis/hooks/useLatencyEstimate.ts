@@ -22,13 +22,13 @@ const latencyScale: LatencyScaleItem[] = [
   {
     limit: 0,
     color: "success",
-    label: "Highest",
+    label: "Fastest",
     description: `Your speed score is the highest possible, which reduces costs and time to achieve goals, possibly at the expense of rigor and IQ`,
   },
   {
     limit: 0.5,
     color: "success",
-    label: "High",
+    label: "Fast",
     description: `Your speed score is on the high end, which reduces costs and time to achieve goals, possibly at the expense of rigor and IQ`,
   },
   {
@@ -40,13 +40,13 @@ const latencyScale: LatencyScaleItem[] = [
   {
     limit: 0.86,
     color: "warning",
-    label: "⚠ Low",
+    label: "⚠ Slow",
     description: `Your speed score is the second lowest possible, which increases costs and time to achieve goals, but increases rigor`,
   },
   {
     limit: 1,
     color: "danger",
-    label: "⚠ Lowest",
+    label: "⚠ Slowest",
     description: `Your speed score is the lowest possible, which increases costs and time to achieve goals, but increases rigor`,
   },
 ];
