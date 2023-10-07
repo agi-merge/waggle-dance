@@ -75,15 +75,4 @@ function createSkills(
   return tools as StructuredTool[];
 }
 
-// returns the count that would be created given a config, without actually instantiating the skills
-export function createSkillsCount(namespace: string) {
-  return namespace
-    ? process.env.SERPAPI_API_KEY
-      ? 4
-      : 3
-    : process.env.SERPAPI_API_KEY
-    ? 3
-    : 2;
-}
-
 export default createSkills;
