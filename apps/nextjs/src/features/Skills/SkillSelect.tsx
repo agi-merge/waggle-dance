@@ -24,7 +24,7 @@ const SkillSelect = ({}) => {
         size="lg"
         label={
           <>
-            <Typography level="title-md" sx={{}}>
+            <Typography level="title-sm" sx={{}}>
               {skill.label}
             </Typography>
             <br />
@@ -75,7 +75,7 @@ const SkillSelect = ({}) => {
               i === skillDatabase.length
             }
           >
-            <Typography>
+            <Typography level="body-xs" fontFamily="monospace">
               This is where config would go for {skill.label}
             </Typography>
           </AccordionContent>
