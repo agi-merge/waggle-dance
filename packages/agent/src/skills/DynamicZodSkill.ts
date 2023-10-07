@@ -197,25 +197,17 @@ class DynamicZodStructuredTool<
     configArg?: Callbacks | RunnableConfig,
     tags?: string[],
   ): Promise<string> {
-    let parsed: string;
+    let parsedSchema: z.infer<T> | null;
     try {
-      const parsedSchema = (await this.schema.parseAsync(arg)) as z.infer<T>;
-      if (!parsedSchema) {
-        parsed = jsonStringify(parsedSchema);
-      } else {
-        parsed = parsedSchema;
-      }
+      parsedSchema = (await this.schema.parseAsync(arg)) as z.infer<T>;
     } catch (e) {
-      // If parsing fails, pass the original argument
-      if (typeof arg === "string") {
-        parsed = arg;
-      } else {
-        // stringified, if needed
-        parsed = JSON.stringify(arg);
-      }
+      parsedSchema = null;
     }
-    console.debug(`call ${this.name} structured tool with input:`, parsed);
-    return super.call(parsed, configArg, tags);
+    console.debug(
+      `call ${this.name} structured tool with input:`,
+      parsedSchema,
+    );
+    return super.call(parsedSchema || arg, configArg, tags);
   }
 
   async invoke(input: z.input<T>, config?: RunnableConfig): Promise<string> {

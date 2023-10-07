@@ -152,7 +152,10 @@ const getGroupOutput = (group: AgentPacket[]): GroupOutput | null => {
           if (!!acc) {
             return acc;
           }
-          if (packet.type === "handleToolStart") {
+          if (
+            packet.type === "handleToolStart" &&
+            typeof packet.input === "string"
+          ) {
             const input = packet.input.slice(0, 20);
             if (input.length === 20) {
               return `${input}…`;

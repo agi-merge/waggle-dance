@@ -21,11 +21,15 @@ const saveMemorySkill = new DynamicZodSkill({
   name: "saveMemory",
   description: `Useful for making sure that important facts and entities are accurately recorded to help other team members achieve the user's GOAL.`,
   func: async (input, _runManager) => {
-    const { memory, namespace } = schema.parse(input);
-    const vectorStore = await vectorStoreFromIndex(namespace);
-    const document = new Document({ pageContent: memory, metadata: {} });
-    const added = (await vectorStore.addDocuments([document])).join(", ");
-    return added.length ? memory : `failed: ${memory}`;
+    try {
+      const { memory, namespace } = schema.parse(input);
+      const vectorStore = await vectorStoreFromIndex(namespace);
+      const document = new Document({ pageContent: memory, metadata: {} });
+      const added = (await vectorStore.addDocuments([document])).join(", ");
+      return added.length ? memory : `failed: ${memory}`;
+    } catch {
+      return `failed to save`;
+    }
   },
   schema,
 });
