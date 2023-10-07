@@ -205,8 +205,11 @@ class DynamicZodStructuredTool<
     }
     console.debug(
       `call ${this.name} structured tool with input:`,
-      parsedSchema,
+      parsedSchema || arg,
     );
+    if (!parsedSchema || arg) {
+      return "invalid parameters"; // TODO: fix with LLM
+    }
     return super.call(parsedSchema || arg, configArg, tags);
   }
 
