@@ -251,10 +251,10 @@ export default function GoalInput({}: GoalInputProps) {
                                 }}
                               >
                                 <div>
-                                  <Typography level="body-md">
+                                  <Typography level="title-sm">
                                     {prompt.title}
                                   </Typography>
-                                  <Typography level="body-sm">
+                                  <Typography level="body-xs">
                                     {prompt.prompt}
                                   </Typography>
                                   <Stack
