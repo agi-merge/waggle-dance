@@ -77,7 +77,9 @@ function createSkills(
     const location =
       geos.length > 0 ? geos.join(",") : "Los Angeles,California,United States";
 
-    console.debug(`SerpAPI location: ${location}`);
+    console.debug(
+      `SerpAPI location: ${location}, versus original: ${JSON.stringify(geo)}}`,
+    );
     tools.push(
       new SerpAPI(process.env.SERPAPI_API_KEY, {
         location,
