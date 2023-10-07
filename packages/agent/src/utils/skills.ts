@@ -8,6 +8,7 @@ import {
 } from "langchain/tools";
 import { WebBrowser } from "langchain/tools/webbrowser";
 
+import cca2Map from "../lib/cca2Map.json";
 import requestUserHelpSkill from "../skills/requestUserHelpSkill";
 import retrieveMemorySkill from "../skills/retrieveMemory";
 import saveMemorySkill from "../skills/saveMemory";
