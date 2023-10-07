@@ -4,6 +4,7 @@ import React, { lazy, Suspense, useCallback, useState } from "react";
 import router from "next/router";
 import { KeyboardArrowRight } from "@mui/icons-material";
 import {
+  Chip,
   List,
   ListItem,
   ListItemButton,
@@ -243,7 +244,12 @@ export default function GoalInput({}: GoalInputProps) {
                         {prompts.map((prompt, i) => (
                           <>
                             <ListItem key={i}>
-                              <ListItemButton>
+                              <ListItemButton
+                                onClick={() => {
+                                  setGoalInputValue(prompt.prompt);
+                                  setTemplatesModalOpen(false);
+                                }}
+                              >
                                 <div>
                                   <Typography level="body-md">
                                     {prompt.title}
@@ -251,6 +257,21 @@ export default function GoalInput({}: GoalInputProps) {
                                   <Typography level="body-sm">
                                     {prompt.prompt}
                                   </Typography>
+                                  <Stack
+                                    direction="row"
+                                    gap={1}
+                                    sx={{ pt: 0.5 }}
+                                  >
+                                    {prompt.tags.map((tag, i) => (
+                                      <Chip
+                                        key={i}
+                                        variant="outlined"
+                                        size="sm"
+                                      >
+                                        {tag}
+                                      </Chip>
+                                    ))}
+                                  </Stack>
                                 </div>
                               </ListItemButton>
                             </ListItem>
