@@ -97,11 +97,7 @@ function createSkills(
     );
   }
 
-  console.debug(
-    tools.map((tool) => {
-      return { name: tool.name, description: tool.description };
-    }),
-  );
+  console.debug(tools.map((tool) => tool.name));
   return tools as StructuredTool[];
 }
 
