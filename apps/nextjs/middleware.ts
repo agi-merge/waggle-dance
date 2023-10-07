@@ -30,9 +30,9 @@ export function middleware(req: NextRequest) {
   const languages =
     countryInfo && Object.values(countryInfo.languages).join(", ");
 
-  url.searchParams.set("country", friendlyCountryName || cca2);
+  friendlyCountryName && url.searchParams.set("country", friendlyCountryName);
   url.searchParams.set("city", city);
-  url.searchParams.set("region", friendlyRegionName || region);
+  friendlyRegionName && url.searchParams.set("region", friendlyRegionName);
   languages && url.searchParams.set("languages", languages);
 
   return NextResponse.rewrite(url);
