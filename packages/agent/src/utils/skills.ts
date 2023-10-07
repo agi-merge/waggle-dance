@@ -14,6 +14,14 @@ import saveMemorySkill from "../skills/saveMemory";
 import type Geo from "../strategy/Geo";
 import { type AgentPromptingMethod } from "./llms";
 
+type CCA2MapType = {
+  [key: string]: {
+    name: string;
+    divisions: { [key: string]: string };
+    languages: string[];
+  };
+};
+
 // skill === tool
 function createSkills(
   llm: OpenAI | ChatOpenAI,
@@ -35,26 +43,45 @@ function createSkills(
   }
 
   if (process.env.SERPAPI_API_KEY?.length) {
+    const cca2 = geo?.country || "US";
+    const city = geo?.city || "San Francisco";
+    const region = geo?.region || "CA";
+
+    const countryInfo = (cca2Map as CCA2MapType)[cca2];
+    const friendlyCountryName = countryInfo?.name;
+    const friendlyRegionName = countryInfo?.divisions[region];
+
+    const languages =
+      countryInfo && Object.values(countryInfo.languages).join(", ");
+
     const geos: string[] = [];
-    if (geo) {
-      if (geo.city) {
-        geos.push(geo.city);
+
+    const serpGeo = {
+      country: friendlyCountryName || geo?.country,
+      city: city,
+      region: friendlyRegionName || geo?.region,
+      languages: languages || [],
+    };
+    if (serpGeo) {
+      if (serpGeo.city) {
+        geos.push(serpGeo.city);
       }
-      if (geo.region) {
-        geos.push(geo.region);
+      if (serpGeo.region) {
+        geos.push(serpGeo.region);
       }
-      if (geo.country) {
-        geos.push(geo.country);
+      if (serpGeo.country) {
+        geos.push(serpGeo.country);
       }
     }
     const location =
       geos.length > 0 ? geos.join(",") : "Los Angeles,California,United States";
+
     console.debug(`SerpAPI location: ${location}`);
     tools.push(
       new SerpAPI(process.env.SERPAPI_API_KEY, {
         location,
-        hl: "en",
-        gl: "us",
+        hl: "en", // host language
+        gl: "us", // geographic location
       }),
     );
   }
