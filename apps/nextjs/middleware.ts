@@ -13,8 +13,8 @@ export function middleware(req: NextRequest) {
   const { nextUrl: url } = req;
   const { geo } = req as { geo: Geo };
   const country = geo?.country || "United States";
-  const city = geo?.city || "San Francisco";
-  const region = geo?.region || "California";
+  // const city = geo?.city || "San Francisco";
+  // const region = geo?.region || "California";
 
   const countryInfo = countries.find((x) => x.cca2 === country);
 
@@ -22,8 +22,8 @@ export function middleware(req: NextRequest) {
     countryInfo && Object.values(countryInfo.languages).join(", ");
 
   url.searchParams.set("country", country);
-  url.searchParams.set("city", city);
-  url.searchParams.set("region", region);
+  // url.searchParams.set("city", city);
+  // url.searchParams.set("region", region);
   languages && languages[0] && url.searchParams.set("languages", languages[0]);
 
   return NextResponse.rewrite(url);
