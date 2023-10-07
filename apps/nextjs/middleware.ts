@@ -12,9 +12,9 @@ export const config = {
 export function middleware(req: NextRequest) {
   const { nextUrl: url } = req;
   const { geo } = req as { geo: Geo };
-  const country = geo?.country || "US";
+  const country = geo?.country || "United States";
   const city = geo?.city || "San Francisco";
-  const region = geo?.region || "CA";
+  const region = geo?.region || "California";
 
   const countryInfo = countries.find((x) => x.cca2 === country);
 
