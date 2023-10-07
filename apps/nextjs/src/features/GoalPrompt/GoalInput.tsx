@@ -3,10 +3,16 @@
 import React, { lazy, Suspense, useCallback, useState } from "react";
 import router from "next/router";
 import { KeyboardArrowRight } from "@mui/icons-material";
-import { Link, List, Skeleton } from "@mui/joy";
+import {
+  List,
+  ListItem,
+  ListItemButton,
+  ListSubheader,
+  Skeleton,
+} from "@mui/joy";
 import Box from "@mui/joy/Box";
 import Button from "@mui/joy/Button";
-import { type CardProps } from "@mui/joy/Card";
+import Card, { type CardProps } from "@mui/joy/Card";
 import Checkbox from "@mui/joy/Checkbox";
 import Divider from "@mui/joy/Divider";
 // import Grid from "@mui/joy/Grid";
@@ -217,45 +223,43 @@ export default function GoalInput({}: GoalInputProps) {
               open={templatesModalOpen}
               setOpen={setTemplatesModalOpen}
             >
-              <Typography color="neutral" level="title-lg" className="px-5">
-                Examples
-              </Typography>
-              <Typography level="body-md" className="px-5 pb-2">
-                For better results, try to{" "}
-                <Link
-                  href="https://platform.openai.com/docs/guides/gpt-best-practices"
-                  target="_blank"
-                  rel="noopener noreferrer"
-                >
-                  follow GPT best practices
-                </Link>
-              </Typography>
-              <List className="absolute left-0 top-0 mt-3">
-                <Stack spacing={2}>
-                  {examplePrompts
-                    .sort((a, b) => (a.length < b.length ? 1 : -1))
-                    .map((prompt, _index) => (
-                      <Stack key={prompt}>
-                        <Button
-                          color="neutral"
-                          size="sm"
-                          variant="outlined"
-                          className="flex flex-grow flex-row justify-center"
-                          onClick={() => {
-                            setGoalInputValue(prompt);
-                            setTemplatesModalOpen(false);
-                          }}
-                        >
-                          <Typography
-                            level="body-sm"
-                            className="flex flex-grow flex-row justify-center"
-                          >
-                            {prompt}
-                          </Typography>
-                        </Button>
-                      </Stack>
-                    ))}
-                </Stack>
+              <List
+                variant="soft"
+                sx={{
+                  borderRadius: "sm",
+                }}
+                size="lg"
+              >
+                {Object.entries(examplePrompts)
+                  .sort((a, b) => (a.length < b.length ? 1 : -1))
+                  .map(([category, prompts], index) => (
+                    <ListItem nested key={index}>
+                      {index !== 0 && <Divider />}
+                      <ListSubheader variant="soft" sx={{ p: 1, m: 1 }}>
+                        {category}
+                      </ListSubheader>
+                      {index !== prompts.length - 1 && <Divider />}
+                      <List size="sm" component={Card} variant="outlined">
+                        {prompts.map((prompt, i) => (
+                          <>
+                            <ListItem key={i}>
+                              <ListItemButton>
+                                <div>
+                                  <Typography level="body-md">
+                                    {prompt.title}
+                                  </Typography>
+                                  <Typography level="body-sm">
+                                    {prompt.prompt}
+                                  </Typography>
+                                </div>
+                              </ListItemButton>
+                            </ListItem>
+                            <Divider />
+                          </>
+                        ))}
+                      </List>
+                    </ListItem>
+                  ))}
               </List>
             </TemplatesModal>
           </Suspense>

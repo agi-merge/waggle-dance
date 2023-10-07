@@ -1,6 +1,6 @@
 import * as React from "react";
+import { Card, Typography } from "@mui/joy";
 import Box from "@mui/joy/Box";
-import Card from "@mui/joy/Card";
 import Link from "@mui/joy/Link";
 import Modal from "@mui/joy/Modal";
 import ModalClose from "@mui/joy/ModalClose";
@@ -11,7 +11,7 @@ type Props = {
   open: boolean;
   setOpen: (isOpen: boolean) => void;
 };
-export default function BasicModal({ children, open, setOpen }: Props) {
+export default function TemplatesModal({ children, open, setOpen }: Props) {
   return (
     <>
       <Tooltip
@@ -46,9 +46,21 @@ export default function BasicModal({ children, open, setOpen }: Props) {
             maxHeight: "90%",
             p: 3,
             m: { xs: 2, sm: 2 },
-            boxShadow: "lg",
           }}
         >
+          <Typography color="neutral" level="title-lg" className="px-5">
+            Examples
+          </Typography>
+          <Typography level="body-md" className="px-5 pb-2">
+            For better results, try to{" "}
+            <Link
+              href="https://platform.openai.com/docs/guides/gpt-best-practices"
+              target="_blank"
+              rel="noopener noreferrer"
+            >
+              follow GPT best practices
+            </Link>
+          </Typography>
           <ModalClose
             variant="outlined"
             sx={{
@@ -57,6 +69,7 @@ export default function BasicModal({ children, open, setOpen }: Props) {
               boxShadow: "0 2px 12px 0 rgba(0 0 0 / 0.2)",
               borderRadius: "50%",
               bgcolor: "background.body",
+              overflow: "auto",
             }}
           />
           <Box
