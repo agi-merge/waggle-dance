@@ -37,6 +37,7 @@ export async function callPlanningAgent(
     llm,
     embeddings,
     agentPromptingMethod,
+    false,
     returnType,
   );
   const prompt = createPlanPrompt({

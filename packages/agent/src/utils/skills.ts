@@ -19,19 +19,22 @@ function createSkills(
   llm: OpenAI | ChatOpenAI,
   embeddings: Embeddings,
   agentPromptingMethod: AgentPromptingMethod,
+  isCriticism: boolean,
   returnType: "YAML" | "JSON",
   geo?: Geo,
 ): StructuredTool[] {
   const tools = [
-    saveMemorySkill.toTool(agentPromptingMethod, returnType),
     retrieveMemorySkill.toTool(agentPromptingMethod, returnType),
     requestUserHelpSkill.toTool(agentPromptingMethod, returnType),
     // selfHelpSkill.toTool(agentPromptingMethod, returnType),
     new WebBrowser({ model: llm, embeddings }),
   ];
 
+  if (!isCriticism) {
+    tools.push(saveMemorySkill.toTool(agentPromptingMethod, returnType));
+  }
+
   if (process.env.SERPAPI_API_KEY?.length) {
-    console.debug(`createSkills: adding SerpAPI`);
     const geos: string[] = [];
     if (geo) {
       if (geo.city) {
@@ -46,6 +49,7 @@ function createSkills(
     }
     const location =
       geos.length > 0 ? geos.join(",") : "Los Angeles,California,United States";
+    console.debug(`SerpAPI location: ${location}`);
     tools.push(
       new SerpAPI(process.env.SERPAPI_API_KEY, {
         location,
@@ -56,7 +60,6 @@ function createSkills(
   }
 
   if (process.env.WOLFRAM_APP_ID?.length) {
-    console.debug(`createSkills: adding WolframAlpha`);
     tools.push(
       new WolframAlphaTool({
         appid: process.env.WOLFRAM_APP_ID,
@@ -64,6 +67,11 @@ function createSkills(
     );
   }
 
+  console.debug(
+    tools.map((tool) => {
+      return { name: tool.name, description: tool.description };
+    }),
+  );
   return tools as StructuredTool[];
 }
 

@@ -112,6 +112,7 @@ export async function callExecutionAgent(creation: {
     llm,
     embeddings,
     agentPromptingMethod,
+    isCriticism,
     returnType,
     geo,
   );
