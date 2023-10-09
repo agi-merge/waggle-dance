@@ -120,6 +120,8 @@ const getGroupOutput = (group: AgentPacket[]): GroupOutput | null => {
   const key = "runId" in lastPacket ? lastPacket.runId : v4();
 
   switch (groupType) {
+    case GroupType.Success:
+    case GroupType.Error:
     case GroupType.Working:
       parsedTitle = `🧠`;
       const end = group.find((g) => g.type === "handleLLMEnd");

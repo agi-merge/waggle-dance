@@ -17,7 +17,7 @@ import { LLM, LLM_ALIASES, TEMPERATURE_VALUES } from "./llms";
 import { createEmbeddings } from "./model";
 import { vectorStoreFromIndex } from "./vectorStore";
 
-function hash(str: string): string {
+export function hash(str: string): string {
   const hash = sha256(str);
   return hash.toString(Hex);
 }
@@ -27,6 +27,7 @@ export async function createMemory(
   inputKey: "goal" | "task" = "goal",
   namespace?: string,
 ): Promise<MemoryType> {
+  // TODO: always hash namespace
   switch (process.env.MEMORY_TYPE) {
     case "motorhead":
       const memory: MotorheadMemory = new MotorheadMemory({

@@ -182,6 +182,7 @@ const useWaggleDanceAgentExecutor = () => {
 
         log(
           `injectAgentPacket: ${existingTask?.value.type} -> ${agentPacket.type}`,
+          JSON.stringify(agentPacket),
         );
         if (!existingTask) {
           // its for a brand new task

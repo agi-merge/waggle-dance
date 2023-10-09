@@ -2,13 +2,17 @@ import { isAbortError } from "next/dist/server/pipe-readable";
 import { type NextRequest } from "next/server";
 import { BaseCallbackHandler } from "langchain/callbacks";
 import { type Document } from "langchain/document";
+import { OpenAIEmbeddings } from "langchain/embeddings/openai";
 import { type Serialized } from "langchain/load/serializable";
+import { ScoreThresholdRetriever } from "langchain/retrievers/score_threshold";
 import {
   type AgentAction,
   type AgentFinish,
   type ChainValues,
   type LLMResult,
 } from "langchain/schema";
+// Ephemeral, in-memory vector store for demo purposes
+import { MemoryVectorStore } from "langchain/vectorstores/memory";
 import { parse, stringify } from "yaml";
 
 import { getBaseUrl } from "@acme/api/utils";
@@ -17,6 +21,7 @@ import { type DraftExecutionNode, type ExecutionState } from "@acme/db";
 import { type ExecuteRequestBody } from "~/features/WaggleDance/types/types";
 import {
   callExecutionAgent,
+  hash,
   type AgentPacket,
 } from "../../../../../../packages/agent";
 import { type CreateResultParams } from "../result";
@@ -26,6 +31,59 @@ export const config = {
     bodyParser: false,
   },
   runtime: "edge",
+};
+const checkRepetitivePackets = async (
+  recentPackets: AgentPacket[],
+  historicalPackets: AgentPacket[],
+): Promise<{ recent: string; similarDocuments: Document[] } | null> => {
+  // Convert agent packets to documents and add to the vector store
+  const recentDocuments = recentPackets.map(packetToDocument);
+  const historicalDocuments = historicalPackets
+    .map(packetToDocument)
+    // Only check the last n historical documents, this helps prevent too much token usage
+    .slice(-30);
+
+  try {
+    const memoryVectorStore = await MemoryVectorStore.fromTexts(
+      [...historicalDocuments],
+      [],
+      new OpenAIEmbeddings(),
+    );
+
+    console.debug("memoryVectorStore", memoryVectorStore.memoryVectors.length);
+
+    const retriever = ScoreThresholdRetriever.fromVectorStore(
+      memoryVectorStore,
+      {
+        minSimilarityScore: 1, // Finds results with at least this similarity score
+        maxK: 2,
+      },
+    );
+
+    // Check each recent document for similar historical documents
+    for (const recentDocument of recentDocuments) {
+      const similarDocuments =
+        await retriever.getRelevantDocuments(recentDocument);
+      if (similarDocuments.length > 1) {
+        return { recent: recentDocument, similarDocuments }; // Found a recent document with more than one very similar historical document
+      }
+    }
+  } catch (e) {
+    console.error(e);
+    throw e;
+  }
+
+  return null;
+};
+
+const packetToDocument = (packet: AgentPacket): string => {
+  const p = { ...packet };
+  Object.defineProperty(p, "runId", { value: "static", writable: true });
+  Object.defineProperty(p, "parentRunId", {
+    value: "static",
+    writable: true,
+  });
+  return JSON.stringify(p);
 };
 
 export default async function ExecuteStream(req: NextRequest) {
@@ -42,7 +100,62 @@ export default async function ExecuteStream(req: NextRequest) {
   });
   const abortController = new AbortController();
   let node: DraftExecutionNode | undefined;
-  const packets: AgentPacket[] = [];
+  let packets: AgentPacket[] = [];
+  const historicalPackets: AgentPacket[] = [];
+
+  // Define constants for N and M
+  const CHECK_EVERY_N_PACKETS = 10;
+  const CHECK_EVERY_M_MILLISECONDS = 5000;
+
+  // Initialize a counter for packets and a timestamp for time checks
+  let packetCounter = 0;
+  let lastCheckTimestamp = Date.now();
+  const handlePacket = async (
+    packet: AgentPacket,
+    controller: ReadableStreamDefaultController,
+    encoder: TextEncoder,
+  ) => {
+    // Enqueue the packet to the stream
+    controller.enqueue(encoder.encode(stringify([packet])));
+
+    // Push the packet to the packets array
+    packets.push(packet);
+
+    // Increment the packet counter
+    packetCounter++;
+
+    // Check if the packet counter has reached N or if the elapsed time has reached M milliseconds
+    if (
+      packetCounter >= CHECK_EVERY_N_PACKETS ||
+      Date.now() - lastCheckTimestamp >= CHECK_EVERY_M_MILLISECONDS
+    ) {
+      // Reset the packet counter and the timestamp
+      packetCounter = 0;
+      lastCheckTimestamp = Date.now();
+
+      // Perform the repetition check
+      const isRepetitive = await checkRepetitivePackets(
+        packets,
+        historicalPackets,
+      );
+      if (!!isRepetitive) {
+        const repetitionError: AgentPacket = {
+          type: "error",
+          severity: "fatal",
+          error: `Repetitive actions detected: ${isRepetitive.recent}`,
+          ...isRepetitive,
+        };
+        await handlePacket(repetitionError, controller, encoder);
+      }
+
+      // Push the packet to the historical packets array after the repetition check
+      historicalPackets.push(...packets);
+
+      // Clear the packets array after adding them to historicalPackets
+      packets = [];
+    }
+  };
+
   try {
     const {
       creationProps,
@@ -102,8 +215,7 @@ export default async function ExecuteStream(req: NextRequest) {
                 tags,
                 metadata,
               };
-              controller.enqueue(encoder.encode(stringify([packet])));
-              packets.push(packet);
+              void handlePacket(packet, controller, encoder);
             },
             handleRetrieverEnd(
               documents: Document[],
@@ -118,22 +230,25 @@ export default async function ExecuteStream(req: NextRequest) {
                 parentRunId,
                 tags,
               };
-              controller.enqueue(encoder.encode(stringify([packet])));
-              packets.push(packet);
+              void handlePacket(packet, controller, encoder);
             },
             handleLLMStart(
-              _llm: Serialized,
-              _prompts: string[],
+              llm: Serialized,
+              prompts: string[],
               runId: string,
-              parentRunId: string,
-            ): void | Promise<void> {
+              parentRunId?: string,
+              _extraParams?: Record<string, unknown>,
+              _tags?: string[],
+              _metadata?: Record<string, unknown>,
+            ): Promise<void> | void {
               const packet: AgentPacket = {
                 type: "handleLLMStart",
                 runId,
                 parentRunId,
+                llmHash: hash(JSON.stringify(llm)),
+                hash: hash(JSON.stringify(prompts)),
               };
-              controller.enqueue(encoder.encode(stringify([packet])));
-              packets.push(packet);
+              void handlePacket(packet, controller, encoder);
             },
             handleLLMEnd(
               output: LLMResult,
@@ -146,8 +261,7 @@ export default async function ExecuteStream(req: NextRequest) {
                 runId,
                 parentRunId,
               };
-              controller.enqueue(encoder.encode(stringify([packet])));
-              packets.push(packet);
+              void handlePacket(packet, controller, encoder);
             },
             handleLLMError(
               err: unknown,
@@ -160,8 +274,7 @@ export default async function ExecuteStream(req: NextRequest) {
                 runId,
                 parentRunId,
               );
-              controller.enqueue(encoder.encode(stringify([packet])));
-              packets.push(packet);
+              void handlePacket(packet, controller, encoder);
               console.error("handleLLMError", packet);
             },
             handleChainError(
@@ -175,8 +288,7 @@ export default async function ExecuteStream(req: NextRequest) {
                 runId,
                 parentRunId,
               );
-              controller.enqueue(encoder.encode(stringify([packet])));
-              packets.push(packet);
+              void handlePacket(packet, controller, encoder);
               // can be 'Output parser not set'
               console.error("handleChainError", packet);
             },
@@ -193,8 +305,7 @@ export default async function ExecuteStream(req: NextRequest) {
                 runId,
                 parentRunId,
               };
-              controller.enqueue(encoder.encode(stringify([packet])));
-              packets.push(packet);
+              void handlePacket(packet, controller, encoder);
             },
             handleToolError(
               err: unknown,
@@ -207,8 +318,7 @@ export default async function ExecuteStream(req: NextRequest) {
                 runId,
                 parentRunId,
               );
-              controller.enqueue(encoder.encode(stringify([packet])));
-              packets.push(packet);
+              void handlePacket(packet, controller, encoder);
               console.error("handleToolError", packet);
             },
             handleToolEnd(
@@ -222,8 +332,7 @@ export default async function ExecuteStream(req: NextRequest) {
                 runId,
                 parentRunId,
               };
-              controller.enqueue(encoder.encode(stringify([packet])));
-              packets.push(packet);
+              void handlePacket(packet, controller, encoder);
             },
             handleAgentAction(
               action: AgentAction,
@@ -236,8 +345,7 @@ export default async function ExecuteStream(req: NextRequest) {
                 runId,
                 parentRunId,
               };
-              controller.enqueue(encoder.encode(stringify([packet])));
-              packets.push(packet);
+              void handlePacket(packet, controller, encoder);
             },
             handleRetrieverError(
               err: Error,
@@ -251,8 +359,7 @@ export default async function ExecuteStream(req: NextRequest) {
                 runId,
                 parentRunId,
               );
-              controller.enqueue(encoder.encode(stringify([packet])));
-              packets.push(packet);
+              void handlePacket(packet, controller, encoder);
             },
             handleAgentEnd(
               action: AgentFinish,
@@ -270,8 +377,7 @@ export default async function ExecuteStream(req: NextRequest) {
                   runId,
                   parentRunId,
                 };
-                controller.enqueue(encoder.encode(stringify([packet])));
-                packets.push(packet);
+                void handlePacket(packet, controller, encoder);
               } else {
                 const value = stringify(output);
                 const packet: AgentPacket = {
@@ -280,8 +386,7 @@ export default async function ExecuteStream(req: NextRequest) {
                   runId,
                   parentRunId,
                 };
-                controller.enqueue(encoder.encode(stringify([packet])));
-                packets.push(packet);
+                void handlePacket(packet, controller, encoder);
               }
             },
             handleChainStart(
@@ -297,9 +402,10 @@ export default async function ExecuteStream(req: NextRequest) {
                 type: "handleChainStart",
                 runId,
                 parentRunId,
+                chainHash: hash(JSON.stringify(chain)),
+                inputsHash: hash(JSON.stringify(inputs)),
               };
-              controller.enqueue(encoder.encode(stringify([packet])));
-              packets.push(packet);
+              void handlePacket(packet, controller, encoder);
             },
             handleChainEnd(
               outputs: ChainValues,
@@ -316,8 +422,7 @@ export default async function ExecuteStream(req: NextRequest) {
                 runId,
                 parentRunId,
               };
-              controller.enqueue(encoder.encode(stringify([packet])));
-              packets.push(packet);
+              void handlePacket(packet, controller, encoder);
             },
           }),
         ];
