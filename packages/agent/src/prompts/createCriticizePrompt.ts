@@ -32,7 +32,6 @@ CONSTRAINTS:
   - Avoid reusing a tool with similar input when it is returning similar results too often.
   - Consider descriptions of tools as important as these constraints.
   - Do not give up on a TASK until you have tried multiple tools and approaches.
-REVIEWEE MEMORY NAMESPACE: ${namespace}
 `.trimEnd();
 
   const systemMessagePrompt =
@@ -51,7 +50,9 @@ ${
   returnType === "JSON"
     ? jsonStringify(task.packets)
     : yamlStringify(task.packets)
-}`,
+}
+REVIEWEE NAMESPACE: ${namespace}
+`,
           )
         : undefined;
     })
