@@ -139,13 +139,17 @@ export default async function ExecuteStream(req: NextRequest) {
         historicalPackets,
       );
       if (!!isRepetitive) {
+        const error = new Error(
+          `Repetitive actions detected: ${isRepetitive.recent}`,
+        );
         const repetitionError: AgentPacket = {
           type: "error",
           severity: "fatal",
-          error: `Repetitive actions detected: ${isRepetitive.recent}`,
+          error,
           ...isRepetitive,
         };
         await handlePacket(repetitionError, controller, encoder);
+        throw repetitionError;
       }
 
       // Push the packet to the historical packets array after the repetition check
