@@ -27,8 +27,8 @@ const saveMemorySkill = new DynamicZodSkill({
       const document = new Document({ pageContent: memory, metadata: {} });
       const added = (await vectorStore.addDocuments([document])).join(", ");
       return added.length ? memory : `failed: ${memory}`;
-    } catch {
-      return `failed to save`;
+    } catch (e) {
+      throw e;
     }
   },
   schema,

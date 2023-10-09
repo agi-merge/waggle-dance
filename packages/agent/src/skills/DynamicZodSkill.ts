@@ -25,6 +25,7 @@ interface SkillOptions<T extends z.ZodObject<any, any, any, any>> {
   name: string;
   description: string;
   func: SkillFunction<T>;
+  recoveryFunc?(input: string): SkillOptions<T>;
   schema: T;
 }
 
@@ -33,9 +34,11 @@ interface SkillOptions<T extends z.ZodObject<any, any, any, any>> {
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 class DynamicZodSkill<T extends z.ZodObject<any, any, any, any>> {
   private skill: SkillOptions<T>;
+  private recoveryData?: unknown[];
 
-  constructor(options: SkillOptions<T>) {
+  constructor(options: SkillOptions<T>, recoveryData?: unknown[]) {
     this.skill = options;
+    this.recoveryData = recoveryData;
   }
 
   toTool(
@@ -98,29 +101,45 @@ class DynamicZodTool extends DynamicTool {
     return this.func(parsed, runManager);
   }
 
-  // eslint-disable-next-line @typescript-eslint/no-redundant-type-constituents
-  async call(arg: string | unknown, callbacks?: Callbacks): Promise<string> {
-    let parsed: string;
-    try {
-      const parsedSchema = await this.schema.parseAsync(arg);
-      if (!parsedSchema) {
-        parsed = jsonStringify(parsedSchema);
-      } else {
-        parsed = parsedSchema;
-      }
-    } catch (e) {
-      // If parsing fails, pass the original argument
-      if (typeof arg === "string") {
-        parsed = arg;
-      } else {
-        // stringified, if needed
-        parsed = JSON.stringify(arg);
-      }
-    }
-
-    console.debug(`call ${this.name} tool with input:`, parsed);
-    return super.call(parsed, callbacks);
+  call(
+    arg: string | undefined | z.input<this["schema"]>,
+    callbacks: Callbacks,
+  ) {
+    return super.call(
+      typeof arg === "string" || !arg ? { input: arg } : arg,
+      callbacks,
+    );
   }
+
+  // async call(arg: string | unknown, callbacks?: Callbacks): Promise<string> {
+  //   // let parsed: string;
+  //   // try {
+  //   //   const parsedSchema = await this.schema.parseAsync(arg);
+  //   //   if (!parsedSchema) {
+  //   //     parsed = jsonStringify(parsedSchema);
+  //   //   } else {
+  //   //     parsed = parsedSchema;
+  //   //   }
+  //   // } catch (e) {
+  //   //   // If parsing fails, pass the original argument
+  //   //   if (typeof arg === "string") {
+  //   //     parsed = arg;
+  //   //   } else {
+  //   //     // stringified, if needed
+  //   //     parsed = JSON.stringify(arg);
+  //   //   }
+  //   // }
+
+  //   // console.debug(`call ${this.name} tool with input:`, parsed);
+  //   // return super.call(parsed, callbacks);
+  //   try {
+  //     const superCall = await super.call(arg, callbacks);
+  //     return superCall;
+  //   } catch (e) {
+  //     // TODO: use recoveryFunc
+  //     return e instanceof Error ? e.message : String(e);
+  //   }
+  // }
 
   async invoke(input: string, config?: RunnableConfig): Promise<string> {
     let parsed: string;
@@ -171,25 +190,25 @@ class DynamicZodStructuredTool<
     arg: z.output<T>,
     runManager?: CallbackManagerForToolRun,
   ): Promise<string> {
-    let parsed: string;
-    try {
-      const parsedSchema = (await this.schema.parseAsync(arg)) as z.infer<T>;
-      if (!parsedSchema) {
-        parsed = jsonStringify(parsedSchema);
-      } else {
-        parsed = parsedSchema;
-      }
-    } catch (e) {
-      // If parsing fails, pass the original argument
-      if (typeof arg === "string") {
-        parsed = arg;
-      } else {
-        // stringified, if needed
-        parsed = JSON.stringify(arg);
-      }
-    }
-    console.debug(`_call ${this.name} structured tool with input:`, parsed);
-    return this.func(parsed, runManager);
+    // let parsed: string;
+    // try {
+    //   const parsedSchema = (await this.schema.parseAsync(arg)) as z.infer<T>;
+    //   if (!parsedSchema) {
+    //     parsed = jsonStringify(parsedSchema);
+    //   } else {
+    //     parsed = parsedSchema;
+    //   }
+    // } catch (e) {
+    //   // If parsing fails, pass the original argument
+    //   if (typeof arg === "string") {
+    //     parsed = arg;
+    //   } else {
+    //     // stringified, if needed
+    //     parsed = JSON.stringify(arg);
+    //   }
+    // }
+    // console.debug(`_call ${this.name} structured tool with input:`, parsed);
+    return this.func(arg, runManager);
   }
 
   async call(
@@ -197,20 +216,13 @@ class DynamicZodStructuredTool<
     configArg?: Callbacks | RunnableConfig,
     tags?: string[],
   ): Promise<string> {
-    let parsedSchema: z.infer<T> | null;
     try {
-      parsedSchema = (await this.schema.parseAsync(arg)) as z.infer<T>;
+      const superCall = await super.call(arg, configArg, tags);
+      return superCall;
     } catch (e) {
-      parsedSchema = null;
+      // TODO: use recoveryFunc
+      return e instanceof Error ? e.message : String(e);
     }
-    console.debug(
-      `call ${this.name} structured tool with input:`,
-      parsedSchema || arg,
-    );
-    if (!parsedSchema || arg) {
-      return "invalid parameters"; // TODO: fix with LLM
-    }
-    return super.call(parsedSchema || arg, configArg, tags);
   }
 
   async invoke(input: z.input<T>, config?: RunnableConfig): Promise<string> {
