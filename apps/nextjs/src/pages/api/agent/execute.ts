@@ -41,7 +41,7 @@ const checkRepetitivePackets = async (
   const historicalDocuments = historicalPackets
     .map(packetToDocument)
     // Only check the last n historical documents, this helps prevent too much token usage
-    .slice(-30);
+    .slice(-12);
 
   try {
     const memoryVectorStore = await MemoryVectorStore.fromTexts(
@@ -148,8 +148,12 @@ export default async function ExecuteStream(req: NextRequest) {
           error,
           ...isRepetitive,
         };
+        historicalPackets.push(...packets);
+        packets = [];
+
         await handlePacket(repetitionError, controller, encoder);
-        throw repetitionError;
+        abortController.abort("Repetitive actions detected");
+        return;
       }
 
       // Push the packet to the historical packets array after the repetition check
