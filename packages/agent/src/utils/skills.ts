@@ -6,6 +6,7 @@ import {
   WolframAlphaTool,
   type StructuredTool,
 } from "langchain/tools";
+import { Calculator } from "langchain/tools/calculator";
 import { WebBrowser } from "langchain/tools/webbrowser";
 
 import cca2Map from "../lib/cca2Map.json";
@@ -36,6 +37,7 @@ function createSkills(
     retrieveMemorySkill.toTool(agentPromptingMethod, returnType),
     requestUserHelpSkill.toTool(agentPromptingMethod, returnType),
     // selfHelpSkill.toTool(agentPromptingMethod, returnType),
+    new Calculator(),
     new WebBrowser({ model: llm, embeddings }),
   ];
 
