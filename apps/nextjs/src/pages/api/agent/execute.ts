@@ -2,7 +2,6 @@ import { isAbortError } from "next/dist/server/pipe-readable";
 import { type NextRequest } from "next/server";
 import { BaseCallbackHandler } from "langchain/callbacks";
 import { type Document } from "langchain/document";
-import { OpenAIEmbeddings } from "langchain/embeddings/openai";
 import { type Serialized } from "langchain/load/serializable";
 import { ScoreThresholdRetriever } from "langchain/retrievers/score_threshold";
 import {
@@ -16,12 +15,14 @@ import { MemoryVectorStore } from "langchain/vectorstores/memory";
 import { parse, stringify } from "yaml";
 
 import createNamespace from "@acme/agent/src/memory/namespace";
+import { LLM } from "@acme/agent/src/utils/llms";
 import { getBaseUrl } from "@acme/api/utils";
 import { type DraftExecutionNode, type ExecutionState } from "@acme/db";
 
 import { type ExecuteRequestBody } from "~/features/WaggleDance/types/types";
 import {
   callExecutionAgent,
+  createEmbeddings,
   type AgentPacket,
 } from "../../../../../../packages/agent";
 import { type CreateResultParams } from "../result";
@@ -65,7 +66,7 @@ const checkRepetitivePackets = async (
     const memoryVectorStore = await MemoryVectorStore.fromTexts(
       [...historicalDocuments],
       [],
-      new OpenAIEmbeddings(),
+      createEmbeddings({ modelName: LLM.embeddings }),
     );
 
     console.debug("memoryVectorStore", memoryVectorStore.memoryVectors.length);
@@ -73,7 +74,7 @@ const checkRepetitivePackets = async (
     const retriever = ScoreThresholdRetriever.fromVectorStore(
       memoryVectorStore,
       {
-        minSimilarityScore: 0.99, // Finds results with at least this similarity score
+        minSimilarityScore: 0.9999, // Finds results with at least this similarity score
         maxK: 2,
       },
     );
@@ -98,9 +99,9 @@ const packetToDocument = (packet: AgentPacket): string => {
   const p = { ...packet };
   // remove runId and parentRunId from the packet before stringifying
   // we do not want these to be considered when checking for repetitive actions
-  Object.defineProperty(p, "runId", { value: "static", writable: true });
+  Object.defineProperty(p, "runId", { value: undefined, writable: true });
   Object.defineProperty(p, "parentRunId", {
-    value: "static",
+    value: undefined,
     writable: true,
   });
   return JSON.stringify(p).slice(0, 500);
@@ -159,20 +160,16 @@ export default async function ExecuteStream(req: NextRequest) {
         historicalPackets,
       );
       if (!!isRepetitive) {
-        const error = new Error(
-          `Repetitive actions detected: ${isRepetitive.recent}`,
-        );
         const repetitionError: AgentPacket = {
           type: "error",
           severity: "fatal",
-          error,
+          error: `Repetitive actions detected: ${isRepetitive.recent}`,
           ...isRepetitive,
         };
         historicalPackets.push(...packets);
         packets = [];
 
         await handlePacket(repetitionError, controller, encoder);
-        abortController.abort("Repetitive actions detected");
         return;
       }
 
@@ -417,24 +414,24 @@ export default async function ExecuteStream(req: NextRequest) {
                 void handlePacket(packet, controller, encoder);
               }
             },
-            handleChainStart(
-              chain,
-              inputs,
-              runId,
-              parentRunId,
-              _tags,
-              _metadata,
-              _runType,
-            ) {
-              const packet: AgentPacket = {
-                type: "handleChainStart",
-                runId,
-                parentRunId,
-                chainHash: hashCode(JSON.stringify(chain)),
-                inputsHash: hashCode(JSON.stringify(inputs)),
-              };
-              void handlePacket(packet, controller, encoder);
-            },
+            // handleChainStart(
+            //   chain,
+            //   inputs,
+            //   runId,
+            //   parentRunId,
+            //   _tags,
+            //   _metadata,
+            //   _runType,
+            // ) {
+            //   const packet: AgentPacket = {
+            //     type: "handleChainStart",
+            //     runId,
+            //     parentRunId,
+            //     chainHash: hashCode(JSON.stringify(chain)),
+            //     inputsHash: hashCode(JSON.stringify(inputs)),
+            //   };
+            //   void handlePacket(packet, controller, encoder);
+            // },
             handleChainEnd(
               outputs: ChainValues,
               runId: string,
