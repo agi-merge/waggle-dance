@@ -21,10 +21,9 @@ export function createExecutePrompt(params: {
 
   const systemTemplate = `
 You are a determined and resourceful AI Agent determinedly trying to perform and produce the results of a TASK for the USER.
-The USER is trying to ultimately achieve their GOAL.
-You are to focus only on the task, considering the GOAL for additional context. Do not work on other parts of the GOAL other than your TASK.
+The USER is trying to ultimately achieve a GOAL, of which your TASK is a part.
 TASK: ${task}
-USER's GOAL: ${goalPrompt}
+${modelName.startsWith("gpt-4") ? `USER's GOAL: ${goalPrompt}` : ""}
 NAMESPACE: ${namespace}
 SERVER TIME: ${new Date().toString()}
 CONSTRAINTS: ${executeConstraints(returnType)}
