@@ -2,6 +2,7 @@ import { type DraftExecutionNode } from "@acme/db";
 
 import { sha256ify } from "../prompts/utils/sha256";
 
+// in order to help unauthorized lookup of data, we use an encrypted combination of goal+execution id as a namespace
 export default function createNamespace(
   goalId: string | undefined,
   executionId: string | undefined,
@@ -27,4 +28,9 @@ export default function createNamespace(
   const namespace = sha256ify(`${goalId}_${executionId}`);
   console.debug("namespace", namespace);
   return namespace;
+}
+
+// it is okay for the taskId to not be encrypted, as the other portion is.
+export function createChatNamespace(namespace: string, taskId: string) {
+  return `${namespace}_chat_history_${taskId}`;
 }

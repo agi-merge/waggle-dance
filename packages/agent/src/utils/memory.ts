@@ -11,6 +11,7 @@ import { RedisChatMessageHistory } from "langchain/stores/message/redis";
 import { UpstashRedisChatMessageHistory } from "langchain/stores/message/upstash_redis";
 import { MemoryVectorStore } from "langchain/vectorstores/memory";
 
+import { createChatNamespace } from "../memory/namespace";
 import { LLM, LLM_ALIASES, TEMPERATURE_VALUES } from "./llms";
 import { createEmbeddings } from "./model";
 import { vectorStoreFromIndex } from "./vectorStore";
@@ -18,12 +19,13 @@ import { vectorStoreFromIndex } from "./vectorStore";
 export type MemoryType = BaseChatMemory | BaseMemory | undefined;
 export async function createMemory(
   inputKey: "goal" | "task" = "goal",
-  namespace?: string,
+  namespace: string,
+  taskId: string,
 ): Promise<MemoryType> {
   switch (process.env.MEMORY_TYPE) {
     case "motorhead":
       const memory: MotorheadMemory = new MotorheadMemory({
-        sessionId: namespace!,
+        sessionId: namespace,
         url: process.env.MEMORY_URL ?? "http://localhost:8080",
         inputKey,
       });
@@ -39,7 +41,7 @@ export async function createMemory(
     case "vector":
       if (namespace) {
         const vectorStore = await vectorStoreFromIndex(
-          `${namespace}_chat_history`,
+          createChatNamespace(namespace, taskId),
         );
 
         const vectorMemory = new VectorStoreRetrieverMemory({

@@ -1,4 +1,4 @@
-import { type Document } from "langchain/document";
+import { Document } from "langchain/document";
 import { WeaviateStore } from "langchain/vectorstores/weaviate";
 import weaviate from "weaviate-ts-client";
 
@@ -22,7 +22,7 @@ export async function vectorStoreFromIndex(
   const store = await WeaviateStore.fromExistingIndex(embeddings, {
     client,
     indexName,
-    // metadataKeys: ["foo"],
+    metadataKeys: ["namespace"],
     // tenant: namespace,
   });
   return store;
@@ -62,9 +62,12 @@ export async function insertDocuments(
     throw new Error("No index name found");
   }
 
+  const docsWithNamespace = docs.map(
+    (doc) => new Document({ ...doc, metadata: { namespace } }),
+  );
   const client = createVectorClient();
   return await WeaviateStore.fromDocuments(
-    docs,
+    docsWithNamespace,
     createEmbeddings({ modelName: LLM.embeddings }),
     { client, indexName },
   );

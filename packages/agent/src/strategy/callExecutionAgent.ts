@@ -69,7 +69,7 @@ export async function callExecutionAgent(creation: {
   const taskObj = parse(task) as { id: string };
   const isCriticism = isTaskCriticism(taskObj.id);
   const returnType = contentType === "application/json" ? "JSON" : "YAML";
-  const memory = await createMemory("task", namespace);
+  const memory = await createMemory("task", namespace, taskObj.id);
   // methods need to be reattached
   const revieweeTaskResults = revieweeTaskResultsNeedDeserialization.map(
     (t) => new TaskState({ ...t }),

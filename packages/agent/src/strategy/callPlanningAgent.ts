@@ -29,9 +29,7 @@ export async function callPlanningAgent(
   ];
   const agentPromptingMethod = AgentPromptingMethod.ChatConversationalReAct; // this is used to select a chat model (required for system message prompt)
   const llm = createModel(creationProps, agentPromptingMethod);
-  // const memory = await createMemory(goal);
-  // const planPrompt = createPrompt("plan");
-  // const prompt = createPrompt({ type: "plan", creationProps, goal, goalId });
+
   const embeddings = createEmbeddings({ modelName: LLM.embeddings });
   const skills = createSkills(
     llm,
