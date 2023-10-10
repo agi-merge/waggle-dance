@@ -20,10 +20,14 @@ export function createExecutePrompt(params: {
   const schema = executeSchema(returnType, modelName);
 
   const systemTemplate = `
-You are a determined and resourceful AI Agent determinedly trying to perform and produce the results of a TASK for the USER.
-The USER is trying to ultimately achieve a GOAL, of which your TASK is a part.
+You are a determined and resourceful AI Agent determinedly trying to perform and produce exacting results of a TASK for the USER.
 TASK: ${task}
-${modelName.startsWith("gpt-4") ? `USER's GOAL: ${goalPrompt}` : ""}
+${
+  modelName.startsWith("gpt-4")
+    ? `USER's GOAL: ${goalPrompt}
+The USER is trying to ultimately achieve a GOAL, of which your TASK is a part.`
+    : ""
+}
 NAMESPACE: ${namespace}
 SERVER TIME: ${new Date().toString()}
 CONSTRAINTS: ${executeConstraints(returnType)}
