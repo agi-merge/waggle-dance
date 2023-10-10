@@ -5,15 +5,12 @@ import { vectorStoreFromIndex } from "../utils/vectorStore";
 import DynamicZodSkill from "./DynamicZodSkill";
 
 const schema = z.object({
-  memory: z
-    .string()
-    .nonempty()
-    .describe("The memory to store in the vector store"),
+  memory: z.string().min(1).describe("The memory to store in the vector store"),
   namespace: z
     .string()
-    .nonempty()
+    .min(1)
     .describe(
-      "The namespace to save the memory to. Use the NAMESPACE variable for memory isolation. This improves security and prevents context poisoning.",
+      "The namespace from which to retrieve the memory. You must pass the NAMESPACE variable as the namespace.",
     ),
 });
 

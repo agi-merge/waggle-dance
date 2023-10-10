@@ -9,19 +9,21 @@ import DynamicZodSkill from "./DynamicZodSkill";
 const schema = z.object({
   search: z
     .string()
-    .nonempty()
-    .describe("The text string to search for in the memory database"),
+    .min(1)
+    .describe(
+      "The text string to query in the memory database. It is ideally in the form of a detailed question.",
+    ),
   namespace: z
     .string()
-    .nonempty()
+    .min(1)
     .describe(
-      "The namespace from which to retrieve the memory. Use the NAMESPACE variable for memory isolation. This improves security and prevents context poisoning.",
+      "The namespace from which to retrieve the memory. You must pass the NAMESPACE variable as the namespace.",
     ),
 });
 
 const retrieveMemorySkill = new DynamicZodSkill({
   name: "retrieveMemory",
-  description: `You must use this tool at least once per task. When asked a question about contents of memory, this is useful for retrieving memories and entities from your memory palace.`,
+  description: `This is useful for retrieving memories and entities from your memory palace. It performs a similarity search using a vector store and combines the search results.`,
   func: async (input, _runManager) => {
     const { search, namespace } = schema.parse(input);
     const vectorStore = await vectorStoreFromIndex(namespace);

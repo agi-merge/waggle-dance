@@ -15,6 +15,8 @@ import { MemoryVectorStore } from "langchain/vectorstores/memory";
 import { parse, stringify } from "yaml";
 
 import createNamespace from "@acme/agent/src/memory/namespace";
+import { isTaskCriticism } from "@acme/agent/src/prompts/types";
+import saveMemorySkill from "@acme/agent/src/skills/saveMemory";
 import { LLM } from "@acme/agent/src/utils/llms";
 import { getBaseUrl } from "@acme/api/utils";
 import { type DraftExecutionNode, type ExecutionState } from "@acme/db";
@@ -113,6 +115,7 @@ export default async function ExecuteStream(req: NextRequest) {
     | undefined;
   let goalId: string | undefined;
   let executionId: string | undefined;
+  let namespace: string | undefined;
   let resolveStreamEnded: () => void;
   let rejectStreamEnded: (reason?: string) => void;
   const streamEndedPromise = new Promise<void>((resolve, reject) => {
@@ -195,6 +198,7 @@ export default async function ExecuteStream(req: NextRequest) {
     node = task;
     goalId = parsedGoalId;
     executionId = parsedExecutionId;
+    namespace = createNamespace(goalId, executionId, task);
 
     const encoder = new TextEncoder();
     const stream = new ReadableStream({
@@ -453,7 +457,6 @@ export default async function ExecuteStream(req: NextRequest) {
         ];
         const contentType = "application/yaml";
 
-        const namespace = createNamespace(goalId, executionId, task);
         const exeResult = await callExecutionAgent({
           creationProps,
           goalPrompt,
@@ -464,7 +467,7 @@ export default async function ExecuteStream(req: NextRequest) {
           revieweeTaskResults,
           contentType,
           abortSignal: abortController.signal,
-          namespace,
+          namespace: namespace!,
           geo: req.geo,
         });
 
@@ -608,7 +611,17 @@ export default async function ExecuteStream(req: NextRequest) {
           packets,
           state,
         };
-        response = await fetch(`${getBaseUrl()}/api/result`, {
+
+        const isCriticism = isTaskCriticism(node.id);
+        const memory = JSON.stringify(packet);
+        const save = isCriticism
+          ? "skip"
+          : saveMemorySkill.skill.func({
+              memory,
+              namespace: namespace!,
+            });
+
+        const createResultPromise = fetch(`${getBaseUrl()}/api/result`, {
           method: "POST",
           headers: {
             Cookie: req.headers.get("cookie") || "", // pass cookie so session logic still works
@@ -616,6 +629,12 @@ export default async function ExecuteStream(req: NextRequest) {
           },
           body: JSON.stringify(createResultParams),
         });
+        const [createResultResponse, saveResponse] = await Promise.all([
+          createResultPromise,
+          save,
+        ]);
+        console.debug("saved memory", saveResponse);
+        response = createResultResponse;
       } else {
         response = {
           ok: false,

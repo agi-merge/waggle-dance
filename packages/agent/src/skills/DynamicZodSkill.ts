@@ -33,7 +33,7 @@ interface SkillOptions<T extends z.ZodObject<any, any, any, any>> {
 // it chooses which tool to use based on the agentType.
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 class DynamicZodSkill<T extends z.ZodObject<any, any, any, any>> {
-  private skill: SkillOptions<T>;
+  readonly skill: SkillOptions<T>;
   private recoveryData?: unknown[];
 
   constructor(options: SkillOptions<T>, recoveryData?: unknown[]) {
