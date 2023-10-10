@@ -41,7 +41,7 @@ const checkRepetitivePackets = async (
   const historicalDocuments = historicalPackets
     .map(packetToDocument)
     // Only check the last n historical documents, this helps prevent too much token usage
-    .slice(-12);
+    .slice(-24);
 
   try {
     const memoryVectorStore = await MemoryVectorStore.fromTexts(
@@ -55,7 +55,7 @@ const checkRepetitivePackets = async (
     const retriever = ScoreThresholdRetriever.fromVectorStore(
       memoryVectorStore,
       {
-        minSimilarityScore: 1, // Finds results with at least this similarity score
+        minSimilarityScore: 0.99, // Finds results with at least this similarity score
         maxK: 2,
       },
     );
@@ -78,12 +78,14 @@ const checkRepetitivePackets = async (
 
 const packetToDocument = (packet: AgentPacket): string => {
   const p = { ...packet };
+  // remove runId and parentRunId from the packet before stringifying
+  // we do not want these to be considered when checking for repetitive actions
   Object.defineProperty(p, "runId", { value: "static", writable: true });
   Object.defineProperty(p, "parentRunId", {
     value: "static",
     writable: true,
   });
-  return JSON.stringify(p);
+  return JSON.stringify(p).slice(0, 500);
 };
 
 export default async function ExecuteStream(req: NextRequest) {
