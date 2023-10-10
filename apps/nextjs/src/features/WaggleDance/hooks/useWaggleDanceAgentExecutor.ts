@@ -235,8 +235,8 @@ const useWaggleDanceAgentExecutor = () => {
   });
 
   useEffect(() => {
-    setGraphData(dagToGraphData(graph, results));
-  }, [graph, results, setGraphData]);
+    setGraphData(dagToGraphData(graph, agentPacketsMap));
+  }, [graph, agentPacketsMap, setGraphData]);
 
   const stop = useCallback(() => {
     if (!abortController.signal.aborted) {

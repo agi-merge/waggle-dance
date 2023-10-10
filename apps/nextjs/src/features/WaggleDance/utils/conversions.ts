@@ -11,17 +11,19 @@ import { type DraftExecutionGraph } from "@acme/db";
 
 export function dagToGraphData(
   dag: DraftExecutionGraph | null | undefined,
-  taskStates: TaskState[],
+  taskStatesMap: Record<string, TaskState>,
 ): GraphData {
   if (!dag) {
     return { nodes: [], links: [] };
   }
+
   const nodes = dag.nodes.map((node) => {
+    const taskState = taskStatesMap[node.id];
     return {
       id: node.id,
       name: node.name,
       context: node.context,
-      status: taskStates.find((taskState) => taskState.id === node.id)?.status, // FIXME: nested O(n)
+      status: taskState?.status,
     };
   });
 
