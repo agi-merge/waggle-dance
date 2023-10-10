@@ -8,6 +8,7 @@ import {
   type BaseMessage,
   type LLMResult,
 } from "langchain/schema";
+import { parse } from "yaml";
 
 export type ChainValues = Record<string, unknown>;
 export type BaseAgentPacket = {
@@ -80,7 +81,10 @@ export const findFinishPacket = (packets: AgentPacket[]): AgentPacket => {
   return packet;
 };
 
-export const findResult = (packets: AgentPacket[]): string => {
+export const findResult = (
+  packets: AgentPacket[],
+  returnType: "JSON" | "YAML" = "YAML",
+): string => {
   const finishPacket = findFinishPacket(packets);
   switch (finishPacket.type) {
     case "done":
@@ -88,9 +92,18 @@ export const findResult = (packets: AgentPacket[]): string => {
       if (typeof finishPacket.value !== "string") {
         // some type issue elsewhere is allowing this to not be a string
         // allows unpacking wrapped packets
-        const parsed: unknown = JSON.parse(finishPacket.value);
-        if (parsed as AgentPacket) {
-          return findResult([parsed as AgentPacket]);
+        if (finishPacket.value as AgentPacket) {
+          return findResult([finishPacket.value as AgentPacket], returnType);
+        }
+      } else {
+        console.debug("finishPacket.value", finishPacket.value);
+        try {
+          const parsed: unknown = parse(finishPacket.value);
+          if (parsed as AgentPacket) {
+            return findResult([parsed as AgentPacket], returnType);
+          }
+        } catch (err) {
+          // normal; intentionally left blank
         }
       }
       return finishPacket.value;
