@@ -1,5 +1,3 @@
-import Hex from "crypto-js/enc-hex";
-import sha256 from "crypto-js/sha256";
 import { OpenAI } from "langchain/llms/openai";
 import {
   BufferMemory,
@@ -17,21 +15,15 @@ import { LLM, LLM_ALIASES, TEMPERATURE_VALUES } from "./llms";
 import { createEmbeddings } from "./model";
 import { vectorStoreFromIndex } from "./vectorStore";
 
-export function hash(str: string): string {
-  const hash = sha256(str);
-  return hash.toString(Hex);
-}
-
 export type MemoryType = BaseChatMemory | BaseMemory | undefined;
 export async function createMemory(
   inputKey: "goal" | "task" = "goal",
   namespace?: string,
 ): Promise<MemoryType> {
-  // TODO: always hash namespace
   switch (process.env.MEMORY_TYPE) {
     case "motorhead":
       const memory: MotorheadMemory = new MotorheadMemory({
-        sessionId: hash(namespace!),
+        sessionId: namespace!,
         url: process.env.MEMORY_URL ?? "http://localhost:8080",
         inputKey,
       });

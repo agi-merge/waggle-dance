@@ -50,7 +50,7 @@ export async function callExecutionAgent(creation: {
   geo?: Geo;
 }): Promise<string | Error> {
   const {
-    goalId,
+    goalId: _goalId,
     creationProps,
     goalPrompt,
     agentPromptingMethod,
@@ -90,7 +90,7 @@ export async function callExecutionAgent(creation: {
     : createExecutePrompt({
         task,
         goalPrompt,
-        namespace: namespace || goalId,
+        namespace,
         returnType,
         modelName: creationProps.modelName || LLM_ALIASES["fast"],
       });

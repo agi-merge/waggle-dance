@@ -15,13 +15,13 @@ import {
 import { MemoryVectorStore } from "langchain/vectorstores/memory";
 import { parse, stringify } from "yaml";
 
+import createNamespace from "@acme/agent/src/memory/namespace";
 import { getBaseUrl } from "@acme/api/utils";
 import { type DraftExecutionNode, type ExecutionState } from "@acme/db";
 
 import { type ExecuteRequestBody } from "~/features/WaggleDance/types/types";
 import {
   callExecutionAgent,
-  hash,
   type AgentPacket,
 } from "../../../../../../packages/agent";
 import { type CreateResultParams } from "../result";
@@ -32,6 +32,24 @@ export const config = {
   },
   runtime: "edge",
 };
+
+/**
+ * Returns a hash code from a string
+ * @param  {String} str The string to hash.
+ * @return {Number}    A 32bit integer
+ * @see http://werxltd.com/wp/2010/05/13/javascript-implementation-of-javas-string-hashcode-method/
+ * credit: https://stackoverflow.com/a/8831937/127422
+ */
+function hashCode(str: string) {
+  let hash = 0;
+  for (let i = 0, len = str.length; i < len; i++) {
+    const chr = str.charCodeAt(i);
+    hash = (hash << 5) - hash + chr;
+    hash |= 0; // Convert to 32bit integer
+  }
+  return hash;
+}
+
 const checkRepetitivePackets = async (
   recentPackets: AgentPacket[],
   historicalPackets: AgentPacket[],
@@ -255,8 +273,8 @@ export default async function ExecuteStream(req: NextRequest) {
                 type: "handleLLMStart",
                 runId,
                 parentRunId,
-                llmHash: hash(JSON.stringify(llm)),
-                hash: hash(JSON.stringify(prompts)),
+                llmHash: hashCode(JSON.stringify(llm)),
+                hash: hashCode(JSON.stringify(prompts)),
               };
               void handlePacket(packet, controller, encoder);
             },
@@ -412,8 +430,8 @@ export default async function ExecuteStream(req: NextRequest) {
                 type: "handleChainStart",
                 runId,
                 parentRunId,
-                chainHash: hash(JSON.stringify(chain)),
-                inputsHash: hash(JSON.stringify(inputs)),
+                chainHash: hashCode(JSON.stringify(chain)),
+                inputsHash: hashCode(JSON.stringify(inputs)),
               };
               void handlePacket(packet, controller, encoder);
             },
@@ -438,9 +456,7 @@ export default async function ExecuteStream(req: NextRequest) {
         ];
         const contentType = "application/yaml";
 
-        const namespace =
-          goalId || executionId ? `${goalId}_${executionId}` : task.id;
-        console.debug("execution namespace", namespace);
+        const namespace = createNamespace(goalId, executionId, task);
         const exeResult = await callExecutionAgent({
           creationProps,
           goalPrompt,

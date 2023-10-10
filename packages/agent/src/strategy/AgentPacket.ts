@@ -147,16 +147,16 @@ export type AgentPacket =
   | ({ type: "handleLLMError"; err: any } & BaseAgentPacketWithIds)
   | ({
       type: "handleLLMStart";
-      llmHash?: string | undefined;
-      hash?: string | undefined;
+      llmHash?: number | undefined;
+      hash?: number | undefined;
     } & BaseAgentPacketWithIds)
   | ({ type: "t"; t: string } & BaseAgentPacket) // handleLLMNewToken (shortened on purpose)
   | ({ type: "handleLLMEnd"; output: LLMResult } & BaseAgentPacketWithIds)
   | ({ type: "handleChainEnd"; outputs: ChainValues } & BaseAgentPacketWithIds)
   | ({
       type: "handleChainStart";
-      chainHash?: string | undefined;
-      inputsHash?: string | undefined;
+      chainHash?: number | undefined;
+      inputsHash?: number | undefined;
     } & BaseAgentPacketWithIds)
   | ({ type: "handleToolEnd"; output: string } & BaseAgentPacketWithIds)
   | ({ type: "handleToolError"; err: any } & BaseAgentPacketWithIds)
