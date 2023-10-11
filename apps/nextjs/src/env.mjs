@@ -36,16 +36,7 @@ export const env = createEnv({
     DISCORD_SECRET: z.string().min(32).max(32).optional(),
     POSTMARK_TOKEN: z.string().min(1).optional(),
     EMAIL_FROM: z.string().min(1).optional(),
-    MEMORY_TYPE: z
-      .enum([
-        "buffer",
-        "motorhead",
-        "conversation",
-        "redis",
-        "upstash-redis",
-        "vector",
-      ])
-      .optional(),
+    MEMORY_TYPE: z.enum(["buffer", "conversation", "vector"]).optional(),
     MEMORY_URL: z.string().url().optional(),
     MEMORY_REST_API_URL: z.string().url().optional(),
     MEMORY_REST_API_TOKEN: z.string().optional(),
