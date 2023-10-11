@@ -124,7 +124,7 @@ export function AgentSettings() {
       {!session && (
         <Typography level="body-md" sx={{ p: 1, textAlign: "center" }}>
           <Link href={routes.auth} target="_blank">
-            Log in to change settings
+            Sign in to change settings
           </Link>
         </Typography>
       )}
