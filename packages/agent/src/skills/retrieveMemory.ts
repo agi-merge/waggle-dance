@@ -1,8 +1,6 @@
-import { VectorDBQAChain } from "langchain/chains";
+import { ScoreThresholdRetriever } from "langchain/retrievers/score_threshold";
 import { z } from "zod";
 
-import { createModel } from "../..";
-import { AgentPromptingMethod, LLM_ALIASES } from "../utils/llms";
 import { vectorStoreFromIndex } from "../utils/vectorStore";
 import DynamicZodSkill from "./DynamicZodSkill";
 
@@ -11,7 +9,7 @@ const schema = z.object({
     .string()
     .min(1)
     .describe(
-      "The text string to query in the memory database. It is ideally in the form of a detailed question.",
+      "The search query to perform the similarity search on memory with.",
     ),
   namespace: z
     .string()
@@ -27,18 +25,32 @@ const retrieveMemorySkill = new DynamicZodSkill({
   func: async (input, _runManager) => {
     const { search, namespace } = schema.parse(input);
     const vectorStore = await vectorStoreFromIndex(namespace);
-    const ltmChain = VectorDBQAChain.fromLLM(
-      createModel(
-        { modelName: LLM_ALIASES["fast"], maxTokens: 300 },
-        AgentPromptingMethod.OpenAIFunctions,
-      ),
-      vectorStore,
-    );
-    const result = await ltmChain.call({ query: search });
-    if ("text" in result && typeof result["text"] === "string") {
-      return result.text;
-    }
-    return JSON.stringify(result); // Convert the result to a string
+
+    const minSimilarityScore = 0.66;
+    const retriever = ScoreThresholdRetriever.fromVectorStore(vectorStore, {
+      minSimilarityScore,
+      maxK: 4,
+      filter: {
+        where: {
+          operator: "Equal",
+          path: ["namespace"],
+          valueText: namespace,
+        },
+      },
+    });
+
+    const relevantDocs = await retriever.getRelevantDocuments(search);
+    const returnValue = relevantDocs
+      // .map(([doc, score]) =>
+      //   score > minSimilarityScore ? doc.pageContent : null,
+      // )
+      // .filter((p) => !!p)
+      .join("\n");
+
+    console.debug(`retrieveMemorySkill(${search.slice(0, 100)})=`, returnValue);
+    return returnValue.trim().length > 0
+      ? returnValue
+      : "Error: No relevant memories";
   },
   schema,
 });
