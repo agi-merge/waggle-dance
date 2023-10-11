@@ -98,11 +98,11 @@ const BottomControls: React.FC<BottomControlsProps> = ({
             gap={1}
           >
             <Box
-              className="items-center justify-end text-center align-top"
+              className="items-center justify-end text-center align-middle"
               component={Stack}
               gap={0.5}
             >
-              {!session && (
+              {!session && isRunning && (
                 <Box className="text-center">
                   <Typography level="body-sm">
                     <Link href={routes.auth} target="_blank" color="primary">

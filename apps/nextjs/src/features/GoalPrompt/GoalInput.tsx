@@ -14,7 +14,6 @@ import {
 import Box from "@mui/joy/Box";
 import Button from "@mui/joy/Button";
 import Card, { type CardProps } from "@mui/joy/Card";
-import Checkbox from "@mui/joy/Checkbox";
 import Divider from "@mui/joy/Divider";
 // import Grid from "@mui/joy/Grid";
 import Stack from "@mui/joy/Stack";
@@ -49,8 +48,7 @@ type GoalInputProps = CardProps;
 export default function GoalInput({}: GoalInputProps) {
   const { getGoalInputValue, setGoalInputValue, upsertGoal, selectedGoal } =
     useGoalStore();
-  const { isAutoStartEnabled, setIsAutoStartEnabled } =
-    useWaggleDanceMachineStore();
+  const { setIsAutoStartEnabled } = useWaggleDanceMachineStore();
   const {
     isPageLoading,
     setIsPageLoading,
@@ -167,7 +165,7 @@ export default function GoalInput({}: GoalInputProps) {
     setGoalInputValue(event.target.value);
   };
 
-  const handleAutostartChanged = (
+  const _handleAutostartChanged = (
     event: React.ChangeEvent<HTMLInputElement>,
   ) => {
     setIsAutoStartEnabled(event.target.checked);
@@ -313,16 +311,6 @@ export default function GoalInput({}: GoalInputProps) {
             component={Stack}
             gap={0.5}
           >
-            <Checkbox
-              size="sm"
-              checked={isAutoStartEnabled}
-              onChange={handleAutostartChanged}
-              label={<Typography>Autostart Goal</Typography>}
-            >
-              Autostart
-            </Checkbox>
-
-            <Divider />
             <Suspense
               fallback={
                 <Skeleton
