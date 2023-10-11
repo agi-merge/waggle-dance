@@ -319,7 +319,12 @@ const TaskListItem = ({
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     packet: any,
   ): packet is BaseAgentPacketWithIds {
-    return "runId" in packet && "parentRunId" in packet;
+    // FIXME: this paves over a bug elsewhere due to packet being sent as a string
+    if (typeof packet !== "string" && (packet as BaseAgentPacketWithIds)) {
+      return "runId" in packet && "parentRunId" in packet;
+    } else {
+      return false;
+    }
   }
 
   const packetGroups = useMemo(() => {
