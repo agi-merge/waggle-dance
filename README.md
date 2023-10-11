@@ -76,7 +76,7 @@ Future
 ~~Waggle Dance can be deployed using Docker or manually using Node.js. Configuration of `.env` vars is required.~~
 Docker support is coming soon.
 
-### Docker
+### Docker (coming soon)
 
 `docker-compose build && docker-compose up`
 
