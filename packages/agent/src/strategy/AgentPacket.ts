@@ -81,26 +81,22 @@ export const findFinishPacket = (packets: AgentPacket[]): AgentPacket => {
   return packet;
 };
 
-export const findResult = (
-  packets: AgentPacket[],
-  returnType: "JSON" | "YAML" = "YAML",
-): string => {
+export const findResult = (packets: AgentPacket[]): string => {
   const finishPacket = findFinishPacket(packets);
   switch (finishPacket.type) {
     case "done":
     case "handleAgentEnd":
+      // some type issue elsewhere is allowing this to not be a string
+      // allows unpacking wrapped packets
       if (typeof finishPacket.value !== "string") {
-        // some type issue elsewhere is allowing this to not be a string
-        // allows unpacking wrapped packets
-        if (finishPacket.value as AgentPacket) {
-          return findResult([finishPacket.value as AgentPacket], returnType);
-        }
-      } else {
         console.debug("finishPacket.value", finishPacket.value);
+        if (finishPacket as AgentPacket) {
+          return findResult([finishPacket.value as AgentPacket]);
+        }
         try {
           const parsed: unknown = parse(finishPacket.value);
           if (parsed as AgentPacket) {
-            return findResult([parsed as AgentPacket], returnType);
+            return findResult([parsed as AgentPacket]);
           }
         } catch (err) {
           // normal; intentionally left blank
