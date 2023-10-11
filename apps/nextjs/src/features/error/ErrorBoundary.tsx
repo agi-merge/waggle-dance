@@ -1,10 +1,8 @@
 // components/ErrorBoundary.tsx
 import React, { type ErrorInfo, type ReactNode } from "react";
 import { type NextRouter } from "next/router";
-import { Refresh } from "@mui/icons-material";
-import { Button, Divider, Link, Stack, Typography } from "@mui/joy";
-
-import { env } from "~/env.mjs";
+import { Box, Button, Divider, Stack, Typography } from "@mui/joy";
+import { track } from "@vercel/analytics";
 
 interface ErrorBoundaryProps {
   children: ReactNode;
@@ -12,7 +10,7 @@ interface ErrorBoundaryProps {
 }
 
 interface ErrorBoundaryState {
-  hasError: boolean;
+  error: Error | null | undefined;
 }
 
 class ErrorBoundary extends React.Component<
@@ -21,60 +19,27 @@ class ErrorBoundary extends React.Component<
 > {
   constructor(props: ErrorBoundaryProps) {
     super(props);
-    this.state = { hasError: false };
+    this.state = { error: null };
   }
 
-  static getDerivedStateFromError(_error: Error): ErrorBoundaryState {
-    return { hasError: true };
+  static getDerivedStateFromError(error: Error): ErrorBoundaryState {
+    return { error: error };
   }
 
-  componentDidCatch(_error: Error, _info: ErrorInfo) {
+  componentDidCatch(error: Error, info: ErrorInfo) {
     // Log or handle error here
+    const props: Record<string, string | number | boolean | null> = {
+      message: error.message,
+      name: error.name,
+      stack: error.stack || null,
+      componentStack: info.componentStack || null,
+    };
+    track("error", props);
   }
 
   render(): ReactNode {
-    if (this.state.hasError) {
-      return (
-        <Stack className="content-center justify-center self-center  text-center align-middle">
-          <Typography level="h3">
-            A fatal error occurred.
-            <Divider />
-            <Typography level="title-lg">This is likely a bug.</Typography>
-          </Typography>
-          <Button
-            onClick={() => this.props.router.reload()}
-            aria-label="Reload"
-            variant="plain"
-          >
-            <span className="max-w-fit">
-              <Refresh></Refresh>Reload
-            </span>
-          </Button>{" "}
-          <Stack
-            direction="row"
-            spacing={1}
-            className="max-w-sm justify-center text-center  align-baseline"
-          >
-            <Typography className="self-center">Not working?</Typography>
-            <Button
-              onClick={() => this.props.router.reload()}
-              aria-label="Reload"
-              variant="plain"
-            >
-              Go home
-            </Button>{" "}
-            <Divider />
-            <Button
-              component={Link}
-              href={env.NEXT_PUBLIC_DISCORD_INVITE_URL}
-              aria-label="Get help on Discord"
-              variant="plain"
-            >
-              Get Help
-            </Button>
-          </Stack>
-        </Stack>
-      );
+    if (!!this.state.error) {
+      return <ErrorDisplay error={this.state.error} />;
     }
 
     return this.props.children;
@@ -82,3 +47,41 @@ class ErrorBoundary extends React.Component<
 }
 
 export default ErrorBoundary;
+
+const ErrorDisplay = ({ error }: { error: Error }) => (
+  <Box
+    display="flex"
+    flexDirection="column"
+    alignItems="center"
+    justifyContent="center"
+    sx={{ p: 5 }}
+  >
+    <Typography level="h3" sx={{ textAlign: "center" }}>
+      An unexpected error has occurred.
+    </Typography>
+    <Typography
+      level="body-sm"
+      fontFamily="monospace"
+      sx={{ textAlign: "start" }}
+    >
+      {error.name}:{" "}
+      <Typography level="body-sm" fontFamily="monospace">
+        {error.message}
+      </Typography>
+    </Typography>
+    <Divider sx={{ mt: 2 }} />
+    <Stack direction="row" gap="0.5rem" sx={{ pt: 5 }}>
+      <Button onClick={() => window.location.reload()} variant="soft">
+        Reload
+      </Button>
+      <Button
+        onClick={() => window.sessionStorage.clear()}
+        variant="soft"
+        color="danger"
+      >
+        Clear local state
+      </Button>
+    </Stack>
+    {/* Add more user options here */}
+  </Box>
+);
