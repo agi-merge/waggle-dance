@@ -53,6 +53,8 @@ function hashCode(str: string) {
   return hash;
 }
 
+const embeddedings = createEmbeddings({ modelName: LLM.embeddings });
+
 const checkRepetitivePackets = async (
   recentPackets: AgentPacket[],
   historicalPackets: AgentPacket[],
@@ -62,13 +64,13 @@ const checkRepetitivePackets = async (
   const historicalDocuments = historicalPackets
     .map(packetToDocument)
     // Only check the last n historical documents, this helps prevent too much token usage
-    .slice(-24);
+    .slice(-30);
 
   try {
     const memoryVectorStore = await MemoryVectorStore.fromTexts(
       [...historicalDocuments],
       [],
-      createEmbeddings({ modelName: LLM.embeddings }),
+      embeddedings,
     );
 
     console.debug("memoryVectorStore", memoryVectorStore.memoryVectors.length);
@@ -76,7 +78,7 @@ const checkRepetitivePackets = async (
     const retriever = ScoreThresholdRetriever.fromVectorStore(
       memoryVectorStore,
       {
-        minSimilarityScore: 0.9999, // Finds results with at least this similarity score
+        minSimilarityScore: 0.9995, // Finds results with at least this similarity score
         maxK: 2,
       },
     );
@@ -398,6 +400,7 @@ export default async function ExecuteStream(req: NextRequest) {
               // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
               const output =
                 action.returnValues && action.returnValues["output"];
+
               if (output === "Agent stopped due to max iterations.") {
                 // not sure why this isn't an error…
                 const packet: AgentPacket = {
@@ -417,6 +420,11 @@ export default async function ExecuteStream(req: NextRequest) {
                 };
                 void handlePacket(packet, controller, encoder);
               }
+              let valuePacket: AgentPacket | undefined;
+              try {
+                valuePacket = parse(output as string) as AgentPacket;
+                void handlePacket(valuePacket, controller, encoder);
+              } catch {}
             },
             // handleChainStart(
             //   chain,
