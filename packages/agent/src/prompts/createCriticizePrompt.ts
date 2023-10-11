@@ -21,22 +21,6 @@ export function createCriticizePrompt(params: {
 
   const schema = criticizeSchema(returnType, "unknown");
 
-  const systemTemplate = `
-SERVER TIME: ${new Date().toString()}
-SCHEMA: ${schema}
-RETURN: ONLY a single AgentPacket with the results of your TASK in SCHEMA
-TASK: Review REVIEWEE OUTPUT of REVIEWEE TASK using the SCHEMA.
-CONSTRAINTS:
-  - DO NOT output anything other than the ${returnType}, e.g., do not include prose or markdown formatting.
-  - If the REVIEWEE OUTPUT is overall scored less than 0.8, return an error packet instead.
-  - Avoid reusing a tool with similar input when it is returning similar results too often.
-  - Consider descriptions of tools as important as these constraints.
-  - Do not give up on a TASK until you have tried multiple tools and approaches.
-`.trimEnd();
-
-  const systemMessagePrompt =
-    SystemMessagePromptTemplate.fromTemplate(systemTemplate);
-
   const tasksAsHumanMessages = revieweeTaskResults
     .map((task, i) => {
       const node = task.node(nodes);
@@ -46,11 +30,7 @@ CONSTRAINTS:
 name: ${node.name}
 context: ${node.context}
 REVIEWEE OUTPUT:
-${
-  returnType === "JSON"
-    ? jsonStringify(task.packets)
-    : yamlStringify(task.packets)
-}
+${returnType === "JSON" ? jsonStringify(task.value) : yamlStringify(task.value)}
 REVIEWEE NAMESPACE: ${namespace}
 `,
           )
@@ -58,6 +38,28 @@ REVIEWEE NAMESPACE: ${namespace}
     })
     .filter((m) => !!m) as HumanMessagePromptTemplate[];
 
+  const systemTemplate = `
+    Your TASK is to verify the veracity, rigor, and quality of the REVIEWEE TASKs.
+    If you find a problem, return an error in the SCHEMA.
+    SERVER TIME: ${new Date().toString()}
+    SCHEMA: ${schema}
+    RULES:
+      - DO NOT output anything other than the ${returnType}, e.g., do not include prose or markdown formatting.
+      - Avoid reusing a tool with similar input when it is returning similar results too often.
+${
+  tasksAsHumanMessages.length > 0
+    ? `      - Consider all ${tasksAsHumanMessages.length} of the REVIEWEE TASKs.`
+    : ""
+}
+      - Consider descriptions of tools as important as these rules.
+      - Do not give up on scording a REVIEWEE TASK (N) until you have tried multiple tools and approaches.
+      - Verify sources and information. If information is not true, throw an error according to SCHEMA..
+      - The RETURN VALUE IN SCHEMA should represent the result of the execution of your TASK.
+      - AGAIN, THE ONLY THING YOU MUST OUTPUT IS ${returnType} that represents the execution of your TASK.
+    `.trimEnd();
+
+  const systemMessagePrompt =
+    SystemMessagePromptTemplate.fromTemplate(systemTemplate);
   const promptMessages = [systemMessagePrompt, ...tasksAsHumanMessages];
 
   return ChatPromptTemplate.fromPromptMessages(promptMessages);
