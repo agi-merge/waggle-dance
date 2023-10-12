@@ -27,7 +27,6 @@ const JoySnackbar = React.forwardRef<
     <Alert
       ref={ref}
       variant="outlined"
-      color="neutral"
       {...props}
       component={Toast.Root}
       sx={[

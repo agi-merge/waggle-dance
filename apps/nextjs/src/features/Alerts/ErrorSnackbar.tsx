@@ -24,8 +24,8 @@ export default function ErrorSnackbar() {
       <Toast.Provider swipeDirection="right">
         <JoySnackbar
           open={open}
+          variant="soft"
           color="danger"
-          variant="solid"
           sx={(theme) => ({
             borderRadius: "lg",
             shadowRadius: "xl",
@@ -36,13 +36,13 @@ export default function ErrorSnackbar() {
                 backgroundColor: theme.palette.background.surface, // Add opacity to the background color
               },
           })}
-          invertedColors
           onOpenChange={(open) => !open && setError(null)}
           endDecorator={
             <Button
+              color="danger"
               component={Toast.Action}
               altText="Dismiss message"
-              variant="soft"
+              variant="outlined"
               sx={{ ml: 2 }}
             >
               Dismiss
@@ -53,7 +53,12 @@ export default function ErrorSnackbar() {
             <Typography color="danger" level="title-lg">
               {error?.name}
             </Typography>
-            <Typography component="time" level="body-sm" color="danger">
+            <Typography
+              component="time"
+              level="body-sm"
+              color="danger"
+              fontFamily="monospace"
+            >
               {error?.message}
             </Typography>
           </Box>

@@ -23,6 +23,7 @@ import {
 import { type DraftExecutionNode, type ExecutionPlusGraph } from "@acme/db";
 
 import { api } from "~/utils/api";
+import useApp from "~/stores/appStore";
 import useGoalStore from "~/stores/goalStore";
 import useWaggleDanceMachineStore from "~/stores/waggleDanceStore";
 import { type GraphDataState, type WaggleDanceResult } from "../types/types";
@@ -39,6 +40,7 @@ export type LogMessage = {
 const useWaggleDanceAgentExecutor = () => {
   const { setIsRunning, agentSettings, execution, graph, setGraph } =
     useWaggleDanceMachineStore();
+  const { setError } = useApp();
 
   const graphDataStateRef: MutableRefObject<GraphDataState> = useRef([
     graph,
@@ -309,6 +311,7 @@ const useWaggleDanceAgentExecutor = () => {
       } else if (result instanceof Error) {
         console.error("Error in WaggleDanceMachine's run:", result);
         updateExecutionState({ executionId, state: "ERROR" });
+        setError(result);
         return;
       } else {
         console.debug("result", result);
