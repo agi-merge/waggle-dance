@@ -4,7 +4,7 @@ import React, { lazy, Suspense, useEffect, useMemo, useState } from "react";
 import { type InferGetStaticPropsType } from "next";
 import Head from "next/head";
 import { useRouter } from "next/router";
-import { Skeleton, Stack } from "@mui/joy";
+import { Sheet, Skeleton, Stack } from "@mui/joy";
 import Box from "@mui/joy/Box";
 import Card from "@mui/joy/Card";
 import GlobalStyles from "@mui/joy/GlobalStyles";
@@ -57,9 +57,15 @@ const MainLayout = ({ children, alertConfigs }: Props) => {
     return null;
   }
   return (
-    <Box className={`xs:pt-0 overflow-clip sm:pt-2`}>
+    <Sheet
+      className={`overflow-clip`}
+      sx={(theme) => ({
+        backgroundColor: theme.palette.background.backdrop,
+        backdropFilter: "blur(2px)",
+      })}
+    >
       <Box
-        className={`overflow-x-clip overflow-y-scroll px-2 pb-2`}
+        className={`overflow-x-clip overflow-y-scroll`}
         sx={{
           height: "calc(100dvh + env(safe-area-inset-bottom))",
           minHeight: "calc(100dvh + env(safe-area-inset-bottom))",
@@ -92,12 +98,23 @@ const MainLayout = ({ children, alertConfigs }: Props) => {
         />
         <Card
           className=" mx-auto md:max-w-screen-lg xl:max-w-screen-lg"
-          sx={(theme) => ({
-            borderRadius: "lg",
-            shadowRadius: "xl",
-            backgroundColor: theme.palette.background.backdrop,
-            backdropFilter: "blur(3px)",
-          })}
+          sx={(theme) => {
+            const original = theme.palette.background.backdrop;
+            const processed = theme.palette.background.backdrop.replace(
+              "-darkChannel",
+              "",
+            );
+            const shouldUseFallback = original.length === processed.length;
+
+            return {
+              borderRadius: "lg",
+              shadowRadius: "xl",
+              backgroundColor: shouldUseFallback
+                ? "rgba(var(--joy-palette-neutral, 251 252 254) / 0.25);"
+                : processed,
+              backdropFilter: "blur(2px)",
+            };
+          }}
           variant="soft"
         >
           <Suspense
@@ -190,7 +207,7 @@ const MainLayout = ({ children, alertConfigs }: Props) => {
         </Card>
       </Box>
       <ErrorSnackbar />
-    </Box>
+    </Sheet>
   );
 };
 
