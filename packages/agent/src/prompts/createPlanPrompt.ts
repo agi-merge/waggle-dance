@@ -22,7 +22,7 @@ export const schema = (format: string) =>
   Node
     id: string // e.g. "0", "1", "c" (the node id)
     name: string // a unique-amongst-nodes emoji plus a short description of the node
-    context: string // useful description that provides context that improves the likelihood that the node will be executed correctly and efficiently
+    context: string // pass in parameters such as URLs, names, entities, and enough context to efficiently execute the node. Be verbose but focused. Do not use invalid characters in ${format}.
 It is extremely important to return only valid(⚠) ${format} representation of DAG, with levels as the keys.
 `.trim();
 
@@ -162,7 +162,7 @@ const constraints = (format: string) =>
 - The DAG shall be constructed in a way such that its parallelism is maximized (siblings maximized, levels minimized.)
 - Sibling nodes within each level can be run in parallel since they will not logically depend on one another, except the criticism node.
 - All levels must eventually lead to a "🍯 Goal Delivery" task which, after executing, ensures that the GOAL has been satisfactorily completed.
-- Escape all special characters such as quotation marks, curly braces, etc.
+- Escape all special characters such as quotation marks, curly braces, colons, etc, according to ${format} rules.
 - For every level in the DAG, include a single node with id "${criticismSuffix}". It will run after all other nodes in the level have been executed.
 - THE ONLY THING YOU MUST OUTPUT IS valid ${format} that represents the DAG as the root object.`.trim();
 
