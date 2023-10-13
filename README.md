@@ -84,11 +84,20 @@ Docker support is coming soon.
 
 - [Node JS LTS](https://nodejs.org/en)
 - [pnpm](https://pnpm.io/installation)
+- Next - `npm install next`
+- dotenv-cli - `npm install dotenv-cli -g`
+- prisma - `npm install prisma -g`
+- picocolors - `npm install picocolors`
+- Vercel - `npm install vercel -g`
 - Turbo - `pnpm add turbo --global` or use `npx turbo` in place of `turbo` below.
 
 ### ⚙️ Environment
 
-- Copy `.env.example` to `.env` and configure the environment variables.
+Copy `.env.example` to `.env` and configure the environment variables. 
+- Specify Memory Type. For example, `MEMORY_TYPE=buffer`
+- Specify your Postgres instance. By default it will be `POSTGRES_URL_NON_POOLING=postgresql://postgres:password@localhost:5432/DATABASE?schema=public`
+- Create [Vercel](https://vercel.com) account. There, create a project and add KV and Edge DBs.
+- Create [Weaviate](https://console.weaviate.cloud/dashboard) account
 
 ### 🐘 Primary Database
 
@@ -107,7 +116,7 @@ pnpm db:push
 
 ### Run Development
 
-This is a T3 stack. [You can check the boilerplate documentation](/docs/create-t3-boilerplate.md)
+This is a T3 stack. [You can check the boilerplate documentation](/docs/t3-boilerplate.md)
 
 ```bash
 turbo dev
