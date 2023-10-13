@@ -15,6 +15,7 @@ import { type ExecutionPlusGraph, type GoalPlusExe } from "@acme/db";
 
 import { api } from "~/utils/api";
 import routes from "~/utils/routes";
+import { env } from "~/env.mjs";
 import ErrorBoundary from "~/features/error/ErrorBoundary";
 import MainLayout from "~/features/MainLayout";
 import useIQEstimate from "~/features/SettingsAnalysis/hooks/useIQEstimate";
@@ -57,6 +58,9 @@ export const getStaticProps = async (): Promise<
   try {
     alertConfigs = await get("alerts");
   } catch {
+    if (!!env.EDGE_CONFIG) {
+      console.warn("Failed to fetch alerts from Vercel edge-config");
+    }
     // handled below
   }
   const errorResponse: GetStaticPropsResult<StaticProps> = {
@@ -65,8 +69,9 @@ export const getStaticProps = async (): Promise<
   };
 
   if (!alertConfigs) {
-    return errorResponse;
+    alertConfigs = [];
   }
+
   const typedAlertConfigs = alertConfigs as AlertConfig[];
 
   if (!typedAlertConfigs) {
