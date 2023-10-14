@@ -108,7 +108,26 @@ const packetToDocument = (packet: AgentPacket): string => {
     value: undefined,
     writable: true,
   });
-  return JSON.stringify(p).slice(0, 500);
+
+  // Concatenate the start and end slices to form the final string
+  // This will give us N/2 characters from the start and N/2 from the end, unless the string length is less than N, in which case the entire thing is returned
+  const sample = 500;
+  const halfSample = Math.ceil(sample / 2);
+  // Convert the packet to a string
+  const str = JSON.stringify(p);
+
+  // Calculate half of the string length
+  const halfLength = Math.ceil(str.length / 2);
+
+  // If the string is less than or equal to 500 characters, return it as is
+  if (str.length <= sample) {
+    return str;
+  }
+
+  const start = str.slice(0, Math.min(halfSample, halfLength));
+  const end = str.slice(-Math.min(halfSample, halfLength));
+
+  return start + end;
 };
 
 export default async function ExecuteStream(req: NextRequest) {
