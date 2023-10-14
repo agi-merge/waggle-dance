@@ -22,6 +22,7 @@ import {
   createExecutePrompt,
   createMemory,
   TaskState,
+  type ChainValues,
   type MemoryType,
 } from "../..";
 import { isTaskCriticism } from "../prompts/types";
@@ -205,7 +206,7 @@ export async function callExecutionAgent(creation: {
 
     const agentTrajectory = call.intermediateSteps as AgentStep[];
 
-    async function checkScore(evaluation: PromiseSettledResult<any>) {
+    async function checkScore(evaluation: PromiseSettledResult<ChainValues>) {
       if (evaluation.status === "rejected") {
         // Try to repair the error
         const fast = createModel(
@@ -220,15 +221,23 @@ export async function callExecutionAgent(creation: {
         // The result is an object with a `text` property.
         const repairCall = await repair.call({ error: "colorful socks" });
         console.warn("Trajectory evaluation failed", evaluation.reason);
-        const repairedResponse = repairCall?.text
-          ? await (repairCall.text as Promise<any>)
-          : Promise.resolve("");
-        return checkScore(repairedResponse);
-      } else if (evaluation.value.res && evaluation.value.res?.score < 0.75) {
-        throw new Error(
-          `Agent score too low: ${evaluation.value.res.score}, reasoning:\n "${evaluation.value.res.reasoning}"`,
-          { cause: evaluation.value.res.reasoning },
-        );
+        return checkScore({
+          status: "fulfilled",
+          value: { score: repairCall },
+        });
+      } else {
+        const evaluationResult = evaluation.value.res as {
+          score: number;
+          reasoning: string;
+        };
+        if (evaluationResult) {
+          if (evaluationResult.score < 0.75) {
+            throw new Error(
+              `Agent score too low: ${evaluationResult.score}, reasoning:\n "${evaluationResult.reasoning}"`,
+              { cause: evaluationResult.reasoning },
+            );
+          }
+        }
       }
     }
 
