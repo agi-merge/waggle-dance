@@ -1,4 +1,5 @@
 import { useMemo } from "react";
+import { Tooltip } from "@mui/joy";
 import Box from "@mui/joy/Box";
 import Button from "@mui/joy/Button";
 import Typography from "@mui/joy/Typography";
@@ -53,14 +54,16 @@ export default function ErrorSnackbar() {
             <Typography color="danger" level="title-lg">
               {error?.name}
             </Typography>
-            <Typography
-              component="time"
-              level="body-sm"
-              color="danger"
-              fontFamily="monospace"
-            >
-              {error?.message}
-            </Typography>
+            <Tooltip title={error?.message} enterDelay={500}>
+              <Typography
+                component="time"
+                level="body-sm"
+                color="danger"
+                fontFamily="monospace"
+              >
+                {error?.message.slice(0, 250)}
+              </Typography>
+            </Tooltip>
           </Box>
         </JoySnackbar>
         <Box
