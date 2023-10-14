@@ -23,6 +23,8 @@ import {
   Tooltip,
   Typography,
 } from "@mui/joy";
+import Markdown from "react-markdown";
+import remarkGfm from "remark-gfm";
 import { v4 } from "uuid";
 import { stringify } from "yaml";
 
@@ -481,9 +483,13 @@ const TaskListItem = ({
                     t.status === TaskStatus.error ? "monospace" : undefined
                   }
                 >
-                  {t.value.type === "working" && t.nodeId === rootPlanId
-                    ? `...${nodes.length} tasks and ${edges.length} interdependencies`
-                    : findResult(t.packets)}
+                  {t.value.type === "working" && t.nodeId === rootPlanId ? (
+                    `...${nodes.length} tasks and ${edges.length} interdependencies`
+                  ) : (
+                    <Markdown remarkPlugins={[remarkGfm]}>
+                      {findResult(t.packets)}
+                    </Markdown>
+                  )}
                 </Typography>
               </>
             )}

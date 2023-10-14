@@ -50,6 +50,8 @@
     "react": "18.2.0",
     "react-dom": "18.2.0",
     "react-force-graph-2d": "^1.25.1",
+    "react-markdown": "^9.0.0",
+    "remark-gfm": "^4.0.0",
     "superjson": "1.13.3",
     "swr": "^2.2.4",
     "use-debounce": "^9.0.4",
