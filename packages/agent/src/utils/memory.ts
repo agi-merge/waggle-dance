@@ -14,16 +14,35 @@ import { createEmbeddings } from "./model";
 import { vectorStoreFromIndex } from "./vectorStore";
 
 export type MemoryType = BaseChatMemory | BaseMemory | undefined;
-export async function createMemory(
-  inputKey: "goal" | "task" = "goal",
-  namespace: string | null,
-  taskId: string,
-): Promise<MemoryType> {
+export type MemoryOptions = {
+  namespace: string | null;
+  taskId: string;
+  inputKey?: string | undefined;
+  memoryKey?: string | undefined;
+  returnUnderlying?: boolean | undefined;
+};
+export async function createMemory({
+  namespace,
+  taskId,
+  inputKey,
+  memoryKey,
+  returnUnderlying,
+}: MemoryOptions): Promise<MemoryType> {
+  if (inputKey === undefined) {
+    inputKey = "input";
+  }
+  if (memoryKey === undefined) {
+    memoryKey = "chat_history";
+  }
+  if (returnUnderlying === undefined) {
+    returnUnderlying = true;
+  }
   switch (process.env.MEMORY_TYPE) {
     case "buffer":
       return new BufferMemory({
         inputKey,
-        returnMessages: true,
+        memoryKey,
+        returnMessages: returnUnderlying,
       });
 
     case "vector":
@@ -33,10 +52,10 @@ export async function createMemory(
         );
 
         const vectorMemory = new VectorStoreRetrieverMemory({
-          // 1 is how many documents to return, you might want to return more, eg. 4
-          vectorStoreRetriever: vectorStore.asRetriever(1),
-          memoryKey: "chat_history",
-          inputKey: "input",
+          vectorStoreRetriever: vectorStore.asRetriever(5),
+          memoryKey,
+          inputKey,
+          returnDocs: returnUnderlying,
         });
 
         return vectorMemory;
@@ -45,7 +64,6 @@ export async function createMemory(
           createEmbeddings({ modelName: LLM.embeddings }),
         );
         return new VectorStoreRetrieverMemory({
-          // 1 is how many documents to return, you might want to return more, eg. 4
           vectorStoreRetriever: vectorStore.asRetriever(5),
         });
       }
@@ -56,6 +74,8 @@ export async function createMemory(
           modelName: LLM_ALIASES["fast-large"],
           temperature: 0,
         }),
+        memoryKey,
+        returnMessages: returnUnderlying,
       });
     // case "redis":
     //   return new BufferMemory({
