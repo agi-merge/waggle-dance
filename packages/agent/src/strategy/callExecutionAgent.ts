@@ -7,8 +7,10 @@ import {
 import { type ChatOpenAI } from "langchain/chat_models/openai";
 import { type InitializeAgentExecutorOptionsStructured } from "langchain/dist/agents/initialize";
 import { type StructuredTool, type Tool } from "langchain/dist/tools/base";
+import { loadEvaluator } from "langchain/evaluation";
 import { PlanAndExecuteAgentExecutor } from "langchain/experimental/plan_and_execute";
 import { type OpenAI } from "langchain/llms/openai";
+import { type AgentStep } from "langchain/schema";
 import { parse } from "yaml";
 
 import { type DraftExecutionGraph } from "@acme/db";
@@ -22,12 +24,12 @@ import {
 } from "../..";
 import { isTaskCriticism } from "../prompts/types";
 import {
+  AgentPromptingMethod,
   getAgentPromptingMethodValue,
   InitializeAgentExecutorOptionsAgentTypes,
   InitializeAgentExecutorOptionsStructuredAgentTypes,
   LLM,
   LLM_ALIASES,
-  type AgentPromptingMethod,
   type InitializeAgentExecutorOptionsAgentType,
   type InitializeAgentExecutorOptionsStructuredAgentType,
 } from "../utils/llms";
@@ -144,6 +146,30 @@ export async function callExecutionAgent(creation: {
       // brittle; this should really be an error in langchain
       throw new Error(response);
     }
+
+    const chainWithTools = await loadEvaluator("trajectory", {
+      llm: createModel(
+        { modelName: LLM_ALIASES["fast"] },
+        AgentPromptingMethod.OpenAIStructuredChat,
+      ),
+      agentTools: skills,
+    });
+
+    const agentTrajectory = call.intermediateSteps as AgentStep[];
+    const trajectoryEvaluation = (await chainWithTools.evaluateAgentTrajectory({
+      prediction: response,
+      input,
+      agentTrajectory,
+    })) as { res?: { reasoning: string; score: number } };
+
+    console.log(trajectoryEvaluation);
+
+    if (trajectoryEvaluation.res && trajectoryEvaluation.res?.score < 0.9) {
+      throw new Error(
+        `Score too low: ${trajectoryEvaluation.res.score}, reasoning:\n "${trajectoryEvaluation.res.reasoning}}"`,
+        { cause: trajectoryEvaluation.res.reasoning },
+      );
+    }
     return response;
   } catch (error) {
     return error as Error;
@@ -196,7 +222,7 @@ async function initializeExecutor(
   ) {
     options = {
       agentType: agentType,
-      returnIntermediateSteps: false,
+      returnIntermediateSteps: true,
       earlyStoppingMethod: "generate",
       ...creationProps,
       tags,
