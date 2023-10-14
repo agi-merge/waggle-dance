@@ -465,7 +465,7 @@ export default async function ExecuteStream(req: NextRequest) {
             },
           }),
         ];
-        const contentType = "application/yaml";
+        const contentType = "application/yaml"; // FIXME: this should be configurable
 
         const exeResult = await callExecutionAgent({
           creationProps,
