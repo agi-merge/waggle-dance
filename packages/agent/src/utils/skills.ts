@@ -10,8 +10,8 @@ import { WebBrowser } from "langchain/tools/webbrowser";
 
 import cca2Map from "../lib/cca2Map.json";
 import requestUserHelpSkill from "../skills/requestUserHelpSkill";
-import retrieveMemorySkill from "../skills/retrieveMemory";
-import saveMemorySkill from "../skills/saveMemory";
+import retrieveMemoriesSkill from "../skills/retrieveMemories";
+import saveMemoriesSkill from "../skills/saveMemories";
 import type Geo from "../strategy/Geo";
 import { type AgentPromptingMethod } from "./llms";
 
@@ -33,14 +33,14 @@ function createSkills(
   geo?: Geo,
 ): StructuredTool[] {
   const tools = [
-    retrieveMemorySkill.toTool(agentPromptingMethod, returnType),
+    retrieveMemoriesSkill.toTool(agentPromptingMethod, returnType),
     requestUserHelpSkill.toTool(agentPromptingMethod, returnType),
     // selfHelpSkill.toTool(agentPromptingMethod, returnType),
     new WebBrowser({ model: llm, embeddings }),
   ];
 
   if (!isCriticism) {
-    tools.push(saveMemorySkill.toTool(agentPromptingMethod, returnType));
+    tools.push(saveMemoriesSkill.toTool(agentPromptingMethod, returnType));
   }
 
   if (process.env.SERPAPI_API_KEY?.length) {

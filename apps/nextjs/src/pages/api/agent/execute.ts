@@ -16,7 +16,7 @@ import { parse, stringify } from "yaml";
 
 import createNamespace from "@acme/agent/src/memory/namespace";
 import { isTaskCriticism } from "@acme/agent/src/prompts/types";
-import saveMemorySkill from "@acme/agent/src/skills/saveMemory";
+import saveMemoriesSkill from "@acme/agent/src/skills/saveMemories";
 import { LLM } from "@acme/agent/src/utils/llms";
 import { getBaseUrl } from "@acme/api/utils";
 import { type DraftExecutionNode, type ExecutionState } from "@acme/db";
@@ -621,11 +621,13 @@ export default async function ExecuteStream(req: NextRequest) {
         };
 
         const isCriticism = isTaskCriticism(node.id);
-        const memory = JSON.stringify(packet);
+
+        // make sure that we are at least saving the task result so that other notes can refer back.
+        const memories: string[] = [JSON.stringify(packet)];
         const save = isCriticism
           ? "skip"
-          : saveMemorySkill.skill.func({
-              memory,
+          : saveMemoriesSkill.skill.func({
+              memories,
               namespace: namespace!,
             });
 
