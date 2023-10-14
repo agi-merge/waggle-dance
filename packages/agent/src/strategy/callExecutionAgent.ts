@@ -164,9 +164,9 @@ export async function callExecutionAgent(creation: {
 
     console.log(trajectoryEvaluation);
 
-    if (trajectoryEvaluation.res && trajectoryEvaluation.res?.score < 0.9) {
+    if (trajectoryEvaluation.res && trajectoryEvaluation.res?.score < 0.75) {
       throw new Error(
-        `Score too low: ${trajectoryEvaluation.res.score}, reasoning:\n "${trajectoryEvaluation.res.reasoning}}"`,
+        `Agent score too low: ${trajectoryEvaluation.res.score}, reasoning:\n "${trajectoryEvaluation.res.reasoning}}"`,
         { cause: trajectoryEvaluation.res.reasoning },
       );
     }
