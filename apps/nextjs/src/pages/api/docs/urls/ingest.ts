@@ -46,8 +46,8 @@ const handler = async (req: IncomingMessage, res: NextApiResponse) => {
     res.writeHead(200, { "Content-Type": "application/json" });
     const body = (req as NextApiRequest).body as URLIngestRequestBody;
     try {
-      const userId = sha256ify(session.user.id);
-      if (!userId) throw new Error("No user id found");
+      const shaUserId = sha256ify(session.user.id);
+      if (!shaUserId) throw new Error("No user id found");
 
       if (env.LONG_TERM_MEMORY_INDEX_NAME === undefined)
         throw new Error("No long term memory index found");
@@ -75,7 +75,7 @@ const handler = async (req: IncomingMessage, res: NextApiResponse) => {
       });
       const docs = await loader.loadAndSplit(splitter);
 
-      const store = await insertDocuments(docs, userId);
+      const store = await insertDocuments(docs, shaUserId, shaUserId);
 
       console.debug("ingested url", store.toJSON());
 

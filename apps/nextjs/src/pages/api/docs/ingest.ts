@@ -91,8 +91,8 @@ const handler = async (req: IncomingMessage, res: ServerResponse) => {
       const flattenedFiles = flattenFiles(files);
       console.debug(`Processing ${JSON.stringify(flattenedFiles)} files`);
       try {
-        const userId = sha256ify(session.user.id);
-        if (!userId) throw new Error("No user id found");
+        const shaUserId = sha256ify(session.user.id);
+        if (!shaUserId) throw new Error("No user id found");
 
         if (env.LONG_TERM_MEMORY_INDEX_NAME === undefined)
           throw new Error("No long term memory index found");
@@ -134,7 +134,11 @@ const handler = async (req: IncomingMessage, res: ServerResponse) => {
                     });
                     const docs = await loader.loadAndSplit(splitter);
 
-                    const store = await insertDocuments(docs, userId);
+                    const store = await insertDocuments(
+                      docs,
+                      shaUserId,
+                      shaUserId,
+                    );
 
                     console.debug(
                       `Loaded ${docs.length} documents`,
