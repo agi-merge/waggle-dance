@@ -167,8 +167,10 @@ export default async function ExecuteStream(req: NextRequest) {
       if (!!isRepetitive) {
         const repetitionError: AgentPacket = {
           type: "error",
-          severity: "fatal",
-          error: `Repetitive actions detected: ${isRepetitive.recent}`,
+          severity: "warn",
+          error: `Repetitive actions detected: ${isRepetitive.similarDocuments.map(
+            (doc) => `${doc.pageContent}`,
+          )}`,
           ...isRepetitive,
         };
         historicalPackets.push(...packets);
