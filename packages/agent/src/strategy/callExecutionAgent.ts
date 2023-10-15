@@ -154,6 +154,10 @@ export async function callExecutionAgent(creation: {
       throw new Error(response);
     }
 
+    if (isCriticism) {
+      return response;
+    }
+
     const smartModelForEvaluation = createModel(
       { modelName: LLM_ALIASES["smart"] },
       AgentPromptingMethod.OpenAIFunctions,
