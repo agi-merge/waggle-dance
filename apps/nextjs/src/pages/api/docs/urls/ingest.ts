@@ -3,7 +3,7 @@ import { type NextApiRequest, type NextApiResponse } from "next";
 import { PlaywrightWebBaseLoader } from "langchain/document_loaders/web/playwright";
 import { RecursiveCharacterTextSplitter } from "langchain/text_splitter";
 
-import { saltAndHash } from "@acme/agent/src/prompts/utils/sha256";
+import { createUserNamespace } from "@acme/agent";
 import { insertDocuments } from "@acme/agent/src/utils/vectorStore";
 import { getServerSession } from "@acme/auth";
 
@@ -46,7 +46,7 @@ const handler = async (req: IncomingMessage, res: NextApiResponse) => {
     res.writeHead(200, { "Content-Type": "application/json" });
     const body = (req as NextApiRequest).body as URLIngestRequestBody;
     try {
-      const shaUserId = saltAndHash(session.user.id);
+      const shaUserId = createUserNamespace(session.user.id);
       if (!shaUserId) throw new Error("No user id found");
 
       if (env.LONG_TERM_MEMORY_INDEX_NAME === undefined)

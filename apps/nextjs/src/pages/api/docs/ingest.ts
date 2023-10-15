@@ -14,7 +14,7 @@ import { PDFLoader } from "langchain/document_loaders/fs/pdf";
 import { TextLoader } from "langchain/document_loaders/fs/text";
 import { RecursiveCharacterTextSplitter } from "langchain/text_splitter";
 
-import { saltAndHash } from "@acme/agent/src/prompts/utils/sha256";
+import { createUserNamespace } from "@acme/agent";
 import { insertDocuments } from "@acme/agent/src/utils/vectorStore";
 import { getServerSession } from "@acme/auth";
 
@@ -91,7 +91,7 @@ const handler = async (req: IncomingMessage, res: ServerResponse) => {
       const flattenedFiles = flattenFiles(files);
       console.debug(`Processing ${JSON.stringify(flattenedFiles)} files`);
       try {
-        const shaUserId = saltAndHash(session.user.id);
+        const shaUserId = createUserNamespace(session.user.id);
         if (!shaUserId) throw new Error("No user id found");
 
         if (env.LONG_TERM_MEMORY_INDEX_NAME === undefined)
