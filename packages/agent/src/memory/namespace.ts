@@ -1,6 +1,6 @@
 import { type DraftExecutionNode } from "@acme/db";
 
-import { sha256ify } from "../prompts/utils/sha256";
+import { saltAndHash } from "../prompts/utils/sha256";
 
 // in order to help unauthorized lookup of data, we use an encrypted combination of goal+execution id as a namespace
 export default function createNamespace(
@@ -25,7 +25,7 @@ export default function createNamespace(
     );
   }
 
-  const namespace = sha256ify(`${goalId}_${executionId}`);
+  const namespace = saltAndHash(`${goalId}_${executionId}`);
   console.debug("namespace", namespace);
   return namespace;
 }

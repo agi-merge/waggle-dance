@@ -143,18 +143,15 @@ export default async function ExecuteStream(req: NextRequest) {
     resolveStreamEnded = resolve;
     rejectStreamEnded = reject;
   });
-  const abortController = new AbortController();
+  let abortController = new AbortController();
   let node: DraftExecutionNode | undefined;
   let packets: AgentPacket[] = [];
-  const historicalPackets: AgentPacket[] = [];
+  let historicalPackets: AgentPacket[] = [];
 
-  // Define constants for N and M
-  const CHECK_EVERY_N_PACKETS = 10;
-  const CHECK_EVERY_M_MILLISECONDS = 5000;
+  const CHECK_EVERY_N_PACKETS = 3;
 
   // Initialize a counter for packets and a timestamp for time checks
   let packetCounter = 0;
-  let lastCheckTimestamp = Date.now();
   const handlePacket = async (
     packet: AgentPacket,
     controller: ReadableStreamDefaultController,
@@ -184,41 +181,68 @@ export default async function ExecuteStream(req: NextRequest) {
     packetCounter++;
 
     // Check if the packet counter has reached N or if the elapsed time has reached M milliseconds
-    if (
-      packetCounter >= CHECK_EVERY_N_PACKETS ||
-      Date.now() - lastCheckTimestamp >= CHECK_EVERY_M_MILLISECONDS
-    ) {
+    if (packetCounter >= CHECK_EVERY_N_PACKETS) {
       // Reset the packet counter and the timestamp
       packetCounter = 0;
-      lastCheckTimestamp = Date.now();
 
-      // Perform the repetition check
-      const isRepetitive = await checkRepetitivePackets(
-        packets,
-        historicalPackets,
-      );
-      if (!!isRepetitive) {
-        const repetitionError: AgentPacket = {
-          type: "error",
-          severity: "warn",
-          error: `Repetitive actions detected: ${isRepetitive.similarDocuments.map(
-            (doc) => `${doc.pageContent}`,
-          )}`,
-          ...isRepetitive,
-        };
+      try {
+        // Perform the repetition check
+        const repetitionCheckResult = await checkRepetitivePackets(
+          packets,
+          historicalPackets,
+        );
+        if (!!repetitionCheckResult) {
+          // const repetitionError: AgentPacket = {
+          //   type: "error",
+          //   severity: "warn",
+          //   error: `Repetitive actions detected: ${repetitionCheckResult.similarDocuments.map(
+          //     (doc) => `${doc.pageContent}`,
+          //   )}`,
+          //   ...repetitionCheckResult,
+          // };
+          historicalPackets.push(...packets);
+          packets = [];
+          await restartExecution(
+            controller,
+            repetitionCheckResult.recent,
+            repetitionCheckResult.similarDocuments,
+          );
+          return;
+
+          // await handlePacket(repetitionError, controller, encoder);
+          // return;
+        }
+
+        // Push the packet to the historical packets array after the repetition check
         historicalPackets.push(...packets);
+
+        // Clear the packets array after adding them to historicalPackets
         packets = [];
-
-        await handlePacket(repetitionError, controller, encoder);
-        return;
+      } catch (e) {
+        console.error(e);
+        throw e;
       }
-
-      // Push the packet to the historical packets array after the repetition check
-      historicalPackets.push(...packets);
-
-      // Clear the packets array after adding them to historicalPackets
-      packets = [];
     }
+  };
+
+  const restartExecution = async (
+    controller: ReadableStreamDefaultController,
+    recentDocument: string,
+    similarDocuments: Document[],
+  ): Promise<void> => {
+    console.warn(
+      `Repetition detected. Restarting execution. Recent document: ${recentDocument}. Similar documents: ${similarDocuments.map(
+        (d) => d.pageContent,
+      )}`,
+    );
+    controller.close();
+    abortController.abort("restarting");
+    packets = [];
+    historicalPackets = [];
+    packetCounter = 0;
+    abortController = new AbortController();
+
+    await streamEndedPromise;
   };
 
   try {
@@ -539,12 +563,13 @@ export default async function ExecuteStream(req: NextRequest) {
         }
         executionResult = { packet, state: state as ExecutionState };
         controller.enqueue(encoder.encode(stringify([packet])));
-        resolveStreamEnded();
 
         try {
           controller.close();
         } catch {
           // intentionally left blank
+        } finally {
+          resolveStreamEnded();
         }
 
         function createErrorPacket(
@@ -579,8 +604,12 @@ export default async function ExecuteStream(req: NextRequest) {
         }
       },
 
-      cancel() {
-        abortController.abort();
+      cancel(reason) {
+        if (abortController.signal.aborted) {
+          console.warn("already aborted", reason);
+        } else {
+          abortController.abort(`cancelled: ${reason}`);
+        }
         console.warn("cancel execute request");
         rejectStreamEnded("Stream cancelled");
       },
@@ -658,13 +687,15 @@ export default async function ExecuteStream(req: NextRequest) {
         const isCriticism = isTaskCriticism(node.id);
 
         // make sure that we are at least saving the task result so that other notes can refer back.
-        const memories: string[] = [JSON.stringify(packet)];
-        const save = isCriticism
-          ? "skip"
-          : saveMemoriesSkill.skill.func({
-              memories,
+        const shouldSave = !isCriticism && packet.type !== "error";
+        const save = shouldSave
+          ? saveMemoriesSkill.skill.func({
+              memories: [JSON.stringify(packet)],
               namespace: namespace!,
-            });
+            })
+          : Promise.resolve(
+              "skipping save memory due to error or this being a criticism task",
+            );
 
         const createResultPromise = fetch(`${getBaseUrl()}/api/result`, {
           method: "POST",
