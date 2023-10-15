@@ -107,7 +107,11 @@ export default async function PlanStream(req: NextRequest) {
       },
 
       cancel(reason) {
-        abortController.abort();
+        if (abortController.signal.aborted) {
+          console.warn("already aborted", reason);
+        } else {
+          abortController.abort(`cancelled: ${reason}`);
+        }
         console.warn("cancel plan request", reason);
         rejectStreamEnded!(new Error("Stream cancelled"));
       },
