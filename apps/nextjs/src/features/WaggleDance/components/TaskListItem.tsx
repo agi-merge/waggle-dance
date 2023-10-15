@@ -76,7 +76,7 @@ const getGroupType = (group: AgentPacket[]): GroupType => {
         return GroupType.Retriever;
 
       default:
-        if (isAgentPacketFinishedType(packet.type)) {
+        if (isAgentPacketFinishedType(packet)) {
           if (packet.type === "handleAgentEnd" || packet.type === "done") {
             return GroupType.Success;
           } else {
@@ -211,7 +211,7 @@ const getGroupOutput = (group: AgentPacket[]): GroupOutput | null => {
           : parsedOutput;
       break;
     case GroupType.Success:
-      parsedOutput = findResult(group);
+      parsedOutput = findResult(group).replace(/\\n/g, "\n");
       parsedTitle = "Success";
       break;
     case GroupType.Error:
@@ -432,68 +432,66 @@ const TaskListItem = ({
           {isRunning && t.status === TaskStatus.working && (
             <LinearProgress thickness={2} />
           )}
-          <Card
-            size="sm"
-            style={{ position: "relative", overflow: "hidden" }}
-            variant="soft"
-          >
-            <Typography
-              level="title-lg"
-              sx={{ display: "flex", alignItems: "baseline" }}
-            >
-              {t.packets.length > 0 ? `Activity: ` : `State:`}&nbsp;
-              {!isAgentPacketFinishedType(t.value.type) && (
-                <Typography color={statusColor(t)} level="body-md">
-                  {isRunning ? mapPacketTypeToStatus(t.value.type) : "stopped"}
-                </Typography>
-              )}
-            </Typography>
-            <List
+          {(rootPlanId !== t.id || !isAgentPacketFinishedType(t.value)) && (
+            <Card
               size="sm"
-              orientation="horizontal"
-              className="max-w-screen max-h-16 overflow-scroll"
-              sx={{ m: 0, p: 0, paddingRight: "50%", alignItems: "center" }} // Add right padding equal to the width of the gradient
+              style={{ position: "relative", overflow: "hidden" }}
+              variant="soft"
             >
-              {packetGroups.map((group, index) =>
-                renderPacketGroup(group as AgentPacket[], index),
-              )}
-            </List>
-            <Box
-              sx={(theme) => ({
-                overflow: "hidden",
-                content: '""',
-                position: "absolute",
-                top: 0,
-                right: 0,
-                bottom: 0,
-                width: "33%",
-                background: `linear-gradient(to left, ${theme.palette.background.level1}, transparent)`,
-                pointerEvents: "none",
-              })}
-            />
-          </Card>
-          <Typography level="title-lg" color={statusColor(t)}>
-            {isAgentPacketFinishedType(t.value.type) && (
-              <>
+              <Typography
+                level="title-lg"
+                sx={{ display: "flex", alignItems: "baseline" }}
+              >
+                {t.packets.length > 0 || t.value ? `Activity: ` : `State:`}
+                &nbsp;
+                {!isAgentPacketFinishedType(t.value) && (
+                  <Typography color={statusColor(t)} level="body-md">
+                    {isRunning
+                      ? mapPacketTypeToStatus(t.value.type)
+                      : "stopped"}
+                  </Typography>
+                )}
+              </Typography>
+              <List
+                size="sm"
+                orientation="horizontal"
+                className="max-w-screen max-h-16 overflow-scroll"
+                sx={{ m: 0, p: 0, paddingRight: "50%", alignItems: "center" }} // Add right padding equal to the width of the gradient
+              >
+                {packetGroups.map((group, index) =>
+                  renderPacketGroup(group as AgentPacket[], index),
+                )}
+              </List>
+              <Box
+                sx={(theme) => ({
+                  overflow: "hidden",
+                  content: '""',
+                  position: "absolute",
+                  top: 0,
+                  right: 0,
+                  bottom: 0,
+                  width: "33%",
+                  background: `linear-gradient(to left, ${theme.palette.background.level1}, transparent)`,
+                  pointerEvents: "none",
+                })}
+              />
+            </Card>
+          )}
+          {isAgentPacketFinishedType(t.value) && (
+            <>
+              <Typography level="title-lg" color={statusColor(t)}>
                 {t.status === TaskStatus.error ? "Error: " : "Result: "}
-                <Typography
-                  level="body-sm"
-                  className="max-h-72 overflow-x-clip overflow-y-scroll  break-words pt-2"
-                  fontFamily={
-                    t.status === TaskStatus.error ? "monospace" : undefined
-                  }
-                >
-                  {t.value.type === "working" && t.nodeId === rootPlanId ? (
-                    `...${nodes.length} tasks and ${edges.length} interdependencies`
-                  ) : (
-                    <Markdown remarkPlugins={[remarkGfm]}>
-                      {findResult(t.packets)}
-                    </Markdown>
-                  )}
-                </Typography>
-              </>
-            )}
-          </Typography>
+              </Typography>
+              <Markdown
+                className="max-h-72 overflow-x-clip overflow-y-scroll  break-words pt-2"
+                remarkPlugins={[remarkGfm]}
+              >
+                {t.value.type === "working" && t.nodeId === rootPlanId
+                  ? `...${nodes.length} tasks and ${edges.length} interdependencies`
+                  : findResult(t.packets).replace(/\\n/g, "\n")}
+              </Markdown>
+            </>
+          )}
         </Card>
       </ListItemContent>
     </ListItem>
