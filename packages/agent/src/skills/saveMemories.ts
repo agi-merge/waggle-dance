@@ -35,7 +35,7 @@ const saveMemoriesSkill = new DynamicZodSkill({
 
     const added = await vectorStore.addDocuments(documents);
     return added.length
-      ? `saved ${added.length} memories`
+      ? `saved ${added.length} long-term memories`
       : `failed: ${memories.join(", ")}`;
   },
   schema,

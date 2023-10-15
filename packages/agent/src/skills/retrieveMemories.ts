@@ -39,16 +39,23 @@ const retrieveMemoriesSkill = new DynamicZodSkill({
       },
     });
 
-    const relevantDocs = await Promise.all(
-      retrievals.map((retrieval) => retriever.getRelevantDocuments(retrieval)),
-    );
-    const returnValue = relevantDocs.flat().join("\n");
+    const relevantDocs = (
+      await Promise.all(
+        retrievals.map((retrieval) =>
+          retriever.getRelevantDocuments(retrieval),
+        ),
+      )
+    ).flat();
+
+    const returnValue = `Retrieved ${
+      relevantDocs.length
+    } memories: ${relevantDocs.join("\n")}`;
 
     console.debug(
       `retrieveMemoriesSkill(${retrievals.slice(0, 100)})=`,
       returnValue,
     );
-    return returnValue.trim().length > 0
+    return relevantDocs.length > 0
       ? returnValue
       : "Error: No relevant memories";
   },
