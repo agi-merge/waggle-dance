@@ -17,14 +17,20 @@ import { parse, stringify } from "yaml";
 import createNamespace from "@acme/agent/src/memory/namespace";
 import { isTaskCriticism } from "@acme/agent/src/prompts/types";
 import saveMemoriesSkill from "@acme/agent/src/skills/saveMemories";
-import { LLM } from "@acme/agent/src/utils/llms";
-import { type DraftExecutionNode, type ExecutionState } from "@acme/db";
+import { LLM, type AgentPromptingMethod } from "@acme/agent/src/utils/llms";
+import {
+  type DraftExecutionGraph,
+  type DraftExecutionNode,
+  type ExecutionState,
+} from "@acme/db";
 
 import { type ExecuteRequestBody } from "~/features/WaggleDance/types/types";
 import {
   callExecutionAgent,
   createEmbeddings,
   type AgentPacket,
+  type ModelCreationProps,
+  type TaskState,
 } from "../../../../../../packages/agent";
 import { type CreateResultParams } from "../result";
 
@@ -242,6 +248,70 @@ export default async function ExecuteStream(req: NextRequest) {
     abortController = new AbortController();
 
     await streamEndedPromise;
+  };
+
+  const startExecution = async (
+    controller: ReadableStreamDefaultController,
+    creationProps: ModelCreationProps,
+    goalPrompt: string,
+    parsedGoalId: string,
+    agentPromptingMethod: AgentPromptingMethod,
+    task: DraftExecutionNode,
+    dag: DraftExecutionGraph,
+    revieweeTaskResults: TaskState[],
+    contentType: "application/json" | "application/yaml",
+    abortController: AbortController,
+    namespace: string,
+    req: NextRequest,
+    encoder: TextEncoder,
+    lastToolInputs: Map<string, string>,
+    resolveStreamEnded: () => void,
+  ) => {
+    const exeResult = await callExecutionAgent({
+      creationProps,
+      goalPrompt,
+      goalId: parsedGoalId,
+      agentPromptingMethod,
+      task: stringify(task),
+      dag: stringify(dag),
+      revieweeTaskResults,
+      contentType,
+      abortSignal: abortController.signal,
+      namespace: namespace,
+      geo: req.geo,
+    });
+
+    let state: string;
+    let packet: AgentPacket;
+    if (isAbortError(exeResult)) {
+      state = "CANCELLED";
+      packet = {
+        type: "error",
+        severity: "fatal",
+        error: "Cancelled",
+      };
+    } else if (exeResult instanceof Error) {
+      state = "ERROR";
+      packet = {
+        type: "error",
+        severity: "fatal",
+        error: exeResult.message,
+      };
+    } else {
+      state =
+        dag.nodes[dag.nodes.length - 1]?.id == task.id ? "DONE" : "EXECUTING";
+      packet = { type: "done", value: exeResult };
+    }
+    executionResult = { packet, state: state as ExecutionState };
+    controller.enqueue(encoder.encode(stringify([packet])));
+
+    try {
+      controller.close();
+    } catch {
+      // intentionally left blank
+    } finally {
+      resolveStreamEnded();
+    }
   };
 
   try {
@@ -523,53 +593,23 @@ export default async function ExecuteStream(req: NextRequest) {
         ];
         const contentType = "application/yaml"; // FIXME: this should be configurable
 
-        const exeResult = await callExecutionAgent({
+        await startExecution(
+          controller,
           creationProps,
           goalPrompt,
-          goalId: parsedGoalId,
+          parsedGoalId,
           agentPromptingMethod,
-          task: stringify(task),
-          dag: stringify(dag),
+          task,
+          dag,
           revieweeTaskResults,
           contentType,
-          abortSignal: abortController.signal,
-          namespace: namespace!,
-          geo: req.geo,
-        });
-
-        let state: string;
-        let packet: AgentPacket;
-        if (isAbortError(exeResult)) {
-          state = "CANCELLED";
-          packet = {
-            type: "error",
-            severity: "fatal",
-            error: "Cancelled",
-          };
-        } else if (exeResult instanceof Error) {
-          state = "ERROR";
-          packet = {
-            type: "error",
-            severity: "fatal",
-            error: exeResult.message,
-          };
-        } else {
-          state =
-            dag.nodes[dag.nodes.length - 1]?.id == task.id
-              ? "DONE"
-              : "EXECUTING";
-          packet = { type: "done", value: exeResult };
-        }
-        executionResult = { packet, state: state as ExecutionState };
-        controller.enqueue(encoder.encode(stringify([packet])));
-
-        try {
-          controller.close();
-        } catch {
-          // intentionally left blank
-        } finally {
-          resolveStreamEnded();
-        }
+          abortController,
+          namespace!,
+          req,
+          encoder,
+          lastToolInputs,
+          resolveStreamEnded,
+        );
 
         function createErrorPacket(
           type:
