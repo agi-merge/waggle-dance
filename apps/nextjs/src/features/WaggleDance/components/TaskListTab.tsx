@@ -1,5 +1,6 @@
 // TaskListTab.tsx
 import React from "react";
+import { Box } from "@mui/joy";
 import List from "@mui/joy/List";
 import ListDivider from "@mui/joy/ListDivider";
 
@@ -32,7 +33,15 @@ export const TaskListTab = ({
   return (
     <List aria-label="Task list" size="sm" ref={taskListRef}>
       {sortedTaskStates.map((t, i) => (
-        <React.Fragment key={t.id}>
+        <Box
+          key={t.id}
+          sx={(theme) => ({
+            backgroundColor:
+              i % 2 === 0
+                ? theme.palette.background.level2
+                : theme.palette.background.level1,
+          })}
+        >
           <TaskListItem
             task={t}
             nodes={nodes}
@@ -43,9 +52,9 @@ export const TaskListTab = ({
             isRunning={isRunning}
           />
           {i !== sortedTaskStates.length - 1 && (
-            <ListDivider inset="gutter" sx={{ margin: 1.5 }} />
+            <ListDivider inset="gutter" sx={{ margin: 0 }} />
           )}
-        </React.Fragment>
+        </Box>
       ))}
     </List>
   );

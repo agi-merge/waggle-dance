@@ -363,17 +363,21 @@ const TaskListItem = ({
 
   return (
     <ListItem
-      sx={{
+      sx={(theme) => ({
+        height: {
+          xs: i === 0 ? "18rem" : "33vh",
+          sm: i === 0 ? "16rem" : "33vh",
+          md: i === 0 ? "14rem" : "33vh",
+        },
         width: { xs: "100%", sm: "auto" },
         flexDirection: { xs: "column", sm: "row" },
-      }}
+      })}
+      className="overflow-y-auto overflow-x-clip"
       ref={(el) => el && (listItemsRef.current[i] = el)}
     >
       <ListItemDecorator
-        color={statusColor(t)}
-        sx={{
+        sx={(_theme) => ({
           width: { xs: "100%", sm: "10rem" },
-          height: "100%",
           flexDirection: {
             xs: "row",
             sm: "column",
@@ -381,15 +385,11 @@ const TaskListItem = ({
           textAlign: "end",
           alignItems: "end",
           alignSelf: "start",
-          paddingRight: { xs: "inherit", sm: "0.5rem" },
-          marginRight: { xs: "inherit", sm: "-0.25rem" },
-          marginTop: { xs: "inherit", sm: "0.25rem" },
-          marginBottom: { xs: "-0.75rem", sm: "inherit" },
-          paddingBottom: { xs: "1rem", sm: "inherit" },
-        }}
+        })}
         size="sm"
-        variant="soft"
         component={Card}
+        color={statusColor(t)}
+        variant="soft"
       >
         <Stack
           direction={{ xs: "row", sm: "column" }}
@@ -417,12 +417,22 @@ const TaskListItem = ({
           </Stack>
         </Stack>
       </ListItemDecorator>
-      <ListItemContent sx={{ width: "100%" }}>
+      <ListItemContent
+        sx={(theme) => ({
+          height: "100%",
+          width: "100%",
+          flexDirection: {
+            xs: "row",
+            sm: "column",
+          },
+          alignSelf: "start",
+        })}
+      >
         <Card
           variant="outlined"
           component={Stack}
           direction="column"
-          className="min-w-full"
+          className="h-fit w-full"
         >
           <Stack className="text-wrap" gap={1.5}>
             <Typography
@@ -507,7 +517,7 @@ const TaskListItem = ({
                 {t.status === TaskStatus.error ? "Error: " : "Result: "}
               </Typography>
               <Markdown
-                className="max-h-72 overflow-x-clip overflow-y-scroll  break-words pt-2"
+                className=" max-h-fit break-words pt-2"
                 remarkPlugins={[remarkGfm]}
               >
                 {t.value.type === "working" && t.nodeId === rootPlanId
