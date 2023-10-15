@@ -208,25 +208,12 @@ export async function callExecutionAgent(creation: {
 
     async function checkScore(evaluation: PromiseSettledResult<ChainValues>) {
       if (evaluation.status === "rejected") {
-        // Try to repair the error
-        const fast = createModel(
-          { modelName: LLM_ALIASES["fast"], maxTokens: 5 },
-          AgentPromptingMethod.ZeroShotReAct, // does not need to be chat
-        );
-        const prompt = PromptTemplate.fromTemplate(
-          "Output only the number of the score from {error}?",
-        );
-        const repair = new LLMChain({ llm: fast, prompt });
-
-        // The result is an object with a `text` property.
-        const repairCall = await repair.call({ error: "colorful socks" });
+        // just log this for now, unless trajectory calls keep throwing
         console.warn("Trajectory evaluation failed", evaluation.reason);
-        return checkScore({
-          status: "fulfilled",
-          value: { score: repairCall },
-        });
       } else {
-        const evaluationResult = evaluation.value.res as {
+        const evaluationResult = (
+          evaluation.value.res ? evaluation.value.res : evaluation.value
+        ) as {
           score: number;
           reasoning: string;
         };
@@ -237,6 +224,25 @@ export async function callExecutionAgent(creation: {
               { cause: evaluationResult.reasoning },
             );
           }
+        } else {
+          // Try to repair the error
+          const fast = createModel(
+            { modelName: LLM_ALIASES["fast"], maxTokens: 5 },
+            AgentPromptingMethod.ZeroShotReAct, // does not need to be chat
+          );
+
+          const prompt = PromptTemplate.fromTemplate(
+            "Output only the number of the score from {error}?",
+          );
+          const repair = new LLMChain({ llm: fast, prompt });
+
+          // The result is an object with a `text` property.
+          const repairCall = await repair.call({ error: evaluation.value });
+          console.warn("Trajectory evaluation failed", evaluation.value);
+          return checkScore({
+            status: "fulfilled",
+            value: { score: repairCall },
+          });
         }
       }
     }
