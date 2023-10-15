@@ -197,25 +197,25 @@ export default async function ExecuteStream(req: NextRequest) {
           historicalPackets,
         );
         if (!!repetitionCheckResult) {
-          // const repetitionError: AgentPacket = {
-          //   type: "error",
-          //   severity: "warn",
-          //   error: `Repetitive actions detected: ${repetitionCheckResult.similarDocuments.map(
-          //     (doc) => `${doc.pageContent}`,
-          //   )}`,
-          //   ...repetitionCheckResult,
-          // };
+          const repetitionError: AgentPacket = {
+            type: "error",
+            severity: "warn",
+            error: `Repetitive actions detected: ${repetitionCheckResult.similarDocuments.map(
+              (doc) => `${doc.pageContent}`,
+            )}`,
+            ...repetitionCheckResult,
+          };
           historicalPackets.push(...packets);
           packets = [];
+          await handlePacket(repetitionError, controller, encoder);
+
           await restartExecution(
             controller,
             repetitionCheckResult.recent,
             repetitionCheckResult.similarDocuments,
           );
-          return;
 
-          // await handlePacket(repetitionError, controller, encoder);
-          // return;
+          return;
         }
 
         // Push the packet to the historical packets array after the repetition check
