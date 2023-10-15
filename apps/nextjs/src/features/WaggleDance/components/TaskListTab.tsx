@@ -39,8 +39,8 @@ export const TaskListTab = ({
               i % 2 === 1
                 ? theme.palette.background.level2
                 : theme.palette.background.level1,
-            p: 0,
-            mx: 0,
+            px: 2,
+            mx: -2,
             mb: 2,
             mt: 0,
             pt: 2,
