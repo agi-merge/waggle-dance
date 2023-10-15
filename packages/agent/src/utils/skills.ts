@@ -29,15 +29,20 @@ function createSkills(
   embeddings: Embeddings,
   agentPromptingMethod: AgentPromptingMethod,
   isCriticism: boolean,
+  taskId: string,
   returnType: "YAML" | "JSON",
   geo?: Geo,
 ): StructuredTool[] {
   const tools = [
-    retrieveMemoriesSkill.toTool(agentPromptingMethod, returnType),
     requestUserHelpSkill.toTool(agentPromptingMethod, returnType),
     // selfHelpSkill.toTool(agentPromptingMethod, returnType),
     new WebBrowser({ model: llm, embeddings }),
   ];
+
+  // first tasks should not use long-term memory
+  if (!taskId.search(/^1-\d+$/)) {
+    tools.push(retrieveMemoriesSkill.toTool(agentPromptingMethod, returnType));
+  }
 
   if (!isCriticism) {
     tools.push(saveMemoriesSkill.toTool(agentPromptingMethod, returnType));

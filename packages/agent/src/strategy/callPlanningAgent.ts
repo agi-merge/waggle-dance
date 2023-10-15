@@ -4,7 +4,7 @@ import { LLMChain } from "langchain/chains";
 import { parse as jsonParse, stringify as jsonStringify } from "superjson";
 import { parse as yamlParse, stringify as yamlStringify } from "yaml";
 
-import { type PlanWireFormat } from "../..";
+import { rootPlanId, type PlanWireFormat } from "../..";
 import {
   createPlanFormattingPrompt,
   createPlanPrompt,
@@ -36,6 +36,7 @@ export async function callPlanningAgent(
     embeddings,
     agentPromptingMethod,
     false,
+    rootPlanId,
     returnType,
   );
   const prompt = createPlanPrompt({
