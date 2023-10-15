@@ -61,14 +61,18 @@ export type AgentPacketFinishedType = (typeof AgentPacketFinishedTypes)[number];
 
 const agentPacketFinishedTypesSet = new Set(AgentPacketFinishedStrings);
 
-export const isAgentPacketFinishedType = (type: AgentPacketType) => {
+export const isAgentPacketFinishedType = (packet: AgentPacket) => {
+  const { type } = packet;
+  if (type === "error" && packet.severity !== "fatal") {
+    return false;
+  }
   return agentPacketFinishedTypesSet.has(type);
 };
 
 export const findFinishPacket = (packets: AgentPacket[]): AgentPacket => {
   const packet = packets.findLast((packet) => {
     try {
-      return isAgentPacketFinishedType(packet.type);
+      return isAgentPacketFinishedType(packet);
     } catch (err) {
       return false;
     }
