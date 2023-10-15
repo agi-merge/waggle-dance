@@ -478,7 +478,12 @@ const TaskListItem = ({
             </Card>
           )}
           {isAgentPacketFinishedType(t.value) && (
-            <>
+            <Typography
+              level="body-sm"
+              color={statusColor(t)}
+              sx={{ p: 1 }}
+              variant="outlined"
+            >
               <Typography level="title-lg" color={statusColor(t)}>
                 {t.status === TaskStatus.error ? "Error: " : "Result: "}
               </Typography>
@@ -490,7 +495,7 @@ const TaskListItem = ({
                   ? `...${nodes.length} tasks and ${edges.length} interdependencies`
                   : findResult(t.packets).replace(/\\n/g, "\n")}
               </Markdown>
-            </>
+            </Typography>
           )}
         </Card>
       </ListItemContent>

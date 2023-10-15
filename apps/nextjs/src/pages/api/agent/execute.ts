@@ -148,7 +148,7 @@ export default async function ExecuteStream(req: NextRequest) {
     resolveStreamEnded = resolve;
     rejectStreamEnded = reject;
   });
-  let abortController = new AbortController();
+  const abortControllerWrapper = { controller: new AbortController() };
   let node: DraftExecutionNode | undefined;
   let packets: AgentPacket[] = [];
   let historicalPackets: AgentPacket[] = [];
@@ -161,6 +161,17 @@ export default async function ExecuteStream(req: NextRequest) {
     packet: AgentPacket,
     controller: ReadableStreamDefaultController,
     encoder: TextEncoder,
+    creationProps: ModelCreationProps,
+    goalPrompt: string,
+    parsedGoalId: string,
+    agentPromptingMethod: AgentPromptingMethod,
+    task: DraftExecutionNode,
+    dag: DraftExecutionGraph,
+    revieweeTaskResults: TaskState[],
+    contentType: "application/json" | "application/yaml",
+    abortController: AbortController,
+    namespace: string,
+    req: NextRequest,
     lastToolInputs?: Map<string, string>,
   ) => {
     // special case to attach the tool input to all tool start packets, regardless of origin
@@ -207,12 +218,41 @@ export default async function ExecuteStream(req: NextRequest) {
           };
           historicalPackets.push(...packets);
           packets = [];
-          await handlePacket(repetitionError, controller, encoder);
+
+          await handlePacket(
+            repetitionError,
+            controller,
+            encoder,
+            creationProps,
+            goalPrompt,
+            parsedGoalId,
+            agentPromptingMethod,
+            task,
+            dag,
+            revieweeTaskResults,
+            contentType,
+            abortController,
+            namespace,
+            req,
+            lastToolInputs,
+          );
 
           await restartExecution(
             controller,
             repetitionCheckResult.recent,
             repetitionCheckResult.similarDocuments,
+            creationProps,
+            goalPrompt,
+            parsedGoalId,
+            agentPromptingMethod,
+            task,
+            dag,
+            revieweeTaskResults,
+            contentType,
+            namespace,
+            req,
+            encoder,
+            resolveStreamEnded,
           );
 
           return;
@@ -234,6 +274,18 @@ export default async function ExecuteStream(req: NextRequest) {
     controller: ReadableStreamDefaultController,
     recentDocument: string,
     similarDocuments: Document[],
+    creationProps: ModelCreationProps,
+    goalPrompt: string,
+    parsedGoalId: string,
+    agentPromptingMethod: AgentPromptingMethod,
+    task: DraftExecutionNode,
+    dag: DraftExecutionGraph,
+    revieweeTaskResults: TaskState[],
+    contentType: "application/json" | "application/yaml",
+    namespace: string,
+    req: NextRequest,
+    encoder: TextEncoder,
+    resolveStreamEnded: () => void,
   ): Promise<void> => {
     console.warn(
       `Repetition detected. Restarting execution. Recent document: ${recentDocument}. Similar documents: ${similarDocuments.map(
@@ -241,13 +293,28 @@ export default async function ExecuteStream(req: NextRequest) {
       )}`,
     );
     controller.close();
-    abortController.abort("restarting");
-    packets = [];
+    abortControllerWrapper.controller.signal, (packets = []);
     historicalPackets = [];
     packetCounter = 0;
-    abortController = new AbortController();
+    abortControllerWrapper.controller = new AbortController();
 
     await streamEndedPromise;
+
+    await startExecution(
+      controller,
+      creationProps,
+      goalPrompt,
+      parsedGoalId,
+      agentPromptingMethod,
+      task,
+      dag,
+      revieweeTaskResults,
+      contentType,
+      namespace,
+      req,
+      encoder,
+      resolveStreamEnded,
+    );
   };
 
   const startExecution = async (
@@ -260,11 +327,9 @@ export default async function ExecuteStream(req: NextRequest) {
     dag: DraftExecutionGraph,
     revieweeTaskResults: TaskState[],
     contentType: "application/json" | "application/yaml",
-    abortController: AbortController,
     namespace: string,
     req: NextRequest,
     encoder: TextEncoder,
-    lastToolInputs: Map<string, string>,
     resolveStreamEnded: () => void,
   ) => {
     const exeResult = await callExecutionAgent({
@@ -276,7 +341,7 @@ export default async function ExecuteStream(req: NextRequest) {
       dag: stringify(dag),
       revieweeTaskResults,
       contentType,
-      abortSignal: abortController.signal,
+      abortSignal: abortControllerWrapper.controller.signal,
       namespace: namespace,
       geo: req.geo,
     });
@@ -376,7 +441,22 @@ export default async function ExecuteStream(req: NextRequest) {
                 tags,
                 metadata,
               };
-              void handlePacket(packet, controller, encoder);
+              void handlePacket(
+                packet,
+                controller,
+                encoder,
+                creationProps,
+                goalPrompt,
+                parsedGoalId,
+                agentPromptingMethod,
+                task,
+                dag,
+                revieweeTaskResults,
+                contentType,
+                abortControllerWrapper.controller,
+                namespace!,
+                req,
+              );
             },
             handleRetrieverEnd(
               documents: Document[],
@@ -391,7 +471,23 @@ export default async function ExecuteStream(req: NextRequest) {
                 parentRunId,
                 tags,
               };
-              void handlePacket(packet, controller, encoder);
+
+              void handlePacket(
+                packet,
+                controller,
+                encoder,
+                creationProps,
+                goalPrompt,
+                parsedGoalId,
+                agentPromptingMethod,
+                task,
+                dag,
+                revieweeTaskResults,
+                contentType,
+                abortControllerWrapper.controller,
+                namespace!,
+                req,
+              );
             },
             handleLLMStart(
               llm: Serialized,
@@ -409,7 +505,23 @@ export default async function ExecuteStream(req: NextRequest) {
                 llmHash: hashCode(JSON.stringify(llm)),
                 hash: hashCode(JSON.stringify(prompts)),
               };
-              void handlePacket(packet, controller, encoder);
+
+              void handlePacket(
+                packet,
+                controller,
+                encoder,
+                creationProps,
+                goalPrompt,
+                parsedGoalId,
+                agentPromptingMethod,
+                task,
+                dag,
+                revieweeTaskResults,
+                contentType,
+                abortControllerWrapper.controller,
+                namespace!,
+                req,
+              );
             },
             handleLLMEnd(
               output: LLMResult,
@@ -422,7 +534,23 @@ export default async function ExecuteStream(req: NextRequest) {
                 runId,
                 parentRunId,
               };
-              void handlePacket(packet, controller, encoder);
+
+              void handlePacket(
+                packet,
+                controller,
+                encoder,
+                creationProps,
+                goalPrompt,
+                parsedGoalId,
+                agentPromptingMethod,
+                task,
+                dag,
+                revieweeTaskResults,
+                contentType,
+                abortControllerWrapper.controller,
+                namespace!,
+                req,
+              );
             },
             handleLLMError(
               err: unknown,
@@ -435,7 +563,23 @@ export default async function ExecuteStream(req: NextRequest) {
                 runId,
                 parentRunId,
               );
-              void handlePacket(packet, controller, encoder);
+
+              void handlePacket(
+                packet,
+                controller,
+                encoder,
+                creationProps,
+                goalPrompt,
+                parsedGoalId,
+                agentPromptingMethod,
+                task,
+                dag,
+                revieweeTaskResults,
+                contentType,
+                abortControllerWrapper.controller,
+                namespace!,
+                req,
+              );
               console.error("handleLLMError", packet);
             },
             handleChainError(
@@ -449,8 +593,23 @@ export default async function ExecuteStream(req: NextRequest) {
                 runId,
                 parentRunId,
               );
-              void handlePacket(packet, controller, encoder);
-              // can be 'Output parser not set'
+
+              void handlePacket(
+                packet,
+                controller,
+                encoder,
+                creationProps,
+                goalPrompt,
+                parsedGoalId,
+                agentPromptingMethod,
+                task,
+                dag,
+                revieweeTaskResults,
+                contentType,
+                abortControllerWrapper.controller,
+                namespace!,
+                req,
+              ); // can be 'Output parser not set'
               console.error("handleChainError", packet);
             },
             handleToolStart(
@@ -466,7 +625,24 @@ export default async function ExecuteStream(req: NextRequest) {
                 runId,
                 parentRunId,
               };
-              void handlePacket(packet, controller, encoder, lastToolInputs); // augment with last tool input
+
+              void handlePacket(
+                packet,
+                controller,
+                encoder,
+                creationProps,
+                goalPrompt,
+                parsedGoalId,
+                agentPromptingMethod,
+                task,
+                dag,
+                revieweeTaskResults,
+                contentType,
+                abortControllerWrapper.controller,
+                namespace!,
+                req,
+                lastToolInputs, // must be passed to handlePacket to be used in handleToolStart
+              );
             },
             handleToolError(
               err: unknown,
@@ -476,7 +652,23 @@ export default async function ExecuteStream(req: NextRequest) {
               const packet: AgentPacket & { lastToolInput?: string } =
                 createErrorPacket("handleToolError", err, runId, parentRunId);
               packet.lastToolInput = lastToolInputs.get(runId);
-              void handlePacket(packet, controller, encoder);
+
+              void handlePacket(
+                packet,
+                controller,
+                encoder,
+                creationProps,
+                goalPrompt,
+                parsedGoalId,
+                agentPromptingMethod,
+                task,
+                dag,
+                revieweeTaskResults,
+                contentType,
+                abortControllerWrapper.controller,
+                namespace!,
+                req,
+              );
               console.error("handleToolError", packet);
             },
             handleToolEnd(
@@ -491,7 +683,23 @@ export default async function ExecuteStream(req: NextRequest) {
                 parentRunId,
               };
               packet.lastToolInput = lastToolInputs.get(runId);
-              void handlePacket(packet, controller, encoder);
+
+              void handlePacket(
+                packet,
+                controller,
+                encoder,
+                creationProps,
+                goalPrompt,
+                parsedGoalId,
+                agentPromptingMethod,
+                task,
+                dag,
+                revieweeTaskResults,
+                contentType,
+                abortControllerWrapper.controller,
+                namespace!,
+                req,
+              );
             },
             handleAgentAction(
               action: AgentAction,
@@ -504,7 +712,24 @@ export default async function ExecuteStream(req: NextRequest) {
                 runId,
                 parentRunId,
               };
-              void handlePacket(packet, controller, encoder);
+
+              void handlePacket(
+                packet,
+                controller,
+                encoder,
+                creationProps,
+                goalPrompt,
+                parsedGoalId,
+                agentPromptingMethod,
+                task,
+                dag,
+                revieweeTaskResults,
+                contentType,
+                abortControllerWrapper.controller,
+                namespace!,
+                req,
+                lastToolInputs,
+              );
             },
             handleRetrieverError(
               err: Error,
@@ -518,7 +743,23 @@ export default async function ExecuteStream(req: NextRequest) {
                 runId,
                 parentRunId,
               );
-              void handlePacket(packet, controller, encoder);
+
+              void handlePacket(
+                packet,
+                controller,
+                encoder,
+                creationProps,
+                goalPrompt,
+                parsedGoalId,
+                agentPromptingMethod,
+                task,
+                dag,
+                revieweeTaskResults,
+                contentType,
+                abortControllerWrapper.controller,
+                namespace!,
+                req,
+              );
             },
             handleAgentEnd(
               action: AgentFinish,
@@ -537,7 +778,24 @@ export default async function ExecuteStream(req: NextRequest) {
                   runId,
                   parentRunId,
                 };
-                void handlePacket(packet, controller, encoder);
+
+                void handlePacket(
+                  packet,
+                  controller,
+                  encoder,
+                  creationProps,
+                  goalPrompt,
+                  parsedGoalId,
+                  agentPromptingMethod,
+                  task,
+                  dag,
+                  revieweeTaskResults,
+                  contentType,
+                  abortControllerWrapper.controller,
+                  namespace!,
+                  req,
+                  lastToolInputs,
+                );
               } else {
                 const value = stringify(output);
                 const packet: AgentPacket = {
@@ -546,12 +804,46 @@ export default async function ExecuteStream(req: NextRequest) {
                   runId,
                   parentRunId,
                 };
-                void handlePacket(packet, controller, encoder);
+
+                void handlePacket(
+                  packet,
+                  controller,
+                  encoder,
+                  creationProps,
+                  goalPrompt,
+                  parsedGoalId,
+                  agentPromptingMethod,
+                  task,
+                  dag,
+                  revieweeTaskResults,
+                  contentType,
+                  abortControllerWrapper.controller,
+                  namespace!,
+                  req,
+                  lastToolInputs,
+                );
               }
               let valuePacket: AgentPacket | undefined;
               try {
                 valuePacket = parse(output as string) as AgentPacket;
-                void handlePacket(valuePacket, controller, encoder);
+
+                void handlePacket(
+                  valuePacket,
+                  controller,
+                  encoder,
+                  creationProps,
+                  goalPrompt,
+                  parsedGoalId,
+                  agentPromptingMethod,
+                  task,
+                  dag,
+                  revieweeTaskResults,
+                  contentType,
+                  abortControllerWrapper.controller,
+                  namespace!,
+                  req,
+                  lastToolInputs,
+                );
               } catch {}
             },
             // handleChainStart(
@@ -587,7 +879,22 @@ export default async function ExecuteStream(req: NextRequest) {
                 runId,
                 parentRunId,
               };
-              void handlePacket(packet, controller, encoder);
+              void handlePacket(
+                packet,
+                controller,
+                encoder,
+                creationProps,
+                goalPrompt,
+                parsedGoalId,
+                agentPromptingMethod,
+                task,
+                dag,
+                revieweeTaskResults,
+                contentType,
+                abortControllerWrapper.controller,
+                namespace!,
+                req,
+              );
             },
           }),
         ];
@@ -603,11 +910,9 @@ export default async function ExecuteStream(req: NextRequest) {
           dag,
           revieweeTaskResults,
           contentType,
-          abortController,
           namespace!,
           req,
           encoder,
-          lastToolInputs,
           resolveStreamEnded,
         );
 
@@ -644,10 +949,10 @@ export default async function ExecuteStream(req: NextRequest) {
       },
 
       cancel(reason) {
-        if (abortController.signal.aborted) {
+        if (abortControllerWrapper.controller.signal.aborted) {
           console.warn("already aborted", reason);
         } else {
-          abortController.abort(`cancelled: ${reason}`);
+          abortControllerWrapper.controller.abort(`cancelled: ${reason}`);
         }
         console.warn("cancel execute request");
         rejectStreamEnded("Stream cancelled");
