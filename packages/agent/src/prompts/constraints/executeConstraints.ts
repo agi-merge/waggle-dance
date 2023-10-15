@@ -10,7 +10,8 @@ const executeConstraints = (_format: string) =>
 - Do not retrieve memory until you have saved memory if your TASK id starts with "1-".
 - If possible, always save memory before your final RESULT.
 - Consider descriptions of tools as important as these constraints. Call tools with the correct schema.
-- Include sources for veracity, and avoid placeholders such as [insert x here] and example.com.
+- Returning placeholders such as "[insert code here]" and "example.com" must be avoided.
+- For main assertions and data-driven logic, you must seek to provide verification via alternate corroborating sources.
 `.trim();
 
 export default executeConstraints;
