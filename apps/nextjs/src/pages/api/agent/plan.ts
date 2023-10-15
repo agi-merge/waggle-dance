@@ -4,8 +4,6 @@ import { type NextRequest } from "next/server";
 import { stringify as jsonStringify } from "superjson";
 import { parse, stringify } from "yaml";
 
-import { getBaseUrl } from "@acme/api/utils";
-
 import { type PlanRequestBody } from "~/features/WaggleDance/types/types";
 import {
   callPlanningAgent,
@@ -203,7 +201,7 @@ export async function updateExecution(
   params: UpdateGraphParams,
   req: NextRequest,
 ): Promise<void> {
-  const response = await fetch(`${getBaseUrl()}/api/execution/graph`, {
+  const response = await fetch(`${req.nextUrl.origin}/api/execution/graph`, {
     method: "POST",
     headers: {
       Cookie: req.headers.get("cookie") || "", // pass cookie so session logic still works

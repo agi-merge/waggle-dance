@@ -18,7 +18,6 @@ import createNamespace from "@acme/agent/src/memory/namespace";
 import { isTaskCriticism } from "@acme/agent/src/prompts/types";
 import saveMemoriesSkill from "@acme/agent/src/skills/saveMemories";
 import { LLM } from "@acme/agent/src/utils/llms";
-import { getBaseUrl } from "@acme/api/utils";
 import { type DraftExecutionNode, type ExecutionState } from "@acme/db";
 
 import { type ExecuteRequestBody } from "~/features/WaggleDance/types/types";
@@ -697,7 +696,7 @@ export default async function ExecuteStream(req: NextRequest) {
               "skipping save memory due to error or this being a criticism task",
             );
 
-        const createResultPromise = fetch(`${getBaseUrl()}/api/result`, {
+        const createResultPromise = fetch(`${req.nextUrl.origin}/api/result`, {
           method: "POST",
           headers: {
             Cookie: req.headers.get("cookie") || "", // pass cookie so session logic still works
