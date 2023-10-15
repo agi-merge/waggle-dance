@@ -2,7 +2,6 @@
 import React from "react";
 import { Box } from "@mui/joy";
 import List from "@mui/joy/List";
-import ListDivider from "@mui/joy/ListDivider";
 
 import { type TaskState } from "@acme/agent";
 import { type DraftExecutionEdge, type DraftExecutionNode } from "@acme/db";
@@ -37,9 +36,14 @@ export const TaskListTab = ({
           key={t.id}
           sx={(theme) => ({
             backgroundColor:
-              i % 2 === 0
+              i % 2 === 1
                 ? theme.palette.background.level2
                 : theme.palette.background.level1,
+            p: 0,
+            mx: 0,
+            mb: 2,
+            mt: 0,
+            pt: 2,
           })}
         >
           <TaskListItem
@@ -51,9 +55,6 @@ export const TaskListTab = ({
             listItemsRef={listItemsRef}
             isRunning={isRunning}
           />
-          {i !== sortedTaskStates.length - 1 && (
-            <ListDivider inset="gutter" sx={{ margin: 0 }} />
-          )}
         </Box>
       ))}
     </List>
