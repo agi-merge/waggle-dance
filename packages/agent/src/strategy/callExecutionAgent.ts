@@ -121,6 +121,7 @@ export async function callExecutionAgent(creation: {
     embeddings,
     agentPromptingMethod,
     isCriticism,
+    taskObj.id,
     returnType,
     geo,
   );
@@ -219,10 +220,9 @@ export async function callExecutionAgent(creation: {
         };
         if (evaluationResult) {
           const minimumScore = 0.75;
-          if (evaluationResult.score < 0.75) {
+          if (evaluationResult.score < minimumScore) {
             throw new Error(
-              `Failed to validate result. Score: ${evaluationResult.score} < ${minimumScore} minimum,
-Reasoning:\n "${evaluationResult.reasoning}"`,
+              `Agent score too low: ${evaluationResult.score}, reasoning:\n "${evaluationResult.reasoning}"`,
               { cause: evaluationResult.reasoning },
             );
           }
