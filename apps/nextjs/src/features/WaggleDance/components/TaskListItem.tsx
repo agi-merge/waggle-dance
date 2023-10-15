@@ -11,9 +11,9 @@ import {
 import {
   Box,
   Card,
+  CircularProgress,
   Divider,
   IconButton,
-  LinearProgress,
   List,
   ListItem,
   ListItemButton,
@@ -123,9 +123,17 @@ const getGroupOutput = (group: AgentPacket[]): GroupOutput | null => {
 
   switch (groupType) {
     case GroupType.Success:
+      parsedTitle = `✅`;
+      parsedOutput = findResult(group).replace(/\\n/g, "\n");
+      break;
+
     case GroupType.Error:
+      parsedTitle = `Error`;
+      parsedOutput = findResult(group).replace(/\\n/g, "\n");
+      break;
+
     case GroupType.Working:
-      parsedTitle = `🧠`;
+      parsedTitle = `Think`;
       const end = group.find((g) => g.type === "handleLLMEnd");
       const chainEnd = group.find((g) => g.type === "handleChainEnd");
       if (end?.type === "handleLLMEnd") {
@@ -133,9 +141,9 @@ const getGroupOutput = (group: AgentPacket[]): GroupOutput | null => {
       } else if (chainEnd?.type === "handleChainEnd") {
         parsedOutput = stringify(chainEnd.outputs);
       }
-      parsedOutput = "⏳";
-    // parsedColor = "primary";
-    // break;
+      parsedColor = "neutral";
+      parsedOutput = "";
+      break;
     case GroupType.Skill:
       const toolName: string | undefined = group.reduce(
         (acc: string | undefined, packet) => {
@@ -263,7 +271,7 @@ const GroupContent = (
 
 const renderPacketGroup = (group: AgentPacket[], index: number) => {
   const groupOutput = getGroupOutput(group);
-  if (!groupOutput || groupOutput.type === GroupType.Working) {
+  if (!groupOutput) {
     return null;
   }
   const Icon = () => {
@@ -283,7 +291,7 @@ const renderPacketGroup = (group: AgentPacket[], index: number) => {
 
   return (
     <React.Fragment key={groupOutput?.key ?? v4()}>
-      {index !== 0 && "←"}
+      {index > 0 && "←"}
       <ListItem key={groupOutput?.key ?? v4()} sx={{}}>
         <ListItemButton
           variant="outlined"
@@ -428,36 +436,47 @@ const TaskListItem = ({
               {stringifyMax(node.context, 200)}
             </Typography>
           </Stack>
-
-          {isRunning && t.status === TaskStatus.working && (
-            <LinearProgress thickness={2} />
-          )}
           {(rootPlanId !== t.id || !isAgentPacketFinishedType(t.value)) && (
             <Card
               size="sm"
               style={{ position: "relative", overflow: "hidden" }}
-              variant="soft"
+              variant="plain"
             >
-              <Typography
-                level="title-lg"
-                sx={{ display: "flex", alignItems: "baseline" }}
-              >
-                {t.packets.length > 0 || t.value ? `Activity: ` : `State:`}
-                &nbsp;
-                {!isAgentPacketFinishedType(t.value) && (
-                  <Typography color={statusColor(t)} level="body-md">
-                    {isRunning
-                      ? mapPacketTypeToStatus(t.value.type)
-                      : "stopped"}
-                  </Typography>
-                )}
-              </Typography>
               <List
                 size="sm"
                 orientation="horizontal"
-                className="max-w-screen max-h-16 overflow-scroll"
+                className="max-w-screen max-h-16 overflow-scroll align-middle"
                 sx={{ m: 0, p: 0, paddingRight: "50%", alignItems: "center" }} // Add right padding equal to the width of the gradient
               >
+                <Box
+                  sx={{
+                    m: 1,
+                    alignItems: "right", // Vertically aligns the content
+                  }}
+                >
+                  <Typography
+                    level="title-lg"
+                    sx={{
+                      textAlign: "right",
+                    }}
+                  >
+                    Actions:
+                  </Typography>
+                  {!isAgentPacketFinishedType(t.value) && (
+                    <Typography
+                      color={statusColor(t)}
+                      level="body-md"
+                      sx={{ textAlign: "right" }}
+                    >
+                      {isRunning
+                        ? mapPacketTypeToStatus(t.value.type)
+                        : "stopped"}
+                    </Typography>
+                  )}
+                </Box>
+                {isRunning && t.status === TaskStatus.working && (
+                  <CircularProgress size="sm" />
+                )}
                 {packetGroups.map((group, index) =>
                   renderPacketGroup(group as AgentPacket[], index),
                 )}
@@ -471,7 +490,7 @@ const TaskListItem = ({
                   right: 0,
                   bottom: 0,
                   width: "33%",
-                  background: `linear-gradient(to left, ${theme.palette.background.level1}, transparent)`,
+                  background: `linear-gradient(to left, ${theme.palette.background.surface}, transparent)`,
                   pointerEvents: "none",
                 })}
               />
