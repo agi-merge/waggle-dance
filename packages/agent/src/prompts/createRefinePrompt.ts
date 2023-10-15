@@ -140,11 +140,11 @@ export const examplePrompts: ExamplePrompts = {
       tags: ["Spotify", "Songs", "Trends"],
     },
   ],
-  "🏡 Real Estate and Housing": [
+  "🏡 Real Estate": [
     {
-      title: "Multi-family Housing Trends in San Francisco",
+      title: "Office Real Estate Trends in San Francisco",
       prompt:
-        "Write a 1000+ word markdown document (GFM / Github flavored markdown). Research and summarize trends in the multi-family housing trends in San Francisco and surrounding areas. Create tables and figures that compare and contrast, and display relevant data to support the metrics. Afterwards, add citations, ensuring that URLs are valid.",
+        "Write a 1000+ word markdown document (GFM / Github flavored markdown). Research and summarize the multi-family housing trends in San Francisco and surrounding areas. Create tables and figures that compare and contrast, and display relevant data to support the metrics. Afterwards, add citations, ensuring that URLs are valid.",
       tags: ["Housing", "Trends", "San Francisco"],
     },
   ],
