@@ -108,10 +108,16 @@ export const findResult = (packets: AgentPacket[]): string => {
       }
       return finishPacket.value;
     case "error":
+      if (typeof finishPacket.error === "string") {
+        return finishPacket.error;
+      }
       return JSON.stringify(finishPacket.error);
     case "handleChainError":
     case "handleAgentError":
     case "handleRetrieverError":
+      if (typeof finishPacket.err === "string") {
+        return finishPacket.err;
+      }
       return JSON.stringify(finishPacket.err);
     case "working":
       return `…${packets.length} packets`;
