@@ -363,15 +363,15 @@ const TaskListItem = ({
 
   return (
     <ListItem
-      sx={(theme) => ({
+      sx={{
         height: {
           xs: i === 0 ? "18rem" : "33vh",
           sm: i === 0 ? "16rem" : "33vh",
           md: i === 0 ? "14rem" : "33vh",
         },
-        width: { xs: "100%", sm: "auto" },
+        width: "100%",
         flexDirection: { xs: "column", sm: "row" },
-      })}
+      }}
       className="overflow-y-auto overflow-x-clip"
       ref={(el) => el && (listItemsRef.current[i] = el)}
     >
@@ -418,7 +418,7 @@ const TaskListItem = ({
         </Stack>
       </ListItemDecorator>
       <ListItemContent
-        sx={(theme) => ({
+        sx={{
           height: "100%",
           width: "100%",
           flexDirection: {
@@ -426,7 +426,7 @@ const TaskListItem = ({
             sm: "column",
           },
           alignSelf: "start",
-        })}
+        }}
       >
         <Card
           variant="outlined"
