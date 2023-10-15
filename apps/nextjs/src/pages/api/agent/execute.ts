@@ -238,6 +238,8 @@ export default async function ExecuteStream(req: NextRequest) {
     namespace = createNamespace(goalId, executionId, task);
 
     const encoder = new TextEncoder();
+    // helps augment tool errors and ends so that they do not trigger error handlers for different inputs
+    const lastToolInputs = new Map<string, string>();
     const stream = new ReadableStream({
       async start(controller) {
         creationProps.callbacks = [
@@ -371,19 +373,16 @@ export default async function ExecuteStream(req: NextRequest) {
                 runId,
                 parentRunId,
               };
-              void handlePacket(packet, controller, encoder);
+              void handlePacket(packet, controller, encoder, lastToolInputs); // augment with last tool input
             },
             handleToolError(
               err: unknown,
               runId: string,
               parentRunId?: string | undefined,
             ): void | Promise<void> {
-              const packet: AgentPacket = createErrorPacket(
-                "handleToolError",
-                err,
-                runId,
-                parentRunId,
-              );
+              const packet: AgentPacket & { lastToolInput?: string } =
+                createErrorPacket("handleToolError", err, runId, parentRunId);
+              packet.lastToolInput = lastToolInputs.get(runId);
               void handlePacket(packet, controller, encoder);
               console.error("handleToolError", packet);
             },
@@ -392,12 +391,13 @@ export default async function ExecuteStream(req: NextRequest) {
               runId: string,
               parentRunId?: string | undefined,
             ): void | Promise<void> {
-              const packet: AgentPacket = {
+              const packet: AgentPacket & { lastToolInput?: string } = {
                 type: "handleToolEnd",
                 output,
                 runId,
                 parentRunId,
               };
+              packet.lastToolInput = lastToolInputs.get(runId);
               void handlePacket(packet, controller, encoder);
             },
             handleAgentAction(
