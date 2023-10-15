@@ -167,8 +167,16 @@ export type AgentPacket =
       chainHash?: number | undefined;
       inputsHash?: number | undefined;
     } & BaseAgentPacketWithIds)
-  | ({ type: "handleToolEnd"; output: string } & BaseAgentPacketWithIds)
-  | ({ type: "handleToolError"; err: any } & BaseAgentPacketWithIds)
+  | ({
+      type: "handleToolEnd";
+      output: string;
+      lastToolInput?: string;
+    } & BaseAgentPacketWithIds)
+  | ({
+      type: "handleToolError";
+      err: any;
+      lastToolInput?: string;
+    } & BaseAgentPacketWithIds)
   | ({
       type: "handleToolStart";
       tool: Serialized;

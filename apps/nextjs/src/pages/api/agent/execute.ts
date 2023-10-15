@@ -159,9 +159,23 @@ export default async function ExecuteStream(req: NextRequest) {
     packet: AgentPacket,
     controller: ReadableStreamDefaultController,
     encoder: TextEncoder,
+    lastToolInputs?: Map<string, string>,
   ) => {
-    // Enqueue the packet to the stream
-    controller.enqueue(encoder.encode(stringify([packet])));
+    // special case to attach the tool input to all tool start packets, regardless of origin
+    if (packet.type === "handleToolStart") {
+      if (!lastToolInputs) {
+        throw new Error(
+          "handlePacket(handleToolStart) must be called with lastToolInputs",
+        );
+      }
+      // Store the last tool input for this run
+      lastToolInputs.set(packet.runId, packet.input);
+    }
+
+    if (!abortController.signal.aborted) {
+      // Enqueue the packet to the stream
+      controller.enqueue(encoder.encode(stringify([packet])));
+    }
 
     // Push the packet to the packets array
     packets.push(packet);
