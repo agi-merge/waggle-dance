@@ -227,7 +227,7 @@ export async function callExecutionAgent(creation: {
           const minimumScore = 0.5;
           if (evaluationResult.score < minimumScore) {
             throw new Error(
-              `The result failed review: ${evaluationResult.score}, reasoning:\n "${evaluationResult.reasoning}"`,
+              `Low review score: ${evaluationResult.score}. Reasoning: ${evaluationResult.reasoning}"`,
               { cause: evaluationResult.reasoning },
             );
           }
