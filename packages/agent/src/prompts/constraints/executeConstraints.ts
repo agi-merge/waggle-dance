@@ -12,6 +12,7 @@ const executeConstraints = (_format: string) =>
 - Consider descriptions of tools as important as these constraints. Call tools with the correct schema.
 - Returning placeholders such as "[insert code here]" and "example.com" must be avoided.
 - For main assertions and data-driven logic, you must seek to provide verification via alternate corroborating sources.
+- Format your Final Answers and RESULT. The content should be in GFM (autolink literals, footnotes, strikethrough, tables, tasklists) and standard markdown formats.
 `.trim();
 
 export default executeConstraints;
