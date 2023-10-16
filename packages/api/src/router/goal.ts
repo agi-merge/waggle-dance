@@ -6,44 +6,10 @@ import { getBaseUrl } from "../baseUrl";
 import {
   createTRPCRouter,
   optionalProtectedProcedure,
-  protectedProcedure,
   publicProcedure,
 } from "../trpc";
 
 export const goalRouter = createTRPCRouter({
-  // Query all goals
-  // all: publicProcedure.query(({ ctx }) => {
-  //   return ctx.prisma.goal.findMany({ orderBy: { id: "desc" } });
-  // }),
-
-  // Query a single goal by id
-  byId: protectedProcedure
-    .input(z.object({ id: z.string() }))
-    .query(({ ctx, input }) => {
-      const userId = ctx.session?.user.id;
-      return ctx.prisma.goal.findUnique({
-        where: { id: input.id, userId },
-        include: {
-          executions: {
-            take: 5,
-            orderBy: { updatedAt: "desc" }, // doesnt work as expected?
-            include: {
-              graph: {
-                include: {
-                  nodes: true,
-                  edges: true,
-                },
-              },
-              results: {
-                take: 40,
-                orderBy: { updatedAt: "desc" },
-              },
-            },
-          },
-        },
-      });
-    }),
-
   topByUser: optionalProtectedProcedure.query(({ ctx }) => {
     const userId = ctx.session.user?.id;
     if (!userId) {
@@ -96,6 +62,7 @@ export const goalRouter = createTRPCRouter({
         },
         include: {
           executions: {
+            take: 5,
             orderBy: { updatedAt: "desc" },
             include: {
               graph: {
