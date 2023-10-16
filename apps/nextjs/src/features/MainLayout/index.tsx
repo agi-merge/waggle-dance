@@ -97,7 +97,7 @@ const MainLayout = ({ children, alertConfigs }: Props) => {
           })}
         />
         <Card
-          className=" mx-auto md:max-w-screen-lg xl:max-w-screen-lg"
+          className="mx-auto md:max-w-screen-lg xl:max-w-screen-lg"
           sx={(theme) => {
             const original = theme.palette.background.backdrop;
             const processed = theme.palette.background.backdrop.replace(

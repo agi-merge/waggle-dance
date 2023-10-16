@@ -176,16 +176,7 @@ const GoalPage = ({ alertConfigs }: Props) => {
         {state === "input" ? (
           <GoalPrompt />
         ) : (
-          <Suspense
-            fallback={
-              <Skeleton
-                variant="rectangular"
-                height="20rem"
-                animation="wave"
-                loading={true}
-              />
-            }
-          >
+          <>
             <PageTitle title={isRunning ? "💃 Waggling!" : "💃 Waggle"}>
               {goal?.prompt && (
                 <Suspense
@@ -207,7 +198,7 @@ const GoalPage = ({ alertConfigs }: Props) => {
             >
               <WaggleDance />
             </Suspense>
-          </Suspense>
+          </>
         )}
       </ErrorBoundary>
     </MainLayout>
