@@ -28,7 +28,6 @@ import { v4 } from "uuid";
 import { stringify } from "yaml";
 
 import {
-  findResult,
   getMostRelevantOutput,
   isAgentPacketFinishedType,
   rootPlanId,
@@ -219,20 +218,6 @@ const getGroupOutput = (group: AgentPacket[]): GroupOutput | null => {
           ? stringify(lastPacket.documents)
           : parsedOutput;
       break;
-    case GroupType.Success:
-      parsedOutput = findResult(group).replace(/\\n/g, "\n");
-      parsedTitle = "Success";
-      break;
-    case GroupType.Error:
-      parsedOutput =
-        lastPacket.type === "handleAgentError"
-          ? stringify(lastPacket.err)
-          : lastPacket.type === "handleLLMError"
-          ? stringify(lastPacket.err)
-          : lastPacket.type === "handleChainError"
-          ? stringify(lastPacket.err)
-          : parsedOutput;
-      break;
   }
 
   return {
@@ -330,11 +315,14 @@ const TaskResultsValue = ({
         overflow: "clip",
         maxLines: 1,
         textOverflow: "ellipsis",
+        p: 1,
       }}
     >
       {t.value.type === "working" && t.nodeId === rootPlanId
         ? `...${nodes.length} tasks and ${edges.length} interdependencies`
-        : getMostRelevantOutput(t.value).output.replace(/\\n/g, " ")}
+        : isAgentPacketFinishedType(t.value)
+        ? getMostRelevantOutput(t.value).output.replace(/\\n/g, " ")
+        : "None"}
     </Typography>
   );
 };
@@ -378,8 +366,16 @@ const TaskResult = ({
   nodes: DraftExecutionNode[];
   edges: DraftExecutionEdge[];
 } & BoxProps) => {
+  const result = useMemo(() => {
+    return getMostRelevantOutput(t.value).output.replace(/\\n/g, " ");
+  }, [t.value]);
   return (
-    <Box {...props}>
+    <Box
+      {...props}
+      sx={{
+        overflow: "scroll",
+      }}
+    >
       <Markdown
         className={`markdown break-words pt-2 ${
           t.status === TaskStatus.error ? "font-mono" : ""
@@ -387,8 +383,8 @@ const TaskResult = ({
         remarkPlugins={[remarkGfm]}
       >
         {t.value.type === "working" && t.nodeId === rootPlanId
-          ? `...${nodes.length} tasks and ${edges.length} interdependencies`
-          : getMostRelevantOutput(t.value).output.replace(/\\n/g, "\n")}
+          ? `Planned ${nodes.length} tasks and ${edges.length} interdependencies`
+          : result}
       </Markdown>
     </Box>
   );
@@ -465,6 +461,7 @@ const TaskListItem = ({
           alignSelf: "start",
           position: "sticky",
           top: 0,
+          mr: 0.25,
           zIndex: 2,
         })}
         size="sm"
@@ -506,94 +503,83 @@ const TaskListItem = ({
           direction="column"
           className="w-full overflow-x-clip overflow-y-clip"
         >
-          {(rootPlanId !== t.id || !isAgentPacketFinishedType(t.value)) && (
-            <Card
-              size="sm"
-              sx={{
-                overflow: "auto",
-                m: 0,
-                p: 0,
-              }}
-              variant="plain"
-            >
-              <Typography level="title-lg" sx={{ pl: "0.35rem", zIndex: 1 }}>
-                Context:{" "}
-                <Typography
-                  fontWeight={"normal"}
-                  level="body-sm"
-                  className="text-wrap"
-                  color="neutral"
-                  sx={{
-                    display: "-webkit-box",
-                    WebkitBoxOrient: "vertical",
-                    WebkitLineClamp: 3, // Number of lines you want to display
-                    overflow: "hidden",
-                    textOverflow: "ellipsis",
-                  }}
-                >
-                  {stringifyMax(node.context, 200)}
-                </Typography>
-              </Typography>
-              <List
-                size="sm"
-                orientation="horizontal"
-                className="max-w-screen min-h-24 overflow-y-auto overflow-x-scroll "
+          <Card
+            size="sm"
+            sx={{
+              overflow: "auto",
+              m: 0,
+              p: 0,
+            }}
+            variant="plain"
+          >
+            <Typography level="title-lg" sx={{ pl: "0.35rem", zIndex: 1 }}>
+              Context:{" "}
+              <Typography
+                fontWeight={"normal"}
+                level="body-sm"
+                className="text-wrap"
+                color="neutral"
                 sx={{
-                  m: 0,
-                  p: 0,
-                  paddingRight: "50%",
-                  alignItems: "center",
-                  zIndex: 0,
-                }} // Add right padding equal to the width of the gradient
-              >
-                <Sheet
-                  sx={{
-                    m: 1,
-                    alignItems: "right", // Vertically aligns the content
-                  }}
-                >
-                  <Typography
-                    level="title-lg"
-                    sx={{
-                      textAlign: "right",
-                    }}
-                  >
-                    Actions:
-                  </Typography>
-                  <Typography
-                    color={statusColor(t)}
-                    level="body-md"
-                    sx={{ textAlign: "center" }}
-                  >
-                    {isRunning
-                      ? mapPacketTypeToStatus(t.value.type)
-                      : t.packets.length > 0
-                      ? "stopped"
-                      : "idle"}
-                  </Typography>
-                </Sheet>
-                {isRunning && t.status === TaskStatus.working && (
-                  <CircularProgress size="sm" />
-                )}
-                {packetGroups.map((group, index) =>
-                  renderPacketGroup(group as AgentPacket[], index),
-                )}
-              </List>
-              <Box
-                sx={(theme) => ({
+                  display: "-webkit-box",
+                  WebkitBoxOrient: "vertical",
+                  WebkitLineClamp: 3, // Number of lines you want to display
                   overflow: "hidden",
-                  content: '""',
-                  position: "absolute",
-                  top: 0,
-                  right: 0,
-                  bottom: 0,
-                  width: "33%",
-                  background: `linear-gradient(to left, ${theme.palette.background.surface}, transparent)`,
-                  pointerEvents: "none",
-                })}
+                  textOverflow: "ellipsis",
+                }}
+              >
+                {stringifyMax(node.context, 200)}
+              </Typography>
+            </Typography>
+            <List
+              size="sm"
+              orientation="horizontal"
+              className="max-w-screen h-16 overflow-y-auto overflow-x-scroll "
+              sx={{
+                paddingRight: "50%",
+                alignItems: "center",
+                zIndex: 0,
+              }} // Add right padding equal to the width of the gradient
+            >
+              <Sheet sx={{ position: "sticky", left: 0, zIndex: 1, pr: 1 }}>
+                <Typography level="title-lg">Actions:</Typography>
+                <Typography
+                  color={statusColor(t)}
+                  level="body-md"
+                  sx={{ textAlign: "center" }}
+                >
+                  {isRunning
+                    ? mapPacketTypeToStatus(t.value.type)
+                    : t.packets.length > 0
+                    ? "stopped"
+                    : "waiting"}
+                </Typography>
+              </Sheet>
+              <CircularProgress
+                size="sm"
+                sx={{
+                  opacity:
+                    isRunning && t.status === TaskStatus.working ? "1" : "0",
+                  mr: 1,
+                }}
               />
-            </Card>
-          )}
+              {packetGroups.map((group, index) =>
+                renderPacketGroup(group as AgentPacket[], index),
+              )}
+            </List>
+            <Box
+              sx={(theme) => ({
+                overflow: "hidden",
+                content: '""',
+                position: "absolute",
+                top: 0,
+                right: 0,
+                bottom: 0,
+                width: "33%",
+                background: `linear-gradient(to left, ${theme.palette.background.surface}, transparent)`,
+                pointerEvents: "none",
+              })}
+            />
+          </Card>
           <List type="multiple" variant="soft" component={Accordion}>
             <AccordionItem value={"ok"} key={"heyaaaheyaysayaya"}>
               <AccordionHeader

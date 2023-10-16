@@ -79,9 +79,7 @@ export const findFinishPacket = (packets: AgentPacket[]): AgentPacket => {
   }) ?? {
     type: "error",
     severity: "fatal",
-    error: `No result packet found in ${packets.length} packets (${packets.map(
-      (p) => p.type,
-    )}))`,
+    error: packets.length > 0 ? `Working…` : `None yet`,
   };
 
   return packet;
@@ -138,9 +136,12 @@ export const findResult = (packets: AgentPacket[]): string => {
 const extractText = (
   outputs: ChainValues | Generation | { text: string },
 ): { title: string; output: string } | undefined => {
-  const actionString = (outputs["text"] as string)
-    .replaceAll("```json", "")
-    .replaceAll("```", "");
+  const actionString =
+    "text" in outputs
+      ? (outputs["text"] as string)
+          .replaceAll("```json", "")
+          .replaceAll("```", "")
+      : "None";
   try {
     const { action: title, action_input: output } = JSON.parse(
       actionString,
