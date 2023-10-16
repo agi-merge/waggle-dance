@@ -30,6 +30,7 @@ import { stringify } from "yaml";
 
 import {
   findResult,
+  getMostRelevantOutput,
   isAgentPacketFinishedType,
   rootPlanId,
   TaskStatus,
@@ -123,26 +124,17 @@ const getGroupOutput = (group: AgentPacket[]): GroupOutput | null => {
 
   switch (groupType) {
     case GroupType.Success:
-      parsedTitle = `✅`;
-      parsedOutput = findResult(group).replace(/\\n/g, "\n");
-      break;
-
     case GroupType.Error:
-      parsedTitle = `Error`;
-      parsedOutput = findResult(group).replace(/\\n/g, "\n");
-      break;
-
     case GroupType.Working:
-      parsedTitle = `Think`;
-      const end = group.find((g) => g.type === "handleLLMEnd");
-      const chainEnd = group.find((g) => g.type === "handleChainEnd");
-      if (end?.type === "handleLLMEnd") {
-        parsedOutput = stringify(end.output);
-      } else if (chainEnd?.type === "handleChainEnd") {
-        parsedOutput = stringify(chainEnd.outputs);
+      if (lastPacket.type === "handleChainEnd") {
+        // would double up w/ LLM End
+        return null;
       }
-      parsedColor = "neutral";
-      parsedOutput = "";
+      const { title, output: o } = getMostRelevantOutput(
+        group.findLast((p) => !!p)!,
+      );
+      parsedTitle = title;
+      parsedOutput = o;
       break;
     case GroupType.Skill:
       const toolName: string | undefined = group.reduce(
