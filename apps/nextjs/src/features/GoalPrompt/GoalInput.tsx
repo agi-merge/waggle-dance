@@ -239,8 +239,8 @@ export default function GoalInput({}: GoalInputProps) {
                       </ListSubheader>
                       {index !== prompts.length - 1 && <Divider />}
                       <List size="sm" component={Card} variant="outlined">
-                        {prompts.map((prompt, i) => (
-                          <React.Fragment key={`${category}_${prompt}`}>
+                        {prompts.map((prompt) => (
+                          <React.Fragment key={`${category}_${prompt.tags}`}>
                             <ListItem>
                               <ListItemButton
                                 onClick={() => {
