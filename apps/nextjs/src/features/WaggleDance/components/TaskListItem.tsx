@@ -28,6 +28,7 @@ import { v4 } from "uuid";
 import { stringify } from "yaml";
 
 import {
+  findResult,
   getMostRelevantOutput,
   isAgentPacketFinishedType,
   rootPlanId,
@@ -321,7 +322,7 @@ const TaskResultsValue = ({
       {t.value.type === "working" && t.nodeId === rootPlanId
         ? `...${nodes.length} tasks and ${edges.length} interdependencies`
         : isAgentPacketFinishedType(t.value)
-        ? getMostRelevantOutput(t.value).output.replace(/\\n/g, " ")
+        ? findResult([t.value]).replace(/\\n/g, " ")
         : "None"}
     </Typography>
   );
