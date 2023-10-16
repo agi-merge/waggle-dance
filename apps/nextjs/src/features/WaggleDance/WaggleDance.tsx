@@ -289,6 +289,7 @@ const WaggleDance = ({}: Props) => {
                 {
                   backgroundColor: theme.palette.background.surface, // Add opacity to the background color
                 },
+              zIndex: 5,
             })}
           >
             <Tab value={0} sx={{ flex: "1 1 auto" }}>

@@ -89,3 +89,7 @@ a {
     @apply light;
   }
 }
+
+.markdown {
+  font-size: small;
+}

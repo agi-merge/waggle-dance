@@ -3,26 +3,25 @@ import {
   AssignmentTurnedIn,
   Construction,
   Download,
-  Edit,
   ErrorOutline,
   QuestionAnswer,
-  Send,
 } from "@mui/icons-material";
 import {
   Box,
   Card,
   CircularProgress,
   Divider,
-  IconButton,
   List,
   ListItem,
   ListItemButton,
   ListItemContent,
   ListItemDecorator,
+  Sheet,
   Stack,
-  Tooltip,
   Typography,
+  type BoxProps,
 } from "@mui/joy";
+import { Accordion, AccordionItem } from "@radix-ui/react-accordion";
 import Markdown from "react-markdown";
 import remarkGfm from "remark-gfm";
 import { v4 } from "uuid";
@@ -41,16 +40,26 @@ import {
 import { mapPacketTypeToStatus } from "@acme/agent/src/prompts/utils/mapPacketToStatus";
 import { type DraftExecutionEdge, type DraftExecutionNode } from "@acme/db";
 
+import {
+  AccordionContent,
+  AccordionHeader,
+} from "~/features/HeadlessUI/JoyAccordion";
 import { stringifyMax } from "../utils/stringifyMax";
 
+type StatusColor =
+  | "danger"
+  | "success"
+  | "warning"
+  | "primary"
+  | "neutral"
+  | undefined;
+type StatusColorFn = (n: TaskState) => StatusColor;
 interface TaskListItemProps {
   task: TaskState;
   nodes: DraftExecutionNode[];
   edges: DraftExecutionEdge[];
   i: number;
-  statusColor: (
-    n: TaskState,
-  ) => "danger" | "success" | "warning" | "primary" | "neutral" | undefined;
+  statusColor: StatusColorFn;
   isRunning: boolean;
   listItemsRef: React.MutableRefObject<HTMLLIElement[]>;
 }
@@ -304,6 +313,87 @@ const renderPacketGroup = (group: AgentPacket[], index: number) => {
   );
 };
 
+const TaskResultsValue = ({
+  t,
+  nodes,
+  edges,
+}: {
+  t: TaskState;
+  nodes: DraftExecutionNode[];
+  edges: DraftExecutionEdge[];
+}) => {
+  return (
+    <Typography
+      level="body-sm"
+      sx={{
+        wordBreak: "break-word",
+        overflow: "clip",
+        maxLines: 1,
+        textOverflow: "ellipsis",
+      }}
+    >
+      {t.value.type === "working" && t.nodeId === rootPlanId
+        ? `...${nodes.length} tasks and ${edges.length} interdependencies`
+        : getMostRelevantOutput(t.value).output.replace(/\\n/g, " ")}
+    </Typography>
+  );
+};
+const TaskResultTitle = ({
+  t,
+  color,
+  isOpen,
+  nodes,
+  edges,
+}: {
+  t: TaskState;
+  color: StatusColor;
+  isOpen: boolean;
+  nodes: DraftExecutionNode[];
+  edges: DraftExecutionEdge[];
+}) => {
+  return (
+    <Typography
+      level="title-lg"
+      color={color}
+      sx={{
+        whiteSpace: isOpen ? "normal" : "nowrap",
+        overflow: isOpen ? "visible" : "hidden",
+        textOverflow: isOpen ? "clip" : "ellipsis",
+      }}
+    >
+      {t.status === TaskStatus.error ? "Error: " : "Result: "}
+      {isOpen ? null : <TaskResultsValue t={t} nodes={nodes} edges={edges} />}
+    </Typography>
+  );
+};
+const TaskResult = ({
+  t,
+  color: _color,
+  nodes,
+  edges,
+  ...props
+}: {
+  t: TaskState;
+  color: StatusColor;
+  nodes: DraftExecutionNode[];
+  edges: DraftExecutionEdge[];
+} & BoxProps) => {
+  return (
+    <Box {...props}>
+      <Markdown
+        className={`markdown break-words pt-2 ${
+          t.status === TaskStatus.error ? "font-mono" : ""
+        }`}
+        remarkPlugins={[remarkGfm]}
+      >
+        {t.value.type === "working" && t.nodeId === rootPlanId
+          ? `...${nodes.length} tasks and ${edges.length} interdependencies`
+          : getMostRelevantOutput(t.value).output.replace(/\\n/g, "\n")}
+      </Markdown>
+    </Box>
+  );
+};
+
 // Use getDisplayLabel where you need to display the packet...
 
 const TaskListItem = ({
@@ -356,13 +446,9 @@ const TaskListItem = ({
   return (
     <ListItem
       sx={{
-        height: {
-          xs: i === 0 ? "18rem" : "33vh",
-          sm: i === 0 ? "16rem" : "33vh",
-          md: i === 0 ? "14rem" : "33vh",
-        },
         width: "100%",
         flexDirection: { xs: "column", sm: "row" },
+        pb: 2,
       }}
       className="overflow-y-auto overflow-x-clip"
       ref={(el) => el && (listItemsRef.current[i] = el)}
@@ -377,36 +463,29 @@ const TaskListItem = ({
           textAlign: "end",
           alignItems: "end",
           alignSelf: "start",
+          position: "sticky",
+          top: 0,
+          zIndex: 2,
         })}
         size="sm"
         component={Card}
         color={statusColor(t)}
-        variant="soft"
+        variant="outlined"
       >
         <Stack
           direction={{ xs: "row", sm: "column" }}
           gap={{ xs: "0.5rem", sm: "0.25rem" }}
+          className="flex w-full flex-grow"
           alignItems={{ xs: "center", sm: "flex-end" }}
         >
-          <Typography level="title-md" sx={{ wordBreak: "break-word" }}>
+          <Typography
+            level="title-md"
+            sx={{ wordBreak: "break-word" }}
+            color={statusColor(t)}
+          >
             {node.name}
           </Typography>
-          <Typography level="title-sm" color="neutral" fontFamily="monospace">
-            id: <Typography level="body-sm">{t.displayId()}</Typography>
-          </Typography>
-          <Stack gap="0.3rem" direction="row">
-            <Tooltip title="Chat">
-              <IconButton size="sm">
-                <Send />
-              </IconButton>
-            </Tooltip>
-            <Divider orientation="vertical" />
-            <Tooltip title="Edit">
-              <IconButton size="sm">
-                <Edit />
-              </IconButton>
-            </Tooltip>
-          </Stack>
+          <Typography level="body-xs">{t.displayId()}</Typography>
         </Stack>
       </ListItemDecorator>
       <ListItemContent
@@ -422,35 +501,52 @@ const TaskListItem = ({
       >
         <Card
           variant="outlined"
+          color={statusColor(t)}
           component={Stack}
           direction="column"
-          className="h-fit w-full"
+          className="w-full overflow-x-clip overflow-y-clip"
         >
-          <Stack className="text-wrap" gap={1.5}>
-            <Typography
-              level="body-sm"
-              className="text-wrap"
-              color="neutral"
-              style={{
-                overflowWrap: "break-word",
-              }}
-            >
-              {stringifyMax(node.context, 200)}
-            </Typography>
-          </Stack>
           {(rootPlanId !== t.id || !isAgentPacketFinishedType(t.value)) && (
             <Card
               size="sm"
-              style={{ position: "relative", overflow: "hidden" }}
+              sx={{
+                overflow: "auto",
+                m: 0,
+                p: 0,
+              }}
               variant="plain"
             >
+              <Typography level="title-lg" sx={{ pl: "0.35rem", zIndex: 1 }}>
+                Context:{" "}
+                <Typography
+                  fontWeight={"normal"}
+                  level="body-sm"
+                  className="text-wrap"
+                  color="neutral"
+                  sx={{
+                    display: "-webkit-box",
+                    WebkitBoxOrient: "vertical",
+                    WebkitLineClamp: 3, // Number of lines you want to display
+                    overflow: "hidden",
+                    textOverflow: "ellipsis",
+                  }}
+                >
+                  {stringifyMax(node.context, 200)}
+                </Typography>
+              </Typography>
               <List
                 size="sm"
                 orientation="horizontal"
-                className="max-w-screen max-h-16 overflow-scroll align-middle"
-                sx={{ m: 0, p: 0, paddingRight: "50%", alignItems: "center" }} // Add right padding equal to the width of the gradient
+                className="max-w-screen min-h-24 overflow-y-auto overflow-x-scroll "
+                sx={{
+                  m: 0,
+                  p: 0,
+                  paddingRight: "50%",
+                  alignItems: "center",
+                  zIndex: 0,
+                }} // Add right padding equal to the width of the gradient
               >
-                <Box
+                <Sheet
                   sx={{
                     m: 1,
                     alignItems: "right", // Vertically aligns the content
@@ -464,18 +560,18 @@ const TaskListItem = ({
                   >
                     Actions:
                   </Typography>
-                  {!isAgentPacketFinishedType(t.value) && (
-                    <Typography
-                      color={statusColor(t)}
-                      level="body-md"
-                      sx={{ textAlign: "right" }}
-                    >
-                      {isRunning
-                        ? mapPacketTypeToStatus(t.value.type)
-                        : "stopped"}
-                    </Typography>
-                  )}
-                </Box>
+                  <Typography
+                    color={statusColor(t)}
+                    level="body-md"
+                    sx={{ textAlign: "center" }}
+                  >
+                    {isRunning
+                      ? mapPacketTypeToStatus(t.value.type)
+                      : t.packets.length > 0
+                      ? "stopped"
+                      : "idle"}
+                  </Typography>
+                </Sheet>
                 {isRunning && t.status === TaskStatus.working && (
                   <CircularProgress size="sm" />
                 )}
@@ -498,26 +594,39 @@ const TaskListItem = ({
               />
             </Card>
           )}
-          {isAgentPacketFinishedType(t.value) && (
-            <Typography
-              level="body-sm"
-              color={statusColor(t)}
-              sx={{ p: 1 }}
-              variant="outlined"
-            >
-              <Typography level="title-lg" color={statusColor(t)}>
-                {t.status === TaskStatus.error ? "Error: " : "Result: "}
-              </Typography>
-              <Markdown
-                className=" max-h-fit break-words pt-2"
-                remarkPlugins={[remarkGfm]}
-              >
-                {t.value.type === "working" && t.nodeId === rootPlanId
-                  ? `...${nodes.length} tasks and ${edges.length} interdependencies`
-                  : findResult(t.packets).replace(/\\n/g, "\n")}
-              </Markdown>
-            </Typography>
-          )}
+          <List type="multiple" variant="soft" component={Accordion}>
+            <AccordionItem value={"ok"} key={"heyaaaheyaysayaya"}>
+              <AccordionHeader
+                isFirst={false}
+                openText={
+                  <TaskResultTitle
+                    t={t}
+                    color={statusColor(t)}
+                    isOpen={true}
+                    nodes={nodes}
+                    edges={edges}
+                  />
+                }
+                closedText={
+                  <TaskResultTitle
+                    t={t}
+                    color={statusColor(t)}
+                    isOpen={false}
+                    nodes={nodes}
+                    edges={edges}
+                  />
+                }
+              />
+              <AccordionContent isLast={true}>
+                <TaskResult
+                  t={t}
+                  color={statusColor(t)}
+                  nodes={nodes}
+                  edges={edges}
+                />
+              </AccordionContent>
+            </AccordionItem>
+          </List>
         </Card>
       </ListItemContent>
     </ListItem>

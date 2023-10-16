@@ -1,6 +1,7 @@
 import { type DraftExecutionNode, type Result } from "@acme/db";
 
 import { type AgentPacket } from "../../..";
+import { isTaskCriticism } from "../types";
 import { mapPacketTypeToStatus } from "../utils/mapPacketToStatus";
 import { type TaskStatus } from "./TaskStatus";
 
@@ -32,9 +33,21 @@ export class TaskState implements EnhancedResponse {
   displayId(): string {
     const executionSplit = this.nodeId.split(".")[1];
     if (!executionSplit) {
-      return this.id;
+      return this.explainTaskId(this.id);
     } else {
-      return executionSplit;
+      return this.explainTaskId(executionSplit);
+    }
+  }
+  private explainTaskId(id: string): string {
+    const nodeSplit = id.split("-");
+    if (nodeSplit.length === 2) {
+      const isCriticism: boolean = isTaskCriticism(nodeSplit[1]!);
+      const explained = isCriticism
+        ? `Tier ${nodeSplit[0]} ⚖️ Review`
+        : `Tier ${nodeSplit[0]} 🎯 Task ${Number(nodeSplit[1]) + 1}`;
+      return explained;
+    } else {
+      return id;
     }
   }
 }

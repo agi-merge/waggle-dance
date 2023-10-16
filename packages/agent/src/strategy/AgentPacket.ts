@@ -210,7 +210,7 @@ export function getMostRelevantOutput(packet: AgentPacket): {
     case "handleChatModelStart":
       return { title: "?", output: String(packet.llm) };
     default:
-      return { title: "???", output: "???" };
+      return { title: "", output: "None" };
   }
 }
 
