@@ -48,6 +48,7 @@ export const env = createEnv({
     AZURE_OPENAI_API_EMBEDDINGS_DEPLOYMENT_NAME: z.string().optional(),
     AZURE_OPENAI_DEPLOYMENT_NAME: z.string().optional(),
     SERPAPI_API_KEY: z.string().min(64).max(64).optional(),
+    SEARCHAPI_API_KEY: z.string().min(24).optional(),
     WEAVIATE_SCHEME: z.enum(["http", "https"]),
     WEAVIATE_HOST: z.string().min(1),
     WEAVIATE_API_KEY: z.string().min(1),
@@ -95,6 +96,7 @@ export const env = createEnv({
     AZURE_OPENAI_DEPLOYMENT_NAME: process.env.AZURE_OPENAI_DEPLOYMENT_NAME,
     AZURE_OPENAI_API_EMBEDDINGS_DEPLOYMENT_NAME:
       process.env.AZURE_OPENAI_API_EMBEDDINGS_DEPLOYMENT_NAME,
+    SEARCHAPI_API_KEY: process.env.SEARCHAPI_API_KEY,
     SERPAPI_API_KEY: process.env.SERPAPI_API_KEY,
     NEXT_PUBLIC_APP_VERSION: process.env.NEXT_PUBLIC_APP_VERSION,
     NEXT_PUBLIC_DISCORD_INVITE_URL: process.env.NEXT_PUBLIC_DISCORD_INVITE_URL,
