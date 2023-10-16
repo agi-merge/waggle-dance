@@ -217,7 +217,6 @@ export default async function ExecuteStream(req: NextRequest) {
             ...repetitionCheckResult,
           };
           historicalPackets.push(...packets);
-          packets = [];
 
           await handlePacket(
             repetitionError,
@@ -293,7 +292,8 @@ export default async function ExecuteStream(req: NextRequest) {
       )}`,
     );
     controller.close();
-    abortControllerWrapper.controller.signal, (packets = []);
+    abortControllerWrapper.controller.signal;
+    packets = [];
     historicalPackets = [];
     packetCounter = 0;
     abortControllerWrapper.controller = new AbortController();
@@ -1024,7 +1024,7 @@ export default async function ExecuteStream(req: NextRequest) {
           node,
           executionId,
           packet,
-          packets,
+          packets: historicalPackets,
           state,
         };
 
