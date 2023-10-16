@@ -204,7 +204,7 @@ export type AgentPacket =
   | ({
       type: "error";
       severity: "warn" | "human" | "fatal";
-      error: string | Error;
+      error: string;
     } & BaseAgentPacket)
   // client-side only
   | ({ type: "starting"; nodeId: string } & BaseAgentPacket)

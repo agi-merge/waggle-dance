@@ -136,25 +136,19 @@ export default async function RefineStream(req: NextRequest) {
     });
   } catch (e) {
     let errorPacket: AgentPacket;
-    if (e instanceof Error) {
-      errorPacket = {
-        type: "error",
-        severity: "fatal",
-        error: e,
-      };
-    } else if (e as AgentPacket) {
+    if (e as AgentPacket) {
       errorPacket = e as AgentPacket;
     } else if (typeof e === "string") {
       errorPacket = {
         type: "error",
         severity: "fatal",
-        error: new Error(stringify(e)),
+        error: e,
       };
     } else {
       errorPacket = {
         type: "error",
         severity: "fatal",
-        error: new Error(stringify(e)),
+        error: String(e),
       };
     }
     console.error("plan error", e);

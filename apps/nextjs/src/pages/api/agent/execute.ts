@@ -1070,7 +1070,7 @@ export default async function ExecuteStream(req: NextRequest) {
         const errorPacket: AgentPacket = {
           type: "error",
           severity: "fatal",
-          error,
+          error: error.message,
         };
         return new Response(stringify([errorPacket]), {
           headers: {
