@@ -200,7 +200,8 @@ export async function callExecutionAgent(creation: {
     const depthTrajectoryEvaluator = await loadEvaluator("trajectory", {
       llm: smartModelForEvaluation,
       criteria: "depth",
-      agentTools: skills,
+      // TODO: determine if we want to eval using tools
+      // agentTools: skills,
     });
 
     const detailTrajectoryEvaluator = await loadEvaluator("trajectory", {
