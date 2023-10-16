@@ -25,6 +25,44 @@ type CCA2MapType = {
   };
 };
 
+// literally just here to offer nice names in the UI
+class GoogleSearch extends SearchApi {
+  static lc_name(): string {
+    return "Google Search";
+  }
+  constructor(apiKey: string, params: Omit<SearchApiParameters, "engine">) {
+    super(apiKey, { ...params, engine: "google" });
+    this.name = "Google Search";
+  }
+}
+class GoogleScholar extends SearchApi {
+  static lc_name(): string {
+    return "Google Scholar";
+  }
+  constructor(apiKey: string, params: Omit<SearchApiParameters, "engine">) {
+    super(apiKey, { ...params, engine: "google_scholar" });
+    this.name = "Google Scholar";
+  }
+}
+class GoogleNews extends SearchApi {
+  static lc_name(): string {
+    return "Google News";
+  }
+  constructor(apiKey: string, params: Omit<SearchApiParameters, "engine">) {
+    super(apiKey, { ...params, engine: "google_news" });
+    this.name = "Google News";
+  }
+}
+class YoutubeTranscripts extends SearchApi {
+  static lc_name(): string {
+    return "Youtube Transcripts";
+  }
+  constructor(apiKey: string, params: Omit<SearchApiParameters, "engine">) {
+    super(apiKey, { ...params, engine: "google_youtube_transcripts" });
+    this.name = "Youtube Transcripts";
+  }
+}
+
 function getSearchLocation(geo?: Geo): string {
   const cca2 = geo?.country || "US";
   const city = geo?.city || "San Francisco";
@@ -96,14 +134,14 @@ function createSkills(
       hl: "en", // host language
       gl: "us", // geographic location
     };
-    // loop that constructs the tools from their engine name array only
-    const engines = ["google", "google_news", "youtube", "google_scholar"];
-    const searchTools = engines.map((engine) => {
-      return new SearchApi(process.env.SEARCHAPI_API_KEY, {
-        ...params,
-        engine,
-      });
-    });
+
+    const searchTools = [
+      new GoogleSearch(process.env.SEARCHAPI_API_KEY, params),
+      new GoogleNews(process.env.SEARCHAPI_API_KEY, params),
+      new YoutubeTranscripts(process.env.SEARCHAPI_API_KEY, params),
+      new GoogleScholar(process.env.SEARCHAPI_API_KEY, params),
+    ];
+
     tools.push(...searchTools);
   } else if (process.env.SERPAPI_API_KEY?.length) {
     tools.push(
