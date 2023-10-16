@@ -1,5 +1,6 @@
 // features/WaggleDance/hooks/useWaggleDance.ts
 
+import { isAbortError } from "next/dist/server/pipe-readable"
 import {
   useCallback,
   useEffect,
@@ -7,28 +8,26 @@ import {
   useRef,
   useState,
   type MutableRefObject,
-} from "react";
-import { isAbortError } from "next/dist/server/pipe-readable";
-import { type GraphData } from "react-force-graph-2d";
-import { v4 } from "uuid";
+} from "react"
+import { type GraphData } from "react-force-graph-2d"
 // import { type GraphData } from "../components/ForceGraph";
-import { stringify } from "yaml";
+import { stringify } from "yaml"
 
 import {
+  TaskState,
   rootPlanId,
   rootPlanNode,
-  TaskState,
   type AgentPacket,
-} from "@acme/agent";
-import { type DraftExecutionNode, type ExecutionPlusGraph } from "@acme/db";
+} from "@acme/agent"
+import { type DraftExecutionNode, type ExecutionPlusGraph } from "@acme/db"
 
-import { api } from "~/utils/api";
-import useApp from "~/stores/appStore";
-import useGoalStore from "~/stores/goalStore";
-import useWaggleDanceMachineStore from "~/stores/waggleDanceStore";
-import { type GraphDataState, type WaggleDanceResult } from "../types/types";
-import WaggleDanceAgentExecutor from "../types/WaggleDanceAgentExecutor";
-import { dagToGraphData } from "../utils/conversions";
+import useApp from "~/stores/appStore"
+import useGoalStore from "~/stores/goalStore"
+import useWaggleDanceMachineStore from "~/stores/waggleDanceStore"
+import { api } from "~/utils/api"
+import WaggleDanceAgentExecutor from "../types/WaggleDanceAgentExecutor"
+import { type GraphDataState, type WaggleDanceResult } from "../types/types"
+import { dagToGraphData } from "../utils/conversions"
 
 export type LogMessage = {
   message: string;
@@ -152,6 +151,7 @@ const useWaggleDanceAgentExecutor = () => {
     () => new AbortController(),
   );
 
+  // TODO: either remove this or make it drastically more useful
   const log = useCallback(
     (...args: (string | number | object)[]) => {
       const message = args
@@ -164,15 +164,15 @@ const useWaggleDanceAgentExecutor = () => {
         })
         .join(", ");
 
-      setLogs((prevLogs) => [
-        ...prevLogs,
-        { message, type: "info", timestamp: new Date(), id: v4() },
-      ]);
+      // setLogs((prevLogs) => [
+      //   ...prevLogs,
+      //   { message, type: "info", timestamp: new Date(), id: v4() },
+      // ]);
 
       // Log to the console (optional)
       console.debug(message);
     },
-    [setLogs],
+    [],
   );
   const injectAgentPacket = useCallback(
     (agentPacket: AgentPacket, node: DraftExecutionNode) => {

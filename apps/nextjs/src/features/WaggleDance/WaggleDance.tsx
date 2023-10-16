@@ -9,7 +9,7 @@ import {
   useState,
 } from "react";
 import router from "next/router";
-import { BugReport, Lan, ListAlt, Science } from "@mui/icons-material";
+import { Lan, ListAlt } from "@mui/icons-material";
 import {
   Card,
   Link,
@@ -43,8 +43,6 @@ const BottomControls = lazy(() => import("./components/BottomControls"));
 
 const TaskTabPanel = lazy(() => import("./components/TaskTabPanel"));
 const GraphTabPanel = lazy(() => import("./components/GraphTabPanel"));
-const ResultsTabPanel = lazy(() => import("./components/ResultsTabPanel"));
-const LogsTabPanel = lazy(() => import("./components/LogsTabPanel"));
 
 type Props = StackProps;
 // shows the graph, agents, results, general messages and chat input
@@ -63,7 +61,6 @@ const WaggleDance = ({}: Props) => {
     stop,
     run: startWaggleDance,
     reset,
-    logs,
     results,
     agentPacketsMap,
     sortedTaskStates,
@@ -307,21 +304,6 @@ const WaggleDance = ({}: Props) => {
               <Lan />
               <Typography className="px-1">Graph</Typography>
             </Tab>
-            <Tab
-              value={2}
-              disabled={done.length < 1}
-              sx={{ opacity: done.length < 1 ? 0.2 : 1, flex: "1 1 auto" }}
-            >
-              <Science />
-              <Typography>Results</Typography>
-            </Tab>
-            <Tab
-              value={3}
-              disabled={logs.length < 1}
-              sx={{ opacity: logs.length < 1 ? 0.2 : 1, flex: "1 1 auto" }}
-            >
-              <BugReport />
-            </Tab>
           </TabList>
 
           {sortedTaskStates.length > 0 ? (
@@ -360,32 +342,6 @@ const WaggleDance = ({}: Props) => {
                 {graphData.nodes.length > 0 && graphData.links.length > 0 && (
                   <GraphTabPanel data={graphData} />
                 )}
-              </Suspense>
-
-              <Suspense
-                fallback={
-                  <Skeleton
-                    variant="rectangular"
-                    width="100%"
-                    height="25rem"
-                    animation="wave"
-                  />
-                }
-              >
-                <ResultsTabPanel taskStates={sortedTaskStates} />
-              </Suspense>
-
-              <Suspense
-                fallback={
-                  <Skeleton
-                    variant="rectangular"
-                    width="100%"
-                    height="25rem"
-                    animation="wave"
-                  />
-                }
-              >
-                <LogsTabPanel logs={logs} />
               </Suspense>
             </>
           ) : (
