@@ -240,8 +240,8 @@ export default function GoalInput({}: GoalInputProps) {
                       {index !== prompts.length - 1 && <Divider />}
                       <List size="sm" component={Card} variant="outlined">
                         {prompts.map((prompt, i) => (
-                          <>
-                            <ListItem key={i}>
+                          <React.Fragment key={`${category}_${prompt}`}>
+                            <ListItem>
                               <ListItemButton
                                 onClick={() => {
                                   setGoalInputValue(prompt.prompt);
@@ -274,7 +274,7 @@ export default function GoalInput({}: GoalInputProps) {
                               </ListItemButton>
                             </ListItem>
                             <Divider />
-                          </>
+                          </React.Fragment>
                         ))}
                       </List>
                     </ListItem>
