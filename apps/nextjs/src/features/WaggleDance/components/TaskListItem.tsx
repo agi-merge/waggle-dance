@@ -361,6 +361,8 @@ const TaskResultTitle = ({
       level="title-lg"
       color={color}
       sx={{
+        p: 0.25,
+        m: 0.25,
         whiteSpace: isOpen ? "normal" : "nowrap",
         overflow: isOpen ? "visible" : "hidden",
         textOverflow: isOpen ? "clip" : "ellipsis",
@@ -518,26 +520,29 @@ const TaskListItem = ({
         }}
       >
         <Card
-          variant="outlined"
+          variant="plain"
           color={statusColor(t)}
           component={Stack}
           direction="column"
-          className="w-full overflow-x-clip overflow-y-clip"
+          className="overflow-x-clip overflow-y-clip"
         >
           <ListItemButton
+            color={statusColor(t)}
+            variant="plain"
+            sx={{ p: "0.1rem", m: 0, borderRadius: "0.1rem" }}
             onClick={(e) => {
               setSelectedGroup(selectedGroup ? null : t.packets);
               e.stopPropagation();
             }}
           >
-            <Card
-              size="sm"
+            <Sheet
               sx={{
                 overflow: "auto",
-                m: 0,
-                p: 0,
+                flexGrow: 1,
+                p: 1,
               }}
-              variant="plain"
+              component={Stack}
+              gap={1.5}
             >
               <Typography level="title-lg" sx={{ pl: "0.35rem", zIndex: 1 }}>
                 Context:{" "}
@@ -632,7 +637,7 @@ const TaskListItem = ({
                   pointerEvents: "none",
                 })}
               />
-            </Card>
+            </Sheet>
           </ListItemButton>
           <List type="multiple" variant="soft" component={Accordion}>
             <AccordionItem value={"ok"} key={"heyaaaheyaysayaya"}>
