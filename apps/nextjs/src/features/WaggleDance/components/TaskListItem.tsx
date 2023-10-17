@@ -1,4 +1,4 @@
-import React, { useMemo } from "react";
+import React, { useMemo, useState, type Dispatch } from "react";
 import {
   AssignmentTurnedIn,
   Construction,
@@ -8,14 +8,20 @@ import {
 } from "@mui/icons-material";
 import {
   Box,
+  Button,
   Card,
   CircularProgress,
+  DialogActions,
+  DialogContent,
+  DialogTitle,
   Divider,
   List,
   ListItem,
   ListItemButton,
   ListItemContent,
   ListItemDecorator,
+  Modal,
+  ModalDialog,
   Sheet,
   Stack,
   Typography,
@@ -256,7 +262,12 @@ const GroupContent = (
   );
 };
 
-const renderPacketGroup = (group: AgentPacket[], index: number) => {
+const renderPacketGroup = (
+  group: AgentPacket[],
+  index: number,
+  selectedGroup: AgentPacket[] | null,
+  setSelectedGroup: Dispatch<React.SetStateAction<AgentPacket[] | null>>,
+) => {
   const groupOutput = getGroupOutput(group);
   if (!groupOutput) {
     return null;
@@ -286,6 +297,11 @@ const renderPacketGroup = (group: AgentPacket[], index: number) => {
           sx={{
             m: 0,
             borderRadius: "0.5rem",
+          }}
+          onClick={(e) => {
+            setSelectedGroup(group);
+            e.stopPropagation();
+            e.preventDefault();
           }}
         >
           <ListItemDecorator>
@@ -404,6 +420,10 @@ const TaskListItem = ({
 }: TaskListItemProps) => {
   const node = useMemo(() => t.node(nodes), [nodes, t]);
 
+  const [selectedGroup, setSelectedGroup] = useState<AgentPacket[] | null>(
+    null,
+  );
+
   function isBaseAgentPacketWithIds(
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     packet: any,
@@ -504,83 +524,116 @@ const TaskListItem = ({
           direction="column"
           className="w-full overflow-x-clip overflow-y-clip"
         >
-          <Card
-            size="sm"
-            sx={{
-              overflow: "auto",
-              m: 0,
-              p: 0,
+          <ListItemButton
+            onClick={(e) => {
+              setSelectedGroup(selectedGroup ? null : t.packets);
+              e.stopPropagation();
             }}
-            variant="plain"
           >
-            <Typography level="title-lg" sx={{ pl: "0.35rem", zIndex: 1 }}>
-              Context:{" "}
-              <Typography
-                fontWeight={"normal"}
-                level="body-sm"
-                className="text-wrap"
-                color="neutral"
-                sx={{
-                  display: "-webkit-box",
-                  WebkitBoxOrient: "vertical",
-                  WebkitLineClamp: 3, // Number of lines you want to display
-                  overflow: "hidden",
-                  textOverflow: "ellipsis",
-                }}
-              >
-                {stringifyMax(node.context, 200)}
-              </Typography>
-            </Typography>
-            <List
+            <Card
               size="sm"
-              orientation="horizontal"
-              className="max-w-screen h-16 overflow-y-auto overflow-x-scroll "
               sx={{
-                paddingRight: "50%",
-                alignItems: "center",
-                zIndex: 0,
-              }} // Add right padding equal to the width of the gradient
+                overflow: "auto",
+                m: 0,
+                p: 0,
+              }}
+              variant="plain"
             >
-              <Sheet sx={{ position: "sticky", left: 0, zIndex: 1, pr: 1 }}>
-                <Typography level="title-lg">Actions:</Typography>
+              <Typography level="title-lg" sx={{ pl: "0.35rem", zIndex: 1 }}>
+                Context:{" "}
                 <Typography
-                  color={statusColor(t)}
-                  level="body-md"
-                  sx={{ textAlign: "center" }}
+                  fontWeight={"normal"}
+                  level="body-sm"
+                  className="text-wrap"
+                  color="neutral"
+                  sx={{
+                    display: "-webkit-box",
+                    WebkitBoxOrient: "vertical",
+                    WebkitLineClamp: 3, // Number of lines you want to display
+                    overflow: "hidden",
+                    textOverflow: "ellipsis",
+                  }}
                 >
-                  {isRunning
-                    ? mapPacketTypeToStatus(t.value.type)
-                    : t.packets.length > 0
-                    ? "stopped"
-                    : "waiting"}
+                  {stringifyMax(node.context, 200)}
                 </Typography>
-              </Sheet>
-              <CircularProgress
+              </Typography>
+              <List
                 size="sm"
+                orientation="horizontal"
+                className="max-w-screen h-16 overflow-y-auto overflow-x-scroll "
                 sx={{
-                  opacity:
-                    isRunning && t.status === TaskStatus.working ? "1" : "0",
-                  mr: 1,
-                }}
+                  paddingRight: "50%",
+                  alignItems: "center",
+                  zIndex: 0,
+                }} // Add right padding equal to the width of the gradient
+              >
+                <Sheet sx={{ position: "sticky", left: 0, zIndex: 1, pr: 1 }}>
+                  <Typography level="title-lg">Actions:</Typography>
+                  <Typography
+                    color={statusColor(t)}
+                    level="body-md"
+                    sx={{ textAlign: "center" }}
+                  >
+                    {isRunning
+                      ? mapPacketTypeToStatus(t.value.type)
+                      : t.packets.length > 0
+                      ? "stopped"
+                      : "waiting"}
+                  </Typography>
+                </Sheet>
+                <CircularProgress
+                  size="sm"
+                  sx={{
+                    opacity:
+                      isRunning && t.status === TaskStatus.working ? "1" : "0",
+                    mr: 1,
+                  }}
+                />
+                {packetGroups.map((group, index) =>
+                  renderPacketGroup(
+                    group as AgentPacket[],
+                    index,
+                    selectedGroup,
+                    setSelectedGroup,
+                  ),
+                )}
+                <Modal
+                  open={selectedGroup !== null}
+                  onClose={() => setSelectedGroup(null)}
+                >
+                  <ModalDialog>
+                    <DialogTitle id="task-dialog-title">
+                      Pardon the dust…
+                    </DialogTitle>
+                    <DialogContent>
+                      Detailed task information coming soon!
+                    </DialogContent>
+                    <DialogActions>
+                      <Button
+                        onClick={() => setSelectedGroup(null)}
+                        variant="soft"
+                      >
+                        OK
+                      </Button>
+                    </DialogActions>
+                  </ModalDialog>
+                </Modal>
+              </List>
+              <Box
+                sx={(theme) => ({
+                  overflow: "hidden",
+                  content: '""',
+                  position: "absolute",
+                  top: 0,
+                  right: 0,
+                  bottom: 0,
+                  width: "33%",
+                  background: `linear-gradient(to left, ${theme.palette.background.surface}, transparent)`,
+                  pointerEvents: "none",
+                })}
               />
-              {packetGroups.map((group, index) =>
-                renderPacketGroup(group as AgentPacket[], index),
-              )}
-            </List>
-            <Box
-              sx={(theme) => ({
-                overflow: "hidden",
-                content: '""',
-                position: "absolute",
-                top: 0,
-                right: 0,
-                bottom: 0,
-                width: "33%",
-                background: `linear-gradient(to left, ${theme.palette.background.surface}, transparent)`,
-                pointerEvents: "none",
-              })}
-            />
-          </Card>
+            </Card>
+          </ListItemButton>
           <List type="multiple" variant="soft" component={Accordion}>
             <AccordionItem value={"ok"} key={"heyaaaheyaysayaya"}>
               <AccordionHeader
