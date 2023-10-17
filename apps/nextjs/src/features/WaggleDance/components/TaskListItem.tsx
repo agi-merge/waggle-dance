@@ -420,8 +420,7 @@ const TaskListItem = ({
   isRunning,
   listItemsRef,
 }: TaskListItemProps) => {
-  const node = useMemo(() => t.node(nodes), [nodes, t]);
-
+  const node = useMemo(() => t.findNode(nodes), [nodes, t]);
   const [selectedGroup, setSelectedGroup] = useState<AgentPacket[] | null>(
     null,
   );

@@ -23,7 +23,7 @@ export function createCriticizePrompt(params: {
 
   const tasksAsHumanMessages = revieweeTaskResults
     .map((task, i) => {
-      const node = task.node(nodes);
+      const node = task.findNode(nodes);
       return node
         ? HumanMessagePromptTemplate.fromTemplate(
             `REVIEWEE TASK${i > 0 ? ` ${i}` : ""}:
