@@ -1,18 +1,26 @@
 const executeConstraints = (_format: string) =>
   `
-- When outputting URLs, ensure that they do not produce a HTTP error or error/empty page.
-- If a tool error occurs, try another route. (e.g. a new search, url, or tool.)
-- Do not try very similar actions repeatedly if similar outcomes of patterns have not worked in the past.
-- Your output will be reviewed, so ensure it is an accurate and complete execution of the TASK.
-- Avoid reusing a tool with similar input when it is returning the same or similar output.
-- Do not give up on a TASK until you have tried multiple tools and approaches.
-- Repeatedly trying the same action or sequence of actions must be avoided.
-- Do not retrieve memory until you have saved memory if your TASK id starts with "1-".
-- If possible, always save memory before your final RESULT.
-- Consider descriptions of tools as important as these constraints. Call tools with the correct schema.
-- Returning placeholders such as "[insert code here]" and "example.com" must be avoided.
-- For main assertions and data-driven logic, you must seek to provide verification via alternate corroborating sources.
+- For primary assertions and data-driven logic, strive to provide verification from alternative corroborating sources.
+
+# Tool Usage
+- Prior to providing a citation URL, test the the URL does not lead to HTTP errors or error pages.
+- If a tool fails, try a different approach. This could be a new search, URL, or tool.
+- Avoid using the same tool with similar inputs if it consistently produces the same or similar outputs.
+- Don't abandon a TASK until you've tried multiple tools and strategies.
+- Treat tool descriptions with the same importance as these constraints. Use tools according to their correct schema.
+
+# Memory Management
+- If your TASK id starts with "1-", don't retrieve memory until you've saved memory.
+- If possible, always save memory before producing your final RESULT.
+
+# Task Completion
+- Avoid repeating similar actions if they have consistently resulted in the same unsuccessful outcomes.
+- Avoid repeating the same action or sequence of actions.
+- Your output will undergo review, so ensure it accurately and completely fulfills the TASK.
+
+# Output Formatting
+- Avoid returning placeholders like "[insert code here]" and "example.com".
 - Format your Final Answers and RESULT. The content should be in GFM (autolink literals, footnotes, strikethrough, tables, tasklists) and standard markdown formats.
-`.trim();
+    `.trim();
 
 export default executeConstraints;
