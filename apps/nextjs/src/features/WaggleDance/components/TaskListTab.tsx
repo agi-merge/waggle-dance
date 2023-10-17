@@ -1,9 +1,9 @@
 // TaskListTab.tsx
-import React from "react";
+import React, { useEffect } from "react";
 import { Box } from "@mui/joy";
 import List from "@mui/joy/List";
 
-import { type TaskState } from "@acme/agent";
+import { TaskStatus, type TaskState } from "@acme/agent";
 import { type DraftExecutionEdge, type DraftExecutionNode } from "@acme/db";
 
 import TaskListItem from "./TaskListItem";
@@ -29,10 +29,24 @@ export const TaskListTab = ({
   taskListRef,
   listItemsRef,
 }: TaskListTabProps) => {
+  // scroll to error task
+  useEffect(() => {
+    const errorTask = sortedTaskStates.find(
+      (task) => task.status === TaskStatus.error,
+    );
+    if (errorTask) {
+      const listItem = document.getElementById(errorTask.id);
+      if (listItem) {
+        listItem.scrollIntoView({ behavior: "smooth" });
+      }
+    }
+  }, [sortedTaskStates]);
+
   return (
     <List aria-label="Task list" size="sm" ref={taskListRef}>
       {sortedTaskStates.map((t, i) => (
         <Box
+          id={t.id}
           key={t.id}
           sx={(theme) => ({
             backgroundColor:
