@@ -74,7 +74,6 @@ export const goalRouter = createTRPCRouter({
               results: {
                 take: 40,
                 orderBy: { updatedAt: "desc" },
-                select: { packets: true, value: true },
               },
             },
           },
