@@ -79,7 +79,7 @@ const ErrorDisplay = ({ error }: { error: Error }) => (
         variant="soft"
         color="danger"
       >
-        Clear local state
+        Clear local data
       </Button>
     </Stack>
     {/* Add more user options here */}
