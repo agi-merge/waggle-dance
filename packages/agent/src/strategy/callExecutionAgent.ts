@@ -193,7 +193,7 @@ export async function callExecutionAgent(creation: {
       {
         llm: smartModelForEvaluation,
         criteria: "controversiality",
-        agentTools: skills,
+        // agentTools: skills,
       },
     );
 
@@ -207,7 +207,7 @@ export async function callExecutionAgent(creation: {
     const detailTrajectoryEvaluator = await loadEvaluator("trajectory", {
       llm: smartModelForEvaluation,
       criteria: "detail",
-      agentTools: skills,
+      // agentTools: skills,
     });
 
     const agentTrajectory = call.intermediateSteps as AgentStep[];
