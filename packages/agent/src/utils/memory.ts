@@ -1,3 +1,4 @@
+import { type Document } from "langchain/document";
 import { OpenAI } from "langchain/llms/openai";
 import {
   BufferMemory,
@@ -51,8 +52,17 @@ export async function createMemory({
           createChatNamespace(namespace, taskId),
         );
 
+        // extremely important to avoid data leaks/context poisoning.
+        const vectorStoreRetriever = vectorStore.asRetriever(5, {
+          where: {
+            operator: "Equal",
+            path: ["namespace"],
+            valueText: namespace,
+          },
+        });
+
         const vectorMemory = new VectorStoreRetrieverMemory({
-          vectorStoreRetriever: vectorStore.asRetriever(5),
+          vectorStoreRetriever: vectorStoreRetriever,
           memoryKey,
           inputKey,
           returnDocs: returnUnderlying,
@@ -63,8 +73,13 @@ export async function createMemory({
         const vectorStore = new MemoryVectorStore(
           createEmbeddings({ modelName: LLM.embeddings }),
         );
+
+        // extremely important to avoid data leaks/context poisoning.
+        const filterFn = (doc: Document) => {
+          return doc.metadata?.namespace === namespace;
+        };
         return new VectorStoreRetrieverMemory({
-          vectorStoreRetriever: vectorStore.asRetriever(5),
+          vectorStoreRetriever: vectorStore.asRetriever(5, filterFn),
         });
       }
     case "conversation":
