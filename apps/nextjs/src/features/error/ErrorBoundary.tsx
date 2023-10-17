@@ -47,22 +47,21 @@ class ErrorBoundary extends React.Component<
 }
 
 export default ErrorBoundary;
-
 const ErrorDisplay = ({ error }: { error: Error }) => (
   <Box
     display="flex"
     flexDirection="column"
-    alignItems="center"
-    justifyContent="center"
-    sx={{ p: 5 }}
+    alignItems="left"
+    justifyContent="left"
+    sx={{ p: 5, maxWidth: "100%" }}
   >
-    <Typography level="h3" sx={{ textAlign: "center" }}>
+    <Typography level="h3" sx={{ textAlign: "left" }}>
       An unexpected error has occurred.
     </Typography>
     <Typography
       level="body-sm"
       fontFamily="monospace"
-      sx={{ textAlign: "start" }}
+      sx={{ textAlign: "start", overflowWrap: "break-word" }}
     >
       {error.name}:{" "}
       <Typography level="body-sm" fontFamily="monospace">
