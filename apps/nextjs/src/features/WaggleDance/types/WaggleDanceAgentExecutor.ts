@@ -227,7 +227,10 @@ class WaggleDanceAgentExecutor {
     const startedTaskIds = new Set<string>();
 
     // Get the results of the tasks that have been reviewed
-    const revieweeTaskResults = Object.values(this.taskResults);
+    // ignores any node with rootNodeId as its id
+    const revieweeTaskResults = Object.values(this.taskResults).filter(
+      (taskResult) => taskResult.nodeId !== rootPlanNode(this.goalPrompt).id,
+    );
 
     // Iterate over each task
     tasks.forEach((task, index) => {
