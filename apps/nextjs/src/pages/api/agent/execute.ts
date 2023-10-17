@@ -61,6 +61,7 @@ function hashCode(str: string) {
 const embeddedings = createEmbeddings({ modelName: LLM.embeddings });
 
 const checkRepetitivePackets = async (
+  taskId: string,
   recentPackets: AgentPacket[],
   historicalPackets: AgentPacket[],
 ): Promise<{ recent: string; similarDocuments: Document[] } | null> => {
@@ -78,7 +79,11 @@ const checkRepetitivePackets = async (
       embeddedings,
     );
 
-    console.debug("memoryVectorStore", memoryVectorStore.memoryVectors.length);
+    console.debug(
+      `checkRepetitivePackets(${taskId}) len=`,
+      memoryVectorStore.memoryVectors.length,
+      "",
+    );
 
     const retriever = ScoreThresholdRetriever.fromVectorStore(
       memoryVectorStore,
@@ -204,6 +209,7 @@ export default async function ExecuteStream(req: NextRequest) {
       try {
         // Perform the repetition check
         const repetitionCheckResult = await checkRepetitivePackets(
+          task.id,
           packets,
           historicalPackets,
         );
@@ -291,6 +297,10 @@ export default async function ExecuteStream(req: NextRequest) {
         (d) => d.pageContent,
       )}`,
     );
+    if (abortControllerWrapper.controller.signal.aborted) {
+      console.error("restartExecution should not be called after aborting");
+      return;
+    }
     controller.close();
     abortControllerWrapper.controller.signal;
     packets = [];
