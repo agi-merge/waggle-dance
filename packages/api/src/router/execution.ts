@@ -32,7 +32,7 @@ export const executionRouter = createTRPCRouter({
           goal: {
             include: {
               executions: {
-                take: 5,
+                take: 1,
                 orderBy: {
                   updatedAt: "desc",
                 },
