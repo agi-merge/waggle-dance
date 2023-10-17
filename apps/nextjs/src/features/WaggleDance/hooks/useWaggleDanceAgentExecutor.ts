@@ -1,6 +1,5 @@
 // features/WaggleDance/hooks/useWaggleDance.ts
 
-import { isAbortError } from "next/dist/server/pipe-readable"
 import {
   useCallback,
   useEffect,
@@ -8,26 +7,27 @@ import {
   useRef,
   useState,
   type MutableRefObject,
-} from "react"
-import { type GraphData } from "react-force-graph-2d"
+} from "react";
+import { isAbortError } from "next/dist/server/pipe-readable";
+import { type GraphData } from "react-force-graph-2d";
 // import { type GraphData } from "../components/ForceGraph";
-import { stringify } from "yaml"
+import { stringify } from "yaml";
 
 import {
-  TaskState,
   rootPlanId,
   rootPlanNode,
+  TaskState,
   type AgentPacket,
-} from "@acme/agent"
-import { type DraftExecutionNode, type ExecutionPlusGraph } from "@acme/db"
+} from "@acme/agent";
+import { type DraftExecutionNode, type ExecutionPlusGraph } from "@acme/db";
 
-import useApp from "~/stores/appStore"
-import useGoalStore from "~/stores/goalStore"
-import useWaggleDanceMachineStore from "~/stores/waggleDanceStore"
-import { api } from "~/utils/api"
-import WaggleDanceAgentExecutor from "../types/WaggleDanceAgentExecutor"
-import { type GraphDataState, type WaggleDanceResult } from "../types/types"
-import { dagToGraphData } from "../utils/conversions"
+import { api } from "~/utils/api";
+import useApp from "~/stores/appStore";
+import useGoalStore from "~/stores/goalStore";
+import useWaggleDanceMachineStore from "~/stores/waggleDanceStore";
+import { type GraphDataState, type WaggleDanceResult } from "../types/types";
+import WaggleDanceAgentExecutor from "../types/WaggleDanceAgentExecutor";
+import { dagToGraphData } from "../utils/conversions";
 
 export type LogMessage = {
   message: string;
@@ -146,34 +146,31 @@ const useWaggleDanceAgentExecutor = () => {
     setAgentPackets(resultsMap);
   }, [resultsMap]);
 
-  const [logs, setLogs] = useState<LogMessage[]>([]);
+  const [logs, _setLogs] = useState<LogMessage[]>([]);
   const [abortController, setAbortController] = useState(
     () => new AbortController(),
   );
 
   // TODO: either remove this or make it drastically more useful
-  const log = useCallback(
-    (...args: (string | number | object)[]) => {
-      const message = args
-        .map((arg) => {
-          if (typeof arg === "string") {
-            return arg;
-          } else {
-            return stringify(arg);
-          }
-        })
-        .join(", ");
+  const log = useCallback((...args: (string | number | object)[]) => {
+    const message = args
+      .map((arg) => {
+        if (typeof arg === "string") {
+          return arg;
+        } else {
+          return stringify(arg);
+        }
+      })
+      .join(", ");
 
-      // setLogs((prevLogs) => [
-      //   ...prevLogs,
-      //   { message, type: "info", timestamp: new Date(), id: v4() },
-      // ]);
+    // _setLogs((prevLogs) => [
+    //   ...prevLogs,
+    //   { message, type: "info", timestamp: new Date(), id: v4() },
+    // ]);
 
-      // Log to the console (optional)
-      console.debug(message);
-    },
-    [],
-  );
+    // Log to the console (optional)
+    console.debug(message);
+  }, []);
   const injectAgentPacket = useCallback(
     (agentPacket: AgentPacket, node: DraftExecutionNode) => {
       if (!node || !node.id) {
