@@ -26,9 +26,9 @@ export const schema = (format: string) =>
   Parents
     parents: string[] // an array of level ids that this level is dependent on
   Node
-    id: string // e.g. "0", "1", "c" (the node id)
-    name: string // a unique-amongst-nodes emoji plus a short description of the node
-    context: string // Verbose expectations when done and parameters required to complete Task. Do not use invalid characters in ${format}.
+    id: string // e.g. "0", "1", "c" (the node id), unique within the Level.
+    name: string // a title description of the Node. Must not contain invalid ${format} characters.
+    context: string // Verbose expectations when done and parameters required to complete Task. Must not contain invalid ${format} characters.
 It is extremely important to return only valid(⚠) ${format} representation of DAG, with levels as the keys.
 `.trim();
 
