@@ -20,7 +20,7 @@ export const goalRouter = createTRPCRouter({
       orderBy: { updatedAt: "asc" },
       include: {
         executions: {
-          take: 2,
+          take: 1,
           orderBy: { updatedAt: "desc" }, // doesnt work as expected?
           include: {
             graph: {
@@ -62,7 +62,7 @@ export const goalRouter = createTRPCRouter({
         },
         include: {
           executions: {
-            take: 2,
+            take: 1,
             orderBy: { updatedAt: "desc" },
             include: {
               graph: {
