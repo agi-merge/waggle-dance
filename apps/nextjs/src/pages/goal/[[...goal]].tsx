@@ -18,9 +18,6 @@ import routes from "~/utils/routes";
 import { env } from "~/env.mjs";
 import ErrorBoundary from "~/features/error/ErrorBoundary";
 import MainLayout from "~/features/MainLayout";
-import useIQEstimate from "~/features/SettingsAnalysis/hooks/useIQEstimate";
-import useLatencyEstimate from "~/features/SettingsAnalysis/hooks/useLatencyEstimate";
-import { useRigorEstimate } from "~/features/SettingsAnalysis/hooks/useRigorEstimate";
 import WaggleDance from "~/features/WaggleDance/WaggleDance";
 import useSkillStore from "~/stores/skillStore";
 import useWaggleDanceMachineStore from "~/stores/waggleDanceStore";
@@ -95,7 +92,7 @@ type Props = InferGetStaticPropsType<typeof getStaticProps>;
 const GoalPage = ({ alertConfigs }: Props) => {
   const router = useRouter();
   const { goalMap, selectedGoal, upsertGoals, selectGoalId } = useGoalStore();
-  const { isRunning, setExecution, agentSettings } =
+  const { isRunning, setExecution /*, agentSettings*/ } =
     useWaggleDanceMachineStore();
   const { selectedSkills, selectedSkillsLength } = useSkillStore();
   const skillsLabel = useMemo(() => {
@@ -106,14 +103,14 @@ const GoalPage = ({ alertConfigs }: Props) => {
     return label.length > 0 ? label : "No skills enabled";
   }, [selectedSkills]);
 
-  const { latency, latencyLevel } = useLatencyEstimate(
-    agentSettings,
-    selectedSkills,
-  );
+  // const { latency, latencyLevel } = useLatencyEstimate(
+  //   agentSettings,
+  //   selectedSkills,
+  // );
 
-  const { rigorLevel } = useRigorEstimate(latency);
+  // const { rigorLevel } = useRigorEstimate(latency);
 
-  const { iqLevel } = useIQEstimate(agentSettings);
+  // const { iqLevel } = useIQEstimate(agentSettings);
 
   const [serverGoals] = api.goal.topByUser.useSuspenseQuery(undefined, {
     refetchOnMount: true,
@@ -184,9 +181,9 @@ const GoalPage = ({ alertConfigs }: Props) => {
                 >
                   <WaggleDanceSettingsAccordion
                     goal={goal}
-                    latencyLevel={latencyLevel}
-                    rigorLevel={rigorLevel}
-                    iqLevel={iqLevel}
+                    // latencyLevel={latencyLevel}
+                    // rigorLevel={rigorLevel}
+                    // iqLevel={iqLevel}
                     skillsLabel={skillsLabel}
                     selectedSkillsLength={selectedSkillsLength}
                   />
