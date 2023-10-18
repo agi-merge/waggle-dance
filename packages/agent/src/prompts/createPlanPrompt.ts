@@ -40,37 +40,37 @@ const highQualityExamples = [
       1: [
         {
           id: "0",
-          name: "📚 Research AgentGPT",
+          name: "Research AgentGPT",
           context:
             "Gather information about AgentGPT, its features, capabilities, and limitations",
         },
         {
           id: "1",
-          name: "📚 Research AutoGPT",
+          name: "Research AutoGPT",
           context:
             "Gather information about AutoGPT, its features, capabilities, and limitations",
         },
         {
           id: "2",
-          name: "📚 Research BabyAGI",
+          name: "Research BabyAGI",
           context:
             "Gather information about BabyAGI, its features, capabilities, and limitations",
         },
         {
           id: "3",
-          name: "📚 Research SuperAGI",
+          name: "Research SuperAGI",
           context:
             "Gather information about SuperAGI, its features, capabilities, and limitations",
         },
         {
           id: "4",
-          name: "🌐 Visit https://waggledance.ai",
+          name: "Visit https://waggledance.ai",
           context:
             "Explore the website of Waggledance.ai to gather information about the project",
         },
         {
           id: "c",
-          name: "🔍 Review the research findings",
+          name: "Review the research findings",
           context:
             "Review the gathered information about the projects and identify key similarities and differences",
         },
@@ -81,37 +81,37 @@ const highQualityExamples = [
         },
         {
           id: "0",
-          name: "📝 Create report outline",
+          name: "Create report outline",
           context:
             "Create an outline for the report, including sections for each project and their comparisons",
         },
         {
           id: "1",
-          name: "📝 Write introduction",
+          name: "Write introduction",
           context:
             "Write an introduction to the report, providing an overview of the projects and their significance",
         },
         {
           id: "2",
-          name: "📝 Write project descriptions",
+          name: "Write project descriptions",
           context:
             "Write detailed descriptions of each project, highlighting their key features and capabilities",
         },
         {
           id: "3",
-          name: "📝 Compare and contrast projects",
+          name: "Compare and contrast projects",
           context:
             "Analyze the gathered information and identify similarities and differences between the projects",
         },
         {
           id: "4",
-          name: "📝 Write conclusion",
+          name: "Write conclusion",
           context:
             "Summarize the findings and provide a conclusion on the compared projects",
         },
         {
           id: "c",
-          name: "🔍 Review the sections",
+          name: "Review the sections",
           context:
             "Review the sections for accuracy, clarity, and completeness",
         },
@@ -122,7 +122,7 @@ const highQualityExamples = [
         },
         {
           id: "0",
-          name: "📝 Merge documents",
+          name: "Merge documents",
           context: "Merge all the written sections into a single document",
         },
         {
@@ -138,7 +138,7 @@ const highQualityExamples = [
         },
         {
           id: "0",
-          name: "📝 Format report in GFM",
+          name: "Format report in GFM",
           context:
             "Format the report using GitHub Flavored Markdown (GFM) syntax",
         },
