@@ -10,11 +10,11 @@ import {
   Box,
   Button,
   Card,
+  Chip,
   CircularProgress,
   DialogActions,
   DialogContent,
   DialogTitle,
-  Divider,
   List,
   ListItem,
   ListItemButton,
@@ -24,8 +24,10 @@ import {
   ModalDialog,
   Sheet,
   Stack,
+  Tooltip,
   Typography,
   type BoxProps,
+  type ListItemProps,
 } from "@mui/joy";
 import { Accordion, AccordionItem } from "@radix-ui/react-accordion";
 import Markdown from "react-markdown";
@@ -43,6 +45,7 @@ import {
   type BaseAgentPacketWithIds,
   type TaskState,
 } from "@acme/agent";
+import { isTaskCriticism } from "@acme/agent/src/prompts/types";
 import { mapPacketTypeToStatus } from "@acme/agent/src/prompts/utils/mapPacketToStatus";
 import { type DraftExecutionEdge, type DraftExecutionNode } from "@acme/db";
 
@@ -60,7 +63,7 @@ type StatusColor =
   | "neutral"
   | undefined;
 type StatusColorFn = (n: TaskState) => StatusColor;
-interface TaskListItemProps {
+interface TaskListItemProps extends ListItemProps {
   task: TaskState;
   nodes: DraftExecutionNode[];
   edges: DraftExecutionEdge[];
@@ -68,6 +71,7 @@ interface TaskListItemProps {
   statusColor: StatusColorFn;
   isRunning: boolean;
   listItemsRef: React.MutableRefObject<HTMLLIElement[]>;
+  isExpanded: boolean;
 }
 enum GroupType {
   Skill = "Skill",
@@ -272,6 +276,7 @@ const renderPacketGroup = (
   if (!groupOutput) {
     return null;
   }
+
   const Icon = () => {
     switch (groupOutput.type) {
       case GroupType.Skill:
@@ -307,7 +312,6 @@ const renderPacketGroup = (
           <ListItemDecorator>
             <Icon />
           </ListItemDecorator>
-          <Divider orientation="vertical" sx={{ marginRight: "0.5rem" }} />
           {GroupContent(groupOutput, groupOutput.color)}
         </ListItemButton>
       </ListItem>
@@ -329,7 +333,6 @@ const TaskResultsValue = ({
       level="body-sm"
       sx={{
         wordBreak: "break-word",
-        overflow: "clip",
         maxLines: 1,
         textOverflow: "ellipsis",
         p: 1,
@@ -343,6 +346,7 @@ const TaskResultsValue = ({
     </Typography>
   );
 };
+
 const TaskResultTitle = ({
   t,
   color,
@@ -373,6 +377,7 @@ const TaskResultTitle = ({
     </Typography>
   );
 };
+
 const TaskResult = ({
   t,
   color: _color,
@@ -419,11 +424,14 @@ const TaskListItem = ({
   statusColor,
   isRunning,
   listItemsRef,
+  isExpanded,
+  ...props
 }: TaskListItemProps) => {
   const node = useMemo(() => t.findNode(nodes), [nodes, t]);
   const [selectedGroup, setSelectedGroup] = useState<AgentPacket[] | null>(
     null,
   );
+  // const [isCardVisible, setCardVisible] = useState(true);
 
   function isBaseAgentPacketWithIds(
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -463,64 +471,118 @@ const TaskListItem = ({
 
   return (
     <ListItem
+      {...props}
       sx={{
-        width: "100%",
         flexDirection: { xs: "column", sm: "row" },
-        pb: 2,
+        pb: isExpanded ? "1rem" : 0,
+        alignSelf: "start",
+        width: { xs: "100%", sm: isExpanded ? "100%" : "fit-content" },
       }}
-      className="overflow-y-auto overflow-x-clip"
+      className={`overflow-y-auto overflow-x-clip`}
       ref={(el) => el && (listItemsRef.current[i] = el)}
     >
       <ListItemDecorator
-        sx={(_theme) => ({
-          width: { xs: "100%", sm: "10rem" },
+        component={Card}
+        size="sm"
+        sx={{
+          minWidth: { xs: "100%", sm: "12rem" },
+          maxWidth: { xs: "100%", sm: "12rem" },
           flexDirection: {
             xs: "row",
             sm: "column",
           },
-          textAlign: "end",
-          alignItems: "end",
           alignSelf: "start",
-          position: "sticky",
-          top: 0,
-          mr: 0.25,
+          alignItems: "start",
           zIndex: 2,
-        })}
-        size="sm"
-        component={Card}
-        color={statusColor(t)}
+          mr: isExpanded ? { xs: 0, sm: 2 } : 0,
+          display: "flex",
+          flexWrap: "wrap",
+          position: "relative",
+        }}
         variant="outlined"
+        color={statusColor(t)}
       >
-        <Stack
-          direction={{ xs: "row", sm: "column" }}
-          gap={{ xs: "0.5rem", sm: "0.25rem" }}
-          className="flex w-full flex-grow"
-          alignItems={{ xs: "center", sm: "flex-end" }}
+        <Typography
+          level="title-sm"
+          textAlign={"left"}
+          sx={{
+            width: "100%",
+          }}
         >
-          <Typography
-            level="title-md"
-            sx={{ wordBreak: "break-word" }}
-            color={statusColor(t)}
+          <Tooltip
+            title={
+              t.displayId !== rootPlanId
+                ? isTaskCriticism(t.nodeId)
+                  ? "Reviews all other tasks in the tier to improve the quality of your results."
+                  : "Performs actions in order to complete a sub-task of your goal."
+                : "Determines what steps are needed to complete your goal."
+            }
           >
-            {node.name}
+            <Typography
+              level="body-lg"
+              variant="outlined"
+              color={statusColor(t)}
+              sx={{
+                ml: -0.5,
+                mr: 0.5,
+              }}
+            >
+              {t.displayId !== rootPlanId
+                ? isTaskCriticism(t.nodeId)
+                  ? "⚖️"
+                  : "🐝"
+                : "👸"}
+            </Typography>
+          </Tooltip>
+          {node.name}
+        </Typography>
+        <Stack
+          direction={"row"}
+          gap={2}
+          sx={{
+            justifyContent: "flex-end",
+            width: "100%",
+            position: "sticky",
+            bottom: 0,
+            right: 0,
+          }}
+        >
+          <Tooltip title={"Task Identifier"}>
+            <Typography
+              level="body-sm"
+              component={Chip}
+              variant="outlined"
+              sx={{ pt: 0.5, background: "transparent" }}
+            >
+              {t.displayId}
+            </Typography>
+          </Tooltip>
+          <Typography
+            color={statusColor(t)}
+            level="body-sm"
+            component={Chip}
+            variant="outlined"
+            sx={{ p: 0.5, pt: 0.5, background: "transparent" }}
+          >
+            {mapPacketTypeToStatus(t.value.type)}
           </Typography>
-          <Typography level="body-xs">{t.displayId()}</Typography>
         </Stack>
       </ListItemDecorator>
       <ListItemContent
         sx={{
-          height: "100%",
-          width: "100%",
+          transition: `opacity 0.3s ease-in-out, height 0.2s ease-in-out, width 0.1s ease-in-out`,
+          opacity: isExpanded ? 1 : 0,
+          maxHeight: isExpanded ? "inherit" : "0px", // Adjust '1000px' as needed
+          overflow: "hidden",
+          width: { xs: "100%", sm: isExpanded ? "100%" : "0px" },
           flexDirection: {
             xs: "row",
             sm: "column",
           },
-          alignSelf: "start",
         }}
       >
         <Card
-          variant="plain"
-          color={statusColor(t)}
+          variant="outlined"
           component={Stack}
           direction="column"
           className="overflow-x-clip overflow-y-clip"
@@ -531,6 +593,7 @@ const TaskListItem = ({
             sx={{ p: "0.1rem", m: 0, borderRadius: "0.1rem" }}
             onClick={(e) => {
               setSelectedGroup(selectedGroup ? null : t.packets);
+              e.preventDefault();
               e.stopPropagation();
             }}
           >
@@ -571,19 +634,15 @@ const TaskListItem = ({
                   zIndex: 0,
                 }} // Add right padding equal to the width of the gradient
               >
-                <Sheet sx={{ position: "sticky", left: 0, zIndex: 1, pr: 1 }}>
+                <Sheet
+                  sx={{
+                    position: "sticky",
+                    left: 0,
+                    zIndex: 1,
+                    pr: 1,
+                  }}
+                >
                   <Typography level="title-lg">Actions:</Typography>
-                  <Typography
-                    color={statusColor(t)}
-                    level="body-md"
-                    sx={{ textAlign: "center" }}
-                  >
-                    {isRunning
-                      ? mapPacketTypeToStatus(t.value.type)
-                      : t.packets.length > 0
-                      ? "stopped"
-                      : "waiting"}
-                  </Typography>
                 </Sheet>
                 <CircularProgress
                   size="sm"
@@ -638,8 +697,17 @@ const TaskListItem = ({
               />
             </Sheet>
           </ListItemButton>
-          <List type="multiple" variant="soft" component={Accordion}>
-            <AccordionItem value={"ok"} key={"heyaaaheyaysayaya"}>
+          <List
+            type="multiple"
+            variant="soft"
+            component={Accordion}
+            sx={{ pb: 2 }}
+            onClick={(e) => {
+              e.preventDefault();
+              e.stopPropagation();
+            }}
+          >
+            <AccordionItem value={"ok"}>
               <AccordionHeader
                 isFirst={false}
                 openText={

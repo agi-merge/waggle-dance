@@ -1,7 +1,6 @@
 import { type DraftExecutionNode, type Result } from "@acme/db";
 
-import { type AgentPacket } from "../../..";
-import { isTaskCriticism } from "../types";
+import { rootPlanId, type AgentPacket } from "../../..";
 import { mapPacketTypeToStatus } from "../utils/mapPacketToStatus";
 import { type TaskStatus } from "./TaskStatus";
 
@@ -37,11 +36,14 @@ export class TaskState implements AugmentedResponse {
   }
 
   get displayId(): string {
+    if (this.id === rootPlanId) {
+      return "0-0";
+    }
     const executionSplit = this.nodeId.split(".")[1];
     if (!executionSplit) {
-      return this.explainTaskId(this.id);
+      return this.id;
     } else {
-      return this.explainTaskId(executionSplit);
+      return executionSplit;
     }
   }
 
@@ -53,21 +55,12 @@ export class TaskState implements AugmentedResponse {
 
   // private helpers
 
-  private explainTaskId(id: string): string {
-    const isCriticism: boolean = isTaskCriticism(id);
-    const tier = this.extractTier(id);
-    const explained = isCriticism
-      ? `Tier ${tier} ⚖️ Review`
-      : `Tier ${tier} 🎯 Task ${Number(this.nodeSplit[1]) + 1}`;
-    return explained;
-  }
-
-  private get nodeSplit(): string[] {
-    return this.nodeId.split(".");
-  }
-
   private extractTier(fromId: string) {
-    const tier = fromId.split("-")[0];
+    const tierAndOptionalServerId = fromId.split("-")[0];
+    const tierAndOptionalServerIdSplit = tierAndOptionalServerId?.split(".");
+    const tier =
+      tierAndOptionalServerIdSplit?.[tierAndOptionalServerIdSplit.length - 1];
+
     return tier || null;
   }
 
