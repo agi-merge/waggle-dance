@@ -156,6 +156,7 @@ export const TaskListTab = ({
               ? theme.palette.background.level1
               : theme.palette.background.surface,
           pb: 2,
+          pt: 1,
         })}
       >
         <ListItem key={tier} nested sx={{ width: "100%" }}>

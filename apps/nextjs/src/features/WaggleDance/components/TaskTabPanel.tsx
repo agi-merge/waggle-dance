@@ -32,7 +32,7 @@ const TaskTabPanel = ({
   taskListRef,
 }: TaskTabPanelProps) => {
   return (
-    <TabPanel value={0} className="w-full overflow-y-scroll p-4">
+    <TabPanel value={0} className="w-full overflow-y-scroll">
       <TaskListTab
         nodes={nodes}
         edges={edges}
