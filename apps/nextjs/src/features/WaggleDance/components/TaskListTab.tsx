@@ -107,7 +107,6 @@ export const TaskListTab = ({
   }, [nodes]);
 
   const handleToggleExpanded = (tier: string) => {
-    console.debug("handleToggleExpanded", tier);
     setOpen((prevOpen) => ({ ...prevOpen, [tier]: !prevOpen[tier] }));
   };
 
@@ -145,7 +144,6 @@ export const TaskListTab = ({
     return (
       <ListItemButton
         onClick={(e) => {
-          console.debug("TaskTier onClick", tier);
           handleToggleExpanded(tier);
           e.stopPropagation();
           e.preventDefault();
@@ -167,7 +165,6 @@ export const TaskListTab = ({
               size="sm"
               color="neutral"
               onClick={(e) => {
-                console.debug("IconButton onClick", tier);
                 tier && handleToggleExpanded(tier);
                 e.preventDefault();
                 e.stopPropagation();
