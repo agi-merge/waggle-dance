@@ -171,9 +171,11 @@ As a best practice, run `turbo lint` before starting a feature and after finishi
 
 ## 🤗 Special Thanks
 
-- Maintainers and Contributors of Langchain.js
-- Maintainers and Contributors of AutoGPT, AgentGPT
-- big-AGI
+- Maintainers and Contributors of LangChain.js
+- Maintainers and Contributors of AutoGPT, AgentGPT, SuperAGI, gpt-researcher, lemon-agent
+- [E2B](https://e2b.dev)
+- [Agent Protocol](https://agentprotocol.ai) from AI Engineer Foundation
+- [big-AGI](https://big-agi.com)
 - more...
 
 ## 🌺 Open Core
