@@ -52,7 +52,7 @@ An (unstable) API is also available via [tRPC](packages/api/src/root.ts) as well
 
 ## 🥞 Tech Stack
 
-Typescript ﹒ Langchain.js ﹒ T3 ﹒ Prisma ﹒ tRPC ﹒ Weaviate ﹒ Postgres ﹒ OpenAI API ﹒ MUI Joy
+[Typescript](https://www.typescriptlang.org/) ﹒ [Langchain.js](https://github.com/langchain/langchain) ﹒ [T3](https://github.com/t3/t3js) ﹒ [Prisma](https://www.prisma.io/) ﹒ [tRPC](https://trpc.io/) ﹒ [Weaviate](https://www.semi.technology/developers/weaviate/current/) ﹒ [Postgres](https://www.postgresql.org/) ﹒ [OpenAI API](https://openai.com/) ﹒ [MUI Joy](https://mui.com/)
 
 ## 📍 Roadmap
 
