@@ -22,6 +22,12 @@
   <a href="#-open-core">🌺Open Core</a>
 </p>
 
+## Quick Start
+
+- [Try the cloud demo ↗](https://www.waggledance.ai)
+  -OR- [run it from source](#-running-locally-and-development)
+- Like and subscribe: [Join the Discord]() and ⭐️ Star this repo
+
 **Waggle Dance** is an experimental application focused on achieving user-specified goals. It provides a friendly but opinionated user interface for building agent-based systems. The project focuses on explainability, observability, concurrent generation, and exploration. Currently in pre-alpha, the development philosophy prefers experimentation over stability as goal-solving and Agent systems are rapidly evolving.
 
 Waggle Dance takes a goal and passes it to a **Planner Agent** which streams an execution graph for sub-tasks. Each sub-task is executed as concurrently as possible by **Execution Agents**. To reduce poor results and hallucinations, sub-results are reviewed by **Criticism Agents**. Eventually, the **Human in the loop (you!)** will be able to chat with individual Agents and provide course-corrections if needed.
