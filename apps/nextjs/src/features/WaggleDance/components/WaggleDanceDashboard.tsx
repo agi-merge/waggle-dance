@@ -44,7 +44,6 @@ const WaggleDanceDashboard = ({
           <AccordionItem value="item-1">
             <AccordionHeader
               isFirst
-              defaultChecked={true}
               variant="outlined"
               color="neutral"
               openText={
@@ -56,7 +55,6 @@ const WaggleDanceDashboard = ({
                     noWrap
                     level="body-sm"
                     sx={{
-                      opacity: 0,
                       fontSize: { xs: "xs", sm: "sm" },
                     }}
                   >
