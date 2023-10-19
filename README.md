@@ -88,9 +88,9 @@ Docker support is coming soon.
 
 ### Dependencies
 
-- [Node JS LTS](https://nodejs.org/en)
-- [pnpm](https://pnpm.io/installation)
-- Turbo - `pnpm add turbo --global` or use `npx turbo` in place of `turbo` below.
+- Required: [Node JS LTS](https://nodejs.org/en) ≧ v18.16.0 (LTS recommended)
+- [pnpm](https://pnpm.io/installation) is used in examples but `npm` or `yarn` may work as well.
+- Recommended: Turbo - `pnpm add turbo --global` or use `pnpx turbo` in place of `turbo` below.
 
 ### ⚙️ Environment
 
