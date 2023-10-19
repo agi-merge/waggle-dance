@@ -34,8 +34,6 @@ It is extremely important to return only valid(⚠) ${format} representation of 
 
 const highQualityExamples = [
   {
-    reason:
-      "This example is designed to highlight the AI's ability to break down a complex task into smaller, manageable subtasks, and to perform these tasks in a logical and efficient order.",
     input:
       "Compare and contrast AgentGPT, AutoGPT, BabyAGI, https://waggledance.ai, and SuperAGI. Find similar projects or state of the art research papers. Create a .md (GFM) report of the findings.",
     output: {
@@ -44,37 +42,37 @@ const highQualityExamples = [
           id: "0",
           name: "Research AgentGPT",
           context:
-            "Investigate the features, capabilities, and limitations of AgentGPT.",
+            "Gather information about AgentGPT, its features, capabilities, and limitations",
         },
         {
           id: "1",
           name: "Research AutoGPT",
           context:
-            "Investigate the features, capabilities, and limitations of AutoGPT.",
+            "Gather information about AutoGPT, its features, capabilities, and limitations",
         },
         {
           id: "2",
           name: "Research BabyAGI",
           context:
-            "Investigate the features, capabilities, and limitations of BabyAGI.",
+            "Gather information about BabyAGI, its features, capabilities, and limitations",
         },
         {
           id: "3",
           name: "Research SuperAGI",
           context:
-            "Investigate the features, capabilities, and limitations of SuperAGI.",
+            "Gather information about SuperAGI, its features, capabilities, and limitations",
         },
         {
           id: "4",
-          name: "Explore Waggledance.ai",
+          name: "Visit https://waggledance.ai",
           context:
-            "Visit the website https://waggledance.ai and gather information about the project.",
+            "Explore the website of Waggledance.ai to gather information about the project",
         },
         {
           id: "c",
-          name: "Review Research Findings",
+          name: "Review the research findings",
           context:
-            "Review the information gathered about the projects and identify key similarities and differences.",
+            "Review the gathered information about the projects and identify key similarities and differences",
         },
       ],
       2: [
@@ -83,39 +81,39 @@ const highQualityExamples = [
         },
         {
           id: "0",
-          name: "Create Report Outline",
+          name: "Create report outline",
           context:
-            "Create an outline for the report, including sections for each project and their comparisons.",
+            "Create an outline for the report, including sections for each project and their comparisons",
         },
         {
           id: "1",
-          name: "Write Introduction",
+          name: "Write introduction",
           context:
-            "Write an introduction for the report, providing an overview of the projects and their significance.",
+            "Write an introduction to the report, providing an overview of the projects and their significance",
         },
         {
           id: "2",
-          name: "Write Project Descriptions",
+          name: "Write project descriptions",
           context:
-            "Write detailed descriptions of each project, highlighting their key features and capabilities.",
+            "Write detailed descriptions of each project, highlighting their key features and capabilities",
         },
         {
           id: "3",
-          name: "Compare and Contrast Projects",
+          name: "Compare and contrast projects",
           context:
-            "Analyze the information gathered and identify similarities and differences between the projects.",
+            "Analyze the gathered information and identify similarities and differences between the projects",
         },
         {
           id: "4",
-          name: "Write Conclusion",
+          name: "Write conclusion",
           context:
-            "Summarize the findings and provide a conclusion on the compared projects.",
+            "Summarize the findings and provide a conclusion on the compared projects",
         },
         {
           id: "c",
-          name: "Review Report Sections",
+          name: "Review the sections",
           context:
-            "Review the sections for accuracy, clarity, and completeness.",
+            "Review the sections for accuracy, clarity, and completeness",
         },
       ],
       3: [
@@ -124,14 +122,14 @@ const highQualityExamples = [
         },
         {
           id: "0",
-          name: "Merge and Format Document",
-          context:
-            "Merge all the written sections into a single document and format it using GitHub Flavored Markdown (GFM) syntax.",
+          name: "Merge documents",
+          context: "Merge all the written sections into a single document",
         },
         {
           id: "c",
-          name: "Review Final Report",
-          context: "Review the report for accuracy, clarity, and completeness.",
+          name: "🔍 Review the merged documents",
+          context:
+            "Ensure the merge was successful, the document is valid, and the content remains accurate",
         },
       ],
       4: [
@@ -140,8 +138,24 @@ const highQualityExamples = [
         },
         {
           id: "0",
-          name: "🍯 Goal",
-          context: "Deliver the final report to the User.",
+          name: "Format report in GFM",
+          context:
+            "Format the report using GitHub Flavored Markdown (GFM) syntax",
+        },
+        {
+          id: "c",
+          name: "🔍 Review the report",
+          context: "Review the report for accuracy, clarity, and completeness",
+        },
+      ],
+      5: [
+        {
+          parents: [4],
+        },
+        {
+          id: "0",
+          name: "🍯 Goal Delivery",
+          context: "Deliver the final report to the User",
         },
       ],
     },
@@ -181,7 +195,7 @@ const counterExamples = [
         {
           parents: ["2"],
           id: "3",
-          name: "🍯 Goal",
+          name: "🍯 Goal Delivery",
           context: "Deliver the translated version of 'War and Peace'",
         },
       ],
@@ -232,7 +246,7 @@ const counterExamples = [
     },
     policyViolation: PolicyViolation.INCORRECT_FINAL_NODE_NAME,
     reason:
-      "The name of the last node should be '🍯 Goal' to indicate that the Goal has been satisfactorily completed. In this case, the last node is named '📝 Finalize the blog post', which does not follow the prompt's instructions.",
+      "The name of the last node should be '🍯 Goal Delivery' to indicate that the Goal has been satisfactorily completed. In this case, the last node is named '📝 Finalize the blog post', which does not follow the prompt's instructions.",
   },
   {
     input: "Bake a chocolate cake and deliver it to a friend's house.",
@@ -267,7 +281,7 @@ const counterExamples = [
         {
           parents: ["3"],
           id: "4",
-          name: "🍯 Goal",
+          name: "🍯 Goal Delivery",
           context: "Confirm that the cake has been delivered",
         },
       ],
@@ -281,7 +295,7 @@ const counterExamples = [
 const constraints = (format: string) =>
   `
 # General
-- If the Goal is phrased like a question or chat comment that can be confidently satisfied by responding with a single answer, then the only node should be "🍯 Goal".
+- If the Goal is phrased like a question or chat comment that can be confidently satisfied by responding with a single answer, then the only node should be "🍯 Goal Delivery".
 - Escape all special characters such as quotation marks, curly braces, colons, etc, according to ${format} rules.
 - The only thing you must output is valid ${format} that represents the DAG as the root object.
 
@@ -289,6 +303,9 @@ const constraints = (format: string) =>
 - The DAG shall be constructed in a way such that its parallelism is maximized (siblings maximized, levels minimized.)
 - Sibling nodes within each level can be run in parallel since they will not logically depend on one another, except the criticism node.
 - All levels must eventually lead to a "🍯 Goal" Task which, after executing, ensures that the Goal has been satisfactorily completed.
+- All levels must eventually lead to a "🍯 Goal Delivery" Task which, after executing, ensures that the Goal has been satisfactorily completed.
+
+# Node Management
 - For every level in the DAG, include a single node with id "${criticismSuffix}". It will run after all other nodes in the level have been executed.
 
 # Context Isolation

@@ -1,7 +1,6 @@
 const executeConstraints = (_format: string) =>
   `
-- For primary assertions and data-driven logic, provide verification from alternative corroborating sources. Be explicit about the sources you are using for verification.
-- If the task requires complex reasoning or calculations, take your time to work out the answer. Do not rush to a conclusion.
+- For primary assertions and data-driven logic, strive to provide verification from alternative corroborating sources.
 
 # Tool Usage
 - Prior to providing a citation URL, test the the URL does not lead to HTTP errors or error pages.
@@ -22,6 +21,6 @@ const executeConstraints = (_format: string) =>
 # Output Formatting
 - Avoid returning placeholders like "[insert code here]" and "example.com".
 - Format your Final Answers and RESULT. The content should be in GFM (autolink literals, footnotes, strikethrough, tables, tasklists) and standard markdown formats.
-`;
+    `.trim();
 
 export default executeConstraints;

@@ -14,7 +14,9 @@ const schema = z.object({
   namespace: z
     .string()
     .min(1)
-    .describe("Memory Namespace from your system task description."),
+    .describe(
+      "The namespace from which to retrieve the memory. You must pass the system NAMESPACE variable as the namespace.",
+    ),
 });
 
 const retrieveMemoriesSkill = new DynamicZodSkill({
