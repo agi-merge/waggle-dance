@@ -79,6 +79,10 @@ class WaggleDanceAgentExecutor {
           return;
         }
 
+        // these will throw errors if they fail
+        this.checkForCircularDependencies();
+        this.checkForUnreachableTasks();
+
         const speedupFactor = this.calculateSpeedupFactor();
         const donePacket: AgentPacket = {
           type: "done",
@@ -210,6 +214,10 @@ class WaggleDanceAgentExecutor {
       abortSignal: this.abortController.signal,
     });
 
+    // Call the check methods here
+    this.checkForCircularDependencies();
+    this.checkForUnreachableTasks();
+
     if (fullPlanDAG) {
       this.graphDataState.current[1](fullPlanDAG, this.goalPrompt);
       return fullPlanDAG;
@@ -301,6 +309,69 @@ class WaggleDanceAgentExecutor {
             )}`,
           );
   }
+  // 1. Check for Circular Dependencies
+  private checkForCircularDependencies(): void {
+    const graph = this.graphDataState.current[0];
+    const visited = new Set<string>();
+    const stack = new Set<string>();
+
+    // the nodes that are part of the cycle
+    const cyclicUtil = (
+      nodeId: string,
+      path: string[] = [],
+    ): string[] | null => {
+      if (!visited.has(nodeId)) {
+        visited.add(nodeId);
+        stack.add(nodeId);
+        path.push(nodeId);
+
+        for (const edge of graph.edges.filter((edge) => edge.sId === nodeId)) {
+          if (!visited.has(edge.tId)) {
+            const cycle = cyclicUtil(edge.tId, path);
+            if (cycle) {
+              return cycle;
+            }
+          } else if (stack.has(edge.tId)) {
+            return [...path, edge.tId];
+          }
+        }
+      }
+      stack.delete(nodeId);
+      path.pop();
+      return null;
+    };
+
+    for (const node of graph.nodes) {
+      const cycle = cyclicUtil(node.id);
+      if (cycle) {
+        throw new Error(`Circular dependency detected: ${cycle.join(" -> ")}`);
+      }
+    }
+  }
+
+  // 2. Check for Unreachable Tasks
+  private checkForUnreachableTasks(): void {
+    const graph = this.graphDataState.current[0];
+    const reachableNodes = new Set<string>();
+
+    const dfs = (nodeId: string) => {
+      reachableNodes.add(nodeId);
+      for (const edge of graph.edges.filter((edge) => edge.sId === nodeId)) {
+        if (!reachableNodes.has(edge.tId)) {
+          dfs(edge.tId);
+        }
+      }
+    };
+
+    dfs(rootPlanNode(this.goalPrompt).id);
+
+    for (const node of graph.nodes) {
+      if (!reachableNodes.has(node.id)) {
+        throw new Error(`Unreachable task detected: ${node.id}`);
+      }
+    }
+  }
+
   private calculateCriticalPathLength(): number {
     const graph = this.graphDataState.current[0];
     let maxPathLength = 0;
