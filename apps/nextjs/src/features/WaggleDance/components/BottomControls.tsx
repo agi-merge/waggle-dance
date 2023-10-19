@@ -80,7 +80,7 @@ const BottomControls: React.FC<BottomControlsProps> = ({
               goalId={selectedGoal.id}
               executions={selectedGoal.executions}
               sx={{
-                width: "100%",
+                width: { xs: "100%", sm: "40vw" },
                 flex: "1 1 auto",
               }}
               className="overflow-clip"
