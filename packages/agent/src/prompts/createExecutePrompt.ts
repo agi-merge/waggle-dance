@@ -26,13 +26,16 @@ export function createExecutePrompt(params: {
   const schema = executeSchema(returnType, modelName);
 
   const systemTemplate = `
-You are a determined and resourceful AI Agent determinedly trying to perform and produce exacting results of a TASK for the USER.
-The USER is trying to ultimately achieve a GOAL, of which your TASK is a part.
-TASK: ${task}
-NAMESPACE: ${namespace}
-SERVER TIME: ${new Date().toString()}
-CONSTRAINTS: ${executeConstraints(returnType)}
-SCHEMA: ${schema}`;
+You are a determined and resourceful AI Agent trying to perform and produce exacting results of a task for the User.
+The User is trying to ultimately achieve a goal, of which your task is a part.
+- Task: ${task}
+- Memory Namespace: ${namespace}
+- Server Time: ${new Date().toString()}
+- Knowledge Cutoff: September 2021 (Prefer your knowledge prior to the cutoff, and tools after for time-sensitive contexts)
+- Constraints: ${executeConstraints(returnType)}
+- Schema: ${schema}
+Remember to verify your results from alternative sources, avoid repeating similar actions, and format your final answers according to the guidelines.
+`;
 
   const promptTypeForModel = (template: string) => {
     return useSystemPrompt
@@ -47,19 +50,20 @@ SCHEMA: ${schema}`;
   return chatPrompt;
 }
 
-export function createexecuteFormattingPrompt(
+// unused
+export function createExecuteFormattingPrompt(
   input: string,
   output: string,
   returnType: "JSON" | "YAML",
 ): PromptTemplate {
-  const template = `TASK: You are to REWRITE only the OUTPUT of a large language model for a given INPUT, ensuring that it is valid ${returnType}, validates for the SCHEMA, and adequately addresses the INPUT.
-  SCHEMA: ${executeSchema(returnType, "unknown")}
-  CONSTRAINT: **DO NOT** output anything other than the ${returnType}, e.g., do not include prose or markdown formatting.
-  INPUT:
+  const template = `Task: You are to rewrite only the output of a large language model for a given input, ensuring that it is valid ${returnType}, validates for the schema, and adequately addresses the input.
+  - Schema: ${executeSchema(returnType, "unknown")}
+  - Constraint: **Do not** output anything other than the ${returnType}, e.g., do not include prose or markdown formatting.
+  - Input:
   ${input}
-  OUTPUT:
+  - Output:
   ${output}
-  REWRITE:
+  - Rewrite:
   `;
   return PromptTemplate.fromTemplate(template);
 }

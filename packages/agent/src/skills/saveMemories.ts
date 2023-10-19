@@ -12,9 +12,7 @@ const schema = z.object({
   namespace: z
     .string()
     .min(1)
-    .describe(
-      "The namespace in which the memories are stored. You must pass the system NAMESPACE variable as the namespace.",
-    ),
+    .describe("Memory Namespace from your system task description."),
 });
 
 const saveMemoriesSkill = new DynamicZodSkill({
