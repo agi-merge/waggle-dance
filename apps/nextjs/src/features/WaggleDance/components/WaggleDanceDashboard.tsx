@@ -1,4 +1,5 @@
 // WaggleDanceDashboard.tsx
+import { Box } from "@mui/joy";
 import List from "@mui/joy/List";
 import Typography from "@mui/joy/Typography";
 import { Accordion, AccordionItem } from "@radix-ui/react-accordion";
@@ -11,7 +12,6 @@ import {
   AccordionHeader,
 } from "~/features/HeadlessUI/JoyAccordion";
 import SkillSelect from "~/features/Skills/SkillSelect";
-import useGoalStore from "~/stores/goalStore";
 
 type WaggleDanceDashboardProps = {
   goal: GoalPlusExe; // replace with the proper type
@@ -24,7 +24,6 @@ const WaggleDanceDashboard = ({
   skillsLabel,
   selectedSkillsLength,
 }: WaggleDanceDashboardProps) => {
-  const { selectedGoal, duplicateGoal } = useGoalStore();
   return (
     <List
       type="single"
