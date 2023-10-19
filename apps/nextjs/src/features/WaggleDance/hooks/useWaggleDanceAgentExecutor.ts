@@ -14,6 +14,7 @@ import { type GraphData } from "react-force-graph-2d";
 import { stringify } from "yaml";
 
 import {
+  getMostRelevantOutput,
   rootPlanId,
   rootPlanNode,
   TaskState,
@@ -285,12 +286,17 @@ const useWaggleDanceAgentExecutor = () => {
         if (error instanceof Error) {
           result = error;
         } else {
-          result = new Error(
-            `Unknown error ${stringify(
-              error,
-              Object.getOwnPropertyNames(error),
-            )}`,
-          );
+          const packet = error as AgentPacket;
+          if (packet) {
+            result = new Error(getMostRelevantOutput(packet).output);
+          } else {
+            result = new Error(
+              `Unexpected error ${stringify(
+                error,
+                Object.getOwnPropertyNames(error),
+              )}`,
+            );
+          }
         }
       }
 
