@@ -26,7 +26,7 @@
 
 - [Try the cloud demo ↗](https://www.waggledance.ai)
   -OR- [run it from source](#-running-locally-and-development)
-- Like and subscribe: [Join the Discord]() and ⭐️ Star this repo
+- Like and subscribe: [Join the Discord](https://discord.gg/ttt9YmhQU6) and ⭐️ Star this repo
 
 **Waggle Dance** is an experimental application focused on achieving user-specified goals. It provides a friendly but opinionated user interface for building agent-based systems. The project focuses on explainability, observability, concurrent generation, and exploration. Currently in pre-alpha, the development philosophy prefers experimentation over stability as goal-solving and Agent systems are rapidly evolving.
 
@@ -114,11 +114,13 @@ pnpm db:push
 
 ### Run Development
 
-This is a T3 stack. [You can check the boilerplate documentation](/docs/create-t3-boilerplate.md)
-
 ```bash
 turbo dev
+# or
+pnpm dev
 ```
+
+This project was forked from [create-t3-turbo](https://github.com/t3-oss/create-t3-turbo) [To find out more, you can check the boilerplate documentation](/docs/t3-boilerplate.md)
 
 ## 🦑 Linting
 
@@ -138,13 +140,21 @@ Some of these may be able to be auto-fixed with:
 turbo lint:fix
 ```
 
-for the rest, you will need to open the associated file and fix the errors yourself. Limit `ts-ignore` for extreme cases.
+And the version that the CI runs:
+
+```bash
+SKIP_ENV_VALIDATION=true NODE_ENV=production  turbo build
+```
+
+For the rest, you will need to open the associated file and fix the errors yourself. Limit `ts-ignore` for extreme cases.
 
 As a best practice, run `turbo lint` before starting a feature and after finishing a feature and fix any errors before sending a `PR`.
 
 ## 🛠️ Contribute and help
 
 - Devs: [CONTRIBUTING.md](CONTRIBUTING.md)
+- Star the Project!
+- Join the [Discord](https://discord.gg/ttt9YmhQU6)!
 - If you are not technical, you can still help improving documentation or add examples or share your user-stories with our community; any help or contribution is welcome!
 
 ## Contributors
