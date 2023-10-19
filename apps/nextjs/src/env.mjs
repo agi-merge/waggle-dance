@@ -65,6 +65,8 @@ export const env = createEnv({
     KV_REST_API_READ_ONLY_TOKEN: z.string().nonempty(),
     WOLFRAM_APP_ID: z.string().optional(),
     EXE_TRAJECTORY_EVALUATION: z.string().optional(),
+    POSTGRES_PRISMA_URL: z.string().url(),
+    POSTGRES_URL_NON_POOLING: z.string().url(),
   },
   /**
    * Specify your client-side environment variables schema here.
@@ -121,5 +123,7 @@ export const env = createEnv({
     KV_REST_API_READ_ONLY_TOKEN: process.env.KV_REST_API_READ_ONLY_TOKEN,
     WOLFRAM_APP_ID: process.env.WOLFRAM_APP_ID,
     EXE_TRAJECTORY_EVALUATION: process.env.EXE_TRAJECTORY_EVALUATION,
+    POSTGRES_PRISMA_URL: process.env.POSTGRES_PRISMA_URL,
+    POSTGRES_URL_NON_POOLING: process.env.POSTGRES_URL_NON_POOLING,
   },
 });
