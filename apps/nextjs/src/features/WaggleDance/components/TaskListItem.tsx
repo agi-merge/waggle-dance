@@ -396,40 +396,41 @@ const TaskResult = ({
     return findResult(t.packets).replace(/\\n/g, " ");
   }, [t.packets]);
   return (
-    <Box
-      {...props}
-      sx={{
-        overflow: isExpanded ? "scroll" : "ellipsis",
-        display: "flex",
-      }}
-    >
+    <>
       {isExpanded ? (
-        <Markdown
-          className={`markdown break-words pt-2 ${
-            t.status === TaskStatus.error ? "font-mono" : ""
-          }`}
-          remarkPlugins={[remarkGfm]}
+        <Box
+          {...props}
+          sx={{
+            overflow: isExpanded ? "scroll" : "inherit",
+            display: isExpanded ? "flex" : "inherit",
+          }}
         >
-          {t.value.type === "working" && t.nodeId === rootPlanId
-            ? `Planned ${nodes.length} tasks and ${edges.length} interdependencies`
-            : result}
-        </Markdown>
+          <Markdown
+            className={`markdown break-words pt-2 ${
+              t.status === TaskStatus.error ? "font-mono" : ""
+            }`}
+            remarkPlugins={[remarkGfm]}
+          >
+            {t.value.type === "working" && t.nodeId === rootPlanId
+              ? `Planned ${nodes.length} tasks and ${edges.length} interdependencies`
+              : result}
+          </Markdown>
+        </Box>
       ) : (
         <Typography
           level="body-xs"
           variant="plain"
           sx={{
+            alignSelf: "center",
             whiteSpace: "nowrap",
             overflow: "hidden",
             textOverflow: "ellipsis",
-            display: "flex",
-            alignItems: "center",
           }}
         >
           {result}
         </Typography>
       )}
-    </Box>
+    </>
   );
 };
 
