@@ -53,15 +53,15 @@ class GoogleNews extends SearchApi {
     this.name = "Google News";
   }
 }
-class YoutubeTranscripts extends SearchApi {
-  static lc_name(): string {
-    return "Youtube Transcripts";
-  }
-  constructor(apiKey: string, params: Omit<SearchApiParameters, "engine">) {
-    super(apiKey, { ...params, engine: "google_youtube_transcripts" });
-    this.name = "Youtube Transcripts";
-  }
-}
+// class YoutubeTranscripts extends SearchApi {
+//   static lc_name(): string {
+//     return "Youtube Transcripts";
+//   }
+//   constructor(apiKey: string, params: Omit<SearchApiParameters, "engine">) {
+//     super(apiKey, { ...params, engine: "google_youtube_transcripts" });
+//     this.name = "Youtube Transcripts";
+//   }
+// }
 
 function getSearchLocation(geo?: Geo): string {
   const cca2 = geo?.country || "US";
@@ -138,7 +138,7 @@ function createSkills(
     const searchTools = [
       new GoogleSearch(process.env.SEARCHAPI_API_KEY, params),
       new GoogleNews(process.env.SEARCHAPI_API_KEY, params),
-      new YoutubeTranscripts(process.env.SEARCHAPI_API_KEY, params),
+      // new YoutubeTranscripts(process.env.SEARCHAPI_API_KEY, params),
       new GoogleScholar(process.env.SEARCHAPI_API_KEY, params),
     ];
 
