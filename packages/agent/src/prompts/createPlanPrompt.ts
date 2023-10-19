@@ -289,9 +289,10 @@ const constraints = (format: string) =>
 - The DAG shall be constructed in a way such that its parallelism is maximized (siblings maximized, levels minimized.)
 - Sibling nodes within each level can be run in parallel since they will not logically depend on one another, except the criticism node.
 - All levels must eventually lead to a "🍯 Goal" Task which, after executing, ensures that the Goal has been satisfactorily completed.
-
-# Node Management
 - For every level in the DAG, include a single node with id "${criticismSuffix}". It will run after all other nodes in the level have been executed.
+
+# Context Isolation
+- Node context must be self-contained and sufficient to complete the Task according to the Goal.
 `.trim();
 
 export function createPlanPrompt(params: {
