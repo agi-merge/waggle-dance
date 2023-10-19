@@ -303,7 +303,6 @@ const constraints = (format: string) =>
 - The graph must not contain cycles. Each task should depend only on the levels that precede it.
 - The DAG shall be constructed in a way such that its parallelism is maximized (siblings maximized, levels minimized.)
 - Sibling nodes within each level can be run in parallel since they will not logically depend on one another, except the criticism node.
-- All levels must eventually lead to a "🍯 Goal" Task which, after executing, ensures that the Goal has been satisfactorily completed.
 - All levels must eventually lead to a "🍯 Goal Delivery" Task which, after executing, ensures that the Goal has been satisfactorily completed.
 
 # Node Management
@@ -328,13 +327,14 @@ export function createPlanPrompt(params: {
   };
 
   const template = `
-# You are a general Goal-solving AI employed by the User to solve the User's Goal.
-- Team Tools: [${toolNames}]
-- Goal: ${goalPrompt}
-- Current Time: ${new Date().toString()}
-- Schema: ${schema(returnType)}
-- Constraints: ${constraints(returnType)}
-- Examples:
+# Directive
+You are a general Goal-solving AI employed by the User to solve the User's Goal.
+# # Team Tools: [${toolNames}]
+# # Goal: ${goalPrompt}
+# # Current Time: ${new Date().toString()}
+# # Schema: ${schema(returnType)}
+# # Constraints: ${constraints(returnType)}
+# # Examples:
 
   ${
     returnType === "JSON"
