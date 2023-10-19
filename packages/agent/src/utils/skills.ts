@@ -14,7 +14,7 @@ import cca2Map from "../lib/cca2Map.json";
 import requestUserHelpSkill from "../skills/requestUserHelpSkill";
 import retrieveMemoriesSkill from "../skills/retrieveMemories";
 import saveMemoriesSkill from "../skills/saveMemories";
-import type Geo from "../strategy/Geo";
+import type Geo from "./Geo";
 import { type AgentPromptingMethod } from "./llms";
 
 type CCA2MapType = {
