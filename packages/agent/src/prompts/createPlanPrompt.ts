@@ -300,6 +300,7 @@ const constraints = (format: string) =>
 - The only thing you must output is valid ${format} that represents the DAG as the root object.
 
 # DAG Construction
+- The graph must not contain cycles. Each task should depend only on the levels that precede it.
 - The DAG shall be constructed in a way such that its parallelism is maximized (siblings maximized, levels minimized.)
 - Sibling nodes within each level can be run in parallel since they will not logically depend on one another, except the criticism node.
 - All levels must eventually lead to a "🍯 Goal" Task which, after executing, ensures that the Goal has been satisfactorily completed.
