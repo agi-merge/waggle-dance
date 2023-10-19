@@ -383,33 +383,52 @@ const TaskResult = ({
   color: _color,
   nodes,
   edges,
+  isExpanded,
   ...props
 }: {
   t: TaskState;
   color: StatusColor;
   nodes: DraftExecutionNode[];
   edges: DraftExecutionEdge[];
+  isExpanded: boolean;
 } & BoxProps) => {
   const result = useMemo(() => {
-    return getMostRelevantOutput(t.value).output.replace(/\\n/g, " ");
-  }, [t.value]);
+    return findResult(t.packets).replace(/\\n/g, " ");
+  }, [t.packets]);
   return (
     <Box
       {...props}
       sx={{
-        overflow: "scroll",
+        overflow: isExpanded ? "scroll" : "ellipsis",
+        display: "flex",
       }}
     >
-      <Markdown
-        className={`markdown break-words pt-2 ${
-          t.status === TaskStatus.error ? "font-mono" : ""
-        }`}
-        remarkPlugins={[remarkGfm]}
-      >
-        {t.value.type === "working" && t.nodeId === rootPlanId
-          ? `Planned ${nodes.length} tasks and ${edges.length} interdependencies`
-          : result}
-      </Markdown>
+      {isExpanded ? (
+        <Markdown
+          className={`markdown break-words pt-2 ${
+            t.status === TaskStatus.error ? "font-mono" : ""
+          }`}
+          remarkPlugins={[remarkGfm]}
+        >
+          {t.value.type === "working" && t.nodeId === rootPlanId
+            ? `Planned ${nodes.length} tasks and ${edges.length} interdependencies`
+            : result}
+        </Markdown>
+      ) : (
+        <Typography
+          level="body-xs"
+          variant="plain"
+          sx={{
+            whiteSpace: "nowrap",
+            overflow: "hidden",
+            textOverflow: "ellipsis",
+            display: "flex",
+            alignItems: "center",
+          }}
+        >
+          {result}
+        </Typography>
+      )}
     </Box>
   );
 };
@@ -720,13 +739,22 @@ const TaskListItem = ({
                   />
                 }
                 closedText={
-                  <TaskResultTitle
-                    t={t}
-                    color={statusColor(t)}
-                    isOpen={false}
-                    nodes={nodes}
-                    edges={edges}
-                  />
+                  <Stack direction={"row"}>
+                    <TaskResultTitle
+                      t={t}
+                      color={statusColor(t)}
+                      isOpen={true}
+                      nodes={nodes}
+                      edges={edges}
+                    />
+                    <TaskResult
+                      t={t}
+                      color={statusColor(t)}
+                      nodes={nodes}
+                      edges={edges}
+                      isExpanded={false}
+                    />
+                  </Stack>
                 }
               />
               <AccordionContent isLast={true}>
@@ -735,6 +763,7 @@ const TaskListItem = ({
                   color={statusColor(t)}
                   nodes={nodes}
                   edges={edges}
+                  isExpanded={true}
                 />
               </AccordionContent>
             </AccordionItem>
