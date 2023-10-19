@@ -18,7 +18,7 @@ export * from "./src/prompts/types/serverDAGId";
 export * from "./src/prompts/utils/transformWireFormat";
 
 export * from "./src/strategy/AgentPacket";
-export * from "./src/strategy/Geo";
+export * from "./src/utils/Geo";
 
 export * from "./src/utils/OpenAIPropsBridging";
 

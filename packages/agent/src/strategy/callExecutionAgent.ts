@@ -4,14 +4,12 @@ import {
   initializeAgentExecutorWithOptions,
   type InitializeAgentExecutorOptions,
 } from "langchain/agents";
-import { LLMChain } from "langchain/chains";
 import { type ChatOpenAI } from "langchain/chat_models/openai";
 import { type InitializeAgentExecutorOptionsStructured } from "langchain/dist/agents/initialize";
 import { type StructuredTool, type Tool } from "langchain/dist/tools/base";
 import { loadEvaluator } from "langchain/evaluation";
 import { PlanAndExecuteAgentExecutor } from "langchain/experimental/plan_and_execute";
 import { type OpenAI } from "langchain/llms/openai";
-import { PromptTemplate } from "langchain/prompts";
 import { type AgentStep } from "langchain/schema";
 import { parse } from "yaml";
 
@@ -22,10 +20,11 @@ import {
   createExecutePrompt,
   createMemory,
   TaskState,
-  type ChainValues,
   type MemoryType,
 } from "../..";
+import checkTrajectory from "../grounding/checkTrajectory";
 import { isTaskCriticism } from "../prompts/types";
+import type Geo from "../utils/Geo";
 import {
   AgentPromptingMethod,
   getAgentPromptingMethodValue,
@@ -39,7 +38,6 @@ import {
 import { createEmbeddings, createModel } from "../utils/model";
 import { type ModelCreationProps } from "../utils/OpenAIPropsBridging";
 import createSkills from "../utils/skills";
-import type Geo from "./Geo";
 
 export async function callExecutionAgent(creation: {
   creationProps: ModelCreationProps;
@@ -194,66 +192,23 @@ export async function callExecutionAgent(creation: {
       {
         llm: smartModelForEvaluation,
         criteria: "controversiality",
-        // agentTools: skills,
+        agentTools: skills,
       },
     );
 
     const depthTrajectoryEvaluator = await loadEvaluator("trajectory", {
       llm: smartModelForEvaluation,
       criteria: "depth",
-      // TODO: determine if we want to eval using tools
-      // agentTools: skills,
+      agentTools: skills,
     });
 
     const detailTrajectoryEvaluator = await loadEvaluator("trajectory", {
       llm: smartModelForEvaluation,
       criteria: "detail",
-      // agentTools: skills,
+      agentTools: skills,
     });
 
     const agentTrajectory = call.intermediateSteps as AgentStep[];
-
-    async function checkScore(evaluation: PromiseSettledResult<ChainValues>) {
-      if (evaluation.status === "rejected") {
-        // just log this for now, unless trajectory calls keep throwing
-        console.warn("Trajectory evaluation failed", evaluation.reason);
-      } else {
-        const evaluationResult = (
-          evaluation.value.res ? evaluation.value.res : evaluation.value
-        ) as {
-          score: number;
-          reasoning: string;
-        };
-        if (evaluationResult) {
-          const minimumScore = 0.5;
-          if (evaluationResult.score < minimumScore) {
-            throw new Error(
-              `Low review score: ${evaluationResult.score}. Reasoning: ${evaluationResult.reasoning}"`,
-              { cause: evaluationResult.reasoning },
-            );
-          }
-        } else {
-          // Try to repair the error
-          const fast = createModel(
-            { modelName: LLM_ALIASES["fast"], maxTokens: 5 },
-            AgentPromptingMethod.ZeroShotReAct, // does not need to be chat
-          );
-
-          const prompt = PromptTemplate.fromTemplate(
-            "Output only the number of the score from {error}?",
-          );
-          const repair = new LLMChain({ llm: fast, prompt });
-
-          // The result is an object with a `text` property.
-          const repairCall = await repair.call({ error: evaluation.value });
-          console.warn("Trajectory evaluation failed", evaluation.value);
-          return checkScore({
-            status: "fulfilled",
-            value: { score: repairCall },
-          });
-        }
-      }
-    }
 
     try {
       const evaluators = [
@@ -262,30 +217,22 @@ export async function callExecutionAgent(creation: {
         detailTrajectoryEvaluator,
       ];
 
-      // const evaluations = await Promise.allSettled(
-      //   evaluators.map((evaluator) =>
-      //     evaluator.evaluateAgentTrajectory(
-      //       {
-      //         prediction: response,
-      //         input,
-      //         agentTrajectory,
-      //       },
-      //       {
-      //         callbacks,
-      //         signal: abortSignal,
-      //         tags: [...tags, "trajectory"],
-      //       },
-      //     ),
-      //   ),
-      // );
-
-      // await Promise.all(evaluations.map(checkScore));
+      await checkTrajectory(
+        response,
+        input,
+        agentTrajectory,
+        abortSignal,
+        tags,
+        callbacks,
+        evaluators,
+      );
 
       return response;
     } catch (error) {
       return error as Error;
     }
   } catch (error) {
+    console.error(error);
     return error as Error;
   }
 }
