@@ -237,12 +237,12 @@ export const TaskListTab = ({
     <List aria-label="Task list" size="sm" ref={taskListRef}>
       {Object.entries(tieredTaskMap).map(([tier, [__, tasks]], i) => {
         return (
-          <>
+          <React.Fragment key={`${tier}.${i}`}>
             {TaskTier(tier, tasks, i, i === tieredTaskMap.length - 1)}
             {i !== tieredTaskMap.length - 1 && (
               <Divider orientation="horizontal" />
             )}
-          </>
+          </React.Fragment>
         );
       })}
     </List>
