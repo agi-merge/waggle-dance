@@ -17,7 +17,7 @@ async function checkTrajectory(
   callbacks: Callbacks | undefined,
   evaluators: AgentTrajectoryEvaluator[],
 ) {
-  if (process.env.CHECK_TRAJECTORY !== "true") {
+  if (process.env.EXE_TRAJECTORY_EVALUATION !== "true") {
     return;
   }
 

@@ -64,7 +64,7 @@ export const env = createEnv({
     KV_REST_API_TOKEN: z.string().nonempty(),
     KV_REST_API_READ_ONLY_TOKEN: z.string().nonempty(),
     WOLFRAM_APP_ID: z.string().optional(),
-    CHECK_TRAJECTORY: z.string().optional(),
+    EXE_TRAJECTORY_EVALUATION: z.string().optional(),
   },
   /**
    * Specify your client-side environment variables schema here.
@@ -120,6 +120,6 @@ export const env = createEnv({
     KV_REST_API_TOKEN: process.env.KV_REST_API_TOKEN,
     KV_REST_API_READ_ONLY_TOKEN: process.env.KV_REST_API_READ_ONLY_TOKEN,
     WOLFRAM_APP_ID: process.env.WOLFRAM_APP_ID,
-    CHECK_TRAJECTORY: process.env.CHECK_TRAJECTORY,
+    EXE_TRAJECTORY_EVALUATION: process.env.EXE_TRAJECTORY_EVALUATION,
   },
 });
