@@ -219,7 +219,7 @@ export default async function ExecuteStream(req: NextRequest) {
           const repetitionError: AgentPacket = {
             type: "error",
             severity: "warn",
-            error: `Repetition Error: there will be a automatic recovery for this soon.\n ${repetitionCheckResult.similarDocuments.map(
+            error: `RepetitionError: there will be an automatic recovery for this soon.\n ${repetitionCheckResult.similarDocuments.map(
               (doc) => `${doc.pageContent}`,
             )}`,
             ...repetitionCheckResult,
