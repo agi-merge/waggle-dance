@@ -96,11 +96,12 @@ Docker support is coming soon.
 
 - Copy `.env.example` to `.env` and configure the environment variables. For help, please [reach out on Discord](https://discord.gg/ttt9YmhQU6). See [env.mjs]() for explicit requirements.
 
-### 🐘 Primary Database
+### 🐘 Setting up Postgres
 
-The T3 stack includes Prisma. Currently we are using Postgres. The database is used as the source-of-truth of the state of an app deployment. E.g. sessions, accounts, any saved goals/results, etc.
+Refer to [.env.example](https://github.com/agi-merge/waggle-dance/tree/main/.env.example) and [env.mjs](https://github.com/agi-merge/waggle-dance/tree/main/apps/nextjs/env.mjs) for the required environment variables.
+Currently only Postgres via Prisma is supported. You can use a local Postgres instance (it is recommended to use Docker) or a cloud provider such as [Supabase](https://supabase.com).
 
-Note that this is different than the user's uploaded documents, however it may store metadata about the documents.
+Once you have set up, secured, and configured your Postgres, run the following commands:
 
 ```bash
 pnpm db:generate
