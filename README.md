@@ -92,9 +92,9 @@ Docker support is coming soon.
 - [pnpm](https://pnpm.io/installation) is used in examples but `npm` or `yarn` may work as well.
 - Recommended: Turbo - `pnpm add turbo --global` or use `pnpx turbo` in place of `turbo` below.
 
-### ⚙️ Environment
+### ⚙️ Configure Your Environment
 
-- Copy `.env.example` to `.env` and configure the environment variables.
+- Copy `.env.example` to `.env` and configure the environment variables. For help, please [reach out on Discord](https://discord.gg/ttt9YmhQU6). See [env.mjs]() for explicit requirements.
 
 ### 🐘 Primary Database
 
