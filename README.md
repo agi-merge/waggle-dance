@@ -39,7 +39,7 @@ An (unstable) API is also available via [tRPC](packages/api/src/root.ts) as well
 
 # 🦚 Highlighted Features
 
-- LLMs go brrr… Highly concurrent execution graph. Some sub-task branches are not dependent, and can run concurrently.
+- LLMs go brrr… waggledance.ai starts by planning a highly concurrent execution graph. Some sub-task branches are not dependent, and can run concurrently.
 - Adversarial agents that review results.
 - Vector database for long-term memory.
 - Explainable results and responsive UI: Graph visualizer, sub-task (agent) results, agent logs and events.
