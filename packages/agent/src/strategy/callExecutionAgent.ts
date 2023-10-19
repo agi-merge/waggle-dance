@@ -262,26 +262,24 @@ export async function callExecutionAgent(creation: {
         detailTrajectoryEvaluator,
       ];
 
-      const evaluations = await Promise.allSettled(
-        evaluators.map((evaluator) =>
-          evaluator.evaluateAgentTrajectory(
-            {
-              prediction: response,
-              input,
-              agentTrajectory,
-            },
-            {
-              callbacks,
-              signal: abortSignal,
-              tags: [...tags, "trajectory"],
-            },
-          ),
-        ),
-      );
+      // const evaluations = await Promise.allSettled(
+      //   evaluators.map((evaluator) =>
+      //     evaluator.evaluateAgentTrajectory(
+      //       {
+      //         prediction: response,
+      //         input,
+      //         agentTrajectory,
+      //       },
+      //       {
+      //         callbacks,
+      //         signal: abortSignal,
+      //         tags: [...tags, "trajectory"],
+      //       },
+      //     ),
+      //   ),
+      // );
 
-      for (const evaluation of evaluations) {
-        await checkScore(evaluation);
-      }
+      // await Promise.all(evaluations.map(checkScore));
 
       return response;
     } catch (error) {

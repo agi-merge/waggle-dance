@@ -103,7 +103,7 @@ const checkRepetitivePackets = async (
     }
   } catch (e) {
     console.error(e);
-    throw e;
+    // throw e;
   }
 
   return null;
@@ -213,16 +213,17 @@ export default async function ExecuteStream(req: NextRequest) {
           packets,
           historicalPackets,
         );
+        historicalPackets.push(...packets);
+        packets = [];
         if (!!repetitionCheckResult) {
           const repetitionError: AgentPacket = {
             type: "error",
             severity: "warn",
-            error: `Repetitive actions detected: ${repetitionCheckResult.similarDocuments.map(
+            error: `Repetition Error: there will be a automatic recovery for this soon.\n ${repetitionCheckResult.similarDocuments.map(
               (doc) => `${doc.pageContent}`,
             )}`,
             ...repetitionCheckResult,
           };
-          historicalPackets.push(...packets);
 
           await handlePacket(
             repetitionError,
@@ -242,32 +243,27 @@ export default async function ExecuteStream(req: NextRequest) {
             lastToolInputs,
           );
 
-          await restartExecution(
-            controller,
-            repetitionCheckResult.recent,
-            repetitionCheckResult.similarDocuments,
-            creationProps,
-            goalPrompt,
-            parsedGoalId,
-            agentPromptingMethod,
-            task,
-            dag,
-            revieweeTaskResults,
-            contentType,
-            namespace,
-            req,
-            encoder,
-            resolveStreamEnded,
-          );
+          throw repetitionError;
+          // await restartExecution(
+          //   controller,
+          //   repetitionCheckResult.recent,
+          //   repetitionCheckResult.similarDocuments,
+          //   creationProps,
+          //   goalPrompt,
+          //   parsedGoalId,
+          //   agentPromptingMethod,
+          //   task,
+          //   dag,
+          //   revieweeTaskResults,
+          //   contentType,
+          //   namespace,
+          //   req,
+          //   encoder,
+          //   resolveStreamEnded,
+          // );
 
           return;
         }
-
-        // Push the packet to the historical packets array after the repetition check
-        historicalPackets.push(...packets);
-
-        // Clear the packets array after adding them to historicalPackets
-        packets = [];
       } catch (e) {
         console.error(e);
         throw e;
@@ -275,7 +271,8 @@ export default async function ExecuteStream(req: NextRequest) {
     }
   };
 
-  const restartExecution = async (
+  // FIXME: this does not work yet, it was causing runaway executions and unreported errors
+  const _restartExecution = async (
     controller: ReadableStreamDefaultController,
     recentDocument: string,
     similarDocuments: Document[],

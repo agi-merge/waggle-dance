@@ -266,7 +266,10 @@ class WaggleDanceAgentExecutor {
         revieweeTaskResults,
         creationProps,
       };
+
       scheduledTasks.add(task.id);
+      // Add the task id to the set of started tasks
+      startedTaskIds.add(task.id);
 
       // Execute the task and store the promise
       const promise = executeTask({
@@ -290,18 +293,18 @@ class WaggleDanceAgentExecutor {
         .catch((error) => {
           this.setError(error);
         });
-
-      // Add the task id to the set of started tasks
-      startedTaskIds.add(task.id);
     });
 
     return startedTaskIds;
   }
 
   private setError(error: unknown) {
+    const packet = error as AgentPacket;
     this.error =
       error instanceof Error
         ? error
+        : packet
+        ? new Error(String(packet))
         : new Error(
             `Unknown error: ${stringify(
               error,
