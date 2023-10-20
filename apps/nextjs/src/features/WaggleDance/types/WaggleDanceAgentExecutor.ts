@@ -312,7 +312,7 @@ class WaggleDanceAgentExecutor {
             )}`,
           );
   }
-  // 1. Check for Circular Dependencies
+
   private checkForCircularDependencies(): void {
     const graph = this.graphDataState.current[0];
     const visited = new Set<string>();
@@ -352,7 +352,6 @@ class WaggleDanceAgentExecutor {
     }
   }
 
-  // 2. Check for Unreachable Tasks
   private checkForUnreachableTasks(): void {
     const graph = this.graphDataState.current[0];
     const reachableNodes = new Set<string>();
