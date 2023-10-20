@@ -58,24 +58,7 @@ An (unstable) API is also available via [tRPC](packages/api/src/root.ts) as well
 
 [Live Project Roadmap Board](https://github.com/orgs/agi-merge/projects/1/views/1) ﹒ <a href="#🛠️-contribute-and-help">🛠️Contribute</a>
 
-- Implement Graph of Thoughts architecture
-- Human-in-the-loop (e.g. chat to provide course-corrections, chat freely with agents/chains)
-- Loop detection (in-chain review)
-- Support for Local LLMs and other LLM APIs such as LLaMa-2, Azure Private OpenAI, Claude, etc.
-- Recalled skills a la Voyager/PolyGPT
-- Agent data connections, e.g. GitHub, Google Drive, Databases, etc.
-- Execution notifications (e.g. Slack, Email, etc.)
-- Further execution methods and blends (e.g. Tree of thought, ongoing research)
-
-Future
-
-- Execution notifications (e.g. Slack, Email, etc.)
-- Further execution methods and blends (e.g. Tree of thought, ongoing research)
-- Desktop and mobile apps
-- Migrate to from Next.js Pages structure to App structure
-- Consider removing langchain
-- Improved architecture for running agents
-- Templates and sharing
+Basically, anything and everything goes! Though [multi-agent systems have a long and storied past](https://www.turing.ac.uk/research/interest-groups/multi-agent-systems), this project is all about marrying the past techniques with the latest research.
 
 ## 🏃 Running Locally and Development
 
