@@ -1,6 +1,12 @@
-import { Checkbox, List, type CheckboxProps } from "@mui/joy";
+import {
+  Accordion,
+  AccordionDetails,
+  AccordionGroup,
+  AccordionSummary,
+  Checkbox,
+  type CheckboxProps,
+} from "@mui/joy";
 import Typography from "@mui/joy/Typography";
-import { Accordion, AccordionItem } from "@radix-ui/react-accordion";
 import { v4 } from "uuid";
 
 import { type Skillset } from "@acme/db";
@@ -9,7 +15,6 @@ import { skillDatabase } from "@acme/db/skills";
 import theme from "~/styles/theme";
 import useSkillStore from "~/stores/skillStore";
 import Alerts from "../Alerts/Alerts";
-import { AccordionContent, AccordionHeader } from "../HeadlessUI/JoyAccordion";
 
 const SkillSelect = ({}) => {
   const { selectedSkills, toggleSkill } = useSkillStore();
@@ -57,12 +62,7 @@ const SkillSelect = ({}) => {
   };
 
   return (
-    <List
-      type="multiple"
-      variant="plain"
-      component={Accordion}
-      value={selectedSkills.map((skill) => skill?.id ?? "")}
-    >
+    <AccordionGroup>
       <Alerts
         alertConfigs={[
           {
@@ -75,27 +75,19 @@ const SkillSelect = ({}) => {
           },
         ]}
       />
-      {skillDatabase.map((skill, i) => (
-        <AccordionItem value={skill.id} key={skill.id} className="pb-5">
-          <AccordionHeader
-            isFirst={skill.index === 0 || i === 0}
-            variant="outlined"
-            openText={<CheckboxItem skill={skill} />}
-            closedText={<CheckboxItem skill={skill} />}
-          />
-          <AccordionContent
-            isLast={
-              skill.index === skillDatabase.length - 1 ||
-              i === skillDatabase.length
-            }
-          >
+      {skillDatabase.map((skill) => (
+        <Accordion key={skill.id} className="pb-5">
+          <AccordionSummary>
+            <CheckboxItem skill={skill} />
+          </AccordionSummary>
+          <AccordionDetails>
             <Typography level="body-xs" fontFamily="monospace">
               This is where config would go for {skill.label}
             </Typography>
-          </AccordionContent>
-        </AccordionItem>
+          </AccordionDetails>
+        </Accordion>
       ))}
-    </List>
+    </AccordionGroup>
   );
 };
 

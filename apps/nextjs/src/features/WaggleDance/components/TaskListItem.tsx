@@ -29,7 +29,10 @@ import {
   type BoxProps,
   type ListItemProps,
 } from "@mui/joy";
-import { Accordion, AccordionItem } from "@radix-ui/react-accordion";
+import Accordion from "@mui/joy/Accordion";
+import AccordionDetails from "@mui/joy/AccordionDetails";
+import AccordionGroup from "@mui/joy/AccordionGroup";
+import AccordionSummary from "@mui/joy/AccordionSummary";
 import Markdown from "react-markdown";
 import remarkGfm from "remark-gfm";
 import { v4 } from "uuid";
@@ -49,10 +52,6 @@ import { isTaskCriticism } from "@acme/agent/src/prompts/types";
 import { mapPacketTypeToStatus } from "@acme/agent/src/prompts/utils/mapPacketToStatus";
 import { type DraftExecutionEdge, type DraftExecutionNode } from "@acme/db";
 
-import {
-  AccordionContent,
-  AccordionHeader,
-} from "~/features/HeadlessUI/JoyAccordion";
 import { stringifyMax } from "../utils/stringifyMax";
 
 type StatusColor =
@@ -447,6 +446,7 @@ const TaskListItem = ({
   isExpanded,
   ...props
 }: TaskListItemProps) => {
+  const [isResultExpanded, setIsResultExpanded] = useState(false);
   const node = useMemo(() => t.findNode(nodes), [nodes, t]);
   const [selectedGroup, setSelectedGroup] = useState<AgentPacket[] | null>(
     null,
@@ -717,20 +717,16 @@ const TaskListItem = ({
               />
             </Sheet>
           </ListItemButton>
-          <List
-            type="multiple"
-            variant="soft"
-            component={Accordion}
-            sx={{ pb: 2 }}
-            onClick={(e) => {
-              e.preventDefault();
-              e.stopPropagation();
-            }}
-          >
-            <AccordionItem value={"ok"}>
-              <AccordionHeader
-                isFirst={false}
-                openText={
+          <AccordionGroup variant="outlined" color={statusColor(t)}>
+            <Accordion
+              expanded={isResultExpanded}
+              onChange={(event, expanded) => {
+                setIsResultExpanded(expanded);
+                event.stopPropagation();
+              }}
+            >
+              <AccordionSummary>
+                <Stack direction={"row"}>
                   <TaskResultTitle
                     t={t}
                     color={statusColor(t)}
@@ -738,16 +734,7 @@ const TaskListItem = ({
                     nodes={nodes}
                     edges={edges}
                   />
-                }
-                closedText={
-                  <Stack direction={"row"}>
-                    <TaskResultTitle
-                      t={t}
-                      color={statusColor(t)}
-                      isOpen={true}
-                      nodes={nodes}
-                      edges={edges}
-                    />
+                  {!isResultExpanded && (
                     <TaskResult
                       t={t}
                       color={statusColor(t)}
@@ -755,10 +742,10 @@ const TaskListItem = ({
                       edges={edges}
                       isExpanded={false}
                     />
-                  </Stack>
-                }
-              />
-              <AccordionContent isLast={true}>
+                  )}
+                </Stack>
+              </AccordionSummary>
+              <AccordionDetails>
                 <TaskResult
                   t={t}
                   color={statusColor(t)}
@@ -766,9 +753,9 @@ const TaskListItem = ({
                   edges={edges}
                   isExpanded={true}
                 />
-              </AccordionContent>
-            </AccordionItem>
-          </List>
+              </AccordionDetails>
+            </Accordion>
+          </AccordionGroup>
         </Card>
       </ListItemContent>
     </ListItem>

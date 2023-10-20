@@ -1,16 +1,19 @@
 // WaggleDanceDashboard.tsx
-import { Box } from "@mui/joy";
-import List from "@mui/joy/List";
+import { useState } from "react";
+import {
+  Accordion,
+  AccordionDetails,
+  AccordionGroup,
+  AccordionSummary,
+  Avatar,
+  Box,
+  ListItemContent,
+} from "@mui/joy";
 import Typography from "@mui/joy/Typography";
-import { Accordion, AccordionItem } from "@radix-ui/react-accordion";
 
 import { type GoalPlusExe } from "@acme/db";
 
 import AddDocuments from "~/features/AddDocuments/AddDocuments";
-import {
-  AccordionContent,
-  AccordionHeader,
-} from "~/features/HeadlessUI/JoyAccordion";
 import SkillSelect from "~/features/Skills/SkillSelect";
 
 type WaggleDanceDashboardProps = {
@@ -24,16 +27,13 @@ const WaggleDanceDashboard = ({
   skillsLabel,
   selectedSkillsLength,
 }: WaggleDanceDashboardProps) => {
+  const [selectedIndex, setSelectedIndex] = useState<Record<number, boolean>>({
+    0: false,
+    1: false,
+    2: false,
+  });
   return (
-    <List
-      type="single"
-      collapsible={true}
-      component={Accordion}
-      color="neutral"
-      className="mt-2"
-      sx={{ padding: 0 }}
-      defaultValue={"item-1"}
-    >
+    <AccordionGroup variant="soft">
       <Box sx={{ display: { xs: "block", md: "flex" } }}>
         <Box
           sx={{
@@ -41,127 +41,114 @@ const WaggleDanceDashboard = ({
             maxWidth: { xs: "100%", md: "100%" },
           }}
         >
-          <AccordionItem value="item-1">
-            <AccordionHeader
-              isFirst
-              variant="outlined"
-              color="neutral"
-              openText={
-                <Box height={"3rem"}>
+          <Accordion
+            expanded={selectedIndex[0]}
+            onChange={(_, expanded) => {
+              setSelectedIndex({ ...selectedIndex, 0: expanded });
+            }}
+          >
+            <AccordionSummary>
+              <Avatar
+                color="primary"
+                variant="solid"
+                sx={{ mixBlendMode: "luminance" }}
+              >
+                <Typography sx={{ mixBlendMode: "luminance" }} level="h2">
+                  🍯
+                </Typography>
+              </Avatar>
+              <ListItemContent>
+                <Box
+                  height={"3rem"}
+                  sx={{ alignSelf: "start", alignContent: "" }}
+                >
                   <Typography noWrap level="title-sm">
-                    🍯 Goal
+                    Goal
                   </Typography>
-                  <Typography
-                    noWrap
-                    level="body-sm"
-                    sx={{
-                      fontSize: { xs: "xs", sm: "sm" },
-                    }}
-                  >
-                    {goal?.prompt}
-                  </Typography>
+                  {!selectedIndex[0] && (
+                    <Typography
+                      noWrap
+                      level="body-sm"
+                      sx={{
+                        fontSize: { xs: "xs", sm: "sm" },
+                      }}
+                    >
+                      {goal?.prompt}
+                    </Typography>
+                  )}
                 </Box>
-              }
-              closedText={
+              </ListItemContent>
+            </AccordionSummary>
+            <AccordionDetails>{goal?.prompt}</AccordionDetails>
+          </Accordion>
+          <Accordion
+            expanded={selectedIndex[1]}
+            onChange={(_, expanded) => {
+              setSelectedIndex({ ...selectedIndex, 1: expanded });
+            }}
+          >
+            <AccordionSummary>
+              <Avatar color="danger" variant="solid">
+                <Typography sx={{ mixBlendMode: "luminance" }} level="h2">
+                  🌺
+                </Typography>
+              </Avatar>
+              <ListItemContent>
                 <Box height={"3rem"}>
-                  <Typography level="title-sm">🍯 Goal</Typography>
-                  <Typography
-                    noWrap
-                    level="body-sm"
-                    sx={{
-                      fontSize: { xs: "xs", sm: "sm" },
-                    }}
-                  >
-                    {goal?.prompt}
-                  </Typography>
+                  <Typography level="title-sm"> Data</Typography>
+                  {!selectedIndex[1] && (
+                    <Typography
+                      noWrap
+                      level="body-sm"
+                      sx={{
+                        fontSize: { xs: "xs", sm: "sm" },
+                      }}
+                    >
+                      Boost result quality
+                    </Typography>
+                  )}
                 </Box>
-              }
-            />
-            <AccordionContent isLast={false}>{goal?.prompt}</AccordionContent>
-          </AccordionItem>
-          <AccordionItem value="item-3">
-            <AccordionHeader
-              isFirst
-              variant="outlined"
-              color="neutral"
-              openText={
-                <Box height={"3rem"}>
-                  <Typography level="title-sm">🌺 Data</Typography>
-                  <Typography
-                    noWrap
-                    level="body-sm"
-                    sx={{
-                      fontSize: { xs: "xs", sm: "sm" },
-                    }}
-                  >
-                    Boost result quality ‼️ under active development
-                  </Typography>
-                </Box>
-              }
-              closedText={
-                <Box height={"3rem"}>
-                  <Typography level="title-sm">🌺 Data</Typography>
-                  <Typography
-                    noWrap
-                    level="body-sm"
-                    sx={{
-                      fontSize: { xs: "xs", sm: "sm" },
-                    }}
-                  >
-                    Boost result quality ‼️ under active development
-                  </Typography>
-                </Box>
-              }
-            />
-            <AccordionContent isLast={false}>
+              </ListItemContent>
+            </AccordionSummary>
+            <AccordionDetails>
               <AddDocuments />
-            </AccordionContent>
-          </AccordionItem>
-          <AccordionItem value="item-4">
-            <AccordionHeader
-              variant="outlined"
-              color="neutral"
-              isLast={true}
-              openText={
-                <Box height={"3rem"}>
-                  <Typography level="title-sm">
-                    🔨 Skills ({selectedSkillsLength})
-                  </Typography>
+            </AccordionDetails>
+          </Accordion>
+          <Accordion
+            expanded={selectedIndex[2]}
+            onChange={(_, expanded) => {
+              setSelectedIndex({ ...selectedIndex, 2: expanded });
+            }}
+          >
+            <AccordionSummary>
+              <Avatar color="neutral" variant="solid">
+                {" "}
+                <Typography sx={{ mixBlendMode: "luminance" }} level="h2">
+                  🔨
+                </Typography>
+              </Avatar>
+              <Box height={"3rem"}>
+                <Typography level="title-sm">
+                  Skills ({selectedSkillsLength})
+                </Typography>
+                {!selectedIndex[2] && (
                   <Typography
                     noWrap
                     level="body-sm"
-                    sx={{
-                      fontSize: { xs: "xs", sm: "sm" },
-                    }}
+                    sx={{ xs: "xs", sm: "sm" }}
                   >
                     {skillsLabel}
                   </Typography>
-                </Box>
-              }
-              closedText={
-                <Box height={"3rem"}>
-                  <Typography level="title-sm">
-                    🔨 Skills ({selectedSkillsLength})
-                  </Typography>
-                  <Typography
-                    noWrap
-                    level="body-sm"
-                    sx={{
-                      fontSize: { xs: "xs", sm: "sm" },
-                    }}
-                  >
-                    {skillsLabel}
-                  </Typography>
-                </Box>
-              }
-            />
-            <AccordionContent isLast={true}>
+                )}
+              </Box>
+            </AccordionSummary>
+            <AccordionDetails>
               <SkillSelect />
-            </AccordionContent>
-          </AccordionItem>
+            </AccordionDetails>
+          </Accordion>
         </Box>
       </Box>
-    </List>
+    </AccordionGroup>
   );
 };
 
