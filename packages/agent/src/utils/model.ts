@@ -3,7 +3,7 @@ import { type Embeddings } from "langchain/embeddings/base";
 import { OpenAIEmbeddings } from "langchain/embeddings/openai";
 import { OpenAI } from "langchain/llms/openai";
 
-import { AgentPromptingMethod } from "./llms";
+import { AgentPromptingMethod, ModelStyle } from "./llms";
 import {
   type EmbeddingsCreationProps,
   type ModelCreationProps,
@@ -11,14 +11,15 @@ import {
 
 export const createModel = (
   creationProps: ModelCreationProps,
-  agentPromptingMethod: AgentPromptingMethod,
+  methodOrStyle: AgentPromptingMethod | ModelStyle,
 ): OpenAI | ChatOpenAI => {
   console.debug(`createModel: ${creationProps.modelName} `);
   if (
-    agentPromptingMethod === AgentPromptingMethod.ChatConversationalReAct ||
-    agentPromptingMethod === AgentPromptingMethod.ChatZeroShotReAct ||
-    agentPromptingMethod === AgentPromptingMethod.OpenAIStructuredChat ||
-    agentPromptingMethod === AgentPromptingMethod.OpenAIFunctions
+    methodOrStyle === ModelStyle.Chat ||
+    methodOrStyle === AgentPromptingMethod.ChatConversationalReAct ||
+    methodOrStyle === AgentPromptingMethod.ChatZeroShotReAct ||
+    methodOrStyle === AgentPromptingMethod.OpenAIStructuredChat ||
+    methodOrStyle === AgentPromptingMethod.OpenAIFunctions
   ) {
     return new ChatOpenAI(
       { ...creationProps },

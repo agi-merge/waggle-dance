@@ -3,7 +3,7 @@
 import { LLMChain } from "langchain/chains";
 
 import { createRefinePrompt } from "../prompts/createRefinePrompt";
-import { AgentPromptingMethod } from "../utils/llms";
+import { ModelStyle } from "../utils/llms";
 import { createModel } from "../utils/model";
 import { type ModelCreationProps } from "../utils/OpenAIPropsBridging";
 
@@ -15,7 +15,7 @@ export async function callRefiningAgent(params: {
 }) {
   const { goalPrompt, signal, creationProps, contentType } = params;
   const returnType = contentType === "application/json" ? "JSON" : "YAML";
-  const llm = createModel(creationProps, AgentPromptingMethod.ZeroShotReAct); // this is used to select OpenAI as the model (non-Chat)
+  const llm = createModel(creationProps, ModelStyle.Instruct);
 
   const prompt = createRefinePrompt({ goalPrompt, tools: "", returnType });
   const chain = new LLMChain({

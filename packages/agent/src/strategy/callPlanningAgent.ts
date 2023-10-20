@@ -9,7 +9,12 @@ import {
   createPlanFormattingPrompt,
   createPlanPrompt,
 } from "../prompts/createPlanPrompt";
-import { AgentPromptingMethod, LLM, LLM_ALIASES } from "../utils/llms";
+import {
+  AgentPromptingMethod,
+  LLM,
+  LLM_ALIASES,
+  ModelStyle,
+} from "../utils/llms";
 import { createEmbeddings, createModel } from "../utils/model";
 import { type ModelCreationProps } from "../utils/OpenAIPropsBridging";
 import createSkills from "../utils/skills";
@@ -106,9 +111,8 @@ export async function callPlanningAgent(
           modelName: LLM_ALIASES["fast-large"],
           maxTokens: -1,
         },
-        AgentPromptingMethod.OpenAIFunctions,
-      ); // this is used to select a chat model (required for system message prompt)]
-
+        ModelStyle.Chat,
+      );
       tags.push("fix");
       const formattingChain = new LLMChain({
         // memory,

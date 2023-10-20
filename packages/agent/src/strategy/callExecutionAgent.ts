@@ -26,12 +26,13 @@ import checkTrajectory from "../grounding/checkTrajectory";
 import { isTaskCriticism } from "../prompts/types";
 import type Geo from "../utils/Geo";
 import {
-  AgentPromptingMethod,
   getAgentPromptingMethodValue,
   InitializeAgentExecutorOptionsAgentTypes,
   InitializeAgentExecutorOptionsStructuredAgentTypes,
   LLM,
   LLM_ALIASES,
+  ModelStyle,
+  type AgentPromptingMethod,
   type InitializeAgentExecutorOptionsAgentType,
   type InitializeAgentExecutorOptionsStructuredAgentType,
 } from "../utils/llms";
@@ -159,7 +160,7 @@ export async function callExecutionAgent(creation: {
 
     const smartModelForEvaluation = createModel(
       { modelName: LLM_ALIASES["smart"] },
-      AgentPromptingMethod.OpenAIFunctions,
+      ModelStyle.Chat,
     );
 
     // from langchain/evaluation/criteria:

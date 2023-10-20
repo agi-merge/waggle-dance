@@ -36,6 +36,11 @@ export const TEMPERATURE_VALUES = {
   [Temperature.Creative]: 0.9,
 };
 
+export enum ModelStyle {
+  Chat,
+  Instruct,
+}
+
 export enum AgentPromptingMethod {
   ZeroShotReAct = "Zero-shot ReAct",
   ChatZeroShotReAct = "Chat Zero-shot ReAct",
