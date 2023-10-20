@@ -16,6 +16,9 @@ enum PolicyViolation {
   IGNORES_CONTEXT = "IGNORES_CONTEXT",
   INCORRECT_FINAL_NODE_NAME = "INCORRECT_FINAL_NODE_NAME",
   INCORRECT_DEPENDENCIES = "INCORRECT_DEPENDENCIES",
+  CIRCULAR_DEPENDENCIES = "CIRCULAR_DEPENDENCIES",
+  UNREACHABLE_NODES = "UNREACHABLE_NODES",
+  MISSING_CRITICAL_NODE = "MISSING_CRITICAL_NODE",
 }
 
 // FIXME: auto-gen this
@@ -289,6 +292,65 @@ const counterExamples = [
     policyViolation: PolicyViolation.INCORRECT_DEPENDENCIES,
     reason:
       "The Task 'Bake the cake' is not logically dependent on 'Go to friend's house'. The correct order should be 'Buy chocolate', 'Bake the cake', 'Go to friend's house', and then 'Deliver the cake'. This example demonstrates a plan where a node is not logically dependent on its parent.",
+  },
+  {
+    input: "Write a research paper on the topic of AI",
+    output: {
+      1: [
+        {
+          id: "0",
+          name: "Research AI",
+          context:
+            "Gather information about AI, its history, applications, and future prospects",
+        },
+      ],
+      2: [
+        {
+          id: "1",
+          name: "Write paper",
+          context: "Write a research paper based on the gathered information",
+        },
+      ],
+    },
+    policyViolation: PolicyViolation.UNREACHABLE_NODES,
+    reason:
+      "The task 'Write paper' is unreachable because there is no edge from 'Research AI' to 'Write paper'. This means that the task 'Write paper' will never be executed, making it impossible to complete the goal.",
+  },
+  {
+    input: "Write a research paper on the topic of AI",
+    output: {
+      1: [
+        {
+          id: "0",
+          name: "Research AI",
+          context:
+            "Gather information about AI, its history, applications, and future prospects",
+        },
+      ],
+      2: [
+        {
+          parents: [1],
+          id: "1",
+          name: "Write paper",
+          context: "Write a research paper based on the gathered information",
+        },
+      ],
+      3: [
+        {
+          parents: [2],
+          id: "0",
+          name: "Research AI",
+          context:
+            "Gather information about AI, its history, applications, and future prospects",
+        },
+      ],
+    },
+    policyViolation: [
+      PolicyViolation.CIRCULAR_DEPENDENCIES,
+      PolicyViolation.MISSING_CRITICAL_NODE,
+    ],
+    reason:
+      "There is a circular dependency between 'Research AI' and 'Write paper'. This creates a cycle in the task graph, which is problematic because it can lead to infinite loops and makes it impossible to complete the goal. Additionally",
   },
 ];
 
