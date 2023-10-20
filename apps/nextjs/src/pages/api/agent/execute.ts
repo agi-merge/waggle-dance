@@ -41,6 +41,8 @@ export const config = {
   runtime: "edge",
 };
 
+const maxLogSize = 4096;
+
 /**
  * Returns a hash code from a string
  * @param  {String} str The string to hash.
@@ -96,7 +98,7 @@ const checkRepetitivePackets = async (
       }
     }
   } catch (e) {
-    console.error(e);
+    console.error(String(e).slice(0, maxLogSize));
     // throw e;
   }
 
@@ -259,7 +261,7 @@ export default async function ExecuteStream(req: NextRequest) {
           return;
         }
       } catch (e) {
-        console.error(e);
+        console.error(String(e).slice(0, maxLogSize));
         throw e;
       }
     }
@@ -285,7 +287,7 @@ export default async function ExecuteStream(req: NextRequest) {
   ): Promise<void> => {
     console.warn(
       `Repetition detected. Restarting execution. Recent document: ${recentDocument}. Similar documents: ${similarDocuments.map(
-        (d) => d.pageContent,
+        (d) => d.pageContent.slice(500),
       )}`,
     );
     if (abortControllerWrapper.controller.signal.aborted) {
@@ -581,7 +583,7 @@ export default async function ExecuteStream(req: NextRequest) {
                 namespace!,
                 req,
               );
-              console.error("handleLLMError", packet);
+              console.error("handleLLMError", String(err).slice(0, maxLogSize));
             },
             handleChainError(
               err: unknown,
@@ -611,7 +613,10 @@ export default async function ExecuteStream(req: NextRequest) {
                 namespace!,
                 req,
               ); // can be 'Output parser not set'
-              console.error("handleChainError", packet);
+              console.error(
+                "handleChainError",
+                String(err).slice(0, maxLogSize),
+              );
             },
             handleToolStart(
               tool: Serialized,
@@ -670,7 +675,10 @@ export default async function ExecuteStream(req: NextRequest) {
                 namespace!,
                 req,
               );
-              console.error("handleToolError", packet);
+              console.error(
+                "handleToolError",
+                String(err).slice(0, maxLogSize),
+              );
             },
             handleToolEnd(
               output: string,
@@ -993,7 +1001,7 @@ export default async function ExecuteStream(req: NextRequest) {
       };
     }
     executionResult = { packet: errorPacket, state: "ERROR" };
-    console.error("execute error", e);
+    console.error("execute error", String(e).slice(0, maxLogSize));
 
     let status = 500;
     if (e as { status: number }) {
@@ -1050,11 +1058,11 @@ export default async function ExecuteStream(req: NextRequest) {
           },
           body: JSON.stringify(createResultParams),
         });
-        const [createResultResponse, saveResponse] = await Promise.all([
+        const [createResultResponse, _saveResponse] = await Promise.all([
           createResultPromise,
           save,
         ]);
-        console.debug("saved memory", saveResponse);
+        console.debug("saved memory");
         response = createResultResponse;
       } else {
         response = {
