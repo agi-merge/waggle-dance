@@ -79,12 +79,6 @@ const checkRepetitivePackets = async (
       embeddedings,
     );
 
-    console.debug(
-      `checkRepetitivePackets(${taskId}) len=`,
-      memoryVectorStore.memoryVectors.length,
-      "",
-    );
-
     const retriever = ScoreThresholdRetriever.fromVectorStore(
       memoryVectorStore,
       {
