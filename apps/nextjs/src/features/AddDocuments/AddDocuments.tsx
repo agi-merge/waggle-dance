@@ -15,9 +15,11 @@ import LinearProgress from "@mui/joy/LinearProgress";
 import Stack from "@mui/joy/Stack";
 import Table from "@mui/joy/Table";
 import Typography from "@mui/joy/Typography";
+import { v4 } from "uuid";
 
 import DropZoneUploader from "~/features/AddDocuments/DropZoneUploader";
 import Title from "~/features/MainLayout/components/PageTitle";
+import Alerts from "../Alerts/Alerts";
 
 type UploadState =
   | { status: "idle" }
@@ -135,7 +137,19 @@ const AddDocuments = ({ onClose: _onClose, ...props }: Props) => {
 
   return (
     <Box {...props}>
-      <Title title="🌺 Documents, Data, and Tools">
+      <Alerts
+        alertConfigs={[
+          {
+            id: v4(),
+            title: "",
+            description:
+              "This is under construction and does not have any effect yet. Please check back later.",
+            color: "warning",
+            footer: "",
+          },
+        ]}
+      />
+      <Title title="🌺 Data and Knowledge">
         <Typography
           level="body-lg"
           sx={{

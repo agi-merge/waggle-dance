@@ -14,11 +14,7 @@ export default function DocsModal({ children }: Props) {
   return (
     <React.Fragment>
       <Box className="flex justify-center">
-        <Tooltip
-          title="Add relevant documents and data"
-          variant="soft"
-          color="neutral"
-        >
+        <Tooltip title="Add relevant knowledge" variant="soft" color="neutral">
           <Link
             color="primary"
             level="body-sm"

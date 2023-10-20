@@ -1,12 +1,14 @@
 import { Checkbox, List, type CheckboxProps } from "@mui/joy";
 import Typography from "@mui/joy/Typography";
 import { Accordion, AccordionItem } from "@radix-ui/react-accordion";
+import { v4 } from "uuid";
 
 import { type Skillset } from "@acme/db";
 import { skillDatabase } from "@acme/db/skills";
 
 import theme from "~/styles/theme";
 import useSkillStore from "~/stores/skillStore";
+import Alerts from "../Alerts/Alerts";
 import { AccordionContent, AccordionHeader } from "../HeadlessUI/JoyAccordion";
 
 const SkillSelect = ({}) => {
@@ -61,6 +63,18 @@ const SkillSelect = ({}) => {
       component={Accordion}
       value={selectedSkills.map((skill) => skill?.id ?? "")}
     >
+      <Alerts
+        alertConfigs={[
+          {
+            id: v4(),
+            title: "",
+            description:
+              "These settings are under construction and do not have any effect yet. The skills that are selected by default ARE enabled in the demo. Please check back later.",
+            color: "warning",
+            footer: "",
+          },
+        ]}
+      />
       {skillDatabase.map((skill, i) => (
         <AccordionItem value={skill.id} key={skill.id} className="pb-5">
           <AccordionHeader
