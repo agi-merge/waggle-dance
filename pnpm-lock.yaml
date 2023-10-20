@@ -1,4 +1,4 @@
-lockfileVersion: '6.1'
+lockfileVersion: '6.0'
 
 settings:
   autoInstallPeers: true
@@ -234,6 +234,9 @@ importers:
       graphql:
         specifier: ^16.8.1
         version: 16.8.1
+      js-tiktoken:
+        specifier: ^1.0.7
+        version: 1.0.7
       net:
         specifier: ^1.0.2
         version: 1.0.2

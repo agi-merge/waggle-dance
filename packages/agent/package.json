@@ -15,6 +15,7 @@
     "axios": "^1.5.1",
     "cheerio": "1.0.0-rc.12",
     "graphql": "^16.8.1",
+    "js-tiktoken": "^1.0.7",
     "net": "^1.0.2",
     "redis": "^4.6.10",
     "serpapi": "^2.0.0",

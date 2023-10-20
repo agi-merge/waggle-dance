@@ -1,10 +1,11 @@
 // agent/strategy/callPlanningAgent.ts
 
+import { encodingForModel, type Tiktoken } from "js-tiktoken";
 import { LLMChain } from "langchain/chains";
 import { parse as jsonParse, stringify as jsonStringify } from "superjson";
 import { parse as yamlParse, stringify as yamlStringify } from "yaml";
 
-import { rootPlanId, type PlanWireFormat } from "../..";
+import { defaultAgentSettings, rootPlanId, type PlanWireFormat } from "../..";
 import {
   createPlanFormattingPrompt,
   createPlanPrompt,
@@ -105,17 +106,40 @@ export async function callPlanningAgent(
         returnType,
       );
 
+      const matchResponseTokensWithMinimumAndPadding = (
+        text: string,
+        encoder: Tiktoken,
+        paddingMultiplier: number = 1.1,
+      ) => {
+        if (paddingMultiplier <= 1) {
+          throw new Error("paddingMultiplier must be greater than 1");
+        }
+        const max = defaultAgentSettings.plan.maxTokens;
+        const tokenCount = encoder.encode(text).length;
+        if (response.length > 0.9 * max) {
+          // if the response is close to max, it probably means that the reason parsing failed is bc the plan is VERY long.
+          // Allow it to use as many tokens as the model will allow!
+          return -1;
+        } else {
+          // otherwise, we want to use the response token count with some padding for the fix (it should be close, yeah?)
+          return tokenCount * paddingMultiplier;
+        }
+      };
+
+      const modelName = LLM_ALIASES["fast-large"];
       const formattingLLM = createModel(
         {
           ...creationProps,
-          modelName: LLM_ALIASES["fast-large"],
-          maxTokens: -1,
+          modelName,
+          maxTokens: matchResponseTokensWithMinimumAndPadding(
+            response,
+            encodingForModel(modelName),
+          ),
         },
         ModelStyle.Chat,
       );
       tags.push("fix");
       const formattingChain = new LLMChain({
-        // memory,
         prompt: formattingPrompt,
         tags,
         llm: formattingLLM,
