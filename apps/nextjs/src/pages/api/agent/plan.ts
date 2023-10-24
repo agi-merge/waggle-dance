@@ -39,6 +39,7 @@ export default async function PlanStream(req: NextRequest) {
       goalPrompt: parsedGoalPrompt,
       goalId: parsedGoalId,
       executionId: parsedExecutionId,
+      agentProtocolOpenAPISpec,
     } = (await req.json()) as PlanRequestBody;
     goalPrompt = parsedGoalPrompt;
     goalId = parsedGoalId;
@@ -92,6 +93,7 @@ export default async function PlanStream(req: NextRequest) {
           goalId!,
           abortController.signal,
           `${goalId}_${executionId}`,
+          agentProtocolOpenAPISpec,
         );
 
         if (planResult instanceof Error) {

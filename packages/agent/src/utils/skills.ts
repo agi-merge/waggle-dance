@@ -5,12 +5,14 @@ import {
   SearchApi,
   SerpAPI,
   WolframAlphaTool,
+  type JsonSpec,
   type SearchApiParameters,
   type StructuredTool,
 } from "langchain/tools";
 import { WebBrowser } from "langchain/tools/webbrowser";
 
 import cca2Map from "../lib/cca2Map.json";
+import { AgentProtocolToolkit } from "../skills/AgentProtocolSkill";
 import requestUserHelpSkill from "../skills/requestUserHelpSkill";
 import type Geo from "./Geo";
 import { type AgentPromptingMethod } from "./llms";
@@ -216,6 +218,7 @@ function createSkills(
   isCriticism: boolean,
   taskId: string,
   returnType: "YAML" | "JSON",
+  agentProtocolOpenAPISpec?: JsonSpec,
   geo?: Geo,
 ): StructuredTool[] {
   const tools = [
@@ -263,6 +266,10 @@ function createSkills(
     );
   }
 
+  if (agentProtocolOpenAPISpec) {
+    const toolkit = new AgentProtocolToolkit(agentProtocolOpenAPISpec, llm, {});
+    tools.push(...toolkit.tools);
+  }
   return tools as StructuredTool[];
 }
 

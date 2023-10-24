@@ -1,4 +1,5 @@
 import { type MutableRefObject } from "react";
+import { type JsonSpec } from "langchain/tools";
 import { stringify } from "yaml";
 
 import {
@@ -16,6 +17,7 @@ import planTasks from "../utils/planTasks";
 import { sleep } from "../utils/sleep";
 import {
   mapAgentSettingsToCreationProps,
+  type ExecuteRequestBody,
   type GraphDataState,
   type WaggleDanceResult,
 } from "./types";
@@ -67,9 +69,19 @@ class WaggleDanceAgentExecutor {
     this.taskResults = {};
     this.error = null;
     const initialNode = rootPlanNode(this.goalPrompt);
+    let agentProtocolOpenAPISpec: JsonSpec | undefined;
+
+    try {
+      agentProtocolOpenAPISpec = (await (
+        await fetch("/api/ap")
+      ).json()) as JsonSpec;
+    } catch {
+      console.error("Failed to fetch agent protocol spec");
+    }
+
     void (async () => {
       try {
-        const result = await this.planAndSetDAG();
+        const result = await this.planAndSetDAG(agentProtocolOpenAPISpec);
         console.debug("done planning");
         if (this.error) {
           return;
@@ -200,7 +212,9 @@ class WaggleDanceAgentExecutor {
     };
   }
 
-  async planAndSetDAG(): Promise<DraftExecutionGraph | null> {
+  async planAndSetDAG(
+    agentProtocolOpenAPISpec?: JsonSpec,
+  ): Promise<DraftExecutionGraph | null> {
     const creationProps = mapAgentSettingsToCreationProps(
       this.agentSettings["plan"],
     );
@@ -213,6 +227,7 @@ class WaggleDanceAgentExecutor {
       log: this.log,
       injectAgentPacket: this.injectAgentPacket,
       abortSignal: this.abortController.signal,
+      agentProtocolOpenAPISpec,
     });
 
     // Call the check methods here
@@ -258,7 +273,7 @@ class WaggleDanceAgentExecutor {
       const creationProps = mapAgentSettingsToCreationProps(
         this.agentSettings["execute"],
       );
-      const executeRequest = {
+      const executeRequest: ExecuteRequestBody = {
         goalPrompt: this.goalPrompt,
         goalId: this.goalId,
         executionId: this.executionId,

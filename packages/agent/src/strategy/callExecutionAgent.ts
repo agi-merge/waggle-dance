@@ -22,6 +22,7 @@ import {
 import { type AgentStep } from "langchain/schema";
 import { AbortError } from "redis";
 import { stringify as jsonStringify } from "superjson";
+import { type JsonSpec } from "langchain/tools";
 import { parse as yamlParse, stringify as yamlStringify } from "yaml";
 import { z } from "zod";
 
@@ -80,6 +81,7 @@ export async function callExecutionAgent(creation: {
   contentType: "application/json" | "application/yaml";
   abortSignal: AbortSignal;
   namespace: string;
+  agentProtocolOpenAPISpec?: JsonSpec;
   geo?: Geo;
 }): Promise<string | Error> {
   const {
@@ -93,6 +95,7 @@ export async function callExecutionAgent(creation: {
     abortSignal,
     namespace,
     contentType,
+    agentProtocolOpenAPISpec,
     geo,
   } = creation;
   const callbacks = creationProps.callbacks;
@@ -152,6 +155,7 @@ export async function callExecutionAgent(creation: {
     isCriticism,
     taskObj.id,
     returnType,
+    agentProtocolOpenAPISpec,
     geo,
   );
 

@@ -1,5 +1,7 @@
 // features/WaggleDance/utils/planTasks.ts
 
+import { type JsonSpec } from "langchain/tools";
+
 import { type DraftExecutionGraph, type DraftExecutionNode } from "@acme/db";
 
 import {
@@ -26,6 +28,7 @@ export type PlanTasksProps = {
     task: DraftExecutionNode,
     dag: DraftExecutionGraph,
   ) => Promise<void>;
+  agentProtocolOpenAPISpec?: JsonSpec;
 };
 
 export default async function planTasks({
@@ -38,6 +41,7 @@ export default async function planTasks({
   injectAgentPacket,
   startFirstTask,
   abortSignal,
+  agentProtocolOpenAPISpec,
 }: PlanTasksProps): Promise<DraftExecutionGraph | undefined> {
   const intervalHandler = new PlanUpdateIntervalHandler(100); // update at most every...
   const parseWorker = new Worker(new URL("./parseWorker.ts", import.meta.url));
@@ -48,7 +52,14 @@ export default async function planTasks({
 
     let partialDAG: DraftExecutionGraph = dag;
     let hasFirstTaskStarted = false;
-    const data = { goalPrompt, goalId, executionId, creationProps };
+    const data = {
+      goalPrompt,
+      goalId,
+      executionId,
+      creationProps,
+      agentProtocolOpenAPISpec,
+    };
+    // TODO: merge w/ api.execution.createPlan
     const res = await fetch("/api/agent/plan", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
