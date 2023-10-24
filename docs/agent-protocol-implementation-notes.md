@@ -9,7 +9,16 @@
 
 - AP:Task ~= WD:(Goal+Execution)
 - AP:Step ~= WD:ExecutionNode
-- AP:Artifact ~= WD:Execution
+- AP:Artifact ~= WD:Result
+
+## Problems
+
+```ts
+GET /ap/v1/agent/tasks
+// WD: returns executions, may return executions from other Goals (which are effectively other Agents)
+```
+
+AP: assumes there can only be one Agent in a system. Isolation would currently have to be done w/ `additional_input`
 
 ## AP↔WD Incongruencies
 
@@ -33,13 +42,13 @@ Opinions ([@jondwillis](https://github.com/jondwillis)):
 
   - is there even a way around this?
 
-- There is no way to create an agent, despite it being in the API route.
+- I found it weird that there is no way to create an agent, despite it being in the API route.
 
 - Artifact is a poor abstraction, or at least needs to have a content-type
 
 - Some kind of scoping or containerization may be beneficial. Again, `additional_input` would be the only way.
 
-- The "any"/"object" typings feel bad. Why not formalize a schema, or return strings?
+- The "any"/"object" typings feel bad. Why not formalize/allow configuring a schema, or return strings?
 
 # Suggestions
 
