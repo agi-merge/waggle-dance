@@ -2,7 +2,7 @@
 
 > `AP=Agent Protocol` <br /> context: [OpenAPI](/apps/nextjs/lib/AgentProtocol/openapi.json)
 
-> `WD=waggledance.ai` <br /> context: [Prisma Schema]()
+> `WD=waggledance.ai` <br /> context: [Prisma Schema](/packages/db/prisma/schema.prisma)
 > (OpenAPI coming soon)
 
 ## AP↔WD Mappings
