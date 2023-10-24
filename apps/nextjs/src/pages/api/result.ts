@@ -25,6 +25,7 @@ export type CreateResultParams = {
   packets: AgentPacket[];
   state: ExecutionState;
   session?: Session | null;
+  origin?: string | undefined;
 };
 
 // data proxy for edge
@@ -37,6 +38,7 @@ export default async function createResultProxy(
 
     const params = req.body as CreateResultParams;
     params["session"] = session;
+    params["origin"] = req.headers.origin;
 
     const result = await createResult(params);
     console.debug("createResult result", result);
@@ -50,8 +52,12 @@ export default async function createResultProxy(
 async function createResult(
   createResultOptions: CreateResultParams,
 ): Promise<[Result, Execution]> {
-  const { session } = createResultOptions;
-  const caller = appRouter.createCaller({ session: session || null, prisma });
+  const { session, origin } = createResultOptions;
+  const caller = appRouter.createCaller({
+    session: session || null,
+    prisma,
+    origin,
+  });
   const createResult = caller.result.create(createResultOptions);
   return createResult;
 }

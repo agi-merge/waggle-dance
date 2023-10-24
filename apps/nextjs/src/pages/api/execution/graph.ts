@@ -22,6 +22,7 @@ export type UpdateGraphParams = {
   graph: OldPlanWireFormat | null;
   goalPrompt: string;
   session?: Session | null;
+  origin?: string | undefined;
 };
 
 // data proxy for edge
@@ -34,6 +35,7 @@ export default async function updateGraphProxy(
 
     const { json: params } = req.body as { json: UpdateGraphParams };
     params["session"] = session;
+    params["origin"] = req.headers.origin;
 
     const result = await updateGraph(params);
     res.status(200).json(result);
@@ -48,8 +50,13 @@ async function updateGraph({
   graph,
   goalPrompt,
   session,
+  origin,
 }: UpdateGraphParams): Promise<ExecutionGraph | Execution> {
-  const caller = appRouter.createCaller({ session: session || null, prisma });
+  const caller = appRouter.createCaller({
+    session: session || null,
+    prisma,
+    origin,
+  });
   if (graph == null) {
     const updated = await caller.execution.updateState({
       state: ExecutionState.ERROR,

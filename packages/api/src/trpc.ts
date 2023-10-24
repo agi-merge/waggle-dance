@@ -25,6 +25,7 @@ import { prisma } from "@acme/db";
  */
 type CreateContextOptions = {
   session: Session | null;
+  origin: string | undefined;
 };
 
 /**
@@ -40,6 +41,7 @@ const createInnerTRPCContext = (opts: CreateContextOptions) => {
   return {
     session: opts.session,
     prisma,
+    origin: opts.origin,
   };
 };
 
@@ -54,8 +56,13 @@ export const createTRPCContext = async (opts: CreateNextContextOptions) => {
   // Get the session from the server using the unstable_getServerSession wrapper function
   const session = await getServerSession({ req, res });
 
+  if (!req.headers.origin) {
+    throw new Error("No origin header");
+  }
+
   return createInnerTRPCContext({
     session,
+    origin: req.headers.origin,
   });
 };
 

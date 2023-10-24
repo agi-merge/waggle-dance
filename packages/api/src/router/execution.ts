@@ -1,13 +1,18 @@
+import { getFetch } from "@trpc/client";
 import { z } from "zod";
 
-import { hookRootUpToServerGraph, makeServerIdIfNeeded } from "@acme/agent";
+import {
+  hookRootUpToServerGraph,
+  makeServerIdIfNeeded,
+  type ModelCreationProps,
+} from "@acme/agent";
 import {
   ExecutionState,
   type DraftExecutionEdge,
   type DraftExecutionNode,
 } from "@acme/db";
 
-import { createTRPCRouter, protectedProcedure } from "../trpc";
+import { createTRPCRouter, protectedProcedure, publicProcedure } from "../trpc";
 import withLock from "./lock";
 
 export const dagShape = z.object({
@@ -145,5 +150,21 @@ export const executionRouter = createTRPCRouter({
           userId,
         },
       });
+    }),
+
+  createPlan: publicProcedure
+    .input(
+      z.object({
+        goalPrompt: z.string().min(1).cuid(),
+        goalId: z.string().min(1).cuid(),
+        executionId: z.string().min(1).cuid(),
+        creationProps: z.custom<ModelCreationProps>(),
+      }),
+    )
+    .mutation(({ ctx, input }) => {
+      const { goalPrompt, goalId, executionId, creationProps } = input;
+      const userId = ctx.session?.user.id;
+
+      return getFetch()(`${ctx.origin}/api/agent/plan`, {});
     }),
 });
