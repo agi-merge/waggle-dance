@@ -1,5 +1,3 @@
-export { v4 } from "uuid";
-
 /**
  * Input parameters for the task. Any value is allowed.
  */
@@ -92,9 +90,12 @@ export interface Task {
    * A list of artifacts that the task has produced.
    */
   artifacts?: Artifact[];
+
+  additional_input?: object;
 }
 export interface TaskRequestBody {
   input?: TaskInput;
+  additional_input?: object;
 }
 
 /**

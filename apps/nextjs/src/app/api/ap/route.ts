@@ -4,6 +4,7 @@ import { stringify } from "superjson";
 import AgentProtocolOpenAPISpec from "~/../lib/AgentProtocol/openapi.json";
 
 export const runtime = "edge"; // 'nodejs' is the default
+export const dynamic = "force-static";
 
 export function GET(req: NextRequest) {
   const spec = AgentProtocolOpenAPISpec;

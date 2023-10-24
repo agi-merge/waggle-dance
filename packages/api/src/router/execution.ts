@@ -62,6 +62,57 @@ export const executionRouter = createTRPCRouter({
       });
     }),
 
+  createForAgentProtocol: protectedProcedure
+    .input(z.object({ prompt: z.string().nonempty() }))
+    .mutation(async ({ ctx, input }) => {
+      const { prompt } = input;
+      const userId = ctx.session.user.id;
+
+      // create a new goal
+      const goal = await ctx.prisma.goal.create({
+        data: {
+          prompt,
+          userId,
+        },
+      });
+
+      // create a new execution and attach it to the newly created goal
+      const execution = await ctx.prisma.execution.create({
+        data: {
+          goalId: goal.id,
+          userId,
+        },
+        include: {
+          goal: {
+            include: {
+              executions: {
+                take: 0,
+                orderBy: {
+                  updatedAt: "desc",
+                },
+                include: {
+                  graph: {
+                    include: {
+                      nodes: true,
+                      edges: true,
+                    },
+                  },
+                  results: {
+                    take: 0,
+                    orderBy: {
+                      updatedAt: "desc",
+                    },
+                  },
+                },
+              },
+            },
+          },
+        },
+      });
+
+      return execution;
+    }),
+
   updateGraph: protectedProcedure
     .input(
       z.object({
@@ -139,7 +190,7 @@ export const executionRouter = createTRPCRouter({
     }),
 
   byId: protectedProcedure
-    .input(z.object({ id: z.string().cuid() }))
+    .input(z.object({ id: z.string() }))
     .query(({ ctx, input }) => {
       const { id } = input;
       const userId = ctx.session.user.id;
@@ -149,15 +200,29 @@ export const executionRouter = createTRPCRouter({
           id,
           userId,
         },
+        include: {
+          graph: {
+            include: {
+              nodes: true,
+              edges: true,
+            },
+          },
+          results: {
+            take: 40,
+            orderBy: {
+              updatedAt: "desc",
+            },
+          },
+        },
       });
     }),
 
   createPlan: publicProcedure
     .input(
       z.object({
-        goalPrompt: z.string().min(1).cuid(),
-        goalId: z.string().min(1).cuid(),
-        executionId: z.string().min(1).cuid(),
+        goalPrompt: z.string().min(1),
+        goalId: z.string().min(1),
+        executionId: z.string().min(1),
         creationProps: z.custom<ModelCreationProps>(),
       }),
     )
