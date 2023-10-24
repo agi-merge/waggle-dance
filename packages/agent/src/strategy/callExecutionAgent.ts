@@ -134,39 +134,6 @@ export async function callExecutionAgent(creation: {
     memory,
   );
 
-  const allExampleTools = [
-    "Retrieve Memories",
-    "Save Memories",
-    "Web Browser",
-    "Google Search",
-    "Google News",
-    "Google Scholar",
-    "Google Trends",
-    "Python IDE",
-    "Web Browser",
-    "Google Search",
-    "Stack Overflow",
-    "GitHub",
-    "Retrieve Memories",
-    "Save Memories",
-    "Web Browser",
-    "Google Search",
-    "Google Finance",
-    "Yahoo Finance",
-    "Translation Tool",
-    "YouTube",
-    "Amazon Search",
-    "Bloomberg Terminal",
-  ];
-
-  const allExampleDataSources = [
-    "user.profile.basic",
-    "notion",
-    "memory",
-    "memory.longterm",
-    "stock.market.data",
-  ];
-
   const toolsAndContextExamples = [
     {
       input: {
