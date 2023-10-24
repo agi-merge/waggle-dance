@@ -186,26 +186,27 @@ export async function callExecutionAgent(creation: {
       depth: "Does the submission demonstrate depth of thought?",
       creativity: "Does the submission demonstrate novelty or unique ideas?",
       detail: "Does the submission demonstrate attention to detail?",
-    */
-
-    const controversialityTrajectoryEvaluator = await loadEvaluator(
-      "trajectory",
-      {
-        llm: smartModelForEvaluation,
-        criteria: "controversiality",
-        agentTools: skills,
-      },
-    );
-
-    const depthTrajectoryEvaluator = await loadEvaluator("trajectory", {
+    */ const taskFulfillmentEvaluator = await loadEvaluator("trajectory", {
       llm: smartModelForEvaluation,
-      criteria: "depth",
+      criteria: {
+        taskFulfillment: "Does the submission fulfill the specific TASK?",
+      },
       agentTools: skills,
     });
 
-    const detailTrajectoryEvaluator = await loadEvaluator("trajectory", {
+    const schemaAdherenceEvaluator = await loadEvaluator("trajectory", {
       llm: smartModelForEvaluation,
-      criteria: "detail",
+      criteria: {
+        schemaAdherence: "Does the submission adhere to the specified SCHEMA?",
+      },
+      agentTools: skills,
+    });
+
+    const constraintsEvaluator = await loadEvaluator("trajectory", {
+      llm: smartModelForEvaluation,
+      criteria: {
+        rulesAdherence: "Does the submission adhere to each of the RULES?",
+      },
       agentTools: skills,
     });
 
@@ -213,9 +214,9 @@ export async function callExecutionAgent(creation: {
 
     try {
       const evaluators = [
-        controversialityTrajectoryEvaluator,
-        depthTrajectoryEvaluator,
-        detailTrajectoryEvaluator,
+        taskFulfillmentEvaluator,
+        schemaAdherenceEvaluator,
+        constraintsEvaluator,
       ];
 
       await checkTrajectory(
