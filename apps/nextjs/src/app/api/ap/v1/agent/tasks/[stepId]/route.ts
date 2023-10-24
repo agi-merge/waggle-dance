@@ -8,20 +8,19 @@ import { v4 } from "uuid";
 
 import { stub } from "~/utils/stub";
 
-export const config = {
-  runtime: "edge",
-};
-
 // POST /ap/v1/agent/tasks/:taskId/steps
-export const executeStep = (taskId: string, body: StepRequestBody) => {
+export async function POST(request: NextRequest) {
+  const taskId = request.nextUrl.searchParams.get("taskId");
+  const body = (await request.json()) as StepRequestBody;
+
   const task: Task | undefined = stub.tasks[taskId];
   if (!task) {
-    // add task
     return NextResponse.json(
       { message: "Unable to find task with the provided id" },
       { status: 404 },
     );
   }
+
   const step = {
     step_id: v4(),
     task_id: taskId,
@@ -30,15 +29,17 @@ export const executeStep = (taskId: string, body: StepRequestBody) => {
     status: StepStatus.CREATED,
     is_last: false,
   };
+
   stub.steps[step.step_id] = step;
   return NextResponse.json(step, { status: 200 });
-};
+}
 
 // GET /ap/v1/agent/tasks/:taskId/steps
-export const listSteps = async (req: NextRequest, taskId: string) => {
-  const { searchParams } = new URL(req.url);
-  const currentPage = Number(searchParams.get("current_page")) || 1;
-  const pageSize = Number(searchParams.get("page_size")) || 10;
+export async function GET(request: NextRequest) {
+  const taskId = request.nextUrl.searchParams.get("taskId");
+  const currentPage =
+    Number(request.nextUrl.searchParams.get("current_page")) || 1;
+  const pageSize = Number(request.nextUrl.searchParams.get("page_size")) || 10;
 
   const taskSteps = Object.values(stub.steps).filter(
     (step) => step.task_id === taskId,
@@ -57,38 +58,4 @@ export const listSteps = async (req: NextRequest, taskId: string) => {
   };
 
   return NextResponse.json({ steps: paginatedSteps, pagination });
-};
-
-export default async function handler(req: NextRequest) {
-  const { searchParams } = req.nextUrl;
-  const taskId = searchParams.get("taskId");
-  if (!taskId) {
-    return Response.json(
-      {
-        message: "Steps cannot be returned because the task ID does not exist",
-      },
-      { status: 404 },
-    );
-  }
-  if (!stub.tasks[taskId]) {
-    return Response.json(
-      { message: "Steps for the given task ID not found" },
-      { status: 404 },
-    );
-  }
-  switch (req.method) {
-    case "POST":
-      const reqBody = (await req.json()) as StepRequestBody;
-      return executeStep(taskId, reqBody);
-    case "GET":
-      return listSteps(req, taskId);
-    default:
-      const status = 405;
-      return new Response("Method Not Allowed", {
-        headers: {
-          "Content-Type": "application/text",
-        },
-        status,
-      });
-  }
 }

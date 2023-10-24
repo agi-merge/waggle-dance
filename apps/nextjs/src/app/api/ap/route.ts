@@ -3,12 +3,9 @@ import { stringify } from "superjson";
 
 import AgentProtocolOpenAPISpec from "~/../lib/AgentProtocol/openapi.json";
 
-export const config = {
-  runtime: "edge",
-};
+export const runtime = "edge"; // 'nodejs' is the default
 
-// (spec; exposes the agent protocol, not part of it)
-export default function handler(req: NextRequest) {
+export function GET(req: NextRequest) {
   const spec = AgentProtocolOpenAPISpec;
 
   if (spec.servers[0]) {

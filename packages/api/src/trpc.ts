@@ -56,9 +56,9 @@ export const createTRPCContext = async (opts: CreateNextContextOptions) => {
   // Get the session from the server using the unstable_getServerSession wrapper function
   const session = await getServerSession({ req, res });
 
-  if (!req.headers.origin) {
-    throw new Error("No origin header");
-  }
+  // if (!req.headers.origin) {
+  //   throw new Error("No origin header");
+  // }
 
   return createInnerTRPCContext({
     session,
