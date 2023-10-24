@@ -32,6 +32,8 @@ TASK: ${task}
 NAMESPACE: ${namespace}
 SERVER TIME: ${new Date().toString()}
 CONSTRAINTS: ${executeConstraints(returnType)}
+TOOLS: {tools}
+CONTEXT: {context}
 SCHEMA: ${schema}`;
 
   const promptTypeForModel = (template: string) => {

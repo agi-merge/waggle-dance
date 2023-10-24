@@ -10,8 +10,10 @@ import { type StructuredTool, type Tool } from "langchain/dist/tools/base";
 import { loadEvaluator } from "langchain/evaluation";
 import { PlanAndExecuteAgentExecutor } from "langchain/experimental/plan_and_execute";
 import { type OpenAI } from "langchain/llms/openai";
+import { PromptTemplate } from "langchain/prompts";
 import { type AgentStep } from "langchain/schema";
-import { parse } from "yaml";
+import { parse as jsonParse, stringify as jsonStringify } from "superjson";
+import { parse as yamlParse, stringify as yamlStringify } from "yaml";
 
 import { type DraftExecutionGraph } from "@acme/db";
 
@@ -69,8 +71,9 @@ export async function callExecutionAgent(creation: {
   const callbacks = creationProps.callbacks;
   creationProps.callbacks = undefined;
   const llm = createModel(creationProps, agentPromptingMethod);
+
   const embeddings = createEmbeddings({ modelName: LLM.embeddings });
-  const taskObj = parse(task) as { id: string };
+  const taskObj = yamlParse(task) as { id: string };
   const isCriticism = isTaskCriticism(taskObj.id);
   const returnType = contentType === "application/json" ? "JSON" : "YAML";
   const memory = await createMemory({
@@ -87,7 +90,7 @@ export async function callExecutionAgent(creation: {
     throw new Error("No result found to provide to review task");
   }
 
-  const nodes = (parse(dag) as DraftExecutionGraph).nodes;
+  const nodes = (yamlParse(dag) as DraftExecutionGraph).nodes;
   const prompt = isCriticism
     ? createCriticizePrompt({
         revieweeTaskResults,
@@ -102,12 +105,6 @@ export async function callExecutionAgent(creation: {
         returnType,
         modelName: creationProps.modelName || LLM_ALIASES["fast"],
       });
-  const formattedMessages = await prompt.formatMessages({});
-
-  const input: string = formattedMessages
-    .map((m) => `${m._getType()}: ${m.content}`)
-    .join("\n");
-
   const tags = [
     isCriticism ? "criticize" : "execute",
     agentPromptingMethod,
@@ -137,7 +134,305 @@ export async function callExecutionAgent(creation: {
     memory,
   );
 
-  // prompt.pipe(executor).invoke({});
+  const allExampleTools = [
+    "Retrieve Memories",
+    "Save Memories",
+    "Web Browser",
+    "Google Search",
+    "Google News",
+    "Google Scholar",
+    "Google Trends",
+    "Python IDE",
+    "Web Browser",
+    "Google Search",
+    "Stack Overflow",
+    "GitHub",
+    "Retrieve Memories",
+    "Save Memories",
+    "Web Browser",
+    "Google Search",
+    "Google Finance",
+    "Yahoo Finance",
+    "Translation Tool",
+    "YouTube",
+    "Amazon Search",
+    "Bloomberg Terminal",
+  ];
+
+  const allExampleDataSources = [
+    "user.profile.basic",
+    "notion",
+    "memory",
+    "memory.longterm",
+    "stock.market.data",
+  ];
+
+  const toolsAndContextExamples = [
+    {
+      input: {
+        task: {
+          task: "Research AgentGPT",
+          inServiceOfGoal:
+            "Compare and contrast AgentGPT, AutoGPT, BabyAGI, https://waggledance.ai, and SuperAGI. Find similar projects or state of the art research papers. Create a .md (GFM) report of the findings.",
+          availableDataSources: [
+            "user.profile.basic",
+            "notion",
+            "memory",
+            "memory.longterm",
+            "stock.market.data",
+          ],
+          availableTools: [
+            "Retrieve Memories",
+            "Save Memories",
+            "Web Browser",
+            "Google Search",
+            "Google News",
+            "YouTube",
+            "Bloomberg Terminal",
+            "Google Scholar",
+            "Google Trends",
+            "Amazon Search",
+            "IMDB Search",
+          ],
+        },
+      },
+      output: {
+        synthesizedContext: [
+          {
+            knowledgeCutoff:
+              "My training data prior my knowledge cut-off does not contain coherent information about AgentGPT.",
+          },
+          {
+            memory:
+              "AgentGPT, hosted by Reworkd, allows users to configure and deploy Autonomous AI agents. It provides a user-friendly interface to control and monitor agents, making it easier to bring ideas to life.",
+          },
+          {
+            "user.profile.basic":
+              "The User is an expert in AI and has a PhD in Computer Science.",
+          },
+        ],
+        tools: [
+          "Retrieve Memories",
+          "Save Memories",
+          "Web Browser",
+          "Google Search",
+          "Google News",
+          "Google Scholar",
+          "Google Trends",
+        ],
+      },
+      remarks: {
+        synthesizedContext:
+          "The synthesized context is good because it honestly communicates the limitations of the agent's knowledge. It doesn't try to make up information or guess, but instead clearly states that it doesn't have the required information.",
+        tools:
+          "The tools selected are appropriate for the task at hand. 'Request User Help', 'Retrieve Memories', 'Save Memories' are internal tools that help the agent interact with the user and manage its memory. 'Web Browser', 'Google Search', 'Google News', 'YouTube', 'Google Scholar', 'Google Trends', 'Amazon Search' are external tools that the agent can use to gather information from the web. The agent doesn't try to use a tool that isn't suited for the task, which aligns with the LLM's limitations.",
+      },
+    },
+    {
+      input: {
+        task: {
+          task: "Write a Python script",
+          inServiceOfGoal:
+            "Write a Python script that scrapes data from a website and stores it in a CSV file.",
+          availableDataSources: [
+            "user.profile.basic",
+            "notion",
+            "stock.market.data",
+            "memory",
+            "memory.longterm",
+          ],
+          availableTools: [
+            "Python IDE",
+            "Google Trends",
+            "Web Browser",
+            "Google Search",
+            "Stack Overflow",
+            "GitHub",
+          ],
+        },
+      },
+      output: {
+        synthesizedContext: [
+          {
+            knowledgeCutoff:
+              "My training data prior my knowledge cut-off contains information about Python and web scraping.",
+          },
+          {
+            memory:
+              "Python is a popular language for web scraping due to libraries like BeautifulSoup and Scrapy. Data can be stored in a CSV file using Python's built-in csv module.",
+          },
+          {
+            "user.profile.basic":
+              "The User is a software developer with experience in Python.",
+          },
+        ],
+        tools: [
+          "Python IDE",
+          "Web Browser",
+          "Google Search",
+          "Stack Overflow",
+          "GitHub",
+        ],
+      },
+      remarks: {
+        synthesizedContext:
+          "The synthesized context is good because it accurately reflects the agent's knowledge and the user's expertise. It also provides relevant information about the task.",
+        tools:
+          "The tools selected are appropriate for the task. 'Python IDE' is necessary for writing the script, while 'Web Browser', 'Google Search', 'Stack Overflow', and 'GitHub' can be used to find information and code examples.",
+      },
+    },
+    {
+      input: {
+        task: {
+          task: "Analyze stock market trends",
+          inServiceOfGoal:
+            "Analyze the stock market trends for the past 5 years and predict the future trends. Create a .xlsx report of the findings.",
+          availableDataSources: [
+            "notion",
+            "user.profile.basic",
+            "memory",
+            "memory.longterm",
+            "stock.market.data",
+          ],
+          availableTools: [
+            "Retrieve Memories",
+            "Save Memories",
+            "Web Browser",
+            "Google Search",
+            "Google Finance",
+            "Yahoo Finance",
+            "Bloomberg Terminal",
+            "Google Scholar",
+          ],
+        },
+      },
+      output: {
+        synthesizedContext: [
+          {
+            knowledgeCutoff:
+              "My training data prior my knowledge cut-off does not contain coherent information about recent stock market trends.",
+          },
+          {
+            memory:
+              "The user has a background in finance and is interested in the technology sector.",
+          },
+          {
+            "user.profile.basic":
+              "The User is a financial analyst with a focus on technology stocks.",
+          },
+        ],
+        tools: [
+          "Retrieve Memories",
+          "Save Memories",
+          "Web Browser",
+          "Google Search",
+          "Google Finance",
+          "Yahoo Finance",
+        ],
+      },
+    },
+    {
+      input: {
+        task: {
+          task: "Translate text",
+          inServiceOfGoal:
+            "Translate the following English text to French: 'Hello, how are you?'",
+          availableDataSources: [
+            "user.profile.basic",
+            "memory",
+            "stock.market.data",
+          ],
+          availableTools: ["Translation Tool", "Google Search"],
+        },
+      },
+      output: {
+        synthesizedContext: [
+          {
+            "user.profile.basic":
+              "The User is fluent in English and wants to translate text to French.",
+          },
+        ],
+        tools: ["Translation Tool"],
+      },
+      remarks: {
+        synthesizedContext:
+          "The synthesized context is good because it accurately reflects the user's needs.",
+        tools: "The selected tool is appropriate for the task at hand.",
+      },
+    },
+  ];
+
+  const inputTaskAndGoal = {
+    task: task,
+    inServiceOfGoal: goalPrompt,
+    availableDataSources: ["user.profile.basic", "notion", "memory"],
+    availableTools: skills.map((s) => s.name),
+  };
+
+  const inputTaskAndGoalString =
+    returnType === "JSON"
+      ? jsonStringify(inputTaskAndGoal)
+      : yamlStringify(inputTaskAndGoal);
+
+  const examples =
+    returnType === "JSON"
+      ? jsonStringify(toolsAndContextExamples)
+      : yamlStringify(toolsAndContextExamples);
+  const promptTemplate = PromptTemplate.fromTemplate(
+    `[system]
+You are an efficient and expert assistant, preparing the context and tool configuration for an ethical LLM Agent to perform a Task for the User.
+# Namespace: ${namespace}
+# Current Time:
+${new Date().toString()}
+# LLM/Agent Limitations:
+\`\`\`md
+### LLM's need Escape Hatches
+Building on the previous rule, the model is always looking for an escape hatch when it's confused or unsure. They always want to answer the question they were asked or to perform the task they were given. They will use everything at their disposal to accomplish that. If the model doesn't see the information it needs or the appropriate tool to use it will start hallucinating things in a effort to achieve its goal. You can avoid these hallucinations by giving the model escape paths.
+
+For Agents in particular, a really useful escape hatch is to give the model an "ask" command.  If the model is confused on unsure just ask the user. The model will take this escape hatch more often then you think which is actually good. I give every agent I build "ask" and "answer" commands and these two additions dramatically improved the overall reliability of my agents completing tasks.
+
+## LLM's will Abuse Tools
+Careful tool selection is key for building Agents. If you give an agent a screwdriver and it needs a hammer it will try to pound in a nail with a screwdriver. Again, they want to complete the task they're presented with using whatever means possible.
+
+Don't give the model a general purpose code tool because it will use it for everything and it will only work about 25% of the time. Instead give the model a math tool and tell it that it can write any sort of javascript expression to compute a value.  This will dramatically improve the reliability of the model to only use that tool for math and not magic.
+Don't show LLM's Overlapping Tools
+I could create a whole separate posts that dives into how you should think about breaking problems into a hierarchy of tasks/tools but the upshot is that you shouldn't show the model tools with similar uses. For example, don't give it both a webSearch and a pageSearch tool. You won't be able to predict when it uses one over the other as they're too similar. Instead give the model a single webSearch tool and then have that tool decide when it needs to do a pageSearch.
+
+How you frame your question determines what kind of answer you get. Likely as a result of RLHF training, trained LLMs are biased towards responses that are more likely to be rated positively, rather than what's true.
+
+\`\`\`
+# Examples:
+${examples}
+**It is extremely important to use this as just examples. For example, if "user.profile.basic" is not relevant, do not include it.**
+[human]
+Provide (in valid ${returnType}) ( tools: string[], context: string | ([key: string]: string)[] ) that would improve the probability of success for the following:
+${inputTaskAndGoalString}
+`,
+  );
+
+  const chatLlm = createModel(creationProps, ModelStyle.Chat) as ChatOpenAI;
+  const chain = promptTemplate.pipe(chatLlm);
+
+  const contextCall = await chain.invoke({});
+
+  type ContextAndTools = {
+    context: unknown[];
+    tools: string[];
+  };
+  const contextAndTools = (
+    returnType === "JSON"
+      ? jsonParse(contextCall.content)
+      : yamlParse(contextCall.content)
+  ) as ContextAndTools;
+
+  const formattedMessages = await prompt.formatMessages({
+    ...contextAndTools,
+  });
+
+  const input: string = formattedMessages
+    .map((m) => `${m._getType()}: ${m.content}`)
+    .join("\n");
+
   try {
     const call = await executor.call(
       {
