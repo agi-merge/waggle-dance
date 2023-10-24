@@ -81,6 +81,7 @@ export async function GET(
     task_id: taskId,
     input: goal?.prompt,
     artifacts: [],
+    // this was required by the tests, but it is not being passed through our data model.
     additional_input: {},
   };
 
