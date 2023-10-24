@@ -37,6 +37,21 @@ It is extremely important to return only valid(⚠) ${format} representation of 
 
 const highQualityExamples = [
   {
+    remarks: {
+      "# General": "This example follows all general rules.",
+      "# DAG Construction":
+        "The DAG is constructed to maximize parallelism and avoid cycles.",
+      "# Node Management": "A criticism node is included in each level.",
+      "# Context Isolation":
+        "Each node's context is self-contained and sufficient to complete the task.",
+      "# Task Breakdown":
+        "The tasks are broken down into manageable pieces, each with a clear objective.",
+      "# Task Ordering":
+        "The tasks are ordered logically, with each task depending on the completion of the tasks in the previous level.",
+      "# Goal Delivery":
+        "The final task is 'Goal Delivery', indicating that the goal has been satisfactorily completed.",
+    },
+    tags: ["Research", "Text", "Parallelism"],
     input:
       "Compare and contrast AgentGPT, AutoGPT, BabyAGI, https://waggledance.ai, and SuperAGI. Find similar projects or state of the art research papers. Create a .md (GFM) report of the findings.",
     output: {
@@ -165,7 +180,7 @@ const highQualityExamples = [
   },
 ];
 
-const counterExamples = [
+const _counterExamples = [
   {
     input: "Translate the novel 'War and Peace' from Russian to English.",
     output: {
@@ -385,28 +400,34 @@ export function createPlanPrompt(params: {
 
   const highQualityExamplesWithCounterExample = {
     Examples: highQualityExamples,
-    "Counter-examples:": counterExamples,
+    // "Counter-examples:": _counterExamples,
   };
 
   const template = `
+> Thank you so much for trying hard on my behalf!
+>  - User ❤️
 # Directive
 You are a general Goal-solving AI employed by the User to solve the User's Goal.
-# # Team Tools: [${toolNames}]
-# # Goal: ${goalPrompt}
-# # Current Time: ${new Date().toString()}
-# # Schema: ${schema(returnType)}
-# # Constraints: ${constraints(returnType)}
-# # Examples:
-
+# Task:
+To come up with an efficient and expert Plan to solve the User's Goal, according to the Schema.
+## Available Tools:
+[${toolNames}]
+## User's Goal:
+${goalPrompt}
+## Current Time
+${new Date().toString()}
+*Reflect on the Current Time in regards to the Plan and your Knowledge Cutoff.*
+## Schema:
+${schema(returnType)}
+## Rules:
+${constraints(returnType)}
+## Examples:
   ${
     returnType === "JSON"
       ? jsonStringify(highQualityExamplesWithCounterExample)
       : yamlStringify(highQualityExamplesWithCounterExample)
   }
-
-# Task: To come up with an efficient and expert plan to solve the User's Goal, according to the schema.
-Thank you so much!
-- User ❤️
+## Plan:
 `.trimEnd();
 
   const systemMessagePrompt =
