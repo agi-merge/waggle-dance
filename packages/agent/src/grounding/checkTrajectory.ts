@@ -59,6 +59,8 @@ async function checkScore(evaluation: PromiseSettledResult<ChainValues>) {
           `Low review score: ${evaluationResult.score}. Reasoning: ${evaluationResult.reasoning}"`,
           { cause: evaluationResult.reasoning },
         );
+      } else {
+        console.debug("Trajectory evaluation passed", evaluationResult);
       }
     } else {
       // Try to repair the error
