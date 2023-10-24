@@ -145,10 +145,13 @@ export function transformWireFormat(
         // If the node has parents, create an edge from each parent's criticism node to the current node
         if (parentsDescriptor.parents.length > 0) {
           for (const parentLevel of parentsDescriptor.parents) {
-            oldFormat.edges.push({
-              sId: `${parentLevel}-${criticismSuffix}`,
-              tId: newNodeId,
-            });
+            // Ignore self-referential levels
+            if (parentLevel !== Number(level)) {
+              oldFormat.edges.push({
+                sId: `${parentLevel}-${criticismSuffix}`,
+                tId: newNodeId,
+              });
+            }
           }
         }
 
