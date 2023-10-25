@@ -178,6 +178,65 @@ const highQualityExamples = [
       ],
     },
   },
+  {
+    remarks: {
+      "# Efficient Use of Tools":
+        "This example demonstrates efficient use of the Amazon Search tool, extracting multiple pieces of data (names, prices, ratings) in a single step.",
+      "# Minimized Levels":
+        "The DAG is constructed with minimal levels, reducing complexity and maximizing parallelism.",
+      "# Comprehensive Review":
+        "Each level includes a criticism node, ensuring each step of the process is reviewed for accuracy.",
+      "# Clear Task Breakdown":
+        "Tasks are clearly broken down into search, extraction, sorting, and filtering, making the plan easy to understand and follow.",
+      "# Logical Task Ordering":
+        "Tasks are ordered logically, with data extraction following the search, and sorting and filtering after extraction, reflecting the natural workflow of the task.",
+      "# Goal-Oriented":
+        "The final task is 'Goal Delivery', clearly indicating the completion of the goal and providing the user with the requested information.",
+    },
+    tags: ["Amazon Search", "Data Extraction", "Sorting", "Filtering"],
+    input:
+      "Find the top trending toys for 6-8 year olds on Amazon in April 2023.",
+    output: {
+      "1": [
+        {
+          id: "0",
+          name: "Search and extract toy data",
+          context:
+            'Use the "Amazon Search" tool to search for the top trending toys for 6-8 year olds on Amazon in April 2023. Extract the names, prices, and customer ratings of the toys from the search results.',
+        },
+        {
+          id: "c",
+          name: "Review the extracted data",
+          context:
+            "Review the extracted toy names, prices, and ratings to ensure they are accurate.",
+        },
+      ],
+      "2": [
+        {
+          parents: [1],
+          id: "0",
+          name: "Sort and filter toys",
+          context:
+            "Sort the toys based on their popularity or sales rank. Then filter the sorted toys to include only those suitable for 6-8 year olds.",
+        },
+        {
+          id: "c",
+          name: "Review the sorted and filtered toys",
+          context:
+            "Review the sorted and filtered toys to ensure they are in the correct order and appropriate for the age range.",
+        },
+      ],
+      "3": [
+        {
+          parents: [2],
+          id: "0",
+          name: "🍯 Goal Delivery",
+          context:
+            "Provide the User with the top trending toys for 6-8 year olds on Amazon in April 2023, including their prices and customer ratings.",
+        },
+      ],
+    },
+  },
 ];
 
 const _counterExamples = [
