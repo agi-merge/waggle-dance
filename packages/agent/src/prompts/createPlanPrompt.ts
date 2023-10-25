@@ -239,195 +239,6 @@ const highQualityExamples = [
   },
 ];
 
-const _counterExamples = [
-  {
-    input: "Translate the novel 'War and Peace' from Russian to English.",
-    output: {
-      1: [
-        {
-          id: "0",
-          name: "📚 Obtain Russian version of 'War and Peace'",
-          context: "Obtain the Russian version of the novel 'War and Peace'",
-        },
-      ],
-      2: [
-        {
-          parents: ["0"],
-          id: "1",
-          name: "🔀 Translate each sentence independently",
-          context:
-            "Translate each sentence of the novel independently from Russian to English",
-        },
-      ],
-      3: [
-        {
-          parents: ["1"],
-          id: "2",
-          name: "📖 Compile translated sentences into a book",
-          context:
-            "Compile all the translated sentences back into a book format",
-        },
-      ],
-      4: [
-        {
-          parents: ["2"],
-          id: "3",
-          name: "🍯 Goal Delivery",
-          context: "Deliver the translated version of 'War and Peace'",
-        },
-      ],
-    },
-    policyViolation: PolicyViolation.IGNORES_CONTEXT,
-    reason:
-      "Translating each sentence independently ignores the context provided by surrounding sentences. This can lead to incorrect translations, as the meaning of a sentence can often depend on its context. A better approach would be to translate larger sections of text that capture complete thoughts or ideas.",
-  },
-  {
-    input: "Write a blog post about the history of programming languages.",
-    output: {
-      1: [
-        {
-          id: "0",
-          name: "📚 Research the history of programming languages",
-          context:
-            "Gather information about the history of programming languages",
-        },
-        {
-          id: "1",
-          name: "📝 Write the introduction",
-          context: "Write the introduction of the blog post",
-        },
-      ],
-      2: [
-        {
-          parents: ["0"],
-          id: "2",
-          name: "📝 Write the main content",
-          context:
-            "Write the main content of the blog post based on the research",
-        },
-        {
-          parents: ["1", "2"],
-          id: "3",
-          name: "📝 Write the conclusion",
-          context: "Write the conclusion of the blog post",
-        },
-      ],
-      3: [
-        {
-          parents: ["3"],
-          id: "4",
-          name: "📝 Finalize the blog post",
-          context: "Finalize the blog post and prepare it for publishing",
-        },
-      ],
-    },
-    policyViolation: PolicyViolation.INCORRECT_FINAL_NODE_NAME,
-    reason:
-      "The name of the last node should be '🍯 Goal Delivery' to indicate that the Goal has been satisfactorily completed. In this case, the last node is named '📝 Finalize the blog post', which does not follow the prompt's instructions.",
-  },
-  {
-    input: "Bake a chocolate cake and deliver it to a friend's house.",
-    output: {
-      1: [
-        {
-          id: "0",
-          name: "🏠 Go to friend's house",
-          context: "Go to the friend's house to know the location",
-        },
-        {
-          id: "1",
-          name: "🍫 Buy chocolate",
-          context: "Buy the chocolate needed for the cake",
-        },
-      ],
-      2: [
-        {
-          parents: ["0"],
-          id: "2",
-          name: "🍰 Bake the cake",
-          context: "Bake the chocolate cake",
-        },
-        {
-          parents: ["2"],
-          id: "3",
-          name: "🎁 Deliver the cake",
-          context: "Deliver the cake to the friend's house",
-        },
-      ],
-      3: [
-        {
-          parents: ["3"],
-          id: "4",
-          name: "🍯 Goal Delivery",
-          context: "Confirm that the cake has been delivered",
-        },
-      ],
-    },
-    policyViolation: PolicyViolation.INCORRECT_DEPENDENCIES,
-    reason:
-      "The Task 'Bake the cake' is not logically dependent on 'Go to friend's house'. The correct order should be 'Buy chocolate', 'Bake the cake', 'Go to friend's house', and then 'Deliver the cake'. This example demonstrates a plan where a node is not logically dependent on its parent.",
-  },
-  {
-    input: "Write a research paper on the topic of AI",
-    output: {
-      1: [
-        {
-          id: "0",
-          name: "Research AI",
-          context:
-            "Gather information about AI, its history, applications, and future prospects",
-        },
-      ],
-      2: [
-        {
-          id: "1",
-          name: "Write paper",
-          context: "Write a research paper based on the gathered information",
-        },
-      ],
-    },
-    policyViolation: PolicyViolation.UNREACHABLE_NODES,
-    reason:
-      "The task 'Write paper' is unreachable because there is no edge from 'Research AI' to 'Write paper'. This means that the task 'Write paper' will never be executed, making it impossible to complete the goal.",
-  },
-  {
-    input: "Write a research paper on the topic of AI",
-    output: {
-      1: [
-        {
-          id: "0",
-          name: "Research AI",
-          context:
-            "Gather information about AI, its history, applications, and future prospects",
-        },
-      ],
-      2: [
-        {
-          parents: [1],
-          id: "1",
-          name: "Write paper",
-          context: "Write a research paper based on the gathered information",
-        },
-      ],
-      3: [
-        {
-          parents: [2],
-          id: "0",
-          name: "Research AI",
-          context:
-            "Gather information about AI, its history, applications, and future prospects",
-        },
-      ],
-    },
-    policyViolation: [
-      PolicyViolation.CIRCULAR_DEPENDENCIES,
-      PolicyViolation.MISSING_CRITICAL_NODE,
-    ],
-    reason:
-      "There is a circular dependency between 'Research AI' and 'Write paper'. This creates a cycle in the task graph, which is problematic because it can lead to infinite loops and makes it impossible to complete the goal. Additionally",
-  },
-];
-
 const constraints = (format: string) =>
   `
 # General
@@ -457,11 +268,6 @@ export function createPlanPrompt(params: {
   const { goalPrompt, tools, returnType } = params;
   const toolNames = tools.map((tool) => tool.name).join(",");
 
-  const highQualityExamplesWithCounterExample = {
-    Examples: highQualityExamples,
-    // "Counter-examples:": _counterExamples,
-  };
-
   const template = `
 > Thank you so much for trying hard on my behalf!
 >  - User ❤️
@@ -483,8 +289,8 @@ ${constraints(returnType)}
 ## Examples:
   ${
     returnType === "JSON"
-      ? jsonStringify(highQualityExamplesWithCounterExample)
-      : yamlStringify(highQualityExamplesWithCounterExample)
+      ? jsonStringify(highQualityExamples)
+      : yamlStringify(highQualityExamples)
   }
 ## Plan:
 `.trimEnd();
