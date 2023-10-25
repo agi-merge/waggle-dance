@@ -147,6 +147,7 @@ export async function callExecutionAgent(creation: {
             "memory",
             "memory.longterm",
             "stock.market.data",
+            "academic.papers",
           ],
           availableTools: [
             "Retrieve Memories",
@@ -160,6 +161,8 @@ export async function callExecutionAgent(creation: {
             "Google Trends",
             "Amazon Search",
             "IMDB Search",
+            "arXiv Search",
+            "GitHub",
           ],
         },
       },
@@ -181,7 +184,6 @@ export async function callExecutionAgent(creation: {
         tools: [
           "Retrieve Memories",
           "Save Memories",
-          "Web Browser",
           "Google Search",
           "Google News",
           "Google Scholar",
@@ -192,7 +194,7 @@ export async function callExecutionAgent(creation: {
         synthesizedContext:
           "The synthesized context is good because it honestly communicates the limitations of the agent's knowledge. It doesn't try to make up information or guess, but instead clearly states that it doesn't have the required information.",
         tools:
-          "The tools selected are appropriate for the task at hand. 'Request User Help', 'Retrieve Memories', 'Save Memories' are internal tools that help the agent interact with the user and manage its memory. 'Web Browser', 'Google Search', 'Google News', 'YouTube', 'Google Scholar', 'Google Trends', 'Amazon Search' are external tools that the agent can use to gather information from the web. The agent doesn't try to use a tool that isn't suited for the task, which aligns with the LLM's limitations.",
+          "The tools selected are appropriate for the task at hand. 'Retrieve Memories', 'Save Memories', 'Google Search', 'Google News', 'Google Scholar', 'Google Trends' are external tools that the agent can use to gather information from the web. The agent doesn't try to use a tool that isn't suited for the task, which aligns with the LLM's limitations.",
       },
     },
     {
@@ -209,7 +211,7 @@ export async function callExecutionAgent(creation: {
             "memory.longterm",
           ],
           availableTools: [
-            "Python IDE",
+            "Single-function Python Interpreter",
             "Google Trends",
             "Web Browser",
             "Google Search",
@@ -222,19 +224,23 @@ export async function callExecutionAgent(creation: {
         synthesizedContext: [
           {
             knowledgeCutoff:
-              "My training data prior my knowledge cut-off contains information about Python and web scraping.",
+              "I'm aware of Python's capabilities for web scraping up until my last training cut-off.",
           },
           {
             memory:
-              "Python is a popular language for web scraping due to libraries like BeautifulSoup and Scrapy. Data can be stored in a CSV file using Python's built-in csv module.",
+              "Python's BeautifulSoup and Scrapy libraries are commonly used for web scraping. The csv module can be used to store data in a CSV file.",
           },
           {
             "user.profile.basic":
-              "The User is a software developer with experience in Python.",
+              "The User is a software developer with Python experience.",
+          },
+          {
+            specificGuidance:
+              "Check for version changes to see if BeautifulSoup 4.x is still the latest",
           },
         ],
         tools: [
-          "Python IDE",
+          "Single-function Python Interpreter",
           "Web Browser",
           "Google Search",
           "Stack Overflow",
@@ -245,7 +251,7 @@ export async function callExecutionAgent(creation: {
         synthesizedContext:
           "The synthesized context is good because it accurately reflects the agent's knowledge and the user's expertise. It also provides relevant information about the task.",
         tools:
-          "The tools selected are appropriate for the task. 'Python IDE' is necessary for writing the script, while 'Web Browser', 'Google Search', 'Stack Overflow', and 'GitHub' can be used to find information and code examples.",
+          "The tools selected are appropriate for the task. 'Single-function Python Interpreter' is necessary for writing the script, while 'Web Browser', 'Google Search', 'Stack Overflow', and 'GitHub' can be used to find information and code examples.",
       },
     },
     {
@@ -260,6 +266,7 @@ export async function callExecutionAgent(creation: {
             "memory",
             "memory.longterm",
             "stock.market.data",
+            "financial.reports",
           ],
           availableTools: [
             "Retrieve Memories",
@@ -270,22 +277,23 @@ export async function callExecutionAgent(creation: {
             "Yahoo Finance",
             "Bloomberg Terminal",
             "Google Scholar",
+            "Financial Analysis Tool",
           ],
+        },
+        remarks: {
+          synthesizedContext:
+            "The synthesized context is good because it accurately reflects the user's needs.",
+          tools: "The selected tools are appropriate for the task at hand.",
         },
       },
       output: {
         synthesizedContext: [
           {
             knowledgeCutoff:
-              "My training data prior my knowledge cut-off does not contain coherent information about recent stock market trends.",
+              "My training data prior my knowledge cut-off is missing information between the knowledge cut-off and the Current Time.",
           },
           {
-            memory:
-              "The user has a background in finance and is interested in the technology sector.",
-          },
-          {
-            "user.profile.basic":
-              "The User is a financial analyst with a focus on technology stocks.",
+            "user.profile.basic": "The User is not an expert in finance.",
           },
         ],
         tools: [
@@ -308,6 +316,7 @@ export async function callExecutionAgent(creation: {
             "user.profile.basic",
             "memory",
             "stock.market.data",
+            "language.databases",
           ],
           availableTools: ["Translation Tool", "Google Search"],
         },
@@ -332,7 +341,7 @@ export async function callExecutionAgent(creation: {
   const inputTaskAndGoal = {
     task: task,
     inServiceOfGoal: goalPrompt,
-    availableDataSources: ["user.profile.basic", "notion", "memory"],
+    availableDataSources: [],
     availableTools: skills.map((s) => s.name),
   };
 
@@ -392,6 +401,7 @@ ${inputTaskAndGoalString}
       : yamlParse(contextCall.content)
   ) as ContextAndTools;
 
+  console.warn(`${taskObj.id} contextAndTools`, contextAndTools);
   const formattedMessages = await prompt.formatMessages({
     ...contextAndTools,
   });
