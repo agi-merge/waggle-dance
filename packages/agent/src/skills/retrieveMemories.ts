@@ -20,7 +20,7 @@ const schema = z.object({
 });
 
 const retrieveMemoriesSkill = new DynamicZodSkill({
-  name: "retrieveMemories",
+  name: "Retrieve Memories",
   description: `This is useful for retrieving multiple memories and entities from your long-term memories. If your task ID starts with "1-", do not use this before other tools.`,
   func: async (input, _runManager) => {
     const { retrievals, namespace } = schema.parse(input);

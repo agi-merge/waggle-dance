@@ -5,15 +5,15 @@ import DynamicZodSkill from "./DynamicZodSkill";
 const schema = z.object({
   prompt: z
     .string()
-    .nonempty()
+    .min(1)
     .describe(
       "What we want to prompt the USER with to help us continue with our TASK. Provide lots of details.",
     ),
 });
 
 const requestUserHelpSkill = new DynamicZodSkill({
-  name: "requestUserHelp",
-  description: `Use only as a last resort before giving up. If you are stuck, or repetitive skill errors occur, you can use this skill to request human help. This will send a message to the USER, who will respond as soon as possible.`,
+  name: "Request User Help",
+  description: `Use only as a last resort before giving up. If you are stuck, or the same error occurs more than once for a required step, you can use this skill to request human help. This will send a message to the USER, who will respond as soon as possible.`,
   func: async (input, _runManager) => {
     let parsed: { prompt: string };
 

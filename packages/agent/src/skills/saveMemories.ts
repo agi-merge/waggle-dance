@@ -18,7 +18,7 @@ const schema = z.object({
 });
 
 const saveMemoriesSkill = new DynamicZodSkill({
-  name: "saveMemories",
+  name: "Save Memories",
   description: `Never call this before using other tools. Useful for making sure that important facts and entities are stored in long-term memory to help other team members achieve the user's GOAL.`,
   func: async (input, _runManager) => {
     const { memories, namespace } = schema.parse(input);
