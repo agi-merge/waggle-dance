@@ -14,15 +14,15 @@
     "@acme/agent": "^0.1.0",
     "@acme/auth": "^0.1.0",
     "@acme/db": "^0.1.0",
-    "@trpc/client": "^10.40.0",
-    "@trpc/server": "^10.40.0",
+    "@trpc/client": "^10.42.0",
+    "@trpc/server": "^10.42.0",
     "@vercel/kv": "^0.2.3",
-    "superjson": "1.13.3",
+    "superjson": "2.2.0",
     "zod": "^3.22.4"
   },
   "devDependencies": {
     "@acme/eslint-config": "^0.1.0",
-    "eslint": "^8.51.0",
+    "eslint": "^8.52.0",
     "typescript": "^5.2.2"
   }
 }
