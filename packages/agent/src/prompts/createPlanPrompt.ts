@@ -181,28 +181,28 @@ const highQualityExamples = [
   {
     remarks: {
       "# Efficient Use of Tools":
-        "This example demonstrates efficient use of the Amazon Search tool, extracting multiple pieces of data (names, prices, ratings) in a single step.",
+        "This example demonstrates efficient use of the Amazon Search Tool, extracting multiple pieces of data (names, prices, ratings) in a single step.",
       "# Minimized Levels":
-        "The DAG is constructed with minimal levels, reducing complexity and maximizing parallelism.",
+        "The DAG is constructed with minimal levels, reducing complexity, but fails to achieve parallelism.",
       "# Comprehensive Review":
         "Each level includes a criticism node, ensuring each step of the process is reviewed for accuracy.",
       "# Clear Task Breakdown":
-        "Tasks are clearly broken down into search, extraction, sorting, and filtering, making the plan easy to understand and follow.",
+        "Tasks are clearly broken down into search, extraction, sorting, and filtering, making the Plan easy to understand and follow.",
       "# Logical Task Ordering":
         "Tasks are ordered logically, with data extraction following the search, and sorting and filtering after extraction, reflecting the natural workflow of the task.",
       "# Goal-Oriented":
-        "The final task is 'Goal Delivery', clearly indicating the completion of the goal and providing the user with the requested information.",
+        "The final task is 'Goal Delivery', clearly indicating the completion of the Goal and providing the User with the requested information.",
     },
     tags: ["Amazon Search", "Data Extraction", "Sorting", "Filtering"],
     input:
       "Find the top trending toys for 6-8 year olds on Amazon in April 2023.",
     output: {
-      "1": [
+      1: [
         {
           id: "0",
           name: "Search and extract toy data",
           context:
-            'Use the "Amazon Search" tool to search for the top trending toys for 6-8 year olds on Amazon in April 2023. Extract the names, prices, and customer ratings of the toys from the search results.',
+            'Use the "Amazon Search" Tool to search for the top trending toys for 6-8 year olds on Amazon in April 2023. Extract the names, prices, and customer ratings of the toys from the search results.',
         },
         {
           id: "c",
@@ -211,7 +211,7 @@ const highQualityExamples = [
             "Review the extracted toy names, prices, and ratings to ensure they are accurate.",
         },
       ],
-      "2": [
+      2: [
         {
           parents: [1],
           id: "0",
@@ -226,7 +226,7 @@ const highQualityExamples = [
             "Review the sorted and filtered toys to ensure they are in the correct order and appropriate for the age range.",
         },
       ],
-      "3": [
+      3: [
         {
           parents: [2],
           id: "0",
@@ -255,8 +255,12 @@ const constraints = (format: string) =>
 # Node Management
 - For every level in the DAG, include a single node with id "${criticismSuffix}". It will run after all other nodes in the level have been executed.
 
+# Temporal Logic
+- Consider the provided Current Time and be aware that your training data only includes information up to your last training cut-off.
+
 # Context Isolation
 - Node context must be self-contained and sufficient to complete the Task according to the Goal.
+- Avoid prescribing Tools directly in the context, instead, prefer to give a great name and context to the Task.
 `.trim();
 
 export function createPlanPrompt(params: {
@@ -274,14 +278,11 @@ export function createPlanPrompt(params: {
 # Directive
 You are a general Goal-solving AI employed by the User to solve the User's Goal.
 # Task:
-To come up with an efficient and expert Plan to solve the User's Goal, according to the Schema.
+Generate a detailed plan that efficiently achieves the User's Goal, ensuring the plan adheres to the provided schema.
 ## Available Tools:
 [${toolNames}]
-## User's Goal:
-${goalPrompt}
 ## Current Time
 ${new Date().toString()}
-*Reflect on the Current Time in regards to the Plan and your Knowledge Cutoff.*
 ## Schema:
 ${schema(returnType)}
 ## Rules:
@@ -292,13 +293,13 @@ ${constraints(returnType)}
       ? jsonStringify(highQualityExamples)
       : yamlStringify(highQualityExamples)
   }
-## Plan:
 `.trimEnd();
 
   const systemMessagePrompt =
     SystemMessagePromptTemplate.fromTemplate(template);
 
-  const humanTemplate = `My Goal is: ${goalPrompt}`;
+  const humanTemplate = `I am the User! My Goal is: ${goalPrompt},
+What is your Plan?`;
   const humanMessagePrompt =
     HumanMessagePromptTemplate.fromTemplate(humanTemplate);
 
