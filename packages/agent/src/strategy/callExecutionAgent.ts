@@ -170,7 +170,7 @@ export async function callExecutionAgent(creation: {
         synthesizedContext: [
           {
             knowledgeCutoff:
-              "My training data prior my knowledge cut-off does not contain coherent information about AgentGPT.",
+              "My training data prior to my knowledge cut-off does not contain coherent information about AgentGPT.",
           },
           {
             memory:
@@ -178,7 +178,7 @@ export async function callExecutionAgent(creation: {
           },
           {
             "user.profile.basic":
-              "The User is an expert in AI and has a PhD in Computer Science.",
+              "The User is a software engineer and may have above-average understanding of AI.",
           },
         ],
         tools: [
@@ -188,13 +188,15 @@ export async function callExecutionAgent(creation: {
           "Google News",
           "Google Scholar",
           "Google Trends",
+          "arXiv Search",
+          "GitHub",
         ],
       },
       remarks: {
         synthesizedContext:
           "The synthesized context is good because it honestly communicates the limitations of the agent's knowledge. It doesn't try to make up information or guess, but instead clearly states that it doesn't have the required information.",
         tools:
-          "The tools selected are appropriate for the task at hand. 'Retrieve Memories', 'Save Memories', 'Google Search', 'Google News', 'Google Scholar', 'Google Trends' are external tools that the agent can use to gather information from the web. The agent doesn't try to use a tool that isn't suited for the task, which aligns with the LLM's limitations.",
+          "The tools selected are appropriate for the task at hand. Notably it picked tools which would aid in academic research tasks.",
       },
     },
     {
@@ -290,7 +292,7 @@ export async function callExecutionAgent(creation: {
         synthesizedContext: [
           {
             knowledgeCutoff:
-              "My training data prior my knowledge cut-off is missing information between the knowledge cut-off and the Current Time.",
+              "My training data prior to my knowledge cut-off is missing information between the knowledge cut-off and the Current Time.",
           },
           {
             "user.profile.basic": "The User is not an expert in finance.",
@@ -299,8 +301,7 @@ export async function callExecutionAgent(creation: {
         tools: [
           "Retrieve Memories",
           "Save Memories",
-          "Web Browser",
-          "Google Search",
+          "Bloomberg Terminal",
           "Google Finance",
           "Yahoo Finance",
         ],
@@ -318,7 +319,12 @@ export async function callExecutionAgent(creation: {
             "stock.market.data",
             "language.databases",
           ],
-          availableTools: ["Translation Tool", "Google Search"],
+          availableTools: [
+            "Translation Tool",
+            "Google Search",
+            "GitHub",
+            "Web Browser",
+          ],
         },
       },
       output: {
@@ -333,7 +339,8 @@ export async function callExecutionAgent(creation: {
       remarks: {
         synthesizedContext:
           "The synthesized context is good because it accurately reflects the user's needs.",
-        tools: "The selected tool is appropriate for the task at hand.",
+        tools:
+          "The selected tool is appropriate for the task at hand. Distracting/irrelevant tools are not selected.",
       },
     },
   ];
