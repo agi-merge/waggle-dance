@@ -245,7 +245,8 @@ export async function callExecutionAgent(creation: {
       depth: "Does the submission demonstrate depth of thought?",
       creativity: "Does the submission demonstrate novelty or unique ideas?",
       detail: "Does the submission demonstrate attention to detail?",
-    */ const taskFulfillmentEvaluator = await loadEvaluator("trajectory", {
+    */
+    const taskFulfillmentEvaluator = await loadEvaluator("trajectory", {
       llm: smartModelForEvaluation,
       criteria: {
         taskFulfillment: "Does the submission fulfill the specific TASK?",
