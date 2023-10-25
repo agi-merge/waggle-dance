@@ -141,17 +141,9 @@ export async function callExecutionAgent(creation: {
           task: "Research AgentGPT",
           inServiceOfGoal:
             "Compare and contrast AgentGPT, AutoGPT, BabyAGI, https://waggledance.ai, and SuperAGI. Find similar projects or state of the art research papers. Create a .md (GFM) report of the findings.",
-          availableDataSources: [
-            "user.profile.basic",
-            "notion",
-            "memory",
-            "memory.longterm",
-            "stock.market.data",
-            "academic.papers",
-          ],
           availableTools: [
-            "Retrieve Memories",
-            "Save Memories",
+            "Memory Retrieval",
+            "Memory Storage",
             "Web Browser",
             "Google Search",
             "Google News",
@@ -161,42 +153,34 @@ export async function callExecutionAgent(creation: {
             "Google Trends",
             "Amazon Search",
             "IMDB Search",
-            "arXiv Search",
+            "arXiv",
             "GitHub",
           ],
         },
       },
       output: {
-        synthesizedContext: [
-          {
-            knowledgeCutoff:
-              "My training data prior to my knowledge cut-off does not contain coherent information about AgentGPT.",
-          },
-          {
-            memory:
-              "AgentGPT, hosted by Reworkd, allows users to configure and deploy Autonomous AI agents. It provides a user-friendly interface to control and monitor agents, making it easier to bring ideas to life.",
-          },
-          {
-            "user.profile.basic":
-              "The User is a software engineer and may have above-average understanding of AI.",
-          },
-        ],
+        synthesizedContext: {
+          knowledgeCutoff:
+            "My training data prior to my knowledge cut-off does not contain coherent information about AgentGPT.",
+        },
         tools: [
-          "Retrieve Memories",
-          "Save Memories",
+          "Memory Retrieval",
+          "Memory Storage",
           "Google Search",
           "Google News",
           "Google Scholar",
           "Google Trends",
-          "arXiv Search",
+          "arXiv",
           "GitHub",
         ],
       },
       remarks: {
-        synthesizedContext:
-          "The synthesized context is good because it honestly communicates the limitations of the agent's knowledge. It doesn't try to make up information or guess, but instead clearly states that it doesn't have the required information.",
-        tools:
-          "The tools selected are appropriate for the task at hand. Notably it picked tools which would aid in academic research tasks.",
+        contextInsight:
+          "The synthesized context shows the limitations of the agent's knowledge.",
+        toolStrategy:
+          "The agent has chosen a set of tools that are well-suited for academic research tasks, demonstrating a good understanding of the tools' capabilities.",
+        taskChallenge:
+          "The task is complex and requires a deep understanding of AI technologies. The agent will need to navigate a vast amount of information and distill it into a concise and informative report.",
       },
     },
     {
@@ -205,16 +189,8 @@ export async function callExecutionAgent(creation: {
           task: "Write a Python script",
           inServiceOfGoal:
             "Write a Python script that scrapes data from a website and stores it in a CSV file.",
-          availableDataSources: [
-            "user.profile.basic",
-            "notion",
-            "stock.market.data",
-            "memory",
-            "memory.longterm",
-          ],
           availableTools: [
-            "Single-function Python Interpreter",
-            "Google Trends",
+            "Python Interpreter",
             "Web Browser",
             "Google Search",
             "Stack Overflow",
@@ -223,37 +199,21 @@ export async function callExecutionAgent(creation: {
         },
       },
       output: {
-        synthesizedContext: [
-          {
-            knowledgeCutoff:
-              "I'm aware of Python's capabilities for web scraping up until my last training cut-off.",
-          },
-          {
-            memory:
-              "Python's BeautifulSoup and Scrapy libraries are commonly used for web scraping. The csv module can be used to store data in a CSV file.",
-          },
-          {
-            "user.profile.basic":
-              "The User is a software developer with Python experience.",
-          },
-          {
-            specificGuidance:
-              "Check for version changes to see if BeautifulSoup 4.x is still the latest",
-          },
-        ],
-        tools: [
-          "Single-function Python Interpreter",
-          "Web Browser",
-          "Google Search",
-          "Stack Overflow",
-          "GitHub",
-        ],
+        synthesizedContext: {
+          taskUnderstanding:
+            "The task requires writing a Python script for web scraping, which involves fetching data from a website and parsing it. The data then needs to be stored in a CSV file.",
+          potentialChallenges:
+            "Web scraping can be complex due to the variability of website structures. Additionally, some websites may have measures in place to prevent scraping.",
+        },
+        tools: ["Python Interpreter", "Google Search", "Stack Overflow"],
       },
       remarks: {
-        synthesizedContext:
-          "The synthesized context is good because it accurately reflects the agent's knowledge and the user's expertise. It also provides relevant information about the task.",
-        tools:
-          "The tools selected are appropriate for the task. 'Single-function Python Interpreter' is necessary for writing the script, while 'Web Browser', 'Google Search', 'Stack Overflow', and 'GitHub' can be used to find information and code examples.",
+        contextInsight:
+          "The synthesized context shows a good understanding of the task requirements and potential challenges.",
+        toolStrategy:
+          "The agent has chosen a set of tools that are well-suited for programming tasks, demonstrating a good understanding of the tools' capabilities.",
+        taskChallenge:
+          "The task is complex and requires a good understanding of Python and web scraping techniques. The agent will need to navigate through various resources to find the most effective solution.",
       },
     },
     {
@@ -262,42 +222,22 @@ export async function callExecutionAgent(creation: {
           task: "Analyze stock market trends",
           inServiceOfGoal:
             "Analyze the stock market trends for the past 5 years and predict the future trends. Create a .xlsx report of the findings.",
-          availableDataSources: [
-            "notion",
-            "user.profile.basic",
-            "memory",
-            "memory.longterm",
-            "stock.market.data",
-            "financial.reports",
-          ],
           availableTools: [
             "Retrieve Memories",
             "Save Memories",
-            "Web Browser",
-            "Google Search",
+            "Bloomberg Terminal",
             "Google Finance",
             "Yahoo Finance",
-            "Bloomberg Terminal",
-            "Google Scholar",
-            "Financial Analysis Tool",
           ],
-        },
-        remarks: {
-          synthesizedContext:
-            "The synthesized context is good because it accurately reflects the user's needs.",
-          tools: "The selected tools are appropriate for the task at hand.",
         },
       },
       output: {
-        synthesizedContext: [
-          {
-            knowledgeCutoff:
-              "My training data prior to my knowledge cut-off is missing information between the knowledge cut-off and the Current Time.",
-          },
-          {
-            "user.profile.basic": "The User is not an expert in finance.",
-          },
-        ],
+        synthesizedContext: {
+          taskUnderstanding:
+            "The task requires analyzing stock market trends over the past 5 years and making predictions about future trends. The findings need to be compiled into a .xlsx report.",
+          potentialChallenges:
+            "Stock market analysis can be complex due to the volatility of the market and the multitude of factors that can influence trends.",
+        },
         tools: [
           "Retrieve Memories",
           "Save Memories",
@@ -306,41 +246,94 @@ export async function callExecutionAgent(creation: {
           "Yahoo Finance",
         ],
       },
+      remarks: {
+        contextInsight:
+          "The synthesized context shows a good understanding of the task requirements and potential challenges.",
+        toolStrategy:
+          "The agent has chosen a set of tools that are well-suited for financial analysis tasks, demonstrating a good understanding of the tools' capabilities.",
+        taskChallenge:
+          "The task is complex and requires a good understanding of financial markets and analysis techniques. The agent will need to navigate through various resources to find the most effective solution.",
+      },
     },
     {
       input: {
         task: {
-          task: "Translate text",
+          task: "Design a website",
           inServiceOfGoal:
-            "Translate the following English text to French: 'Hello, how are you?'",
-          availableDataSources: [
-            "user.profile.basic",
-            "memory",
-            "stock.market.data",
-            "language.databases",
-          ],
+            "Design a responsive website for a new online store.",
           availableTools: [
-            "Translation Tool",
-            "Google Search",
-            "GitHub",
+            "Adobe XD",
+            "Sketch",
+            "Figma",
             "Web Browser",
+            "Google Search",
+            "Stack Overflow",
+            "GitHub",
           ],
         },
       },
       output: {
-        synthesizedContext: [
-          {
-            "user.profile.basic":
-              "The User is fluent in English and wants to translate text to French.",
-          },
+        synthesizedContext: {
+          taskUnderstanding:
+            "The task requires designing a responsive website for a new online store. This involves creating a visually appealing and user-friendly interface that works well on various devices.",
+          potentialChallenges:
+            "Website design can be complex due to the need for both aesthetic appeal and functionality. Additionally, the website must be responsive, meaning it should work well on various devices and screen sizes.",
+        },
+        tools: [
+          "Adobe XD",
+          "Sketch",
+          "Figma",
+          "Google Search",
+          "Stack Overflow",
         ],
-        tools: ["Translation Tool"],
       },
       remarks: {
-        synthesizedContext:
-          "The synthesized context is good because it accurately reflects the user's needs.",
-        tools:
-          "The selected tool is appropriate for the task at hand. Distracting/irrelevant tools are not selected.",
+        contextInsight:
+          "The synthesized context shows a good understanding of the task requirements and potential challenges.",
+        toolStrategy:
+          "The agent has chosen a set of tools that are well-suited for design tasks, demonstrating a good understanding of the tools' capabilities.",
+        taskChallenge:
+          "The task is complex and requires a good understanding of design principles and responsive design techniques. The agent will need to navigate through various resources to find the most effective solution.",
+      },
+    },
+    {
+      input: {
+        task: {
+          task: "Translate a document",
+          inServiceOfGoal: "Translate a document from English to French.",
+          availableTools: [
+            "Google Translate",
+            "DeepL",
+            "Microsoft Translator",
+            "Web Browser",
+            "Google Search",
+            "Product Sentiment Analysis",
+          ],
+        },
+      },
+      output: {
+        synthesizedContext: {
+          taskUnderstanding:
+            "The task requires translating a document from English to French. This involves accurately conveying the meaning of the original text in the target language.",
+          potentialChallenges:
+            "Translation can be complex due to the nuances of language and cultural differences. Additionally, some phrases or idioms may not have direct equivalents in the target language.",
+          productSentimentInclusion:
+            "The agent has included Product Sentiment Analysis in the list of available tools to provide context as to the quality of each of three other service Tools (DeepL, Google Translate, and Microsoft Translator).",
+        },
+        tools: [
+          "Google Translate",
+          "DeepL",
+          "Microsoft Translator",
+          "Product Sentiment Analysis",
+        ],
+      },
+      remarks: {
+        contextInsight:
+          "The synthesized context shows a good understanding of the task requirements and potential challenges.",
+        toolStrategy:
+          "The agent has chosen a set of tools that are well-suited for translation tasks, demonstrating a good understanding of the tools' capabilities.",
+        taskChallenge:
+          "The task is complex and requires a good understanding of both English and French, as well as the nuances of translation. The agent will need to navigate through various resources to find the most effective solution.",
       },
     },
   ];
@@ -469,33 +462,35 @@ ${inputTaskAndGoalString}
       llm: smartModelForEvaluation,
       criteria: {
         taskFulfillment: "Does the submission fulfill the specific TASK?",
-      },
-      agentTools: skills,
-    });
-
-    const schemaAdherenceEvaluator = await loadEvaluator("trajectory", {
-      llm: smartModelForEvaluation,
-      criteria: {
         schemaAdherence: "Does the submission adhere to the specified SCHEMA?",
-      },
-      agentTools: skills,
-    });
-
-    const constraintsEvaluator = await loadEvaluator("trajectory", {
-      llm: smartModelForEvaluation,
-      criteria: {
         rulesAdherence: "Does the submission adhere to each of the RULES?",
       },
       agentTools: skills,
     });
+
+    // const schemaAdherenceEvaluator = await loadEvaluator("trajectory", {
+    //   llm: smartModelForEvaluation,
+    //   criteria: {
+    //     schemaAdherence: "Does the submission adhere to the specified SCHEMA?",
+    //   },
+    //   agentTools: skills,
+    // });
+
+    // const constraintsEvaluator = await loadEvaluator("trajectory", {
+    //   llm: smartModelForEvaluation,
+    //   criteria: {
+    //     rulesAdherence: "Does the submission adhere to each of the RULES?",
+    //   },
+    //   agentTools: skills,
+    // });
 
     const agentTrajectory = call.intermediateSteps as AgentStep[];
 
     try {
       const evaluators = [
         taskFulfillmentEvaluator,
-        schemaAdherenceEvaluator,
-        constraintsEvaluator,
+        // schemaAdherenceEvaluator,
+        // constraintsEvaluator,
       ];
 
       await checkTrajectory(

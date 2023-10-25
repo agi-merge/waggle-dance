@@ -21,6 +21,6 @@ const executeConstraints = (_format: string) =>
 # Output Formatting
 - Avoid returning placeholders like "[insert code here]" and "example.com".
 - Format your Final Answers and RESULT. The content should be in GFM (autolink literals, footnotes, strikethrough, tables, tasklists) and standard markdown formats.
-    `.trim();
+`.trim();
 
 export default executeConstraints;

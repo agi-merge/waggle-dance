@@ -31,7 +31,7 @@ The USER is trying to ultimately achieve a GOAL, of which your TASK is a part.
 TASK: ${task}
 NAMESPACE: ${namespace}
 SERVER TIME: ${new Date().toString()}
-CONSTRAINTS: ${executeConstraints(returnType)}
+RULES: ${executeConstraints(returnType)}
 TOOLS: {tools}
 CONTEXT: {context}
 SCHEMA: ${schema}`;
