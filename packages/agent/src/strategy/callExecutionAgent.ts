@@ -172,7 +172,10 @@ export async function callExecutionAgent(creation: {
   }
   console.debug(`contextAndTools(${taskObj.id}):`, contextAndTools);
   const formattedMessages = await prompt.formatMessages({
-    ...contextAndTools,
+    synthesizedContext:
+      returnType === "JSON"
+        ? jsonStringify(contextAndTools.synthesizedContext)
+        : yamlStringify(contextAndTools.synthesizedContext),
   });
 
   const input: string = formattedMessages
