@@ -11,18 +11,26 @@ export type ToolsAndContextPickingInput = {
 };
 
 export type ToolsAndContextPickingOutput = {
-  synthesizedContext: Record<string, string>;
+  synthesizedContext: object;
   tools: string[];
 };
 
 type ToolsAndContextExample = {
+  exampleRemarks: object;
   input: ToolsAndContextPickingInput;
   output: ToolsAndContextPickingOutput;
-  remarks: object;
 };
 
 const toolsAndContextExamples: ToolsAndContextExample[] = [
   {
+    exampleRemarks: {
+      contextInsight:
+        "The synthesized context shows the limitations of the agent's knowledge.",
+      toolStrategy:
+        "The agent has chosen a set of tools that are well-suited for academic research tasks, demonstrating a good understanding of the tools' capabilities.",
+      taskChallenge:
+        "The task is complex and requires a deep understanding of AI technologies. The agent will need to navigate a vast amount of information and distill it into a concise and informative report.",
+    },
     input: {
       task: "Research AgentGPT",
       inServiceOfGoal:
@@ -59,16 +67,16 @@ const toolsAndContextExamples: ToolsAndContextExample[] = [
         "GitHub",
       ],
     },
-    remarks: {
-      contextInsight:
-        "The synthesized context shows the limitations of the agent's knowledge.",
-      toolStrategy:
-        "The agent has chosen a set of tools that are well-suited for academic research tasks, demonstrating a good understanding of the tools' capabilities.",
-      taskChallenge:
-        "The task is complex and requires a deep understanding of AI technologies. The agent will need to navigate a vast amount of information and distill it into a concise and informative report.",
-    },
   },
   {
+    exampleRemarks: {
+      contextInsight:
+        "The synthesized context shows a good understanding of the task requirements and potential challenges.",
+      toolStrategy:
+        "The agent has chosen a set of tools that are well-suited for programming tasks, demonstrating a good understanding of the tools' capabilities.",
+      taskChallenge:
+        "The task is complex and requires a good understanding of Python and web scraping techniques. The agent will need to navigate through various resources to find the most effective solution.",
+    },
     input: {
       task: "Write a Python script",
       inServiceOfGoal:
@@ -90,16 +98,16 @@ const toolsAndContextExamples: ToolsAndContextExample[] = [
       },
       tools: ["Python Interpreter", "Google Search", "Stack Overflow"],
     },
-    remarks: {
+  },
+  {
+    exampleRemarks: {
       contextInsight:
         "The synthesized context shows a good understanding of the task requirements and potential challenges.",
       toolStrategy:
-        "The agent has chosen a set of tools that are well-suited for programming tasks, demonstrating a good understanding of the tools' capabilities.",
+        "The agent has chosen a set of tools that are well-suited for financial analysis tasks, demonstrating a good understanding of the tools' capabilities.",
       taskChallenge:
-        "The task is complex and requires a good understanding of Python and web scraping techniques. The agent will need to navigate through various resources to find the most effective solution.",
+        "The task is complex and requires a good understanding of financial markets and analysis techniques. The agent will need to navigate through various resources to find the most effective solution.",
     },
-  },
-  {
     input: {
       task: "Analyze stock market trends",
       inServiceOfGoal:
@@ -127,27 +135,25 @@ const toolsAndContextExamples: ToolsAndContextExample[] = [
         "Yahoo Finance",
       ],
     },
-    remarks: {
+  },
+  {
+    exampleRemarks: {
       contextInsight:
         "The synthesized context shows a good understanding of the task requirements and potential challenges.",
       toolStrategy:
-        "The agent has chosen a set of tools that are well-suited for financial analysis tasks, demonstrating a good understanding of the tools' capabilities.",
+        "The agent has chosen a set of tools that are well-suited for design tasks, demonstrating a good understanding of the tools' capabilities.",
       taskChallenge:
-        "The task is complex and requires a good understanding of financial markets and analysis techniques. The agent will need to navigate through various resources to find the most effective solution.",
+        "The task is complex and requires a good understanding of design principles and responsive design techniques. The agent will need to navigate through various resources to find the most effective solution.",
     },
-  },
-  {
     input: {
       task: "Design a website",
       inServiceOfGoal: "Design a responsive website for a new online store.",
       availableTools: [
-        "Adobe XD",
-        "Sketch",
         "Figma",
         "Web Browser",
         "Google Search",
         "Stack Overflow",
-        "GitHub",
+        "GitHub Search",
       ],
     },
     output: {
@@ -157,18 +163,18 @@ const toolsAndContextExamples: ToolsAndContextExample[] = [
         potentialChallenges:
           "Website design can be complex due to the need for both aesthetic appeal and functionality. Additionally, the website must be responsive, meaning it should work well on various devices and screen sizes.",
       },
-      tools: ["Adobe XD", "Sketch", "Figma", "Google Search", "Stack Overflow"],
-    },
-    remarks: {
-      contextInsight:
-        "The synthesized context shows a good understanding of the task requirements and potential challenges.",
-      toolStrategy:
-        "The agent has chosen a set of tools that are well-suited for design tasks, demonstrating a good understanding of the tools' capabilities.",
-      taskChallenge:
-        "The task is complex and requires a good understanding of design principles and responsive design techniques. The agent will need to navigate through various resources to find the most effective solution.",
+      tools: ["Figma", "Stack Overflow", "GitHub Search"],
     },
   },
   {
+    exampleRemarks: {
+      contextInsight:
+        "The synthesized context shows a good understanding of the task requirements and potential challenges.",
+      toolStrategy:
+        "The agent has chosen a set of tools that are well-suited for translation tasks, demonstrating a good understanding of the tools' capabilities.",
+      taskChallenge:
+        "The task is complex and requires a good understanding of both English and French, as well as the nuances of translation. The agent will need to navigate through various resources to find the most effective solution.",
+    },
     input: {
       task: "Translate a document",
       inServiceOfGoal: "Translate a document from English to French.",
@@ -196,14 +202,6 @@ const toolsAndContextExamples: ToolsAndContextExample[] = [
         "Microsoft Translator",
         "Product Sentiment Analysis",
       ],
-    },
-    remarks: {
-      contextInsight:
-        "The synthesized context shows a good understanding of the task requirements and potential challenges.",
-      toolStrategy:
-        "The agent has chosen a set of tools that are well-suited for translation tasks, demonstrating a good understanding of the tools' capabilities.",
-      taskChallenge:
-        "The task is complex and requires a good understanding of both English and French, as well as the nuances of translation. The agent will need to navigate through various resources to find the most effective solution.",
     },
   },
 ];
