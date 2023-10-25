@@ -12,15 +12,6 @@ import { stringify as yamlStringify } from "yaml";
 
 import { criticismSuffix } from "./types";
 
-enum PolicyViolation {
-  IGNORES_CONTEXT = "IGNORES_CONTEXT",
-  INCORRECT_FINAL_NODE_NAME = "INCORRECT_FINAL_NODE_NAME",
-  INCORRECT_DEPENDENCIES = "INCORRECT_DEPENDENCIES",
-  CIRCULAR_DEPENDENCIES = "CIRCULAR_DEPENDENCIES",
-  UNREACHABLE_NODES = "UNREACHABLE_NODES",
-  MISSING_CRITICAL_NODE = "MISSING_CRITICAL_NODE",
-}
-
 // FIXME: auto-gen this
 export const schema = (format: string) =>
   `
@@ -298,8 +289,7 @@ ${constraints(returnType)}
   const systemMessagePrompt =
     SystemMessagePromptTemplate.fromTemplate(template);
 
-  const humanTemplate = `I am the User! My Goal is: ${goalPrompt},
-What is your Plan?`;
+  const humanTemplate = `I am the User! My Goal is: ${goalPrompt}, respond ONLY with your Plan:`;
   const humanMessagePrompt =
     HumanMessagePromptTemplate.fromTemplate(humanTemplate);
 
