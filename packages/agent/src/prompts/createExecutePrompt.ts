@@ -31,9 +31,8 @@ The USER is trying to ultimately achieve a GOAL, of which your TASK is a part.
 TASK: ${task}
 NAMESPACE: ${namespace}
 SERVER TIME: ${new Date().toString()}
+SYNTHESIZED CONTEXT: {synthesizedContext}
 RULES: ${executeConstraints(returnType)}
-TOOLS: {tools}
-CONTEXT: {context}
 SCHEMA: ${schema}`;
 
   const promptTypeForModel = (template: string) => {
