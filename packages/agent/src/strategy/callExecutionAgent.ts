@@ -10,9 +10,14 @@ import { type StructuredTool, type Tool } from "langchain/dist/tools/base";
 import { loadEvaluator } from "langchain/evaluation";
 import { PlanAndExecuteAgentExecutor } from "langchain/experimental/plan_and_execute";
 import { type OpenAI } from "langchain/llms/openai";
+import {
+  OutputFixingParser,
+  StructuredOutputParser,
+} from "langchain/output_parsers";
 import { type AgentStep } from "langchain/schema";
-import { parse as jsonParse, stringify as jsonStringify } from "superjson";
+import { stringify as jsonStringify } from "superjson";
 import { parse as yamlParse, stringify as yamlStringify } from "yaml";
+import { z } from "zod";
 
 import { type DraftExecutionGraph } from "@acme/db";
 
@@ -27,7 +32,6 @@ import checkTrajectory from "../grounding/checkTrajectory";
 import {
   createContextAndToolsPrompt,
   type ToolsAndContextPickingInput,
-  type ToolsAndContextPickingOutput,
 } from "../prompts/createContextAndToolsPrompt";
 import { isTaskCriticism } from "../prompts/types";
 import type Geo from "../utils/Geo";
@@ -143,13 +147,23 @@ export async function callExecutionAgent(creation: {
     { ...creationProps, maxTokens: 350 },
     ModelStyle.Chat,
   ) as ChatOpenAI;
+
+  const outputSchema = z.object({
+    synthesizedContext: z.record(z.string()),
+    tools: z.array(z.string()),
+  });
+  const baseParser = StructuredOutputParser.fromZodSchema(outputSchema);
+  const outputFixingParser = OutputFixingParser.fromLLM(llm, baseParser);
+
   const chain = createContextAndToolsPrompt({
     namespace,
     returnType,
     inputTaskAndGoalString,
-  }).pipe(chatLlm);
+  })
+    .pipe(chatLlm)
+    .pipe(outputFixingParser);
 
-  const contextCall = await chain.invoke(
+  const contextAndTools = await chain.invoke(
     {},
     {
       tags: ["contextAndTools", ...tags],
@@ -158,29 +172,6 @@ export async function callExecutionAgent(creation: {
     },
   );
 
-  let contextAndTools = (
-    returnType === "JSON"
-      ? jsonParse(contextCall.content)
-      : yamlParse(contextCall.content)
-  ) as ToolsAndContextPickingOutput;
-
-  if (!contextAndTools) {
-    contextAndTools = {
-      synthesizedContext: {},
-      tools: skills.map((s) => s.name),
-    };
-  } else {
-    if ("context" in contextAndTools) {
-      contextAndTools.synthesizedContext = contextAndTools.context as object;
-      delete contextAndTools.context;
-    }
-    if (!contextAndTools.synthesizedContext) {
-      contextAndTools.synthesizedContext = {};
-    }
-    if (!contextAndTools.tools) {
-      contextAndTools.tools = skills.map((s) => s.name);
-    }
-  }
   console.debug(`contextAndTools(${taskObj.id}):`, contextAndTools);
   const formattedMessages = await prompt.formatMessages({
     synthesizedContext:
