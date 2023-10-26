@@ -172,7 +172,7 @@ function createSkills(
   ];
 
   // first tasks should not use long-term memory
-  if (!taskId.search(/^1-\d+$/)) {
+  if (taskId.search(/^1-\d+$/) === -1) {
     tools.push(retrieveMemoriesSkill.toTool(agentPromptingMethod, returnType));
   }
 
