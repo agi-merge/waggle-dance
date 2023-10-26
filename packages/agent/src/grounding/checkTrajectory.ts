@@ -89,12 +89,21 @@ async function checkScore(
       const repair = new LLMChain({ llm: fast, prompt });
 
       // The result is an object with a `text` property.
-      const repairCall = await repair.call({ error: evaluation.value });
-      console.warn("Trajectory evaluation failed", evaluation.value);
-      return checkScore({
-        status: "fulfilled",
-        value: { score: repairCall },
-      });
+      const repairCall = (await repair.call({ error: evaluation.value })) as {
+        text: string;
+      };
+      const score: number | undefined = !!repairCall.text
+        ? Number.parseFloat(repairCall.text) / 5
+        : undefined;
+      console.warn("Trajectory evaluation parsing failed", evaluation.value);
+
+      return checkScore(
+        {
+          status: "fulfilled",
+          value: { score },
+        },
+        response,
+      );
     }
   }
 }
