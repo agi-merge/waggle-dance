@@ -65,8 +65,8 @@ async function checkScore(evaluation: PromiseSettledResult<ChainValues>) {
     } else {
       // Try to repair the error
       const fast = createModel(
-        { modelName: LLM_ALIASES["fast"], maxTokens: 5 },
-        AgentPromptingMethod.ZeroShotReAct, // does not need to be chat
+        { modelName: LLM_ALIASES["fast"], maxTokens: 3 },
+        ModelStyle.Instruct, // does not need to be chat
       );
 
       const prompt = PromptTemplate.fromTemplate(

@@ -260,30 +260,10 @@ export async function callExecutionAgent(creation: {
       agentTools: skills,
     });
 
-    // const schemaAdherenceEvaluator = await loadEvaluator("trajectory", {
-    //   llm: smartModelForEvaluation,
-    //   criteria: {
-    //     schemaAdherence: "Does the submission adhere to the specified SCHEMA?",
-    //   },
-    //   agentTools: skills,
-    // });
-
-    // const constraintsEvaluator = await loadEvaluator("trajectory", {
-    //   llm: smartModelForEvaluation,
-    //   criteria: {
-    //     rulesAdherence: "Does the submission adhere to each of the RULES?",
-    //   },
-    //   agentTools: skills,
-    // });
-
     const agentTrajectory = call.intermediateSteps as AgentStep[];
 
     try {
-      const evaluators = [
-        taskFulfillmentEvaluator,
-        // schemaAdherenceEvaluator,
-        // constraintsEvaluator,
-      ];
+      const evaluators = [taskFulfillmentEvaluator];
 
       await checkTrajectory(
         response,
