@@ -272,9 +272,7 @@ export async function callExecutionAgent(creation: {
         evaluators,
       );
 
-      return `${response}\n\n# Evaluation: ${evaluationResult?.split("\n")[
-        evaluationResult.length - 1
-      ]}`;
+      return `${response}\n\n# Evaluation: ${evaluationResult}`;
     } catch (error) {
       return error as Error;
     }
