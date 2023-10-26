@@ -149,7 +149,14 @@ export async function callExecutionAgent(creation: {
     inputTaskAndGoalString,
   }).pipe(chatLlm);
 
-  const contextCall = await chain.invoke({});
+  const contextCall = await chain.invoke(
+    {},
+    {
+      tags: ["contextAndTools", ...tags],
+      callbacks,
+      runName: "Pick Context and Tools",
+    },
+  );
 
   let contextAndTools = (
     returnType === "JSON"
