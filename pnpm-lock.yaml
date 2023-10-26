@@ -255,6 +255,9 @@ importers:
       yaml:
         specifier: ^2.3.3
         version: 2.3.3
+      zod:
+        specifier: ^3.22.4
+        version: 3.22.4
     devDependencies:
       '@acme/eslint-config':
         specifier: ^0.1.0
