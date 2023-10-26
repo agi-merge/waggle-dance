@@ -152,12 +152,6 @@ function getSearchLocation(
   const location =
     geos.length > 0 ? geos.join(",") : "Los Angeles,California,United States";
 
-  console.debug(
-    `SerpAPI location:
-    "${location}"
-    versus original:
-    ${JSON.stringify(geo)}}`,
-  );
   return { location, hl, gl };
 }
 
