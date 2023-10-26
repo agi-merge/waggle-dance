@@ -226,14 +226,22 @@ export function createContextAndToolsPrompt({
       : yamlStringify(toolsAndContextExamples);
   const promptTemplate = PromptTemplate.fromTemplate(
     `[system]
-You are an efficient and expert assistant, preparing the context and tool configuration for an ethical LLM Agent to perform a Task for the User.
+You are an efficient and expert assistant, distilling context from the information you have been given.
+You are also helping to pick a minimal set of enabled Tools (try to have no overlap in capabilities).
 # Namespace: ${namespace}
 # Current Time:
 ${new Date().toString()}
+# Schema:
+(
+  tools: string[]
+  synthesizedContext: ([key: string]: string))[]
+)
+synthesizedContext must not be empty!
+convert to valid ${returnType}
 # Examples:
 ${examples}
 [human]
-Provide (in valid ${returnType}) ( tools: string[], context: string | ([key: string]: string)[] ) that would improve the probability of success for the following:
+In the provided Schema, what is your best educated guess about appropriate tools and synthesizedContext for this Task?
 ${inputTaskAndGoalString}
 `,
   );
