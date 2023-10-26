@@ -5,7 +5,7 @@ import { PromptTemplate } from "langchain/prompts";
 import { type AgentStep } from "langchain/schema";
 
 import { type ChainValues } from "../strategy/AgentPacket";
-import { AgentPromptingMethod, LLM_ALIASES } from "../utils/llms";
+import { LLM_ALIASES, ModelStyle } from "../utils/llms";
 import { createModel } from "../utils/model";
 
 async function checkTrajectory(
@@ -16,9 +16,10 @@ async function checkTrajectory(
   tags: string[],
   callbacks: Callbacks | undefined,
   evaluators: AgentTrajectoryEvaluator[],
-) {
+): Promise<string | null> {
   if (process.env.EXE_TRAJECTORY_EVALUATION !== "true") {
-    return console.debug(`Skipping trajectory evaluation`);
+    console.debug(`Skipping trajectory evaluation`);
+    return null;
   }
 
   const evaluations = await Promise.allSettled(
@@ -38,13 +39,21 @@ async function checkTrajectory(
     ),
   );
 
-  await Promise.all(evaluations.map(checkScore));
+  return (
+    (await Promise.all(evaluations.map((e) => checkScore(e, response)))).find(
+      (v) => v?.length ?? false,
+    ) || null
+  );
 }
 
-async function checkScore(evaluation: PromiseSettledResult<ChainValues>) {
+async function checkScore(
+  evaluation: PromiseSettledResult<ChainValues>,
+  response: string,
+): Promise<string | null> {
   if (evaluation.status === "rejected") {
     // just log this for now, unless trajectory calls keep throwing
     console.warn("Trajectory evaluation failed", evaluation.reason);
+    return null;
   } else {
     const evaluationResult = (
       evaluation.value.res ? evaluation.value.res : evaluation.value
@@ -56,12 +65,17 @@ async function checkScore(evaluation: PromiseSettledResult<ChainValues>) {
       const minimumScore = 0.5;
       if (evaluationResult.score < minimumScore) {
         throw new Error(
-          `Low review score: ${evaluationResult.score}. Reasoning: ${evaluationResult.reasoning}"`,
+          `Low review score: ${
+            evaluationResult.score * 100
+          }%. \n\n# Reasoning: ${
+            evaluationResult.reasoning
+          }"\n\n# Result: \n\n${response}`,
           { cause: evaluationResult.reasoning },
         );
       } else {
         console.debug("Trajectory evaluation passed", evaluationResult);
       }
+      return evaluationResult.reasoning;
     } else {
       // Try to repair the error
       const fast = createModel(
@@ -70,7 +84,7 @@ async function checkScore(evaluation: PromiseSettledResult<ChainValues>) {
       );
 
       const prompt = PromptTemplate.fromTemplate(
-        "Output only the number of the score from {error}?",
+        "In one character only, extract and output only the number of the score that is mentioned in:\n{error}.",
       );
       const repair = new LLMChain({ llm: fast, prompt });
 

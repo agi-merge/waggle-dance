@@ -265,7 +265,7 @@ export async function callExecutionAgent(creation: {
     try {
       const evaluators = [taskFulfillmentEvaluator];
 
-      await checkTrajectory(
+      const evaluationResult = await checkTrajectory(
         response,
         input,
         agentTrajectory,
@@ -275,7 +275,9 @@ export async function callExecutionAgent(creation: {
         evaluators,
       );
 
-      return response;
+      return `${response}\n\n# Evaluation: ${evaluationResult?.split("\n")[
+        evaluationResult.length - 1
+      ]}`;
     } catch (error) {
       return error as Error;
     }
