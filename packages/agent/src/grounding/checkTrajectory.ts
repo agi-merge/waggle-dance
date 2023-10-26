@@ -18,7 +18,7 @@ async function checkTrajectory(
   evaluators: AgentTrajectoryEvaluator[],
 ) {
   if (process.env.EXE_TRAJECTORY_EVALUATION !== "true") {
-    return;
+    return console.debug(`Skipping trajectory evaluation`);
   }
 
   const evaluations = await Promise.allSettled(

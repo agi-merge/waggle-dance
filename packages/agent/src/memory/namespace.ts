@@ -39,7 +39,6 @@ export default function createNamespace(
   }
 
   const namespace = saltAndHash(`${goalId}_${executionId}`);
-  console.debug("namespace", namespace);
   return namespace;
 }
 

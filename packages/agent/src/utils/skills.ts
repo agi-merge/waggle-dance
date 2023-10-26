@@ -218,7 +218,6 @@ function createSkills(
     );
   }
 
-  console.debug(tools.map((tool) => tool.name));
   return tools as StructuredTool[];
 }
 
