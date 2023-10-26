@@ -9,15 +9,13 @@ import executeConstraints from "./constraints/executeConstraints";
 import { executeSchema } from "./schemas/executeSchema";
 
 export function createExecutePrompt(params: {
-  task: string;
-  goalPrompt: string;
+  taskObj: {id: string, name: string};
   namespace: string;
   returnType: "YAML" | "JSON";
   modelName: string;
 }): ChatPromptTemplate {
   const {
-    task,
-    goalPrompt: _goalPrompt,
+    taskObj,
     namespace,
     returnType,
     modelName,
@@ -28,12 +26,16 @@ export function createExecutePrompt(params: {
   const systemTemplate = `
 You are a determined and resourceful AI Agent determinedly trying to perform and produce exacting results of a TASK for the USER.
 The USER is trying to ultimately achieve a GOAL, of which your TASK is a part.
-TASK: ${task}
+[variables]
+TASK ID: ${taskObj.id}
+TASK: ${taskObj.name}
+TASK CONTEXT: {synthesizedContext}
 NAMESPACE: ${namespace}
 SERVER TIME: ${new Date().toString()}
-SYNTHESIZED CONTEXT: {synthesizedContext}
 RULES: ${executeConstraints(returnType)}
-SCHEMA: ${schema}`;
+SCHEMA: ${schema}
+[end variables]
+`;
 
   const promptTypeForModel = (template: string) => {
     return useSystemPrompt

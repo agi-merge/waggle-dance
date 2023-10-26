@@ -81,7 +81,7 @@ export async function callExecutionAgent(creation: {
   const llm = createModel(creationProps, agentPromptingMethod);
 
   const embeddings = createEmbeddings({ modelName: LLM.embeddings });
-  const taskObj = yamlParse(task) as { id: string };
+  const taskObj = yamlParse(task) as { id: string; name: string };
   const isCriticism = isTaskCriticism(taskObj.id);
   const returnType = contentType === "application/json" ? "JSON" : "YAML";
   const memory = await createMemory({
@@ -107,8 +107,7 @@ export async function callExecutionAgent(creation: {
         returnType,
       })
     : createExecutePrompt({
-        task,
-        goalPrompt,
+        taskObj,
         namespace,
         returnType,
         modelName: creationProps.modelName || LLM_ALIASES["fast"],
