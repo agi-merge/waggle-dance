@@ -163,6 +163,10 @@ export async function callExecutionAgent(creation: {
       tools: skills.map((s) => s.name),
     };
   } else {
+    if ("context" in contextAndTools) {
+      contextAndTools.synthesizedContext = contextAndTools.context as object;
+      delete contextAndTools.context;
+    }
     if (!contextAndTools.synthesizedContext) {
       contextAndTools.synthesizedContext = {};
     }
