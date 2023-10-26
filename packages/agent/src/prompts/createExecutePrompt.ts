@@ -22,7 +22,7 @@ export function createExecutePrompt(params: {
     returnType,
     modelName,
   } = params;
-  const useSystemPrompt = modelName.startsWith("GPT-4");
+  const useSystemPrompt = true; //modelName.startsWith("gpt-4");
   const schema = executeSchema(returnType, modelName);
 
   const systemTemplate = `
