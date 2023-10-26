@@ -254,7 +254,7 @@ export async function callExecutionAgent(creation: {
         schemaAdherence: "Does the submission adhere to the specified SCHEMA?",
         rulesAdherence: "Does the submission adhere to each of the RULES?",
       },
-      agentTools: skills,
+      agentTools: filteredSkills,
     });
 
     const agentTrajectory = call.intermediateSteps as AgentStep[];
