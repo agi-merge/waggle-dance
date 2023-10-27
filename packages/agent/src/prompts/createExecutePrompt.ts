@@ -1,11 +1,10 @@
 import {
   ChatPromptTemplate,
   HumanMessagePromptTemplate,
-  PromptTemplate,
   SystemMessagePromptTemplate,
 } from "langchain/prompts";
 
-import { executeSchema } from "./schemas/executeSchema";
+import executeConstraints from "./constraints/executeConstraints";
 
 export function createExecutePrompt(params: {
   taskObj: { id: string; name: string };
@@ -14,8 +13,7 @@ export function createExecutePrompt(params: {
   modelName: string;
 }): ChatPromptTemplate {
   const { taskObj, namespace, returnType, modelName } = params;
-  const useSystemPrompt = true; //modelName.startsWith("gpt-4");
-  const _schema = executeSchema(returnType, modelName);
+  const useSystemPrompt = modelName.startsWith("gpt-"); // only gpt family of openai models for now
 
   const systemTemplate = `
 [variables]
@@ -26,10 +24,11 @@ The USER is trying to ultimately achieve a GOAL, of which your TASK is a part.
 ${taskObj.id}, ${taskObj.name}
 # CONTEXT:
 {synthesizedContext}
-# NAMESPACE:
 ${namespace}
 # SERVER TIME:
 ${new Date().toString()}
+# RULES:
+${executeConstraints(returnType)}
 [end variables]
 `;
 
