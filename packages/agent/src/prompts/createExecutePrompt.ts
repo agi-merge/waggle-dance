@@ -25,7 +25,7 @@ ${taskObj.id}, ${taskObj.name}
 # CONTEXT:
 {synthesizedContext}
 ${namespace}
-# SERVER TIME:
+# TIME:
 ${new Date().toString()}
 # RULES:
 ${executeConstraints(returnType)}
@@ -40,7 +40,11 @@ ${executeConstraints(returnType)}
 
   const mainPrompt = promptTypeForModel(systemTemplate);
 
-  const chatPrompt = ChatPromptTemplate.fromMessages([mainPrompt]);
+  const humanPrompt = HumanMessagePromptTemplate.fromTemplate(
+    `Please discern events and timelines and admit your knowledge cut-off based on the TIME. Additionally, plaase adhere to the RULES, and mind the DIRECTIVE. Now, using the given CONTEXT, complete my TASK!`,
+  );
+
+  const chatPrompt = ChatPromptTemplate.fromMessages([mainPrompt, humanPrompt]);
 
   return chatPrompt;
 }
