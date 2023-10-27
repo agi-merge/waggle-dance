@@ -3,12 +3,49 @@ import { type Embeddings } from "langchain/embeddings/base";
 import { OpenAIEmbeddings } from "langchain/embeddings/openai";
 import { OpenAI } from "langchain/llms/openai";
 
-import { AgentPromptingMethod, ModelStyle } from "./llms";
+import {
+  AgentPromptingMethod,
+  LLM_ALIASES,
+  ModelStyle,
+  type LLMAliasKey,
+} from "./llms";
 import {
   type EmbeddingsCreationProps,
   type ModelCreationProps,
 } from "./OpenAIPropsBridging";
 
+function getAzureDeploymentName(
+  modelName: string | undefined,
+): string | undefined {
+  if (!modelName) {
+    return undefined;
+  }
+  const llmAliasKey = Object.entries(LLM_ALIASES).find(([_key, val]) => {
+    if (String(val) === modelName) {
+      return true;
+    }
+  })?.[0];
+
+  switch (llmAliasKey as LLMAliasKey) {
+    case "fast":
+      return process.env.AZURE_OPENAI_API_FAST_DEPLOYMENT_NAME;
+    case "fast-large":
+      return process.env.AZURE_OPENAI_API_FAST_LARGE_DEPLOYMENT_NAME;
+    case "smart":
+      return process.env.AZURE_OPENAI_API_SMART_DEPLOYMENT_NAME;
+    case "smart-large":
+      return process.env.AZURE_OPENAI_API_SMART_LARGE_DEPLOYMENT_NAME;
+    default:
+      return process.env.AZURE_OPENAI_API_DEPLOYMENT_NAME;
+  }
+}
+
+// const azureDeploymentNames: Record<LLM, LLMAliasKey> =  Object.keys(LLM).map((key) => {
+//   key = key as LLMAliasKey;
+//   return {
+//     [LLM[key]]: key,
+//   };
+// })
 export const createModel = (
   creationProps: ModelCreationProps,
   methodOrStyle: AgentPromptingMethod | ModelStyle,
@@ -22,7 +59,12 @@ export const createModel = (
     methodOrStyle === AgentPromptingMethod.OpenAIFunctions
   ) {
     return new ChatOpenAI(
-      { ...creationProps },
+      {
+        ...creationProps,
+        azureOpenAIApiDeploymentName: getAzureDeploymentName(
+          creationProps.modelName,
+        ),
+      },
       { basePath: creationProps.basePath },
     );
   } else {
