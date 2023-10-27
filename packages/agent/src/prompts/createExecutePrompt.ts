@@ -9,31 +9,31 @@ import executeConstraints from "./constraints/executeConstraints";
 import { executeSchema } from "./schemas/executeSchema";
 
 export function createExecutePrompt(params: {
-  taskObj: {id: string, name: string};
+  taskObj: { id: string; name: string };
   namespace: string;
   returnType: "YAML" | "JSON";
   modelName: string;
 }): ChatPromptTemplate {
-  const {
-    taskObj,
-    namespace,
-    returnType,
-    modelName,
-  } = params;
+  const { taskObj, namespace, returnType, modelName } = params;
   const useSystemPrompt = true; //modelName.startsWith("gpt-4");
   const schema = executeSchema(returnType, modelName);
 
   const systemTemplate = `
+[variables]
+# DIRECTIVE:
 You are a determined and resourceful AI Agent determinedly trying to perform and produce exacting results of a TASK for the USER.
 The USER is trying to ultimately achieve a GOAL, of which your TASK is a part.
-[variables]
-TASK ID: ${taskObj.id}
-TASK: ${taskObj.name}
-TASK CONTEXT: {synthesizedContext}
-NAMESPACE: ${namespace}
-SERVER TIME: ${new Date().toString()}
-RULES: ${executeConstraints(returnType)}
-SCHEMA: ${schema}
+# TASK:
+${taskObj.id}, ${taskObj.name}
+# CONTEXT:
+{synthesizedContext}
+# NAMESPACE:
+${namespace}
+# SERVER TIME:
+${new Date().toString()}
+# RULES: ${executeConstraints(returnType)}
+# SCHEMA:
+${schema}
 [end variables]
 `;
 
