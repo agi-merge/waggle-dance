@@ -306,6 +306,7 @@ async function initializeExecutor(
       agentType,
       earlyStoppingMethod: "generate",
       returnIntermediateSteps: true,
+      maxIterations: 10,
       ...creationProps,
       tags,
       handleParsingErrors: true,
@@ -333,6 +334,7 @@ async function initializeExecutor(
       returnIntermediateSteps: true,
       earlyStoppingMethod: "generate",
       handleParsingErrors: true,
+      maxIterations: 10,
       ...creationProps,
       tags,
     } as InitializeAgentExecutorOptionsStructured;
