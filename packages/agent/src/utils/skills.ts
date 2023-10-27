@@ -115,10 +115,10 @@ type OrganicResult = {
 };
 
 const makePrettyOrganicResult = (r: OrganicResult): string => {
-  return `${r.position}. ${r.title}\n${r.link}\n${r.rating} stars from ${
-    r.reviews
-  } reviews\n${r.price} ${r.original_price}\n${r.is_prime ? "Prime" : ""} ${
-    r.is_climate_pledge_friendly ? "Sustainable" : ""
+  return `${r.position}. (ASIN: ${r.asin}) ${r.title?.slice(0, 75)}…\n${
+    r.rating
+  } stars from ${r.reviews} reviews\n${r.price}\n${r.is_prime ? "Prime" : ""} ${
+    r.is_climate_pledge_friendly ? "Climate Pledge" : ""
   }`;
 };
 class AmazonSearch extends SearchApi {
