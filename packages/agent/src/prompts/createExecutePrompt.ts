@@ -44,20 +44,3 @@ ${executeConstraints(returnType)}
 
   return chatPrompt;
 }
-
-export function createexecuteFormattingPrompt(
-  input: string,
-  output: string,
-  returnType: "JSON" | "YAML",
-): PromptTemplate {
-  const template = `TASK: You are to REWRITE only the OUTPUT of a large language model for a given INPUT, ensuring that it is valid ${returnType}, validates for the SCHEMA, and adequately addresses the INPUT.
-  SCHEMA: ${executeSchema(returnType, "unknown")}
-  CONSTRAINT: **DO NOT** output anything other than the ${returnType}, e.g., do not include prose or markdown formatting.
-  INPUT:
-  ${input}
-  OUTPUT:
-  ${output}
-  REWRITE:
-  `;
-  return PromptTemplate.fromTemplate(template);
-}
