@@ -12,8 +12,6 @@ import { WebBrowser } from "langchain/tools/webbrowser";
 
 import cca2Map from "../lib/cca2Map.json";
 import requestUserHelpSkill from "../skills/requestUserHelpSkill";
-import retrieveMemoriesSkill from "../skills/retrieveMemories";
-import saveMemoriesSkill from "../skills/saveMemories";
 import type Geo from "./Geo";
 import { type AgentPromptingMethod } from "./llms";
 
@@ -225,15 +223,6 @@ function createSkills(
     // selfHelpSkill.toTool(agentPromptingMethod, returnType),
     new WebBrowser({ model: llm, embeddings }),
   ];
-
-  // first tasks should not use long-term memory
-  if (taskId.search(/^1-\d+$/) === -1) {
-    tools.push(retrieveMemoriesSkill.toTool(agentPromptingMethod, returnType));
-  }
-
-  if (!isCriticism) {
-    tools.push(saveMemoriesSkill.toTool(agentPromptingMethod, returnType));
-  }
 
   if (process.env.SEARCHAPI_API_KEY?.length) {
     const { location, gl } = getSearchLocation("SearchApi", geo);
