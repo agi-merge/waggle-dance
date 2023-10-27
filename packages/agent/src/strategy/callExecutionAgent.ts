@@ -154,7 +154,7 @@ export async function callExecutionAgent(creation: {
       : yamlStringify(inputTaskAndGoal);
 
   const chatLlm = createModel(
-    { ...creationProps, maxTokens: 350 },
+    { ...creationProps, maxTokens: 450 },
     ModelStyle.Chat,
   ) as ChatOpenAI;
 

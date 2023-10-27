@@ -11,7 +11,7 @@ export const defaultAgentSettings = {
   review: {
     modelName: LLM_ALIASES["fast"],
     temperature: Temperature.Stable,
-    maxTokens: 350,
+    maxTokens: 400,
     agentPromptingMethod: AgentPromptingMethod.OpenAIStructuredChat,
     maxConcurrency: 4,
   },
