@@ -93,3 +93,26 @@ a {
 .markdown {
   font-size: small;
 }
+.markdown h1 {
+  font-size: 2em; /* adjust as needed */
+}
+
+.markdown h2 {
+  font-size: 1.5em; /* adjust as needed */
+}
+
+.markdown h3 {
+  font-size: 1.17em; /* adjust as needed */
+}
+
+.markdown h4 {
+  font-size: 1em; /* adjust as needed */
+}
+
+.markdown h5 {
+  font-size: 0.83em; /* adjust as needed */
+}
+
+.markdown h6 {
+  font-size: 0.67em; /* adjust as needed */
+}
