@@ -218,11 +218,9 @@ const toolsAndContextExamples: ToolsAndContextExample[] = [
 ];
 
 export function createContextAndToolsPrompt({
-  namespace,
   returnType,
   inputTaskAndGoalString,
 }: {
-  namespace: string;
   returnType: "JSON" | "YAML";
   inputTaskAndGoalString: string;
 }): PromptTemplate {
@@ -234,7 +232,6 @@ export function createContextAndToolsPrompt({
     `[system]
 You are an efficient and expert assistant, distilling context from the information you have been given.
 You are also helping to pick a minimal set of enabled Tools (try to have no overlap in capabilities).
-# Namespace: ${namespace}
 # Current Time:
 ${new Date().toString()}
 # Schema:
