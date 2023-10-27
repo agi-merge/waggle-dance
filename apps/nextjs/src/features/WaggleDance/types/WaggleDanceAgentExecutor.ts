@@ -182,6 +182,7 @@ class WaggleDanceAgentExecutor {
             pendingCurrentDagLayerTasks,
             dag,
             scheduledTasks,
+            pendingTasks,
             isDonePlanning,
           );
         }
@@ -229,6 +230,7 @@ class WaggleDanceAgentExecutor {
     tasks: Array<DraftExecutionNode>,
     dag: DraftExecutionGraph,
     scheduledTasks: Set<string>,
+    pendingTasks: Array<DraftExecutionNode>,
     isDonePlanning: boolean,
   ) {
     // Store the results of the tasks that have been started
@@ -245,8 +247,9 @@ class WaggleDanceAgentExecutor {
       // Check if the next task exists or if planning is done
       // If the next task exists, it means the current task's context is complete
       // If planning is done, it means all tasks' context are complete
-      const isContextComplete = !!(isDonePlanning || tasks[index + 1]);
-
+      const nextTask =
+        pendingTasks.length > index + 1 ? pendingTasks[index + 1] : null;
+      const isContextComplete = isDonePlanning || !!nextTask;
       // If the context is not complete, we don't execute the task
       if (!isContextComplete) {
         return;
