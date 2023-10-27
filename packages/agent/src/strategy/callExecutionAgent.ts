@@ -97,6 +97,7 @@ export async function callExecutionAgent(creation: {
   const memory = await createMemory({
     namespace,
     taskId: taskObj.id,
+    returnUnderlying: false,
   });
 
   // methods need to be reattached
@@ -141,7 +142,7 @@ export async function callExecutionAgent(creation: {
   );
 
   const inputTaskAndGoal: ToolsAndContextPickingInput = {
-    task: `ID: ${taskObj.id}, ${taskObj.name}`,
+    task: `${taskObj.name}: ${taskObj.context}`,
     inServiceOfGoal: goalPrompt,
     // availableDataSources: [],
     availableTools: skills.map((s) => s.name),
@@ -230,13 +231,18 @@ export async function callExecutionAgent(creation: {
       (s) => `  - ${s.observation}`,
     );
 
+    const chatHistory = (await memory?.loadMemoryVariables({
+      input: taskObj.context,
+    })) as { chat_history: { value?: string; message?: string } };
+
     const systemMessagePrompt = SystemMessagePromptTemplate.fromTemplate(
-      `You are an attentive, helpful, diligent, and expert executive assistant.
-You are helping to distill the Worklog and Result of a Task conducted by a respected Peer, who is an AI Agent.
-You prefer to respond with clear, complete, relevant, and logical markdown that improves the contents of your Peer's Response.
-You must not mention the Worklog, Result, or your Peer. Only improve upon the Response.
-================================================
-# Your Peer's Worklog:
+      `You are an attentive, helpful, diligent, and expert executive assistant.`,
+    );
+    const humanMessagePrompt = HumanMessagePromptTemplate.fromTemplate(
+      `
+# Task
+${yamlStringify(contextAndTools.synthesizedContext)}
+# Worklog:
 "${
         returnType === "JSON"
           ? jsonStringify(formattedIntermediateSteps).replaceAll(
@@ -248,15 +254,16 @@ You must not mention the Worklog, Result, or your Peer. Only improve upon the Re
               (match) => (match === "{" ? "(" : ")"),
             )
       }"
-# Your Peer's Result:
+# Chat Log
+"${yamlStringify(
+        chatHistory.chat_history.value ||
+          chatHistory.chat_history.message ||
+          chatHistory.chat_history,
+      )}
+# Final Answer:
 "${response}"
-================================================`,
-    );
-    const humanMessagePrompt = HumanMessagePromptTemplate.fromTemplate(
-      `
-Remember, you must not mention the Worklog, Result, or your Peer.
-Distill your Peer's Result and Worklog, synthesizing relationships, ensuring accuracy and critical thinking.
-In a specific and detailed manner, rewrite your Peer's Response:
+================================================
+Rewrite the Final Answer to make it integrate all of the relevant information from the Work Logs and Chat Logs to make it satisfy the Task more.
 `,
     );
     const promptMessages = [systemMessagePrompt, humanMessagePrompt];
@@ -268,6 +275,7 @@ In a specific and detailed manner, rewrite your Peer's Response:
 
     const rewriteChain =
       ChatPromptTemplate.fromMessages(promptMessages).pipe(chatLlm);
+
     const rewriteResponse = await rewriteChain.invoke(
       {},
       {
