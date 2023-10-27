@@ -225,32 +225,39 @@ export async function callExecutionAgent(creation: {
       return response;
     }
 
-    const systemMessagePrompt = SystemMessagePromptTemplate.fromTemplate(
-      `You are improving the response from an AI agent, given its internal steps and dialogue.`,
+    const formattedIntermediateSteps = intermediateSteps.map(
+      (s) => `  - ${s.observation}`,
     );
-    const formattedIntermediateSteps = intermediateSteps.map((s) => ({
-      observation: s.observation,
-      actionLog: s.action.log,
-    }));
-    const humanMessagePrompt = HumanMessagePromptTemplate.fromTemplate(
-      `
-# The AI Agent's task was:
+
+    const systemMessagePrompt = SystemMessagePromptTemplate.fromTemplate(
+      `You are an attentive, helpful, diligent, and expert executive assistant.
+You are helping to distill the Worklog and Result of a Task conducted by a respected Peer, who is an AI Agent.
+You prefer to respond with clear, complete, relevant, and logical markdown.
+================================================
+# Your Peer's Task was:
 id: ${taskObj.id}
 name: ${taskObj.name}
 context: ${taskObj.context}
-# The AI Agent responded with:
-${response}.
-# The AI Agent's steps were:
-${
-  returnType === "JSON"
-    ? jsonStringify(formattedIntermediateSteps).replaceAll(/[{}]/g, (match) =>
-        match === "{" ? "(" : ")",
-      )
-    : yamlStringify(formattedIntermediateSteps).replaceAll(/[{}]/g, (match) =>
-        match === "{" ? "(" : ")",
-      )
-}
-Please respond with ONLY with an improved response, synthesized from the Agent's steps:
+# Your Peer's Worklog:
+"${
+        returnType === "JSON"
+          ? jsonStringify(formattedIntermediateSteps).replaceAll(
+              /[{}]/g,
+              (match) => (match === "{" ? "(" : ")"),
+            )
+          : yamlStringify(formattedIntermediateSteps).replaceAll(
+              /[{}]/g,
+              (match) => (match === "{" ? "(" : ")"),
+            )
+      }"
+# Your Peer's Result was:
+"${response}"
+================================================`,
+    );
+    const humanMessagePrompt = HumanMessagePromptTemplate.fromTemplate(
+      `
+If the AI Agent's Response does not fully solve the AI Agent's task, then:
+Respond ONLY with a diversified, completed, and improved version of the AI Agent's response. The response should adequately solve the AI Agent's task.
 `,
     );
     const promptMessages = [systemMessagePrompt, humanMessagePrompt];
@@ -260,18 +267,16 @@ Please respond with ONLY with an improved response, synthesized from the Agent's
       ModelStyle.Chat,
     );
 
-    const rewriteResponse = await ChatPromptTemplate.fromMessages(
-      promptMessages,
-    )
-      .pipe(chatLlm)
-      .invoke(
-        {},
-        {
-          callbacks,
-          runName: "Rewrite Response",
-          tags: ["rewriteResponse", ...tags],
-        },
-      );
+    const rewriteChain =
+      ChatPromptTemplate.fromMessages(promptMessages).pipe(chatLlm);
+    const rewriteResponse = await rewriteChain.invoke(
+      {},
+      {
+        callbacks,
+        runName: "Rewrite Response",
+        tags: ["rewriteResponse", ...tags],
+      },
+    );
 
     const taskFulfillmentEvaluator = await loadEvaluator("trajectory", {
       llm: smartModelForEvaluation,
@@ -287,7 +292,7 @@ Please respond with ONLY with an improved response, synthesized from the Agent's
       const evaluators = [taskFulfillmentEvaluator];
 
       const evaluationResult = await checkTrajectory(
-        rewriteResponse.content || response,
+        rewriteResponse.content,
         input,
         intermediateSteps,
         abortSignal,
@@ -296,7 +301,7 @@ Please respond with ONLY with an improved response, synthesized from the Agent's
         evaluators,
       );
 
-      return `${response}
+      return `${rewriteResponse.content}
 
 # Evaluation:
 ${evaluationResult}
