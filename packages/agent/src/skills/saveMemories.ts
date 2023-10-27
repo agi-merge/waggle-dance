@@ -1,4 +1,5 @@
 import { Document } from "langchain/document";
+import { stringify } from "yaml";
 import { z } from "zod";
 
 import { vectorStoreFromIndex } from "../utils/vectorStore";
@@ -16,6 +17,14 @@ const schema = z.object({
       "The namespace in which the memories are stored. You must pass the system NAMESPACE variable as the namespace.",
     ),
 });
+
+export const stringifyMax = (value: unknown, max: number) => {
+  if (value === undefined || value === null) {
+    return "…";
+  }
+  const json = stringify(value);
+  return json && json.length < max ? json : `${json.slice(0, max)}…`;
+};
 
 const saveMemoriesSkill = new DynamicZodSkill({
   name: "Save Memories",
@@ -35,8 +44,8 @@ const saveMemoriesSkill = new DynamicZodSkill({
 
     const added = await vectorStore.addDocuments(documents);
     return added.length
-      ? `saved ${added.length} long-term memories`
-      : `failed: ${memories.join(", ")}`;
+      ? `${memories.map((m) => stringifyMax(m, 300)).join(", ")})}`
+      : `Error: ${memories.join(", ")}`;
   },
   schema,
 });
