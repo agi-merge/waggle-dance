@@ -39,6 +39,7 @@ import {
   type ToolsAndContextPickingInput,
 } from "../prompts/createContextAndToolsPrompt";
 import { isTaskCriticism } from "../prompts/types";
+import saveMemoriesSkill from "../skills/saveMemories";
 import type Geo from "../utils/Geo";
 import {
   getAgentPromptingMethodValue,
@@ -275,6 +276,19 @@ In a specific and detailed manner, rewrite your Peer's Response:
         tags: ["rewriteResponse", ...tags],
       },
     );
+
+    // make sure that we are at least saving the task result so that other notes can refer back.
+    const shouldSave = !isCriticism;
+    const save: Promise<unknown> = shouldSave
+      ? saveMemoriesSkill.skill.func({
+          memories: [rewriteResponse.content],
+          namespace: namespace,
+        })
+      : Promise.resolve(
+          "skipping save memory due to error or this being a criticism task",
+        );
+
+    void save;
 
     const taskFulfillmentEvaluator = await loadEvaluator("trajectory", {
       llm: smartModelForEvaluation,

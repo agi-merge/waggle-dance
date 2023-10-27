@@ -15,8 +15,6 @@ import { MemoryVectorStore } from "langchain/vectorstores/memory";
 import { parse, stringify } from "yaml";
 
 import createNamespace from "@acme/agent/src/memory/namespace";
-import { isTaskCriticism } from "@acme/agent/src/prompts/types";
-import saveMemoriesSkill from "@acme/agent/src/skills/saveMemories";
 import { LLM, type AgentPromptingMethod } from "@acme/agent/src/utils/llms";
 import {
   type DraftExecutionGraph,
@@ -1036,19 +1034,6 @@ export default async function ExecuteStream(req: NextRequest) {
           state,
         };
 
-        const isCriticism = isTaskCriticism(node.id);
-
-        // make sure that we are at least saving the task result so that other notes can refer back.
-        const shouldSave = !isCriticism && packet.type !== "error";
-        const save = shouldSave
-          ? saveMemoriesSkill.skill.func({
-              memories: [JSON.stringify(packet)],
-              namespace: namespace!,
-            })
-          : Promise.resolve(
-              "skipping save memory due to error or this being a criticism task",
-            );
-
         const createResultPromise = fetch(`${req.nextUrl.origin}/api/result`, {
           method: "POST",
           headers: {
@@ -1057,10 +1042,7 @@ export default async function ExecuteStream(req: NextRequest) {
           },
           body: JSON.stringify(createResultParams),
         });
-        const [createResultResponse, _saveResponse] = await Promise.all([
-          createResultPromise,
-          save,
-        ]);
+        const [createResultResponse] = await Promise.all([createResultPromise]);
         console.debug("saved memory");
         response = createResultResponse;
       } else {
