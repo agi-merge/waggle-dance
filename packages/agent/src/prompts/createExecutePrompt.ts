@@ -5,7 +5,6 @@ import {
   SystemMessagePromptTemplate,
 } from "langchain/prompts";
 
-import executeConstraints from "./constraints/executeConstraints";
 import { executeSchema } from "./schemas/executeSchema";
 
 export function createExecutePrompt(params: {
@@ -16,7 +15,7 @@ export function createExecutePrompt(params: {
 }): ChatPromptTemplate {
   const { taskObj, namespace, returnType, modelName } = params;
   const useSystemPrompt = true; //modelName.startsWith("gpt-4");
-  const schema = executeSchema(returnType, modelName);
+  const _schema = executeSchema(returnType, modelName);
 
   const systemTemplate = `
 [variables]
@@ -31,9 +30,6 @@ ${taskObj.id}, ${taskObj.name}
 ${namespace}
 # SERVER TIME:
 ${new Date().toString()}
-# RULES: ${executeConstraints(returnType)}
-# SCHEMA:
-${schema}
 [end variables]
 `;
 
