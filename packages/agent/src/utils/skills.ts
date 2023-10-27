@@ -118,8 +118,8 @@ const makePrettyOrganicResult = (r: OrganicResult): string => {
   return `${r.position}. ${r.title}\n${r.link}\n${r.rating} stars from ${
     r.reviews
   } reviews\n${r.price} ${r.original_price}\n${r.is_prime ? "Prime" : ""} ${
-    r.is_climate_pledge_friendly ? "Climate Pledge Friendly" : ""
-  }\n${r.thumbnail}`;
+    r.is_climate_pledge_friendly ? "Sustainable" : ""
+  }`;
 };
 class AmazonSearch extends SearchApi {
   static lc_name(): string {
@@ -144,8 +144,8 @@ class AmazonSearch extends SearchApi {
         `Failed to load search results from SearchApi due to: ${json.error}`,
       );
     }
-    // Google Search results
-    if (json.organic_results) {
+    // Amazon Search results
+    if (json.organic_results?.slice(0, 10)) {
       return json.organic_results.map(makePrettyOrganicResult).join("\n");
     }
 
