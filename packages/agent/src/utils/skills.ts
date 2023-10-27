@@ -97,6 +97,30 @@ class YouTube extends SearchApi {
 //     this.name = "YouTube Transcripts";
 //   }
 // }
+
+type OrganicResult = {
+  position?: number;
+  asin?: string;
+  title?: string;
+  link?: string;
+  rating?: number;
+  reviews?: number;
+  price?: string;
+  extracted_price?: number;
+  original_price?: string;
+  extracted_original_price?: number;
+  is_prime?: boolean;
+  is_climate_pledge_friendly?: boolean;
+  thumbnail: string;
+};
+
+const makePrettyOrganicResult = (r: OrganicResult): string => {
+  return `${r.position}. ${r.title}\n${r.link}\n${r.rating} stars from ${
+    r.reviews
+  } reviews\n${r.price} ${r.original_price}\n${r.is_prime ? "Prime" : ""} ${
+    r.is_climate_pledge_friendly ? "Climate Pledge Friendly" : ""
+  }\n${r.thumbnail}`;
+};
 class AmazonSearch extends SearchApi {
   static lc_name(): string {
     return "Amazon Search";
@@ -106,6 +130,26 @@ class AmazonSearch extends SearchApi {
   constructor(apiKey: string, params: Omit<SearchApiParameters, "engine">) {
     super(apiKey, { ...params, engine: "amazon_search" });
     this.name = "Amazon Search";
+  }
+  async _call(input: string): Promise<string> {
+    // const call = await super._call(input);
+    // return call;
+    const resp = await fetch(this.buildUrl(input));
+    const json = (await resp.json()) as {
+      organic_results?: OrganicResult[];
+      error?: string;
+    };
+    if (json.error) {
+      throw new Error(
+        `Failed to load search results from SearchApi due to: ${json.error}`,
+      );
+    }
+    // Google Search results
+    if (json.organic_results) {
+      return json.organic_results.map(makePrettyOrganicResult).join("\n");
+    }
+
+    return "Error: unexpected response from Amazon Search";
   }
 }
 
