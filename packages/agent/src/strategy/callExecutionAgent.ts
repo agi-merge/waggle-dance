@@ -232,12 +232,9 @@ export async function callExecutionAgent(creation: {
     const systemMessagePrompt = SystemMessagePromptTemplate.fromTemplate(
       `You are an attentive, helpful, diligent, and expert executive assistant.
 You are helping to distill the Worklog and Result of a Task conducted by a respected Peer, who is an AI Agent.
-You prefer to respond with clear, complete, relevant, and logical markdown.
+You prefer to respond with clear, complete, relevant, and logical markdown that improves the contents of your Peer's Response.
+You must not mention the Worklog, Result, or your Peer. Only improve upon the Response.
 ================================================
-# Your Peer's Task was:
-id: ${taskObj.id}
-name: ${taskObj.name}
-context: ${taskObj.context}
 # Your Peer's Worklog:
 "${
         returnType === "JSON"
@@ -250,14 +247,15 @@ context: ${taskObj.context}
               (match) => (match === "{" ? "(" : ")"),
             )
       }"
-# Your Peer's Result was:
+# Your Peer's Result:
 "${response}"
 ================================================`,
     );
     const humanMessagePrompt = HumanMessagePromptTemplate.fromTemplate(
       `
-If the AI Agent's Response does not fully solve the AI Agent's task, then:
-Respond ONLY with a diversified, completed, and improved version of the AI Agent's response. The response should adequately solve the AI Agent's task.
+Remember, you must not mention the Worklog, Result, or your Peer.
+Distill your Peer's Result and Worklog, synthesizing relationships, ensuring accuracy and critical thinking.
+In a specific and detailed manner, rewrite your Peer's Response:
 `,
     );
     const promptMessages = [systemMessagePrompt, humanMessagePrompt];
