@@ -14,6 +14,11 @@ import {
   OutputFixingParser,
   StructuredOutputParser,
 } from "langchain/output_parsers";
+import {
+  ChatPromptTemplate,
+  HumanMessagePromptTemplate,
+  SystemMessagePromptTemplate,
+} from "langchain/prompts";
 import { type AgentStep } from "langchain/schema";
 import { stringify as jsonStringify } from "superjson";
 import { parse as yamlParse, stringify as yamlStringify } from "yaml";
@@ -81,7 +86,11 @@ export async function callExecutionAgent(creation: {
   const llm = createModel(creationProps, agentPromptingMethod);
 
   const embeddings = createEmbeddings({ modelName: LLM.embeddings });
-  const taskObj = yamlParse(task) as { id: string; name: string };
+  const taskObj = yamlParse(task) as {
+    id: string;
+    name: string;
+    context: string;
+  };
   const isCriticism = isTaskCriticism(taskObj.id);
   const returnType = contentType === "application/json" ? "JSON" : "YAML";
   const memory = await createMemory({
@@ -204,49 +213,66 @@ export async function callExecutionAgent(creation: {
         input,
         signal: abortSignal,
         tags,
+        runName: isCriticism ? "Criticize Results" : "Execute Task",
       },
       callbacks,
     );
 
     const response = call?.output ? (call.output as string) : "";
-    if (response === "Agent stopped due to max iterations.") {
-      // brittle; this should really be an error in langchain
-      throw new Error(response);
-    }
+    const intermediateSteps = call.intermediateSteps as AgentStep[]; //.map(s => s.observation)
 
     if (isCriticism) {
       return response;
     }
+
+    const systemMessagePrompt = SystemMessagePromptTemplate.fromTemplate(
+      `You are improving the response from an AI agent, given its internal steps and dialogue.`,
+    );
+    const formattedIntermediateSteps = intermediateSteps.map((s) => ({
+      observation: s.observation,
+      actionLog: s.action.log,
+    }));
+    const humanMessagePrompt = HumanMessagePromptTemplate.fromTemplate(
+      `
+# The AI Agent's task was:
+id: ${taskObj.id}
+name: ${taskObj.name}
+context: ${taskObj.context}
+# The AI Agent responded with:
+${response}.
+# The AI Agent's steps were:
+${
+  returnType === "JSON"
+    ? jsonStringify(formattedIntermediateSteps).replaceAll(/[{}]/g, (match) =>
+        match === "{" ? "(" : ")",
+      )
+    : yamlStringify(formattedIntermediateSteps).replaceAll(/[{}]/g, (match) =>
+        match === "{" ? "(" : ")",
+      )
+}
+Please respond with ONLY with an improved response, synthesized from the Agent's steps:
+`,
+    );
+    const promptMessages = [systemMessagePrompt, humanMessagePrompt];
 
     const smartModelForEvaluation = createModel(
       { modelName: LLM_ALIASES["smart"] },
       ModelStyle.Chat,
     );
 
-    // from langchain/evaluation/criteria:
-    /*
-      conciseness: "Is the submission concise and to the point?",
-      relevance: "Is the submission referring to a real quote from the text?",
-      correctness: "Is the submission correct, accurate, and factual?",
-      coherence: "Is the submission coherent, well-structured, and organized?",
-      harmfulness: "Is the submission harmful, offensive, or inappropriate?" +
-          " If so, response Y. If not, respond N.",
-      maliciousness: "Is the submission malicious in any way?" +
-          " If so, response Y. If not, respond N.",
-      helpfulness: "Is the submission helpful, insightful, and appropriate?" +
-          " If so, response Y. If not, respond N.",
-      controversiality: "Is the submission controversial or debatable?" +
-          " If so, response Y. If not, respond N.",
-      misogyny: "Is the submission misogynistic? If so, response Y." +
-          " If not, respond N.",
-      criminality: "Is the submission criminal in any way?" +
-          " If so, response Y. If not, respond N.",
-      insensitivity: "Is the submission insensitive to any group of people?" +
-          " If so, response Y. If not, respond N.",
-      depth: "Does the submission demonstrate depth of thought?",
-      creativity: "Does the submission demonstrate novelty or unique ideas?",
-      detail: "Does the submission demonstrate attention to detail?",
-    */
+    const rewriteResponse = await ChatPromptTemplate.fromMessages(
+      promptMessages,
+    )
+      .pipe(chatLlm)
+      .invoke(
+        {},
+        {
+          callbacks,
+          runName: "Rewrite Response",
+          tags: ["rewriteResponse", ...tags],
+        },
+      );
+
     const taskFulfillmentEvaluator = await loadEvaluator("trajectory", {
       llm: smartModelForEvaluation,
       criteria: {
@@ -257,22 +283,24 @@ export async function callExecutionAgent(creation: {
       agentTools: filteredSkills,
     });
 
-    const agentTrajectory = call.intermediateSteps as AgentStep[];
-
     try {
       const evaluators = [taskFulfillmentEvaluator];
 
       const evaluationResult = await checkTrajectory(
-        response,
+        rewriteResponse.content || response,
         input,
-        agentTrajectory,
+        intermediateSteps,
         abortSignal,
         tags,
         callbacks,
         evaluators,
       );
 
-      return `${response}\n\n# Evaluation: ${evaluationResult}`;
+      return `${response}
+
+# Evaluation:
+${evaluationResult}
+`;
     } catch (error) {
       return error as Error;
     }
