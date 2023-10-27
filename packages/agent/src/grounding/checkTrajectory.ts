@@ -65,10 +65,11 @@ async function checkScore(
       const minimumScore = 0.5;
       if (evaluationResult.score < minimumScore) {
         throw new Error(
-          `Low review score: ${
+          `**Low review score**: ${
             evaluationResult.score * 100
-          }%. \n\n# Result: \n\n${response}\n# Reasoning:\n\n
-        ${evaluationResult.reasoning}"\n\n`,
+          }%. \n\n# Result:\n\n${response}\n# Reasoning:\n\n${
+            evaluationResult.reasoning
+          }"\n\n`,
           { cause: evaluationResult.reasoning },
         );
       } else {
