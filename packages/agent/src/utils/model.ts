@@ -69,7 +69,12 @@ export const createModel = (
     );
   } else {
     return new OpenAI(
-      { ...creationProps },
+      {
+        ...creationProps,
+        azureOpenAIApiDeploymentName: getAzureDeploymentName(
+          creationProps.modelName,
+        ),
+      },
       { basePath: creationProps.basePath },
     );
   }

@@ -2,6 +2,7 @@
 
 import React, { type SyntheticEvent } from "react";
 import { InfoOutlined } from "@mui/icons-material";
+import { Chip } from "@mui/joy";
 import Alert from "@mui/joy/Alert";
 import Link from "@mui/joy/Link";
 import Option from "@mui/joy/Option";
@@ -15,7 +16,7 @@ import { useSession } from "next-auth/react";
 
 import {
   AgentPromptingMethod,
-  LLM,
+  LLM_ALIASES,
   Temperature,
 } from "@acme/agent/src/utils/llms";
 
@@ -71,9 +72,12 @@ export function AgentSettings() {
               }}
               disabled={!session}
             >
-              {Object.values(LLM).map((model) => (
-                <Option key={model} value={model}>
-                  {model}
+              {Object.entries(LLM_ALIASES).map(([model, value]) => (
+                <Option key={model} value={value}>
+                  <Typography>{model} </Typography>
+                  <Chip variant="outlined" sx={{ fontFamily: "monospace" }}>
+                    ({value})
+                  </Chip>
                 </Option>
               ))}
             </Select>
