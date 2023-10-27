@@ -47,12 +47,12 @@ const toolsAndContextExamples: ToolsAndContextExample[] = [
     },
     output: {
       synthesizedContext: {
-        taskUnderstanding:
-          "The task requires translating a document from English to French. This involves accurately conveying the meaning of the original text in the target language.",
-        potentialChallenges:
-          "Translation can be complex due to the nuances of language and cultural differences. Additionally, some phrases or idioms may not have direct equivalents in the target language.",
-        productSentimentInclusion:
-          "The agent has included Product Sentiment Analysis in the list of available tools to provide context as to the quality of each of three other service Tools (DeepL, Google Translate, and Microsoft Translator).",
+        taskDetails:
+          "The task involves translating a document from English to French, a process that requires a deep understanding of both languages and the ability to convey the original meaning accurately.",
+        culturalNuances:
+          "In translation, it's important to consider cultural nuances. Some English phrases or idioms may not have direct equivalents in French and will require creative interpretation.",
+        translationApproach:
+          "A two-step translation process can be effective: first, translate the text literally, then refine the translation by adjusting for idioms, cultural references, and tone.",
       },
       tools: [
         "Google Translate",
@@ -88,10 +88,12 @@ const toolsAndContextExamples: ToolsAndContextExample[] = [
     },
     output: {
       synthesizedContext: {
-        taskUnderstanding:
-          "The task requires writing a Python script for web scraping, which involves fetching data from a website and parsing it. The data then needs to be stored in a CSV file.",
-        potentialChallenges:
-          "Web scraping can be complex due to the variability of website structures. Additionally, some websites may have measures in place to prevent scraping.",
+        taskScope:
+          "The task involves writing a Python script for web scraping, which entails fetching and parsing data from a website, and storing it in a CSV file.",
+        websiteVariability:
+          "Websites can have vastly different structures, making web scraping a complex task. Some websites may also have measures to prevent scraping.",
+        dataManagement:
+          "After scraping, the data needs to be cleaned and structured properly for further analysis or storage in a CSV file.",
       },
       tools: ["Python Interpreter", "Google Search", "Stack Overflow"],
     },
@@ -121,10 +123,12 @@ const toolsAndContextExamples: ToolsAndContextExample[] = [
     },
     output: {
       synthesizedContext: {
-        taskUnderstanding:
-          "The task requires designing a responsive website for a new online store. This involves creating a visually appealing and user-friendly interface that works well on various devices.",
-        potentialChallenges:
-          "Website design can be complex due to the need for both aesthetic appeal and functionality. Additionally, the website must be responsive, meaning it should work well on various devices and screen sizes.",
+        taskObjective:
+          "The task involves designing a responsive website header for a new online store, which requires a visually appealing and user-friendly interface that works well on various devices.",
+        designPrinciples:
+          "Good design balances aesthetic appeal with functionality. The header, as the first point of interaction for users, should guide them intuitively to the most important parts of the online store.",
+        responsiveDesign:
+          "A mobile-first approach ensures the design works well on smaller screens. Additional features and layout changes for larger screens can be added using CSS media queries.",
       },
       tools: ["Figma", "Stack Overflow"],
     },
@@ -155,10 +159,12 @@ const toolsAndContextExamples: ToolsAndContextExample[] = [
     },
     output: {
       synthesizedContext: {
-        taskUnderstanding:
-          "The task requires analyzing stock market trends over the past 5 years and making predictions about future trends. The findings need to be compiled into a .xlsx report.",
-        potentialChallenges:
-          "Stock market analysis can be complex due to the volatility of the market and the multitude of factors that can influence trends.",
+        taskRequirements:
+          "The task involves analyzing stock market trends over the past 5 years and making predictions about future trends. The findings need to be compiled into a .xlsx report.",
+        marketVolatility:
+          "The stock market is inherently volatile, with many factors influencing trends. This makes analysis a complex task.",
+        predictiveModeling:
+          "Predicting future trends involves analyzing historical data and considering factors like economic indicators, company performance, and market news. A combination of fundamental and technical analysis can be effective.",
       },
       tools: ["Retrieve Memories", "Bloomberg Terminal", "Google Finance"],
     },
