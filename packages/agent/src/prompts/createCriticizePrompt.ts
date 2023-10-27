@@ -41,8 +41,8 @@ REVIEWEE NAMESPACE: ${namespace}
   const systemTemplate = `
     Your TASK is to verify the veracity, rigor, and quality of the REVIEWEE TASKs.
     If you find a problem, return an error in the SCHEMA.
-    SERVER TIME: ${new Date().toString()}
     SCHEMA: ${schema}
+    TIME: ${new Date().toString()}
     RULES:
       - DO NOT output anything other than the ${returnType}, e.g., do not include prose or markdown formatting.
       - Avoid reusing a tool with similar input when it is returning similar results too often.
