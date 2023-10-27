@@ -166,7 +166,6 @@ export async function callExecutionAgent(creation: {
   const outputFixingParser = OutputFixingParser.fromLLM(llm, baseParser);
 
   const chain = createContextAndToolsPrompt({
-    namespace,
     returnType,
     inputTaskAndGoalString,
   })
@@ -227,9 +226,9 @@ export async function callExecutionAgent(creation: {
       return response;
     }
 
-    const formattedIntermediateSteps = intermediateSteps.map(
-      (s) => `  - ${s.observation}`,
-    );
+    // const formattedIntermediateSteps = intermediateSteps.map(
+    //   (s) => `  - ${s.observation}`,
+    // );
 
     const chatHistory = (await memory?.loadMemoryVariables({
       input: taskObj.context,
@@ -242,28 +241,16 @@ export async function callExecutionAgent(creation: {
       `
 # Task
 ${yamlStringify(contextAndTools.synthesizedContext)}
-# Worklog:
-"${
-        returnType === "JSON"
-          ? jsonStringify(formattedIntermediateSteps).replaceAll(
-              /[{}]/g,
-              (match) => (match === "{" ? "(" : ")"),
-            )
-          : yamlStringify(formattedIntermediateSteps).replaceAll(
-              /[{}]/g,
-              (match) => (match === "{" ? "(" : ")"),
-            )
-      }"
 # Chat Log
 "${yamlStringify(
         chatHistory.chat_history.value ||
           chatHistory.chat_history.message ||
           chatHistory.chat_history,
-      )}
+      )}"
 # Final Answer:
 "${response}"
 ================================================
-Rewrite the Final Answer to make it integrate all of the relevant information from the Work Logs and Chat Logs to make it satisfy the Task more.
+Rewrite the Final Answer to make it integrate all of the relevant information from Chat Log such that the Task is more completely fulfilled.
 `,
     );
     const promptMessages = [systemMessagePrompt, humanMessagePrompt];
