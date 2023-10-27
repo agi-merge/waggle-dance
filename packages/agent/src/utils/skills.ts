@@ -74,6 +74,17 @@ class GoogleNews extends SearchApi {
     this.name = "Google News";
   }
 }
+class GoogleShopping extends SearchApi {
+  static lc_name(): string {
+    return "Google Shopping";
+  }
+  description =
+    "Scrapes real-time results.The Google Shopping API delivers a dynamic product search and comparison service. It compiles product data from a multitude of biggest merchants across the globe, categorizes similar products, and presents them in accordance with each user's search query.";
+  constructor(apiKey: string, params: Omit<SearchApiParameters, "engine">) {
+    super(apiKey, { ...params, engine: "google_shopping" });
+    this.name = "Google Shopping";
+  }
+}
 class YouTube extends SearchApi {
   static lc_name(): string {
     return "YouTube";
@@ -239,6 +250,7 @@ function createSkills(
       // new YouTubeTranscripts(process.env.SEARCHAPI_API_KEY, params),
       new GoogleScholar(process.env.SEARCHAPI_API_KEY, params),
       new GoogleTrends(process.env.SEARCHAPI_API_KEY, params),
+      new GoogleShopping(process.env.SEARCHAPI_API_KEY, params),
       new AmazonSearch(process.env.SEARCHAPI_API_KEY, params),
     ];
 
