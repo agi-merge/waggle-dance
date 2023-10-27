@@ -67,9 +67,8 @@ async function checkScore(
         throw new Error(
           `Low review score: ${
             evaluationResult.score * 100
-          }%. \n\n# Reasoning: ${
-            evaluationResult.reasoning
-          }"\n\n# Result: \n\n${response}`,
+          }%. \n\n# Result: \n\n${response}\n# Reasoning:\n\n
+        ${evaluationResult.reasoning}"\n\n`,
           { cause: evaluationResult.reasoning },
         );
       } else {
