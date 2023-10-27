@@ -194,8 +194,10 @@ export async function callExecutionAgent(creation: {
     .join("\n");
 
   // filter all available tools by the ones that were selected by the context and tools selection agent
-  const filteredToolNameSet = new Set(contextAndTools.tools);
-  const filteredSkills = skills.filter((s) => filteredToolNameSet.has(s.name));
+
+  const filteredSkills = contextAndTools.tools.flatMap((t) => {
+    return skills.filter((s) => s.name === t);
+  });
 
   const executor = await initializeExecutor(
     goalPrompt,
