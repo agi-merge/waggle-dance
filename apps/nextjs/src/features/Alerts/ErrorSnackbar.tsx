@@ -15,6 +15,8 @@ import {
 import Box from "@mui/joy/Box";
 import Typography from "@mui/joy/Typography";
 import * as Toast from "@radix-ui/react-toast";
+import Markdown from "react-markdown";
+import remarkGfm from "remark-gfm";
 
 import { env } from "~/env.mjs";
 import useIsAppleDevice from "~/hooks/useIsAppleDevice";
@@ -136,15 +138,20 @@ export default function ErrorSnackbar() {
           >
             <Box sx={{ p: 4, width: { xs: "100%", sm: "30rem" } }}>
               <Typography
-                level="body-sm"
                 color="danger"
                 fontFamily="monospace"
                 sx={{
                   userSelect: "text",
                   whiteSpace: "break-word",
                 }}
+                component={Box}
               >
-                {error?.message}
+                <Markdown
+                  className={`markdown break-words pt-2 font-mono`}
+                  remarkPlugins={[remarkGfm]}
+                >
+                  {error?.message}
+                </Markdown>
               </Typography>
             </Box>
           </Box>
