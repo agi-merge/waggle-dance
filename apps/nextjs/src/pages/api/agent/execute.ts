@@ -41,6 +41,8 @@ export const config = {
   runtime: "edge",
 };
 
+const REPETITION_CHECK_EVERY_N_PACKETS = 3;
+const REPETITION_CHECK_WINDOW = 45;
 const maxLogSize = 4096;
 
 /**
@@ -72,7 +74,7 @@ const checkRepetitivePackets = async (
   const historicalDocuments = historicalPackets
     .map(packetToDocument)
     // Only check the last n historical documents, this helps prevent too much token usage
-    .slice(-30);
+    .slice(-1 * REPETITION_CHECK_WINDOW);
 
   try {
     const memoryVectorStore = await MemoryVectorStore.fromTexts(
@@ -135,7 +137,6 @@ const packetToDocument = (packet: AgentPacket): string => {
 
   return start + end;
 };
-
 export default async function ExecuteStream(req: NextRequest) {
   let executionResult:
     | { packet: AgentPacket; state: ExecutionState }
@@ -153,8 +154,6 @@ export default async function ExecuteStream(req: NextRequest) {
   let node: DraftExecutionNode | undefined;
   let packets: AgentPacket[] = [];
   let historicalPackets: AgentPacket[] = [];
-
-  const CHECK_EVERY_N_PACKETS = 3;
 
   // Initialize a counter for packets and a timestamp for time checks
   let packetCounter = 0;
@@ -198,7 +197,7 @@ export default async function ExecuteStream(req: NextRequest) {
     packetCounter++;
 
     // Check if the packet counter has reached N or if the elapsed time has reached M milliseconds
-    if (packetCounter >= CHECK_EVERY_N_PACKETS) {
+    if (packetCounter >= REPETITION_CHECK_EVERY_N_PACKETS) {
       // Reset the packet counter and the timestamp
       packetCounter = 0;
 
