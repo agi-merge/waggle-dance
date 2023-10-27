@@ -131,7 +131,7 @@ export async function callExecutionAgent(creation: {
   );
 
   const inputTaskAndGoal: ToolsAndContextPickingInput = {
-    task: task,
+    task: `ID: ${taskObj.id}, ${taskObj.name}`,
     inServiceOfGoal: goalPrompt,
     // availableDataSources: [],
     availableTools: skills.map((s) => s.name),
