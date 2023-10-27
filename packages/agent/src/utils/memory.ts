@@ -48,6 +48,7 @@ export async function createMemory({
 
     case "vector":
       if (namespace) {
+        console.debug("Creating chat history vector store from index");
         const vectorStore = await vectorStoreFromIndex(
           createChatNamespace(namespace, taskId),
         );
