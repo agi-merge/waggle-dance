@@ -293,7 +293,7 @@ ${constraints(returnType)}
   const humanMessagePrompt =
     HumanMessagePromptTemplate.fromTemplate(humanTemplate);
 
-  const chatPrompt = ChatPromptTemplate.fromPromptMessages([
+  const chatPrompt = ChatPromptTemplate.fromMessages([
     systemMessagePrompt,
     humanMessagePrompt,
   ]);

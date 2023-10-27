@@ -45,7 +45,7 @@ SCHEMA: ${schema}
 
   const mainPrompt = promptTypeForModel(systemTemplate);
 
-  const chatPrompt = ChatPromptTemplate.fromPromptMessages([mainPrompt]);
+  const chatPrompt = ChatPromptTemplate.fromMessages([mainPrompt]);
 
   return chatPrompt;
 }

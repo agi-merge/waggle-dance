@@ -62,5 +62,5 @@ ${
     SystemMessagePromptTemplate.fromTemplate(systemTemplate);
   const promptMessages = [systemMessagePrompt, ...tasksAsHumanMessages];
 
-  return ChatPromptTemplate.fromPromptMessages(promptMessages);
+  return ChatPromptTemplate.fromMessages(promptMessages);
 }
