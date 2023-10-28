@@ -1,6 +1,6 @@
 // features/AgentSettings.tsx
 
-import React, { type SyntheticEvent } from "react";
+import React, { useMemo, type SyntheticEvent } from "react";
 import { InfoOutlined } from "@mui/icons-material";
 import { Chip } from "@mui/joy";
 import Alert from "@mui/joy/Alert";
@@ -21,6 +21,7 @@ import {
 } from "@acme/agent/src/utils/llms";
 
 import routes from "~/utils/routes";
+import { env } from "~/env.mjs";
 import useWaggleDanceMachineStore from "~/stores/waggleDanceStore";
 
 export function AgentSettings() {
@@ -43,6 +44,15 @@ export function AgentSettings() {
   ) => {
     setCurrentTabIndex(newValue as number);
   };
+
+  const models = useMemo(() => {
+    const hiddenModels = env.NEXT_PUBLIC_HIDE_LLM
+      ? (env.NEXT_PUBLIC_HIDE_LLM as string[])
+      : ["fast-smart", "embeddings"];
+    return Object.entries(LLM_ALIASES).filter(
+      (la) => !hiddenModels.includes(la[0]),
+    );
+  }, []);
 
   return (
     <>
@@ -72,7 +82,7 @@ export function AgentSettings() {
               }}
               disabled={!session}
             >
-              {Object.entries(LLM_ALIASES).map(([model, value]) => (
+              {models.map(([model, value]) => (
                 <Option key={model} value={value}>
                   <Typography>{model} </Typography>
                   <Chip variant="outlined" sx={{ fontFamily: "monospace" }}>

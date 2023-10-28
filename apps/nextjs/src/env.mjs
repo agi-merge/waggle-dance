@@ -1,4 +1,5 @@
 import { createEnv } from "@t3-oss/env-nextjs";
+import { parse } from "superjson";
 import { z } from "zod";
 
 const StartsWithCapital = z.string().refine((value) => /^[A-Z]/.test(value), {
@@ -81,6 +82,18 @@ export const env = createEnv({
     NEXT_PUBLIC_DISCORD_INVITE_URL: z.string().url().optional(),
     NEXT_PUBLIC_LANGCHAIN_VERBOSE: z.string().optional(),
     NEXT_PUBLIC_LANGCHAIN_API_URL: z.string().url().optional(),
+    NEXT_PUBLIC_HIDE_LLM: z
+      .string()
+      .refine((str) => {
+        try {
+          const parsed = parse(str);
+          return Array.isArray(parsed);
+        } catch (e) {
+          return false;
+        }
+      }, "Must be a valid JSON array")
+      .transform((str) => parse(str))
+      .optional(),
   },
   /**
    * Destructure all variables from `process.env` to make sure they aren't tree-shaken away.
@@ -138,5 +151,6 @@ export const env = createEnv({
     EXE_TRAJECTORY_EVALUATION: process.env.EXE_TRAJECTORY_EVALUATION,
     POSTGRES_PRISMA_URL: process.env.POSTGRES_PRISMA_URL,
     POSTGRES_URL_NON_POOLING: process.env.POSTGRES_URL_NON_POOLING,
+    NEXT_PUBLIC_HIDE_LLM: process.env.NEXT_PUBLIC_HIDE_LLM,
   },
 });
