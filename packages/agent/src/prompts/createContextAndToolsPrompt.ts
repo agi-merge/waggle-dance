@@ -1,6 +1,10 @@
 // createContextAndToolsPrompt.ts
 
-import { PromptTemplate } from "langchain/prompts";
+import {
+  ChatPromptTemplate,
+  HumanMessagePromptTemplate,
+  SystemMessagePromptTemplate,
+} from "langchain/prompts";
 import { stringify as jsonStringify } from "superjson";
 import { stringify as yamlStringify } from "yaml";
 
@@ -223,13 +227,15 @@ export function createContextAndToolsPrompt({
 }: {
   returnType: "JSON" | "YAML";
   inputTaskAndGoalString: string;
-}): PromptTemplate {
+}): ChatPromptTemplate {
   const examples =
     returnType === "JSON"
       ? jsonStringify(toolsAndContextExamples)
       : yamlStringify(toolsAndContextExamples);
-  const promptTemplate = PromptTemplate.fromTemplate(
-    `[system]
+
+  const promptTemplate = ChatPromptTemplate.fromMessages([
+    SystemMessagePromptTemplate.fromTemplate(
+      `
 You are an efficient and expert assistant, distilling context from the information you have been given.
 You are also helping to pick a minimal set of enabled Tools (try to have no overlap in capabilities).
 # Current Time:
@@ -239,15 +245,15 @@ ${new Date().toString()}
   tools: string[]
   synthesizedContext: ([key: string]: string))[]
 )
-synthesizedContext must not be empty!
-convert to valid ${returnType}
+# Rules:
+- synthesizedContext must not be empty!
+- Your response must be valid ${returnType}
 # Examples:
-${examples}
-[human]
-In the provided Schema, what is your best educated guess about appropriate tools and synthesizedContext for this Task?
-${inputTaskAndGoalString}
-`,
-  );
+${examples}`,
+    ),
+    HumanMessagePromptTemplate.fromTemplate(`In the provided Schema, what is your best educated guess about appropriate tools and synthesizedContext for this Task?
+    ${inputTaskAndGoalString}`),
+  ]);
 
   return promptTemplate;
 }
