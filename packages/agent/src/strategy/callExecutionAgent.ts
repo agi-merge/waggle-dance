@@ -52,11 +52,7 @@ import {
   type InitializeAgentExecutorOptionsAgentType,
   type InitializeAgentExecutorOptionsStructuredAgentType,
 } from "../utils/llms";
-import {
-  createEmbeddings,
-  createModel,
-  modelTypeForAgentPromptingMethod,
-} from "../utils/model";
+import { createEmbeddings, createModel } from "../utils/model";
 import { type ModelCreationProps } from "../utils/OpenAIPropsBridging";
 import createSkills from "../utils/skills";
 
@@ -89,6 +85,11 @@ export async function callExecutionAgent(creation: {
   const callbacks = creationProps.callbacks;
   creationProps.callbacks = undefined;
   const exeLLM = createModel(creationProps, agentPromptingMethod);
+  // TODO: refactor into its own agent type
+  const smartHelperModel = createModel(
+    { modelName: LLM_ALIASES["smart"] },
+    ModelStyle.Chat,
+  ) as ChatOpenAI;
 
   const embeddings = createEmbeddings({ modelName: LLM.embeddings });
   const taskObj = yamlParse(task) as {
@@ -157,11 +158,6 @@ export async function callExecutionAgent(creation: {
       ? jsonStringify(inputTaskAndGoal)
       : yamlStringify(inputTaskAndGoal);
 
-  const chatLlm =
-    modelTypeForAgentPromptingMethod(agentPromptingMethod) === ModelStyle.Chat
-      ? (exeLLM as ChatOpenAI)
-      : (createModel({ ...creationProps }, ModelStyle.Chat) as ChatOpenAI);
-
   const outputSchema = z.object({
     synthesizedContext: z.record(z.string()),
     tools: z.array(z.string()),
@@ -173,7 +169,7 @@ export async function callExecutionAgent(creation: {
     returnType,
     inputTaskAndGoalString,
   })
-    .pipe(chatLlm)
+    .pipe(smartHelperModel)
     .pipe(outputFixingParser);
 
   const contextAndTools = await contextPickingChain.invoke(
@@ -261,13 +257,8 @@ Rewrite the Final Answer to make it integrate all of the relevant information fr
     );
     const promptMessages = [systemMessagePrompt, humanMessagePrompt];
 
-    const smartModelForEvaluation = createModel(
-      { modelName: LLM_ALIASES["smart"] },
-      ModelStyle.Chat,
-    );
-
     const rewriteChain =
-      ChatPromptTemplate.fromMessages(promptMessages).pipe(chatLlm);
+      ChatPromptTemplate.fromMessages(promptMessages).pipe(smartHelperModel);
 
     const rewriteResponse = await rewriteChain.invoke(
       {},
@@ -292,7 +283,7 @@ Rewrite the Final Answer to make it integrate all of the relevant information fr
     void save;
 
     const taskFulfillmentEvaluator = await loadEvaluator("trajectory", {
-      llm: smartModelForEvaluation,
+      llm: smartHelperModel,
       criteria: {
         taskFulfillment: "Does the submission fulfill the specific TASK?",
         schemaAdherence: "Does the submission adhere to the specified SCHEMA?",
