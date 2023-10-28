@@ -11,10 +11,10 @@ import {
   Button,
   Card,
   Chip,
-  CircularProgress,
   DialogActions,
   DialogContent,
   DialogTitle,
+  LinearProgress,
   List,
   ListItem,
   ListItemButton,
@@ -522,6 +522,19 @@ const TaskListItem = ({
         variant="outlined"
         color={statusColor(t)}
       >
+        <LinearProgress
+          size="sm"
+          sx={{
+            position: "absolute",
+            top: 0,
+            left: 0,
+            right: 0,
+            opacity: isRunning && t.status === TaskStatus.working ? "1" : "0",
+          }}
+          determinate={false}
+          thickness={2}
+          color={statusColor(t)}
+        />
         <Typography
           level="title-sm"
           textAlign={"left"}
@@ -665,14 +678,7 @@ const TaskListItem = ({
                 >
                   <Typography level="title-lg">Actions:</Typography>
                 </Sheet>
-                <CircularProgress
-                  size="sm"
-                  sx={{
-                    opacity:
-                      isRunning && t.status === TaskStatus.working ? "1" : "0",
-                    mr: 1,
-                  }}
-                />
+                <Chip>{packetGroups.length}</Chip>
                 {packetGroups.map((group, index) =>
                   renderPacketGroup(
                     group as AgentPacket[],
