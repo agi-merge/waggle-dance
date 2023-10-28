@@ -150,8 +150,9 @@ export default async function ExecuteStream(req: NextRequest) {
   });
   const abortControllerWrapper = { controller: new AbortController() };
   let node: DraftExecutionNode | undefined;
-  let packets: AgentPacket[] = [];
-  let historicalPackets: AgentPacket[] = [];
+  let repetitionCheckPacketBuffer: AgentPacket[] = [];
+  const recentPacketsBuffer: AgentPacket[] = [];
+  let allSentPackets: AgentPacket[] = [];
 
   // Initialize a counter for packets and a timestamp for time checks
   let packetCounter = 0;
@@ -189,8 +190,9 @@ export default async function ExecuteStream(req: NextRequest) {
     }
 
     // Push the packet to the packets array
-    packets.push(packet);
-
+    // make sure to do this last!
+    allSentPackets.push(packet);
+    repetitionCheckPacketBuffer.push(packet);
     // Increment the packet counter
     packetCounter++;
 
@@ -203,11 +205,11 @@ export default async function ExecuteStream(req: NextRequest) {
         // Perform the repetition check
         const repetitionCheckResult = await checkRepetitivePackets(
           task.id,
-          packets,
-          historicalPackets,
+          repetitionCheckPacketBuffer,
+          recentPacketsBuffer,
         );
-        historicalPackets.push(...packets);
-        packets = [];
+        recentPacketsBuffer.push(...repetitionCheckPacketBuffer);
+        repetitionCheckPacketBuffer = [];
         if (!!repetitionCheckResult) {
           const repetitionError: AgentPacket = {
             type: "error",
@@ -293,8 +295,8 @@ export default async function ExecuteStream(req: NextRequest) {
     }
     controller.close();
     abortControllerWrapper.controller.signal;
-    packets = [];
-    historicalPackets = [];
+    repetitionCheckPacketBuffer = [];
+    allSentPackets = [];
     packetCounter = 0;
     abortControllerWrapper.controller = new AbortController();
 
@@ -1021,6 +1023,7 @@ export default async function ExecuteStream(req: NextRequest) {
         return console.error("no execution result");
       }
       const { packet, state } = executionResult;
+      allSentPackets.push(packet);
       let response:
         | Response
         | { ok: boolean; status: number; statusText: string };
@@ -1030,7 +1033,7 @@ export default async function ExecuteStream(req: NextRequest) {
           node,
           executionId,
           packet,
-          packets: historicalPackets,
+          packets: allSentPackets,
           state,
         };
 
@@ -1043,7 +1046,6 @@ export default async function ExecuteStream(req: NextRequest) {
           body: JSON.stringify(createResultParams),
         });
         const [createResultResponse] = await Promise.all([createResultPromise]);
-        console.debug("saved memory");
         response = createResultResponse;
       } else {
         response = {
