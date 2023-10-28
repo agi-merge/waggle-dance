@@ -239,6 +239,8 @@ export async function callExecutionAgent(creation: {
     const systemMessagePrompt = SystemMessagePromptTemplate.fromTemplate(
       `You are an attentive, helpful, diligent, and expert executive assistant.`,
     );
+    const rewriteResponseAck = `ack`;
+
     const humanMessagePrompt = HumanMessagePromptTemplate.fromTemplate(
       `
 # Task
@@ -252,6 +254,7 @@ ${yamlStringify(
 # Final Answer
 ${response}
 ================================================
+If the Final Answer is already perfect, then only respond with "${rewriteResponseAck}" (without the quotes).
 Rewrite the Final Answer to make it integrate all of the relevant information from Chat Log such that the Task is more completely fulfilled.
 `,
     );
@@ -269,11 +272,16 @@ Rewrite the Final Answer to make it integrate all of the relevant information fr
       },
     );
 
+    const bestResponse =
+      rewriteResponse.content === rewriteResponseAck
+        ? response
+        : rewriteResponse.content;
+
     // make sure that we are at least saving the task result so that other notes can refer back.
     const shouldSave = !isCriticism;
     const save: Promise<unknown> = shouldSave
       ? saveMemoriesSkill.skill.func({
-          memories: [rewriteResponse.content],
+          memories: [bestResponse],
           namespace: namespace,
         })
       : Promise.resolve(
@@ -296,7 +304,8 @@ Rewrite the Final Answer to make it integrate all of the relevant information fr
       const evaluators = [taskFulfillmentEvaluator];
 
       const evaluationResult = await checkTrajectory(
-        rewriteResponse.content,
+        bestResponse,
+        response,
         input,
         intermediateSteps,
         abortSignal,
@@ -305,9 +314,9 @@ Rewrite the Final Answer to make it integrate all of the relevant information fr
         evaluators,
       );
 
-      return `${rewriteResponse.content}
+      return `${bestResponse}
 
-# Evaluation:
+## Evaluation:
 ${evaluationResult}
 `;
     } catch (error) {

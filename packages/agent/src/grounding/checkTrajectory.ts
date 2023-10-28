@@ -10,6 +10,7 @@ import { createModel } from "../utils/model";
 
 async function checkTrajectory(
   response: string,
+  originalResponse: string,
   input: string,
   agentTrajectory: AgentStep[],
   abortSignal: AbortSignal,
@@ -40,15 +41,18 @@ async function checkTrajectory(
   );
 
   return (
-    (await Promise.all(evaluations.map((e) => checkScore(e, response)))).find(
-      (v) => v?.length ?? false,
-    ) || null
+    (
+      await Promise.all(
+        evaluations.map((e) => checkScore(e, response, originalResponse)),
+      )
+    ).find((v) => v?.length ?? false) || null
   );
 }
 
 async function checkScore(
   evaluation: PromiseSettledResult<ChainValues>,
   response: string,
+  originalResponse: string,
 ): Promise<string | null> {
   if (evaluation.status === "rejected") {
     // just log this for now, unless trajectory calls keep throwing
@@ -65,11 +69,13 @@ async function checkScore(
       const minimumScore = 0.5;
       if (evaluationResult.score < minimumScore) {
         throw new Error(
-          `**Low review score**: ${
+          `**This task failed review:**: ${
             evaluationResult.score * 100
-          }%. \n\n# Result:\n\n${response}\n# Reasoning:\n\n${
-            evaluationResult.reasoning
-          }"\n\n`,
+          }/100. \n\n# Task Result:\n\n${response}${
+            originalResponse !== response
+              ? `\n\n### Original Result: \n\n${originalResponse}`
+              : ""
+          }\n## Failure Reasoning:\n\n${evaluationResult.reasoning}"\n\n`,
           { cause: evaluationResult.reasoning },
         );
       } else {
@@ -103,6 +109,7 @@ async function checkScore(
           value: { score },
         },
         response,
+        originalResponse,
       );
     }
   }
