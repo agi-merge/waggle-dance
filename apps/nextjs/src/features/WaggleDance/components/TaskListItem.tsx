@@ -572,6 +572,7 @@ const TaskListItem = ({
               level="body-sm"
               component={Chip}
               variant="outlined"
+              color={statusColor(t)}
               sx={{ pt: 0.5, background: "transparent" }}
             >
               {t.displayId}
