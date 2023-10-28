@@ -717,7 +717,11 @@ const TaskListItem = ({
               />
             </Sheet>
           </ListItemButton>
-          <AccordionGroup variant="outlined" color={statusColor(t)}>
+          <AccordionGroup
+            variant="outlined"
+            color={statusColor(t)}
+            sx={{ overflow: "clip" }}
+          >
             <Accordion
               expanded={isResultExpanded}
               onChange={(event, expanded) => {

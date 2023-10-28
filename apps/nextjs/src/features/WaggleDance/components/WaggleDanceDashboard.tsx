@@ -42,6 +42,7 @@ const WaggleDanceDashboard = ({
           }}
         >
           <Accordion
+            sx={{ overflow: "clip" }}
             expanded={selectedIndex[0]}
             onChange={(_, expanded) => {
               setSelectedIndex({ ...selectedIndex, 0: expanded });
@@ -71,6 +72,7 @@ const WaggleDanceDashboard = ({
                       level="body-sm"
                       sx={{
                         fontSize: { xs: "xs", sm: "sm" },
+                        width: "100%",
                       }}
                     >
                       {goal?.prompt}
@@ -102,6 +104,7 @@ const WaggleDanceDashboard = ({
                       level="body-sm"
                       sx={{
                         fontSize: { xs: "xs", sm: "sm" },
+                        width: "100%",
                       }}
                     >
                       Boost result quality
@@ -119,6 +122,7 @@ const WaggleDanceDashboard = ({
             onChange={(_, expanded) => {
               setSelectedIndex({ ...selectedIndex, 2: expanded });
             }}
+            sx={{ overflow: "clip" }}
           >
             <AccordionSummary>
               <Avatar color="neutral" variant="solid">
@@ -127,20 +131,28 @@ const WaggleDanceDashboard = ({
                   🔨
                 </Typography>
               </Avatar>
-              <Box height={"3rem"}>
-                <Typography level="title-sm">
-                  Skills ({selectedSkillsLength})
-                </Typography>
-                {!selectedIndex[2] && (
-                  <Typography
-                    noWrap
-                    level="body-sm"
-                    sx={{ xs: "xs", sm: "sm" }}
-                  >
-                    {skillsLabel}
+              <ListItemContent>
+                <Box
+                  height={"3rem"}
+                  sx={{ alignSelf: "start", alignContent: "" }}
+                >
+                  <Typography level="title-sm">
+                    Skills ({selectedSkillsLength})
                   </Typography>
-                )}
-              </Box>
+                  {!selectedIndex[2] && (
+                    <Typography
+                      noWrap
+                      level="body-sm"
+                      sx={{
+                        fontSize: { xs: "xs", sm: "sm" },
+                        width: "100%",
+                      }}
+                    >
+                      {skillsLabel}
+                    </Typography>
+                  )}
+                </Box>
+              </ListItemContent>
             </AccordionSummary>
             <AccordionDetails>
               <SkillSelect />
