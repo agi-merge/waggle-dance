@@ -52,7 +52,11 @@ import {
   type InitializeAgentExecutorOptionsAgentType,
   type InitializeAgentExecutorOptionsStructuredAgentType,
 } from "../utils/llms";
-import { createEmbeddings, createModel } from "../utils/model";
+import {
+  createEmbeddings,
+  createModel,
+  modelTypeForAgentPromptingMethod,
+} from "../utils/model";
 import { type ModelCreationProps } from "../utils/OpenAIPropsBridging";
 import createSkills from "../utils/skills";
 
@@ -84,7 +88,7 @@ export async function callExecutionAgent(creation: {
   } = creation;
   const callbacks = creationProps.callbacks;
   creationProps.callbacks = undefined;
-  const llm = createModel(creationProps, agentPromptingMethod);
+  const exeLLM = createModel(creationProps, agentPromptingMethod);
 
   const embeddings = createEmbeddings({ modelName: LLM.embeddings });
   const taskObj = yamlParse(task) as {
@@ -132,7 +136,7 @@ export async function callExecutionAgent(creation: {
   creationProps.modelName && tags.push(creationProps.modelName);
 
   const skills = createSkills(
-    llm,
+    exeLLM,
     embeddings,
     agentPromptingMethod,
     isCriticism,
@@ -153,26 +157,26 @@ export async function callExecutionAgent(creation: {
       ? jsonStringify(inputTaskAndGoal)
       : yamlStringify(inputTaskAndGoal);
 
-  const chatLlm = createModel(
-    { ...creationProps, maxTokens: 450 },
-    ModelStyle.Chat,
-  ) as ChatOpenAI;
+  const chatLlm =
+    modelTypeForAgentPromptingMethod(agentPromptingMethod) === ModelStyle.Chat
+      ? (exeLLM as ChatOpenAI)
+      : (createModel({ ...creationProps }, ModelStyle.Chat) as ChatOpenAI);
 
   const outputSchema = z.object({
     synthesizedContext: z.record(z.string()),
     tools: z.array(z.string()),
   });
   const baseParser = StructuredOutputParser.fromZodSchema(outputSchema);
-  const outputFixingParser = OutputFixingParser.fromLLM(llm, baseParser);
+  const outputFixingParser = OutputFixingParser.fromLLM(exeLLM, baseParser);
 
-  const chain = createContextAndToolsPrompt({
+  const contextPickingChain = createContextAndToolsPrompt({
     returnType,
     inputTaskAndGoalString,
   })
     .pipe(chatLlm)
     .pipe(outputFixingParser);
 
-  const contextAndTools = await chain.invoke(
+  const contextAndTools = await contextPickingChain.invoke(
     {},
     {
       tags: ["contextAndTools", ...tags],
@@ -205,7 +209,7 @@ export async function callExecutionAgent(creation: {
     taskObj,
     creationProps,
     filteredSkills,
-    llm,
+    exeLLM,
     tags,
     memory,
   );

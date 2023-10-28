@@ -46,11 +46,10 @@ function getAzureDeploymentName(
 //     [LLM[key]]: key,
 //   };
 // })
-export const createModel = (
-  creationProps: ModelCreationProps,
+
+export const modelTypeForAgentPromptingMethod = (
   methodOrStyle: AgentPromptingMethod | ModelStyle,
-): OpenAI | ChatOpenAI => {
-  console.debug(`createModel: ${creationProps.modelName} `);
+): ModelStyle => {
   if (
     methodOrStyle === ModelStyle.Chat ||
     methodOrStyle === AgentPromptingMethod.ChatConversationalReAct ||
@@ -58,6 +57,19 @@ export const createModel = (
     methodOrStyle === AgentPromptingMethod.OpenAIStructuredChat ||
     methodOrStyle === AgentPromptingMethod.OpenAIFunctions
   ) {
+    return ModelStyle.Chat;
+  } else {
+    return ModelStyle.Instruct;
+  }
+};
+
+export const createModel = (
+  creationProps: ModelCreationProps,
+  methodOrStyle: AgentPromptingMethod | ModelStyle,
+): OpenAI | ChatOpenAI => {
+  console.debug(`createModel: ${creationProps.modelName} `);
+
+  if (modelTypeForAgentPromptingMethod(methodOrStyle) === ModelStyle.Chat) {
     return new ChatOpenAI(
       {
         ...creationProps,
