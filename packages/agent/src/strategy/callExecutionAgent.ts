@@ -244,13 +244,13 @@ export async function callExecutionAgent(creation: {
 # Task
 ${yamlStringify(contextAndTools.synthesizedContext)}
 # Chat Log
-"${yamlStringify(
-        chatHistory.chat_history.value ||
-          chatHistory.chat_history.message ||
-          chatHistory.chat_history,
-      )}"
-# Final Answer:
-"${response}"
+${yamlStringify(
+  chatHistory.chat_history.value ||
+    chatHistory.chat_history.message ||
+    chatHistory.chat_history,
+)}
+# Final Answer
+${response}
 ================================================
 Rewrite the Final Answer to make it integrate all of the relevant information from Chat Log such that the Task is more completely fulfilled.
 `,
