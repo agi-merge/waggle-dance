@@ -16,19 +16,27 @@ export enum LLM {
   "gpt-3.5-turbo-16k-0613" = "gpt-3.5-turbo-16k-0613",
 }
 
+export enum LLMAliasKeys {
+  Fast = "fast",
+  FastLarge = "fast-large",
+  Smart = "smart",
+  SmartLarge = "smart-large",
+  Embeddings = "embeddings",
+}
+
 export type LLMAliasKey =
-  | "fast"
-  | "fast-large"
-  | "smart"
-  | "smart-large"
-  | "embeddings";
+  | LLMAliasKeys.Fast
+  | LLMAliasKeys.FastLarge
+  | LLMAliasKeys.Smart
+  | LLMAliasKeys.SmartLarge
+  | LLMAliasKeys.Embeddings;
 
 export const LLM_ALIASES: Record<LLMAliasKey, LLM> = {
-  fast: LLM["gpt-3.5-turbo"],
-  "fast-large": LLM["gpt-3.5-turbo-16k"],
-  smart: LLM["gpt-4"],
-  "smart-large": LLM["gpt-4-32k"],
-  embeddings: LLM["embeddings"],
+  [LLMAliasKeys.Fast]: LLM["gpt-3.5-turbo"],
+  [LLMAliasKeys.FastLarge]: LLM["gpt-3.5-turbo-16k"],
+  [LLMAliasKeys.Smart]: LLM["gpt-4"],
+  [LLMAliasKeys.SmartLarge]: LLM["gpt-4-32k"],
+  [LLMAliasKeys.Embeddings]: LLM["embeddings"],
 };
 
 export enum Temperature {

@@ -1,6 +1,8 @@
 import { createEnv } from "@t3-oss/env-nextjs";
 import { z } from "zod";
 
+import { LLMAliasKeys } from "@acme/agent/src/utils/llms";
+
 const StartsWithCapital = z.string().refine((value) => /^[A-Z]/.test(value), {
   message: "Must start with a capital letter",
 });
@@ -94,7 +96,8 @@ export const env = createEnv({
       }, "Must be a valid JSON array")
       // eslint-disable-next-line @typescript-eslint/no-unsafe-return
       .transform((str) => JSON.parse(str))
-      .optional(),
+      .optional()
+      .default(`["${LLMAliasKeys.SmartLarge}", "${LLMAliasKeys.Embeddings}"]`),
   },
   /**
    * Destructure all variables from `process.env` to make sure they aren't tree-shaken away.
