@@ -118,6 +118,7 @@ export async function callExecutionAgent(creation: {
   const prompt = isCriticism
     ? createCriticizePrompt({
         revieweeTaskResults,
+        goalPrompt,
         nodes,
         namespace,
         returnType,

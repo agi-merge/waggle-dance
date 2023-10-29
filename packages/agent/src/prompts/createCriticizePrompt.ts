@@ -13,11 +13,13 @@ import { type TaskState } from "./types/TaskState";
 
 export function createCriticizePrompt(params: {
   revieweeTaskResults: TaskState[];
+  goalPrompt: string;
   nodes: DraftExecutionNode[];
   namespace: string;
   returnType: "JSON" | "YAML";
 }): ChatPromptTemplate {
-  const { revieweeTaskResults, nodes, returnType, namespace } = params;
+  const { revieweeTaskResults, nodes, returnType, namespace, goalPrompt } =
+    params;
 
   const schema = criticizeSchema(returnType, "unknown");
 
@@ -38,14 +40,24 @@ REVIEWEE NAMESPACE: ${namespace}
     })
     .filter((m) => !!m) as HumanMessagePromptTemplate[];
 
-  const systemTemplate = `
-    Your TASK is to verify the veracity, rigor, and quality of the REVIEWEE TASKs.
-    If you find a problem, return an error in the SCHEMA.
-    SCHEMA: ${schema}
-    TIME: ${new Date().toString()}
-    RULES:
-      - DO NOT output anything other than the ${returnType}, e.g., do not include prose or markdown formatting.
-      - Avoid reusing a tool with similar input when it is returning similar results too often.
+  const systemTemplate =
+    `You are an experienced, helpful, knowledgeable, yet critical executive assistant and project manager.
+You to verify the veracity, rigor, and quality of your colleague's work henceforth known as REVIEWEE TASK${
+      tasksAsHumanMessages.length > 0 ? "s" : ""
+    }.
+When taken as a whole ${
+      tasksAsHumanMessages.length > 0 ? "s" : ""
+    }, the REVIEWEE TASK${
+      tasksAsHumanMessages.length > 0 ? "s" : ""
+    } should advance towards the EVENTUAL GOAL.
+If you find a problem, return an error in the SCHEMA.
+EVENTUAL GOAL:
+${goalPrompt}
+SCHEMA: ${schema}
+TIME: ${new Date().toString()}
+RULES:
+  - DO NOT output anything other than the ${returnType}, e.g., do not include prose or markdown formatting.
+  - Avoid reusing a tool with similar input when it is returning similar results too often.
 ${
   tasksAsHumanMessages.length > 0
     ? `      - Consider all ${tasksAsHumanMessages.length} of the REVIEWEE TASKs.`
