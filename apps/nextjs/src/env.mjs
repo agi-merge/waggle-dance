@@ -85,12 +85,14 @@ export const env = createEnv({
       .string()
       .refine((str) => {
         try {
+          // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
           const parsed = JSON.parse(str);
           return Array.isArray(parsed);
         } catch (e) {
           return false;
         }
       }, "Must be a valid JSON array")
+      // eslint-disable-next-line @typescript-eslint/no-unsafe-return
       .transform((str) => JSON.parse(str))
       .optional(),
   },
