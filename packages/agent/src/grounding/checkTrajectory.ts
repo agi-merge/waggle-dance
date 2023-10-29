@@ -18,10 +18,12 @@ async function checkTrajectory(
   callbacks: Callbacks | undefined,
   evaluators: AgentTrajectoryEvaluator[],
 ): Promise<string | null> {
-  if (process.env.EXE_TRAJECTORY_EVALUATION !== "true") {
+  if (parseFloat(process.env.EXE_TRAJECTORY_EVALUATION || "")) {
     console.debug(`Skipping trajectory evaluation`);
     return null;
   }
+
+  const minimumScore = parseFloat(process.env.EXE_TRAJECTORY_EVALUATION || "");
 
   const evaluations = await Promise.allSettled(
     evaluators.map((evaluator) =>
@@ -43,7 +45,9 @@ async function checkTrajectory(
   return (
     (
       await Promise.all(
-        evaluations.map((e) => checkScore(e, response, originalResponse)),
+        evaluations.map((e) =>
+          checkScore(e, response, originalResponse, minimumScore),
+        ),
       )
     ).find((v) => v?.length ?? false) || null
   );
@@ -53,6 +57,7 @@ async function checkScore(
   evaluation: PromiseSettledResult<ChainValues>,
   response: string,
   originalResponse: string,
+  minimumScore: number,
 ): Promise<string | null> {
   if (evaluation.status === "rejected") {
     // just log this for now, unless trajectory calls keep throwing
@@ -66,7 +71,6 @@ async function checkScore(
       reasoning: string;
     };
     if (evaluationResult) {
-      const minimumScore = 0.5;
       if (evaluationResult.score < minimumScore) {
         throw new Error(
           `**This task failed review:**: ${
@@ -110,6 +114,7 @@ async function checkScore(
         },
         response,
         originalResponse,
+        minimumScore,
       );
     }
   }

@@ -70,7 +70,12 @@ export const env = createEnv({
     KV_REST_API_TOKEN: z.string().nonempty(),
     KV_REST_API_READ_ONLY_TOKEN: z.string().nonempty(),
     WOLFRAM_APP_ID: z.string().optional(),
-    EXE_TRAJECTORY_EVALUATION: z.string().optional(),
+    EXE_TRAJECTORY_EVALUATION: z
+      .preprocess(
+        (val) => (val === "false" ? false : val),
+        z.number({ coerce: true }).gte(0).lte(1).optional(),
+      )
+      .optional(),
     POSTGRES_PRISMA_URL: z.string().url(),
     POSTGRES_URL_NON_POOLING: z.string().url(),
   },
