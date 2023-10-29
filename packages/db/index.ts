@@ -11,6 +11,8 @@ import {
 export * from "@prisma/client";
 export * from "./skills";
 
+export * from "./prisma/zod/index";
+
 // TODO: find better way to share this with skillset trpc router
 
 const globalForPrisma = globalThis as { prisma?: PrismaClient };
