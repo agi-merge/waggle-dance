@@ -658,6 +658,20 @@ const TaskListItem = ({
                   {stringifyMax(node.context, 200)}
                 </Typography>
               </Typography>
+              <Sheet
+                sx={{
+                  zIndex: 1,
+                  pl: "0.35rem",
+                }}
+                component={Stack}
+                direction="row"
+                gap={1}
+              >
+                <Typography level="title-lg">Actions:</Typography>
+                <Chip sx={{ minWidth: "2.5rem", textAlign: "center" }}>
+                  {packetGroups.length}
+                </Chip>
+              </Sheet>
               <List
                 size="sm"
                 orientation="horizontal"
@@ -668,17 +682,6 @@ const TaskListItem = ({
                   zIndex: 0,
                 }} // Add right padding equal to the width of the gradient
               >
-                <Sheet
-                  sx={{
-                    position: "sticky",
-                    left: 0,
-                    zIndex: 1,
-                    pr: 1,
-                  }}
-                >
-                  <Typography level="title-lg">Actions:</Typography>
-                </Sheet>
-                <Chip>{packetGroups.length}</Chip>
                 {packetGroups.map((group, index) =>
                   renderPacketGroup(
                     group as AgentPacket[],
