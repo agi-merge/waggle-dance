@@ -40,13 +40,6 @@ function getAzureDeploymentName(
   }
 }
 
-// const azureDeploymentNames: Record<LLM, LLMAliasKey> =  Object.keys(LLM).map((key) => {
-//   key = key as LLMAliasKey;
-//   return {
-//     [LLM[key]]: key,
-//   };
-// })
-
 export const modelTypeForAgentPromptingMethod = (
   methodOrStyle: AgentPromptingMethod | ModelStyle,
 ): ModelStyle => {

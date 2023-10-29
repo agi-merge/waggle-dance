@@ -1,5 +1,4 @@
 import { createEnv } from "@t3-oss/env-nextjs";
-import { parse } from "superjson";
 import { z } from "zod";
 
 const StartsWithCapital = z.string().refine((value) => /^[A-Z]/.test(value), {
@@ -86,13 +85,13 @@ export const env = createEnv({
       .string()
       .refine((str) => {
         try {
-          const parsed = parse(str);
+          const parsed = JSON.parse(str);
           return Array.isArray(parsed);
         } catch (e) {
           return false;
         }
       }, "Must be a valid JSON array")
-      .transform((str) => parse(str))
+      .transform((str) => JSON.parse(str))
       .optional(),
   },
   /**

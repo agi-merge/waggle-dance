@@ -48,7 +48,7 @@ export function AgentSettings() {
   const models = useMemo(() => {
     const hiddenModels = env.NEXT_PUBLIC_HIDE_LLM
       ? (env.NEXT_PUBLIC_HIDE_LLM as string[])
-      : ["fast-smart", "embeddings"];
+      : ["smart-large", "embeddings"];
     return Object.entries(LLM_ALIASES).filter(
       (la) => !hiddenModels.includes(la[0]),
     );
