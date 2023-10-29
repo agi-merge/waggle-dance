@@ -12,7 +12,7 @@ export function createExecutePrompt(params: {
   returnType: "YAML" | "JSON";
   modelName: string;
 }): ChatPromptTemplate {
-  const { taskObj, namespace, returnType, modelName } = params;
+  const { taskObj, returnType, modelName } = params;
   const useSystemPrompt = modelName.startsWith("gpt-"); // only gpt family of openai models for now
 
   const systemTemplate = `
@@ -24,7 +24,6 @@ The USER is trying to ultimately achieve a GOAL, of which your TASK is a part.
 ${taskObj.id}, ${taskObj.name}
 # CONTEXT:
 {synthesizedContext}
-${namespace}
 # TIME:
 ${new Date().toString()}
 # RULES:
