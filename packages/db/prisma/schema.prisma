@@ -126,9 +126,12 @@ model ExecutionGraph {
 }
 
 model ExecutionNode {
-  id      String         @id
+  /// e.g. "0", "1", "c" (the node id), unique within the Level.
+  id      String @id
+  /// a title description of the Node. Must not contain invalid ${format} characters.
   name    String
-  context String
+  /// Verbose expectations when done and parameters required to complete Task. Must not contain invalid ${format} characters.
+  context String?
   results Result[]
   graph   ExecutionGraph? @relation(fields: [graphId], references: [id], onDelete: SetNull)
   graphId String?

@@ -111,11 +111,7 @@ export function transformWireFormat(
 
       // Separate nodes and parents
       const nodes = nodesAndParents.filter(
-        (item) =>
-          "id" in item &&
-          item.id.length > 0 &&
-          item.name.length > 0 &&
-          item.context.length > 0,
+        (item) => "id" in item && item.id.length > 0 && item.name.length > 0,
       ) as unknown as DraftExecutionNode[];
       const parentsDescriptor = (nodesAndParents.find(
         (item) => "parents" in item,

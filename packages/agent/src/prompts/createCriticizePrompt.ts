@@ -28,12 +28,16 @@ export function createCriticizePrompt(params: {
       const node = task.findNode(nodes);
       return node
         ? HumanMessagePromptTemplate.fromTemplate(
-            `REVIEWEE TASK${i > 0 ? ` ${i}` : ""}:
-name: ${node.name}
-context: ${node.context}
-REVIEWEE OUTPUT:
+            `# START REVIEWEE TASK ${i > 0 ? ` ${i}` : ""}
+## TASK:
+${node.name}
+## ID:
+${node.id}
+## NAMESPACE:
+${namespace}
+## OUTPUT:
 ${returnType === "JSON" ? jsonStringify(task.value) : yamlStringify(task.value)}
-REVIEWEE NAMESPACE: ${namespace}
+# END REVIEWEE TASK ${i > 0 ? ` ${i}` : ""}
 `,
           )
         : undefined;

@@ -22,7 +22,8 @@
     "tls": "^0.0.1",
     "weaviate-ts-client": "^1.5.0",
     "yaml": "^2.3.3",
-    "zod": "^3.22.4"
+    "zod": "^3.22.4",
+    "zod-to-json-schema": "^3.21.4"
   },
   "devDependencies": {
     "@acme/eslint-config": "^0.1.0",

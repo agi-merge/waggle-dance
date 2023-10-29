@@ -148,7 +148,7 @@ export async function callExecutionAgent(creation: {
   );
 
   const inputTaskAndGoal: ToolsAndContextPickingInput = {
-    task: `${taskObj.name}: ${taskObj.context}`,
+    task: `${taskObj.name}`,
     inServiceOfGoal: goalPrompt,
     // availableDataSources: [],
     availableTools: skills.map((s) => s.name),
@@ -234,7 +234,7 @@ export async function callExecutionAgent(creation: {
     // );
 
     const chatHistory = (await memory?.loadMemoryVariables({
-      input: taskObj.context,
+      input: taskObj.name,
     })) as { chat_history: { value?: string; message?: string } };
 
     const systemMessagePrompt = SystemMessagePromptTemplate.fromTemplate(
