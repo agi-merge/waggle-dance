@@ -39,8 +39,8 @@ export const config = {
   runtime: "edge",
 };
 
-const REPETITION_CHECK_EVERY_N_PACKETS = 3;
 const REPETITION_CHECK_WINDOW = 45;
+const REPETITION_CHECK_EVERY_N_PACKETS = 2;
 const maxLogSize = 4096;
 
 /**
