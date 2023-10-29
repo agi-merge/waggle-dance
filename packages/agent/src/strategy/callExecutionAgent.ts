@@ -249,7 +249,8 @@ ${yamlStringify(contextAndTools.synthesizedContext)}
 ${yamlStringify(
   chatHistory.chat_history.value ||
     chatHistory.chat_history.message ||
-    chatHistory.chat_history,
+    chatHistory.chat_history ||
+    intermediateSteps.map((s) => s.observation),
 )}
 # Final Answer
 ${response}
