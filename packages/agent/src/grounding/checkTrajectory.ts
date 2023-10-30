@@ -18,12 +18,22 @@ async function checkTrajectory(
   callbacks: Callbacks | undefined,
   evaluators: AgentTrajectoryEvaluator[],
 ): Promise<string | null> {
-  if (isNaN(parseFloat(process.env.EXE_TRAJECTORY_EVALUATION || ""))) {
+  // FIXME: move env.mjs out of the nextjs app and into a package to use it instead
+  let minimumScore: number | null;
+  if (process.env.EXE_TRAJECTORY_EVALUATION === "true") {
+    minimumScore = 0.5;
+  } else if (process.env.EXE_TRAJECTORY_EVALUATION === "false") {
+    minimumScore = null;
+  } else if (process.env.EXE_TRAJECTORY_EVALUATION) {
+    minimumScore = parseFloat(process.env.EXE_TRAJECTORY_EVALUATION);
+  } else {
+    minimumScore = null;
+  }
+
+  if (minimumScore === null || Number.isNaN(minimumScore)) {
     console.debug(`Skipping trajectory evaluation`);
     return null;
   }
-
-  const minimumScore = parseFloat(process.env.EXE_TRAJECTORY_EVALUATION || "");
 
   const evaluations = await Promise.allSettled(
     evaluators.map((evaluator) =>

@@ -72,7 +72,7 @@ export const env = createEnv({
     WOLFRAM_APP_ID: z.string().optional(),
     EXE_TRAJECTORY_EVALUATION: z
       .preprocess(
-        (val) => (val === "false" ? false : val === "true" ? true : val),
+        (val) => (val === "false" ? false : val === "true" ? 0.5 : val),
         z.boolean().or(z.number().gte(0).lte(1)),
       )
       .optional(),
