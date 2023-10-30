@@ -66,7 +66,7 @@ const contextAndToolsOutputSchema = z.object({
 
 const reActOutputSchema = z.object({
   action: z.string(),
-  "Final Answer": z.string(),
+  action_input: z.string(),
 });
 
 export async function callExecutionAgent(creation: {
@@ -248,7 +248,7 @@ export async function callExecutionAgent(creation: {
         tags: [...tags, "fix"],
         runName: "ReAct Error Fixing",
       });
-      call = { output: finalAnswer["Final Answer"] };
+      call = { output: finalAnswer.action_input };
     }
 
     const response = call?.output ? (call.output as string) : "";
