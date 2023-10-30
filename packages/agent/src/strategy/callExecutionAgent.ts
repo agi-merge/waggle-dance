@@ -96,13 +96,8 @@ export async function callExecutionAgent(creation: {
     geo,
   } = creation;
   const callbacks = creationProps.callbacks;
-  creationProps.callbacks = undefined;
+  creationProps.callbacks = undefined; // prevent dupe callbacks- we don't want callbacks to be merged into all model creations
   const exeLLM = createModel(creationProps, agentPromptingMethod);
-  // TODO: refactor into its own agent type
-  const smartHelperModel = createModel(
-    { modelName: LLM_ALIASES["smart"] },
-    ModelStyle.Chat,
-  ) as ChatOpenAI;
 
   const embeddings = createEmbeddings({ modelName: LLM.embeddings });
   const taskObj = yamlParse(task) as {
@@ -177,11 +172,16 @@ export async function callExecutionAgent(creation: {
   );
   const outputFixingParser = OutputFixingParser.fromLLM(exeLLM, baseParser);
 
+  const smallSmartHelperModel = createModel(
+    { ...creationProps, modelName: LLM_ALIASES["smart"], maxTokens: 300 },
+    ModelStyle.Chat,
+  ) as ChatOpenAI;
+
   const contextPickingChain = createContextAndToolsPrompt({
     returnType,
     inputTaskAndGoalString,
   })
-    .pipe(smartHelperModel)
+    .pipe(smallSmartHelperModel)
     .pipe(outputFixingParser);
 
   const contextAndTools = await contextPickingChain.invoke(
@@ -295,6 +295,15 @@ Rewrite the Final Answer such that it all of the relevant information from the L
     );
     const promptMessages = [systemMessagePrompt, humanMessagePrompt];
 
+    // TODO: refactor into its own agent type
+    const smartHelperModel = createModel(
+      {
+        ...creationProps,
+        modelName: LLM_ALIASES["smart"],
+      },
+      ModelStyle.Chat,
+    ) as ChatOpenAI;
+
     const rewriteChain =
       ChatPromptTemplate.fromMessages(promptMessages).pipe(smartHelperModel);
 
@@ -325,8 +334,13 @@ Rewrite the Final Answer such that it all of the relevant information from the L
 
     void save;
 
+    const mediumSmartHelperModel = createModel(
+      { ...creationProps, modelName: LLM_ALIASES["smart"], maxTokens: 600 },
+      ModelStyle.Chat,
+    ) as ChatOpenAI;
+
     const taskFulfillmentEvaluator = await loadEvaluator("trajectory", {
-      llm: smartHelperModel,
+      llm: mediumSmartHelperModel,
       criteria: {
         taskFulfillment: "Does the submission fulfill the specific TASK?",
         schemaAdherence: "Does the submission adhere to the specified SCHEMA?",
