@@ -20,6 +20,7 @@ import {
   SystemMessagePromptTemplate,
 } from "langchain/prompts";
 import { type AgentStep } from "langchain/schema";
+import { AbortError } from "redis";
 import { stringify as jsonStringify } from "superjson";
 import { parse as yamlParse, stringify as yamlStringify } from "yaml";
 import { z } from "zod";
@@ -31,6 +32,7 @@ import {
   createExecutePrompt,
   createMemory,
   TaskState,
+  type ChainValues,
   type MemoryType,
 } from "../..";
 import checkTrajectory from "../grounding/checkTrajectory";
@@ -60,6 +62,11 @@ import createSkills from "../utils/skills";
 const contextAndToolsOutputSchema = z.object({
   synthesizedContext: z.array(z.string()).optional(),
   tools: z.array(z.string()).optional(),
+});
+
+const reActOutputSchema = z.object({
+  action: z.string(),
+  "Final Answer": z.string(),
 });
 
 export async function callExecutionAgent(creation: {
@@ -213,18 +220,39 @@ export async function callExecutionAgent(creation: {
   );
 
   try {
-    const call = await executor.call(
-      {
-        input,
-        signal: abortSignal,
-        tags,
-        runName: isCriticism ? "Criticize Results" : "Execute Task",
-      },
-      callbacks,
-    );
+    let call: ChainValues;
+    try {
+      call = await executor.call(
+        {
+          input,
+          signal: abortSignal,
+          tags,
+          runName: isCriticism ? "Criticize Results" : "Execute Task",
+        },
+        callbacks,
+      );
+    } catch (error) {
+      if (error instanceof AbortError) {
+        return error;
+      }
+      let errorMessageToParse = (error as Error).message || String(error);
+      const baseParser =
+        StructuredOutputParser.fromZodSchema(reActOutputSchema);
+      errorMessageToParse = errorMessageToParse.replaceAll(
+        `
+`,
+        "\n",
+      );
+      const outputFixingParser = OutputFixingParser.fromLLM(exeLLM, baseParser);
+      const finalAnswer = await outputFixingParser.invoke(errorMessageToParse, {
+        tags: [...tags, "fix"],
+        runName: "ReAct Error Fixing",
+      });
+      call = { output: finalAnswer["Final Answer"] };
+    }
 
     const response = call?.output ? (call.output as string) : "";
-    const intermediateSteps = call.intermediateSteps as AgentStep[]; //.map(s => s.observation)
+    const intermediateSteps = call.intermediateSteps as AgentStep[];
 
     if (isCriticism) {
       return response;
@@ -322,8 +350,7 @@ Rewrite the Final Answer such that it all of the relevant information from the L
       );
 
       return `${bestResponse}
-
-## Evaluation:
+### Evaluation:
 ${evaluationResult}
 `;
     } catch (error) {
