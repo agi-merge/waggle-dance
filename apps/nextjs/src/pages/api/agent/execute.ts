@@ -395,7 +395,7 @@ export default async function ExecuteStream(req: NextRequest) {
     node = task;
     goalId = parsedGoalId;
     executionId = parsedExecutionId;
-    namespace = createNamespace(goalId, executionId, task);
+    namespace = createNamespace({ goalId, executionId });
 
     const encoder = new TextEncoder();
     // helps augment tool errors and ends so that they do not trigger error handlers for different inputs

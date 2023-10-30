@@ -17,12 +17,13 @@ export function createUserNamespace(userId: string) {
 
 // in order to help unauthorized lookup of data, we use an encrypted combination of goal+execution id as a namespace
 export default function createNamespace(
-  goalId: string | undefined,
-  executionId: string | undefined,
-  task: DraftExecutionNode,
+  goalAndExecutionId:
+    | { goalId: string; executionId: string }
+    | { task: DraftExecutionNode },
 ) {
   // Check if both goalId and executionId are undefined
-  if (!goalId && !executionId) {
+  if ("task" in goalAndExecutionId) {
+    const { task } = goalAndExecutionId;
     if (!task || !task.id) {
       throw new Error(
         "Invalid arguments: Either goalId and executionId, or a task with an id must be provided.",
@@ -31,13 +32,7 @@ export default function createNamespace(
     return task.id;
   }
 
-  // Check if either goalId or executionId is undefined
-  if (!goalId || !executionId) {
-    throw new Error(
-      "Invalid arguments: Both goalId and executionId must be provided.",
-    );
-  }
-
+  const { goalId, executionId } = goalAndExecutionId;
   const namespace = saltAndHash(`${goalId}_${executionId}`);
   return namespace;
 }
