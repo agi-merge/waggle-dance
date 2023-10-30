@@ -27,6 +27,7 @@ import {
   Stack,
   Tooltip,
   Typography,
+  useColorScheme,
   type BoxProps,
   type ListItemProps,
 } from "@mui/joy";
@@ -472,6 +473,7 @@ const TaskListItem = ({
   isExpanded,
   ...props
 }: TaskListItemProps) => {
+  const { mode } = useColorScheme();
   const [isResultExpanded, setIsResultExpanded] = useState(false);
   const node = useMemo(() => t.findNode(nodes), [nodes, t]);
   const [selectedGroup, setSelectedGroup] = useState<AgentPacket[] | null>(
@@ -524,13 +526,13 @@ const TaskListItem = ({
         alignSelf: "start",
         width: { xs: "100%", sm: isExpanded ? "100%" : "fit-content" },
       }}
-      className={`overflow-y-auto overflow-x-clip`}
+      className={` overflow-x-clip`}
       ref={(el) => el && (listItemsRef.current[i] = el)}
     >
       <ListItemDecorator
-        component={Card}
+        component={Button}
         size="sm"
-        sx={{
+        sx={(theme) => ({
           minWidth: { xs: "100%", sm: "12rem" },
           maxWidth: { xs: "100%", sm: "12rem" },
           flexDirection: {
@@ -544,8 +546,19 @@ const TaskListItem = ({
           display: "flex",
           flexWrap: "wrap",
           position: "relative",
-        }}
-        variant="outlined"
+          boxShadow: "md",
+          backgroundColor:
+            theme.palette.mode === "dark"
+              ? theme.palette[statusColor(t)!].solidBg
+              : theme.palette[statusColor(t)!][300],
+          // backgroundColor: theme.motheme.palette[statusColor(t)!][50],
+          // hover background color
+          // "&:hover": {
+          //   backgroundColor: theme.palette[statusColor(t)!].plainActiveBg,
+          // },
+          // backgroundBlendMode: "overlay",
+        })}
+        variant={mode === "dark" ? "soft" : "outlined"}
         color={statusColor(t)}
       >
         <LinearProgress
@@ -581,10 +594,12 @@ const TaskListItem = ({
               level="body-lg"
               variant="outlined"
               color={statusColor(t)}
-              sx={{
+              sx={(theme) => ({
+                boxShadow: theme.palette.mode === "light" ? "sm" : "none",
+                // hover reset for both
                 ml: -0.5,
                 mr: 0.5,
-              }}
+              })}
             >
               {t.displayId !== rootPlanId
                 ? isTaskCriticism(t.nodeId)
@@ -612,7 +627,11 @@ const TaskListItem = ({
               component={Chip}
               variant="outlined"
               color={statusColor(t)}
-              sx={{ pt: 0.5, background: "transparent" }}
+              sx={(theme) => ({
+                pt: 0.5,
+                background: "transparent",
+                boxShadow: theme.palette.mode === "light" ? "sm" : "none",
+              })}
             >
               {t.displayId}
             </Typography>
@@ -622,7 +641,12 @@ const TaskListItem = ({
             level="body-sm"
             component={Chip}
             variant="outlined"
-            sx={{ p: 0.5, pt: 0.5, background: "transparent" }}
+            sx={(theme) => ({
+              p: 0.5,
+              pt: 0.5,
+              background: "transparent",
+              boxShadow: theme.palette.mode === "light" ? "sm" : "none",
+            })}
           >
             {mapPacketTypeToStatus(t.value.type)}
           </Typography>
@@ -639,6 +663,7 @@ const TaskListItem = ({
             xs: "row",
             sm: "column",
           },
+          boxShadow: "md",
         }}
       >
         <Card
@@ -646,6 +671,7 @@ const TaskListItem = ({
           component={Stack}
           direction="column"
           className="overflow-x-clip overflow-y-clip"
+          sx={{ boxShadow: "xl" }}
         >
           <ListItemButton
             color={statusColor(t)}

@@ -22,8 +22,6 @@ import ListItem from "@mui/joy/ListItem";
 import { type TaskState } from "@acme/agent";
 import { type DraftExecutionEdge, type DraftExecutionNode } from "@acme/db";
 
-// import TaskListItem from "./TaskListItem";
-
 const TaskListItem = lazy(() => import("./TaskListItem"));
 
 type TaskListTabProps = {
