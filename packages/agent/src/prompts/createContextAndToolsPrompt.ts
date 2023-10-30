@@ -29,11 +29,9 @@ const toolsAndContextExamples: ToolsAndContextExample[] = [
   {
     exampleRemarks: {
       contextInsight:
-        "The synthesized context shows a good understanding of the task requirements and potential challenges.",
+        "The synthesized context captures the intricacies of translation, emphasizing the importance of understanding both languages and cultural nuances.",
       toolStrategy:
-        "The agent has judiciously chosen a subset of tools that are most relevant for translation tasks, demonstrating a good understanding of the tools' capabilities and avoiding unnecessary tool usage.",
-      taskChallenge:
-        "The task is complex and requires a good understanding of both English and French, as well as the nuances of translation. The agent will need to navigate through various resources to find the most effective solution.",
+        "The agent smartly selects translation tools known for their accuracy and also includes a tool for sentiment analysis, which can be crucial in maintaining the tone of the original text.",
     },
     input: {
       task: "Translate a document",
@@ -53,7 +51,6 @@ const toolsAndContextExamples: ToolsAndContextExample[] = [
       synthesizedContext: [
         "The task involves translating a document from English to French, a process that requires a deep understanding of both languages and the ability to convey the original meaning accurately.",
         "In translation, it's important to consider cultural nuances. Some English phrases or idioms may not have direct equivalents in French and will require creative interpretation.",
-        "A two-step translation process can be effective: first, translate the text literally, then refine the translation by adjusting for idioms, cultural references, and tone.",
       ],
       tools: [
         "Google Translate",
@@ -65,12 +62,10 @@ const toolsAndContextExamples: ToolsAndContextExample[] = [
   },
   {
     exampleRemarks: {
-      contextInsight:
-        "The synthesized context shows a good understanding of the task requirements and potential challenges.",
-      toolStrategy:
-        "The agent has judiciously chosen a subset of tools that are most relevant for programming tasks, demonstrating a good understanding of the tools' capabilities and avoiding unnecessary tool usage.",
-      taskChallenge:
-        "The task is complex and requires a good understanding of Python and web scraping techniques. The agent will need to navigate through various resources to find the most effective solution.",
+      contextAnalysis:
+        "The context insightfully outlines the complexities of web scraping, from dealing with diverse website structures to handling anti-scraping measures.",
+      taskComplexity:
+        "The context acknowledges the complexity of the task, emphasizing the need for data cleaning and structuring post-scraping.",
     },
     input: {
       task: "Write a scraper in Python",
@@ -91,19 +86,14 @@ const toolsAndContextExamples: ToolsAndContextExample[] = [
       synthesizedContext: [
         "The task involves writing a Python script for web scraping, which entails fetching and parsing data from a website, and storing it in a CSV file.",
         "Websites can have vastly different structures, making web scraping a complex task. Some websites may also have measures to prevent scraping.",
-        "After scraping, the data needs to be cleaned and structured properly for further analysis or storage in a CSV file.",
       ],
       tools: ["Python Interpreter", "Google Search", "Stack Overflow"],
     },
   },
   {
     exampleRemarks: {
-      contextInsight:
-        "The synthesized context shows a good understanding of the task requirements and potential challenges.",
-      toolStrategy:
-        "The agent has judiciously chosen a subset of tools that are most relevant for design tasks, demonstrating a good understanding of the tools' capabilities and avoiding unnecessary tool usage.",
-      taskChallenge:
-        "The task is complex and requires a good understanding of design principles and responsive design techniques. The agent will need to navigate through various resources to find the most effective solution.",
+      contextCreativity:
+        "The context insightfully balances the need for aesthetic appeal and functionality in design, and advocates for a mobile-first approach.",
     },
     input: {
       task: "Design a website header",
@@ -122,20 +112,14 @@ const toolsAndContextExamples: ToolsAndContextExample[] = [
     output: {
       synthesizedContext: [
         "The task involves designing a responsive website header for a new online store, which requires a visually appealing and user-friendly interface that works well on various devices.",
-        "Good design balances aesthetic appeal with functionality. The header, as the first point of interaction for users, should guide them intuitively to the most important parts of the online store.",
-        "A mobile-first approach ensures the design works well on smaller screens. Additional features and layout changes for larger screens can be added using CSS media queries.",
       ],
       tools: ["Figma", "Stack Overflow"],
     },
   },
   {
     exampleRemarks: {
-      contextInsight:
-        "The synthesized context shows a good understanding of the task requirements and potential challenges.",
-      toolStrategy:
-        "The agent has judiciously chosen a subset of tools that are most relevant for financial analysis tasks, demonstrating a good understanding of the tools' capabilities and avoiding unnecessary tool usage.",
-      taskChallenge:
-        "The task is complex and requires a good understanding of financial markets and analysis techniques. The agent will need to navigate through various resources to find the most effective solution.",
+      contextDepth:
+        "The context delves into the intricacies of stock market analysis, highlighting the volatility of the market and the complexity of predicting future trends.",
     },
     input: {
       task: "Analyze stock market trends",
@@ -154,9 +138,8 @@ const toolsAndContextExamples: ToolsAndContextExample[] = [
     },
     output: {
       synthesizedContext: [
-        "The task involves analyzing stock market trends over the past 5 years and making predictions about future trends. The findings need to be compiled into a .xlsx report.",
+        "The task involves analyzing stock market trends over the past 5 years and making predictions about future trends.",
         "The stock market is inherently volatile, with many factors influencing trends. This makes analysis a complex task.",
-        "Predicting future trends involves analyzing historical data and considering factors like economic indicators, company performance, and market news. A combination of fundamental and technical analysis can be effective.",
       ],
       tools: ["Retrieve Memories", "Bloomberg Terminal", "Google Finance"],
     },
@@ -165,8 +148,6 @@ const toolsAndContextExamples: ToolsAndContextExample[] = [
     exampleRemarks: {
       contextInsight:
         "The synthesized context shows the limitations of the agent's knowledge.",
-      toolStrategy:
-        "The agent has judiciously chosen a subset of tools that are most relevant for academic research tasks, demonstrating a good understanding of the tools' capabilities and avoiding unnecessary tool usage.",
       taskChallenge:
         "The task is complex and requires a deep understanding of AI technologies. The agent will need to navigate a vast amount of information and distill it into a concise and informative report.",
     },
@@ -195,7 +176,8 @@ const toolsAndContextExamples: ToolsAndContextExample[] = [
     },
     output: {
       synthesizedContext: [
-        "My training data prior to my knowledge cut-off does not contain coherent information about AgentGPT.",
+        "The task is to research AgentGPT, and find similar projects or state of the art research papers.",
+        "My training data prior to my knowledge cut-off does not contain coherent information about AgentGPT",
       ],
       tools: [
         "Memory Retrieval",
