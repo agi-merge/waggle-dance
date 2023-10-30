@@ -72,8 +72,8 @@ export const env = createEnv({
     WOLFRAM_APP_ID: z.string().optional(),
     EXE_TRAJECTORY_EVALUATION: z
       .preprocess(
-        (val) => (val === "false" ? false : val),
-        z.number({ coerce: true }).gte(0).lte(1).optional(),
+        (val) => (val === "false" ? false : val === "true" ? true : val),
+        z.boolean().or(z.number().gte(0).lte(1)),
       )
       .optional(),
     POSTGRES_PRISMA_URL: z.string().url(),

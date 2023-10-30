@@ -18,7 +18,7 @@ async function checkTrajectory(
   callbacks: Callbacks | undefined,
   evaluators: AgentTrajectoryEvaluator[],
 ): Promise<string | null> {
-  if (parseFloat(process.env.EXE_TRAJECTORY_EVALUATION || "")) {
+  if (isNaN(parseFloat(process.env.EXE_TRAJECTORY_EVALUATION || ""))) {
     console.debug(`Skipping trajectory evaluation`);
     return null;
   }
