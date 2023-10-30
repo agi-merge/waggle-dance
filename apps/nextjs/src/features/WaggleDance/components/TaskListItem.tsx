@@ -1,4 +1,5 @@
 import React, { useMemo, useState, type Dispatch } from "react";
+import Link from "next/link";
 import {
   AssignmentTurnedIn,
   Construction,
@@ -79,6 +80,40 @@ enum GroupType {
   Error = "Error",
   Working = "Working",
 }
+
+const ResultMarkdown = ({
+  t,
+  nodes,
+  edges,
+  result,
+}: {
+  t: TaskState;
+  nodes: DraftExecutionNode[];
+  edges: DraftExecutionEdge[];
+  result: string;
+}) => {
+  return (
+    <Markdown
+      components={{
+        // Map `h1` (`# heading`) to use `h2`s.
+        h1: "h2",
+        // Rewrite `em`s (`*like so*`) to `i` with a red foreground color.
+        a(props) {
+          const { target: _target, href, ref: _ref, ...rest } = props;
+          return href && <Link target="_blank" href={href} {...rest} />;
+        },
+      }}
+      className={`markdown break-words pt-2 ${
+        t.status === TaskStatus.error ? "font-mono" : "font-sans"
+      }`}
+      remarkPlugins={[remarkGfm]}
+    >
+      {t.value.type === "working" && t.nodeId === rootPlanId
+        ? `Planned ${nodes.length} tasks and ${edges.length} interdependencies`
+        : result}
+    </Markdown>
+  );
+};
 
 const getGroupType = (group: AgentPacket[]): GroupType => {
   for (const packet of group) {
@@ -404,16 +439,7 @@ const TaskResult = ({
             display: isExpanded ? "flex" : "inherit",
           }}
         >
-          <Markdown
-            className={`markdown break-words pt-2 ${
-              t.status === TaskStatus.error ? "font-mono" : ""
-            }`}
-            remarkPlugins={[remarkGfm]}
-          >
-            {t.value.type === "working" && t.nodeId === rootPlanId
-              ? `Planned ${nodes.length} tasks and ${edges.length} interdependencies`
-              : result}
-          </Markdown>
+          <ResultMarkdown t={t} nodes={nodes} edges={edges} result={result} />
         </Box>
       ) : (
         <Typography
@@ -730,13 +756,23 @@ const TaskListItem = ({
           <AccordionGroup
             variant="outlined"
             color={statusColor(t)}
-            sx={{ overflow: "clip" }}
+            sx={{ overflow: "clip", cursor: "auto" }}
           >
             <Accordion
               expanded={isResultExpanded}
               onChange={(event, expanded) => {
                 setIsResultExpanded(expanded);
                 event.stopPropagation();
+                event.preventDefault();
+              }}
+              onClick={(event) => {
+                event.preventDefault();
+                event.stopPropagation();
+                if (event.target instanceof HTMLAnchorElement) {
+                  // open link
+                  window.open(event.target.href, "_blank");
+                  return;
+                }
               }}
             >
               <AccordionSummary>
