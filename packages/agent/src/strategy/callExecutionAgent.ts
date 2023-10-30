@@ -191,9 +191,10 @@ export async function callExecutionAgent(creation: {
     synthesizedContext: contextAndTools.synthesizedContext?.join("\n") ?? "N/A",
   });
 
+  // because AgentExecutor does not accept BaseMessages, we must render the messages into a single string
   const input: string = formattedMessages
-    .map((m) => `${m._getType()}: ${m.content}`)
-    .join("\n");
+    .map((m) => `[${m._getType()}]\n${m.content}`)
+    .join("\n\n");
 
   // filter all available tools by the ones that were selected by the context and tools selection agent
   const filteredSkills = (contextAndTools.tools ?? []).flatMap((t) => {
