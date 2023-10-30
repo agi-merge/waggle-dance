@@ -82,9 +82,10 @@ async function checkScore(
     if (evaluationResult) {
       if (evaluationResult.score < minimumScore) {
         throw new Error(
-          `**This task failed review:**: ${
-            evaluationResult.score * 100
-          }/100. \n\n# Task Result:\n\n${response}${
+          `# This task failed review:
+${
+  evaluationResult.score * 100
+}/100. *automatic recovery coming soon!* \n\n## Task Result:\n\n${response}${
             originalResponse !== response
               ? `\n\n### Original Result: \n\n${originalResponse}`
               : ""
