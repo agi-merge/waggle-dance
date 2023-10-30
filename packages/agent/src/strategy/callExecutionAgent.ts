@@ -181,7 +181,7 @@ export async function callExecutionAgent(creation: {
     returnType,
     inputTaskAndGoalString,
   })
-    .pipe(smallSmartHelperModel)
+    .pipe(smallSmartHelperModel.bind({ signal: abortSignal }))
     .pipe(outputFixingParser);
 
   const contextAndTools = await contextPickingChain.invoke(
@@ -304,8 +304,9 @@ Rewrite the Final Answer such that it all of the relevant information from the L
       ModelStyle.Chat,
     ) as ChatOpenAI;
 
-    const rewriteChain =
-      ChatPromptTemplate.fromMessages(promptMessages).pipe(smartHelperModel);
+    const rewriteChain = ChatPromptTemplate.fromMessages(promptMessages).pipe(
+      smartHelperModel.bind({ signal: abortSignal }),
+    );
 
     const rewriteResponse = await rewriteChain.invoke(
       {},
