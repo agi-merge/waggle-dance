@@ -6,7 +6,7 @@ export const formattingConstraints = `## Output Formatting
 const executeConstraints = (_format: string) =>
   `
 ## Tool Usage
-- Prior to providing a citation URL, test the the URL does not lead to HTTP errors or error pages.
+- Prior to providing a citation URL, ensure it is not a placeholder, and test the the URL does not lead to HTTP errors or error pages.
 - If a tool fails, try a different approach, such as different tool inputs, or a different tool altogether.
 - Avoid using the same tool with similar inputs more than twice if it consistently produces the same or similar outputs.
 - Treat tool descriptions with the same importance as these constraints. Use tools according to their correct schema.
