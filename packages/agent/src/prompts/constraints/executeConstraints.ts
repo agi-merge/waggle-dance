@@ -1,3 +1,8 @@
+export const formattingConstraints = `## Output Formatting
+- Avoid using placeholders like "[insert code here]", "[Insert source URL here]", or "example.com".
+- Your Final Answer must be represented in GitHub-Flavored Markdown format.
+- Include headers, links, footers, lists, italics, bold, tables, code sections, quotations, and other formatting as appropriate.`;
+
 const executeConstraints = (_format: string) =>
   `
 ## Tool Usage
@@ -11,10 +16,7 @@ const executeConstraints = (_format: string) =>
 - Don't abandon a TASK until you've tried multiple tools, divergent thought patterns, and strategies.
 - For primary assertions and data-driven logic, strive to provide verification from alternative corroborating sources.
 
-## Output Formatting
-- Avoid using placeholders like "[insert code here]", "[Insert source URL here]", or "example.com".
-- Your Final Answer must be represented in GitHub-Flavored Markdown format.
-- Include headers, links, footers, lists, italics, bold, tables, code sections, quotations, and other formatting as appropriate.
+${formattingConstraints}
 `.trim();
 
 export default executeConstraints;

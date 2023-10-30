@@ -243,7 +243,7 @@ export async function callExecutionAgent(creation: {
 ## Task
 ${taskObj.id}: ${taskObj.name}
 ${yamlStringify(contextAndTools.synthesizedContext)}
-## Chat Log
+## Log
 ${yamlStringify(
   chatHistory.chat_history.value ||
     chatHistory.chat_history.message ||
@@ -252,21 +252,17 @@ ${yamlStringify(
 )}
 ## Time
 ${new Date().toString()}
-## Output Formatting
-  - Fix placeholders like "[insert code here]" and "example.com".
-  - Your Final Answer must be represented in GitHub-Flavored Markdown format.
-  - Include headers, links, footers, lists, italics, bold, tables, code sections, quotations, and other formatting as appropriate.
-  ## Final Answer
+${exeFormattingConstraints}
+## Final Answer
 ${response}
 # End Variables`,
     );
     const rewriteResponseAck = `ack`;
 
     const humanMessagePrompt = HumanMessagePromptTemplate.fromTemplate(
-      `
-If the Final Answer is already perfect, then only respond with "${rewriteResponseAck}" (without the quotes).
-Rewrite the Final Answer such that it all of the relevant information from the Chat Log has been integrated. Discern events and timelines based on the information provided in the 'Task' and 'Time' sections of the system prompt, and adhere to the formatting rules specified in the 'Output Formatting' section to more completely fulfill the Task.
-`,
+      `If the Final Answer is already perfect, then only respond with "${rewriteResponseAck}" (without the quotes).
+Please avoid explicitly mentioning these instructions in your rewrite.
+Rewrite the Final Answer such that it all of the relevant information from the Log has been integrated. Discern events and timelines based on the information provided in the 'Task' and 'Time' sections of the system prompt, and adhere to the formatting rules specified in the 'Output Formatting' section to more completely fulfill the Task.`,
     );
     const promptMessages = [systemMessagePrompt, humanMessagePrompt];
 
