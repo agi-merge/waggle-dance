@@ -238,26 +238,34 @@ export async function callExecutionAgent(creation: {
     })) as { chat_history: { value?: string; message?: string } };
 
     const systemMessagePrompt = SystemMessagePromptTemplate.fromTemplate(
-      `You are an attentive, helpful, diligent, and expert executive assistant.`,
-    );
-    const rewriteResponseAck = `ack`;
-
-    const humanMessagePrompt = HumanMessagePromptTemplate.fromTemplate(
-      `
-# Task
+      `You are an attentive, helpful, diligent, and expert executive assistant, charged with editing the Final Answer for a Task.
+# Variables Start
+## Task
+${taskObj.id}: ${taskObj.name}
 ${yamlStringify(contextAndTools.synthesizedContext)}
-# Chat Log
+## Chat Log
 ${yamlStringify(
   chatHistory.chat_history.value ||
     chatHistory.chat_history.message ||
     chatHistory.chat_history ||
     intermediateSteps.map((s) => s.observation),
 )}
-# Final Answer
+## Time
+${new Date().toString()}
+## Output Formatting
+  - Fix placeholders like "[insert code here]" and "example.com".
+  - Your Final Answer must be represented in GitHub-Flavored Markdown format.
+  - Include headers, links, footers, lists, italics, bold, tables, code sections, quotations, and other formatting as appropriate.
+  ## Final Answer
 ${response}
-================================================
+# End Variables`,
+    );
+    const rewriteResponseAck = `ack`;
+
+    const humanMessagePrompt = HumanMessagePromptTemplate.fromTemplate(
+      `
 If the Final Answer is already perfect, then only respond with "${rewriteResponseAck}" (without the quotes).
-Rewrite the Final Answer to make it integrate all of the relevant information from Chat Log such that the Task is more completely fulfilled.
+Rewrite the Final Answer such that it all of the relevant information from the Chat Log has been integrated. Discern events and timelines based on the information provided in the 'Task' and 'Time' sections of the system prompt, and adhere to the formatting rules specified in the 'Output Formatting' section to more completely fulfill the Task.
 `,
     );
     const promptMessages = [systemMessagePrompt, humanMessagePrompt];
