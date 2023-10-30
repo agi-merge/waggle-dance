@@ -549,14 +549,8 @@ const TaskListItem = ({
           boxShadow: "md",
           backgroundColor:
             theme.palette.mode === "dark"
-              ? theme.palette[statusColor(t)!].solidBg
+              ? theme.palette[statusColor(t)!].softBg
               : theme.palette[statusColor(t)!][300],
-          // backgroundColor: theme.motheme.palette[statusColor(t)!][50],
-          // hover background color
-          // "&:hover": {
-          //   backgroundColor: theme.palette[statusColor(t)!].plainActiveBg,
-          // },
-          // backgroundBlendMode: "overlay",
         })}
         variant={mode === "dark" ? "soft" : "outlined"}
         color={statusColor(t)}
@@ -596,7 +590,6 @@ const TaskListItem = ({
               color={statusColor(t)}
               sx={(theme) => ({
                 boxShadow: theme.palette.mode === "light" ? "sm" : "none",
-                // hover reset for both
                 ml: -0.5,
                 mr: 0.5,
               })}
