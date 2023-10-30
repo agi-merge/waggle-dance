@@ -34,6 +34,7 @@ import {
   type MemoryType,
 } from "../..";
 import checkTrajectory from "../grounding/checkTrajectory";
+import { formattingConstraints as exeFormattingConstraints } from "../prompts/constraints/executeConstraints";
 import {
   createContextAndToolsPrompt,
   type ToolsAndContextPickingInput,
@@ -55,6 +56,11 @@ import {
 import { createEmbeddings, createModel } from "../utils/model";
 import { type ModelCreationProps } from "../utils/OpenAIPropsBridging";
 import createSkills from "../utils/skills";
+
+const contextAndToolsOutputSchema = z.object({
+  synthesizedContext: z.array(z.string()).optional(),
+  tools: z.array(z.string()).optional(),
+});
 
 export async function callExecutionAgent(creation: {
   creationProps: ModelCreationProps;
@@ -159,11 +165,9 @@ export async function callExecutionAgent(creation: {
       ? jsonStringify(inputTaskAndGoal)
       : yamlStringify(inputTaskAndGoal);
 
-  const outputSchema = z.object({
-    synthesizedContext: z.record(z.string()),
-    tools: z.array(z.string()),
-  });
-  const baseParser = StructuredOutputParser.fromZodSchema(outputSchema);
+  const baseParser = StructuredOutputParser.fromZodSchema(
+    contextAndToolsOutputSchema,
+  );
   const outputFixingParser = OutputFixingParser.fromLLM(exeLLM, baseParser);
 
   const contextPickingChain = createContextAndToolsPrompt({
@@ -184,10 +188,7 @@ export async function callExecutionAgent(creation: {
 
   console.debug(`contextAndTools(${taskObj.id}):`, contextAndTools);
   const formattedMessages = await prompt.formatMessages({
-    synthesizedContext:
-      returnType === "JSON"
-        ? jsonStringify(contextAndTools.synthesizedContext)
-        : yamlStringify(contextAndTools.synthesizedContext),
+    synthesizedContext: contextAndTools.synthesizedContext?.join("\n") ?? "N/A",
   });
 
   const input: string = formattedMessages
@@ -195,8 +196,7 @@ export async function callExecutionAgent(creation: {
     .join("\n");
 
   // filter all available tools by the ones that were selected by the context and tools selection agent
-
-  const filteredSkills = contextAndTools.tools.flatMap((t) => {
+  const filteredSkills = (contextAndTools.tools ?? []).flatMap((t) => {
     return skills.filter((s) => s.name === t);
   });
 

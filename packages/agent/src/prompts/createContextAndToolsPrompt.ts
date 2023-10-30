@@ -50,14 +50,11 @@ const toolsAndContextExamples: ToolsAndContextExample[] = [
       ],
     },
     output: {
-      synthesizedContext: {
-        taskDetails:
-          "The task involves translating a document from English to French, a process that requires a deep understanding of both languages and the ability to convey the original meaning accurately.",
-        culturalNuances:
-          "In translation, it's important to consider cultural nuances. Some English phrases or idioms may not have direct equivalents in French and will require creative interpretation.",
-        translationApproach:
-          "A two-step translation process can be effective: first, translate the text literally, then refine the translation by adjusting for idioms, cultural references, and tone.",
-      },
+      synthesizedContext: [
+        "The task involves translating a document from English to French, a process that requires a deep understanding of both languages and the ability to convey the original meaning accurately.",
+        "In translation, it's important to consider cultural nuances. Some English phrases or idioms may not have direct equivalents in French and will require creative interpretation.",
+        "A two-step translation process can be effective: first, translate the text literally, then refine the translation by adjusting for idioms, cultural references, and tone.",
+      ],
       tools: [
         "Google Translate",
         "DeepL",
@@ -91,14 +88,11 @@ const toolsAndContextExamples: ToolsAndContextExample[] = [
       ],
     },
     output: {
-      synthesizedContext: {
-        taskScope:
-          "The task involves writing a Python script for web scraping, which entails fetching and parsing data from a website, and storing it in a CSV file.",
-        websiteVariability:
-          "Websites can have vastly different structures, making web scraping a complex task. Some websites may also have measures to prevent scraping.",
-        dataManagement:
-          "After scraping, the data needs to be cleaned and structured properly for further analysis or storage in a CSV file.",
-      },
+      synthesizedContext: [
+        "The task involves writing a Python script for web scraping, which entails fetching and parsing data from a website, and storing it in a CSV file.",
+        "Websites can have vastly different structures, making web scraping a complex task. Some websites may also have measures to prevent scraping.",
+        "After scraping, the data needs to be cleaned and structured properly for further analysis or storage in a CSV file.",
+      ],
       tools: ["Python Interpreter", "Google Search", "Stack Overflow"],
     },
   },
@@ -126,14 +120,11 @@ const toolsAndContextExamples: ToolsAndContextExample[] = [
       ],
     },
     output: {
-      synthesizedContext: {
-        taskObjective:
-          "The task involves designing a responsive website header for a new online store, which requires a visually appealing and user-friendly interface that works well on various devices.",
-        designPrinciples:
-          "Good design balances aesthetic appeal with functionality. The header, as the first point of interaction for users, should guide them intuitively to the most important parts of the online store.",
-        responsiveDesign:
-          "A mobile-first approach ensures the design works well on smaller screens. Additional features and layout changes for larger screens can be added using CSS media queries.",
-      },
+      synthesizedContext: [
+        "The task involves designing a responsive website header for a new online store, which requires a visually appealing and user-friendly interface that works well on various devices.",
+        "Good design balances aesthetic appeal with functionality. The header, as the first point of interaction for users, should guide them intuitively to the most important parts of the online store.",
+        "A mobile-first approach ensures the design works well on smaller screens. Additional features and layout changes for larger screens can be added using CSS media queries.",
+      ],
       tools: ["Figma", "Stack Overflow"],
     },
   },
@@ -162,14 +153,11 @@ const toolsAndContextExamples: ToolsAndContextExample[] = [
       ],
     },
     output: {
-      synthesizedContext: {
-        taskRequirements:
-          "The task involves analyzing stock market trends over the past 5 years and making predictions about future trends. The findings need to be compiled into a .xlsx report.",
-        marketVolatility:
-          "The stock market is inherently volatile, with many factors influencing trends. This makes analysis a complex task.",
-        predictiveModeling:
-          "Predicting future trends involves analyzing historical data and considering factors like economic indicators, company performance, and market news. A combination of fundamental and technical analysis can be effective.",
-      },
+      synthesizedContext: [
+        "The task involves analyzing stock market trends over the past 5 years and making predictions about future trends. The findings need to be compiled into a .xlsx report.",
+        "The stock market is inherently volatile, with many factors influencing trends. This makes analysis a complex task.",
+        "Predicting future trends involves analyzing historical data and considering factors like economic indicators, company performance, and market news. A combination of fundamental and technical analysis can be effective.",
+      ],
       tools: ["Retrieve Memories", "Bloomberg Terminal", "Google Finance"],
     },
   },
@@ -206,10 +194,9 @@ const toolsAndContextExamples: ToolsAndContextExample[] = [
       ],
     },
     output: {
-      synthesizedContext: {
-        knowledgeCutoff:
-          "My training data prior to my knowledge cut-off does not contain coherent information about AgentGPT.",
-      },
+      synthesizedContext: [
+        "My training data prior to my knowledge cut-off does not contain coherent information about AgentGPT.",
+      ],
       tools: [
         "Memory Retrieval",
         "Google Search",
