@@ -37,7 +37,7 @@ export class TaskState implements AugmentedResponse {
 
   get displayId(): string {
     if (this.id === rootPlanId) {
-      return "0-0";
+      return rootPlanId;
     }
     const executionSplit = this.nodeId.split(".")[1];
     if (!executionSplit) {
