@@ -685,24 +685,26 @@ const TaskListItem = ({
               component={Stack}
               gap={1.5}
             >
-              <Typography level="title-lg" sx={{ pl: "0.35rem", zIndex: 1 }}>
-                Context:{" "}
-                <Typography
-                  fontWeight={"normal"}
-                  level="body-sm"
-                  className="text-wrap"
-                  color="neutral"
-                  sx={{
-                    display: "-webkit-box",
-                    WebkitBoxOrient: "vertical",
-                    WebkitLineClamp: 3, // Number of lines you want to display
-                    overflow: "hidden",
-                    textOverflow: "ellipsis",
-                  }}
-                >
-                  {stringifyMax(node.context, 200)}
+              {node.context && (
+                <Typography level="title-lg" sx={{ pl: "0.35rem", zIndex: 1 }}>
+                  Context:{" "}
+                  <Typography
+                    fontWeight={"normal"}
+                    level="body-sm"
+                    className="text-wrap"
+                    color="neutral"
+                    sx={{
+                      display: "-webkit-box",
+                      WebkitBoxOrient: "vertical",
+                      WebkitLineClamp: 3, // Number of lines you want to display
+                      overflow: "hidden",
+                      textOverflow: "ellipsis",
+                    }}
+                  >
+                    {stringifyMax(node.context, 200)}
+                  </Typography>
                 </Typography>
-              </Typography>
+              )}
               <Sheet
                 sx={{
                   zIndex: 1,
