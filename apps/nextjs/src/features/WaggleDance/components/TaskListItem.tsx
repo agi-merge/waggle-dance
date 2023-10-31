@@ -555,19 +555,20 @@ const TaskListItem = ({
         variant={mode === "dark" ? "soft" : "outlined"}
         color={statusColor(t)}
       >
-        <LinearProgress
-          size="sm"
-          sx={{
-            position: "absolute",
-            top: 0,
-            left: 0,
-            right: 0,
-            opacity: isRunning && t.status === TaskStatus.working ? "1" : "0",
-          }}
-          determinate={false}
-          thickness={2}
-          color={statusColor(t)}
-        />
+        {isRunning && t.status === TaskStatus.working && (
+          <LinearProgress
+            size="sm"
+            sx={{
+              position: "absolute",
+              top: 1,
+              left: 0,
+              right: 0,
+            }}
+            determinate={false}
+            thickness={2}
+            color={statusColor(t)}
+          />
+        )}
         <Typography
           level="title-sm"
           textAlign={"left"}
