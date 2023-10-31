@@ -33,7 +33,10 @@ const WaggleDanceDashboard = ({
     2: false,
   });
   return (
-    <AccordionGroup variant="soft">
+    <AccordionGroup
+      variant="outlined"
+      sx={{ boxShadow: "lg", borderRadius: "md", overflow: "clip" }}
+    >
       <Box sx={{ display: { xs: "block", md: "flex" } }}>
         <Box
           sx={{
@@ -42,7 +45,12 @@ const WaggleDanceDashboard = ({
           }}
         >
           <Accordion
-            sx={{ overflow: "clip" }}
+            sx={{
+              overflow: "clip",
+              boxShadow: "sm",
+              borderTopLeftRadius: "md",
+              borderTopRightRadius: "md",
+            }}
             expanded={selectedIndex[0]}
             onChange={(_, expanded) => {
               setSelectedIndex({ ...selectedIndex, 0: expanded });
@@ -88,6 +96,10 @@ const WaggleDanceDashboard = ({
             onChange={(_, expanded) => {
               setSelectedIndex({ ...selectedIndex, 1: expanded });
             }}
+            sx={{
+              overflow: "clip",
+              boxShadow: "sm",
+            }}
           >
             <AccordionSummary>
               <Avatar color="danger" variant="solid">
@@ -122,7 +134,11 @@ const WaggleDanceDashboard = ({
             onChange={(_, expanded) => {
               setSelectedIndex({ ...selectedIndex, 2: expanded });
             }}
-            sx={{ overflow: "clip" }}
+            sx={{
+              overflow: "clip",
+              borderBottomLeftRadius: "md",
+              borderBottomRightRadius: "md",
+            }}
           >
             <AccordionSummary>
               <Avatar color="neutral" variant="solid">

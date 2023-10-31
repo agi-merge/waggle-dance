@@ -276,15 +276,16 @@ const WaggleDance = ({}: Props) => {
             sticky="top"
             variant="outlined"
             sx={(theme) => ({
+              boxShadow: "md",
               borderRadius: "0",
               flexWrap: "nowrap",
-              top: "calc(-1 * (var(--main-paddingTop, 0px) - var(--Header-height, 0px)))",
+              top: "calc(-0.95 * (var(--main-paddingTop, 0px) - var(--Header-height, 0px)))",
               width: "100%",
               backgroundColor: theme.palette.background.backdrop, // semi-transparent background
               backdropFilter: "blur(10px)",
               "@supports not ((-webkit-backdrop-filter: blur) or (backdrop-filter: blur))":
                 {
-                  backgroundColor: theme.palette.background.surface, // Add opacity to the background color
+                  backgroundColor: theme.palette.background.backdrop, // Add opacity to the background color
                 },
               zIndex: 5,
             })}

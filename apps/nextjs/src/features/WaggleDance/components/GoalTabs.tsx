@@ -180,6 +180,7 @@ const GoalTabs: React.FC<GoalTabsProps> = ({ children }) => {
         overflow: "clip",
         marginX: -2.1,
         marginTop: -2.1,
+        boxShadow: "lg",
       }}
     >
       <Tooltip
