@@ -20,25 +20,16 @@ import { api } from "~/utils/api";
 import routes from "~/utils/routes";
 import useIsAppleDevice from "~/hooks/useIsAppleDevice";
 import useApp from "~/stores/appStore";
-import { draftGoalPrefix, type GoalStore } from "~/stores/goalStore";
+import useGoalStore, { draftGoalPrefix } from "~/stores/goalStore";
 import useWaggleDanceMachineStore from "~/stores/waggleDanceStore";
 
 interface GoalTabProps extends BoxProps {
   tab: GoalPlusExe;
   index: number;
   goalList: GoalPlusExe[];
-  isRunning: boolean;
-  isAppleDevice: boolean;
-  setIsPageLoading: (loading: boolean) => void;
-  setIsRunning: (running: boolean) => void;
-  deleteGoalId: (id: string) => void;
-  selectedGoal: GoalPlusExe | undefined;
-  getGoalInputValue: () => string;
-  del: ReturnType<typeof api.goal.delete.useMutation>;
 }
 
 interface GoalTabsProps {
-  goalStore: GoalStore;
   children: React.ReactNode;
 }
 
@@ -47,16 +38,19 @@ const GoalTab: React.FC<GoalTabProps> = ({
   tab,
   index,
   goalList,
-  isRunning,
-  isAppleDevice,
-  setIsPageLoading,
-  setIsRunning,
-  deleteGoalId,
-  selectedGoal,
-  getGoalInputValue,
-  del,
   ...props
 }) => {
+  const { setIsPageLoading } = useApp();
+  const { isRunning, setIsRunning } = useWaggleDanceMachineStore();
+  const {
+    getGoalInputValue,
+    deleteGoalId: deleteGoal,
+    selectedGoal,
+  } = useGoalStore();
+  const del = api.goal.delete.useMutation();
+
+  const isAppleDevice = useIsAppleDevice();
+
   // Function to handle closing a tab
   const closeHandler = useCallback(
     async (tab: Goal) => {
@@ -70,9 +64,9 @@ const GoalTab: React.FC<GoalTabProps> = ({
           // an ignorable data corruption
         }
       }
-      deleteGoalId(tab.id);
+      deleteGoal(tab.id);
     },
-    [del, deleteGoalId, setIsPageLoading, setIsRunning],
+    [del, deleteGoal, setIsPageLoading, setIsRunning],
   );
 
   const CloseButton = (
@@ -157,14 +151,14 @@ const GoalTab: React.FC<GoalTabProps> = ({
 };
 
 // The main goal tabber component
-const GoalTabs: React.FC<GoalTabsProps> = ({ goalStore, children }) => {
+const GoalTabs: React.FC<GoalTabsProps> = ({ children }) => {
   const router = useRouter();
-  const { goalMap, newDraftGoalId: newDraftGoal, selectedGoal } = goalStore;
-  const { isRunning, setIsRunning } = useWaggleDanceMachineStore();
-  const { setIsPageLoading } = useApp();
-  const { getGoalInputValue, deleteGoalId } = goalStore;
-  const del = api.goal.delete.useMutation();
-  const isAppleDevice = useIsAppleDevice();
+  const {
+    goalMap,
+    newDraftGoalId: newDraftGoal,
+    selectedGoal,
+  } = useGoalStore();
+  const { isRunning } = useWaggleDanceMachineStore();
 
   const goalList = useMemo(() => {
     return goalMap ? Object.values(goalMap) : [];
@@ -219,20 +213,7 @@ const GoalTabs: React.FC<GoalTabsProps> = ({ goalStore, children }) => {
           })}
         >
           {goalList.map((tab, index) => (
-            <GoalTab
-              key={tab.id}
-              tab={tab}
-              index={index}
-              goalList={goalList}
-              isRunning={isRunning}
-              isAppleDevice={isAppleDevice}
-              setIsPageLoading={setIsPageLoading}
-              setIsRunning={setIsRunning}
-              deleteGoalId={deleteGoalId}
-              selectedGoal={selectedGoal}
-              getGoalInputValue={getGoalInputValue}
-              del={del}
-            />
+            <GoalTab key={tab.id} tab={tab} index={index} goalList={goalList} />
           ))}
           <IconButton
             className="flex-end float-start min-w-fit"

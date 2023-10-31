@@ -10,12 +10,10 @@ import Card from "@mui/joy/Card";
 import GlobalStyles from "@mui/joy/GlobalStyles";
 import LinearProgress from "@mui/joy/LinearProgress";
 import { useColorScheme } from "@mui/joy/styles";
-import { useDebounce } from "use-debounce";
 
 import { app } from "~/constants";
 import { type getStaticProps } from "~/pages/goal/[[...goal]]";
 import useApp from "~/stores/appStore";
-import useGoalStore from "~/stores/goalStore";
 
 const Alerts = lazy(() => import("../Alerts/Alerts"));
 const ErrorSnackbar = lazy(() => import("../Alerts/ErrorSnackbar"));
@@ -32,9 +30,6 @@ const MainLayout = ({ children, alertConfigs }: Props) => {
   const { isPageLoading } = useApp();
   const router = useRouter();
   const [mounted, setMounted] = useState(false);
-
-  const goalStore = useGoalStore();
-  const [debouncedGoalStore] = useDebounce(goalStore, 50);
 
   // necessary for server-side renderingπ
   // because mode is undefined on the server
@@ -187,7 +182,7 @@ const MainLayout = ({ children, alertConfigs }: Props) => {
               }
             >
               {" "}
-              <GoalTabs goalStore={debouncedGoalStore}>
+              <GoalTabs>
                 <LinearProgress
                   thickness={3}
                   sx={{ visibility: isPageLoading ? "visible" : "hidden" }}
