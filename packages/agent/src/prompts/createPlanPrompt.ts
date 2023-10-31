@@ -52,6 +52,8 @@ const highQualityExamples = [
         "The tasks are broken down into manageable pieces, each with a clear objective.",
       "# Task Ordering":
         "The tasks are ordered logically, with each task depending on the completion of the tasks in the previous level.",
+      "# Non-obvious Dependencies":
+        "The conclusion was cleverly moved from level 2 to level 3, since things like conclusions are dependent/distilled from the rest of the document.",
       "# Goal Delivery":
         "The final task is 'Goal Delivery', indicating that the goal has been satisfactorily completed.",
     },
@@ -106,10 +108,6 @@ const highQualityExamples = [
           name: "Compare and contrast projects",
         },
         {
-          id: "4",
-          name: "Write conclusion",
-        },
-        {
           id: "c",
           name: "Review the sections",
         },
@@ -120,7 +118,7 @@ const highQualityExamples = [
         },
         {
           id: "0",
-          name: "Merge documents",
+          name: "Merge documents and write conclusion",
         },
         {
           id: "c",
