@@ -17,8 +17,7 @@ import { RecursiveCharacterTextSplitter } from "langchain/text_splitter";
 import { createUserNamespace } from "@acme/agent";
 import { insertDocuments } from "@acme/agent/src/utils/vectorStore";
 import { getServerSession } from "@acme/auth";
-
-import { env } from "~/env.mjs";
+import { env } from "@acme/env-config";
 
 export const config = {
   api: {

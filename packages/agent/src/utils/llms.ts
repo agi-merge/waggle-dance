@@ -1,4 +1,5 @@
 // utils/llms.ts
+import { LLMAliasKeys } from "@acme/env-config";
 
 // TODO: use APIs to list eligible models
 
@@ -14,14 +15,6 @@ export enum LLM {
   "gpt-3.5-turbo-0613" = "gpt-3.5-turbo-0613",
   "gpt-3.5-turbo-0301" = "gpt-3.5-turbo-0301",
   "gpt-3.5-turbo-16k-0613" = "gpt-3.5-turbo-16k-0613",
-}
-
-export enum LLMAliasKeys {
-  Fast = "fast",
-  FastLarge = "fast-large",
-  Smart = "smart",
-  SmartLarge = "smart-large",
-  Embeddings = "embeddings",
 }
 
 export type LLMAliasKey =

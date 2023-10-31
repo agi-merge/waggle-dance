@@ -11,8 +11,7 @@ import {
   type AgentPromptingMethod,
 } from "@acme/agent/src/utils/llms";
 import { type DraftExecutionGraph, type DraftExecutionNode } from "@acme/db";
-
-import { env } from "~/env.mjs";
+import { env } from "@acme/env-config";
 
 export type PlanResult = DraftExecutionGraph;
 

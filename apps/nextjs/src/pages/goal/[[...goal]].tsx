@@ -12,10 +12,10 @@ import { type OverridableStringUnion } from "@mui/types";
 import { get, type EdgeConfigValue } from "@vercel/edge-config";
 
 import { type ExecutionPlusGraph, type GoalPlusExe } from "@acme/db";
+import { env } from "@acme/env-config";
 
 import { api } from "~/utils/api";
 import routes from "~/utils/routes";
-import { env } from "~/env.mjs";
 import ErrorBoundary from "~/features/error/ErrorBoundary";
 import MainLayout from "~/features/MainLayout";
 import WaggleDance from "~/features/WaggleDance/WaggleDance";

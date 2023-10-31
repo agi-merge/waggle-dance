@@ -1,0 +1,17 @@
+{
+  "name": "@acme/env-config",
+  "version": "0.1.0",
+  "main": "index.js",
+  "license": "MIT",
+  "files": [
+    "env.mjs",
+    "index.ts"
+  ],
+  "dependencies": {
+    "zod": "^3.22.4",
+    "@t3-oss/env-core": "^0.7.1"
+  },
+  "devDependencies": {
+    "dotenv-cli": "^7.3.0"
+  }
+}

@@ -1,7 +1,7 @@
-import { createEnv } from "@t3-oss/env-nextjs";
+import { createEnv } from "@t3-oss/env-core";
 import { z } from "zod";
 
-import { LLMAliasKeys } from "@acme/agent/src/utils/llms";
+import { LLMAliasKeys } from "./types";
 
 const StartsWithCapital = z.string().refine((value) => /^[A-Z]/.test(value), {
   message: "Must start with a capital letter",
@@ -9,6 +9,7 @@ const StartsWithCapital = z.string().refine((value) => /^[A-Z]/.test(value), {
 
 export const env = createEnv({
   skipValidation: !!process.env.SKIP_ENV_VALIDATION,
+  clientPrefix: "NEXT_PUBLIC_",
   /**
    * Specify your server-side environment variables schema here. This way you can ensure the app isn't
    * built with invalid env vars.
@@ -170,3 +171,5 @@ export const env = createEnv({
     NEXT_PUBLIC_HIDE_LLM: process.env.NEXT_PUBLIC_HIDE_LLM,
   },
 });
+
+export default env;

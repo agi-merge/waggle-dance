@@ -18,7 +18,8 @@ import * as Toast from "@radix-ui/react-toast";
 import Markdown from "react-markdown";
 import remarkGfm from "remark-gfm";
 
-import { env } from "~/env.mjs";
+import { env } from "@acme/env-config";
+
 import useIsAppleDevice from "~/hooks/useIsAppleDevice";
 import useApp from "~/stores/appStore";
 import JoySnackbar from "../HeadlessUI/JoySnackbar";

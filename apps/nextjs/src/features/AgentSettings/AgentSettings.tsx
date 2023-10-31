@@ -19,9 +19,9 @@ import {
   LLM_ALIASES,
   Temperature,
 } from "@acme/agent/src/utils/llms";
+import { env } from "@acme/env-config";
 
 import routes from "~/utils/routes";
-import { env } from "~/env.mjs";
 import useWaggleDanceMachineStore from "~/stores/waggleDanceStore";
 
 export function AgentSettings() {

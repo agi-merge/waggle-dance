@@ -53,6 +53,9 @@ importers:
       '@acme/db':
         specifier: ^0.1.0
         version: link:../../packages/db
+      '@acme/env-config':
+        specifier: ^0.1.0
+        version: link:../../packages/config/env
       '@acme/tailwind-config':
         specifier: ^0.1.0
         version: link:../../packages/config/tailwind
@@ -83,9 +86,6 @@ importers:
       '@react-hook/resize-observer':
         specifier: ^1.2.6
         version: 1.2.6(react@18.2.0)
-      '@t3-oss/env-nextjs':
-        specifier: ^0.7.1
-        version: 0.7.1(typescript@5.2.2)(zod@3.22.4)
       '@tanstack/react-query':
         specifier: ^4.36.1
         version: 4.36.1(react-dom@18.2.0)(react@18.2.0)
@@ -204,9 +204,6 @@ importers:
       autoprefixer:
         specifier: ^10.4.16
         version: 10.4.16(postcss@8.4.31)
-      dotenv-cli:
-        specifier: ^7.3.0
-        version: 7.3.0
       eslint:
         specifier: ^8.52.0
         version: 8.52.0
@@ -225,9 +222,12 @@ importers:
       '@acme/db':
         specifier: ^0.1.0
         version: link:../db
+      '@acme/env-config':
+        specifier: ^0.1.0
+        version: link:../config/env
       axios:
-        specifier: ^1.5.1
-        version: 1.5.1
+        specifier: ^1.6.0
+        version: 1.6.0
       cheerio:
         specifier: 1.0.0-rc.12
         version: 1.0.0-rc.12
@@ -342,6 +342,19 @@ importers:
       typescript:
         specifier: ^5.2.2
         version: 5.2.2
+
+  packages/config/env:
+    dependencies:
+      '@t3-oss/env-core':
+        specifier: ^0.7.1
+        version: 0.7.1(typescript@5.2.2)(zod@3.22.4)
+      zod:
+        specifier: ^3.22.4
+        version: 3.22.4
+    devDependencies:
+      dotenv-cli:
+        specifier: ^7.3.0
+        version: 7.3.0
 
   packages/config/eslint:
     dependencies:
@@ -2698,20 +2711,6 @@ packages:
       zod: 3.22.4
     dev: false
 
-  /@t3-oss/env-nextjs@0.7.1(typescript@5.2.2)(zod@3.22.4):
-    resolution: {integrity: sha512-tQDbNLGCOvKGi+JoGuJ/CJInJI7/kLWJqtgGppAKS7ZFLdVOqZYR/uRjxlXOWPnxmUKF8VswOAsq7fXUpNZDhA==}
-    peerDependencies:
-      typescript: '>=4.7.2'
-      zod: ^3.0.0
-    peerDependenciesMeta:
-      typescript:
-        optional: true
-    dependencies:
-      '@t3-oss/env-core': 0.7.1(typescript@5.2.2)(zod@3.22.4)
-      typescript: 5.2.2
-      zod: 3.22.4
-    dev: false
-
   /@tanstack/query-core@4.36.1:
     resolution: {integrity: sha512-DJSilV5+ytBP1FbFcEJovv4rnnm/CokuVvrBEtW/Va9DvuJ3HksbXUJEpI0aV1KtuL4ZoO9AVE6PyNLzF7tLeA==}
     dev: false
@@ -3512,8 +3511,8 @@ packages:
     engines: {node: '>=4'}
     dev: false
 
-  /axios@1.5.1:
-    resolution: {integrity: sha512-Q28iYCWzNHjAm+yEAot5QaAMxhMghWLFVf7rRdwhUI+c2jix2DUXjAHXVi+s1ibs3mjPO/cCgbA++3BjD0vP/A==}
+  /axios@1.6.0:
+    resolution: {integrity: sha512-EZ1DYihju9pwVB+jg67ogm+Tmqc6JmhamRN6I4Zt8DfZu5lbcQGw3ozH9lFejSJgs/ibaef3A9PMXPLeefFGJg==}
     dependencies:
       follow-redirects: 1.15.3
       form-data: 4.0.0

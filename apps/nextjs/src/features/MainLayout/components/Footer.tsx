@@ -8,7 +8,7 @@ import Stack from "@mui/joy/Stack";
 import SvgIcon from "@mui/joy/SvgIcon";
 import Typography from "@mui/joy/Typography";
 
-import { env } from "~/env.mjs";
+import { env } from "@acme/env-config";
 
 const Footer = (
   props: React.DetailedHTMLProps<
