@@ -153,7 +153,7 @@ export default async function ExecuteStream(req: NextRequest) {
   let repetitionCheckPacketBuffer: AgentPacket[] = [];
   const recentPacketsBuffer: AgentPacket[] = [];
   let allSentPackets: AgentPacket[] = [];
-
+  let repetitionErrorThrown = false;
   // Initialize a counter for packets and a timestamp for time checks
   let packetCounter = 0;
   const handlePacket = async (
@@ -211,6 +211,11 @@ export default async function ExecuteStream(req: NextRequest) {
         recentPacketsBuffer.push(...repetitionCheckPacketBuffer);
         repetitionCheckPacketBuffer = [];
         if (!!repetitionCheckResult) {
+          if (repetitionErrorThrown) {
+            throw new Error("Repetition error already thrown");
+          }
+          repetitionErrorThrown = true;
+
           const repetitionError: AgentPacket = {
             type: "error",
             severity: "warn",
@@ -261,6 +266,9 @@ export default async function ExecuteStream(req: NextRequest) {
         }
       } catch (e) {
         console.error(String(e).slice(0, maxLogSize));
+        if (!abortController.signal.aborted) {
+          abortController.abort();
+        }
         throw e;
       }
     }
