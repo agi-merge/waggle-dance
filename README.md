@@ -1,4 +1,4 @@
-<h1 align="center">Waggle🐝💃Dance</h1>
+<h1 align="center">🐝💃 waggledance.ai</h1>
 
 <div align="center">
 
@@ -28,9 +28,9 @@
   -OR- [run it from source](#-running-locally-and-development)
 - Like and subscribe: [Join the Discord](https://discord.gg/ttt9YmhQU6) and ⭐️ Star this repo
 
-**Waggle Dance** is an experimental application focused on achieving user-specified goals. It provides a friendly but opinionated user interface for building agent-based systems. The project focuses on explainability, observability, concurrent generation, and exploration. Currently in pre-alpha, the development philosophy prefers experimentation over stability as goal-solving and Agent systems are rapidly evolving.
+**waggledance.ai** is an experimental application focused on achieving user-specified goals. It provides a friendly but opinionated user interface for building agent-based systems. The project focuses on explainability, observability, concurrent generation, and exploration. Currently in pre-alpha, the development philosophy prefers experimentation over stability as goal-solving and Agent systems are rapidly evolving.
 
-Waggle Dance takes a goal and passes it to a **Planner Agent** which streams an execution graph for sub-tasks. Each sub-task is executed as concurrently as possible by **Execution Agents**. To reduce poor results and hallucinations, sub-results are reviewed by **Criticism Agents**. Eventually, the **Human in the loop (you!)** will be able to chat with individual Agents and provide course-corrections if needed.
+waggledance.ai takes a goal and passes it to a **Planner Agent** which streams an execution graph for sub-tasks. Each sub-task is executed as concurrently as possible by **Execution Agents**. To reduce poor results and hallucinations, sub-results are reviewed by **Criticism Agents**. Eventually, the **Human in the loop (you!)** will be able to chat with individual Agents and provide course-corrections if needed.
 
 It was originally inspired by [Auto-GPT](https://github.com/Significant-Gravitas/Auto-GPT), and has concurrency features similar to those found in [gpt-researcher](https://github.com/assafelovic/gpt-researcher). Therefore, core tenets of the project include _speed_, _accuracy_, _observability_, and _simplicity_. Additionally, many other agentic systems are written in Python, so this project acts as a small counter-balance, and is accessible to the large number of Javascript developers.
 
@@ -62,7 +62,7 @@ Basically, anything and everything goes! Though [multi-agent systems have a long
 
 ## 🏃 Running Locally and Development
 
-~~Waggle Dance can be deployed using Docker or manually using Node.js. Configuration of `.env` vars is required.~~
+~~waggledance.ai can be deployed using Docker or manually using Node.js. Configuration of `.env` vars is required.~~
 Docker support is coming soon.
 
 ### Docker (coming soon)

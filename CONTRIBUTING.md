@@ -1,12 +1,12 @@
-# Contributing to Waggle🐝💃Dance
+# Contributing to 🐝💃waggledance.ai
 
 ## ⚠️ Under Construction ⚠️
 
-Thank you for your interest in contributing to Waggle🐝💃Dance! We welcome contributions from the community to help make this project even better. This document outlines the contribution pattern we follow. Please take a moment to review this information before making your contribution.
+Thank you for your interest in contributing to waggledance.ai! We welcome contributions from the community to help make this project even better. This document outlines the contribution pattern we follow. Please take a moment to review this information before making your contribution.
 
 ## ✅ Getting Started
 
-1. Fork the Waggle🐝💃Dance repository.
+1. Fork the waggledance.ai repository.
 
 2. Clone your forked repository to your local machine:
 
@@ -71,6 +71,6 @@ CI will run this command on your PR, so it's best to run it locally before submi
 
 ## 📃 License
 
-By contributing to Waggle🐝💃Dance, you agree that your contributions will be licensed under the MIT license.
+By contributing to waggledance.ai, you agree that your contributions will be licensed under the MIT license.
 
-We appreciate your contributions and support in making Waggle🐝💃Dance better! Together, let's build an amazing open-source community.
+We appreciate your contributions and support in making waggledance.ai better! Together, let's build an amazing open-source community.
