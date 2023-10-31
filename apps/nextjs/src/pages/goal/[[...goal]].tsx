@@ -19,7 +19,6 @@ import routes from "~/utils/routes";
 import { env } from "~/env.mjs";
 import ErrorBoundary from "~/features/error/ErrorBoundary";
 import MainLayout from "~/features/MainLayout";
-import WaggleDance from "~/features/WaggleDance/WaggleDance";
 import useSkillStore from "~/stores/skillStore";
 import useWaggleDanceMachineStore from "~/stores/waggleDanceStore";
 import useGoalStore from "../../stores/goalStore";
@@ -27,12 +26,11 @@ import useGoalStore from "../../stores/goalStore";
 const PageTitle = lazy(
   () => import("~/features/MainLayout/components/PageTitle"),
 );
-
 const GoalPrompt = lazy(() => import("~/features/GoalPrompt/GoalPrompt"));
 const WaggleDanceSettingsAccordion = lazy(
   () => import("~/features/WaggleDance/components/WaggleDanceDashboard"),
 );
-// const MainLayout = lazy(() => import("~/features/MainLayout"));
+const WaggleDance = lazy(() => import("~/features/WaggleDance/WaggleDance"));
 
 type AlertConfig = {
   id: string;
