@@ -780,6 +780,7 @@ const TaskListItem = ({
             sx={{ overflow: "clip", cursor: "auto" }}
           >
             <Accordion
+              sx={{ maxWidth: "100%" }}
               expanded={isResultExpanded}
               onChange={(event, expanded) => {
                 setIsResultExpanded(expanded);
