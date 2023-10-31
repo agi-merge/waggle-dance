@@ -10,6 +10,7 @@ import {
 } from "@mui/joy";
 import { type OverridableStringUnion } from "@mui/types";
 import { get, type EdgeConfigValue } from "@vercel/edge-config";
+import { useDebounce } from "use-debounce";
 
 import { type ExecutionPlusGraph, type GoalPlusExe } from "@acme/db";
 
@@ -91,7 +92,9 @@ export function getStaticPaths() {
 type Props = InferGetStaticPropsType<typeof getStaticProps>;
 const GoalPage = ({ alertConfigs }: Props) => {
   const router = useRouter();
-  const { goalMap, selectedGoal, upsertGoals, selectGoalId } = useGoalStore();
+  const [debouncedGoalStore, _state] = useDebounce(useGoalStore(), 50);
+  const { goalMap, selectedGoal, upsertGoals, selectGoalId } =
+    debouncedGoalStore;
   const { isRunning, setExecution /*, agentSettings*/ } =
     useWaggleDanceMachineStore();
   const { selectedSkills, selectedSkillsLength } = useSkillStore();
