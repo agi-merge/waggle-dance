@@ -4,6 +4,8 @@ import { type AgentTrajectoryEvaluator } from "langchain/dist/evaluation/base";
 import { PromptTemplate } from "langchain/prompts";
 import { type AgentStep } from "langchain/schema";
 
+import { env } from "@acme/env-config";
+
 import { type ChainValues } from "../strategy/AgentPacket";
 import { LLM_ALIASES, ModelStyle } from "../utils/llms";
 import { createModel } from "../utils/model";
@@ -18,15 +20,15 @@ async function checkTrajectory(
   callbacks: Callbacks | undefined,
   evaluators: AgentTrajectoryEvaluator[],
 ): Promise<string | null> {
-  // FIXME: move env.mjs out of the nextjs app and into a package to use it instead
+  // FIXME: now that env.mjs is available to all packages, we can move all of this logic into it
   let minimumScore: number;
-  if (process.env.EXE_TRAJECTORY_EVALUATION === "true") {
+  if (env.EXE_TRAJECTORY_EVALUATION === false) {
     minimumScore = 0.5;
-  } else if (process.env.EXE_TRAJECTORY_EVALUATION === "false") {
+  } else if (env.EXE_TRAJECTORY_EVALUATION === true) {
     console.debug(`Skipping trajectory evaluation`);
     return null;
-  } else if (process.env.EXE_TRAJECTORY_EVALUATION) {
-    minimumScore = parseFloat(process.env.EXE_TRAJECTORY_EVALUATION);
+  } else if (env.EXE_TRAJECTORY_EVALUATION) {
+    minimumScore = env.EXE_TRAJECTORY_EVALUATION;
   } else {
     console.debug(`Skipping trajectory evaluation`);
     return null;

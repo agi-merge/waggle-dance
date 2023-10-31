@@ -8,6 +8,8 @@ import {
   type Result,
 } from "@prisma/client";
 
+import { env } from "@acme/env-config";
+
 export * from "@prisma/client";
 export * from "./skills";
 
@@ -20,12 +22,10 @@ export const prisma =
   globalForPrisma.prisma ||
   new PrismaClient({
     log:
-      process.env.NODE_ENV === "development"
-        ? ["query", "error", "warn"]
-        : ["error"],
+      env.NODE_ENV === "development" ? ["query", "error", "warn"] : ["error"],
   });
 
-if (process.env.NODE_ENV !== "production") globalForPrisma.prisma = prisma;
+if (env.NODE_ENV !== "production") globalForPrisma.prisma = prisma;
 
 export type GoalPlusExe = Goal & {
   executions: ExecutionPlusGraph[];

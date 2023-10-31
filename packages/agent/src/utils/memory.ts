@@ -9,6 +9,8 @@ import {
 } from "langchain/memory";
 import { MemoryVectorStore } from "langchain/vectorstores/memory";
 
+import { env } from "@acme/env-config";
+
 import { createChatNamespace } from "../memory/namespace";
 import { LLM, LLM_ALIASES } from "./llms";
 import { createEmbeddings } from "./model";
@@ -38,7 +40,7 @@ export async function createMemory({
   if (returnUnderlying === undefined) {
     returnUnderlying = true;
   }
-  switch (process.env.MEMORY_TYPE) {
+  switch (env.MEMORY_TYPE) {
     case "buffer":
       return new BufferMemory({
         inputKey,
@@ -99,13 +101,13 @@ export async function createMemory({
     //       sessionId: new Date().toISOString(), // FIXME: Or some other unique identifier for the conversation
     //       sessionTTL: 3600, // 1 hour, omit this parameter to make sessions never expire
     //       config: {
-    //         url: process.env.MEMORY_URL, // Default value, override with your own instance's URL
+    //         url: env.MEMORY_URL, // Default value, override with your own instance's URL
     //       },
     //     }),
     //   });
     // case "upstash-redis":
-    //   const url = process.env.MEMORY_REST_API_URL ?? "";
-    //   const token = process.env.MEMORY_REST_API_TOKEN ?? "";
+    //   const url = env.MEMORY_REST_API_URL ?? "";
+    //   const token = env.MEMORY_REST_API_TOKEN ?? "";
     //   if (url?.length === 0 ?? false) {
     //     throw new Error("No memory rest api url found");
     //   }

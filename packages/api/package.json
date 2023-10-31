@@ -14,6 +14,7 @@
     "@acme/agent": "^0.1.0",
     "@acme/auth": "^0.1.0",
     "@acme/db": "^0.1.0",
+    "@acme/env-config": "^0.1.0",
     "@trpc/client": "^10.42.0",
     "@trpc/server": "^10.42.0",
     "@vercel/kv": "^0.2.3",

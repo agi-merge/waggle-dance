@@ -10,6 +10,8 @@ import {
 } from "langchain/tools";
 import { WebBrowser } from "langchain/tools/webbrowser";
 
+import { env } from "@acme/env-config";
+
 import cca2Map from "../lib/cca2Map.json";
 import requestUserHelpSkill from "../skills/requestUserHelpSkill";
 import type Geo from "./Geo";
@@ -224,7 +226,7 @@ function createSkills(
     new WebBrowser({ model: llm, embeddings }),
   ];
 
-  if (process.env.SEARCHAPI_API_KEY?.length) {
+  if (env.SEARCHAPI_API_KEY?.length) {
     const { location, gl } = getSearchLocation("SearchApi", geo);
     const params: SearchApiParameters = {
       location,
@@ -233,21 +235,21 @@ function createSkills(
     };
 
     const searchTools = [
-      new GoogleSearch(process.env.SEARCHAPI_API_KEY, params),
-      new GoogleNews(process.env.SEARCHAPI_API_KEY, params),
-      new YouTube(process.env.SEARCHAPI_API_KEY, params),
-      // new YouTubeTranscripts(process.env.SEARCHAPI_API_KEY, params),
-      new GoogleScholar(process.env.SEARCHAPI_API_KEY, params),
-      new GoogleTrends(process.env.SEARCHAPI_API_KEY, params),
-      new GoogleShopping(process.env.SEARCHAPI_API_KEY, params),
-      new AmazonSearch(process.env.SEARCHAPI_API_KEY, params),
+      new GoogleSearch(env.SEARCHAPI_API_KEY, params),
+      new GoogleNews(env.SEARCHAPI_API_KEY, params),
+      new YouTube(env.SEARCHAPI_API_KEY, params),
+      // new YouTubeTranscripts(env.SEARCHAPI_API_KEY, params),
+      new GoogleScholar(env.SEARCHAPI_API_KEY, params),
+      new GoogleTrends(env.SEARCHAPI_API_KEY, params),
+      new GoogleShopping(env.SEARCHAPI_API_KEY, params),
+      new AmazonSearch(env.SEARCHAPI_API_KEY, params),
     ];
 
     tools.push(...searchTools);
-  } else if (process.env.SERPAPI_API_KEY?.length) {
+  } else if (env.SERPAPI_API_KEY?.length) {
     const { location, gl } = getSearchLocation("SerpAPI", geo);
     tools.push(
-      new SerpAPI(process.env.SERPAPI_API_KEY, {
+      new SerpAPI(env.SERPAPI_API_KEY, {
         location,
         // hl, // host language
         gl, // geographic location
@@ -255,10 +257,10 @@ function createSkills(
     );
   }
 
-  if (process.env.WOLFRAM_APP_ID?.length) {
+  if (env.WOLFRAM_APP_ID?.length) {
     tools.push(
       new WolframAlphaTool({
-        appid: process.env.WOLFRAM_APP_ID,
+        appid: env.WOLFRAM_APP_ID,
       }),
     );
   }

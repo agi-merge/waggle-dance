@@ -3,6 +3,8 @@ import { type Embeddings } from "langchain/embeddings/base";
 import { OpenAIEmbeddings } from "langchain/embeddings/openai";
 import { OpenAI } from "langchain/llms/openai";
 
+import { env } from "@acme/env-config";
+
 import {
   AgentPromptingMethod,
   LLM_ALIASES,
@@ -28,15 +30,15 @@ function getAzureDeploymentName(
 
   switch (llmAliasKey as LLMAliasKey) {
     case "fast":
-      return process.env.AZURE_OPENAI_API_FAST_DEPLOYMENT_NAME;
+      return env.AZURE_OPENAI_API_FAST_DEPLOYMENT_NAME;
     case "fast-large":
-      return process.env.AZURE_OPENAI_API_FAST_LARGE_DEPLOYMENT_NAME;
+      return env.AZURE_OPENAI_API_FAST_LARGE_DEPLOYMENT_NAME;
     case "smart":
-      return process.env.AZURE_OPENAI_API_SMART_DEPLOYMENT_NAME;
+      return env.AZURE_OPENAI_API_SMART_DEPLOYMENT_NAME;
     case "smart-large":
-      return process.env.AZURE_OPENAI_API_SMART_LARGE_DEPLOYMENT_NAME;
+      return env.AZURE_OPENAI_API_SMART_LARGE_DEPLOYMENT_NAME;
     default:
-      return process.env.AZURE_OPENAI_API_DEPLOYMENT_NAME;
+      return env.AZURE_OPENAI_API_DEPLOYMENT_NAME;
   }
 }
 

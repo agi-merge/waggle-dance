@@ -2,6 +2,8 @@ import { Document } from "langchain/document";
 import { WeaviateStore } from "langchain/vectorstores/weaviate";
 import weaviate from "weaviate-ts-client";
 
+import { env } from "@acme/env-config";
+
 import { LLM } from "./llms";
 import { createEmbeddings } from "./model";
 
@@ -12,7 +14,7 @@ export async function vectorStoreFromIndex(
   indexName?: string | undefined,
 ) {
   if (!indexName) {
-    indexName = process.env.LONG_TERM_MEMORY_INDEX_NAME;
+    indexName = env.LONG_TERM_MEMORY_INDEX_NAME;
   }
   if (!indexName) {
     throw new Error("No index name found");
@@ -29,22 +31,22 @@ export async function vectorStoreFromIndex(
 }
 
 export function createVectorClient() {
-  if (!process.env.WEAVIATE_API_KEY) {
+  if (!env.WEAVIATE_API_KEY) {
     throw new Error("No weaviate api key found");
-  } else if (!process.env.WEAVIATE_SCHEME) {
+  } else if (!env.WEAVIATE_SCHEME) {
     throw new Error("No weaviate scheme found");
-  } else if (!process.env.WEAVIATE_HOST) {
+  } else if (!env.WEAVIATE_HOST) {
     throw new Error("No weaviate host found");
-  } else if (!process.env.OPENAI_API_KEY) {
+  } else if (!env.OPENAI_API_KEY) {
     throw new Error("No openai api key found");
   }
 
   const client = weaviate.client({
-    scheme: process.env.WEAVIATE_SCHEME,
-    host: process.env.WEAVIATE_HOST,
-    apiKey: new weaviate.ApiKey(process.env.WEAVIATE_API_KEY),
+    scheme: env.WEAVIATE_SCHEME,
+    host: env.WEAVIATE_HOST,
+    apiKey: new weaviate.ApiKey(env.WEAVIATE_API_KEY),
     // Only needed if using an inference service (e.g. `nearText`, `hybrid` or `generative` queries)
-    headers: { "X-OpenAI-ApiKey": process.env.OPENAI_API_KEY },
+    headers: { "X-OpenAI-ApiKey": env.OPENAI_API_KEY },
   });
 
   return client;
@@ -56,7 +58,7 @@ export async function insertDocuments(
   indexName?: string | undefined,
 ) {
   if (!indexName) {
-    indexName = process.env.LONG_TERM_MEMORY_INDEX_NAME;
+    indexName = env.LONG_TERM_MEMORY_INDEX_NAME;
   }
   if (!indexName) {
     throw new Error("No index name found");

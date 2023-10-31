@@ -86,6 +86,7 @@ export const env = createEnv({
       .optional(),
     POSTGRES_PRISMA_URL: z.string().url(),
     POSTGRES_URL_NON_POOLING: z.string().url(),
+    VERCEL_URL: z.string().url().optional(),
   },
   /**
    * Specify your client-side environment variables schema here.

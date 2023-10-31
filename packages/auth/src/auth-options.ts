@@ -10,6 +10,7 @@ import {
 import GithubProvider from "next-auth/providers/github";
 
 import { prisma } from "@acme/db";
+import { env } from "@acme/env-config";
 
 /**
  * Module augmentation for `next-auth` types
@@ -33,15 +34,16 @@ declare module "next-auth" {
 }
 
 function PostmarkEmailProvider(options: EmailUserConfig): EmailConfig {
-  const from = process.env.EMAIL_FROM || "waggledance <noreply@waggledance.ai>";
+  const envFrom = env.EMAIL_FROM;
+  const from = envFrom ? envFrom : "waggledance <noreply@waggledance.ai>";
   const server = "https://api.postmarkapp.com/email";
-  const token = process.env.POSTMARK_TOKEN;
+  const token = env.POSTMARK_TOKEN;
   assert(token);
   return {
     id: "email",
     type: "email",
     name: "Email",
-    // Server can be an SMTP connection string or a nodemailer config object
+    // Server can be an SMTP connectiwon string or a nodemailer config object
     server,
     from,
     maxAge: 24 * 60 * 60,
@@ -78,23 +80,23 @@ function PostmarkEmailProvider(options: EmailUserConfig): EmailConfig {
 
 const providers = (): Provider[] => {
   const providers: Provider[] = [];
-  if (process.env.DISCORD_ID && process.env.DISCORD_SECRET) {
+  if (env.DISCORD_ID && env.DISCORD_SECRET) {
     providers.push(
       DiscordProvider({
-        clientId: process.env.DISCORD_ID,
-        clientSecret: process.env.DISCORD_SECRET,
+        clientId: env.DISCORD_ID,
+        clientSecret: env.DISCORD_SECRET,
       }),
     );
   }
-  if (process.env.GITHUB_ID && process.env.GITHUB_SECRET) {
+  if (env.GITHUB_ID && env.GITHUB_SECRET) {
     providers.push(
       GithubProvider({
-        clientId: process.env.GITHUB_ID,
-        clientSecret: process.env.GITHUB_SECRET,
+        clientId: env.GITHUB_ID,
+        clientSecret: env.GITHUB_SECRET,
       }),
     );
   }
-  if (process.env.EMAIL_FROM && process.env.POSTMARK_TOKEN) {
+  if (env.EMAIL_FROM && env.POSTMARK_TOKEN) {
     providers.push(PostmarkEmailProvider({}));
   }
   return providers;

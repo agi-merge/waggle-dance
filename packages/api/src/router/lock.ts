@@ -1,5 +1,7 @@
 import { createClient } from "@vercel/kv";
 
+import { env } from "@acme/env-config";
+
 import { sleep } from "../sleep";
 
 type LockFunction<T> = () => Promise<T>;
@@ -10,16 +12,16 @@ async function withLock<T>(
   retries: number = 5,
   delay: number = 500,
 ): Promise<T> {
-  if (!process.env.KV_REST_API_URL) {
+  if (!env.KV_REST_API_URL) {
     throw new Error("Missing KV_REST_API_URL");
   }
-  if (!process.env.KV_REST_API_TOKEN) {
+  if (!env.KV_REST_API_TOKEN) {
     throw new Error("Missing KV_REST_API_TOKEN");
   }
 
   const kv = createClient({
-    url: process.env.KV_REST_API_URL,
-    token: process.env.KV_REST_API_TOKEN,
+    url: env.KV_REST_API_URL,
+    token: env.KV_REST_API_TOKEN,
   });
 
   let attempt = 0;

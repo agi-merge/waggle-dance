@@ -4,6 +4,7 @@ import superjson from "superjson";
 
 import { type AppRouter } from "@acme/api";
 import { getBaseUrl } from "@acme/api/utils";
+import { env } from "@acme/env-config";
 
 export const api = createTRPCNext<AppRouter>({
   config({ ctx }) {
@@ -13,7 +14,7 @@ export const api = createTRPCNext<AppRouter>({
       links: [
         loggerLink({
           enabled: (opts) =>
-            process.env.NODE_ENV === "development" ||
+            env.NODE_ENV === "development" ||
             (opts.direction === "down" && opts.result instanceof Error),
         }),
         httpBatchLink({

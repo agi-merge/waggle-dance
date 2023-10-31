@@ -286,6 +286,9 @@ importers:
       '@acme/db':
         specifier: ^0.1.0
         version: link:../db
+      '@acme/env-config':
+        specifier: ^0.1.0
+        version: link:../config/env
       '@trpc/client':
         specifier: ^10.42.0
         version: 10.42.0(@trpc/server@10.42.0)
@@ -317,6 +320,9 @@ importers:
       '@acme/db':
         specifier: ^0.1.0
         version: link:../db
+      '@acme/env-config':
+        specifier: ^0.1.0
+        version: link:../config/env
       '@next-auth/prisma-adapter':
         specifier: ^1.0.7
         version: 1.0.7(@prisma/client@5.5.2)(next-auth@4.24.3)
@@ -401,6 +407,9 @@ importers:
 
   packages/db:
     dependencies:
+      '@acme/env-config':
+        specifier: ^0.1.0
+        version: link:../config/env
       '@prisma/client':
         specifier: ^5.5.2
         version: 5.5.2(prisma@5.5.2)

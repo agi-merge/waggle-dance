@@ -1,6 +1,6 @@
 import { checkEnv } from "./tools/check-env.mjs";
 
-if (!!process.env.SKIP_ENV_VALIDATION) {
+if (!!env.SKIP_ENV_VALIDATION) {
   console.log(YELLOW + "⚠️ Skipping env validation!" + RESET);
   process.exit(1);
 }

@@ -2,12 +2,10 @@ import Base64 from "crypto-js/enc-base64";
 import sha256 from "crypto-js/sha256";
 
 import { type DraftExecutionNode } from "@acme/db";
+import { env } from "@acme/env-config";
 
 export function saltAndHash(str: string): string {
-  if (!process.env.VECTOR_NAMESPACE_SALT) {
-    throw new Error("VECTOR_NAMESPACE_SALT is required.");
-  }
-  const hash = sha256(str + process.env.VECTOR_NAMESPACE_SALT);
+  const hash = sha256(str + env.VECTOR_NAMESPACE_SALT);
   return hash.toString(Base64);
 }
 
