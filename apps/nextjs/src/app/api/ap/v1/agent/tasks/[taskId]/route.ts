@@ -22,6 +22,7 @@ export async function POST(
   if (!body.input) {
     return NextResponse.json({ message: "Input is required" }, { status: 400 });
   }
+
   const session = (await getServerSession(authOptions)) || null;
 
   const caller = appRouter.createCaller({
@@ -62,13 +63,14 @@ export async function GET(
 
   const exe = await caller.execution.byId({ id: taskId });
 
-  if (!exe) {
+  if (!exe || !exe.goalId) {
     return NextResponse.json(
       { message: "Unable to find entity with the provided id" },
       { status: 404 },
     );
   }
-  const goal = await caller.goal.byId(exe?.goalId);
+
+  const goal = await caller.goal.byId(exe.goalId);
 
   // artifact_id: string;
   // agent_created: boolean;

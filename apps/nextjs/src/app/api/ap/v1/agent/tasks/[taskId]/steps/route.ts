@@ -34,12 +34,14 @@ export async function POST(
   // const goal = await caller.goal.byId(taskId);
   // const exe = await caller.execution.create({ goalId: taskId });
   const exe = await caller.execution.byId({ id: taskId });
-  if (!exe) {
+
+  if (!exe || !exe.goalId) {
     return NextResponse.json(
       { message: "Unable to find entity with the provided id" },
       { status: 404 },
     );
   }
+
   return caller.execution.createPlan({
     executionId: exe.id,
     goalId: taskId,

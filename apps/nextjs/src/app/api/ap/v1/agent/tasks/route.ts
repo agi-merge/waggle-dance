@@ -9,6 +9,11 @@ import { prisma, type DraftExecutionNode } from "@acme/db";
 // POST /ap/v1/agent/tasks
 export async function POST(request: NextRequest) {
   const body = (await request.json()) as TaskRequestBody;
+
+  if (!body.input) {
+    return Response.json({ message: "Input is required" }, { status: 400 });
+  }
+
   // create a goal and exe
   const session = (await getServerSession(authOptions)) || null;
   const caller = appRouter.createCaller({
@@ -65,7 +70,7 @@ export async function GET(request: NextRequest) {
 
   const tasks: Task[] = paginatedTasks.map((exe) => ({
     task_id: exe.id,
-    input: exe.context,
+    input: exe.context || undefined,
     artifacts: [],
   }));
 

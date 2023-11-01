@@ -27,7 +27,7 @@ export async function GET(
     origin: req.nextUrl.origin,
   });
   const goal = await caller.goal.byId(taskId);
-  if (!goal?.executions[0]?.id) {
+  if (!goal || !goal?.executions[0]?.id) {
     return NextResponse.json(
       { message: "Unable to find entity with the provided id" },
       { status: 404 },
