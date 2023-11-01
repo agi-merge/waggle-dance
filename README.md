@@ -56,7 +56,7 @@ An (unstable) API is also available via [tRPC](packages/api/src/root.ts) as well
 
 ## 📍 Roadmap
 
-[Live Project Roadmap Board](https://github.com/orgs/agi-merge/projects/1/views/1) ﹒ <a href="#🛠️-contribute-and-help">🛠️Contribute</a>
+[Live Project Roadmap Board](https://github.com/orgs/agi-merge/projects/1/views/1) ﹒ <a href="#%EF%B8%8F-contribute-and-help">🛠️Contribute</a>
 
 Basically, anything and everything goes! Though [multi-agent systems have a long and storied past](https://www.turing.ac.uk/research/interest-groups/multi-agent-systems), this project is all about marrying the past techniques with the latest research.
 
