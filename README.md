@@ -85,7 +85,7 @@ Docker support is coming soon.
 
 ### ⚙️ Configure Your Environment
 
-- Copy `.env.example` to `.env` and configure the environment variables. For help, please [reach out on Discord](https://discord.gg/ttt9YmhQU6). See [env.mjs]() for explicit requirements.
+- Copy `.env.example` to `.env` and configure the environment variables. For help, please [reach out on Discord](https://discord.gg/ttt9YmhQU6). See [env.mjs](https://github.com/agi-merge/waggle-dance/blob/main/apps/nextjs/src/env.mjs) for explicit requirements.
 
 ### 🐘 Setting up Postgres
 
