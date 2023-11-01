@@ -235,7 +235,8 @@ export async function callExecutionAgent(creation: {
       if (error instanceof AbortError) {
         return error;
       }
-      let errorMessageToParse = (error as Error).message || String(error);
+      let errorMessageToParse =
+        ((error as Error) && (error as Error).message) || String(error);
       const baseParser =
         StructuredOutputParser.fromZodSchema(reActOutputSchema);
       errorMessageToParse = errorMessageToParse.replaceAll(

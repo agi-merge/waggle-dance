@@ -41,10 +41,10 @@ const Header = ({}) => {
       >
         <Typography
           className="xs:scale-50 flex-grow"
-          level="title-md"
-          fontSize={{ xs: "1.2rem", sm: "2rem" }}
+          level="h1"
+          fontWeight={400}
         >
-          waggle🐝<Typography>💃dance</Typography>
+          🐝💃 waggledance.ai
           <Typography level="body-xs" className="pl-2">
             {app.version}
           </Typography>
