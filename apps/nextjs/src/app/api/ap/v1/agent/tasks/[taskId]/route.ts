@@ -1,4 +1,4 @@
-import { NextResponse, type NextRequest } from "next/server";
+import { type NextRequest } from "next/server";
 import { type Task, type TaskRequestBody } from "lib/AgentProtocol/types";
 import { getServerSession } from "next-auth";
 
@@ -10,9 +10,9 @@ import { prisma } from "@acme/db";
 export async function POST(
   request: NextRequest,
   { params: { taskId } }: { params: { taskId: string } },
-) {
+): Promise<void | Response> {
   if (!taskId) {
-    return NextResponse.json(
+    return Response.json(
       { message: "Unable to find entity with the provided id" },
       { status: 404 },
     );
@@ -20,7 +20,7 @@ export async function POST(
   const body = (await request.json()) as TaskRequestBody;
 
   if (!body.input) {
-    return NextResponse.json({ message: "Input is required" }, { status: 400 });
+    return Response.json({ message: "Input is required" }, { status: 400 });
   }
 
   const session = (await getServerSession(authOptions)) || null;
@@ -32,14 +32,16 @@ export async function POST(
   });
 
   // const goal = await caller.goal.byId(taskId);
-  const goal = await caller.goal.create({ prompt: body.input });
+  const goal = await caller.goal.create({ prompt: body.input as string });
   const exe = await caller.execution.create({ goalId: goal.id });
-  return caller.execution.createPlan({
+  const plan = await caller.execution.createPlan({
     executionId: exe.id,
     goalId: taskId,
     goalPrompt: goal.prompt,
     creationProps: {},
   });
+
+  return Response.json(plan, { status: 200 });
 }
 
 // GET /ap/v1/agent/tasks/:taskId
@@ -48,7 +50,7 @@ export async function GET(
   { params: { taskId } }: { params: { taskId: string } },
 ) {
   if (!taskId) {
-    return NextResponse.json(
+    return Response.json(
       { message: "Unable to find entity with the provided id" },
       { status: 404 },
     );
@@ -64,7 +66,7 @@ export async function GET(
   const exe = await caller.execution.byId({ id: taskId });
 
   if (!exe || !exe.goalId) {
-    return NextResponse.json(
+    return Response.json(
       { message: "Unable to find entity with the provided id" },
       { status: 404 },
     );

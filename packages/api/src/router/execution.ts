@@ -226,9 +226,9 @@ export const executionRouter = createTRPCRouter({
         creationProps: z.custom<ModelCreationProps>(),
       }),
     )
-    .mutation(({ ctx, input }) => {
-      const { goalPrompt, goalId, executionId, creationProps } = input;
-      const userId = ctx.session?.user.id;
+    .mutation(({ ctx, input: _input }) => {
+      // const { goalPrompt, goalId, executionId, creationProps } = input;
+      // const userId = ctx.session?.user.id;
 
       return getFetch()(`${ctx.origin}/api/agent/plan`, {});
     }),

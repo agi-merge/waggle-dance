@@ -1,4 +1,4 @@
-import { NextResponse, type NextRequest } from "next/server";
+import { type NextRequest } from "next/server";
 import { getServerSession } from "next-auth";
 
 import { appRouter } from "@acme/api";
@@ -13,7 +13,7 @@ export async function GET(
   }: { params: { taskId: string; stepId: string } },
 ) {
   if (!taskId) {
-    return NextResponse.json(
+    return Response.json(
       { message: "Unable to find entity with the provided id" },
       { status: 404 },
     );
@@ -28,7 +28,7 @@ export async function GET(
   });
   const goal = await caller.goal.byId(taskId);
   if (!goal || !goal?.executions[0]?.id) {
-    return NextResponse.json(
+    return Response.json(
       { message: "Unable to find entity with the provided id" },
       { status: 404 },
     );

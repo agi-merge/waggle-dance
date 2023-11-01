@@ -23,7 +23,7 @@ export async function POST(request: NextRequest) {
   });
 
   const execution = await caller.execution.createForAgentProtocol({
-    prompt: body.input,
+    prompt: body.input as string,
   });
 
   const task: Task = {

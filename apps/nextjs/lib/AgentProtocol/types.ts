@@ -1,8 +1,10 @@
 /**
  * Input parameters for the task. Any value is allowed.
  */
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
-export type TaskInput = any;
+
+import { type JsonValue } from "~/features/WaggleDance/types/types";
+
+export type TaskInput = JsonValue;
 /**
  * Artifact that the task has produced. Any value is allowed.
  */
@@ -16,13 +18,13 @@ export type Artifact = {
 /**
  * Input parameters for the task step. Any value is allowed.
  */
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
-export type StepInput = any;
+
+export type StepInput = JsonValue;
 /**
  * Output that the task step has produced. Any value is allowed.
  */
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
-export type StepOutput = any;
+
+export type StepOutput = JsonValue;
 export declare enum StepStatus {
   CREATED = "created",
   RUNNING = "running",
@@ -102,7 +104,7 @@ export interface TaskRequestBody {
  * A function that handles a step in a task.
  * Returns a step result.
  */
-// eslint-disable-next-line @typescript-eslint/no-redundant-type-constituents
+
 export type StepHandler = (input: StepInput | null) => Promise<StepResult>;
 /**
  * A function that handles a task.
@@ -110,7 +112,7 @@ export type StepHandler = (input: StepInput | null) => Promise<StepResult>;
  */
 export type TaskHandler = (
   taskId: string,
-  // eslint-disable-next-line @typescript-eslint/no-redundant-type-constituents
+
   input: TaskInput | null,
 ) => Promise<StepHandler>;
 /**

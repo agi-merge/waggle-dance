@@ -10,9 +10,9 @@ import { prisma } from "@acme/db";
 export async function POST(
   request: NextRequest,
   { params: { taskId } }: { params: { taskId: string } },
-) {
+): Promise<void | Response> {
   if (!taskId) {
-    return NextResponse.json(
+    return Response.json(
       { message: "Unable to find entity with the provided id" },
       { status: 404 },
     );
@@ -20,7 +20,7 @@ export async function POST(
   const body = (await request.json()) as StepRequestBody;
 
   if (!body.input) {
-    return NextResponse.json({ message: "Input is required" }, { status: 400 });
+    return Response.json({ message: "Input is required" }, { status: 400 });
   }
 
   const session = (await getServerSession(authOptions)) || null;
@@ -42,12 +42,14 @@ export async function POST(
     );
   }
 
-  return caller.execution.createPlan({
+  const plan = await caller.execution.createPlan({
     executionId: exe.id,
     goalId: taskId,
-    goalPrompt: body.input,
+    goalPrompt: body.input as string,
     creationProps: {},
   });
+
+  return Response.json(plan, { status: 200 });
 }
 
 // GET /ap/v1/agent/tasks/:taskId/steps
