@@ -1,20 +1,17 @@
-<h1 align="center">🐝💃 waggledance.ai</h1>
+<h1 align="center">🐝💃 waggledance.ai <img src="https://img.shields.io/badge/preview-%20" /></h1> 
 
-<div align="center">
+<div align="center"
 
-[![Public Deployment](https://img.shields.io/badge/Demo-waggledance.ai-blue?style=flat&logo=world&logoColor=white)](https://waggledance.ai)
-![milestone](https://img.shields.io/badge/pre%20mvp-%20)
 [![License](https://img.shields.io/badge/license-MIT-green)](LICENSE)
 ![CI](https://github.com/agi-merge/waggle-dance/actions/workflows/ci.yml/badge.svg?event=push)
-<a href="https://vercel.com/new/clone?repository-url=https%3A%2F%2Fgithub.com%2Fagi-merge%2Fwaggle-dance&env=NEXTAUTH_URL,OPENAI_API_KEY,WEAVIATE_HOST,WEAVIATE_API_KEY,WEAVIATE_SCHEME,LONG_TERM_MEMORY_INDEX_NAME,KV_URL,KV_REST_API_URL,KV_REST_API_TOKEN,KV_REST_API_READ_ONLY_TOKEN,POSTGRES_PRISMA_URL,POSTGRES_URL_NON_POOLING,EDGE_CONFIG,EDGE_CONFIG_WRITE&project-name=waggle-dance&repository-name=waggle-dance" alt="Deploy with Vercel"><img src="https://vercel.com/button" height="20" /></a>
+[![CodeQL](https://github.com/agi-merge/waggle-dance/actions/workflows/github-code-scanning/codeql/badge.svg)](https://github.com/agi-merge/waggle-dance/actions/workflows/github-code-scanning/codeql)
+<br/>
 <br/>
 [![Join Discord Server](https://dcbadge.vercel.app/api/server/ttt9YmhQU6?style=flat)](https://discord.gg/ttt9YmhQU6)
 [![GitHub Repo stars](https://img.shields.io/github/stars/agi-merge/waggle-dance?style=social)](https://github.com/agi-merge/waggle-dance)
-
 </div>
 
 <p align="center">
-  <a href="https://www.waggledance.ai">🍯 Demo<a> |
   <a href="#-highlighted-features">🦚Features</a> |
   <a href="#-roadmap">📍Roadmap</a> |
   <a href="#%EF%B8%8F-contribute-and-help">🛠️Contribute</a> |
@@ -24,9 +21,11 @@
 
 ## Quick Start
 
-- [Try the cloud demo ↗](https://www.waggledance.ai)
-  -OR- [run it from source](#-running-locally-and-development)
-- Like and subscribe: [Join the Discord](https://discord.gg/ttt9YmhQU6) and ⭐️ Star this repo
+-  [![Cloud Preview](https://img.shields.io/badge/PREVIEW-waggledance.ai-blue?style=flat&logo=world&logoColor=white)](https://waggledance.ai) Try the cloud preview ↗
+- <a href="https://vercel.com/new/clone?repository-url=https%3A%2F%2Fgithub.com%2Fagi-merge%2Fwaggle-dance&env=NEXTAUTH_URL,OPENAI_API_KEY,WEAVIATE_HOST,WEAVIATE_API_KEY,WEAVIATE_SCHEME,LONG_TERM_MEMORY_INDEX_NAME,KV_URL,KV_REST_API_URL,KV_REST_API_TOKEN,KV_REST_API_READ_ONLY_TOKEN,POSTGRES_PRISMA_URL,POSTGRES_URL_NON_POOLING,EDGE_CONFIG,EDGE_CONFIG_WRITE&project-name=waggle-dance&repository-name=waggle-dance" alt="Deploy with Vercel"><img src="https://vercel.com/button" height="20" /></a> Deploy to Vercel 
+- [Build and run from source](#-running-locally-and-development)
+- [Join the Discord](https://discord.gg/ttt9YmhQU6) 
+- ⭐️ Help with algorithm: star this repo
 
 **waggledance.ai** is an experimental application focused on achieving user-specified goals. It provides a friendly but opinionated user interface for building agent-based systems. The project focuses on explainability, observability, concurrent generation, and exploration. Currently in pre-alpha, the development philosophy prefers experimentation over stability as goal-solving and Agent systems are rapidly evolving.
 
