@@ -2,7 +2,6 @@ import { type NextRequest } from "next/server";
 
 import AgentProtocolOpenAPISpec from "~/../lib/AgentProtocol/openapi.json";
 
-export const runtime = "edge";
 export const dynamic = "force-static";
 
 export function GET(req: NextRequest) {
