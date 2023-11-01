@@ -30,8 +30,8 @@ export async function GET(req: NextRequest) {
     origin: req.nextUrl.origin,
   });
 
-  const artifact = await caller.result.byGoalAndArtifactId({
-    taskId,
+  const artifact = await caller.result.byExecutionIdAndArtifactId({
+    executionId: taskId,
     artifactId,
   });
 

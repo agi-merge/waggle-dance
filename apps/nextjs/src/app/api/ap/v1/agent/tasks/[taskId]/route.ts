@@ -7,6 +7,8 @@ import { authOptions } from "@acme/auth";
 import { prisma } from "@acme/db";
 
 // POST /ap/v1/agent/tasks/:taskId
+// task == exe
+// additional_input may be used by a caller to avoid making a new goal each time
 export async function POST(
   request: NextRequest,
   { params: { taskId } }: { params: { taskId: string } },
@@ -18,7 +20,11 @@ export async function POST(
     );
   }
   const body = (await request.json()) as TaskRequestBody;
-
+  const additionalInput = body.additional_input as { goal_id: string };
+  let additionalGoalId: string | null = null;
+  if (additionalInput && additionalInput.goal_id) {
+    additionalGoalId = additionalInput.goal_id;
+  }
   if (!body.input) {
     return Response.json({ message: "Input is required" }, { status: 400 });
   }
@@ -31,13 +37,14 @@ export async function POST(
     origin: request.nextUrl.origin,
   });
 
-  // const goal = await caller.goal.byId(taskId);
-  const goal = await caller.goal.create({ prompt: body.input as string });
-  const exe = await caller.execution.create({ goalId: goal.id });
+  const goalId = additionalGoalId
+    ? additionalGoalId
+    : (await caller.goal.create({ prompt: body.input as string })).id;
+  const exe = await caller.execution.create({ goalId: goalId });
   const plan = await caller.execution.createPlan({
     executionId: exe.id,
     goalId: taskId,
-    goalPrompt: goal.prompt,
+    goalPrompt: body.input as string,
     creationProps: {},
   });
 

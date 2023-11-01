@@ -36,7 +36,11 @@ export async function GET(
     origin: req.nextUrl.origin,
   });
 
-  const result = await caller.result.byGoalId(taskId);
+  const result = await caller.result.byExecutionId({
+    executionId: taskId,
+    currentPage: currentPage,
+    pageSize,
+  });
 
   if (!result) {
     return NextResponse.json("Artifact not found", { status: 404 });
@@ -68,9 +72,7 @@ export async function POST(
   }
   const file = req.body || "";
   const contentType = req.headers.get("content-type") || "text/plain";
-  const params = req.nextUrl.searchParams;
-  const pageSize = Number(params.get("page_size") ?? 10);
-  const currentPage = Number(params.get("current_page") ?? 1);
+
   const artifactId = nanoid();
   const filename = `${artifactId}.${contentType.split("/")[1]}`;
   // const filename = `${query.get("task_id")}/${query.get("relative_path")}`;
@@ -80,8 +82,6 @@ export async function POST(
     addRandomSuffix: true,
   });
 
-  // TODO: associate the artifact with the exe/goal
-
   const session = (await getServerSession(authOptions)) || null;
   const caller = appRouter.createCaller({
     session,
@@ -89,9 +89,10 @@ export async function POST(
     origin: req.nextUrl.origin,
   });
 
-  const artifact = await caller.result.byGoalAndArtifactId({
+  const _artifact = await caller.result.appendArtifactUrl({
     taskId,
     artifactId,
+    artifactUrl: blob.url,
   });
   return NextResponse.json({ artifactId, url: blob.url });
 }

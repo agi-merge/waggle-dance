@@ -12,25 +12,34 @@ import { createTRPCRouter, protectedProcedure } from "../trpc";
 import withLock from "./lock";
 
 export const resultRouter = createTRPCRouter({
-  byGoalId: protectedProcedure
-    .input(z.string().cuid().min(1))
+  byExecutionId: protectedProcedure
+    .input(
+      z.object({
+        executionId: z.string().cuid().min(1),
+        currentPage: z.number().min(1).default(1),
+        pageSize: z.number().min(1).default(10),
+      }),
+    )
     .query(async ({ ctx, input }) => {
+      const { executionId, currentPage, pageSize } = input;
       return await ctx.prisma.result.findMany({
-        where: { goalId: input },
+        where: { executionId },
         orderBy: { createdAt: "desc" },
+        skip: (currentPage - 1) * pageSize,
+        take: pageSize,
       });
     }),
 
-  byGoalAndArtifactId: protectedProcedure
+  byExecutionIdAndArtifactId: protectedProcedure
     .input(
       z.object({
-        taskId: z.string().cuid().min(1),
+        executionId: z.string().cuid().min(1),
         artifactId: z.string().min(1),
       }),
     )
     .query(async ({ ctx, input }) => {
       return await ctx.prisma.result.findFirst({
-        where: { goalId: input.taskId, id: input.artifactId },
+        where: { executionId: input.executionId, id: input.artifactId },
       });
     }),
 
@@ -73,7 +82,7 @@ export const resultRouter = createTRPCRouter({
       });
     }),
 
-  updateArtifactUrl: protectedProcedure
+  appendArtifactUrl: protectedProcedure
     .input(
       z.object({
         taskId: z.string().cuid().min(1),
@@ -87,7 +96,7 @@ export const resultRouter = createTRPCRouter({
       return await ctx.prisma.$transaction(async (prisma) => {
         // Fetch the existing result
         const result = await prisma.result.findUnique({
-          where: { id: artifactId },
+          where: { executionId: taskId, id: artifactId },
         });
 
         if (!result) {
@@ -95,12 +104,12 @@ export const resultRouter = createTRPCRouter({
         }
 
         // Append the new URL to the existing array
-        // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
+
         const updatedArtifactUrls = [...result.artifactUrls, artifactUrl];
 
         // Update the result with the new array
         const updatedResult = await prisma.result.update({
-          where: { id: artifactId, goalId: taskId },
+          where: { id: artifactId, executionId: taskId },
           data: { artifactUrls: updatedArtifactUrls },
         });
 

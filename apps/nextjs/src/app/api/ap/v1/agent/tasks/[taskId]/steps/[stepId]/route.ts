@@ -26,14 +26,14 @@ export async function GET(
     prisma,
     origin: req.nextUrl.origin,
   });
-  const goal = await caller.goal.byId(taskId);
-  if (!goal || !goal?.executions[0]?.id) {
+  const exe = await caller.execution.byId({ id: taskId });
+  if (!exe || !exe.id) {
     return Response.json(
       { message: "Unable to find entity with the provided id" },
       { status: 404 },
     );
   }
-  const taskSteps = goal.executions[0].graph?.nodes || [];
+  const taskSteps = exe.graph?.nodes || [];
 
   const step = taskSteps.find((step) => step.id === stepId);
 
