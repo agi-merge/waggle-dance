@@ -717,7 +717,7 @@ const TaskListItem = ({
               >
                 <Typography level="title-lg">Actions:</Typography>
                 <Chip sx={{ minWidth: "2.5rem", textAlign: "center" }}>
-                  {packetGroups.length}
+                  {Math.round(packetGroups.length / 2)}
                 </Chip>
               </Sheet>
               <List
