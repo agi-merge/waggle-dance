@@ -1,3 +1,6 @@
+// WARNING: if you make any changes to the schema, ensure that you are also adding a migration
+// see: https://www.prisma.io/docs/guides/migrate/developing-with-prisma-migrate/customizing-migrations
+
 generator client {
   provider = "prisma-client-js"
 }
