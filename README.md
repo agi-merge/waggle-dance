@@ -60,6 +60,10 @@ An (unstable) API is also available via [tRPC](packages/api/src/root.ts) as well
 
 Basically, anything and everything goes! Though [multi-agent systems have a long and storied past](https://www.turing.ac.uk/research/interest-groups/multi-agent-systems), this project is all about marrying the past techniques with the latest research.
 
+## 📈 Star History
+
+[![Star History Chart](https://api.star-history.com/svg?repos=agi-merge/waggle-dance&type=Date)](https://star-history.com/#agi-merge/waggle-dance&Date)
+
 ## 🏃 Running Locally and Development
 
 ~~waggledance.ai can be deployed using Docker or manually using Node.js. Configuration of `.env` vars is required.~~
