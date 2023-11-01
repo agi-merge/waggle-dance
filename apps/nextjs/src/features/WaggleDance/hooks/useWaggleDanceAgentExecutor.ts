@@ -100,6 +100,7 @@ const useWaggleDanceAgentExecutor = () => {
         },
         nodeId: taskStateB?.nodeId ?? dagNode.id,
         updatedAt: updatedAt,
+        artifactUrls: taskStateB?.artifactUrls ?? [],
       };
       return new TaskState(merged);
     });
@@ -192,6 +193,7 @@ const useWaggleDanceAgentExecutor = () => {
             value: agentPacket,
             updatedAt: new Date(),
             nodeId: node.id,
+            artifactUrls: [],
           });
 
           return {
@@ -205,6 +207,7 @@ const useWaggleDanceAgentExecutor = () => {
             value: agentPacket,
             packets: [...existingTask.packets, agentPacket],
             updatedAt: new Date(),
+            artifactUrls: [],
           });
           return {
             ...prevAgentPackets,

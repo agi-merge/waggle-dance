@@ -116,6 +116,7 @@ class WaggleDanceAgentExecutor {
             value: donePacket,
             updatedAt: new Date(),
             nodeId: initialNode.id,
+            artifactUrls: [],
           }),
         );
 
@@ -306,6 +307,7 @@ class WaggleDanceAgentExecutor {
             value: packet,
             nodeId: task.id,
             updatedAt: new Date(),
+            artifactUrls: [],
           });
         })
         .catch((error) => {

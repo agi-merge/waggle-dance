@@ -146,18 +146,19 @@ model ExecutionEdge {
 }
 
 model Result {
-  id          String    @id @default(cuid())
-  goal        Goal      @relation(fields: [goalId], references: [id], onDelete: Cascade)
-  goalId      String
-  execution   Execution @relation(fields: [executionId], references: [id], onDelete: Cascade)
-  executionId String
-  value       Json
-  packets     Json[]
+  id            String    @id @default(cuid())
+  goal          Goal      @relation(fields: [goalId], references: [id], onDelete: Cascade)
+  goalId        String
+  execution     Execution @relation(fields: [executionId], references: [id], onDelete: Cascade)
+  executionId   String
+  value         Json
+  packets       Json[]
   packetVersion Int
-  node        ExecutionNode @relation(fields: [nodeId], references: [id], onDelete: Cascade)
-  nodeId      String
-  createdAt   DateTime  @default(now())
-  updatedAt   DateTime  @default(now()) @updatedAt
+  artifactUrls  String[]
+  node          ExecutionNode @relation(fields: [nodeId], references: [id], onDelete: Cascade)
+  nodeId        String
+  createdAt     DateTime  @default(now())
+  updatedAt     DateTime  @default(now()) @updatedAt
 }
 
 model UserSkillset {

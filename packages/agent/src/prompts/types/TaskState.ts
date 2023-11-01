@@ -11,6 +11,7 @@ export class TaskState implements AugmentedResponse {
   value: AgentPacket;
   updatedAt: Date;
   nodeId: string;
+  artifactUrls: string[];
 
   constructor(result: AugmentedResponse) {
     this.id = result.id;
@@ -18,6 +19,7 @@ export class TaskState implements AugmentedResponse {
     this.value = result.value;
     this.updatedAt = result.updatedAt;
     this.nodeId = result.nodeId;
+    this.artifactUrls = result.artifactUrls;
   }
 
   // Getters
