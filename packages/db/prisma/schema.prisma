@@ -1,38 +1,22 @@
-// WARNING: if you make any changes to the schema, ensure that you are also adding a migration
-// see: https://www.prisma.io/docs/guides/migrate/developing-with-prisma-migrate/customizing-migrations
-
 generator client {
   provider = "prisma-client-js"
 }
 
-datasource db {
-  provider          = "postgresql"
-  url               = env("POSTGRES_PRISMA_URL")
-  directUrl         = env("POSTGRES_URL_NON_POOLING")
-  relationMode      = "foreignKeys"
+generator zod {
+  provider              = "zod-prisma"
+  output                = "zod"
+  prismaJsonNullability = "true"
+  relationModel         = "true"
+  modelSuffix           = "Model"
+  modelCase             = "PascalCase"
+  useDecimalJs          = "true"
 }
 
-generator zod {
-  provider                 = "zod-prisma"
-  output                   = "zod" // (default) the directory where generated zod schemas will be saved
-
-  relationModel            = true // (default) Create and export both plain and related models.
-  // relationModel         = "default" // Do not export model without relations.
-  // relationModel         = false // Do not generate related model
-
-  modelCase                = "PascalCase" // (default) Output models using pascal case (ex. UserModel, PostModel)
-  // modelCase             = "camelCase" // Output models using camel case (ex. userModel, postModel)
-
-  modelSuffix              = "Model" // (default) Suffix to apply to your prisma models when naming Zod schemas
-
-  // useDecimalJs          = false // (default) represent the prisma Decimal type using as a JS number
-  useDecimalJs             = true // represent the prisma Decimal type using Decimal.js (as Prisma does)
-
-  // imports                  = null // (default) will import the referenced file in generated schemas to be used via imports.someExportedVariable
-
-  // https://www.prisma.io/docs/concepts/components/prisma-client/working-with-fields/working-with-json-fields#filtering-by-null-values
-  prismaJsonNullability    = true // (default) uses prisma's scheme for JSON field nullability
-  // prismaJsonNullability = false // allows null assignment to optional JSON fields
+datasource db {
+  provider     = "postgresql"
+  url          = env("POSTGRES_PRISMA_URL")
+  directUrl    = env("POSTGRES_URL_NON_POOLING")
+  relationMode = "foreignKeys"
 }
 
 model Account {
@@ -41,12 +25,12 @@ model Account {
   type              String
   provider          String
   providerAccountId String
-  refresh_token     String? @db.Text
-  access_token      String? @db.Text
+  refresh_token     String?
+  access_token      String?
   expires_at        Int?
   token_type        String?
   scope             String?
-  id_token          String? @db.Text
+  id_token          String?
   session_state     String?
   user              User    @relation(fields: [userId], references: [id], onDelete: Cascade)
 
@@ -68,9 +52,9 @@ model User {
   emailVerified DateTime?
   image         String?
   accounts      Account[]
-  sessions      Session[]
-  goals         Goal[]
   executions    Execution[]
+  goals         Goal[]
+  sessions      Session[]
   skills        UserSkill[]
   UserSkillset  UserSkillset[]
 }
@@ -86,101 +70,94 @@ model VerificationToken {
 model Goal {
   id           String         @id @default(cuid())
   prompt       String
-  user         User           @relation(fields: [userId], references: [id], onDelete: Cascade)
   userId       String
   createdAt    DateTime       @default(now())
   updatedAt    DateTime       @default(now()) @updatedAt
   executions   Execution[]
-  results      Result[]
+  user         User           @relation(fields: [userId], references: [id], onDelete: Cascade)
   skills       GoalSkill[]
   GoalSkillset GoalSkillset[]
-}
-
-enum ExecutionState {
-  EXECUTING
-  DONE
-  ERROR
-  CANCELLED
+  results      Result[]
 }
 
 model Execution {
   id                String              @id @default(cuid())
-  goal              Goal                @relation(fields: [goalId], references: [id], onDelete: Cascade)
   goalId            String
-  user              User                @relation(fields: [userId], references: [id], onDelete: Cascade)
   userId            String
-  graph             ExecutionGraph?
-  results           Result[]
   state             ExecutionState      @default(EXECUTING)
   createdAt         DateTime            @default(now())
   updatedAt         DateTime            @default(now()) @updatedAt
+  goal              Goal                @relation(fields: [goalId], references: [id], onDelete: Cascade)
+  user              User                @relation(fields: [userId], references: [id], onDelete: Cascade)
+  graph             ExecutionGraph?
   skills            ExecutionSkill[]
   ExecutionSkillset ExecutionSkillset[]
+  results           Result[]
 }
 
 model ExecutionGraph {
   id          String          @id @default(cuid())
-  execution   Execution       @relation(fields: [executionId], references: [id], onDelete: Cascade)
   executionId String          @unique
   createdAt   DateTime        @default(now())
   updatedAt   DateTime        @default(now()) @updatedAt
-  nodes       ExecutionNode[]
   edges       ExecutionEdge[]
+  execution   Execution       @relation(fields: [executionId], references: [id], onDelete: Cascade)
+  nodes       ExecutionNode[]
 }
 
 model ExecutionNode {
   /// e.g. "0", "1", "c" (the node id), unique within the Level.
-  id      String @id
+  id      String          @id
   /// a title description of the Node. Must not contain invalid ${format} characters.
   name    String
   /// Verbose expectations when done and parameters required to complete Task. Must not contain invalid ${format} characters.
   context String?
-  results Result[]
-  graph   ExecutionGraph? @relation(fields: [graphId], references: [id], onDelete: SetNull)
   graphId String?
+  graph   ExecutionGraph? @relation(fields: [graphId], references: [id])
+  results Result[]
 }
 
 model ExecutionEdge {
   id      String         @id @default(cuid())
   sId     String
   tId     String
-  graph   ExecutionGraph @relation(fields: [graphId], references: [id], onDelete: Cascade)
   graphId String
+  graph   ExecutionGraph @relation(fields: [graphId], references: [id], onDelete: Cascade)
 }
 
 model Result {
-  id            String    @id @default(cuid())
-  goal          Goal      @relation(fields: [goalId], references: [id], onDelete: Cascade)
+  id            String         @id @default(cuid())
   goalId        String
-  execution     Execution @relation(fields: [executionId], references: [id], onDelete: Cascade)
   executionId   String
   value         Json
   packets       Json[]
-  packetVersion Int       @default(1)
-  artifactUrls  String[]
-  node          ExecutionNode? @relation(fields: [nodeId], references: [id], onDelete: Cascade)
+  packetVersion Int            @default(1)
   nodeId        String?
-  createdAt     DateTime  @default(now())
-  updatedAt     DateTime  @default(now()) @updatedAt
+  createdAt     DateTime       @default(now())
+  updatedAt     DateTime       @default(now()) @updatedAt
+  artifactUrls  String[]
+  execution     Execution      @relation(fields: [executionId], references: [id], onDelete: Cascade)
+  goal          Goal           @relation(fields: [goalId], references: [id], onDelete: Cascade)
+  node          ExecutionNode? @relation(fields: [nodeId], references: [id], onDelete: Cascade)
 }
 
 model UserSkillset {
   id             String               @id @default(cuid())
-  skillset       Skillset             @relation(fields: [skillsetId], references: [id], onDelete: Cascade)
   skillsetId     String
-  user           User                 @relation(fields: [userId], references: [id], onDelete: Cascade)
   userId         String
   configurations SkillConfiguration[]
+  skillset       Skillset             @relation(fields: [skillsetId], references: [id], onDelete: Cascade)
+  user           User                 @relation(fields: [userId], references: [id], onDelete: Cascade)
 
   @@unique([userId, skillsetId], name: "user_skillset_index")
 }
 
 model GoalSkillset {
   id             String               @id @default(cuid())
-  skillset       Skillset             @relation(fields: [skillsetId], references: [id], onDelete: Cascade)
   skillsetId     String
-  goal           Goal                 @relation(fields: [goalId], references: [id])
   goalId         String
+  goal           Goal                 @relation(fields: [goalId], references: [id])
+  skillset       Skillset             @relation(fields: [skillsetId], references: [id], onDelete: Cascade)
   configurations SkillConfiguration[]
 
   @@unique([goalId, skillsetId], name: "goal_skillset_index")
@@ -188,10 +165,10 @@ model GoalSkillset {
 
 model ExecutionSkillset {
   id             String               @id @default(cuid())
-  skillset       Skillset             @relation(fields: [skillsetId], references: [id], onDelete: Cascade)
   skillsetId     String
-  execution      Execution            @relation(fields: [executionId], references: [id], onDelete: Cascade)
   executionId    String
+  execution      Execution            @relation(fields: [executionId], references: [id], onDelete: Cascade)
+  skillset       Skillset             @relation(fields: [skillsetId], references: [id], onDelete: Cascade)
   configurations SkillConfiguration[]
 
   @@unique([executionId, skillsetId], name: "execution_skillset_index")
@@ -199,18 +176,18 @@ model ExecutionSkillset {
 
 model SkillConfiguration {
   id                  String             @id @default(cuid())
-  userSkillset        UserSkillset?      @relation(fields: [userSkillsetId], references: [id], onDelete: SetNull)
   userSkillsetId      String?
-  goalSkillset        GoalSkillset?      @relation(fields: [goalSkillsetId], references: [id], onDelete: SetNull)
   goalSkillsetId      String?
-  executionSkillset   ExecutionSkillset? @relation(fields: [executionSkillsetId], references: [id], onDelete: SetNull)
   executionSkillsetId String?
   value               Json?
   version             Int
+  executionSkillset   ExecutionSkillset? @relation(fields: [executionSkillsetId], references: [id])
+  goalSkillset        GoalSkillset?      @relation(fields: [goalSkillsetId], references: [id])
+  userSkillset        UserSkillset?      @relation(fields: [userSkillsetId], references: [id])
 
-  @@index([userSkillsetId], name: "user_skillset_config_index")
-  @@index([goalSkillsetId], name: "goal_skillset_config_index")
-  @@index([executionSkillsetId], name: "execution_skillset_config_index")
+  @@index([userSkillsetId], map: "user_skillset_config_index")
+  @@index([goalSkillsetId], map: "goal_skillset_config_index")
+  @@index([executionSkillsetId], map: "execution_skillset_config_index")
 }
 
 model Skillset {
@@ -219,10 +196,10 @@ model Skillset {
   description        String
   isRecommended      Boolean
   index              Int
+  executionSkillsets ExecutionSkillset[]
+  goalSkillsets      GoalSkillset[]
   skills             Skill[]
   userSkillsets      UserSkillset[]
-  goalSkillsets      GoalSkillset[]
-  executionSkillsets ExecutionSkillset[]
 }
 
 model Skill {
@@ -230,39 +207,46 @@ model Skill {
   label           String
   description     String
   risk            String
-  skillset        Skillset         @relation(fields: [skillsetId], references: [id], onDelete: Cascade)
   skillsetId      String
-  userSkills      UserSkill[]
-  goalSkills      GoalSkill[]
   executionSkills ExecutionSkill[]
+  goalSkills      GoalSkill[]
+  skillset        Skillset         @relation(fields: [skillsetId], references: [id], onDelete: Cascade)
+  userSkills      UserSkill[]
 }
 
 model UserSkill {
   id      String @id @default(cuid())
-  skill   Skill  @relation(fields: [skillId], references: [id], onDelete: Cascade)
   skillId String
-  user    User   @relation(fields: [userId], references: [id], onDelete: Cascade)
   userId  String
+  skill   Skill  @relation(fields: [skillId], references: [id], onDelete: Cascade)
+  user    User   @relation(fields: [userId], references: [id], onDelete: Cascade)
 
   @@unique([userId, skillId], name: "user_skill_index")
 }
 
 model GoalSkill {
   id      String @id @default(cuid())
-  skill   Skill  @relation(fields: [skillId], references: [id], onDelete: Cascade)
   skillId String
-  goal    Goal   @relation(fields: [goalId], references: [id], onDelete: Cascade)
   goalId  String
+  goal    Goal   @relation(fields: [goalId], references: [id], onDelete: Cascade)
+  skill   Skill  @relation(fields: [skillId], references: [id], onDelete: Cascade)
 
   @@unique([goalId, skillId], name: "goal_skill_index")
 }
 
 model ExecutionSkill {
   id          String    @id @default(cuid())
-  skill       Skill     @relation(fields: [skillId], references: [id], onDelete: Cascade)
   skillId     String
-  execution   Execution @relation(fields: [executionId], references: [id], onDelete: Cascade)
   executionId String
+  execution   Execution @relation(fields: [executionId], references: [id], onDelete: Cascade)
+  skill       Skill     @relation(fields: [skillId], references: [id], onDelete: Cascade)
 
   @@unique([executionId, skillId], name: "execution_skill_index")
+}
+
+enum ExecutionState {
+  EXECUTING
+  DONE
+  ERROR
+  CANCELLED
 }
