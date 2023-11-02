@@ -125,12 +125,15 @@ export async function callExecutionAgent(creation: {
     throw new Error("No result found to provide to review task");
   }
 
-  const nodes = (yamlParse(dag) as DraftExecutionGraph).nodes;
+  const dagObj = yamlParse(dag) as DraftExecutionGraph;
+  if ((!dagObj || !dagObj.nodes) && isCriticism) {
+    throw new Error("DAG is required for criticism task");
+  }
   const prompt = isCriticism
     ? createCriticizePrompt({
         revieweeTaskResults,
         goalPrompt,
-        nodes,
+        nodes: dagObj.nodes,
         namespace,
         returnType,
       })

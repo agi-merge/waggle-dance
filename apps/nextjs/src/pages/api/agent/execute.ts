@@ -302,7 +302,6 @@ export default async function ExecuteStream(req: NextRequest) {
       return;
     }
     controller.close();
-    abortControllerWrapper.controller.signal;
     repetitionCheckPacketBuffer = [];
     allSentPackets = [];
     packetCounter = 0;
@@ -334,7 +333,7 @@ export default async function ExecuteStream(req: NextRequest) {
     parsedGoalId: string,
     agentPromptingMethod: AgentPromptingMethod,
     task: DraftExecutionNode,
-    dag: DraftExecutionGraph,
+    dag: DraftExecutionGraph | null,
     revieweeTaskResults: TaskState[],
     contentType: "application/json" | "application/yaml",
     namespace: string,
@@ -374,7 +373,7 @@ export default async function ExecuteStream(req: NextRequest) {
       };
     } else {
       state =
-        dag.nodes[dag.nodes.length - 1]?.id == task.id ? "DONE" : "EXECUTING";
+        dag?.nodes[dag.nodes.length - 1]?.id == task.id ? "DONE" : "EXECUTING";
       packet = { type: "done", value: exeResult };
     }
     executionResult = { packet, state: state as ExecutionState };

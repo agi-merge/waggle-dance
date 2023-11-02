@@ -124,7 +124,7 @@ export async function callPlanningAgent(
           return -1;
         } else {
           // otherwise, we want to use the response token count with some padding for the fix (it should be close, yeah?)
-          return tokenCount * paddingMultiplier;
+          return Math.round(tokenCount * paddingMultiplier);
         }
       };
 

@@ -2,6 +2,7 @@ import { type NextRequest } from "next/server";
 import { type Task, type TaskRequestBody } from "lib/AgentProtocol/types";
 import { getServerSession } from "next-auth";
 
+import { LLM_ALIASES } from "@acme/agent/src/utils/llms";
 import { appRouter } from "@acme/api";
 import { authOptions } from "@acme/auth";
 import { prisma, type DraftExecutionNode } from "@acme/db";
@@ -9,9 +10,14 @@ import { prisma, type DraftExecutionNode } from "@acme/db";
 // POST /ap/v1/agent/tasks
 export async function POST(request: NextRequest) {
   const body = (await request.json()) as TaskRequestBody;
-
   if (!body.input) {
-    return Response.json({ message: "Input is required" }, { status: 400 });
+    return;
+    Response.json({ message: "Input is required" }, { status: 400 });
+  }
+  const additionalInput = body.additional_input as { goal_id: string };
+  let additionalGoalId: string | null = null;
+  if (additionalInput && additionalInput.goal_id) {
+    additionalGoalId = additionalInput.goal_id;
   }
 
   // create a goal and exe
@@ -22,15 +28,26 @@ export async function POST(request: NextRequest) {
     origin: request.nextUrl.origin,
   });
 
-  const execution = await caller.execution.createForAgentProtocol({
-    prompt: body.input as string,
+  const goalId = additionalGoalId
+    ? additionalGoalId
+    : (await caller.goal.create({ prompt: body.input as string })).id;
+  const exe = await caller.execution.create({ goalId: goalId });
+  const cookie = request.headers.get("cookie");
+
+  const _plan = await caller.execution.createPlan({
+    executionId: exe.id,
+    goalId,
+    goalPrompt: body.input as string,
+    creationProps: { modelName: LLM_ALIASES["fast"], maxTokens: 350 },
+    cookie: cookie || "",
   });
 
   const task: Task = {
-    task_id: execution.id,
+    task_id: exe.id,
     input: body.input,
-    additional_input: body.additional_input,
+    artifacts: [],
   };
+
   return Response.json(task, { status: 200 });
 }
 

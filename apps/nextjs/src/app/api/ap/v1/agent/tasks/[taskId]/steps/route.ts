@@ -1,10 +1,14 @@
 import { NextResponse, type NextRequest } from "next/server";
 import { type StepRequestBody } from "lib/AgentProtocol/types";
 import { getServerSession } from "next-auth";
+import { parse } from "yaml";
 
+import { AgentPromptingMethod, LLM_ALIASES } from "@acme/agent/src/utils/llms";
 import { appRouter } from "@acme/api";
 import { authOptions } from "@acme/auth";
-import { prisma } from "@acme/db";
+import { prisma, type DraftExecutionNode } from "@acme/db";
+
+import { type ExecuteRequestBody } from "~/features/WaggleDance/types/types";
 
 // POST /ap/v1/agent/tasks/:taskId/steps
 export async function POST(
@@ -34,23 +38,54 @@ export async function POST(
   // const goal = await caller.goal.byId(taskId);
   // const exe = await caller.execution.create({ goalId: taskId });
   const exe = await caller.execution.byId({ id: taskId });
-
   if (!exe || !exe.goalId) {
     return NextResponse.json(
       { message: "Unable to find entity with the provided id" },
       { status: 404 },
     );
   }
+  const goal = await caller.goal.byId(exe.goalId);
 
-  // TODO: implement
-  const plan = await caller.execution.createPlan({
-    executionId: exe.id,
-    goalId: taskId,
-    goalPrompt: body.input as string,
-    creationProps: {},
-  });
+  const completedTasks = exe.results.length;
 
-  return Response.json(plan, { status: 200 });
+  const task: DraftExecutionNode = {
+    id: completedTasks.toString(),
+    name: body.input as string,
+    graphId: exe.graph?.id,
+    context: null,
+  };
+  const input = {
+    //   executionId: string;
+    // task: DraftExecutionNode;
+    // revieweeTaskResults: TaskState[];
+    // dag: DraftExecutionGraph;
+    // agentPromptingMethod: AgentPromptingMethod;
+    executionId: taskId,
+    task,
+    goalId: exe.goalId,
+    dag: exe.graph,
+    revieweeTaskResults: [],
+    agentPromptingMethod: AgentPromptingMethod.OpenAIStructuredChat,
+    goalPrompt: goal?.prompt || "error",
+    creationProps: { modelName: LLM_ALIASES["fast"], maxTokens: 350 },
+  } as ExecuteRequestBody;
+
+  const executeResponse = await fetch(
+    `${request.nextUrl.origin}/api/agent/execute`,
+    {
+      method: "POST",
+      headers: {
+        Cookie: request.headers.get("cookie") || "",
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify(input),
+      signal: request.signal,
+    },
+  );
+
+  const result = await executeResponse.text();
+
+  return Response.json(parse(result), { status: 200 });
 }
 
 // GET /ap/v1/agent/tasks/:taskId/steps

@@ -1,4 +1,3 @@
-import { getFetch } from "@trpc/client";
 import { z } from "zod";
 
 import {
@@ -220,16 +219,25 @@ export const executionRouter = createTRPCRouter({
   createPlan: publicProcedure
     .input(
       z.object({
+        cookie: z.string().includes("next-auth.session-token="), //.regex(/^(.+;)*\s*=\s*(.+\s*;*)*$/),
         goalPrompt: z.string().min(1),
         goalId: z.string().min(1),
         executionId: z.string().min(1),
         creationProps: z.custom<ModelCreationProps>(),
       }),
     )
-    .mutation(({ ctx, input: _input }) => {
-      // const { goalPrompt, goalId, executionId, creationProps } = input;
-      // const userId = ctx.session?.user.id;
-
-      return getFetch()(`${ctx.origin}/api/agent/plan`, {});
+    .mutation(async ({ ctx, input }) => {
+      const response = await fetch(`${ctx.origin}/api/agent/plan`, {
+        method: "POST",
+        headers: {
+          Cookie: input.cookie,
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify(input),
+      });
+      const planGraphText = await response.text();
+      // const planGraph = (await response.json()) as OldPlanWireFormat;
+      // return response.body;
+      return planGraphText;
     }),
 });
