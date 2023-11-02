@@ -89,10 +89,13 @@ export async function POST(
     origin: req.nextUrl.origin,
   });
 
-  const _artifact = await caller.result.appendArtifactUrl({
-    taskId,
-    artifactId,
+  const result = await caller.result.upsertAppendArtifactUrl({
+    executionId: taskId,
+    resultId: undefined,
     artifactUrl: blob.url,
   });
-  return NextResponse.json({ artifactId, url: blob.url });
+  return NextResponse.json({
+    artifact_id: result.id,
+    url: result.artifactUrls[0],
+  });
 }

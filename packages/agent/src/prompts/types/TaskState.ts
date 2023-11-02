@@ -10,7 +10,7 @@ export class TaskState implements AugmentedResponse {
   packets: AgentPacket[];
   value: AgentPacket;
   updatedAt: Date;
-  nodeId: string;
+  nodeId: string | null;
   artifactUrls: string[];
 
   constructor(result: AugmentedResponse) {
@@ -41,7 +41,7 @@ export class TaskState implements AugmentedResponse {
     if (this.id === rootPlanId) {
       return rootPlanId;
     }
-    const executionSplit = this.nodeId.split(".")[1];
+    const executionSplit = this.nodeId?.split(".")[1];
     if (!executionSplit) {
       return this.id;
     } else {
@@ -57,7 +57,8 @@ export class TaskState implements AugmentedResponse {
 
   // private helpers
 
-  private extractTier(fromId: string) {
+  private extractTier(fromId: string | null) {
+    if (!fromId) return null;
     const tierAndOptionalServerId = fromId.split("-")[0];
     const tierAndOptionalServerIdSplit = tierAndOptionalServerId?.split(".");
     const tier =
@@ -66,7 +67,8 @@ export class TaskState implements AugmentedResponse {
     return tier || null;
   }
 
-  private extractTaskNumber(nodeId: string): number | null {
+  private extractTaskNumber(nodeId: string | null): number | null {
+    if (!nodeId) return null;
     const parts = nodeId.split("-");
     if (parts.length < 2) return null;
     const lastPart = parts[parts.length - 1];

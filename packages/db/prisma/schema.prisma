@@ -156,10 +156,10 @@ model Result {
   executionId   String
   value         Json
   packets       Json[]
-  packetVersion Int
+  packetVersion Int       @default(1)
   artifactUrls  String[]
-  node          ExecutionNode @relation(fields: [nodeId], references: [id], onDelete: Cascade)
-  nodeId        String
+  node          ExecutionNode? @relation(fields: [nodeId], references: [id], onDelete: Cascade)
+  nodeId        String?
   createdAt     DateTime  @default(now())
   updatedAt     DateTime  @default(now()) @updatedAt
 }

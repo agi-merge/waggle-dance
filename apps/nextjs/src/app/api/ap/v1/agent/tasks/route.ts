@@ -47,19 +47,18 @@ export async function GET(request: NextRequest) {
     origin: request.nextUrl.origin,
   });
 
-  let topByUser: DraftExecutionNode[];
+  let nodes: DraftExecutionNode[];
   try {
-    topByUser = (await caller.goal.topByUser()) // TODO make a paginating exe only query
-      .flatMap((g) => g.executions)
-      .flatMap((e) => e.graph?.nodes ?? []);
+    const exe = await caller.graph.topByUser({ currentPage, pageSize });
+    nodes = exe?.graph?.nodes ?? [];
   } catch {
-    topByUser = [];
+    nodes = [];
   }
-  const totalItems = topByUser.length;
+  const totalItems = nodes.length;
   const totalPages = Math.ceil(totalItems / pageSize);
   const offset = (currentPage - 1) * pageSize;
 
-  const paginatedTasks = topByUser.slice(offset, offset + pageSize);
+  const paginatedTasks = nodes.slice(offset, offset + pageSize);
 
   const pagination = {
     total_items: totalItems,

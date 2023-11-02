@@ -47,6 +47,7 @@ export type AgentPacketType =
 export const AgentPacketFinishedTypes = [
   "handleAgentEnd",
   "done",
+  "artifact", // maybe not done? could be a side-effect of agents mid-run
   "error",
   "handleChainError",
   "handleLLMError",
@@ -295,6 +296,7 @@ export type AgentPacket =
       severity: "warn" | "human" | "fatal";
       error: string;
     } & BaseAgentPacket)
+  | ({ type: "artifact"; url: string | URL } & BaseAgentPacket)
   // client-side only
   | ({ type: "starting"; nodeId: string } & BaseAgentPacket)
   | ({ type: "working"; nodeId: string } & BaseAgentPacket)

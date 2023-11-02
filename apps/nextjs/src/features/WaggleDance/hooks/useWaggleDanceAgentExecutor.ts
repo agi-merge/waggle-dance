@@ -10,6 +10,7 @@ import {
 } from "react";
 import { isAbortError } from "next/dist/server/pipe-readable";
 import { type GraphData } from "react-force-graph-2d";
+import { v4 } from "uuid";
 // import { type GraphData } from "../components/ForceGraph";
 import { stringify } from "yaml";
 
@@ -64,7 +65,7 @@ const useWaggleDanceAgentExecutor = () => {
           ...r,
           packets: r.packets as AgentPacket[],
           value: result,
-          id: r.nodeId,
+          id: r.nodeId || v4(), // FIXME: is this ok?
         });
 
         return taskState;
@@ -122,6 +123,15 @@ const useWaggleDanceAgentExecutor = () => {
         return -1;
       }
       if (bid === rootPlanId) {
+        return 1;
+      }
+      if (aid === bid) {
+        return 1; // natural order maintained
+      }
+      if (!aid) {
+        return -1;
+      }
+      if (!bid) {
         return 1;
       }
       if (a.status === b.status) {

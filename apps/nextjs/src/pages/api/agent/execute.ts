@@ -16,6 +16,7 @@ import { parse, stringify } from "yaml";
 
 import createNamespace from "@acme/agent/src/memory/namespace";
 import { LLM, type AgentPromptingMethod } from "@acme/agent/src/utils/llms";
+import { type CreateResultParams } from "@acme/api/src/router/result";
 import {
   type DraftExecutionGraph,
   type DraftExecutionNode,
@@ -30,7 +31,6 @@ import {
   type ModelCreationProps,
   type TaskState,
 } from "../../../../../../packages/agent";
-import { type CreateResultParams } from "../result";
 
 export const config = {
   api: {

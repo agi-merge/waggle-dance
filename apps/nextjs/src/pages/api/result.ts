@@ -2,30 +2,13 @@
 
 import { type NextApiRequest, type NextApiResponse } from "next";
 
-import { type AgentPacket } from "@acme/agent";
 import { appRouter } from "@acme/api";
-import { getServerSession, type Session } from "@acme/auth";
-import {
-  prisma,
-  type DraftExecutionNode,
-  type Execution,
-  type ExecutionState,
-  type Result,
-} from "@acme/db";
+import { type CreateResultParams } from "@acme/api/src/router/result";
+import { getServerSession } from "@acme/auth";
+import { prisma, type Execution, type Result } from "@acme/db";
 
 export const config = {
   runtime: "nodejs",
-};
-
-export type CreateResultParams = {
-  goalId: string;
-  node: DraftExecutionNode;
-  executionId: string;
-  packet: AgentPacket;
-  packets: AgentPacket[];
-  state: ExecutionState;
-  session?: Session | null;
-  origin?: string | undefined;
 };
 
 // data proxy for edge

@@ -12,10 +12,12 @@ import { prisma } from "@acme/db";
  * @param {string} task_id
  * @param {string} artifact_id
  */
-export async function GET(req: NextRequest) {
-  const query = req.nextUrl.searchParams;
-  const taskId = query.get("task_id");
-  const artifactId = query.get("artifact_id");
+export async function GET(
+  req: NextRequest,
+  {
+    params: { taskId, artifactId },
+  }: { params: { taskId: string; artifactId: string } },
+) {
   if (!taskId) {
     return Response.json("task_id is required", { status: 400 });
   }
@@ -35,5 +37,9 @@ export async function GET(req: NextRequest) {
     artifactId,
   });
 
-  return Response.redirect(artifact!.id);
+  if (artifact?.artifactUrls[0]) {
+    return Response.redirect(artifact.artifactUrls[0]);
+  }
+
+  return Response.json({ error: "Artifact not found" }, { status: 404 });
 }
