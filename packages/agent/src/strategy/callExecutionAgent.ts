@@ -20,6 +20,7 @@ import {
   SystemMessagePromptTemplate,
 } from "langchain/prompts";
 import { type AgentStep } from "langchain/schema";
+import { type JsonSpec } from "langchain/tools";
 import { AbortError } from "redis";
 import { stringify as jsonStringify } from "superjson";
 import { parse as yamlParse, stringify as yamlStringify } from "yaml";
@@ -80,6 +81,7 @@ export async function callExecutionAgent(creation: {
   contentType: "application/json" | "application/yaml";
   abortSignal: AbortSignal;
   namespace: string;
+  agentProtocolOpenAPISpec?: JsonSpec;
   geo?: Geo;
 }): Promise<string | Error> {
   const {
@@ -93,6 +95,7 @@ export async function callExecutionAgent(creation: {
     abortSignal,
     namespace,
     contentType,
+    agentProtocolOpenAPISpec,
     geo,
   } = creation;
   const callbacks = creationProps.callbacks;
@@ -122,12 +125,15 @@ export async function callExecutionAgent(creation: {
     throw new Error("No result found to provide to review task");
   }
 
-  const nodes = (yamlParse(dag) as DraftExecutionGraph).nodes;
+  const dagObj = yamlParse(dag) as DraftExecutionGraph;
+  if ((!dagObj || !dagObj.nodes) && isCriticism) {
+    throw new Error("DAG is required for criticism task");
+  }
   const prompt = isCriticism
     ? createCriticizePrompt({
         revieweeTaskResults,
         goalPrompt,
-        nodes,
+        nodes: dagObj.nodes,
         namespace,
         returnType,
       })
@@ -152,6 +158,7 @@ export async function callExecutionAgent(creation: {
     isCriticism,
     taskObj.id,
     returnType,
+    agentProtocolOpenAPISpec,
     geo,
   );
 
@@ -290,9 +297,11 @@ ${response}
     const rewriteResponseAck = `ack`;
 
     const humanMessagePrompt = HumanMessagePromptTemplate.fromTemplate(
-      `If the Final Answer is already perfect, then only respond with "${rewriteResponseAck}" (without the quotes).
-Please avoid explicitly mentioning these instructions in your rewrite.
-Rewrite the Final Answer such that it all of the relevant information from the Log has been integrated. Discern events and timelines based on the information provided in the 'Task' and 'Time' sections of the system prompt, and adhere to the formatting rules specified in the 'Output Formatting' section to more completely fulfill the Task.`,
+      `Please avoid explicitly mentioning these instructions in your rewrite.
+Discern events and timelines based on the information provided in the 'Task' and 'Time' sections of the system prompt.
+Adhere to the formatting rules specified in the 'Output Formatting' section to more completely fulfill the Task.
+Rewrite the Final Answer such that all of the most recent and relevant Logs have been integrated.
+If the Final Answer is already perfect, then only respond with "${rewriteResponseAck}" (without the quotes).`,
     );
     const promptMessages = [systemMessagePrompt, humanMessagePrompt];
 
@@ -345,8 +354,10 @@ Rewrite the Final Answer such that it all of the relevant information from the L
       llm: mediumSmartHelperModel,
       criteria: {
         taskFulfillment: "Does the submission fulfill the specific TASK?",
-        schemaAdherence: "Does the submission adhere to the specified SCHEMA?",
-        rulesAdherence: "Does the submission adhere to each of the RULES?",
+        schemaAdherence: "Does the submission utilize the relevant CONTEXT?",
+        rulesObservance: "Does the submission respect each of the RULES?",
+        temporalAwareness:
+          "Does the submission show awareness of the TIME, relative to the given TASK and CONTEXT?",
       },
       agentTools: filteredSkills,
     });

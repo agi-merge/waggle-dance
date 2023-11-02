@@ -16,6 +16,7 @@ import { parse, stringify } from "yaml";
 
 import createNamespace from "@acme/agent/src/memory/namespace";
 import { LLM, type AgentPromptingMethod } from "@acme/agent/src/utils/llms";
+import { type CreateResultParams } from "@acme/api/src/router/result";
 import {
   type DraftExecutionGraph,
   type DraftExecutionNode,
@@ -30,7 +31,6 @@ import {
   type ModelCreationProps,
   type TaskState,
 } from "../../../../../../packages/agent";
-import { type CreateResultParams } from "../result";
 
 export const config = {
   api: {
@@ -302,7 +302,6 @@ export default async function ExecuteStream(req: NextRequest) {
       return;
     }
     controller.close();
-    abortControllerWrapper.controller.signal;
     repetitionCheckPacketBuffer = [];
     allSentPackets = [];
     packetCounter = 0;
@@ -334,7 +333,7 @@ export default async function ExecuteStream(req: NextRequest) {
     parsedGoalId: string,
     agentPromptingMethod: AgentPromptingMethod,
     task: DraftExecutionNode,
-    dag: DraftExecutionGraph,
+    dag: DraftExecutionGraph | null,
     revieweeTaskResults: TaskState[],
     contentType: "application/json" | "application/yaml",
     namespace: string,
@@ -374,7 +373,7 @@ export default async function ExecuteStream(req: NextRequest) {
       };
     } else {
       state =
-        dag.nodes[dag.nodes.length - 1]?.id == task.id ? "DONE" : "EXECUTING";
+        dag?.nodes[dag.nodes.length - 1]?.id == task.id ? "DONE" : "EXECUTING";
       packet = { type: "done", value: exeResult };
     }
     executionResult = { packet, state: state as ExecutionState };

@@ -1,5 +1,6 @@
 // WaggleDance/types.ts
 import { type Dispatch, type SetStateAction } from "react";
+import { type JsonSpec } from "langchain/tools";
 
 import {
   type AgentSettings,
@@ -75,6 +76,7 @@ export interface BaseRequestBody {
   creationProps: ModelCreationProps;
   goalId: string;
   goalPrompt: string;
+  agentProtocolOpenAPISpec?: JsonSpec;
 }
 
 export interface RefineRequestBody {

@@ -1,3 +1,6 @@
+// WARNING: if you make any changes to the schema, ensure that you are also adding a migration
+// see: https://www.prisma.io/docs/guides/migrate/developing-with-prisma-migrate/customizing-migrations
+
 generator client {
   provider = "prisma-client-js"
 }
@@ -146,18 +149,19 @@ model ExecutionEdge {
 }
 
 model Result {
-  id          String    @id @default(cuid())
-  goal        Goal      @relation(fields: [goalId], references: [id], onDelete: Cascade)
-  goalId      String
-  execution   Execution @relation(fields: [executionId], references: [id], onDelete: Cascade)
-  executionId String
-  value       Json
-  packets     Json[]
-  packetVersion Int
-  node        ExecutionNode @relation(fields: [nodeId], references: [id], onDelete: Cascade)
-  nodeId      String
-  createdAt   DateTime  @default(now())
-  updatedAt   DateTime  @default(now()) @updatedAt
+  id            String    @id @default(cuid())
+  goal          Goal      @relation(fields: [goalId], references: [id], onDelete: Cascade)
+  goalId        String
+  execution     Execution @relation(fields: [executionId], references: [id], onDelete: Cascade)
+  executionId   String
+  value         Json
+  packets       Json[]
+  packetVersion Int       @default(1)
+  artifactUrls  String[]
+  node          ExecutionNode? @relation(fields: [nodeId], references: [id], onDelete: Cascade)
+  nodeId        String?
+  createdAt     DateTime  @default(now())
+  updatedAt     DateTime  @default(now()) @updatedAt
 }
 
 model UserSkillset {

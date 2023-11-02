@@ -1,7 +1,6 @@
 // api/agent/plan.ts
 
 import { type NextRequest } from "next/server";
-import { stringify as jsonStringify } from "superjson";
 import { parse, stringify } from "yaml";
 
 import { type PlanRequestBody } from "~/features/WaggleDance/types/types";
@@ -33,12 +32,15 @@ export default async function PlanStream(req: NextRequest) {
     resolveStreamEnded = resolve;
     rejectStreamEnded = reject;
   });
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  let liftedStreamController: ReadableStreamDefaultController<any> | undefined;
   try {
     const {
       creationProps,
       goalPrompt: parsedGoalPrompt,
       goalId: parsedGoalId,
       executionId: parsedExecutionId,
+      agentProtocolOpenAPISpec,
     } = (await req.json()) as PlanRequestBody;
     goalPrompt = parsedGoalPrompt;
     goalId = parsedGoalId;
@@ -47,6 +49,7 @@ export default async function PlanStream(req: NextRequest) {
     const encoder = new TextEncoder();
     const stream = new ReadableStream({
       async start(controller) {
+        liftedStreamController = controller;
         const inlineCallback = {
           handleLLMNewToken(token: string) {
             const packet: AgentPacket = { type: "t", t: token };
@@ -92,6 +95,7 @@ export default async function PlanStream(req: NextRequest) {
           goalId!,
           abortController.signal,
           `${goalId}_${executionId}`,
+          agentProtocolOpenAPISpec,
         );
 
         if (planResult instanceof Error) {
@@ -101,7 +105,7 @@ export default async function PlanStream(req: NextRequest) {
         }
 
         console.debug("plan result", planResult);
-        controller.close();
+        liftedStreamController = controller;
       },
 
       cancel(reason) {
@@ -175,7 +179,8 @@ export default async function PlanStream(req: NextRequest) {
             goalPrompt,
             executionId,
           );
-          await updateExecution(
+
+          const response = await updateExecution(
             {
               goalId,
               graph,
@@ -184,6 +189,10 @@ export default async function PlanStream(req: NextRequest) {
             },
             req,
           );
+
+          liftedStreamController?.close();
+          return response;
+          // return Response.json(graph, { status: 200 });
         } else {
           console.error(
             "could not save execution, it must be manually cleaned up",
@@ -200,17 +209,21 @@ export default async function PlanStream(req: NextRequest) {
 export async function updateExecution(
   params: UpdateGraphParams,
   req: NextRequest,
-): Promise<void> {
+): Promise<Response> {
+  const cookie = req.headers.get("cookie") || "";
+  const body = JSON.stringify({ json: params });
   const response = await fetch(`${req.nextUrl.origin}/api/execution/graph`, {
     method: "POST",
     headers: {
-      Cookie: req.headers.get("cookie") || "", // pass cookie so session logic still works
+      Cookie: cookie, // pass cookie so session logic still works
       "Content-Type": "application/json",
     },
-    body: jsonStringify(params),
+    body,
   });
 
   if (!response.ok && response.status !== 401) {
     throw new Error(`Could not save execution: ${response.statusText}`);
   }
+
+  return response;
 }

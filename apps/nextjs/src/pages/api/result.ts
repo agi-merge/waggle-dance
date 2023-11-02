@@ -2,29 +2,13 @@
 
 import { type NextApiRequest, type NextApiResponse } from "next";
 
-import { type AgentPacket } from "@acme/agent";
 import { appRouter } from "@acme/api";
-import { getServerSession, type Session } from "@acme/auth";
-import {
-  prisma,
-  type DraftExecutionNode,
-  type Execution,
-  type ExecutionState,
-  type Result,
-} from "@acme/db";
+import { type CreateResultParams } from "@acme/api/src/router/result";
+import { getServerSession } from "@acme/auth";
+import { prisma, type Execution, type Result } from "@acme/db";
 
 export const config = {
   runtime: "nodejs",
-};
-
-export type CreateResultParams = {
-  goalId: string;
-  node: DraftExecutionNode;
-  executionId: string;
-  packet: AgentPacket;
-  packets: AgentPacket[];
-  state: ExecutionState;
-  session?: Session | null;
 };
 
 // data proxy for edge
@@ -37,6 +21,7 @@ export default async function createResultProxy(
 
     const params = req.body as CreateResultParams;
     params["session"] = session;
+    params["origin"] = req.headers.origin;
 
     const result = await createResult(params);
     console.debug("createResult result", result);
@@ -50,8 +35,12 @@ export default async function createResultProxy(
 async function createResult(
   createResultOptions: CreateResultParams,
 ): Promise<[Result, Execution]> {
-  const { session } = createResultOptions;
-  const caller = appRouter.createCaller({ session: session || null, prisma });
+  const { session, origin } = createResultOptions;
+  const caller = appRouter.createCaller({
+    session: session || null,
+    prisma,
+    origin,
+  });
   const createResult = caller.result.create(createResultOptions);
   return createResult;
 }

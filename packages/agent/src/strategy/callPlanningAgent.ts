@@ -2,6 +2,7 @@
 
 import { encodingForModel, type Tiktoken } from "js-tiktoken";
 import { LLMChain } from "langchain/chains";
+import { type JsonSpec } from "langchain/tools";
 import { parse as jsonParse, stringify as jsonStringify } from "superjson";
 import { parse as yamlParse, stringify as yamlStringify } from "yaml";
 
@@ -26,6 +27,7 @@ export async function callPlanningAgent(
   goalId: string,
   signal: AbortSignal,
   namespace: string,
+  agentProtocolOpenAPISpec?: JsonSpec,
   returnType: "YAML" | "JSON" = "YAML",
 ): Promise<string | Error> {
   const tags = [
@@ -43,6 +45,7 @@ export async function callPlanningAgent(
     false,
     rootPlanId,
     returnType,
+    agentProtocolOpenAPISpec,
   );
   const prompt = createPlanPrompt({
     goalPrompt,
@@ -121,7 +124,7 @@ export async function callPlanningAgent(
           return -1;
         } else {
           // otherwise, we want to use the response token count with some padding for the fix (it should be close, yeah?)
-          return tokenCount * paddingMultiplier;
+          return Math.round(tokenCount * paddingMultiplier);
         }
       };
 

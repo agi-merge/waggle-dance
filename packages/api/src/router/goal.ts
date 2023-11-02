@@ -36,9 +36,39 @@ export const goalRouter = createTRPCRouter({
           },
         },
       },
-      take: 6,
+      take: 1,
     });
   }),
+
+  byId: optionalProtectedProcedure
+    .input(z.string().min(1))
+    .query(({ ctx, input: id }) => {
+      const userId = ctx.session.user?.id;
+      if (!userId) {
+        return null;
+      }
+      return ctx.prisma.goal.findUnique({
+        where: { id },
+        include: {
+          executions: {
+            take: 1,
+            orderBy: { updatedAt: "desc" },
+            include: {
+              graph: {
+                include: {
+                  nodes: true,
+                  edges: true,
+                },
+              },
+              results: {
+                take: 40,
+                orderBy: { updatedAt: "desc" },
+              },
+            },
+          },
+        },
+      });
+    }),
 
   // Create a new goal
   create: optionalProtectedProcedure

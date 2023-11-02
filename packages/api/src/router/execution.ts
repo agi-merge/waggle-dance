@@ -1,13 +1,17 @@
 import { z } from "zod";
 
-import { hookRootUpToServerGraph, makeServerIdIfNeeded } from "@acme/agent";
+import {
+  hookRootUpToServerGraph,
+  makeServerIdIfNeeded,
+  type ModelCreationProps,
+} from "@acme/agent";
 import {
   ExecutionState,
   type DraftExecutionEdge,
   type DraftExecutionNode,
 } from "@acme/db";
 
-import { createTRPCRouter, protectedProcedure } from "../trpc";
+import { createTRPCRouter, protectedProcedure, publicProcedure } from "../trpc";
 import withLock from "./lock";
 
 export const dagShape = z.object({
@@ -55,6 +59,57 @@ export const executionRouter = createTRPCRouter({
           },
         },
       });
+    }),
+
+  createForAgentProtocol: protectedProcedure
+    .input(z.object({ prompt: z.string().nonempty() }))
+    .mutation(async ({ ctx, input }) => {
+      const { prompt } = input;
+      const userId = ctx.session.user.id;
+
+      // create a new goal
+      const goal = await ctx.prisma.goal.create({
+        data: {
+          prompt,
+          userId,
+        },
+      });
+
+      // create a new execution and attach it to the newly created goal
+      const execution = await ctx.prisma.execution.create({
+        data: {
+          goalId: goal.id,
+          userId,
+        },
+        include: {
+          goal: {
+            include: {
+              executions: {
+                take: 0,
+                orderBy: {
+                  updatedAt: "desc",
+                },
+                include: {
+                  graph: {
+                    include: {
+                      nodes: true,
+                      edges: true,
+                    },
+                  },
+                  results: {
+                    take: 0,
+                    orderBy: {
+                      updatedAt: "desc",
+                    },
+                  },
+                },
+              },
+            },
+          },
+        },
+      });
+
+      return execution;
     }),
 
   updateGraph: protectedProcedure
@@ -134,7 +189,7 @@ export const executionRouter = createTRPCRouter({
     }),
 
   byId: protectedProcedure
-    .input(z.object({ id: z.string().cuid() }))
+    .input(z.object({ id: z.string() }))
     .query(({ ctx, input }) => {
       const { id } = input;
       const userId = ctx.session.user.id;
@@ -144,6 +199,45 @@ export const executionRouter = createTRPCRouter({
           id,
           userId,
         },
+        include: {
+          graph: {
+            include: {
+              nodes: true,
+              edges: true,
+            },
+          },
+          results: {
+            take: 40,
+            orderBy: {
+              updatedAt: "desc",
+            },
+          },
+        },
       });
+    }),
+
+  createPlan: publicProcedure
+    .input(
+      z.object({
+        cookie: z.string().includes("next-auth.session-token="), //.regex(/^(.+;)*\s*=\s*(.+\s*;*)*$/),
+        goalPrompt: z.string().min(1),
+        goalId: z.string().min(1),
+        executionId: z.string().min(1),
+        creationProps: z.custom<ModelCreationProps>(),
+      }),
+    )
+    .mutation(async ({ ctx, input }) => {
+      const response = await fetch(`${ctx.origin}/api/agent/plan`, {
+        method: "POST",
+        headers: {
+          Cookie: input.cookie,
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify(input),
+      });
+      const planGraphText = await response.text();
+      // const planGraph = (await response.json()) as OldPlanWireFormat;
+      // return response.body;
+      return planGraphText;
     }),
 });
