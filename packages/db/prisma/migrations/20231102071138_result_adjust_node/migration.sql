@@ -1,0 +1,3 @@
+-- AlterTable
+ALTER TABLE "Result" ALTER COLUMN "packetVersion" SET DEFAULT 1,
+ALTER COLUMN "nodeId" DROP NOT NULL;
