@@ -41,7 +41,8 @@ class GoogleTrends extends SearchApi {
   static lc_name(): string {
     return "Google Trends";
   }
-  description = "Scrapes real time Google Trends results.";
+  description =
+    "Scrapes real time Google Trends results, via interest over time.";
   constructor(apiKey: string, params: Omit<SearchApiParameters, "engine">) {
     // FIXME: wrap to configure data_type
     super(apiKey, {
@@ -57,7 +58,7 @@ class GoogleScholar extends SearchApi {
     return "Google Scholar";
   }
   description =
-    "Scrapes real time results. Google Scholar API lets users search for academic content like articles, theses, and books from various sources. It ranks these items based on their text, author, where they're published, and how often they're cited. This helps users find relevant research quickly.";
+    "Scrapes real time results. Google Scholar API lets users search for academic content like articles, theses, and books from various sources.";
   constructor(apiKey: string, params: Omit<SearchApiParameters, "engine">) {
     super(apiKey, { ...params, engine: "google_scholar" });
     this.name = "Google Scholar";
@@ -68,7 +69,7 @@ class GoogleNews extends SearchApi {
     return "Google News";
   }
   description =
-    "Scrapes real-time results. Google News API offers an automated news aggregation service. It collects headlines from various sources globally, categorizes similar articles and presents them based on each user's interests. The API provides access to multiple links for each news story, allowing users to choose their topic of interest and select from different publishers' versions of the story. The selection and ranking of articles are performed by algorithms that assess factors such as the frequency and location of online appearance. It also prioritizes attributes like timeliness, relevance, diversity, and location. The system is impartial, enabling access to a wide range of perspectives for any story. Google is continuously improving News by adding new sources and enhancing its technology, extending its reach to more regions worldwide.";
+    "Scrapes real-time results. Google News API offers an automated news aggregation service. It collects headlines from various sources globally, categorizes similar articles and presents them based on each user's interests.";
   constructor(apiKey: string, params: Omit<SearchApiParameters, "engine">) {
     super(apiKey, { ...params, engine: "google_news" });
     this.name = "Google News";
@@ -79,7 +80,7 @@ class GoogleShopping extends SearchApi {
     return "Google Shopping";
   }
   description =
-    "Scrapes real-time results.The Google Shopping API delivers a dynamic product search and comparison service. It compiles product data from a multitude of biggest merchants across the globe, categorizes similar products, and presents them in accordance with each user's search query.";
+    "Scrapes real-time results.The Google Shopping API delivers a dynamic product search and comparison service.";
   constructor(apiKey: string, params: Omit<SearchApiParameters, "engine">) {
     super(apiKey, { ...params, engine: "google_shopping" });
     this.name = "Google Shopping";
@@ -90,7 +91,7 @@ class YouTube extends SearchApi {
     return "YouTube";
   }
   description =
-    "YouTube Search API scrapes real-time search results. It parses ads, videos, shorts, search suggestions, channels, playlists, and more. It supports infinite scrolling and all the native YouTube filters.";
+    "YouTube Search API scrapes real-time search results. It parses ads, videos, shorts, search suggestions, channels, playlists, and more.";
   constructor(apiKey: string, params: Omit<SearchApiParameters, "engine">) {
     super(apiKey, { ...params, engine: "youtube" });
     this.name = "YouTube";
