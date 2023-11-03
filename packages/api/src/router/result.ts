@@ -98,6 +98,7 @@ export const resultRouter = createTRPCRouter({
     .input(
       z.object({
         resultId: z.string().cuid().min(1).optional(),
+        nodeId: z.string().min(1).optional(),
         executionId: z.string().cuid().min(1),
         artifactUrl: z.string().url(),
       }),
@@ -132,7 +133,7 @@ export const resultRouter = createTRPCRouter({
           // look up the goal from the taskId
           const execution = await prisma.execution.findUnique({
             where: { id: executionId },
-            include: { goal: true },
+            include: { goal: true, graph: { include: { nodes: true } } },
           });
 
           const stubValue: AgentPacket = {

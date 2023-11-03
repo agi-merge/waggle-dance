@@ -5,7 +5,7 @@ import { getServerSession } from "next-auth";
 import { LLM_ALIASES } from "@acme/agent/src/utils/llms";
 import { appRouter } from "@acme/api";
 import { authOptions } from "@acme/auth";
-import { prisma, type DraftExecutionNode } from "@acme/db";
+import { prisma, type ExecutionPlusGraph, type Goal } from "@acme/db";
 
 // POST /ap/v1/agent/tasks
 export async function POST(request: NextRequest) {
@@ -71,7 +71,6 @@ export async function POST(request: NextRequest) {
 }
 
 // GET /ap/v1/agent/tasks
-// FIXME: this does not map cleanly to our model, so we will return all executions
 export async function GET(request: NextRequest) {
   const params = request.nextUrl.searchParams;
   const pageSize = Number(params.get("page_size") ?? 10);
@@ -83,22 +82,24 @@ export async function GET(request: NextRequest) {
     origin: request.nextUrl.origin,
   });
 
-  let nodes: DraftExecutionNode[];
+  // let nodes: DraftExecutionNode[];
+  let exes: ({ goal: Goal } & ExecutionPlusGraph)[];
   try {
-    const exe = await caller.graph.topByUser({ currentPage, pageSize });
-    nodes = exe?.graph?.nodes ?? [];
+    exes = await caller.execution.topByUser({ currentPage, pageSize });
+    // nodes = exe?.graph?.nodes ?? [];
   } catch {
-    nodes = [];
+    // nodes = [];
+    exes = [];
   }
   // remove the first node if its id matches rootPlanId
   // if (nodes[0]?.id === rootPlanId) {
-  nodes.shift();
+  // nodes.shift();
   // }
-  const totalItems = nodes.length;
+  const totalItems = exes.length;
   const totalPages = Math.ceil(totalItems / pageSize);
   const offset = (currentPage - 1) * pageSize;
 
-  const paginatedTasks = nodes.slice(offset, offset + pageSize);
+  const paginatedTasks = exes.slice(offset, offset + pageSize);
 
   const pagination = {
     total_items: totalItems,
@@ -107,10 +108,17 @@ export async function GET(request: NextRequest) {
     page_size: pageSize,
   };
 
-  const tasks: Task[] = paginatedTasks.map((exe) => ({
-    task_id: exe.id,
-    input: exe.context || undefined,
-    artifacts: [],
+  const tasks: Task[] = paginatedTasks.map((task) => ({
+    task_id: task.id,
+    input: task.goal.prompt,
+    artifacts:
+      task.results?.map((r) => ({
+        artifact_id: r.id,
+        agent_created: true,
+        file_name: r.artifactUrls[0] ?? "error",
+        relative_path: null,
+        created_at: r.createdAt.toISOString(),
+      })) ?? [],
   }));
 
   return Response.json({ tasks, pagination });

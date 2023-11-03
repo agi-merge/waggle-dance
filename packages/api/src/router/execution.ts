@@ -20,6 +20,35 @@ export const dagShape = z.object({
 });
 
 export const executionRouter = createTRPCRouter({
+  topByUser: protectedProcedure
+    .input(
+      z.object({
+        currentPage: z.number().min(1).default(1),
+        pageSize: z.number().min(1).default(1),
+      }),
+    )
+    .query(async ({ ctx, input }) => {
+      const { currentPage, pageSize } = input;
+      return await ctx.prisma.execution.findMany({
+        where: { userId: ctx.session?.user.id },
+        orderBy: { createdAt: "desc" },
+        skip: (currentPage - 1) * pageSize,
+        take: pageSize,
+        include: {
+          goal: true,
+          graph: {
+            include: {
+              nodes: true,
+              edges: true,
+            },
+          },
+          results: {
+            take: 40,
+            orderBy: { updatedAt: "desc" },
+          },
+        },
+      });
+    }),
   create: protectedProcedure
     .input(z.object({ goalId: z.string().nonempty() }))
     .mutation(({ ctx, input }) => {

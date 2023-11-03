@@ -60,6 +60,8 @@ import { createEmbeddings, createModel } from "../utils/model";
 import { type ModelCreationProps } from "../utils/OpenAIPropsBridging";
 import createSkills from "../utils/skills";
 
+// could be replaced with?
+// https://js.langchain.com/docs/modules/chains/additional/openai_functions/tagging
 const contextAndToolsOutputSchema = z.object({
   synthesizedContext: z.array(z.string()).optional(),
   tools: z.array(z.string()).optional(),

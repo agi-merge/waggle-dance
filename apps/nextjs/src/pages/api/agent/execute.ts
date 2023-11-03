@@ -1042,6 +1042,7 @@ export default async function ExecuteStream(req: NextRequest) {
           packet,
           packets: allSentPackets,
           state,
+          origin: req.nextUrl.origin,
         };
 
         const createResultPromise = fetch(`${req.nextUrl.origin}/api/result`, {

@@ -58,15 +58,15 @@ export async function POST(
   const goal = await caller.goal.byId(exe.goalId);
 
   const latestResult = exe.results.length > 0 ? exe.results[0] : null;
-  const latestResultNode = exe.graph?.nodes.find(
-    (n) => n.id === latestResult?.nodeId,
-  );
-  const task: DraftExecutionNode = {
+  exe.graph?.nodes.shift();
+  const latestResultNode =
+    exe.graph?.nodes.find((n) => n.id === latestResult?.nodeId) ||
+    exe.graph?.nodes.length
+      ? exe.graph?.nodes[0]
+      : null;
+  const node: DraftExecutionNode = {
     id: latestResultNode?.id || taskId,
-    name:
-      latestResultNode?.name ||
-      latestResultNode?.context ||
-      (body.input as string),
+    name: latestResultNode?.name || latestResultNode?.context || "error",
     graphId: exe.graph?.id,
     context: latestResultNode?.context || null,
   };
@@ -85,7 +85,7 @@ export async function POST(
     // dag: DraftExecutionGraph;
     // agentPromptingMethod: AgentPromptingMethod;
     executionId: taskId,
-    task,
+    task: node,
     goalId: exe.goalId,
     dag: exe.graph,
     revieweeTaskResults: [],
@@ -107,9 +107,9 @@ export async function POST(
     },
   );
 
-  const result = await executeResponse.text();
+  const executeResponseText = await executeResponse.text();
 
-  const packets = parse(result) as AgentPacket[];
+  const packets = parse(executeResponseText) as AgentPacket[];
 
   const finishPacket = findFinishPacket(packets);
 
@@ -118,22 +118,31 @@ export async function POST(
   const contentType = request.headers.get("content-type") || "";
   // const file = await request.blob();
 
-  const artifact = await uploadAndSaveResult({
-    file: result,
-    taskId,
+  const output = getMostRelevantOutput(finishPacket).output;
+  const { artifact, result } = await uploadAndSaveResult({
+    file: executeResponseText,
+    executionId: exe.id,
+    nodeId: latestResultNode?.id,
     contentType,
     origin: request.nextUrl.origin,
   });
+  const refreshedExe = await caller.execution.byId({ id: taskId });
+  const refreshedNode = refreshedExe?.graph?.nodes.find(
+    (n) => n.id === result.nodeId,
+  );
 
-  const resultForTask = exe.results.find((r) => r.nodeId === task.id);
-  const output = getMostRelevantOutput(finishPacket).output;
   const responseObject = {
     input: body.input,
     additional_input: {}, // Update this based on your logic
     task_id: taskId,
-    step_id: task.id,
-    name: task.name,
-    status: "created", // Update this based on your logic
+    step_id: refreshedNode?.id,
+    name: refreshedNode?.name,
+    status:
+      result.packets.length === 0
+        ? "created"
+        : result.value
+        ? "completed"
+        : "running", // Update this based on your logic
     output, // Update this based on your logic
     // additional_output: { packets }, // Update this based on your logic
 
@@ -146,7 +155,7 @@ export async function POST(
     // };
     artifacts: [artifact], // Update this based on your logic
     is_last: exe.graph?.nodes.length
-      ? exe.graph.nodes[exe.graph.nodes.length - 1]?.id === task.id
+      ? exe.graph.nodes[exe.graph.nodes.length - 1]?.id === node.id
       : false, // Update this based on your logic
   };
 

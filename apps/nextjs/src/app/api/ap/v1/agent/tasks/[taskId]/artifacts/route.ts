@@ -7,7 +7,7 @@ import { getServerSession } from "next-auth";
 
 import { appRouter } from "@acme/api";
 import { authOptions } from "@acme/auth";
-import { prisma } from "@acme/db";
+import { prisma, type Result } from "@acme/db";
 
 //
 // List all artifacts that have been created for the given task.
@@ -48,9 +48,6 @@ export async function GET(
     return NextResponse.json("Artifact not found", { status: 404 });
   }
 
-  // Redirect to the blob URL
-  // return NextResponse.redirect(artifact.blobUrl);
-
   return NextResponse.json(result, { status: 200 });
 }
 
@@ -76,14 +73,15 @@ export async function POST(
   const contentType = req.headers.get("content-type") || "";
   const file = await req.blob();
 
-  const response = await uploadAndSaveResult({
+  const { artifact } = await uploadAndSaveResult({
     contentType,
     file,
-    taskId,
+    nodeId: undefined,
+    executionId: taskId,
     origin: req.nextUrl.origin,
   });
 
-  return NextResponse.json(response, { status: 201 });
+  return NextResponse.json(artifact, { status: 201 });
 }
 
 type UploadFileParams = {
@@ -94,7 +92,7 @@ type UploadFileParams = {
     | Blob
     | ArrayBuffer
     | FormData
-    | ReadableStream<any>
+    | ReadableStream<unknown>
     | File;
 };
 
@@ -116,14 +114,17 @@ export async function uploadFile({ contentType, file }: UploadFileParams) {
 
 type UploadAndSaveResultParams = UploadFileParams & {
   origin: string;
-  taskId: string;
+  executionId: string;
+  nodeId: string | undefined;
 };
 export async function uploadAndSaveResult({
   origin,
-  taskId,
+  executionId,
+  nodeId,
   ...uploadFileParams
-}: UploadAndSaveResultParams): Promise<Artifact> {
-  const { artifactId, blobUrl } = await uploadFile(uploadFileParams);
+}: UploadAndSaveResultParams): Promise<{ result: Result; artifact: Artifact }> {
+  const { artifactId: _artifactId, blobUrl } =
+    await uploadFile(uploadFileParams);
 
   const session = (await getServerSession(authOptions)) || null;
   const caller = appRouter.createCaller({
@@ -133,16 +134,20 @@ export async function uploadAndSaveResult({
   });
 
   const result = await caller.result.upsertAppendArtifactUrl({
-    executionId: taskId,
+    executionId,
+    nodeId,
     resultId: undefined,
     artifactUrl: blobUrl,
   });
 
   return {
-    artifact_id: result.id,
-    file_name: result.artifactUrls[0] || "error",
-    agent_created: true,
-    relative_path: null,
-    created_at: result.createdAt.toISOString(),
+    result,
+    artifact: {
+      artifact_id: result.id,
+      file_name: result.artifactUrls[0] || "error",
+      agent_created: true,
+      relative_path: null,
+      created_at: result.createdAt.toISOString(),
+    },
   };
 }
