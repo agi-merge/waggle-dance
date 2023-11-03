@@ -27,13 +27,23 @@ export function middleware(req: NextRequest) {
   const allowedClientsStr =
     allowedClients.length > 0 ? allowedClients.join(" ") : "";
 
-  // Create a base CSP
+  // Pick the correct bypass/restriction for the environment
+  const cspAllowSet = ["/api", "/_next/static", "/_next/image", "/favicon.ico"];
+  const isUnsafeInlineAllowed = cspAllowSet.some((path) =>
+    url.pathname.startsWith(path),
+  );
+  const unsafeInlineIfNeeded = isUnsafeInlineAllowed ? "'unsafe-inline'" : " ";
   const nonceOrUnsafeForDevScript =
     env.NODE_ENV === "development"
       ? "'unsafe-inline' 'unsafe-eval'"
-      : `'nonce-${nonce}'`;
+      : `${unsafeInlineIfNeeded}'nonce-${nonce}'`;
   const nonceOrUnsafeForDevStyle =
-    env.NODE_ENV === "development" ? "'unsafe-inline'" : `'nonce-${nonce}'`;
+    env.NODE_ENV === "development"
+      ? "'unsafe-inline'"
+      : `${unsafeInlineIfNeeded}'nonce-${nonce}'`;
+
+  // Create the CSP
+
   const csp = `
     default-src 'self' ${allowedClientsStr};
     script-src 'self' ${nonceOrUnsafeForDevScript} ${allowedClientsStr};
