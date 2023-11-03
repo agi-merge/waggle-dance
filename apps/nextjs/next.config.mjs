@@ -32,6 +32,36 @@ const config = {
 
     return config;
   },
+  async headers() {
+    if (!process.env.ALLOW_API_CLIENTS) {
+      return [];
+    }
+    const json = JSON.parse(process.env.ALLOW_API_CLIENTS);
+    const allowedClients = Object.entries(json);
+    const headers = allowedClients.map(([domain, client]) => {
+      return {
+        source: client.source,
+        headers: [
+          { key: "Access-Control-Allow-Credentials", value: "true" },
+          {
+            key: "Access-Control-Allow-Origin",
+            value: domain,
+          },
+          {
+            key: "Access-Control-Allow-Methods",
+            value: "GET,DELETE,PATCH,POST,PUT,OPTION",
+          },
+          {
+            key: "Access-Control-Allow-Headers",
+            value:
+              "Authorization, X-Cookie, X-CSRF-Token, X-Requested-With,  Content-Length, Content-MD5, Content-Type, Date, X-Api-Version",
+          },
+        ],
+      };
+    });
+
+    return headers;
+  },
   // async headers() {
   //   if (process.env.NODE_ENV === "development" && process.env.CORS_BYPASS_URL) {
   //     console.warn("Bypassing CORS");

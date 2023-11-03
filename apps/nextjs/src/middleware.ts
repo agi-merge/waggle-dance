@@ -2,10 +2,16 @@ import { NextResponse, type NextRequest } from "next/server";
 
 import { type Geo } from "@acme/agent";
 
+import { env } from "./env.mjs";
+
 export const config = {
   matcher: [
     {
-      source: "/api/:path*",
+      source: "/:path*",
+      missing: [
+        { type: "header", key: "next-router-prefetch" },
+        { type: "header", key: "purpose", value: "prefetch" },
+      ],
     },
   ],
   runtime: "experimental-edge",
@@ -13,6 +19,41 @@ export const config = {
 
 export function middleware(req: NextRequest) {
   const { nextUrl: url } = req;
+
+  const nonce = Buffer.from(crypto.randomUUID()).toString("base64");
+
+  // Add allowed clients to CSP
+  const allowedClients = Object.keys(env.ALLOW_API_CLIENTS);
+  const allowedClientsStr =
+    allowedClients.length > 0 ? allowedClients.join(" ") : "";
+
+  // Create a base CSP
+  const csp = `
+    default-src 'self' ${allowedClientsStr};
+    script-src 'self' 'nonce-${nonce}' 'strict-dynamic';
+    style-src 'self' 'nonce-${nonce}';
+    img-src 'self' blob: data:;
+    font-src 'self';
+    object-src 'none';
+    base-uri 'self';
+    form-action 'self';
+    frame-ancestors 'none';
+    block-all-mixed-content;
+    upgrade-insecure-requests;
+    connect-src ${allowedClientsStr};
+  `
+    .replace(/\s{2,}/g, " ")
+    .trim();
+
+  let response;
+
+  // const requestHeaders = new Headers(req.headers);
+  // requestHeaders.set("x-nonce", nonce);
+  // requestHeaders.set("Content-Security-Policy", csp);
+
+  const requestHeaders = new Headers(req.headers);
+  requestHeaders.set("x-nonce", nonce);
+  requestHeaders.set("Content-Security-Policy", csp);
 
   if (url.pathname.startsWith("/api/agent/")) {
     const { geo } = req as { geo: Geo };
@@ -25,40 +66,65 @@ export function middleware(req: NextRequest) {
     url.searchParams.set("city", city);
     url.searchParams.set("region", region);
 
-    return NextResponse.rewrite(url);
+    response = NextResponse.rewrite(url, {});
   } else {
-    // const nonce = Buffer.from(crypto.randomUUID()).toString("base64");
-    const requestHeaders = new Headers(req.headers);
-    // allow bypassing CORS for agent protocol requests
-    // if (env.NODE_ENV === "development" && env.CORS_BYPASS_URL) {
-    if (url.pathname.startsWith("/api/ap/")) {
-      const rawAuthToken = req.headers.get("Authorization") || "";
-      // Check if the Authorization header is in the expected format
-      if (rawAuthToken.startsWith("Bearer ")) {
-        const authTokenParts = rawAuthToken.split(" ");
-        // Check if the split operation resulted in the expected number of parts
-        if (authTokenParts.length === 2) {
-          const authToken = authTokenParts[1]!;
-          // Remove any non-alphanumeric characters from the token
-          // const sanitizedAuthToken = authToken.replace(/[^a-zA-Z0-9]/g, "");
-          const cookieValueRegex = /^[a-zA-Z0-9\-_.]+$/;
-          if (cookieValueRegex.test(authToken)) {
-            requestHeaders.append(
-              "Cookie",
-              `${
-                url.protocol === "https:" ? "__Secure-" : ""
-              }next-auth.session-token=${authToken};`,
-            );
-          }
-        }
+    response = NextResponse.next({
+      headers: requestHeaders,
+      request: {
+        headers: requestHeaders,
+      },
+    });
+  }
 
-        return NextResponse.next({
-          headers: requestHeaders,
-          request: {
-            headers: requestHeaders,
-          },
-        });
+  response.headers.set("Content-Security-Policy", csp);
+  response.headers.set("x-nonce", nonce);
+
+  // Set the Access-Control-Allow-Origin header
+  const origin = req.headers.get("Origin");
+  if (origin && allowedClients.includes(origin)) {
+    response.headers.set("Access-Control-Allow-Origin", origin);
+    response.headers.set("Access-Control-Allow-Credentials", "true");
+    response.headers.set(
+      "Access-Control-Allow-Methods",
+      ["GET", "DELETE", "PATCH", "POST", "PUT", "OPTION"].join(","),
+    );
+    response.headers.set(
+      "Access-Control-Allow-Headers",
+      "Authorization, X-Cookie, X-CSRF-Token, X-Requested-With,  Content-Length, Content-MD5, Content-Type, Date, X-Api-Version",
+    );
+  }
+
+  setCookieFromXCookie(req, url, response.headers);
+
+  return response;
+}
+
+// this logic must change to support bearer
+function setCookieFromXCookie(
+  req: NextRequest,
+  url: URL,
+  requestHeaders: Headers,
+) {
+  if (url.pathname.startsWith("/api/ap/")) {
+    const rawAuthToken = req.headers.get("X-Cookie") || "";
+    // Check if the Authorization header is in the expected format
+    if (rawAuthToken.length) {
+      // const authTokenParts = rawAuthToken.split(" ");
+      // // Check if the split operation resulted in the expected number of parts
+      // if (authTokenParts.length === 2) {
+      //   const authToken = authTokenParts[1];
+      // Remove any non-alphanumeric characters from the token
+      const cookieValueRegex = /^[a-zA-Z0-9\-_.]+$/;
+      if (cookieValueRegex.test(rawAuthToken)) {
+        requestHeaders.append(
+          "Cookie",
+          `${
+            url.protocol === "https:" ? "__Secure-" : ""
+          }next-auth.session-token=${rawAuthToken};`,
+        );
       }
+      // }
     }
   }
+  return requestHeaders;
 }

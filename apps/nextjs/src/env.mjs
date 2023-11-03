@@ -7,6 +7,14 @@ const StartsWithCapital = z.string().refine((value) => /^[A-Z]/.test(value), {
   message: "Must start with a capital letter",
 });
 
+const ApiClientSchema = z.object({
+  source: z.string(),
+  authType: z.enum(["Bearer", "Cookie"]),
+  apiKeys: z.record(z.string()).optional(),
+});
+
+const AllowApiClientsSchema = z.record(ApiClientSchema);
+
 export const env = createEnv({
   skipValidation: !!process.env.SKIP_ENV_VALIDATION,
   /**
@@ -87,7 +95,20 @@ export const env = createEnv({
     POSTGRES_PRISMA_URL: z.string().url(),
     POSTGRES_URL_NON_POOLING: z.string().url(),
     BLOB_READ_WRITE_TOKEN: z.string().min(1).startsWith("vercel_blob_rw_"),
-    CORS_BYPASS_URL: z.string().url().optional(),
+    ALLOW_API_CLIENTS: z
+      .string()
+      .optional()
+      .transform((str) => {
+        try {
+          // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
+          const json = str ? JSON.parse(str) : {};
+          return AllowApiClientsSchema.parse(json);
+        } catch (e) {
+          throw new Error("ALLOW_API_CLIENTS must be a valid JSON string", {
+            cause: e,
+          });
+        }
+      }),
   },
   /**
    * Specify your client-side environment variables schema here.
@@ -172,6 +193,6 @@ export const env = createEnv({
     POSTGRES_URL_NON_POOLING: process.env.POSTGRES_URL_NON_POOLING,
     NEXT_PUBLIC_HIDE_LLM: process.env.NEXT_PUBLIC_HIDE_LLM,
     BLOB_READ_WRITE_TOKEN: process.env.BLOB_READ_WRITE_TOKEN,
-    CORS_BYPASS_URL: process.env.CORS_BYPASS_URL,
+    ALLOW_API_CLIENTS: process.env.ALLOW_API_CLIENTS,
   },
 });
