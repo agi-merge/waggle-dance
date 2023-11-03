@@ -28,6 +28,38 @@ type ToolsAndContextExample = {
 const toolsAndContextExamples: ToolsAndContextExample[] = [
   {
     exampleRemarks: {
+      "Self-Awareness":
+        "As a LLM, it is implied that the agent can understand HTML, CSS, etc, so no superfluous information was added to the context.",
+      "Input Variables":
+        "All necessary input variables like  URL were included directly in the context.",
+      "Formatting Safety":
+        "Special characters which could have wrapped the URL, such as single quotes, were escaped or omitted.",
+    },
+    input: {
+      task: "Access and extract text from https://silennaihin.com/random/plain.html",
+      inServiceOfGoal:
+        "Open https://silennaihin.com/random/plain.html and paste all of the text on the page in a .txt file",
+      availableTools: [
+        "Figma",
+        "Web Browser",
+        "Google Search",
+        "Stack Overflow",
+        "GitHub Search",
+        "Write File",
+        "JavaScript eval()",
+      ],
+    },
+    output: {
+      synthesizedContext: [
+        "The task involves accessing and extracting text from a website: https://silennaihin.com/random/plain.html, and writing it to a .txt file.",
+        "The text shall not be interpreted or summarized, only extracted.",
+        "If the web browser is not fruitful, try using a more advanced scraping library by running JavaScript",
+      ],
+      tools: ["Web Browser", "Write File", "JavaScript eval()"],
+    },
+  },
+  {
+    exampleRemarks: {
       contextInsight:
         "The synthesized context captures the intricacies of translation, emphasizing the importance of understanding both languages and cultural nuances.",
       toolStrategy:
