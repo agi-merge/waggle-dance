@@ -126,7 +126,7 @@ export async function POST(
     contentType,
     origin: request.nextUrl.origin,
   });
-  const refreshedExe = await caller.execution.byId({ id: taskId });
+  const refreshedExe = await caller.execution.byId({ id: exe.id });
   const refreshedNode = refreshedExe?.graph?.nodes.find(
     (n) => n.id === result.nodeId,
   );

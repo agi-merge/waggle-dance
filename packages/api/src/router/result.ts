@@ -104,7 +104,7 @@ export const resultRouter = createTRPCRouter({
       }),
     )
     .mutation(async ({ ctx, input }) => {
-      const { executionId, resultId, artifactUrl } = input;
+      const { executionId, resultId, artifactUrl, nodeId } = input;
 
       return await ctx.prisma.$transaction(async (prisma) => {
         // Fetch the existing result
@@ -144,6 +144,7 @@ export const resultRouter = createTRPCRouter({
           const result = await ctx.prisma.result.create({
             data: {
               execution: { connect: { id: executionId } },
+              node: { connect: { id: nodeId } },
               goal: { connect: { id: execution?.goalId } },
               value: stubValue,
               packets: [stubValue],
