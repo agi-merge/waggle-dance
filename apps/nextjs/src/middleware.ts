@@ -82,21 +82,32 @@ export function middleware(req: NextRequest) {
         );
       }
     } else {
+      // Create a variable to hold both URLs
+      const cspDomains = `${env.NEXTAUTH_URL} ${env.VERCEL_URL}`;
+
+      // Use the variable in your CSP
       const cspHeader = `
-        default-src 'self';
-        script-src 'self' 'nonce-${nonce}' 'strict-dynamic' ${env.NEXTAUTH_URL};
-        worker-src 'self' ${env.NEXTAUTH_URL};
-        style-src 'self' 'nonce-${nonce}' ${env.NEXTAUTH_URL};
-        img-src 'self' blob: data: ${env.NEXTAUTH_URL};
-        font-src 'self' ${env.NEXTAUTH_URL};
-        object-src 'none';
-        base-uri 'self';
-        form-action 'self';
-        frame-ancestors 'none';
-        block-all-mixed-content;
-        upgrade-insecure-requests;
-        connect-src 'self' ${env.NEXTAUTH_URL};
-      `;
+  default-src 'self' ${cspDomains};
+  script-src 'self' 'nonce-${nonce}' 'strict-dynamic' ${cspDomains};
+  worker-src 'self' ${cspDomains};
+  style-src 'self' 'nonce-${nonce}' ${cspDomains};
+  img-src 'self' blob: data: ${cspDomains};
+  font-src 'self' ${cspDomains};
+  object-src 'none';
+  base-uri 'self';
+  form-action 'self';
+  frame-ancestors 'none';
+  block-all-mixed-content;
+  upgrade-insecure-requests;
+  connect-src 'self' ${cspDomains};
+`;
+
+      requestHeaders.set("x-nonce", nonce);
+      requestHeaders.set(
+        "Content-Security-Policy",
+        // Replace newline characters and spaces
+        cspHeader.replace(/\s{2,}/g, " ").trim(),
+      );
       requestHeaders.set("x-nonce", nonce);
       requestHeaders.set(
         "Content-Security-Policy",
