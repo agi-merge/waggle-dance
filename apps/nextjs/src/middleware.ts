@@ -50,10 +50,6 @@ export function middleware(req: NextRequest) {
 
   let response;
 
-  // const requestHeaders = new Headers(req.headers);
-  // requestHeaders.set("x-nonce", nonce);
-  // requestHeaders.set("Content-Security-Policy", csp);
-
   const requestHeaders = new Headers(req.headers);
   requestHeaders.set("x-nonce", nonce);
   requestHeaders.set("Content-Security-Policy", csp);
@@ -79,8 +75,6 @@ export function middleware(req: NextRequest) {
     });
   }
 
-  const cspAllowSet = ["/api", "/_next/static", "/_next/image", "/favicon.ico"];
-
   // Set the Access-Control-Allow-Origin header
   const origin = req.headers.get("Origin");
   if (origin && allowedClients.includes(origin)) {
@@ -97,11 +91,7 @@ export function middleware(req: NextRequest) {
     setCookieFromXCookie(req, url, response.headers);
   }
   response.headers.set("x-nonce", nonce);
-  if (!cspAllowSet.find((p) => url.pathname.startsWith(p))) {
-    response.headers.set("Content-Security-Policy", csp);
-  } else {
-    response.headers.delete("Content-Security-Policy");
-  }
+  response.headers.set("Content-Security-Policy", csp);
 
   return response;
 }
