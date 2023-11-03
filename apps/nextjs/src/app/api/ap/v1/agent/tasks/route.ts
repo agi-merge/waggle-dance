@@ -11,14 +11,17 @@ import { prisma, type DraftExecutionNode } from "@acme/db";
 export async function POST(request: NextRequest) {
   const body = (await request.json()) as TaskRequestBody;
   if (!body.input) {
-    return;
-    Response.json({ message: "Input is required" }, { status: 400 });
+    return Response.json({ message: "Input is required" }, { status: 400 });
   }
   const additionalInput = body.additional_input as { goal_id: string };
   let additionalGoalId: string | null = null;
   if (additionalInput && additionalInput.goal_id) {
     additionalGoalId = additionalInput.goal_id;
   }
+
+  // const headers = request.headers.forEach((value, key) => {
+  //   console.log(`${key} = ${value}`);
+  // });
 
   // create a goal and exe
   const session = (await getServerSession(authOptions)) || null;
@@ -46,9 +49,25 @@ export async function POST(request: NextRequest) {
     task_id: exe.id,
     input: body.input,
     artifacts: [],
+    additional_input: {},
   };
 
-  return Response.json(task, { status: 200 });
+  request.headers.delete("Content-Type");
+  const headers = new Headers();
+  // request.headers.forEach((value, key) => {
+  //   if (key.toLowerCase() !== "content-type") {
+  //     headers.set(key, value);
+  //     console.log(`${key} = ${value}`);
+  //   }
+  // });
+
+  const response = Response.json(task, { status: 201, headers });
+  response.headers.delete("Content-Type");
+  response.headers.forEach((_value, key) => {
+    response.headers.delete(key);
+  });
+  response.headers.set("Content-Type", "application/json; charset=utf-8");
+  return response;
 }
 
 // GET /ap/v1/agent/tasks
@@ -71,6 +90,10 @@ export async function GET(request: NextRequest) {
   } catch {
     nodes = [];
   }
+  // remove the first node if its id matches rootPlanId
+  // if (nodes[0]?.id === rootPlanId) {
+  nodes.shift();
+  // }
   const totalItems = nodes.length;
   const totalPages = Math.ceil(totalItems / pageSize);
   const offset = (currentPage - 1) * pageSize;

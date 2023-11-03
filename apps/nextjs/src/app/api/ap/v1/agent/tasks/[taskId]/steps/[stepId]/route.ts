@@ -39,6 +39,5 @@ export async function GET(
 
   return Response.json(step, {
     status: 200,
-    headers: { "content-type": "application/json" },
   });
 }

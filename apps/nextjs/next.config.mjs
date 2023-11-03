@@ -32,6 +32,35 @@ const config = {
 
     return config;
   },
+  async headers() {
+    if (process.env.NODE_ENV === "development" && process.env.CORS_BYPASS_URL) {
+      console.warn("Bypassing CORS");
+      return [
+        {
+          // matching all API routes
+          source: "/api/:path*",
+          headers: [
+            { key: "Access-Control-Allow-Credentials", value: "true" },
+            {
+              key: "Access-Control-Allow-Origin",
+              value: process.env.CORS_BYPASS_URL,
+            },
+            {
+              key: "Access-Control-Allow-Methods",
+              value: "GET,DELETE,PATCH,POST,PUT,OPTION",
+            },
+            {
+              key: "Access-Control-Allow-Headers",
+              value:
+                "Authorization, X-CSRF-Token, X-Requested-With,  Content-Length, Content-MD5, Content-Type, Date, X-Api-Version",
+            },
+          ],
+        },
+      ];
+    } else {
+      return [];
+    }
+  },
 };
 
 export default config;

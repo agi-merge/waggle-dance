@@ -1,14 +1,25 @@
 import { NextResponse, type NextRequest } from "next/server";
-import { type StepRequestBody } from "lib/AgentProtocol/types";
+import {
+  type Artifact,
+  type Step,
+  type StepRequestBody,
+  type StepStatus,
+} from "lib/AgentProtocol/types";
 import { getServerSession } from "next-auth";
 import { parse } from "yaml";
 
+import {
+  findFinishPacket,
+  getMostRelevantOutput,
+  type AgentPacket,
+} from "@acme/agent";
 import { AgentPromptingMethod, LLM_ALIASES } from "@acme/agent/src/utils/llms";
 import { appRouter } from "@acme/api";
 import { authOptions } from "@acme/auth";
 import { prisma, type DraftExecutionNode } from "@acme/db";
 
 import { type ExecuteRequestBody } from "~/features/WaggleDance/types/types";
+import { uploadAndSaveResult } from "../artifacts/route";
 
 // POST /ap/v1/agent/tasks/:taskId/steps
 export async function POST(
@@ -23,9 +34,9 @@ export async function POST(
   }
   const body = (await request.json()) as StepRequestBody;
 
-  if (!body.input) {
-    return Response.json({ message: "Input is required" }, { status: 400 });
-  }
+  // if (!body.input) {
+  //   return Response.json({ message: "Input is required" }, { status: 400 });
+  // }
 
   const session = (await getServerSession(authOptions)) || null;
 
@@ -46,14 +57,27 @@ export async function POST(
   }
   const goal = await caller.goal.byId(exe.goalId);
 
-  const completedTasks = exe.results.length;
-
+  const latestResult = exe.results.length > 0 ? exe.results[0] : null;
+  const latestResultNode = exe.graph?.nodes.find(
+    (n) => n.id === latestResult?.nodeId,
+  );
   const task: DraftExecutionNode = {
-    id: completedTasks.toString(),
-    name: body.input as string,
+    id: latestResultNode?.id || taskId,
+    name:
+      latestResultNode?.name ||
+      latestResultNode?.context ||
+      (body.input as string),
     graphId: exe.graph?.id,
-    context: null,
+    context: latestResultNode?.context || null,
   };
+  // const completedTasks = exe.results.length;
+
+  // const task: DraftExecutionNode = {
+  //   id: completedTasks.toString(),
+  //   name: body.input as string,
+  //   graphId: exe.graph?.id,
+  //   context: null,
+  // };
   const input = {
     //   executionId: string;
     // task: DraftExecutionNode;
@@ -85,7 +109,58 @@ export async function POST(
 
   const result = await executeResponse.text();
 
-  return Response.json(parse(result), { status: 200 });
+  const packets = parse(result) as AgentPacket[];
+
+  const finishPacket = findFinishPacket(packets);
+
+  // upload artifact
+
+  const contentType = request.headers.get("content-type") || "";
+  // const file = await request.blob();
+
+  const artifact = await uploadAndSaveResult({
+    file: result,
+    taskId,
+    contentType,
+    origin: request.nextUrl.origin,
+  });
+
+  const resultForTask = exe.results.find((r) => r.nodeId === task.id);
+  const output = getMostRelevantOutput(finishPacket).output;
+  const responseObject = {
+    input: body.input,
+    additional_input: {}, // Update this based on your logic
+    task_id: taskId,
+    step_id: task.id,
+    name: task.name,
+    status: "created", // Update this based on your logic
+    output, // Update this based on your logic
+    // additional_output: { packets }, // Update this based on your logic
+
+    // export type Artifact = {
+    //   artifact_id: string;
+    //   agent_created: boolean;
+    //   file_name: string;
+    //   relative_path: string | null;
+    //   created_at: string;
+    // };
+    artifacts: [artifact], // Update this based on your logic
+    is_last: exe.graph?.nodes.length
+      ? exe.graph.nodes[exe.graph.nodes.length - 1]?.id === task.id
+      : false, // Update this based on your logic
+  };
+
+  request.headers.delete("Content-Type");
+  request.headers.delete("Content-Type");
+  const headers = new Headers();
+  const response = Response.json(responseObject, { status: 200, headers });
+  response.headers.delete("Content-Type");
+  response.headers.forEach((_value, key) => {
+    response.headers.delete(key);
+  });
+  // response.headers.set("Content-Type", "application/json; charset=utf-8");
+
+  return response;
 }
 
 // GET /ap/v1/agent/tasks/:taskId/steps
@@ -111,23 +186,69 @@ export async function GET(
   const execution = await caller.execution.byId({ id: taskId });
 
   const results = execution?.results;
+  execution?.graph?.nodes.shift();
   const steps = execution?.graph?.nodes.map((node, i) => {
-    const artifactFromResult = results?.find((r) => r.nodeId === node.id)
-      ?.value;
-    const isLast = i === execution?.graph?.nodes.length ?? 0 - 1;
-    return {
+    const resultForStep = results?.find((r) => r.nodeId === node.id);
+    const artifactFromResult = JSON.stringify(resultForStep?.value);
+    const isLast = i === (execution?.graph?.nodes.length ?? 0) - 1;
+    const status = resultForStep?.value
+      ? "completed"
+      : resultForStep?.packets.length ?? 0 > 0
+      ? "running"
+      : "created";
+    const artifact: Artifact | null =
+      status === "completed"
+        ? {
+            artifact_id: resultForStep?.id || node.id,
+            agent_created: true,
+            file_name: resultForStep?.artifactUrls[0] ?? "error",
+            relative_path: null,
+            created_at:
+              resultForStep?.createdAt.toISOString() ??
+              new Date().toISOString(),
+          }
+        : null;
+    const step: Step = {
       name: node.name,
+      input: node.context || node.name,
       output: artifactFromResult,
-      artifacts: [],
+      artifacts: (artifact && [artifact]) || [],
       is_last: isLast,
-      input: node.context,
       task_id: taskId,
       step_id: node.id,
-      status: artifactFromResult,
+      status: status as StepStatus,
     };
+
+    return step;
   });
-  return Response.json(steps, {
-    status: 200,
-    headers: { "content-type": "application/json" },
+
+  // Define pagination object
+  const pagination = {
+    total_items: steps?.length || 0,
+    total_pages: 1, // Update this based on your pagination logic
+    current_page: 1, // Update this based on your pagination logic
+    page_size: steps?.length || 0, // Update this based on your pagination logic
+  };
+
+  request.headers.delete("Content-Type");
+  request.headers.delete("Content-Type");
+  const headers = new Headers();
+  // request.headers.forEach((value, key) => {
+  //   if (key.toLowerCase() !== "content-type") {
+  //     headers.set(key, value);
+  //     console.log(`${key} = ${value}`);
+  //   }
+  // });
+
+  const response = Response.json(
+    { steps, pagination },
+    { status: 200, headers },
+  );
+  response.headers.delete("Content-Type");
+  response.headers.forEach((_value, key) => {
+    response.headers.delete(key);
   });
+  // response.headers.set("Content-Type", "application/json; charset=utf-8");
+
+  return response;
 }

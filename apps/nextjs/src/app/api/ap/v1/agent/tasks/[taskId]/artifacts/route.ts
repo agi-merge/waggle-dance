@@ -1,5 +1,7 @@
+import { type Readable } from "stream";
 import { NextResponse, type NextRequest } from "next/server";
 import { put } from "@vercel/blob";
+import { type Artifact } from "lib/AgentProtocol/types";
 import { customAlphabet } from "nanoid";
 import { getServerSession } from "next-auth";
 
@@ -70,32 +72,77 @@ export async function POST(
   if (!taskId) {
     return Response.json("taskId in path is required", { status: 400 });
   }
-  const file = req.body || "";
-  const contentType = req.headers.get("content-type") || "text/plain";
 
+  const contentType = req.headers.get("content-type") || "";
+  const file = await req.blob();
+
+  const response = await uploadAndSaveResult({
+    contentType,
+    file,
+    taskId,
+    origin: req.nextUrl.origin,
+  });
+
+  return NextResponse.json(response, { status: 201 });
+}
+
+type UploadFileParams = {
+  contentType: string;
+  file:
+    | string
+    | Readable
+    | Blob
+    | ArrayBuffer
+    | FormData
+    | ReadableStream<any>
+    | File;
+};
+
+export async function uploadFile({ contentType, file }: UploadFileParams) {
   const artifactId = nanoid();
   const filename = `${artifactId}.${contentType.split("/")[1]}`;
-  // const filename = `${query.get("task_id")}/${query.get("relative_path")}`;
+
   const blob = await put(filename, file, {
     contentType,
     access: "public",
     addRandomSuffix: true,
   });
 
+  return {
+    artifactId: artifactId,
+    blobUrl: blob.url,
+  };
+}
+
+type UploadAndSaveResultParams = UploadFileParams & {
+  origin: string;
+  taskId: string;
+};
+export async function uploadAndSaveResult({
+  origin,
+  taskId,
+  ...uploadFileParams
+}: UploadAndSaveResultParams): Promise<Artifact> {
+  const { artifactId, blobUrl } = await uploadFile(uploadFileParams);
+
   const session = (await getServerSession(authOptions)) || null;
   const caller = appRouter.createCaller({
     session,
     prisma,
-    origin: req.nextUrl.origin,
+    origin,
   });
 
   const result = await caller.result.upsertAppendArtifactUrl({
     executionId: taskId,
     resultId: undefined,
-    artifactUrl: blob.url,
+    artifactUrl: blobUrl,
   });
-  return NextResponse.json({
+
+  return {
     artifact_id: result.id,
-    url: result.artifactUrls[0],
-  });
+    file_name: result.artifactUrls[0] || "error",
+    agent_created: true,
+    relative_path: null,
+    created_at: result.createdAt.toISOString(),
+  };
 }

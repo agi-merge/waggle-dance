@@ -71,7 +71,7 @@ const BottomControls: React.FC<BottomControlsProps> = ({
         )}
 
         <Stack
-          direction={{ xs: "column", sm: "row" }}
+          direction={{ sm: "column", md: "row" }}
           gap={1}
           className="flex w-full items-center"
         >
@@ -80,7 +80,7 @@ const BottomControls: React.FC<BottomControlsProps> = ({
               goalId={selectedGoal.id}
               executions={selectedGoal.executions}
               sx={{
-                width: { xs: "100%", sm: "40vw" },
+                width: { sm: "100%", md: "40vw" },
                 flex: "1 1 auto",
               }}
               className="overflow-clip"

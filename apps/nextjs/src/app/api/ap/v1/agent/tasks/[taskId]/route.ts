@@ -1,5 +1,5 @@
 import { type NextRequest } from "next/server";
-import { type Task } from "lib/AgentProtocol/types";
+import { type Artifact, type Task } from "lib/AgentProtocol/types";
 import { getServerSession } from "next-auth";
 
 import { appRouter } from "@acme/api";
@@ -87,12 +87,21 @@ export async function GET(
   // file_name: string;
   // relative_path: string | null;
   // created_at: string;
-  // const artifacts: Artifact[] = exe.results?.map((r) => {return {artifact_id: r.id, "agent_created": true, file_name: r. }}) || [];
+  const artifacts: Artifact[] =
+    exe.results?.map((r) => {
+      return {
+        artifact_id: r.id,
+        agent_created: true,
+        file_name: r.artifactUrls[0] ?? "error",
+        relative_path: null,
+        created_at: r.createdAt.toISOString() ?? new Date().toISOString(),
+      };
+    }) || [];
 
   const task: Task = {
     task_id: taskId,
     input: goal?.prompt,
-    artifacts: [],
+    artifacts,
     // this was required by the tests, but it is not being passed through our data model.
     additional_input: {},
   };

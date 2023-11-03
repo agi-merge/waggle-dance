@@ -78,7 +78,7 @@ export default function GoalInput({}: GoalInputProps) {
                 goal,
               );
               upsertGoal(goal, previousGoalId);
-              void router.push(routes.goal({ id: goal.id }), undefined, {
+              void router.replace(routes.goal({ id: goal.id }), undefined, {
                 shallow: true,
               });
             },
@@ -91,7 +91,7 @@ export default function GoalInput({}: GoalInputProps) {
                   // this is a bit of terrible code that makes the state update to be able to waggle
                   selectedGoal.userId = "guest";
                   upsertGoal(selectedGoal);
-                  void router.push(
+                  void router.replace(
                     routes.goal({ id: selectedGoal.id }),
                     undefined,
                     {
