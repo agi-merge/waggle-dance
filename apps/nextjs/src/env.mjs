@@ -8,7 +8,7 @@ const StartsWithCapital = z.string().refine((value) => /^[A-Z]/.test(value), {
 });
 
 const ApiClientSchema = z.object({
-  source: z.string(),
+  source: z.string().optional(),
   authType: z.enum(["Bearer", "Cookie"]).optional(),
   apiKeys: z.record(z.string()).optional(),
 });

@@ -28,19 +28,22 @@ export function middleware(req: NextRequest) {
     allowedClients.length > 0 ? allowedClients.join(" ") : "";
 
   // Create a base CSP
+  const nonceOrUnsafeForDevScript =
+    env.NODE_ENV === "development"
+      ? "'unsafe-inline' 'unsafe-eval'"
+      : `'nonce-${nonce}'`;
+  const nonceOrUnsafeForDevStyle =
+    env.NODE_ENV === "development" ? "'unsafe-inline'" : `'nonce-${nonce}'`;
   const csp = `
     default-src 'self' ${allowedClientsStr};
-    script-src 'self' 'nonce-${nonce}' 'strict-dynamic';
-    style-src 'self' 'nonce-${nonce}';
-    img-src 'self' blob: data:;
-    font-src 'self';
+    script-src 'self' ${nonceOrUnsafeForDevScript} ${allowedClientsStr};
+    style-src 'self' ${nonceOrUnsafeForDevStyle} ${allowedClientsStr};
     object-src 'none';
     base-uri 'self';
     form-action 'self';
     frame-ancestors 'none';
     block-all-mixed-content;
     upgrade-insecure-requests;
-    connect-src ${allowedClientsStr};
   `
     .replace(/\s{2,}/g, " ")
     .trim();
@@ -76,8 +79,7 @@ export function middleware(req: NextRequest) {
     });
   }
 
-  response.headers.set("Content-Security-Policy", csp);
-  response.headers.set("x-nonce", nonce);
+  const cspAllowSet = ["/api", "/_next/static", "/_next/image", "/favicon.ico"];
 
   // Set the Access-Control-Allow-Origin header
   const origin = req.headers.get("Origin");
@@ -92,9 +94,14 @@ export function middleware(req: NextRequest) {
       "Access-Control-Allow-Headers",
       "Authorization, X-Cookie, X-CSRF-Token, X-Requested-With,  Content-Length, Content-MD5, Content-Type, Date, X-Api-Version",
     );
+    setCookieFromXCookie(req, url, response.headers);
   }
-
-  setCookieFromXCookie(req, url, response.headers);
+  response.headers.set("x-nonce", nonce);
+  if (!cspAllowSet.find((p) => url.pathname.startsWith(p))) {
+    response.headers.set("Content-Security-Policy", csp);
+  } else {
+    response.headers.delete("Content-Security-Policy");
+  }
 
   return response;
 }
@@ -126,5 +133,4 @@ function setCookieFromXCookie(
       // }
     }
   }
-  return requestHeaders;
 }

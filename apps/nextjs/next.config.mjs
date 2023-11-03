@@ -37,7 +37,9 @@ const config = {
       return [];
     }
     const json = JSON.parse(process.env.ALLOW_API_CLIENTS);
-    const allowedClients = Object.entries(json);
+    const allowedClients = Object.entries(json).filter(
+      ([_, c]) => c && c.client,
+    );
     const headers = allowedClients.map(([domain, client]) => {
       return {
         source: client.source,
