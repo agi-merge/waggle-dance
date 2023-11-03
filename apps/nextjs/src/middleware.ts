@@ -5,9 +5,10 @@ import { type Geo } from "@acme/agent";
 export const config = {
   matcher: [
     {
-      source: "/api/agent/:path*",
+      source: "/api/:path*",
     },
   ],
+  runtime: "experimental-edge",
 };
 
 export function middleware(req: NextRequest) {
@@ -44,9 +45,9 @@ export function middleware(req: NextRequest) {
           if (cookieValueRegex.test(authToken)) {
             requestHeaders.append(
               "Cookie",
-              `${(url.protocol = "https"
-                ? "__Secure-"
-                : "")}next-auth.session-token=${authToken};`,
+              `${
+                url.protocol === "https:" ? "__Secure-" : ""
+              }next-auth.session-token=${authToken};`,
             );
           }
         }
