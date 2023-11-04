@@ -201,75 +201,77 @@ export default async function ExecuteStream(req: NextRequest) {
       // Reset the packet counter and the timestamp
       packetCounter = 0;
 
-      try {
-        // Perform the repetition check
-        const repetitionCheckResult = await checkRepetitivePackets(
-          task.id,
-          repetitionCheckPacketBuffer,
-          recentPacketsBuffer,
-        );
-        recentPacketsBuffer.push(...repetitionCheckPacketBuffer);
-        repetitionCheckPacketBuffer = [];
-        if (!!repetitionCheckResult) {
-          if (repetitionErrorThrown) {
-            throw new Error("Repetition error already thrown");
-          }
-          repetitionErrorThrown = true;
-
-          const repetitionError: AgentPacket = {
-            type: "error",
-            severity: "warn",
-            error: `RepetitionError: there will be an automatic recovery for this soon.\n ${repetitionCheckResult.similarDocuments.map(
-              (doc) => `${doc.pageContent}`,
-            )}`,
-            ...repetitionCheckResult,
-          };
-
-          await handlePacket(
-            repetitionError,
-            controller,
-            encoder,
-            creationProps,
-            goalPrompt,
-            parsedGoalId,
-            agentPromptingMethod,
-            task,
-            dag,
-            revieweeTaskResults,
-            contentType,
-            abortController,
-            namespace,
-            req,
-            lastToolInputs,
+      if (process.env.EXE_REPETITION_CHECK === "true") {
+        try {
+          // Perform the repetition check
+          const repetitionCheckResult = await checkRepetitivePackets(
+            task.id,
+            repetitionCheckPacketBuffer,
+            recentPacketsBuffer,
           );
+          recentPacketsBuffer.push(...repetitionCheckPacketBuffer);
+          repetitionCheckPacketBuffer = [];
+          if (!!repetitionCheckResult) {
+            if (repetitionErrorThrown) {
+              throw new Error("Repetition error already thrown");
+            }
+            repetitionErrorThrown = true;
 
-          throw repetitionError;
-          // await restartExecution(
-          //   controller,
-          //   repetitionCheckResult.recent,
-          //   repetitionCheckResult.similarDocuments,
-          //   creationProps,
-          //   goalPrompt,
-          //   parsedGoalId,
-          //   agentPromptingMethod,
-          //   task,
-          //   dag,
-          //   revieweeTaskResults,
-          //   contentType,
-          //   namespace,
-          //   req,
-          //   encoder,
-          //   resolveStreamEnded,
-          // );
+            const repetitionError: AgentPacket = {
+              type: "error",
+              severity: "warn",
+              error: `RepetitionError: there will be an automatic recovery for this soon.\n ${repetitionCheckResult.similarDocuments.map(
+                (doc) => `${doc.pageContent}`,
+              )}`,
+              ...repetitionCheckResult,
+            };
 
-          return;
+            await handlePacket(
+              repetitionError,
+              controller,
+              encoder,
+              creationProps,
+              goalPrompt,
+              parsedGoalId,
+              agentPromptingMethod,
+              task,
+              dag,
+              revieweeTaskResults,
+              contentType,
+              abortController,
+              namespace,
+              req,
+              lastToolInputs,
+            );
+
+            throw repetitionError;
+            // await restartExecution(
+            //   controller,
+            //   repetitionCheckResult.recent,
+            //   repetitionCheckResult.similarDocuments,
+            //   creationProps,
+            //   goalPrompt,
+            //   parsedGoalId,
+            //   agentPromptingMethod,
+            //   task,
+            //   dag,
+            //   revieweeTaskResults,
+            //   contentType,
+            //   namespace,
+            //   req,
+            //   encoder,
+            //   resolveStreamEnded,
+            // );
+
+            return;
+          }
+        } catch (e) {
+          console.error(String(e).slice(0, maxLogSize));
+          if (!abortController.signal.aborted) {
+            abortController.abort();
+          }
+          throw e;
         }
-      } catch (e) {
-        console.error(String(e).slice(0, maxLogSize));
-        if (!abortController.signal.aborted) {
-          abortController.abort();
-        }
-        throw e;
       }
     }
   };

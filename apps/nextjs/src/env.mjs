@@ -92,6 +92,7 @@ export const env = createEnv({
         z.boolean().or(z.number().gte(0).lte(1)),
       )
       .optional(),
+    EXE_REPETITION_CHECK: z.boolean().optional(),
     POSTGRES_PRISMA_URL: z.string().url(),
     POSTGRES_URL_NON_POOLING: z.string().url(),
     BLOB_READ_WRITE_TOKEN: z.string().min(1).startsWith("vercel_blob_rw_"),
@@ -186,6 +187,7 @@ export const env = createEnv({
     KV_REST_API_READ_ONLY_TOKEN: process.env.KV_REST_API_READ_ONLY_TOKEN,
     WOLFRAM_APP_ID: process.env.WOLFRAM_APP_ID,
     EXE_TRAJECTORY_EVALUATION: process.env.EXE_TRAJECTORY_EVALUATION,
+    EXE_REPETITION_CHECK: process.env.EXE_REPETITION_CHECK,
     POSTGRES_PRISMA_URL: process.env.POSTGRES_PRISMA_URL,
     POSTGRES_URL_NON_POOLING: process.env.POSTGRES_URL_NON_POOLING,
     NEXT_PUBLIC_HIDE_LLM: process.env.NEXT_PUBLIC_HIDE_LLM,
