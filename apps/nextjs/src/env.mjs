@@ -92,7 +92,7 @@ export const env = createEnv({
         z.boolean().or(z.number().gte(0).lte(1)),
       )
       .optional(),
-    EXE_REPETITION_CHECK: z.boolean().optional(),
+    EXE_REPETITION_CHECK: z.string().optional(),
     POSTGRES_PRISMA_URL: z.string().url(),
     POSTGRES_URL_NON_POOLING: z.string().url(),
     BLOB_READ_WRITE_TOKEN: z.string().min(1).startsWith("vercel_blob_rw_"),
