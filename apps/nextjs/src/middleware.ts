@@ -15,7 +15,7 @@ export const config = {
       ],
     },
     {
-      source: "/api/agent/:path*",
+      source: "/api/:path*",
     },
   ],
   runtime: "experimental-edge",
@@ -58,8 +58,8 @@ export function middleware(req: NextRequest) {
 
   const isDev = env.NODE_ENV === "development";
   const nonceDirective = `'nonce-${nonce}'`;
-  const allowedClient = allowedClients.some((c) => c === url.origin);
-  const shouldAllowUnsafe = isDev || !!allowedClient;
+  const isAllowedClient = allowedClients.some((c) => c === url.origin);
+  const shouldAllowUnsafe = isDev || isAllowedClient;
   const scriptDirectives = shouldAllowUnsafe
     ? "'unsafe-inline' 'unsafe-eval'"
     : nonceDirective;
@@ -95,18 +95,7 @@ export function middleware(req: NextRequest) {
   });
 
   // Set the Access-Control-Allow-Origin header
-  const origin = req.headers.get("Origin");
-  if (origin && allowedClients.includes(origin)) {
-    response.headers.set("Access-Control-Allow-Origin", origin);
-    response.headers.set("Access-Control-Allow-Credentials", "true");
-    response.headers.set(
-      "Access-Control-Allow-Methods",
-      ["GET", "DELETE", "PATCH", "POST", "PUT", "OPTION"].join(","),
-    );
-    response.headers.set(
-      "Access-Control-Allow-Headers",
-      "Authorization, X-Cookie, X-CSRF-Token, X-Requested-With,  Content-Length, Content-MD5, Content-Type, Date, X-Api-Version",
-    );
+  if (isAllowedClient) {
     setCookieFromXCookie(req, url, response.headers);
   }
   response.headers.set("x-nonce", nonce);
