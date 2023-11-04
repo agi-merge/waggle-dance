@@ -35,7 +35,7 @@ const config = {
   async headers() {
     const json = JSON.parse(process.env.ALLOW_API_CLIENTS);
     const allowedClients = Object.entries(json).filter(
-      ([_, c]) => c && c.client,
+      ([_, c]) => c && c.source,
     );
     const headers = allowedClients.map(([domain, client]) => {
       return {

@@ -8,15 +8,14 @@ import { env } from "./env.mjs";
 export const config = {
   matcher: [
     {
-      source: "/api/agent/:path*",
-      function: addGeoToApiAgentMiddleware,
-    },
-    {
       source: "/((?!api|_next/static|_next/image|favicon.ico).*)",
       missing: [
         { type: "header", key: "next-router-prefetch" },
         { type: "header", key: "purpose", value: "prefetch" },
       ],
+    },
+    {
+      source: "/api/agent/:path*",
     },
   ],
   runtime: "experimental-edge",
@@ -44,7 +43,10 @@ export function addGeoToApiAgentMiddleware(req: NextRequest) {
 export function middleware(req: NextRequest) {
   const { nextUrl: url } = req;
 
-  url.basePath;
+  if (url.pathname.startsWith("/api/agent/")) {
+    return addGeoToApiAgentMiddleware(req);
+  }
+
   const nonce = Buffer.from(crypto.randomUUID()).toString("base64");
 
   // Add allowed clients to CSP
