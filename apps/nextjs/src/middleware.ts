@@ -1,13 +1,18 @@
 import { NextResponse, type NextRequest } from "next/server";
 
 import { type Geo } from "@acme/agent";
+import { getBaseUrl } from "@acme/api/utils";
 
 import { env } from "./env.mjs";
 
 export const config = {
   matcher: [
     {
-      source: "/:path*",
+      source: "/api/agent/:path*",
+      function: addGeoToApiAgentMiddleware,
+    },
+    {
+      source: "/((?!api|_next/static|_next/image|favicon.ico).*)",
       missing: [
         { type: "header", key: "next-router-prefetch" },
         { type: "header", key: "purpose", value: "prefetch" },
@@ -17,30 +22,49 @@ export const config = {
   runtime: "experimental-edge",
 };
 
+export function addGeoToApiAgentMiddleware(req: NextRequest) {
+  const { nextUrl: url } = req;
+  if (url.pathname.startsWith("/api/agent/")) {
+    const { geo } = req as { geo: Geo };
+
+    const cca2 = geo?.country || "US";
+    const city = geo?.city || "San Francisco";
+    const region = geo?.region || "CA";
+
+    url.searchParams.set("country", cca2);
+    url.searchParams.set("city", city);
+    url.searchParams.set("region", region);
+
+    return NextResponse.rewrite(url);
+  } else {
+    return NextResponse.next();
+  }
+}
+
 export function middleware(req: NextRequest) {
   const { nextUrl: url } = req;
 
+  url.basePath;
   const nonce = Buffer.from(crypto.randomUUID()).toString("base64");
 
   // Add allowed clients to CSP
-  const allowedClients = Object.keys(env.ALLOW_API_CLIENTS);
+  const allowedClients = [...Object.keys(env.ALLOW_API_CLIENTS), getBaseUrl()];
   const allowedClientsStr =
     allowedClients.length > 0 ? allowedClients.join(" ") : "";
 
   // Pick the correct bypass/restriction for the environment
-  const cspAllowSet = ["/api", "/_next/static", "/_next/image", "/favicon.ico"];
-  const isUnsafeInlineAllowed = cspAllowSet.some((path) =>
-    url.pathname.startsWith(path),
-  );
-  const nonceOrUnsafe = isUnsafeInlineAllowed
-    ? "'unsafe-inline'"
-    : `'nonce-${nonce}'`;
-  const nonceOrUnsafeForDevScript =
-    env.NODE_ENV === "development"
-      ? "'unsafe-inline' 'unsafe-eval'"
-      : nonceOrUnsafe;
-  const nonceOrUnsafeForDevStyle =
-    env.NODE_ENV === "development" ? "'unsafe-inline'" : nonceOrUnsafe;
+  // const cspAllowSet = ["/api", "/_next/static", "/_next/image", "/favicon.ico"];
+  // const isUnsafeInlineAllowed = cspAllowSet.some((path) =>
+  //   url.pathname.startsWith(path),
+  // );
+  const isDev = false; //env.NODE_ENV === "development";
+  const nonceOrUnsafe = `'nonce-${nonce}'`;
+  const allowedClient = allowedClients.some((c) => c === url.origin);
+  const bypass = isDev || !!allowedClient;
+  const nonceOrUnsafeForDevScript = bypass
+    ? "'unsafe-inline' 'unsafe-eval'"
+    : nonceOrUnsafe;
+  const nonceOrUnsafeForDevStyle = bypass ? "'unsafe-inline'" : nonceOrUnsafe;
 
   // Create the CSP
 
@@ -58,32 +82,16 @@ export function middleware(req: NextRequest) {
     .replace(/\s{2,}/g, " ")
     .trim();
 
-  let response;
-
   const requestHeaders = new Headers(req.headers);
   requestHeaders.set("x-nonce", nonce);
   requestHeaders.set("Content-Security-Policy", csp);
 
-  if (url.pathname.startsWith("/api/agent/")) {
-    const { geo } = req as { geo: Geo };
-
-    const cca2 = geo?.country || "US";
-    const city = geo?.city || "San Francisco";
-    const region = geo?.region || "CA";
-
-    url.searchParams.set("country", cca2);
-    url.searchParams.set("city", city);
-    url.searchParams.set("region", region);
-
-    response = NextResponse.rewrite(url, {});
-  } else {
-    response = NextResponse.next({
+  const response = NextResponse.next({
+    headers: requestHeaders,
+    request: {
       headers: requestHeaders,
-      request: {
-        headers: requestHeaders,
-      },
-    });
-  }
+    },
+  });
 
   // Set the Access-Control-Allow-Origin header
   const origin = req.headers.get("Origin");
@@ -130,7 +138,6 @@ function setCookieFromXCookie(
           }next-auth.session-token=${rawAuthToken};`,
         );
       }
-      // }
     }
   }
 }
