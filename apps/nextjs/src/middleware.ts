@@ -1,7 +1,6 @@
 import { NextResponse, type NextRequest } from "next/server";
 
 import { type Geo } from "@acme/agent";
-import { getBaseUrl } from "@acme/api/utils";
 
 import { env } from "./env.mjs";
 
@@ -50,7 +49,10 @@ export function middleware(req: NextRequest) {
   const nonce = Buffer.from(crypto.randomUUID()).toString("base64");
 
   // Add allowed clients to CSP
-  const allowedClients = [...Object.keys(env.ALLOW_API_CLIENTS), getBaseUrl()];
+  const allowedClients = [
+    ...Object.keys(env.ALLOW_API_CLIENTS),
+    env.NEXTAUTH_URL,
+  ];
   const allowedClientsStr =
     allowedClients.length > 0 ? allowedClients.join(" ") : "";
 
