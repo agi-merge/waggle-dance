@@ -53,25 +53,24 @@ export function middleware(req: NextRequest) {
     allowedClients.length > 0 ? allowedClients.join(" ") : "";
 
   // Pick the correct bypass/restriction for the environment
-  // const cspAllowSet = ["/api", "/_next/static", "/_next/image", "/favicon.ico"];
-  // const isUnsafeInlineAllowed = cspAllowSet.some((path) =>
-  //   url.pathname.startsWith(path),
-  // );
-  const isDev = false; //env.NODE_ENV === "development";
-  const nonceOrUnsafe = `'nonce-${nonce}'`;
+
+  const isDev = env.NODE_ENV === "development";
+  const nonceDirective = `'nonce-${nonce}'`;
   const allowedClient = allowedClients.some((c) => c === url.origin);
-  const bypass = isDev || !!allowedClient;
-  const nonceOrUnsafeForDevScript = bypass
+  const shouldAllowUnsafe = isDev || !!allowedClient;
+  const scriptDirectives = shouldAllowUnsafe
     ? "'unsafe-inline' 'unsafe-eval'"
-    : nonceOrUnsafe;
-  const nonceOrUnsafeForDevStyle = bypass ? "'unsafe-inline'" : nonceOrUnsafe;
+    : nonceDirective;
+  const styleDirectives = shouldAllowUnsafe
+    ? "'unsafe-inline'"
+    : nonceDirective;
 
   // Create the CSP
 
   const csp = `
     default-src 'self' ${allowedClientsStr};
-    script-src 'self' ${nonceOrUnsafeForDevScript} ${allowedClientsStr};
-    style-src 'self' ${nonceOrUnsafeForDevStyle} ${allowedClientsStr};
+    script-src 'self' ${scriptDirectives} ${allowedClientsStr};
+    style-src 'self' ${styleDirectives} ${allowedClientsStr};
     object-src 'none';
     base-uri 'self';
     form-action 'self';
