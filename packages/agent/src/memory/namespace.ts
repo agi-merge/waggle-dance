@@ -39,5 +39,15 @@ export default function createNamespace(
 
 // it is okay for the taskId to not be encrypted, as the other portion is.
 export function createChatNamespace(namespace: string, taskId: string) {
-  return `${namespace}_chat_history_${taskId}`;
+  return `${namespace}_chat_history}`;
+}
+
+export function isNamespaceMatch(
+  goalAndExecutionId:
+    | { goalId: string; executionId: string }
+    | { task: DraftExecutionNode },
+  namespace: string,
+) {
+  const compareNamespace = createNamespace(goalAndExecutionId);
+  return compareNamespace === namespace;
 }

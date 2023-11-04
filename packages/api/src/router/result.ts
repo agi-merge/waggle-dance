@@ -98,7 +98,7 @@ export const resultRouter = createTRPCRouter({
     .input(
       z.object({
         resultId: z.string().cuid().min(1).optional(),
-        nodeId: z.string().min(1).optional(),
+        nodeId: z.string().min(1),
         executionId: z.string().cuid().min(1),
         artifactUrl: z.string().url(),
       }),

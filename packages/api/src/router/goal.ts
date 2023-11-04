@@ -48,7 +48,7 @@ export const goalRouter = createTRPCRouter({
         return null;
       }
       return ctx.prisma.goal.findUnique({
-        where: { id },
+        where: { id, userId },
         include: {
           executions: {
             take: 1,
@@ -67,6 +67,15 @@ export const goalRouter = createTRPCRouter({
             },
           },
         },
+      });
+    }),
+
+  limitedGoalFromExecution: optionalProtectedProcedure
+    .input(z.string().min(1))
+    .query(({ ctx, input: executionId }) => {
+      return ctx.prisma.goal.findFirst({
+        where: { executions: { some: { id: executionId } } },
+        select: { id: true, userId: true },
       });
     }),
 

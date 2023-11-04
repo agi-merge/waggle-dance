@@ -3,11 +3,13 @@ import { NextResponse, type NextRequest } from "next/server";
 import { put } from "@vercel/blob";
 import { type Artifact } from "lib/AgentProtocol/types";
 import { customAlphabet } from "nanoid";
-import { getServerSession } from "next-auth";
+import { getServerSession, type Session } from "next-auth";
 
 import { appRouter } from "@acme/api";
 import { authOptions } from "@acme/auth";
 import { prisma, type Result } from "@acme/db";
+
+import { mimeTypeMapping } from "~/features/AddDocuments/mimeTypes";
 
 //
 // List all artifacts that have been created for the given task.
@@ -70,13 +72,60 @@ export async function POST(
     return Response.json("taskId in path is required", { status: 400 });
   }
 
-  const contentType = req.headers.get("content-type") || "";
-  const file = await req.blob();
+  const session = (await getServerSession(authOptions)) || null;
 
+  const caller = appRouter.createCaller({
+    session,
+    prisma,
+    origin: req.nextUrl.origin,
+  });
+
+  const namespace = req.headers.get("X-Skill-Namespace") || undefined;
+  const nodeId = req.headers.get("X-Skill-Task-Id") || undefined;
+  const goal = await caller.goal.limitedGoalFromExecution(taskId);
+
+  const userId = goal?.userId;
+
+  const namespaceSession =
+    !!(goal && namespace && userId) &&
+    (await caller.auth.getInsecureSessionForNamespace({
+      userId,
+      namespace,
+      goalId: goal.id,
+      executionId: taskId,
+    }));
+
+  if (!namespaceSession && !session) {
+    return NextResponse.json("Unauthorized", { status: 401 });
+  }
+
+  // const cookiePrefix = req.nextUrl.protocol === "https:" ? "__Secure-" : "";
+  // req.headers.set(
+  //   "cookie",
+  //   `${cookiePrefix}next-auth.session-token=${
+  //     namespaceSession.sessionToken
+  //   }; path=/; expires=${namespaceSession?.expires}; HttpOnly; ${
+  //     cookiePrefix.length > 0 ? "Secure;" : ""
+  //   } SameSite=Lax`,
+  // );
+  const file = await req.blob();
+  const contentType = req.headers.get("content-type") || file.type || "";
+
+  const nextAuthNamespaceSession: Session | null =
+    session ||
+    (namespaceSession
+      ? {
+          user: {
+            id: namespaceSession.userId,
+          },
+          expires: namespaceSession.expires.toISOString(),
+        }
+      : null);
   const { artifact } = await uploadAndSaveResult({
+    session: nextAuthNamespaceSession,
     contentType,
     file,
-    nodeId: undefined,
+    nodeId: nodeId!,
     executionId: taskId,
     origin: req.nextUrl.origin,
   });
@@ -98,7 +147,8 @@ type UploadFileParams = {
 
 export async function uploadFile({ contentType, file }: UploadFileParams) {
   const artifactId = nanoid();
-  const filename = `${artifactId}.${contentType.split("/")[1]}`;
+  const extension = mimeTypeMapping[contentType]?.extensions[0];
+  const filename = `${artifactId}${extension?.length ? `.${extension}` : ""}`;
 
   const blob = await put(filename, file, {
     contentType,
@@ -113,11 +163,14 @@ export async function uploadFile({ contentType, file }: UploadFileParams) {
 }
 
 type UploadAndSaveResultParams = UploadFileParams & {
+  session: Session | null;
   origin: string;
   executionId: string;
-  nodeId: string | undefined;
+  nodeId: string;
 };
+
 export async function uploadAndSaveResult({
+  session,
   origin,
   executionId,
   nodeId,
@@ -126,7 +179,6 @@ export async function uploadAndSaveResult({
   const { artifactId: _artifactId, blobUrl } =
     await uploadFile(uploadFileParams);
 
-  const session = (await getServerSession(authOptions)) || null;
   const caller = appRouter.createCaller({
     session,
     prisma,
@@ -144,9 +196,9 @@ export async function uploadAndSaveResult({
     result,
     artifact: {
       artifact_id: result.id,
-      file_name: result.artifactUrls[0] || "error",
+      file_name: blobUrl,
       agent_created: true,
-      relative_path: null,
+      relative_path: blobUrl,
       created_at: result.createdAt.toISOString(),
     },
   };

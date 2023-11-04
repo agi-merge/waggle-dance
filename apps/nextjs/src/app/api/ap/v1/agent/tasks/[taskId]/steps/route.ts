@@ -120,15 +120,16 @@ export async function POST(
 
   const output = getMostRelevantOutput(finishPacket).output;
   const { artifact, result } = await uploadAndSaveResult({
+    session,
     file: executeResponseText,
     executionId: exe.id,
-    nodeId: latestResultNode?.id,
+    nodeId: latestResultNode!.id,
     contentType,
     origin: request.nextUrl.origin,
   });
   const refreshedExe = await caller.execution.byId({ id: exe.id });
   const refreshedNode = refreshedExe?.graph?.nodes.find(
-    (n) => n.id === result.nodeId,
+    (n) => n.id === result.nodeId, // this is null ?
   );
 
   const responseObject = {
@@ -153,7 +154,12 @@ export async function POST(
     //   relative_path: string | null;
     //   created_at: string;
     // };
-    artifacts: [artifact], // Update this based on your logic
+    artifacts: result.artifactUrls.map((u) => ({
+      artifact_id: artifact.artifact_id,
+      agent_created: true,
+      file_name: u,
+      created_at: result.createdAt.toISOString(),
+    })), // Update this based on your logic
     is_last: exe.graph?.nodes.length
       ? exe.graph.nodes[exe.graph.nodes.length - 1]?.id === node.id
       : false, // Update this based on your logic

@@ -76,6 +76,7 @@ export async function callExecutionAgent(creation: {
   creationProps: ModelCreationProps;
   goalPrompt: string;
   goalId: string;
+  executionId: string;
   agentPromptingMethod: AgentPromptingMethod;
   task: string;
   dag: string;
@@ -90,6 +91,7 @@ export async function callExecutionAgent(creation: {
     goalId: _goalId,
     creationProps,
     goalPrompt,
+    executionId,
     agentPromptingMethod,
     task,
     dag,
@@ -141,6 +143,7 @@ export async function callExecutionAgent(creation: {
       })
     : createExecutePrompt({
         taskObj,
+        executionId,
         namespace,
         returnType,
         modelName: creationProps.modelName || LLM_ALIASES["fast"],

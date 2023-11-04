@@ -14,6 +14,7 @@ import { WebBrowser } from "langchain/tools/webbrowser";
 import cca2Map from "../lib/cca2Map.json";
 import { AgentProtocolToolkit } from "../skills/AgentProtocolSkill";
 import requestUserHelpSkill from "../skills/requestUserHelpSkill";
+import uploadFileSkill from "../skills/uploadFileSkill";
 import type Geo from "./Geo";
 import { type AgentPromptingMethod } from "./llms";
 
@@ -225,6 +226,7 @@ function createSkills(
   const tools = [
     requestUserHelpSkill.toTool(agentPromptingMethod, returnType),
     // selfHelpSkill.toTool(agentPromptingMethod, returnType),
+    uploadFileSkill.toTool(agentPromptingMethod, returnType),
     new WebBrowser({ model: llm, embeddings }),
   ];
 
@@ -271,6 +273,7 @@ function createSkills(
     const toolkit = new AgentProtocolToolkit(agentProtocolOpenAPISpec, llm, {});
     tools.push(...toolkit.tools);
   }
+
   return tools as StructuredTool[];
 }
 

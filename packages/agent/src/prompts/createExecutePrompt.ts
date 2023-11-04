@@ -8,11 +8,12 @@ import executeConstraints from "./constraints/executeConstraints";
 
 export function createExecutePrompt(params: {
   taskObj: { id: string; name: string };
+  executionId: string;
   namespace: string;
   returnType: "YAML" | "JSON";
   modelName: string;
 }): ChatPromptTemplate {
-  const { taskObj, returnType, modelName } = params;
+  const { taskObj, returnType, modelName, executionId, namespace } = params;
   const useSystemPrompt = modelName.startsWith("gpt-"); // only gpt family of openai models for now
 
   const systemTemplate = `
@@ -21,7 +22,12 @@ export function createExecutePrompt(params: {
 You are an expert, determined, and resourceful AI Agent trying to perform and produce exacting results of a TASK for the USER.
 The USER is trying to ultimately achieve a GOAL, of which your TASK is a part.
 ## TASK:
-${taskObj.id}: ${taskObj.name}
+ID: ${taskObj.id}
+NAME: ${taskObj.name}
+## EXECUTION ID:
+${executionId}
+## NAMESPACE:
+${namespace}
 ## CONTEXT:
 {synthesizedContext}
 ## TIME:
