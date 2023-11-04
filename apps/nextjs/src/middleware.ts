@@ -32,15 +32,15 @@ export function middleware(req: NextRequest) {
   const isUnsafeInlineAllowed = cspAllowSet.some((path) =>
     url.pathname.startsWith(path),
   );
-  const unsafeInlineIfNeeded = isUnsafeInlineAllowed ? "'unsafe-inline'" : " ";
+  const nonceOrUnsafe = isUnsafeInlineAllowed
+    ? "'unsafe-inline'"
+    : `'nonce-${nonce}'`;
   const nonceOrUnsafeForDevScript =
     env.NODE_ENV === "development"
       ? "'unsafe-inline' 'unsafe-eval'"
-      : `${unsafeInlineIfNeeded}'nonce-${nonce}'`;
+      : nonceOrUnsafe;
   const nonceOrUnsafeForDevStyle =
-    env.NODE_ENV === "development"
-      ? "'unsafe-inline'"
-      : `${unsafeInlineIfNeeded}'nonce-${nonce}'`;
+    env.NODE_ENV === "development" ? "'unsafe-inline'" : nonceOrUnsafe;
 
   // Create the CSP
 
