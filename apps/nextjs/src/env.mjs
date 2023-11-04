@@ -95,20 +95,17 @@ export const env = createEnv({
     POSTGRES_PRISMA_URL: z.string().url(),
     POSTGRES_URL_NON_POOLING: z.string().url(),
     BLOB_READ_WRITE_TOKEN: z.string().min(1).startsWith("vercel_blob_rw_"),
-    ALLOW_API_CLIENTS: z
-      .string()
-      .optional()
-      .transform((str) => {
-        try {
-          // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
-          const json = str ? JSON.parse(str) : {};
-          return AllowApiClientsSchema.parse(json);
-        } catch (e) {
-          throw new Error("ALLOW_API_CLIENTS must be a valid JSON string", {
-            cause: e,
-          });
-        }
-      }),
+    ALLOW_API_CLIENTS: z.string().transform((str) => {
+      try {
+        // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
+        const json = str ? JSON.parse(str) : {};
+        return AllowApiClientsSchema.parse(json);
+      } catch (e) {
+        throw new Error("ALLOW_API_CLIENTS must be a valid JSON string", {
+          cause: e,
+        });
+      }
+    }),
   },
   /**
    * Specify your client-side environment variables schema here.
