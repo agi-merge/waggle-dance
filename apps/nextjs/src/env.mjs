@@ -62,6 +62,27 @@ export const env = createEnv({
     AZURE_OPENAI_API_FAST_LARGE_DEPLOYMENT_NAME: z.string().optional(),
     AZURE_OPENAI_API_SMART_DEPLOYMENT_NAME: z.string().optional(),
     AZURE_OPENAI_API_SMART_LARGE_DEPLOYMENT_NAME: z.string().optional(),
+    AZURE_OPENAI_API_FALLBACK_IF_NO_DEPLOYMENT: z
+      .string()
+      .optional()
+      .refine(
+        (/** @type {any} */ value) => {
+          const deploymentNames = [
+            process.env.AZURE_OPENAI_API_DEPLOYMENT_NAME,
+            process.env.AZURE_OPENAI_API_FAST_DEPLOYMENT_NAME,
+            process.env.AZURE_OPENAI_API_FAST_LARGE_DEPLOYMENT_NAME,
+            process.env.AZURE_OPENAI_API_SMART_DEPLOYMENT_NAME,
+            process.env.AZURE_OPENAI_API_SMART_LARGE_DEPLOYMENT_NAME,
+            process.env.AZURE_OPENAI_API_EMBEDDINGS_DEPLOYMENT_NAME,
+          ];
+          const anyDeploymentNameSet = deploymentNames.some((name) => !!name);
+          return !anyDeploymentNameSet || (anyDeploymentNameSet && !!value);
+        },
+        {
+          message:
+            "AZURE_OPENAI_API_FALLBACK_IF_NO_DEPLOYMENT must be set if any of the deployment names are set",
+        },
+      ),
     SERPAPI_API_KEY: z.string().min(64).max(64).optional(),
     SEARCHAPI_API_KEY: z.string().min(24).optional(),
     WEAVIATE_SCHEME: z.enum(["http", "https"]),
@@ -163,6 +184,8 @@ export const env = createEnv({
       process.env.AZURE_OPENAI_API_SMART_LARGE_DEPLOYMENT_NAME,
     AZURE_OPENAI_API_EMBEDDINGS_DEPLOYMENT_NAME:
       process.env.AZURE_OPENAI_API_EMBEDDINGS_DEPLOYMENT_NAME,
+    AZURE_OPENAI_API_FALLBACK_IF_NO_DEPLOYMENT:
+      process.env.AZURE_OPENAI_API_FALLBACK_IF_NO_DEPLOYMENT,
     SEARCHAPI_API_KEY: process.env.SEARCHAPI_API_KEY,
     SERPAPI_API_KEY: process.env.SERPAPI_API_KEY,
     NEXT_PUBLIC_APP_VERSION: process.env.NEXT_PUBLIC_APP_VERSION,

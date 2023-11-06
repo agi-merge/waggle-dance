@@ -14,6 +14,8 @@ export enum LLM {
   "gpt-3.5-turbo-0613" = "gpt-3.5-turbo-0613",
   "gpt-3.5-turbo-0301" = "gpt-3.5-turbo-0301",
   "gpt-3.5-turbo-16k-0613" = "gpt-3.5-turbo-16k-0613",
+  "gpt-4-1106-preview" = "gpt-4-1106-preview",
+  "gpt-4-vision-preview" = "gpt-4-vision-preview",
 }
 
 export enum LLMAliasKeys {
@@ -21,6 +23,8 @@ export enum LLMAliasKeys {
   FastLarge = "fast-large",
   Smart = "smart",
   SmartLarge = "smart-large",
+  SmartXLarge = "smart-xlarge",
+  SmartVisionXLarge = "SmartVisionXLarge",
   Embeddings = "embeddings",
 }
 
@@ -29,6 +33,8 @@ export type LLMAliasKey =
   | LLMAliasKeys.FastLarge
   | LLMAliasKeys.Smart
   | LLMAliasKeys.SmartLarge
+  | LLMAliasKeys.SmartXLarge
+  | LLMAliasKeys.SmartVisionXLarge
   | LLMAliasKeys.Embeddings;
 
 export const LLM_ALIASES: Record<LLMAliasKey, LLM> = {
@@ -36,6 +42,8 @@ export const LLM_ALIASES: Record<LLMAliasKey, LLM> = {
   [LLMAliasKeys.FastLarge]: LLM["gpt-3.5-turbo-16k"],
   [LLMAliasKeys.Smart]: LLM["gpt-4"],
   [LLMAliasKeys.SmartLarge]: LLM["gpt-4-32k"],
+  [LLMAliasKeys.SmartXLarge]: LLM["gpt-4-1106-preview"],
+  [LLMAliasKeys.SmartVisionXLarge]: LLM["gpt-4-vision-preview"],
   [LLMAliasKeys.Embeddings]: LLM["embeddings"],
 };
 
@@ -108,6 +116,7 @@ export interface Model {
   name: LLM;
   description: string;
   maxTokens: number;
+  outputMaxTokens?: number;
   trainingData: string;
 }
 
@@ -149,20 +158,36 @@ export const models: Model[] = [
     maxTokens: 8192,
     trainingData: "Up to Sep 2021",
   },
-  // {
-  //   name: LLM["gpt-4-32k"],
-  //   description:
-  //     "Same capabilities as the base gpt-4 mode but with 4x the context length. Will be updated with our latest model iteration.",
-  //   maxTokens: 32768,
-  //   trainingData: "Up to Sep 2021",
-  // },
-  // {
-  //   name: LLM["gpt-4-32k-0613"],
-  //   description:
-  //     "Snapshot of gpt-4-32 from June 13th 2023. Unlike gpt-4-32k, this model will not receive updates, and will be deprecated 3 months after a new version is released.",
-  //   maxTokens: 32768,
-  //   trainingData: "Up to Sep 2021",
-  // },
+  {
+    name: LLM["gpt-4-32k"],
+    description:
+      "Same capabilities as the base gpt-4 mode but with 4x the context length. Will be updated with our latest model iteration.",
+    maxTokens: 32_768,
+    trainingData: "Up to Sep 2021",
+  },
+  {
+    name: LLM["gpt-4-32k-0613"],
+    description:
+      "Snapshot of gpt-4-32 from June 13th 2023. Unlike gpt-4-32k, this model will not receive updates, and will be deprecated 3 months after a new version is released.",
+    maxTokens: 32_768,
+    trainingData: "Up to Sep 2021",
+  },
+  {
+    name: LLM["gpt-4-1106-preview"],
+    description:
+      "The latest GPT-4 model with improved instruction following, JSON mode, reproducible outputs, parallel function calling, and more. Returns a maximum of 4,096 output tokens. This preview model is not yet suited for production traffic.",
+    maxTokens: 128_000,
+    outputMaxTokens: 4096,
+    trainingData: "Up to Apr 2023",
+  },
+  {
+    name: LLM["gpt-4-vision-preview"],
+    description:
+      "Ability to understand images, in addition to all other GPT-4 Turbo capabilties. Returns a maximum of 4,096 output tokens. This is a preview model version and not suited yet for production traffic.",
+    maxTokens: 128_000,
+    outputMaxTokens: 4096,
+    trainingData: "Up to Apr 2023",
+  },
   {
     name: LLM["gpt-3.5-turbo"],
     description:

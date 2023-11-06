@@ -1,10 +1,11 @@
 // TokenChip.tsx
-import { useMemo } from "react";
-import { Chip, Stack, Tooltip, Typography, type ChipProps } from "@mui/joy";
-import { encodingForModel, type Tiktoken } from "js-tiktoken";
-import { useDebounce } from "use-debounce";
+import { Chip, Stack, Tooltip, Typography, type ChipProps } from "@mui/joy"
+import { encodingForModel, type Tiktoken } from "js-tiktoken"
+import { type TiktokenModel } from "langchain/dist/types/openai-types"
+import { useMemo } from "react"
+import { useDebounce } from "use-debounce"
 
-import useWaggleDanceMachineStore from "~/stores/waggleDanceStore";
+import useWaggleDanceMachineStore from "~/stores/waggleDanceStore"
 
 const defaultMaxTokens = 200;
 
@@ -24,11 +25,16 @@ type TokenChipProps = {
 
 export const TokenChip = ({ prompt, maxTokens, ...props }: TokenChipProps) => {
   const { agentSettings } = useWaggleDanceMachineStore();
-
-  const encoder = useMemo(
-    () => encodingForModel(agentSettings.plan.modelName),
-    [agentSettings.plan.modelName],
-  );
+  const encoder = useMemo(() => {
+    try {
+      return encodingForModel(agentSettings.plan.modelName as TiktokenModel);
+    } catch (error) {
+      console.error(
+        `Error encoding model: ${(error as Error).message}. Falling back to "gpt-4".`,
+      );
+      return encodingForModel("gpt-4");
+    }
+  }, [agentSettings.plan.modelName]);
 
   const maxTokensOrDefault = useMemo(
     () => maxTokens ?? defaultMaxTokens,

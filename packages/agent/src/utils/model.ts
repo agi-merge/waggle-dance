@@ -62,26 +62,66 @@ export const createModel = (
 ): OpenAI | ChatOpenAI => {
   console.debug(`createModel: ${creationProps.modelName} `);
 
+  let azureOpenAIApiDeploymentName: string | undefined;
+
+  try {
+    azureOpenAIApiDeploymentName = getAzureDeploymentName(
+      creationProps.modelName,
+    );
+  } catch {
+    // fall back to OpenAI when Azure OpenAI API deployment name not found
+    azureOpenAIApiDeploymentName = undefined;
+  }
   if (modelTypeForAgentPromptingMethod(methodOrStyle) === ModelStyle.Chat) {
-    return new ChatOpenAI(
-      {
-        ...creationProps,
-        azureOpenAIApiDeploymentName: getAzureDeploymentName(
-          creationProps.modelName,
-        ),
-      },
-      { basePath: creationProps.basePath },
-    );
+    try {
+      return new ChatOpenAI(
+        {
+          ...creationProps,
+          azureOpenAIApiDeploymentName,
+        },
+        { basePath: creationProps.basePath },
+      );
+    } catch (e) {
+      // fall back to OpenAI when Azure OpenAI API deployment name not found
+      return new ChatOpenAI(
+        {
+          ...creationProps,
+          azureOpenAIApiCompletionsDeploymentName: undefined,
+          azureOpenAIApiEmbeddingsDeploymentName: undefined,
+          azureOpenAIApiInstanceName: undefined,
+          azureOpenAIApiKey: undefined,
+          azureOpenAIApiDeploymentName: undefined,
+          azureOpenAIApiVersion: undefined,
+          azureOpenAIBasePath: undefined,
+        },
+        { basePath: creationProps.basePath },
+      );
+    }
   } else {
-    return new OpenAI(
-      {
-        ...creationProps,
-        azureOpenAIApiDeploymentName: getAzureDeploymentName(
-          creationProps.modelName,
-        ),
-      },
-      { basePath: creationProps.basePath },
-    );
+    try {
+      return new OpenAI(
+        {
+          ...creationProps,
+          azureOpenAIApiDeploymentName,
+        },
+        { basePath: creationProps.basePath },
+      );
+    } catch {
+      return new OpenAI(
+        {
+          ...creationProps,
+          azureOpenAIApiDeploymentName,
+          azureOpenAIApiCompletionsDeploymentName: undefined,
+          azureOpenAIApiEmbeddingsDeploymentName: undefined,
+          azureOpenAIApiInstanceName: undefined,
+          azureOpenAIApiKey: undefined,
+          azureOpenAIApiDeploymentName: undefined,
+          azureOpenAIApiVersion: undefined,
+          azureOpenAIBasePath: undefined,
+        },
+        { basePath: creationProps.basePath },
+      );
+    }
   }
 };
 
