@@ -35,6 +35,7 @@ function getAzureDeploymentName(
       return process.env.AZURE_OPENAI_API_SMART_DEPLOYMENT_NAME;
     case "smart-large":
       return process.env.AZURE_OPENAI_API_SMART_LARGE_DEPLOYMENT_NAME;
+    // TODO: smart-xl
     default:
       return process.env.AZURE_OPENAI_API_DEPLOYMENT_NAME;
   }
@@ -62,18 +63,23 @@ export const createModel = (
 ): OpenAI | ChatOpenAI => {
   console.debug(`createModel: ${creationProps.modelName} `);
 
-  let azureOpenAIApiDeploymentName: string | undefined;
-
-  try {
-    azureOpenAIApiDeploymentName = getAzureDeploymentName(
-      creationProps.modelName,
-    );
-  } catch {
-    // fall back to OpenAI when Azure OpenAI API deployment name not found
-    azureOpenAIApiDeploymentName = undefined;
+  const azureOpenAIApiDeploymentName = getAzureDeploymentName(
+    creationProps.modelName,
+  );
+  let fallbackToOpenAI: boolean;
+  if (!azureOpenAIApiDeploymentName && process.env.AZURE_OPENAI_API_KEY) {
+    fallbackToOpenAI =
+      process.env.AZURE_OPENAI_API_FALLBACK_IF_NO_DEPLOYMENT === "true";
+  } else {
+    fallbackToOpenAI = true;
   }
   if (modelTypeForAgentPromptingMethod(methodOrStyle) === ModelStyle.Chat) {
     try {
+      if (!azureOpenAIApiDeploymentName && !fallbackToOpenAI) {
+        throw new Error(
+          `Azure OpenAI API deployment name not found and AZURE_OPENAI_API_FALLBACK_IF_NO_DEPLOYMENT !== true`,
+        );
+      }
       return new ChatOpenAI(
         {
           ...creationProps,
@@ -82,15 +88,28 @@ export const createModel = (
         { basePath: creationProps.basePath },
       );
     } catch (e) {
+      if (fallbackToOpenAI) {
+        console.warn(`ChatOpenAI creation failed, falling back to OpenAI`);
+        delete process.env.AZURE_OPENAI_API_KEY;
+        delete process.env.AZURE_OPENAI_API_DEPLOYMENT_NAME;
+        delete process.env.AZURE_OPENAI_API_FAST_DEPLOYMENT_NAME;
+        delete process.env.AZURE_OPENAI_API_FAST_LARGE_DEPLOYMENT_NAME;
+        delete process.env.AZURE_OPENAI_API_SMART_DEPLOYMENT_NAME;
+        delete process.env.AZURE_OPENAI_API_SMART_LARGE_DEPLOYMENT_NAME;
+        delete process.env.AZURE_OPENAI_API_FALLBACK_IF_NO_DEPLOYMENT;
+        delete process.env.AZURE_OPENAI_API_INSTANCE_NAME;
+        delete process.env.AZURE_OPENAI_API_VERSION;
+        delete process.env.AZURE_OPENAI_BASE_PATH;
+      }
       // fall back to OpenAI when Azure OpenAI API deployment name not found
       return new ChatOpenAI(
         {
           ...creationProps,
+          azureOpenAIApiDeploymentName: undefined,
           azureOpenAIApiCompletionsDeploymentName: undefined,
           azureOpenAIApiEmbeddingsDeploymentName: undefined,
           azureOpenAIApiInstanceName: undefined,
           azureOpenAIApiKey: undefined,
-          azureOpenAIApiDeploymentName: undefined,
           azureOpenAIApiVersion: undefined,
           azureOpenAIBasePath: undefined,
         },
@@ -99,6 +118,11 @@ export const createModel = (
     }
   } else {
     try {
+      if (!azureOpenAIApiDeploymentName && !fallbackToOpenAI) {
+        throw new Error(
+          `Azure OpenAI API deployment name not found and AZURE_OPENAI_API_FALLBACK_IF_NO_DEPLOYMENT !== true`,
+        );
+      }
       return new OpenAI(
         {
           ...creationProps,
@@ -107,15 +131,27 @@ export const createModel = (
         { basePath: creationProps.basePath },
       );
     } catch {
+      if (fallbackToOpenAI) {
+        console.warn(`ChatOpenAI creation failed, falling back to OpenAI`);
+        delete process.env.AZURE_OPENAI_API_KEY;
+        delete process.env.AZURE_OPENAI_API_DEPLOYMENT_NAME;
+        delete process.env.AZURE_OPENAI_API_FAST_DEPLOYMENT_NAME;
+        delete process.env.AZURE_OPENAI_API_FAST_LARGE_DEPLOYMENT_NAME;
+        delete process.env.AZURE_OPENAI_API_SMART_DEPLOYMENT_NAME;
+        delete process.env.AZURE_OPENAI_API_SMART_LARGE_DEPLOYMENT_NAME;
+        delete process.env.AZURE_OPENAI_API_FALLBACK_IF_NO_DEPLOYMENT;
+        delete process.env.AZURE_OPENAI_API_INSTANCE_NAME;
+        delete process.env.AZURE_OPENAI_API_VERSION;
+        delete process.env.AZURE_OPENAI_BASE_PATH;
+      }
       return new OpenAI(
         {
           ...creationProps,
-          azureOpenAIApiDeploymentName,
+          azureOpenAIApiDeploymentName: undefined,
           azureOpenAIApiCompletionsDeploymentName: undefined,
           azureOpenAIApiEmbeddingsDeploymentName: undefined,
           azureOpenAIApiInstanceName: undefined,
           azureOpenAIApiKey: undefined,
-          azureOpenAIApiDeploymentName: undefined,
           azureOpenAIApiVersion: undefined,
           azureOpenAIBasePath: undefined,
         },

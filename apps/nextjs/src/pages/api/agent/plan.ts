@@ -1,6 +1,7 @@
 // api/agent/plan.ts
 
 import { type NextRequest } from "next/server";
+import { v4 } from "uuid";
 import { parse, stringify } from "yaml";
 
 import { type PlanRequestBody } from "~/features/WaggleDance/types/types";
@@ -99,6 +100,15 @@ export default async function PlanStream(req: NextRequest) {
         );
 
         if (planResult instanceof Error) {
+          const packet: AgentPacket = {
+            type: "handleLLMError",
+            // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
+            err: parse(
+              stringify(planResult, Object.getOwnPropertyNames(planResult)),
+            ),
+            runId: v4(),
+          };
+          controller.enqueue(encoder.encode(stringify([packet])));
           rejectStreamEnded!(planResult);
         } else {
           resolveStreamEnded();
@@ -190,7 +200,6 @@ export default async function PlanStream(req: NextRequest) {
             req,
           );
 
-          liftedStreamController?.close();
           return response;
           // return Response.json(graph, { status: 200 });
         } else {
@@ -201,6 +210,8 @@ export default async function PlanStream(req: NextRequest) {
       } catch (e) {
         // TODO: make sure it is a 401 unauth
         console.error("could not save execution", e);
+      } finally {
+        liftedStreamController?.close();
       }
     })();
   }

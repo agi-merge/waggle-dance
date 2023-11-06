@@ -1,6 +1,10 @@
 // agent/strategy/callPlanningAgent.ts
 
-import { encodingForModel, type Tiktoken } from "js-tiktoken";
+import {
+  encodingForModel,
+  type Tiktoken,
+  type TiktokenModel,
+} from "js-tiktoken";
 import { LLMChain } from "langchain/chains";
 import { type JsonSpec } from "langchain/tools";
 import { parse as jsonParse, stringify as jsonStringify } from "superjson";
@@ -129,13 +133,24 @@ export async function callPlanningAgent(
       };
 
       const modelName = LLM_ALIASES["fast-large"];
+      let encoding: Tiktoken;
+      try {
+        encoding = encodingForModel(modelName as TiktokenModel);
+      } catch (error) {
+        console.error(
+          `Error encoding model: ${
+            (error as Error).message
+          }. Falling back to "gpt-4".`,
+        );
+        encoding = encodingForModel("gpt-4");
+      }
       const formattingLLM = createModel(
         {
           ...creationProps,
           modelName,
           maxTokens: matchResponseTokensWithMinimumAndPadding(
             response,
-            encodingForModel(modelName),
+            encoding,
           ),
         },
         ModelStyle.Chat,
