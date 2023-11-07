@@ -76,6 +76,7 @@ export const createCallbacks = (
     abortController,
     namespace,
     req,
+    lastToolInputs,
   } = params;
   return [
     BaseCallbackHandler.fromMethods({
@@ -111,6 +112,7 @@ export const createCallbacks = (
           abortController,
           namespace,
           req,
+          lastToolInputs,
         );
       },
       handleRetrieverEnd(
@@ -142,6 +144,7 @@ export const createCallbacks = (
           abortController,
           namespace,
           req,
+          lastToolInputs,
         );
       },
       handleLLMStart(
@@ -176,6 +179,7 @@ export const createCallbacks = (
           abortController,
           namespace,
           req,
+          lastToolInputs,
         );
       },
       handleLLMEnd(
@@ -205,6 +209,7 @@ export const createCallbacks = (
           abortController,
           namespace,
           req,
+          lastToolInputs,
         );
       },
       handleLLMError(
@@ -234,6 +239,7 @@ export const createCallbacks = (
           abortController,
           namespace,
           req,
+          lastToolInputs,
         );
         console.error("handleLLMError", String(err).slice(0, maxLogSize));
       },
@@ -264,6 +270,7 @@ export const createCallbacks = (
           abortController,
           namespace,
           req,
+          lastToolInputs,
         ); // can be 'Output parser not set'
         console.error("handleChainError", String(err).slice(0, maxLogSize));
       },
@@ -296,6 +303,7 @@ export const createCallbacks = (
           abortController,
           namespace,
           req,
+          lastToolInputs,
         );
       },
       handleToolEnd(
@@ -325,6 +333,7 @@ export const createCallbacks = (
           abortController,
           namespace,
           req,
+          lastToolInputs,
         );
       },
       handleToolError(
@@ -354,6 +363,7 @@ export const createCallbacks = (
           abortController,
           namespace,
           req,
+          lastToolInputs,
         );
         console.error("handleToolError", String(err).slice(0, maxLogSize));
       },
