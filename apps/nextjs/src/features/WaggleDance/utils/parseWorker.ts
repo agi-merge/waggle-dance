@@ -5,6 +5,7 @@ import { type DraftExecutionGraph } from "@acme/db";
 
 import {
   AgentPacketFinishedTypes,
+  removeEnclosingMarkdown,
   transformWireFormat,
   type AgentPacket,
   type AgentPacketFinishedType,
@@ -47,18 +48,9 @@ self.onmessage = function (
         self.postMessage({ finishPacket: packet });
       }
     });
-    // replace the first instance of ```yaml and ```json with empty, as well as the last instance of ```
-    // Check if the string starts with markdown syntax
-    const markdownStartRegex = /^```(\w+)\n/;
-    if (markdownStartRegex.test(tokens)) {
-      // Remove leading markdown
-      tokens = tokens.replace(markdownStartRegex, "");
 
-      // Remove trailing markdown
-      tokens = tokens.replace(/\n```$/, "");
-    }
     const yaml = transformWireFormat(
-      parse(tokens) as PlanWireFormat,
+      parse(removeEnclosingMarkdown(tokens)) as PlanWireFormat,
       goal,
       executionId,
     );

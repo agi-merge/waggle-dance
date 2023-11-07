@@ -7,6 +7,7 @@ import { parse, stringify } from "yaml";
 import { type PlanRequestBody } from "~/features/WaggleDance/types/types";
 import {
   callPlanningAgent,
+  removeEnclosingMarkdown,
   transformWireFormat,
   type AgentPacket,
   type PlanWireFormat,
@@ -185,7 +186,7 @@ export default async function PlanStream(req: NextRequest) {
           typeof planResult === "string"
         ) {
           const graph = transformWireFormat(
-            parse(planResult) as PlanWireFormat,
+            parse(removeEnclosingMarkdown(planResult)) as PlanWireFormat,
             goalPrompt,
             executionId,
           );

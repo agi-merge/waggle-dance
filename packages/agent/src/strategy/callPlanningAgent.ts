@@ -182,3 +182,22 @@ export async function callPlanningAgent(
     return error as Error;
   }
 }
+
+// replace the first instance of ```yaml and ```json (or ```anything) with empty, as well as the last instance of ```
+export function removeEnclosingMarkdown(tokens: string): string {
+  const markdownStart = tokens.indexOf("```");
+  const markdownEnd = tokens.lastIndexOf("```");
+
+  if (
+    markdownStart !== -1 &&
+    markdownEnd !== -1 &&
+    markdownStart !== markdownEnd
+  ) {
+    const newlineAfterMarkdownStart = tokens.indexOf("\n", markdownStart);
+    if (newlineAfterMarkdownStart !== -1) {
+      return tokens.slice(newlineAfterMarkdownStart + 1, markdownEnd).trim();
+    }
+  }
+
+  return tokens;
+}
