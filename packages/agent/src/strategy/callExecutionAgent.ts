@@ -337,7 +337,10 @@ If the Final Answer is already perfect, then only respond with "${rewriteRespons
         ? response
         : rewriteResponse.content;
 
-    const bestResponse = (bestResponseMessageContent as { text?: string }).text;
+    const bestResponse =
+      typeof bestResponseMessageContent === "string"
+        ? bestResponseMessageContent
+        : (bestResponseMessageContent as { text?: string }).text;
     if (!bestResponse) {
       throw new Error("No response from rewrite agent");
     }
