@@ -1,5 +1,5 @@
 import { type MutableRefObject } from "react";
-import { type JsonSpec } from "langchain/tools";
+import { JsonSpec, type JsonObject } from "langchain/tools";
 import { stringify } from "yaml";
 
 import {
@@ -72,9 +72,9 @@ class WaggleDanceAgentExecutor {
     let agentProtocolOpenAPISpec: JsonSpec | undefined;
 
     try {
-      agentProtocolOpenAPISpec = (await (
-        await fetch("/api/ap")
-      ).json()) as JsonSpec;
+      agentProtocolOpenAPISpec = new JsonSpec(
+        (await (await fetch("/api/ap")).json()) as JsonObject,
+      );
     } catch {
       console.error("Failed to fetch agent protocol spec");
     }
@@ -197,6 +197,7 @@ class WaggleDanceAgentExecutor {
             scheduledTasks,
             pendingTasks,
             isDonePlanning,
+            agentProtocolOpenAPISpec,
           );
         }
         await sleep(100);
@@ -228,7 +229,7 @@ class WaggleDanceAgentExecutor {
       log: this.log,
       injectAgentPacket: this.injectAgentPacket,
       abortSignal: this.abortController.signal,
-      agentProtocolOpenAPISpec,
+      agentProtocolOpenAPISpec: agentProtocolOpenAPISpec?.obj,
     });
 
     // Call the check methods here
@@ -248,6 +249,7 @@ class WaggleDanceAgentExecutor {
     scheduledTasks: Set<string>,
     pendingTasks: Array<DraftExecutionNode>,
     isDonePlanning: boolean,
+    agentProtocolOpenAPISpec?: JsonSpec,
   ) {
     // Store the results of the tasks that have been started
     const startedTaskIds = new Set<string>();
@@ -284,6 +286,7 @@ class WaggleDanceAgentExecutor {
         dag,
         revieweeTaskResults,
         creationProps,
+        agentProtocolOpenAPISpec: agentProtocolOpenAPISpec?.obj,
       };
 
       scheduledTasks.add(task.id);

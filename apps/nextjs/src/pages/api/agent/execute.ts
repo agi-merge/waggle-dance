@@ -4,6 +4,7 @@ import { isAbortError } from "next/dist/server/pipe-readable";
 import { type NextRequest } from "next/server";
 import { type Document } from "langchain/document";
 import { ScoreThresholdRetriever } from "langchain/retrievers/score_threshold";
+import { type JsonObject } from "langchain/tools";
 import { MemoryVectorStore } from "langchain/vectorstores/memory";
 import { stringify } from "yaml";
 
@@ -268,6 +269,7 @@ export default async function ExecuteStream(req: NextRequest) {
     revieweeTaskResults: TaskState[],
     contentType: "application/json" | "application/yaml",
     namespace: string,
+    agentProtocolOpenAPISpec: JsonObject | undefined,
     req: NextRequest,
     encoder: TextEncoder,
     resolveStreamEnded: () => void,
@@ -301,6 +303,7 @@ export default async function ExecuteStream(req: NextRequest) {
       revieweeTaskResults,
       contentType,
       namespace,
+      agentProtocolOpenAPISpec,
       req,
       encoder,
       resolveStreamEnded,
@@ -319,6 +322,7 @@ export default async function ExecuteStream(req: NextRequest) {
     revieweeTaskResults: TaskState[],
     contentType: "application/json" | "application/yaml",
     namespace: string,
+    agentProtocolOpenAPISpec: JsonObject | undefined,
     req: NextRequest,
     encoder: TextEncoder,
     resolveStreamEnded: () => void,
@@ -335,6 +339,7 @@ export default async function ExecuteStream(req: NextRequest) {
       contentType,
       abortSignal: abortControllerWrapper.controller.signal,
       namespace: namespace,
+      agentProtocolOpenAPISpec,
       geo: req.geo,
     });
 
@@ -380,6 +385,7 @@ export default async function ExecuteStream(req: NextRequest) {
       task,
       agentPromptingMethod,
       dag,
+      agentProtocolOpenAPISpec,
       revieweeTaskResults,
     } = (await req.json()) as ExecuteRequestBody;
     node = task;
@@ -425,6 +431,7 @@ export default async function ExecuteStream(req: NextRequest) {
           revieweeTaskResults,
           contentType,
           namespace!,
+          agentProtocolOpenAPISpec,
           req,
           encoder,
           resolveStreamEnded,

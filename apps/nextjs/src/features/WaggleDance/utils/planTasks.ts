@@ -1,6 +1,6 @@
 // features/WaggleDance/utils/planTasks.ts
 
-import { type JsonSpec } from "langchain/tools";
+import { type JsonObject } from "langchain/tools";
 
 import { type DraftExecutionGraph, type DraftExecutionNode } from "@acme/db";
 
@@ -28,7 +28,7 @@ export type PlanTasksProps = {
     task: DraftExecutionNode,
     dag: DraftExecutionGraph,
   ) => Promise<void>;
-  agentProtocolOpenAPISpec?: JsonSpec;
+  agentProtocolOpenAPISpec?: JsonObject;
 };
 
 export default async function planTasks({

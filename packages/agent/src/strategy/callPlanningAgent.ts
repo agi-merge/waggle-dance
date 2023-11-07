@@ -6,7 +6,7 @@ import {
   type TiktokenModel,
 } from "js-tiktoken";
 import { LLMChain } from "langchain/chains";
-import { type JsonSpec } from "langchain/tools";
+import { type JsonObject } from "langchain/tools";
 import { parse as jsonParse, stringify as jsonStringify } from "superjson";
 import { parse as yamlParse, stringify as yamlStringify } from "yaml";
 
@@ -31,7 +31,7 @@ export async function callPlanningAgent(
   goalId: string,
   signal: AbortSignal,
   namespace: string,
-  agentProtocolOpenAPISpec?: JsonSpec,
+  agentProtocolOpenAPISpec?: JsonObject,
   returnType: "YAML" | "JSON" = "YAML",
 ): Promise<string | Error> {
   const tags = [

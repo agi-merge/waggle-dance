@@ -20,7 +20,7 @@ import {
   SystemMessagePromptTemplate,
 } from "langchain/prompts";
 import { type AgentStep } from "langchain/schema";
-import { type JsonSpec } from "langchain/tools";
+import { type JsonObject } from "langchain/tools";
 import { AbortError } from "redis";
 import { stringify as jsonStringify } from "superjson";
 import { parse as yamlParse, stringify as yamlStringify } from "yaml";
@@ -84,7 +84,7 @@ export async function callExecutionAgent(creation: {
   contentType: "application/json" | "application/yaml";
   abortSignal: AbortSignal;
   namespace: string;
-  agentProtocolOpenAPISpec?: JsonSpec;
+  agentProtocolOpenAPISpec?: JsonObject;
   geo?: Geo;
 }): Promise<string | Error> {
   const {

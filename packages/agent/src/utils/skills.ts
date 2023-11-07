@@ -2,10 +2,11 @@ import { type ChatOpenAI } from "langchain/chat_models/openai";
 import { type Embeddings } from "langchain/embeddings/base";
 import { type OpenAI } from "langchain/llms/openai";
 import {
+  JsonSpec,
   SearchApi,
   SerpAPI,
   WolframAlphaTool,
-  type JsonSpec,
+  type JsonObject,
   type SearchApiParameters,
   type StructuredTool,
 } from "langchain/tools";
@@ -220,7 +221,7 @@ function createSkills(
   isCriticism: boolean,
   taskId: string,
   returnType: "YAML" | "JSON",
-  agentProtocolOpenAPISpec?: JsonSpec,
+  agentProtocolOpenAPISpec?: JsonObject,
   geo?: Geo,
 ): StructuredTool[] {
   const tools = [
@@ -270,7 +271,8 @@ function createSkills(
   }
 
   if (agentProtocolOpenAPISpec) {
-    const toolkit = new AgentProtocolToolkit(agentProtocolOpenAPISpec, llm, {});
+    const openAPISpec = new JsonSpec(agentProtocolOpenAPISpec);
+    const toolkit = new AgentProtocolToolkit(openAPISpec, llm, {});
     tools.push(...toolkit.tools);
   }
 
