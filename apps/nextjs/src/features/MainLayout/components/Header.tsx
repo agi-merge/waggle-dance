@@ -40,8 +40,9 @@ const Header = ({}) => {
         }}
       >
         <Typography
-          className="xs:scale-50 flex-grow"
-          level="h1"
+          className="flex-grow"
+          fontSize={{ xs: "1rem" }}
+          level="title-lg"
           fontWeight={400}
         >
           🐝💃 waggledance.ai
@@ -51,7 +52,7 @@ const Header = ({}) => {
         </Typography>
         {session && (
           <Tooltip title={`You are signed in as ${session.user.name}`}>
-            <IconButton onClick={() => void signOut()}>
+            <IconButton onClick={() => void signOut()} size="sm">
               <Avatar
                 className="mr-3"
                 src={session.user.image || undefined}
@@ -67,12 +68,12 @@ const Header = ({}) => {
           aria-expanded={isOpen}
           variant="outlined"
           color="neutral"
+          size="sm"
           onClick={(event) => {
             event.preventDefault();
             setAnchorEl(event.currentTarget);
             setIsOpen(!isOpen);
           }}
-          style={{ height: "2rem" }}
         >
           <MoreVert />
         </IconButton>
