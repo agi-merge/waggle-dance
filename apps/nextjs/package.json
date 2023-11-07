@@ -41,7 +41,7 @@
     "eventsource-parser": "^1.1.1",
     "formidable": "^3.5.1",
     "jsonrepair": "^3.4.0",
-    "langchain": "^0.0.176",
+    "langchain": "0.0.182-rc.1",
     "mammoth": "^1.6.0",
     "next": "^14.0.1",
     "next-auth": "^4.24.4",

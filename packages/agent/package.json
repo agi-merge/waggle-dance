@@ -27,7 +27,7 @@
   },
   "devDependencies": {
     "@acme/eslint-config": "^0.1.0",
-    "@types/crypto-js": "^4.2.0",
+    "@types/crypto-js": "^4.2.1",
     "eslint": "^8.53.0",
     "typescript": "^5.2.2"
   }
