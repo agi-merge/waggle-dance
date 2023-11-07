@@ -1,4 +1,5 @@
 import { Document } from "langchain/document";
+import { type Embeddings } from "langchain/embeddings/base";
 import { WeaviateStore } from "langchain/vectorstores/weaviate";
 import weaviate from "weaviate-ts-client";
 
@@ -10,6 +11,7 @@ import { createEmbeddings } from "./model";
 export async function vectorStoreFromIndex(
   namespace: string,
   indexName?: string | undefined,
+  embeddings?: Embeddings | undefined,
 ) {
   if (!indexName) {
     indexName = process.env.LONG_TERM_MEMORY_INDEX_NAME;
@@ -17,7 +19,9 @@ export async function vectorStoreFromIndex(
   if (!indexName) {
     throw new Error("No index name found");
   }
-  const embeddings = createEmbeddings({ modelName: LLM.embeddings });
+  if (!embeddings) {
+    embeddings = createEmbeddings({ modelName: LLM.embeddings });
+  }
   const client = createVectorClient();
   const store = await WeaviateStore.fromExistingIndex(embeddings, {
     client,
