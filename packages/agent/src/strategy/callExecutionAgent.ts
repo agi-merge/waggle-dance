@@ -332,10 +332,15 @@ If the Final Answer is already perfect, then only respond with "${rewriteRespons
       },
     );
 
-    const bestResponse =
+    const bestResponseMessageContent =
       rewriteResponse.content === rewriteResponseAck
         ? response
         : rewriteResponse.content;
+
+    const bestResponse = (bestResponseMessageContent as { text?: string }).text;
+    if (!bestResponse) {
+      throw new Error("No response from rewrite agent");
+    }
 
     // make sure that we are at least saving the task result so that other notes can refer back.
     const shouldSave = !isCriticism;

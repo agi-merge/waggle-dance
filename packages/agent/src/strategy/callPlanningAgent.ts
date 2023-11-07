@@ -99,8 +99,11 @@ export async function callPlanningAgent(
     try {
       const parsedDAG =
         returnType === "JSON"
-          ? jsonParse(response)
-          : (yamlParse(response) as PlanWireFormat | null | undefined);
+          ? jsonParse(removeEnclosingMarkdown(response))
+          : (yamlParse(removeEnclosingMarkdown(response)) as
+              | PlanWireFormat
+              | null
+              | undefined);
 
       return parsedDAG ? response : stringError;
     } catch (error) {
