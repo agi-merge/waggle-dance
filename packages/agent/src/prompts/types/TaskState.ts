@@ -30,23 +30,15 @@ export class TaskState implements AugmentedResponse {
   }
 
   get tier(): string | null {
-    return this.extractTier(this.nodeId);
+    return extractTier(this.nodeId);
   }
 
   get taskNumber(): number | null {
-    return this.extractTaskNumber(this.nodeId);
+    return extractTaskNumber(this.nodeId);
   }
 
   get displayId(): string {
-    if (this.id === rootPlanId) {
-      return rootPlanId;
-    }
-    const executionSplit = this.nodeId?.split(".")[1];
-    if (!executionSplit) {
-      return this.id;
-    } else {
-      return executionSplit;
-    }
+    return getDisplayId(this.id, this.nodeId);
   }
 
   // Public helpers
@@ -54,31 +46,41 @@ export class TaskState implements AugmentedResponse {
   findNode(nodes: DraftExecutionNode[]): DraftExecutionNode | undefined {
     return nodes.find((n) => n.id === this.nodeId || n.id === this.displayId);
   }
-
-  // private helpers
-
-  private extractTier(fromId: string | null) {
-    if (!fromId) return null;
-    const tierAndOptionalServerId = fromId.split("-")[0];
-    const tierAndOptionalServerIdSplit = tierAndOptionalServerId?.split(".");
-    const tier =
-      tierAndOptionalServerIdSplit?.[tierAndOptionalServerIdSplit.length - 1];
-
-    return tier || null;
-  }
-
-  private extractTaskNumber(nodeId: string | null): number | null {
-    if (!nodeId) return null;
-    const parts = nodeId.split("-");
-    if (parts.length < 2) return null;
-    const lastPart = parts[parts.length - 1];
-    if (!lastPart) return null;
-    const taskNumber = parseInt(lastPart, 10);
-    return isNaN(taskNumber) ? null : taskNumber;
-  }
 }
 
 type AugmentedResponse = { packets: AgentPacket[]; value: AgentPacket } & Omit<
   Result,
   "goalId" | "executionId" | "value" | "packets" | "packetVersion" | "createdAt"
 >;
+
+export function extractTier(fromId: string | null): string | null {
+  if (!fromId) return null;
+  const tierAndOptionalServerId = fromId.split("-")[0];
+  const tierAndOptionalServerIdSplit = tierAndOptionalServerId?.split(".");
+  const tier =
+    tierAndOptionalServerIdSplit?.[tierAndOptionalServerIdSplit.length - 1];
+
+  return tier || null;
+}
+
+export function extractTaskNumber(nodeId: string | null): number | null {
+  if (!nodeId) return null;
+  const parts = nodeId.split("-");
+  if (parts.length < 2) return null;
+  const lastPart = parts[parts.length - 1];
+  if (!lastPart) return null;
+  const taskNumber = parseInt(lastPart, 10);
+  return isNaN(taskNumber) ? null : taskNumber;
+}
+
+export function getDisplayId(id: string, nodeId: string | null): string {
+  if (id === rootPlanId) {
+    return rootPlanId;
+  }
+  const executionSplit = nodeId?.split(".")[1];
+  if (!executionSplit) {
+    return id;
+  } else {
+    return executionSplit;
+  }
+}

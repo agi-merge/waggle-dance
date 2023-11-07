@@ -3,12 +3,14 @@ import { JsonSpec, type JsonObject } from "langchain/tools";
 import { stringify } from "yaml";
 
 import {
+  extractTier,
   rootPlanNode,
   TaskState,
   TaskStatus,
   type AgentPacket,
   type AgentSettingsMap,
 } from "@acme/agent";
+import { isTaskCriticism } from "@acme/agent/src/prompts/types";
 import { type DraftExecutionGraph, type DraftExecutionNode } from "@acme/db";
 
 import executeTask from "../utils/executeTask";
@@ -254,11 +256,18 @@ class WaggleDanceAgentExecutor {
     // Store the results of the tasks that have been started
     const startedTaskIds = new Set<string>();
 
+    const criticism = tasks.find((task) => isTaskCriticism(task.id));
+    const reviewTier = !!criticism && extractTier(criticism.id);
     // Get the results of the tasks that have been reviewed
     // ignores any node with rootNodeId as its id
-    const revieweeTaskResults = Object.values(this.taskResults).filter(
-      (taskResult) => taskResult.nodeId !== rootPlanNode(this.goalPrompt).id,
-    );
+    // we want to pass the most recently completed tasks with the same level number (e.g. id 1-x for 1-c)
+    const revieweeTaskResults = criticism
+      ? Object.values(this.taskResults).filter(
+          (taskResult) =>
+            taskResult.nodeId !== rootPlanNode(this.goalPrompt).id &&
+            taskResult.tier === reviewTier,
+        )
+      : [];
 
     // Iterate over each task
     tasks.forEach((task, index) => {
