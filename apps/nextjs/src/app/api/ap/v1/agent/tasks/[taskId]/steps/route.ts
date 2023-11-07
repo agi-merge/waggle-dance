@@ -11,6 +11,7 @@ import { parse } from "yaml";
 import {
   findFinishPacket,
   getMostRelevantOutput,
+  makeServerIdIfNeeded,
   type AgentPacket,
 } from "@acme/agent";
 import { AgentPromptingMethod, LLM_ALIASES } from "@acme/agent/src/utils/llms";
@@ -123,7 +124,7 @@ export async function POST(
     session,
     file: executeResponseText,
     executionId: exe.id,
-    nodeId: latestResultNode!.id,
+    nodeId: makeServerIdIfNeeded(latestResultNode!.id),
     contentType,
     origin: request.nextUrl.origin,
   });

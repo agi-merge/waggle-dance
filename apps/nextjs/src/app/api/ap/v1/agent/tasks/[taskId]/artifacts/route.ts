@@ -5,6 +5,7 @@ import { type Artifact } from "lib/AgentProtocol/types";
 import { customAlphabet } from "nanoid";
 import { getServerSession, type Session } from "next-auth";
 
+import { makeServerIdIfNeeded } from "@acme/agent";
 import { appRouter } from "@acme/api";
 import { authOptions } from "@acme/auth";
 import { prisma, type Result } from "@acme/db";
@@ -125,7 +126,7 @@ export async function POST(
     session: nextAuthNamespaceSession,
     contentType,
     file,
-    nodeId: nodeId!,
+    nodeId: makeServerIdIfNeeded(nodeId!),
     executionId: taskId,
     origin: req.nextUrl.origin,
   });
