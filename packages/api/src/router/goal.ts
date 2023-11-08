@@ -10,34 +10,36 @@ import {
 } from "../trpc";
 
 export const goalRouter = createTRPCRouter({
-  topByUser: optionalProtectedProcedure.query(({ ctx }) => {
+  topByUser: optionalProtectedProcedure.query(async ({ ctx }) => {
     const userId = ctx.session.user?.id;
     if (!userId) {
       return [];
     }
-    return ctx.prisma.goal.findMany({
-      where: { userId },
-      orderBy: { updatedAt: "asc" },
-      include: {
-        executions: {
-          take: 1,
-          orderBy: { updatedAt: "desc" }, // doesnt work as expected?
-          include: {
-            graph: {
-              include: {
-                nodes: true,
-                edges: true,
+    return (
+      await ctx.prisma.goal.findMany({
+        where: { userId },
+        orderBy: { updatedAt: "desc" },
+        include: {
+          executions: {
+            take: 2,
+            orderBy: { updatedAt: "desc" }, // doesnt work as expected?
+            include: {
+              graph: {
+                include: {
+                  nodes: true,
+                  edges: true,
+                },
               },
-            },
-            results: {
-              take: 40,
-              orderBy: { updatedAt: "desc" },
+              results: {
+                take: 40,
+                orderBy: { updatedAt: "desc" },
+              },
             },
           },
         },
-      },
-      take: 1,
-    });
+        take: 5,
+      })
+    ).reverse();
   }),
 
   byId: optionalProtectedProcedure
