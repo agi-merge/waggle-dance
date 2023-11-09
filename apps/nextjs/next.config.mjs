@@ -15,6 +15,9 @@ const config = {
   redirects: async () => [
     { source: "/", destination: "/goal", permanent: true },
   ],
+  experimental: {
+    webpackBuildWorker: true,
+  },
   webpack: (config, { buildId, dev, isServer, defaultLoaders, webpack }) => {
     config.module.rules.push({
       test: /\.m?js/,
