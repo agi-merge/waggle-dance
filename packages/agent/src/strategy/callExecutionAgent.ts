@@ -185,7 +185,11 @@ export async function callExecutionAgent(creation: {
   const outputFixingParser = OutputFixingParser.fromLLM(exeLLM, baseParser);
 
   const smallSmartHelperModel = createModel(
-    { ...creationProps, modelName: LLM_ALIASES["smart"], maxTokens: 300 },
+    {
+      ...creationProps,
+      modelName: LLM_ALIASES["smart-xlarge"],
+      maxTokens: 300,
+    },
     ModelStyle.Chat,
   ) as ChatOpenAI;
 
@@ -314,7 +318,7 @@ If the Final Answer is already perfect, then only respond with "${rewriteRespons
     const smartHelperModel = createModel(
       {
         ...creationProps,
-        modelName: LLM_ALIASES["smart"],
+        modelName: LLM_ALIASES["smart-xlarge"],
       },
       ModelStyle.Chat,
     ) as ChatOpenAI;
@@ -359,7 +363,11 @@ If the Final Answer is already perfect, then only respond with "${rewriteRespons
     void save;
 
     const mediumSmartHelperModel = createModel(
-      { ...creationProps, modelName: LLM_ALIASES["smart"], maxTokens: 600 },
+      {
+        ...creationProps,
+        modelName: LLM_ALIASES["smart-xlarge"],
+        maxTokens: 600,
+      },
       ModelStyle.Chat,
     ) as ChatOpenAI;
 
