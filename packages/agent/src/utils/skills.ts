@@ -2,7 +2,6 @@ import { type ChatOpenAI } from "langchain/chat_models/openai";
 import { type Embeddings } from "langchain/embeddings/base";
 import { type OpenAI } from "langchain/llms/openai";
 import {
-  JsonSpec,
   SearchApi,
   SerpAPI,
   WolframAlphaTool,
@@ -13,9 +12,6 @@ import {
 import { WebBrowser } from "langchain/tools/webbrowser";
 
 import cca2Map from "../lib/cca2Map.json";
-import { AgentProtocolToolkit } from "../skills/AgentProtocolSkill";
-import requestUserHelpSkill from "../skills/requestUserHelpSkill";
-import uploadFileSkill from "../skills/uploadFileSkill";
 import type Geo from "./Geo";
 import { type AgentPromptingMethod } from "./llms";
 
@@ -224,10 +220,10 @@ function createSkills(
   agentProtocolOpenAPISpec?: JsonObject,
   geo?: Geo,
 ): StructuredTool[] {
-  const tools = [
-    requestUserHelpSkill.toTool(agentPromptingMethod, returnType),
+  const tools: StructuredTool[] = [
+    // requestUserHelpSkill.toTool(agentPromptingMethod, returnType),
     // selfHelpSkill.toTool(agentPromptingMethod, returnType),
-    uploadFileSkill.toTool(agentPromptingMethod, returnType),
+    // uploadFileSkill.toTool(agentPromptingMethod, returnType),
     new WebBrowser({ model: llm, embeddings }),
   ];
 
@@ -270,13 +266,13 @@ function createSkills(
     );
   }
 
-  if (agentProtocolOpenAPISpec) {
-    const openAPISpec = new JsonSpec(agentProtocolOpenAPISpec);
-    const toolkit = new AgentProtocolToolkit(openAPISpec, llm, {});
-    tools.push(...toolkit.tools);
-  }
+  // if (agentProtocolOpenAPISpec) {
+  //   const openAPISpec = new JsonSpec(agentProtocolOpenAPISpec);
+  //   const toolkit = new AgentProtocolToolkit(openAPISpec, llm, {});
+  //   tools.push(...toolkit.tools);
+  // }
 
-  return tools as StructuredTool[];
+  return tools;
 }
 
 export default createSkills;
