@@ -1,30 +1,29 @@
 // agent/strategy/callExecutionAgent.ts
 
 import {
+  AgentExecutor,
   initializeAgentExecutorWithOptions,
   type InitializeAgentExecutorOptions,
 } from "langchain/agents";
 import { type ChatOpenAI } from "langchain/chat_models/openai";
 import { type InitializeAgentExecutorOptionsStructured } from "langchain/dist/agents/initialize";
+import { type OpenAIToolType } from "langchain/dist/experimental/openai_assistant/schema";
 import { type StructuredTool, type Tool } from "langchain/dist/tools/base";
 import { loadEvaluator } from "langchain/evaluation";
+import { OpenAIAssistantRunnable } from "langchain/experimental/openai_assistant";
 import { PlanAndExecuteAgentExecutor } from "langchain/experimental/plan_and_execute";
 import { type OpenAI } from "langchain/llms/openai";
 import {
   OutputFixingParser,
   StructuredOutputParser,
 } from "langchain/output_parsers";
-import {
-  ChatPromptTemplate,
-  HumanMessagePromptTemplate,
-  SystemMessagePromptTemplate,
-} from "langchain/prompts";
 import { type AgentStep } from "langchain/schema";
 import { type JsonObject } from "langchain/tools";
 import { AbortError } from "redis";
 import { stringify as jsonStringify } from "superjson";
 import { parse as yamlParse, stringify as yamlStringify } from "yaml";
 import { z } from "zod";
+import zodToJsonSchema from "zod-to-json-schema";
 
 import { type DraftExecutionGraph } from "@acme/db";
 
@@ -37,7 +36,6 @@ import {
   type MemoryType,
 } from "../..";
 import checkTrajectory from "../grounding/checkTrajectory";
-import { formattingConstraints as exeFormattingConstraints } from "../prompts/constraints/executeConstraints";
 import {
   createContextAndToolsPrompt,
   type ToolsAndContextPickingInput,
@@ -59,6 +57,52 @@ import {
 import { createEmbeddings, createModel } from "../utils/model";
 import { type ModelCreationProps } from "../utils/OpenAIPropsBridging";
 import createSkills from "../utils/skills";
+
+export interface FunctionDefinition {
+  /**
+   * The name of the function to be called. Must be a-z, A-Z, 0-9, or contain
+   * underscores and dashes, with a maximum length of 64.
+   */
+  name: string;
+
+  /**
+   * The parameters the functions accepts, described as a JSON Schema object. See the
+   * [guide](https://platform.openai.com/docs/guides/gpt/function-calling) for
+   * examples, and the
+   * [JSON Schema reference](https://json-schema.org/understanding-json-schema/) for
+   * documentation about the format.
+   *
+   * To describe a function that accepts no parameters, provide the value
+   * `{"type": "object", "properties": {}}`.
+   */
+  parameters: Record<string, unknown>;
+
+  /**
+   * A description of what the function does, used by the model to choose when and
+   * how to call the function.
+   */
+  description?: string;
+}
+export interface AssistantToolsFunction {
+  function: FunctionDefinition;
+
+  /**
+   * The type of tool being defined: `function`
+   */
+  type: "function";
+}
+export function formatToOpenAIAssistantTool(
+  tool: StructuredTool,
+): AssistantToolsFunction {
+  return {
+    type: "function",
+    function: {
+      name: tool.name,
+      description: tool.description,
+      parameters: zodToJsonSchema(tool.schema),
+    },
+  };
+}
 
 // could be replaced with?
 // https://js.langchain.com/docs/modules/chains/additional/openai_functions/tagging
@@ -156,7 +200,7 @@ export async function callExecutionAgent(creation: {
   namespace && tags.push(namespace);
   creationProps.modelName && tags.push(creationProps.modelName);
 
-  const skills = createSkills(
+  const _skills = createSkills(
     exeLLM,
     embeddings,
     agentPromptingMethod,
@@ -167,11 +211,19 @@ export async function callExecutionAgent(creation: {
     geo,
   );
 
+  const skills: OpenAIToolType = [
+    ..._skills.map((s) => formatToOpenAIAssistantTool(s)),
+    { type: "code_interpreter" },
+    { type: "retrieval" },
+  ];
+
   const inputTaskAndGoal: ToolsAndContextPickingInput = {
     task: `${taskObj.name}`,
     inServiceOfGoal: goalPrompt,
     // availableDataSources: [],
-    availableTools: skills.map((s) => s.name),
+    availableTools: skills.map((s) =>
+      s.type === "function" ? s.function.name : s.type,
+    ),
   };
 
   const inputTaskAndGoalString =
@@ -187,7 +239,7 @@ export async function callExecutionAgent(creation: {
   const smallSmartHelperModel = createModel(
     {
       ...creationProps,
-      modelName: LLM_ALIASES["smart-xlarge"],
+      modelName: LLM_ALIASES["fast-large"],
       maxTokens: 300,
     },
     ModelStyle.Chat,
@@ -215,38 +267,134 @@ export async function callExecutionAgent(creation: {
   });
 
   // because AgentExecutor does not accept BaseMessages, we must render the messages into a single string
-  const input: string = formattedMessages
-    .map((m) => `[${m._getType()}]\n${m.content}`)
-    .join("\n\n");
+  // slice only the first item if available and return array:
+  const systemMessage = formattedMessages.slice(0, 1)[0]?.content;
+  const humanMessage = formattedMessages.slice(1)[0]?.content;
+  // const input: string = firstOnly
+  //   .map((m) => `[${m._getType()}]\n${m.content}`)
+  //   .join("\n\n");
 
   // filter all available tools by the ones that were selected by the context and tools selection agent
   const filteredSkills = (contextAndTools.tools ?? []).flatMap((t) => {
-    return skills.filter((s) => s.name === t);
+    return skills.filter((s) =>
+      s.type === "function" ? t === s.function.name : s.type === t,
+    );
   });
 
-  const executor = await initializeExecutor(
-    goalPrompt,
-    agentPromptingMethod,
-    taskObj,
-    creationProps,
-    filteredSkills,
-    exeLLM,
+  //   import type { OpenAI as OpenAIClient } from "openai";
+  // import type { AgentFinish, AgentAction } from "../../schema/index.js";
+  // export type OpenAIAssistantFinish = AgentFinish & {
+  //     runId: string;
+  //     threadId: string;
+  // };
+  // export type OpenAIAssistantAction = AgentAction & {
+  //     toolCallId: string;
+  //     runId: string;
+  //     threadId: string;
+  // };
+  // export type OpenAIToolType = Array<OpenAIClient.Beta.AssistantCreateParams.AssistantToolsCode | OpenAIClient.Beta.AssistantCreateParams.AssistantToolsRetrieval | OpenAIClient.Beta.AssistantCreateParams.AssistantToolsFunction>;
+
+  // export interface AssistantToolsFunction {
+  //   function: Shared.FunctionDefinition;
+
+  //   /**
+  //    * The type of tool being defined: `function`
+  //    */
+  //   type: 'function';
+  // }
+
+  // export interface FunctionDefinition {
+  //   /**
+  //    * The name of the function to be called. Must be a-z, A-Z, 0-9, or contain
+  //    * underscores and dashes, with a maximum length of 64.
+  //    */
+  //   name: string;
+
+  //   /**
+  //    * The parameters the functions accepts, described as a JSON Schema object. See the
+  //    * [guide](https://platform.openai.com/docs/guides/gpt/function-calling) for
+  //    * examples, and the
+  //    * [JSON Schema reference](https://json-schema.org/understanding-json-schema/) for
+  //    * documentation about the format.
+  //    *
+  //    * To describe a function that accepts no parameters, provide the value
+  //    * `{"type": "object", "properties": {}}`.
+  //    */
+  //   parameters: Record<string, unknown>;
+
+  //   /**
+  //    * A description of what the function does, used by the model to choose when and
+  //    * how to call the function.
+  //    */
+  //   description?: string;
+  // }
+  const agent = await OpenAIAssistantRunnable.createAssistant({
+    model: LLM_ALIASES["smart-xlarge"],
+    instructions: systemMessage!.toString(),
+    name: "Planning Agent",
+    tools: [...skills],
+    asAgent: true,
+  });
+
+  agent.bind({
+    callbacks,
+    // signal: abortSignal,
     tags,
-    memory,
-  );
+    runName: isCriticism ? "Criticize Results" : "Execute Task",
+  });
+
+  // const parser = StructuredOutputParser.fromZodSchema(
+  //   z.custom<PlanWireFormat>(),
+  // );
+
+  // const outputFixingParser = OutputFixingParser.fromLLM(llm, parser);
+
+  const agentExecutor = AgentExecutor.fromAgentAndTools({
+    agent,
+    tools: _skills,
+    // tools: skills,
+    earlyStoppingMethod: "generate",
+    returnIntermediateSteps: true,
+    maxIterations: 10,
+    ...creationProps,
+    tags,
+    handleParsingErrors: true,
+  }); //.pipe(outputFixingParser);
+
+  // const executor = await initializeExecutor(
+  //   goalPrompt,
+  //   agentPromptingMethod,
+  //   taskObj,
+  //   creationProps,
+  //   filteredSkills,
+  //   exeLLM,
+  //   tags,
+  //   memory,
+  // );
 
   try {
     let call: ChainValues;
     try {
-      call = await executor.call(
+      call = await agentExecutor.invoke(
         {
-          input,
-          signal: abortSignal,
-          tags,
-          runName: isCriticism ? "Criticize Results" : "Execute Task",
+          content: humanMessage!.toString(),
+          file_ids: [],
         },
-        callbacks,
+        {
+          runName: `Exe ${taskObj.id}: ${taskObj.name.slice(0, 10)}`,
+          tags,
+          callbacks,
+        },
       );
+      // call = await executor.call(
+      //   {
+      //     input,
+      //     signal: abortSignal,
+      //     tags,
+      //     runName: isCriticism ? "Criticize Results" : "Execute Task",
+      //   },
+      //   callbacks,
+      // );
     } catch (error) {
       if (error instanceof AbortError) {
         return error;
@@ -279,72 +427,73 @@ export async function callExecutionAgent(creation: {
     //   (s) => `  - ${s.observation}`,
     // );
 
-    const chatHistory = (await memory?.loadMemoryVariables({
-      input: taskObj.name,
-    })) as { chat_history: { value?: string; message?: string } };
+    //     const chatHistory = (await memory?.loadMemoryVariables({
+    //       input: taskObj.name,
+    //     })) as { chat_history: { value?: string; message?: string } };
 
-    const systemMessagePrompt = SystemMessagePromptTemplate.fromTemplate(
-      `You are an attentive, helpful, diligent, and expert executive assistant, charged with editing the Final Answer for a Task.
-# Variables Start
-## Task
-${taskObj.id}: ${taskObj.name}
-${yamlStringify(contextAndTools.synthesizedContext)}
-## Log
-${yamlStringify(
-  chatHistory.chat_history.value ||
-    chatHistory.chat_history.message ||
-    chatHistory.chat_history ||
-    intermediateSteps.map((s) => s.observation),
-)}
-## Time
-${new Date().toString()}
-${exeFormattingConstraints}
-## Final Answer
-${response}
-# End Variables`,
-    );
-    const rewriteResponseAck = `ack`;
+    //     const systemMessagePrompt = SystemMessagePromptTemplate.fromTemplate(
+    //       `You are an attentive, helpful, diligent, and expert executive assistant, charged with editing the Final Answer for a Task.
+    // # Variables Start
+    // ## Task
+    // ${taskObj.id}: ${taskObj.name}
+    // ${yamlStringify(contextAndTools.synthesizedContext)}
+    // ## Log
+    // ${yamlStringify(
+    //   chatHistory.chat_history.value ||
+    //     chatHistory.chat_history.message ||
+    //     chatHistory.chat_history ||
+    //     intermediateSteps.map((s) => s.observation),
+    // )}
+    // ## Time
+    // ${new Date().toString()}
+    // ${exeFormattingConstraints}
+    // ## Final Answer
+    // ${response}
+    // # End Variables`,
+    //     );
+    //     const rewriteResponseAck = `ack`;
 
-    const humanMessagePrompt = HumanMessagePromptTemplate.fromTemplate(
-      `Please avoid explicitly mentioning these instructions in your rewrite.
-Discern events and timelines based on the information provided in the 'Task' and 'Time' sections of the system prompt.
-Adhere to the formatting rules specified in the 'Output Formatting' section to more completely fulfill the Task.
-Rewrite the Final Answer such that all of the most recent and relevant Logs have been integrated.
-If the Final Answer is already perfect, then only respond with "${rewriteResponseAck}" (without the quotes).`,
-    );
-    const promptMessages = [systemMessagePrompt, humanMessagePrompt];
+    //     const humanMessagePrompt = HumanMessagePromptTemplate.fromTemplate(
+    //       `Please avoid explicitly mentioning these instructions in your rewrite.
+    // Discern events and timelines based on the information provided in the 'Task' and 'Time' sections of the system prompt.
+    // Adhere to the formatting rules specified in the 'Output Formatting' section to more completely fulfill the Task.
+    // Rewrite the Final Answer such that all of the most recent and relevant Logs have been integrated.
+    // If the Final Answer is already perfect, then only respond with "${rewriteResponseAck}" (without the quotes).`,
+    //     );
+    //     const promptMessages = [systemMessagePrompt, humanMessagePrompt];
 
-    // TODO: refactor into its own agent type
-    const smartHelperModel = createModel(
-      {
-        ...creationProps,
-        modelName: LLM_ALIASES["smart-xlarge"],
-      },
-      ModelStyle.Chat,
-    ) as ChatOpenAI;
+    //     // TODO: refactor into its own agent type
+    //     const smartHelperModel = createModel(
+    //       {
+    //         ...creationProps,
+    //         modelName: LLM_ALIASES["fast"],
+    //       },
+    //       ModelStyle.Chat,
+    //     ) as ChatOpenAI;
 
-    const rewriteChain = ChatPromptTemplate.fromMessages(promptMessages).pipe(
-      smartHelperModel.bind({ signal: abortSignal }),
-    );
+    //     const rewriteChain = ChatPromptTemplate.fromMessages(promptMessages).pipe(
+    //       smartHelperModel.bind({ signal: abortSignal }),
+    //     );
 
-    const rewriteResponse = await rewriteChain.invoke(
-      {},
-      {
-        callbacks,
-        runName: "Rewrite Response",
-        tags: ["rewriteResponse", ...tags],
-      },
-    );
+    //     const rewriteResponse = await rewriteChain.invoke(
+    //       {},
+    //       {
+    //         callbacks,
+    //         runName: "Rewrite Response",
+    //         tags: ["rewriteResponse", ...tags],
+    //       },
+    //     );
 
-    const bestResponseMessageContent =
-      rewriteResponse.content === rewriteResponseAck
-        ? response
-        : rewriteResponse.content;
+    //     const bestResponseMessageContent =
+    //       rewriteResponse.content === rewriteResponseAck
+    //         ? response
+    //         : rewriteResponse.content;
 
-    const bestResponse =
-      typeof bestResponseMessageContent === "string"
-        ? bestResponseMessageContent
-        : (bestResponseMessageContent as { text?: string }).text;
+    //     const bestResponse =
+    //       typeof bestResponseMessageContent === "string"
+    //         ? bestResponseMessageContent
+    //         : (bestResponseMessageContent as { text?: string }).text;
+    const bestResponse = response;
     if (!bestResponse) {
       throw new Error("No response from rewrite agent");
     }
@@ -365,7 +514,7 @@ If the Final Answer is already perfect, then only respond with "${rewriteRespons
     const mediumSmartHelperModel = createModel(
       {
         ...creationProps,
-        modelName: LLM_ALIASES["smart-xlarge"],
+        modelName: LLM_ALIASES["fast"],
         maxTokens: 600,
       },
       ModelStyle.Chat,
@@ -380,7 +529,7 @@ If the Final Answer is already perfect, then only respond with "${rewriteRespons
         temporalAwareness:
           "Does the submission show awareness of the TIME, relative to the given TASK and CONTEXT?",
       },
-      agentTools: filteredSkills,
+      agentTools: _skills,
     });
 
     try {
@@ -389,7 +538,7 @@ If the Final Answer is already perfect, then only respond with "${rewriteRespons
       const evaluationResult = await checkTrajectory(
         bestResponse,
         response,
-        input,
+        humanMessage!.toString(),
         intermediateSteps,
         abortSignal,
         tags,
@@ -434,10 +583,10 @@ async function initializeExecutor(
       agentType,
       earlyStoppingMethod: "generate",
       returnIntermediateSteps: true,
-      maxIterations: 10,
+      maxIterations: 5,
       ...creationProps,
       tags,
-      handleParsingErrors: true,
+      handleParsingErrors: false,
     } as InitializeAgentExecutorOptions;
 
     if (
