@@ -72,6 +72,7 @@ export enum AgentPromptingMethod {
   PlanAndExecute = "Plan and Execute",
   OpenAIStructuredChat = "Structured Chat Zero Shot ReAct",
   OpenAIFunctions = "OpenAI Functions",
+  OpenAIAssistant = "OpenAI Assistant",
 }
 
 export const InitializeAgentExecutorOptionsAgentTypes = [
@@ -108,6 +109,8 @@ export function getAgentPromptingMethodValue(
       return "structured-chat-zero-shot-react-description";
     case AgentPromptingMethod.OpenAIFunctions:
       return "openai-functions";
+    case AgentPromptingMethod.OpenAIAssistant:
+      return null;
     case AgentPromptingMethod.PlanAndExecute:
       return null; //throw new Error("PlanAndExecute is not a valid prompting method");
   }

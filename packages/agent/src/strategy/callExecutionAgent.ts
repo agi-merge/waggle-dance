@@ -1,10 +1,10 @@
 // agent/strategy/callExecutionAgent.ts
-
 import {
   AgentExecutor,
   initializeAgentExecutorWithOptions,
   type InitializeAgentExecutorOptions,
 } from "langchain/agents";
+import { type Callbacks } from "langchain/callbacks";
 import { type ChatOpenAI } from "langchain/chat_models/openai";
 import { type InitializeAgentExecutorOptionsStructured } from "langchain/dist/agents/initialize";
 import { type OpenAIToolType } from "langchain/dist/experimental/openai_assistant/schema";
@@ -17,7 +17,7 @@ import {
   OutputFixingParser,
   StructuredOutputParser,
 } from "langchain/output_parsers";
-import { type AgentStep } from "langchain/schema";
+import { type AgentStep, type MessageContent } from "langchain/schema";
 import { type JsonObject } from "langchain/tools";
 import { AbortError } from "redis";
 import { stringify as jsonStringify } from "superjson";
@@ -46,13 +46,13 @@ import { isTaskCriticism } from "../prompts/types";
 import saveMemoriesSkill from "../skills/saveMemories";
 import type Geo from "../utils/Geo";
 import {
+  AgentPromptingMethod,
   getAgentPromptingMethodValue,
   InitializeAgentExecutorOptionsAgentTypes,
   InitializeAgentExecutorOptionsStructuredAgentTypes,
   LLM,
   LLM_ALIASES,
   ModelStyle,
-  type AgentPromptingMethod,
   type InitializeAgentExecutorOptionsAgentType,
   type InitializeAgentExecutorOptionsStructuredAgentType,
 } from "../utils/llms";
@@ -342,51 +342,22 @@ export async function callExecutionAgent(creation: {
   //    */
   //   description?: string;
   // }
-  const agent = await OpenAIAssistantRunnable.createAssistant({
-    model: LLM_ALIASES["smart-xlarge"],
-    instructions: systemMessage!.toString(),
-    name: "Planning Agent",
-    tools: [...skills],
-    asAgent: true,
-  });
 
-  agent.bind({
-    callbacks,
-    // signal: abortSignal,
+  const runName = isCriticism ? `Criticize ${taskObj.id}` : `Exe ${taskObj.id}`;
+  const executor = await initializeExecutor(
+    goalPrompt,
+    agentPromptingMethod,
+    taskObj,
+    creationProps,
+    filteredSkills,
+    exeLLM,
     tags,
-    runName: isCriticism ? "Criticize Results" : "Execute Task",
-  });
-
-  // const parser = StructuredOutputParser.fromZodSchema(
-  //   z.custom<PlanWireFormat>(),
-  // );
-
-  // const outputFixingParser = OutputFixingParser.fromLLM(llm, parser);
-
-  const agentExecutor = AgentExecutor.fromAgentAndTools({
-    agent,
     memory,
-    tools: _skills,
-    // tools: skills,
-    earlyStoppingMethod: "generate",
-    returnIntermediateSteps: true,
-    maxIterations: 10,
-    ...creationProps,
+    runName,
+    systemMessage,
+    humanMessage,
     callbacks,
-    tags,
-    handleParsingErrors: true,
-  }); //.pipe(outputFixingParser);
-
-  // const executor = await initializeExecutor(
-  //   goalPrompt,
-  //   agentPromptingMethod,
-  //   taskObj,
-  //   creationProps,
-  //   filteredSkills,
-  //   exeLLM,
-  //   tags,
-  //   memory,
-  // );
+  );
 
   try {
     let call: ChainValues;
@@ -400,7 +371,7 @@ export async function callExecutionAgent(creation: {
         },
         runId: v4(),
       });
-      call = await agentExecutor.invoke(
+      call = await executor.invoke(
         {
           content: humanMessage!.toString(),
           file_ids: [],
@@ -597,10 +568,14 @@ async function initializeExecutor(
   agentPromptingMethod: AgentPromptingMethod,
   _taskObj: { id: string },
   creationProps: ModelCreationProps,
-  tools: StructuredTool[],
+  tools: OpenAIToolType | StructuredTool[],
   llm: OpenAI | ChatOpenAI,
   tags: string[],
   memory: MemoryType,
+  runName: string,
+  systemMessage: MessageContent | undefined,
+  humanMessage: MessageContent | undefined,
+  callbacks: Callbacks | undefined,
 ) {
   let executor;
   const agentType = getAgentPromptingMethodValue(agentPromptingMethod);
@@ -653,13 +628,52 @@ async function initializeExecutor(
       options.memory = memory;
     }
 
-    executor = await initializeAgentExecutorWithOptions(tools, llm, options);
-  } else {
+    executor = await initializeAgentExecutorWithOptions(
+      tools as StructuredTool[],
+      llm,
+      options,
+    );
+  } else if (agentPromptingMethod === AgentPromptingMethod.PlanAndExecute) {
     executor = PlanAndExecuteAgentExecutor.fromLLMAndTools({
       llm,
       tools: tools as Tool[],
       tags,
     });
+  } else {
+    //if (agentPromptingMethod === AgentPromptingMethod.OpenAIAssistant) {
+    const agent = await OpenAIAssistantRunnable.createAssistant({
+      model: LLM_ALIASES["smart-xlarge"],
+      instructions: systemMessage!.toString(),
+      name: "Planning Agent",
+      tools: [...(tools as StructuredTool[])],
+      asAgent: true,
+    });
+
+    agent.bind({
+      callbacks,
+      // signal: abortSignal,
+      tags,
+      runName,
+    });
+
+    // const parser = StructuredOutputParser.fromZodSchema(
+    //   z.custom<PlanWireFormat>(),
+    // );
+
+    // const outputFixingParser = OutputFixingParser.fromLLM(llm, parser);
+
+    executor = AgentExecutor.fromAgentAndTools({
+      agent,
+      memory,
+      tools: tools as StructuredTool[],
+      earlyStoppingMethod: "generate",
+      returnIntermediateSteps: true,
+      maxIterations: 10,
+      ...creationProps,
+      callbacks,
+      tags,
+      handleParsingErrors: true,
+    }); //.pipe(outputFixingParser);
   }
   return executor;
 }
