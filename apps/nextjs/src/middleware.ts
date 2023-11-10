@@ -46,6 +46,9 @@ export function middleware(req: NextRequest) {
     return addGeoToApiAgentMiddleware(req);
   }
 
+  const isLocalhost =
+    url.hostname === "localhost" || url.hostname === "127.0.0.1";
+
   const nonce = Buffer.from(crypto.randomUUID()).toString("base64");
 
   // Add allowed clients to CSP
@@ -79,8 +82,12 @@ export function middleware(req: NextRequest) {
     base-uri 'self';
     form-action 'self';
     frame-ancestors 'none';
-    block-all-mixed-content;
-    upgrade-insecure-requests;
+    ${
+      !isLocalhost
+        ? `block-all-mixed-content;
+    upgrade-insecure-requests`
+        : ""
+    };
   `
     .replace(/\s{2,}/g, " ")
     .trim();
