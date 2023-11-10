@@ -130,7 +130,7 @@ export default async function ExecuteStream(req: NextRequest) {
   let node: DraftExecutionNode | undefined;
   let repetitionCheckPacketBuffer: AgentPacket[] = [];
   const recentPacketsBuffer: AgentPacket[] = [];
-  let allSentPackets: AgentPacket[] = [];
+  const allSentPackets: AgentPacket[] = [];
   let repetitionErrorThrown = false;
   // Initialize a counter for packets and a timestamp for time checks
   let packetCounter = 0;
@@ -283,6 +283,24 @@ export default async function ExecuteStream(req: NextRequest) {
       contentType,
       abortSignal: abortControllerWrapper.controller.signal,
       namespace: namespace,
+      handlePacketCallback: async (packet: AgentPacket) => {
+        await handlePacket(
+          packet,
+          controller,
+          encoder,
+          creationProps,
+          goalPrompt,
+          parsedGoalId,
+          agentPromptingMethod,
+          task,
+          dag!,
+          revieweeTaskResults,
+          contentType,
+          abortControllerWrapper.controller,
+          namespace,
+          req,
+        );
+      },
       agentProtocolOpenAPISpec,
       geo: req.geo,
     });

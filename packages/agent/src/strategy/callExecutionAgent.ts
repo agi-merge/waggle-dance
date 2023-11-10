@@ -21,6 +21,7 @@ import { type AgentStep } from "langchain/schema";
 import { type JsonObject } from "langchain/tools";
 import { AbortError } from "redis";
 import { stringify as jsonStringify } from "superjson";
+import { v4 } from "uuid";
 import { parse as yamlParse, stringify as yamlStringify } from "yaml";
 import { z } from "zod";
 import zodToJsonSchema from "zod-to-json-schema";
@@ -32,6 +33,7 @@ import {
   createExecutePrompt,
   createMemory,
   TaskState,
+  type AgentPacket,
   type ChainValues,
   type MemoryType,
 } from "../..";
@@ -128,6 +130,7 @@ export async function callExecutionAgent(creation: {
   contentType: "application/json" | "application/yaml";
   abortSignal: AbortSignal;
   namespace: string;
+  handlePacketCallback: (packet: AgentPacket) => Promise<void>;
   agentProtocolOpenAPISpec?: JsonObject;
   geo?: Geo;
 }): Promise<string | Error> {
@@ -144,6 +147,7 @@ export async function callExecutionAgent(creation: {
     namespace,
     contentType,
     agentProtocolOpenAPISpec,
+    handlePacketCallback,
     geo,
   } = creation;
   const callbacks = creationProps.callbacks;
@@ -251,6 +255,16 @@ export async function callExecutionAgent(creation: {
   })
     .pipe(smallSmartHelperModel.bind({ signal: abortSignal }))
     .pipe(outputFixingParser);
+
+  void handlePacketCallback({
+    type: "handleAgentAction",
+    action: {
+      tool: "contextAndTools",
+      toolInput: inputTaskAndGoalString,
+      log: "",
+    },
+    runId: v4(),
+  });
 
   const contextAndTools = await contextPickingChain.invoke(
     {},
@@ -375,6 +389,15 @@ export async function callExecutionAgent(creation: {
   try {
     let call: ChainValues;
     try {
+      void handlePacketCallback({
+        type: "handleAgentAction",
+        action: {
+          tool: "OpenAI Assistant",
+          toolInput: humanMessage!.toString(),
+          log: "",
+        },
+        runId: v4(),
+      });
       call = await agentExecutor.invoke(
         {
           content: humanMessage!.toString(),
@@ -534,7 +557,15 @@ export async function callExecutionAgent(creation: {
 
     try {
       const evaluators = [taskFulfillmentEvaluator];
-
+      void handlePacketCallback({
+        type: "handleAgentAction",
+        action: {
+          tool: "Reviewing Result",
+          toolInput: humanMessage!.toString(),
+          log: "",
+        },
+        runId: v4(),
+      });
       const evaluationResult = await checkTrajectory(
         bestResponse,
         response,
