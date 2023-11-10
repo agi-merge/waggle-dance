@@ -254,62 +254,6 @@ export default async function ExecuteStream(req: NextRequest) {
     }
   };
 
-  // FIXME: this does not work yet, it was causing runaway executions and unreported errors
-  const _restartExecution = async (
-    controller: ReadableStreamDefaultController,
-    recentDocument: string,
-    similarDocuments: Document[],
-    creationProps: ModelCreationProps,
-    goalPrompt: string,
-    parsedGoalId: string,
-    parsedExecutionId: string,
-    agentPromptingMethod: AgentPromptingMethod,
-    task: DraftExecutionNode,
-    dag: DraftExecutionGraph,
-    revieweeTaskResults: TaskState[],
-    contentType: "application/json" | "application/yaml",
-    namespace: string,
-    agentProtocolOpenAPISpec: JsonObject | undefined,
-    req: NextRequest,
-    encoder: TextEncoder,
-    resolveStreamEnded: () => void,
-  ): Promise<void> => {
-    console.warn(
-      `Repetition detected. Restarting execution. Recent document: ${recentDocument}. Similar documents: ${similarDocuments.map(
-        (d) => d.pageContent.slice(500),
-      )}`,
-    );
-    if (abortControllerWrapper.controller.signal.aborted) {
-      console.error("restartExecution should not be called after aborting");
-      return;
-    }
-    controller.close();
-    repetitionCheckPacketBuffer = [];
-    allSentPackets = [];
-    packetCounter = 0;
-    abortControllerWrapper.controller = new AbortController();
-
-    await streamEndedPromise;
-
-    await startExecution(
-      controller,
-      creationProps,
-      goalPrompt,
-      parsedGoalId,
-      parsedExecutionId,
-      agentPromptingMethod,
-      task,
-      dag,
-      revieweeTaskResults,
-      contentType,
-      namespace,
-      agentProtocolOpenAPISpec,
-      req,
-      encoder,
-      resolveStreamEnded,
-    );
-  };
-
   const startExecution = async (
     controller: ReadableStreamDefaultController,
     creationProps: ModelCreationProps,
