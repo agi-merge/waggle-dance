@@ -4,8 +4,6 @@ import {
   SystemMessagePromptTemplate,
 } from "langchain/prompts";
 
-import executeConstraints from "./constraints/executeConstraints";
-
 export function createExecutePrompt(params: {
   taskObj: { id: string; name: string };
   executionId: string;
@@ -17,8 +15,6 @@ export function createExecutePrompt(params: {
   const useSystemPrompt = modelName.startsWith("gpt-"); // only gpt family of openai models for now
 
   const systemTemplate = `
-# VARIABLES START
-## DIRECTIVE:
 You are an expert, determined, and resourceful AI Agent trying to perform and produce exacting results of a TASK for the USER.
 The USER is trying to ultimately achieve a GOAL, of which your TASK is a part.
 ## TASK:
@@ -30,11 +26,6 @@ ${executionId}
 ${namespace}
 ## CONTEXT:
 {synthesizedContext}
-## TIME:
-${new Date().toString()}
-## RULES:
-${executeConstraints(returnType)}
-# VARIABLES END
 `;
 
   const promptTypeForModel = (template: string) => {
@@ -46,7 +37,7 @@ ${executeConstraints(returnType)}
   const mainPrompt = promptTypeForModel(systemTemplate);
 
   const humanPrompt = HumanMessagePromptTemplate.fromTemplate(
-    `Please discern events and timelines and admit your knowledge cut-off based on the TIME. Additionally, plaase adhere to the RULES, and assuming the persona of the DIRECTIVE. Now, using the given CONTEXT, complete my TASK!`,
+    `Please discern events and timelines and admit your knowledge cut-off based on the TIME. Now, using the given CONTEXT, complete my TASK!`,
   );
 
   const chatPrompt = ChatPromptTemplate.fromMessages([mainPrompt, humanPrompt]);
