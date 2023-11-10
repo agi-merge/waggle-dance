@@ -365,12 +365,14 @@ export async function callExecutionAgent(creation: {
 
   const agentExecutor = AgentExecutor.fromAgentAndTools({
     agent,
+    memory,
     tools: _skills,
     // tools: skills,
     earlyStoppingMethod: "generate",
     returnIntermediateSteps: true,
     maxIterations: 10,
     ...creationProps,
+    callbacks,
     tags,
     handleParsingErrors: true,
   }); //.pipe(outputFixingParser);
