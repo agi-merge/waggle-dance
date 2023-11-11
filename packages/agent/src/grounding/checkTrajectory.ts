@@ -99,7 +99,7 @@ ${
     } else {
       // Try to repair the error
       const fast = createModel(
-        { modelName: LLM_ALIASES["fast"], maxTokens: 3 },
+        { modelName: LLM_ALIASES["smart-xlarge"], maxTokens: 3 },
         ModelStyle.Instruct, // does not need to be chat
       );
 

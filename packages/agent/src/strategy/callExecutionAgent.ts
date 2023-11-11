@@ -243,7 +243,7 @@ export async function callExecutionAgent(creation: {
   const smallSmartHelperModel = createModel(
     {
       ...creationProps,
-      modelName: LLM_ALIASES["fast-large"],
+      modelName: LLM_ALIASES["smart-xlarge"],
       maxTokens: 300,
     },
     ModelStyle.Chat,
@@ -510,7 +510,7 @@ export async function callExecutionAgent(creation: {
     const mediumSmartHelperModel = createModel(
       {
         ...creationProps,
-        modelName: LLM_ALIASES["fast"],
+        modelName: LLM_ALIASES["smart-xlarge"],
         maxTokens: 600,
       },
       ModelStyle.Chat,
