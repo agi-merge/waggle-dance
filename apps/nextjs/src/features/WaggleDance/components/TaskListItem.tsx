@@ -487,7 +487,7 @@ const TaskListItem = ({
   ): packet is BaseAgentPacketWithIds {
     // FIXME: this paves over a bug elsewhere due to packet being sent as a string
     if (typeof packet !== "string" && (packet as BaseAgentPacketWithIds)) {
-      return "runId" in packet && "parentRunId" in packet;
+      return "runId" in packet; //&& "parentRunId" in packet;
     } else {
       return false;
     }
@@ -744,7 +744,7 @@ const TaskListItem = ({
                 >
                   <ModalDialog>
                     <DialogTitle id="task-dialog-title">
-                      Pardon the dust…
+                      {t.packets.map((p) => p.type).join(" → ")}
                     </DialogTitle>
                     <DialogContent>
                       Detailed task information coming soon!
