@@ -215,19 +215,17 @@ export async function callExecutionAgent(creation: {
     geo,
   );
 
-  const skills: OpenAIToolType = [
-    ..._skills.map((s) => formatToOpenAIAssistantTool(s)),
-    { type: "code_interpreter" },
-    { type: "retrieval" },
-  ];
+  // const skills: OpenAIToolType = [
+  //   ..._skills.map((s) => formatToOpenAIAssistantTool(s)),
+  //   // { type: "code_interpreter" },
+  //   // { type: "retrieval" },
+  // ];
 
   const inputTaskAndGoal: ToolsAndContextPickingInput = {
     task: `${taskObj.name}`,
     inServiceOfGoal: goalPrompt,
     // availableDataSources: [],
-    availableTools: skills.map((s) =>
-      s.type === "function" ? s.function.name : s.type,
-    ),
+    availableTools: _skills.map((s) => `${s.name}: ${s.description}`),
   };
 
   const inputTaskAndGoalString =
@@ -289,59 +287,14 @@ export async function callExecutionAgent(creation: {
   //   .join("\n\n");
 
   // filter all available tools by the ones that were selected by the context and tools selection agent
+  // const filteredSkills = (contextAndTools.tools ?? []).flatMap((t) => {
+  //   return skills.filter((s) =>
+  //     s.type === "function" ? t === s.function.name : s.type === t,
+  //   );
+  // });
   const filteredSkills = (contextAndTools.tools ?? []).flatMap((t) => {
-    return skills.filter((s) =>
-      s.type === "function" ? t === s.function.name : s.type === t,
-    );
+    return _skills.filter((s) => s.name === t);
   });
-
-  //   import type { OpenAI as OpenAIClient } from "openai";
-  // import type { AgentFinish, AgentAction } from "../../schema/index.js";
-  // export type OpenAIAssistantFinish = AgentFinish & {
-  //     runId: string;
-  //     threadId: string;
-  // };
-  // export type OpenAIAssistantAction = AgentAction & {
-  //     toolCallId: string;
-  //     runId: string;
-  //     threadId: string;
-  // };
-  // export type OpenAIToolType = Array<OpenAIClient.Beta.AssistantCreateParams.AssistantToolsCode | OpenAIClient.Beta.AssistantCreateParams.AssistantToolsRetrieval | OpenAIClient.Beta.AssistantCreateParams.AssistantToolsFunction>;
-
-  // export interface AssistantToolsFunction {
-  //   function: Shared.FunctionDefinition;
-
-  //   /**
-  //    * The type of tool being defined: `function`
-  //    */
-  //   type: 'function';
-  // }
-
-  // export interface FunctionDefinition {
-  //   /**
-  //    * The name of the function to be called. Must be a-z, A-Z, 0-9, or contain
-  //    * underscores and dashes, with a maximum length of 64.
-  //    */
-  //   name: string;
-
-  //   /**
-  //    * The parameters the functions accepts, described as a JSON Schema object. See the
-  //    * [guide](https://platform.openai.com/docs/guides/gpt/function-calling) for
-  //    * examples, and the
-  //    * [JSON Schema reference](https://json-schema.org/understanding-json-schema/) for
-  //    * documentation about the format.
-  //    *
-  //    * To describe a function that accepts no parameters, provide the value
-  //    * `{"type": "object", "properties": {}}`.
-  //    */
-  //   parameters: Record<string, unknown>;
-
-  //   /**
-  //    * A description of what the function does, used by the model to choose when and
-  //    * how to call the function.
-  //    */
-  //   description?: string;
-  // }
 
   const runName = isCriticism ? `Criticize ${taskObj.id}` : `Exe ${taskObj.id}`;
   const executor = await initializeExecutor(
@@ -577,6 +530,9 @@ async function initializeExecutor(
   humanMessage: MessageContent | undefined,
   callbacks: Callbacks | undefined,
 ) {
+  const structuredTools = tools.filter(
+    (t) => (t as StructuredTool) !== undefined,
+  ) as StructuredTool[];
   let executor;
   const agentType = getAgentPromptingMethodValue(agentPromptingMethod);
   let options:
@@ -629,7 +585,7 @@ async function initializeExecutor(
     }
 
     executor = await initializeAgentExecutorWithOptions(
-      tools as StructuredTool[],
+      structuredTools,
       llm,
       options,
     );
@@ -645,7 +601,7 @@ async function initializeExecutor(
       model: LLM_ALIASES["smart-xlarge"],
       instructions: systemMessage!.toString(),
       name: "Planning Agent",
-      tools: [...(tools as StructuredTool[])],
+      tools: structuredTools,
       asAgent: true,
     });
 
@@ -665,7 +621,7 @@ async function initializeExecutor(
     executor = AgentExecutor.fromAgentAndTools({
       agent,
       memory,
-      tools: tools as StructuredTool[],
+      tools: structuredTools,
       earlyStoppingMethod: "generate",
       returnIntermediateSteps: true,
       maxIterations: 10,
