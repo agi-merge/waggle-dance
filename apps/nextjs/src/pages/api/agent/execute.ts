@@ -271,6 +271,8 @@ export default async function ExecuteStream(req: NextRequest) {
     encoder: TextEncoder,
     resolveStreamEnded: () => void,
   ) => {
+    const lastToolInputs = new Map<string, string>();
+
     const exeResult = await callExecutionAgent({
       creationProps,
       goalPrompt,
@@ -283,6 +285,7 @@ export default async function ExecuteStream(req: NextRequest) {
       contentType,
       abortSignal: abortControllerWrapper.controller.signal,
       namespace: namespace,
+      lastToolInputs,
       handlePacketCallback: async (packet: AgentPacket) => {
         await handlePacket(
           packet,
@@ -299,6 +302,7 @@ export default async function ExecuteStream(req: NextRequest) {
           abortControllerWrapper.controller,
           namespace,
           req,
+          lastToolInputs,
         );
       },
       agentProtocolOpenAPISpec,
