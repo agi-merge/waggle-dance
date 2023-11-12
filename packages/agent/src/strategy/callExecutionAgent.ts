@@ -298,9 +298,6 @@ export async function callExecutionAgent(creation: {
   // slice only the first item if available and return array:
   const systemMessage = formattedMessages.slice(0, 1)[0]?.content;
   const humanMessage = formattedMessages.slice(1)[0]?.content;
-  // const input: string = firstOnly
-  //   .map((m) => `[${m._getType()}]\n${m.content}`)
-  //   .join("\n\n");
 
   // filter all available tools by the ones that were selected by the context and tools selection agent
   const filteredSkills = (contextAndTools.tools ?? []).flatMap((t) => {
@@ -331,35 +328,47 @@ export async function callExecutionAgent(creation: {
   try {
     let call: ChainValues;
     try {
-      void handlePacketCallback({
-        type: "handleAgentAction",
-        action: {
-          tool: "OpenAI Assistant",
-          toolInput: humanMessage!.toString(),
-          log: "",
-        },
-        runId: v4(),
-      });
-      call = await executor.invoke(
-        {
-          content: humanMessage!.toString(),
-          file_ids: [],
-        },
-        {
-          runName: `Exe ${taskObj.id}: ${taskObj.name.slice(0, 10)}`,
-          tags,
-          callbacks,
-        },
-      );
-      // call = await executor.call(
-      //   {
-      //     input,
-      //     signal: abortSignal,
-      //     tags,
-      //     runName: isCriticism ? "Criticize Results" : "Execute Task",
+      // void handlePacketCallback({
+      //   type: "handleAgentAction",
+      //   action: {
+      //     tool: "OpenAI Assistant",
+      //     toolInput: humanMessage!.toString(),
+      //     log: "",
       //   },
-      //   callbacks,
-      // );
+      //   runId: v4(),
+      // });
+      if (agentPromptingMethod === AgentPromptingMethod.OpenAIAssistant) {
+        call = await executor.invoke(
+          {
+            content: humanMessage!.toString(),
+            file_ids: [],
+          },
+          {
+            runName: `Exe ${taskObj.id}: ${taskObj.name.slice(0, 10)}`,
+            tags,
+            callbacks,
+          },
+        );
+      } else {
+        // combine all messages into a single input string
+        const input: string = formattedMessages
+          .map(
+            (m) =>
+              `[${m._getType().toUpperCase()}]\n${m.content}[/${m
+                ._getType()
+                .toUpperCase()}]`,
+          )
+          .join("\n\n");
+        call = await executor.call(
+          {
+            input,
+            signal: abortSignal,
+            tags,
+            runName: isCriticism ? "Criticize Results" : "Execute Task",
+          },
+          callbacks,
+        );
+      }
     } catch (error) {
       if (error instanceof AbortError) {
         return error;
@@ -528,8 +537,8 @@ async function initializeExecutor(
       agentType: agentType,
       returnIntermediateSteps: true,
       earlyStoppingMethod: "generate",
-      handleParsingErrors: true,
-      maxIterations: 10,
+      handleParsingErrors: false,
+      maxIterations: 5,
       ...creationProps,
       tags,
     } as InitializeAgentExecutorOptionsStructured;
@@ -578,11 +587,11 @@ async function initializeExecutor(
       tools: structuredTools,
       earlyStoppingMethod: "generate",
       returnIntermediateSteps: true,
-      maxIterations: 10,
+      maxIterations: 5,
       ...creationProps,
       callbacks,
       tags,
-      handleParsingErrors: true,
+      handleParsingErrors: false,
     }); //.pipe(outputFixingParser);
   }
   return executor;
