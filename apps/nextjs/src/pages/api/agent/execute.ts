@@ -40,6 +40,8 @@ const maxLogSize = 4096;
 
 const embeddedings = createEmbeddings({ modelName: LLM.embeddings });
 
+process.setMaxListeners(30);
+
 const checkRepetitivePackets = async (
   taskId: string,
   recentPackets: AgentPacket[],
