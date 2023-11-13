@@ -744,10 +744,10 @@ const TaskListItem = ({
                 >
                   <ModalDialog>
                     <DialogTitle id="task-dialog-title">
-                      {t.packets.map((p) => p.type).join(" → ")}
+                      Detailed task information coming soon!
                     </DialogTitle>
                     <DialogContent>
-                      Detailed task information coming soon!
+                      {t.packets.map((p) => p.type).join(" → ")}
                     </DialogContent>
                     <DialogActions>
                       <Button
