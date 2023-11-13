@@ -113,8 +113,10 @@ export type ContextAndTools = {
 };
 // could be replaced with?
 // https://js.langchain.com/docs/modules/chains/additional/openai_functions/tagging
-const contextAndToolsOutputSchema = z.custom<ContextAndTools>();
-
+const contextAndToolsOutputSchema = z.object({
+  synthesizedContext: z.array(z.string()).optional(),
+  tools: z.array(z.string()).optional(),
+});
 const reActOutputSchema = z.object({
   action: z.string(),
   action_input: z.string(),
