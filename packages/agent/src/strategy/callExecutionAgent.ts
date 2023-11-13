@@ -1,25 +1,15 @@
 // agent/strategy/callExecutionAgent.ts
 
-import {
-  initializeAgentExecutorWithOptions,
-  type InitializeAgentExecutorOptions,
-} from "langchain/agents";
 import { type ChatOpenAI } from "langchain/chat_models/openai";
-import { type InitializeAgentExecutorOptionsStructured } from "langchain/dist/agents/initialize";
-import { type StructuredTool, type Tool } from "langchain/dist/tools/base";
 import { loadEvaluator } from "langchain/evaluation";
-import { PlanAndExecuteAgentExecutor } from "langchain/experimental/plan_and_execute";
-import { type OpenAI } from "langchain/llms/openai";
 import {
   OutputFixingParser,
   StructuredOutputParser,
 } from "langchain/output_parsers";
 import { type AgentStep } from "langchain/schema";
-import { type JsonObject } from "langchain/tools";
 import { AbortError } from "redis";
 import { v4 } from "uuid";
 import { parse as yamlParse } from "yaml";
-import { z } from "zod";
 
 import { type DraftExecutionGraph } from "@acme/db";
 
@@ -28,9 +18,7 @@ import {
   createExecutePrompt,
   createMemory,
   TaskState,
-  type AgentPacket,
   type ChainValues,
-  type MemoryType,
 } from "../..";
 import checkTrajectory from "../grounding/checkTrajectory";
 import {
@@ -40,57 +28,20 @@ import {
 import { isTaskCriticism } from "../prompts/types";
 import { invokeRewriteRunnable } from "../runnables/createRewriteRunnable";
 import saveMemoriesSkill from "../skills/saveMemories";
-import type Geo from "../utils/Geo";
-import {
-  getAgentPromptingMethodValue,
-  InitializeAgentExecutorOptionsAgentTypes,
-  InitializeAgentExecutorOptionsStructuredAgentTypes,
-  LLM,
-  LLM_ALIASES,
-  ModelStyle,
-  type AgentPromptingMethod,
-  type InitializeAgentExecutorOptionsAgentType,
-  type InitializeAgentExecutorOptionsStructuredAgentType,
-} from "../utils/llms";
+import { LLM, LLM_ALIASES, ModelStyle } from "../utils/llms";
 import { stringifyByMime } from "../utils/mimeTypeParser";
 import { createEmbeddings, createModel } from "../utils/model";
-import { type ModelCreationProps } from "../utils/OpenAIPropsBridging";
 import createSkills from "../utils/skills";
+import {
+  contextAndToolsOutputSchema,
+  reActOutputSchema,
+  type CallExecutionAgentProps,
+} from "./execute/callExecutionAgent.types";
+import { initializeExecutor } from "./execute/initializeAgentExecutor";
 
-export type ContextAndTools = {
-  synthesizedContext?: string[];
-  tools?: string[];
-};
-
-// could be replaced with?
-// https://js.langchain.com/docs/modules/chains/additional/openai_functions/tagging
-const contextAndToolsOutputSchema = z.object({
-  synthesizedContext: z.array(z.string()).optional(),
-  tools: z.array(z.string()).optional(),
-});
-
-const reActOutputSchema = z.object({
-  action: z.string(),
-  action_input: z.string(),
-});
-
-export async function callExecutionAgent(creation: {
-  creationProps: ModelCreationProps;
-  goalPrompt: string;
-  goalId: string;
-  executionId: string;
-  agentPromptingMethod: AgentPromptingMethod;
-  task: string;
-  dag: string;
-  revieweeTaskResults: TaskState[];
-  contentType: "application/json" | "application/yaml";
-  abortSignal: AbortSignal;
-  namespace: string;
-  lastToolInputs: Map<string, string>;
-  handlePacketCallback: (packet: AgentPacket) => Promise<void>;
-  agentProtocolOpenAPISpec?: JsonObject;
-  geo?: Geo;
-}): Promise<string | Error> {
+export async function callExecutionAgent(
+  creation: CallExecutionAgentProps,
+): Promise<string | Error> {
   const {
     goalId: _goalId,
     creationProps,
@@ -190,7 +141,7 @@ export async function callExecutionAgent(creation: {
   const smallSmartHelperModel = createModel(
     {
       ...creationProps,
-      modelName: LLM_ALIASES["smart-xlarge"],
+      modelName: LLM_ALIASES["smart"],
       maxTokens: 300,
     },
     ModelStyle.Chat,
@@ -226,7 +177,7 @@ export async function callExecutionAgent(creation: {
     {},
     {
       tags: ["contextAndTools", ...tags],
-      callbacks,
+      // callbacks,
       runName: "Pick Context and Tools",
     },
   );
@@ -375,7 +326,7 @@ export async function callExecutionAgent(creation: {
     const mediumSmartHelperModel = createModel(
       {
         ...creationProps,
-        modelName: LLM_ALIASES["smart-xlarge"],
+        modelName: LLM_ALIASES["smart"],
         maxTokens: 600,
       },
       ModelStyle.Chat,
@@ -418,76 +369,4 @@ ${evaluationResult}
     console.error(error);
     return error as Error;
   }
-}
-
-async function initializeExecutor(
-  _goalPrompt: string,
-  agentPromptingMethod: AgentPromptingMethod,
-  _taskObj: { id: string },
-  creationProps: ModelCreationProps,
-  tools: StructuredTool[],
-  llm: OpenAI | ChatOpenAI,
-  tags: string[],
-  memory: MemoryType,
-) {
-  let executor;
-  const agentType = getAgentPromptingMethodValue(agentPromptingMethod);
-  let options:
-    | InitializeAgentExecutorOptions
-    | InitializeAgentExecutorOptionsStructured;
-  if (
-    InitializeAgentExecutorOptionsAgentTypes.includes(
-      agentType as InitializeAgentExecutorOptionsAgentType,
-    )
-  ) {
-    options = {
-      agentType,
-      earlyStoppingMethod: "generate",
-      returnIntermediateSteps: true,
-      maxIterations: 10,
-      ...creationProps,
-      tags,
-      handleParsingErrors: true,
-    } as InitializeAgentExecutorOptions;
-
-    if (
-      agentType !== "zero-shot-react-description" &&
-      agentType !== "chat-zero-shot-react-description"
-    ) {
-      options.memory = memory;
-    }
-
-    executor = await initializeAgentExecutorWithOptions(
-      tools as Tool[],
-      llm,
-      options,
-    );
-  } else if (
-    InitializeAgentExecutorOptionsStructuredAgentTypes.includes(
-      agentType as InitializeAgentExecutorOptionsStructuredAgentType,
-    )
-  ) {
-    options = {
-      agentType: agentType,
-      returnIntermediateSteps: true,
-      earlyStoppingMethod: "generate",
-      handleParsingErrors: true,
-      maxIterations: 10,
-      ...creationProps,
-      tags,
-    } as InitializeAgentExecutorOptionsStructured;
-
-    if (agentType !== "structured-chat-zero-shot-react-description") {
-      options.memory = memory;
-    }
-
-    executor = await initializeAgentExecutorWithOptions(tools, llm, options);
-  } else {
-    executor = PlanAndExecuteAgentExecutor.fromLLMAndTools({
-      llm,
-      tools: tools as Tool[],
-      tags,
-    });
-  }
-  return executor;
 }

@@ -8,13 +8,9 @@ import {
 } from "langchain/prompts";
 import { type AgentStep } from "langchain/schema";
 
-import {
-  createModel,
-  type ContextAndTools,
-  type MemoryType,
-  type ModelCreationProps,
-} from "../..";
+import { createModel, type MemoryType, type ModelCreationProps } from "../..";
 import { formattingConstraints } from "../prompts/constraints/executeConstraints";
+import { type ContextAndTools } from "../strategy/execute/callExecutionAgent.types";
 import { LLM_ALIASES, ModelStyle } from "../utils/llms";
 import { stringifyByMime } from "../utils/mimeTypeParser";
 
