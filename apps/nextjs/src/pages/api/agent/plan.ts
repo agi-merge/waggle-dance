@@ -21,8 +21,6 @@ export const config = {
   runtime: "edge",
 };
 
-process.setMaxListeners(30);
-
 export default async function PlanStream(req: NextRequest) {
   console.debug("plan request");
   const abortController = new AbortController();
