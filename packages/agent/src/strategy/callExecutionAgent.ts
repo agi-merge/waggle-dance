@@ -141,8 +141,9 @@ export async function callExecutionAgent(
   const smallSmartHelperModel = createModel(
     {
       ...creationProps,
-      modelName: LLM_ALIASES["smart"],
+      modelName: LLM_ALIASES["smart-xlarge"],
       maxTokens: 300,
+      maxConcurrency: 2,
     },
     ModelStyle.Chat,
   ) as ChatOpenAI;
@@ -326,8 +327,9 @@ export async function callExecutionAgent(
     const mediumSmartHelperModel = createModel(
       {
         ...creationProps,
-        modelName: LLM_ALIASES["smart"],
+        modelName: LLM_ALIASES["smart-xlarge"],
         maxTokens: 600,
+        maxConcurrency: 2,
       },
       ModelStyle.Chat,
     ) as ChatOpenAI;
