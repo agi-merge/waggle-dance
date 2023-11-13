@@ -313,6 +313,12 @@ const renderPacketGroup = (
   }
 
   const Icon = () => {
+    if (groupOutput.color === "success") {
+      return <AssignmentTurnedIn />;
+    }
+    if (groupOutput.color === "danger") {
+      return <ErrorOutline />;
+    }
     switch (groupOutput.type) {
       case GroupType.Skill:
         return <Construction />;
