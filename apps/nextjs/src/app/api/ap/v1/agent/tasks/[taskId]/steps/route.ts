@@ -124,7 +124,7 @@ export async function POST(
     session,
     file: executeResponseText,
     executionId: exe.id,
-    nodeId: makeServerIdIfNeeded(latestResultNode!.id),
+    nodeId: makeServerIdIfNeeded(latestResultNode!.id, exe.id),
     contentType,
     origin: request.nextUrl.origin,
   });

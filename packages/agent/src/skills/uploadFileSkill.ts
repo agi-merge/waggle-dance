@@ -54,7 +54,7 @@ const uploadFileSkill = new DynamicZodSkill({
       taskId,
       namespace,
     } = schema.parse(input);
-    const nodeId = makeServerIdIfNeeded(taskId);
+    const nodeId = makeServerIdIfNeeded(taskId, executionId);
     console.debug(
       "uploadFileSkill",
       textOrBase64,
