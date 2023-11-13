@@ -215,7 +215,7 @@ export async function callExecutionAgent(
     filteredSkills,
     exeLLM,
     tags,
-    memory,
+    memory, //FIXME: OpenAI Functions crashes when using conversation/buffer memory
   );
 
   try {
