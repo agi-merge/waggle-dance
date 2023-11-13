@@ -71,16 +71,16 @@ const BottomControls: React.FC<BottomControlsProps> = ({
         )}
 
         <Stack
-          direction={{ sm: "column", md: "row" }}
+          direction={{ xs: "column", md: "row" }}
           gap={1}
-          className="flex w-full items-center"
+          className="flex w-full items-center justify-center"
         >
           {!isRunning && selectedGoal && (
             <ExecutionSelect
               goalId={selectedGoal.id}
               executions={selectedGoal.executions}
               sx={{
-                width: { sm: "100%", md: "40vw" },
+                maxWidth: "100%",
                 flex: "1 1 auto",
               }}
               className="overflow-clip"
