@@ -2,21 +2,21 @@ import { AgentPromptingMethod, LLM_ALIASES, Temperature } from "./llms";
 
 export const defaultAgentSettings = {
   plan: {
-    modelName: LLM_ALIASES["fast"],
+    modelName: LLM_ALIASES["fast-large"],
     temperature: Temperature.Stable,
     maxTokens: 850,
     agentPromptingMethod: null,
     maxConcurrency: 4,
   },
   review: {
-    modelName: LLM_ALIASES["fast"],
+    modelName: LLM_ALIASES["fast-large"],
     temperature: Temperature.Stable,
     maxTokens: 400,
     agentPromptingMethod: AgentPromptingMethod.OpenAIStructuredChat,
     maxConcurrency: 4,
   },
   execute: {
-    modelName: LLM_ALIASES["fast"],
+    modelName: LLM_ALIASES["fast-large"],
     temperature: Temperature.Stable,
     maxTokens: 1000,
     agentPromptingMethod: AgentPromptingMethod.OpenAIStructuredChat,
