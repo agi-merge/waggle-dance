@@ -270,6 +270,15 @@ export async function callExecutionAgent(creation: {
   try {
     let call: ChainValues;
     try {
+      void handlePacketCallback({
+        type: "handleAgentAction",
+        action: {
+          tool: isCriticism ? "Criticize Results" : "Execute Task",
+          toolInput: "",
+          log: "",
+        },
+        runId,
+      });
       call = await executor.call(
         {
           input,
@@ -293,10 +302,26 @@ export async function callExecutionAgent(creation: {
         "\n",
       );
       const outputFixingParser = OutputFixingParser.fromLLM(exeLLM, baseParser);
+
+      void handlePacketCallback({
+        type: "handleToolStart",
+        input,
+        runId,
+        tool: { lc: 1, type: "not_implemented", id: ["Fixing Response"] },
+      });
+
       const finalAnswer = await outputFixingParser.invoke(errorMessageToParse, {
         tags: [...tags, "fix"],
         runName: "ReAct Error Fixing",
       });
+
+      void handlePacketCallback({
+        type: "handleToolEnd",
+        lastToolInput: finalAnswer.action,
+        output: finalAnswer.action,
+        runId,
+      });
+
       call = { output: finalAnswer.action_input };
     }
 
@@ -306,6 +331,13 @@ export async function callExecutionAgent(creation: {
     if (isCriticism) {
       return response;
     }
+
+    void handlePacketCallback({
+      type: "handleToolStart",
+      input,
+      runId,
+      tool: { lc: 1, type: "not_implemented", id: ["Rewrite"] },
+    });
 
     const bestResponse = await invokeRewriteRunnable(response, {
       creationProps,
@@ -318,6 +350,13 @@ export async function callExecutionAgent(creation: {
       response,
       tags,
       callbacks,
+    });
+
+    void handlePacketCallback({
+      type: "handleToolEnd",
+      lastToolInput: input,
+      output: bestResponse,
+      runId,
     });
 
     // make sure that we are at least saving the task result so that other notes can refer back.
