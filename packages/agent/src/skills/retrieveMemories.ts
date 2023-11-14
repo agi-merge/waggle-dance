@@ -1,4 +1,5 @@
 import { ScoreThresholdRetriever } from "langchain/retrievers/score_threshold";
+import { formatDocumentsAsString } from "langchain/util/document";
 import { z } from "zod";
 
 import { vectorStoreFromIndex } from "../utils/vectorStore";
@@ -49,7 +50,7 @@ const retrieveMemoriesSkill = new DynamicZodSkill({
 
     const returnValue = `Retrieved ${
       relevantDocs.length
-    } memories: ${relevantDocs.join("\n")}`;
+    } memories: ${formatDocumentsAsString(relevantDocs)}`;
 
     console.debug(
       `retrieveMemoriesSkill(${retrievals.slice(0, 100)})=`,
