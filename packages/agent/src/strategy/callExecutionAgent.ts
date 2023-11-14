@@ -356,23 +356,15 @@ export async function callExecutionAgent(
     callbacks,
   );
 
+  let call: ChainValues | undefined;
   try {
-    const callRunId = v4();
-    let call: ChainValues;
     try {
-      // void handlePacketCallback({
-      //   type: "handleAgentAction",
-      //   action: {
-      //     tool: "OpenAI Assistant",
-      //     toolInput: humanMessage!.toString(),
-      //     log: "",
-      //   },
-      //   runId: v4(),
-      // });
+      const callRunId = v4();
 
       const runName = isCriticism
         ? `Criticize Results ${taskObj.id}`
         : `Execute Task ${taskObj.id}`;
+
       void handlePacketCallback({
         type: "handleToolStart",
         input: taskObj.name,
@@ -431,11 +423,10 @@ export async function callExecutionAgent(
         StructuredOutputParser.fromZodSchema(reActOutputSchema);
       errorMessageToParse = errorMessageToParse.replaceAll(
         `
-`,
+      `,
         "\n",
       );
       const outputFixingParser = OutputFixingParser.fromLLM(exeLLM, baseParser);
-
       const errorFixingRunId = v4();
       void handlePacketCallback({
         type: "handleToolStart",
@@ -443,19 +434,16 @@ export async function callExecutionAgent(
         runId: errorFixingRunId,
         tool: { lc: 1, type: "not_implemented", id: ["Fixing Response"] },
       });
-
       const finalAnswer = await outputFixingParser.invoke(errorMessageToParse, {
         tags: [...tags, "fix"],
         runName: "ReAct Error Fixing",
       });
-
       void handlePacketCallback({
         type: "handleToolEnd",
         lastToolInput: finalAnswer.action,
         output: finalAnswer.action,
         runId: errorFixingRunId,
       });
-
       call = { output: finalAnswer.action_input };
     }
 
