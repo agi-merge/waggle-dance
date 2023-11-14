@@ -134,6 +134,7 @@ export async function callExecutionAgent(
   };
 
   let memories;
+  // TODO: better way to check if we should retrieve memories
   if (extractTier(taskObj.id) !== "1") {
     const retrieveMemoriesRunId = v4(); // generate a new UUID for the runId
 
@@ -370,13 +371,33 @@ export async function callExecutionAgent(
       runId: rewriteRunId,
     });
 
-    // make sure that we are at least saving the task result so that other notes can refer back.
-    const save: Promise<unknown> = saveMemoriesSkill.skill.func({
-      memories: [bestResponse],
-      namespace: namespace,
-    });
+    void (async () => {
+      const saveRunId = v4();
+      await handlePacketCallback({
+        type: "handleToolStart",
+        input: bestResponse.slice(0, 100),
+        runId: saveRunId,
+        tool: {
+          lc: 1,
+          type: "not_implemented",
+          id: ["Save to Long-term Memory"],
+        },
+      });
+      // make sure that we are at least saving the task result so that other notes can refer back.
+      const save: Promise<unknown> = saveMemoriesSkill.skill.func({
+        memories: [bestResponse],
+        namespace: namespace,
+      });
 
-    void save;
+      await save;
+
+      await handlePacketCallback({
+        type: "handleToolEnd",
+        lastToolInput: bestResponse.slice(0, 100),
+        output: bestResponse.slice(0, 100),
+        runId: saveRunId,
+      });
+    })();
 
     const mediumSmartHelperModel = createModel(
       {
