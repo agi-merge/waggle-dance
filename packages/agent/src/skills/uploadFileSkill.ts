@@ -1,6 +1,7 @@
 import Base64 from "crypto-js/enc-base64";
 import { z } from "zod";
 
+import { makeServerIdIfNeeded } from "../prompts/types/serverDAGId";
 import DynamicZodSkill from "./DynamicZodSkill";
 
 const schema = z.object({
@@ -53,12 +54,13 @@ const uploadFileSkill = new DynamicZodSkill({
       taskId,
       namespace,
     } = schema.parse(input);
+    const nodeId = makeServerIdIfNeeded(taskId, executionId);
     console.debug(
       "uploadFileSkill",
       textOrBase64,
       mimeType,
       executionId,
-      taskId,
+      nodeId,
     );
     const fileBlob = new Blob([textOrBase64], { type: mimeType });
     const response = await fetch(
@@ -68,7 +70,7 @@ const uploadFileSkill = new DynamicZodSkill({
         body: fileBlob,
         headers: {
           "X-Skill-Namespace": namespace,
-          "X-Skill-Task-Id": taskId,
+          "X-Skill-Node-Id": nodeId,
           "Content-Type": mimeType,
           // "X-File-Encoding": encoding,
         },

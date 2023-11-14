@@ -44,7 +44,9 @@ export default async function planTasks({
   agentProtocolOpenAPISpec,
 }: PlanTasksProps): Promise<DraftExecutionGraph | undefined> {
   const intervalHandler = new PlanUpdateIntervalHandler(100); // update at most every...
-  const parseWorker = new Worker(new URL("./parseWorker.ts", import.meta.url));
+  const parsePlanWorker = new Worker(
+    new URL("./parsePlanWorker.ts", import.meta.url),
+  );
 
   try {
     // FIXME: we could change to non-draft return type if we return the DB draft from the backend
@@ -90,21 +92,21 @@ export default async function planTasks({
 
     let postMessageCount = 0;
 
-    parseWorker.postMessage({
+    parsePlanWorker.postMessage({
       goalPrompt,
       executionId,
       initialNodes: rootPlanNode(goalPrompt),
     });
 
-    parseWorker.onerror = function (event) {
-      console.error("parseWorker error", event);
+    parsePlanWorker.onerror = function (event) {
+      console.error("parsePlanWorker error", event);
       postMessageCount--;
     };
-    parseWorker.onmessageerror = function (event) {
-      console.error("parseWorker onmessageerror", event);
+    parsePlanWorker.onmessageerror = function (event) {
+      console.error("parsePlanWorker onmessageerror", event);
       postMessageCount--;
     };
-    parseWorker.onmessage = function (
+    parsePlanWorker.onmessage = function (
       event: MessageEvent<{
         dag: DraftExecutionGraph | null | undefined;
         error: Error | undefined;
@@ -177,7 +179,7 @@ export default async function planTasks({
             objectStartIndex + lastIndex,
           );
           postMessageCount++;
-          parseWorker.postMessage({
+          parsePlanWorker.postMessage({
             buffer: completeData.toString(),
             goalPrompt,
           });
@@ -190,7 +192,7 @@ export default async function planTasks({
         // If there is still data in the buffer after the last "\n- ", it is the last YAML object.
         const completeData = buffer.slice(objectStartIndex);
         postMessageCount++;
-        parseWorker.postMessage({
+        parsePlanWorker.postMessage({
           buffer: completeData.toString(),
           goalPrompt,
         });

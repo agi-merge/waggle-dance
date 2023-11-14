@@ -251,7 +251,7 @@ const WaggleDance = ({}: Props) => {
   }, [done.length, isRunning]);
 
   return (
-    <Stack gap="1rem" sx={{ mx: -3 }}>
+    <Stack gap="1rem" sx={{ mx: -4 }}>
       <Box className="text-center">
         <Typography level="body-sm" sx={{ opacity: session?.user.id ? 0 : 1 }}>
           <Link href={routes.auth} target="_blank" color="primary">

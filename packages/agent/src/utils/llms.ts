@@ -25,7 +25,7 @@ export enum LLMAliasKeys {
   Smart = "smart",
   SmartLarge = "smart-large",
   SmartXLarge = "smart-xlarge",
-  SmartVisionXLarge = "SmartVisionXLarge",
+  SmartVisionXLarge = "smart-vision-xlarge",
   Embeddings = "embeddings",
 }
 
@@ -41,7 +41,7 @@ export type LLMAliasKey =
 export const LLM_ALIASES: Record<LLMAliasKey, LLM> = {
   [LLMAliasKeys.Fast]: LLM["gpt-3.5-turbo-1106"],
   [LLMAliasKeys.FastLarge]: LLM["gpt-3.5-turbo-1106"],
-  [LLMAliasKeys.Smart]: LLM["gpt-4-1106-preview"],
+  [LLMAliasKeys.Smart]: LLM["gpt-4"],
   [LLMAliasKeys.SmartLarge]: LLM["gpt-4-32k"],
   [LLMAliasKeys.SmartXLarge]: LLM["gpt-4-1106-preview"],
   [LLMAliasKeys.SmartVisionXLarge]: LLM["gpt-4-vision-preview"],

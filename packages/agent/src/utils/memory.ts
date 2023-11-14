@@ -2,9 +2,9 @@ import { type Document } from "langchain/document";
 import { OpenAI } from "langchain/llms/openai";
 import {
   BufferMemory,
+  CombinedMemory,
   ConversationSummaryMemory,
   VectorStoreRetrieverMemory,
-  type BaseChatMemory,
   type BaseMemory,
 } from "langchain/memory";
 import { MemoryVectorStore } from "langchain/vectorstores/memory";
@@ -14,10 +14,15 @@ import { LLM, LLM_ALIASES } from "./llms";
 import { createEmbeddings } from "./model";
 import { vectorStoreFromIndex } from "./vectorStore";
 
-export type MemoryType = BaseChatMemory | BaseMemory | undefined;
+export type MemoryType =
+  // | BaseChatMemory
+  BaseMemory;
+// | BaseMessage[]
+// | undefined;
 export type MemoryOptions = {
   namespace: string | null;
   taskId: string;
+  memoryType?: string | undefined;
   inputKey?: string | undefined;
   memoryKey?: string | undefined;
   returnUnderlying?: boolean | undefined;
@@ -25,6 +30,7 @@ export type MemoryOptions = {
 export async function createMemory({
   namespace,
   taskId,
+  memoryType,
   inputKey,
   memoryKey,
   returnUnderlying,
@@ -38,14 +44,48 @@ export async function createMemory({
   if (returnUnderlying === undefined) {
     returnUnderlying = true;
   }
-  switch (process.env.MEMORY_TYPE) {
+  switch (memoryType || process.env.MEMORY_TYPE) {
+    case "dynamic":
+      const buffer = createMemory({
+        namespace,
+        taskId,
+        memoryType: "buffer",
+        inputKey,
+        memoryKey: `${memoryKey}_buffer`,
+        returnUnderlying,
+      });
+
+      const conversation = createMemory({
+        namespace,
+        taskId,
+        memoryType: "conversation",
+        inputKey,
+        memoryKey: `${memoryKey}_conversation`,
+        returnUnderlying,
+      });
+
+      const vector = createMemory({
+        namespace,
+        taskId,
+        memoryType: "vector",
+        inputKey,
+        memoryKey: `${memoryKey}_vector`,
+        returnUnderlying,
+      });
+
+      const memories = await Promise.all([buffer, conversation, vector]);
+
+      const combined = new CombinedMemory({
+        memories,
+      });
+
+      return combined;
     case "buffer":
       return new BufferMemory({
         inputKey,
         memoryKey,
         returnMessages: returnUnderlying,
       });
-
     case "vector":
       if (namespace) {
         console.debug("Creating chat history vector store from index");
@@ -54,7 +94,7 @@ export async function createMemory({
         );
 
         // extremely important to avoid data leaks/context poisoning.
-        const vectorStoreRetriever = vectorStore.asRetriever(5, {
+        const vectorStoreRetriever = vectorStore.asRetriever(15, {
           where: {
             operator: "Equal",
             path: ["namespace"],
@@ -71,6 +111,7 @@ export async function createMemory({
 
         return vectorMemory;
       } else {
+        console.warn("No memory namespace; falling back to MemoryVectorStore");
         const vectorStore = new MemoryVectorStore(
           createEmbeddings({ modelName: LLM.embeddings }),
         );
@@ -80,7 +121,7 @@ export async function createMemory({
           return doc.metadata?.namespace === namespace;
         };
         return new VectorStoreRetrieverMemory({
-          vectorStoreRetriever: vectorStore.asRetriever(5, filterFn),
+          vectorStoreRetriever: vectorStore.asRetriever(15, filterFn),
         });
       }
     case "conversation":
@@ -132,4 +173,5 @@ export async function createMemory({
 
     // });
   }
+  throw new Error(`Unknown memory type ${memoryType}`);
 }

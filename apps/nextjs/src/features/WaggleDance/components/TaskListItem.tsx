@@ -41,6 +41,7 @@ import { v4 } from "uuid";
 import { stringify } from "yaml";
 
 import {
+  findContextAndTools,
   findResult,
   getMostRelevantOutput,
   isAgentPacketFinishedType,
@@ -76,6 +77,7 @@ interface TaskListItemProps extends ListItemProps {
 }
 enum GroupType {
   Skill = "Skill",
+  Custom = "Custom",
   Retriever = "Retriever",
   Success = "Success",
   Error = "Error",
@@ -129,6 +131,13 @@ const getGroupType = (group: AgentPacket[]): GroupType => {
       case "handleRetrieverEnd":
       case "handleRetrieverError":
         return GroupType.Retriever;
+
+      case "artifact":
+      case "contextAndTools":
+      case "refine":
+      case "rewrite":
+      case "review":
+        return GroupType.Custom;
 
       default:
         if (isAgentPacketFinishedType(packet)) {
@@ -190,6 +199,29 @@ const getGroupOutput = (group: AgentPacket[]): GroupOutput | null => {
       parsedTitle = title;
       parsedOutput = o;
       break;
+    case GroupType.Custom:
+      switch (lastPacket.type) {
+        case "artifact":
+          parsedTitle = "Artifact";
+          parsedOutput = lastPacket.url.toString();
+          break;
+        case "contextAndTools":
+          parsedTitle = "Pick Context and Tools";
+          parsedOutput = stringify(lastPacket.synthesizedContext?.join("\n "));
+          break;
+        case "refine":
+          parsedTitle = "Refine";
+          parsedOutput = "…";
+          break;
+        case "review":
+          parsedTitle = "Review";
+          parsedOutput = "…";
+          break;
+        case "rewrite":
+          parsedTitle = "Rewrite";
+          parsedOutput = "…";
+          break;
+      }
     case GroupType.Skill:
       const toolName: string | undefined = group.reduce(
         (acc: string | undefined, packet) => {
@@ -313,6 +345,12 @@ const renderPacketGroup = (
   }
 
   const Icon = () => {
+    if (groupOutput.color === "success") {
+      return <AssignmentTurnedIn />;
+    }
+    if (groupOutput.color === "danger") {
+      return <ErrorOutline />;
+    }
     switch (groupOutput.type) {
       case GroupType.Skill:
         return <Construction />;
@@ -358,10 +396,12 @@ const TaskResultsValue = ({
   t,
   nodes,
   edges,
+  isOpen,
 }: {
   t: TaskState;
   nodes: DraftExecutionNode[];
   edges: DraftExecutionEdge[];
+  isOpen: boolean;
 }) => {
   return (
     <Typography
@@ -370,6 +410,7 @@ const TaskResultsValue = ({
         wordBreak: "break-word",
         maxLines: 1,
         textOverflow: "ellipsis",
+        overflow: isOpen ? "visible" : "hidden",
         p: 1,
       }}
     >
@@ -408,7 +449,86 @@ const TaskResultTitle = ({
       }}
     >
       {t.status === TaskStatus.error ? "Error: " : "Result: "}
-      {isOpen ? null : <TaskResultsValue t={t} nodes={nodes} edges={edges} />}
+      {isOpen ? null : (
+        <TaskResultsValue t={t} nodes={nodes} edges={edges} isOpen={isOpen} />
+      )}
+    </Typography>
+  );
+};
+
+const SynthesizedContextValue = ({
+  synthesizedContext,
+  isOpen,
+}: {
+  synthesizedContext: string[];
+  isOpen: boolean;
+}): React.ReactNode => {
+  if (isOpen) {
+    return (
+      <List sx={{ p: 0 }}>
+        {synthesizedContext.map((c) => (
+          <ListItem key={c} component={Box}>
+            <ListItemDecorator>→</ListItemDecorator>
+            <ListItemContent>
+              <Typography
+                level="body-sm"
+                sx={{
+                  wordBreak: "break-word",
+                  maxLines: 1,
+                  textOverflow: "ellipsis",
+                  p: 1,
+                }}
+              >
+                {c}
+              </Typography>
+            </ListItemContent>
+          </ListItem>
+        ))}
+      </List>
+    );
+  } else {
+    return (
+      <Typography
+        level="body-sm"
+        sx={{
+          wordBreak: "break-word",
+          maxLines: 1,
+          textOverflow: "ellipsis",
+          p: 1,
+        }}
+      >
+        {synthesizedContext.join(" • ")}
+      </Typography>
+    );
+  }
+};
+
+const SynthesizedContextTitle = ({
+  synthesizedContext,
+  isOpen,
+}: {
+  synthesizedContext: string[];
+  isOpen: boolean;
+}) => {
+  return (
+    <Typography
+      level="title-lg"
+      sx={{
+        p: 0.25,
+        m: 0.25,
+        maxLines: 1,
+        whiteSpace: isOpen ? "normal" : "nowrap",
+        overflow: isOpen ? "visible" : "hidden",
+        textOverflow: isOpen ? "clip" : "ellipsis",
+      }}
+    >
+      Synthesized Context:
+      {isOpen ? null : (
+        <SynthesizedContextValue
+          isOpen={isOpen}
+          synthesizedContext={synthesizedContext}
+        />
+      )}
     </Typography>
   );
 };
@@ -475,6 +595,7 @@ const TaskListItem = ({
 }: TaskListItemProps) => {
   const { mode } = useColorScheme();
   const [isResultExpanded, setIsResultExpanded] = useState(false);
+  const [isContextExpanded, setIsContextExpanded] = useState(false);
   const node = useMemo(() => t.findNode(nodes), [nodes, t]);
   const [selectedGroup, setSelectedGroup] = useState<AgentPacket[] | null>(
     null,
@@ -513,6 +634,20 @@ const TaskListItem = ({
     return Object.values(groups).reverse();
   }, [t.packets]);
 
+  const contextAndTools = useMemo(() => {
+    const contextAndTools = findContextAndTools(t.packets);
+    return contextAndTools;
+  }, [t.packets]);
+
+  const mostRelevantOutput = useMemo(() => {
+    const lastPacketGroup = packetGroups.length ? packetGroups[0] : [];
+    const lastPacket = lastPacketGroup?.length
+      ? lastPacketGroup[lastPacketGroup.length - 1]
+      : null;
+    return lastPacket && getMostRelevantOutput(lastPacket as AgentPacket);
+  }, [packetGroups]);
+
+  const color = useMemo(() => statusColor(t), [t, statusColor]);
   if (!node) {
     return null;
   }
@@ -539,6 +674,8 @@ const TaskListItem = ({
             xs: "row",
             sm: "column",
           },
+          p: 0,
+          overflow: "clip",
           alignSelf: "start",
           alignItems: "start",
           zIndex: 2,
@@ -547,13 +684,14 @@ const TaskListItem = ({
           flexWrap: "wrap",
           position: "relative",
           boxShadow: "md",
-          backgroundColor:
-            theme.palette.mode === "dark"
-              ? theme.palette[statusColor(t)!].softBg
-              : theme.palette[statusColor(t)!][300],
+          backgroundColor: !!color
+            ? theme.palette.mode === "dark"
+              ? theme.palette[color].softBg
+              : theme.palette[color][300]
+            : theme.palette.background.surface,
         })}
         variant={mode === "dark" ? "soft" : "outlined"}
-        color={statusColor(t)}
+        color={color}
       >
         {isRunning && t.status === TaskStatus.working && (
           <LinearProgress
@@ -566,7 +704,7 @@ const TaskListItem = ({
             }}
             determinate={false}
             thickness={2}
-            color={statusColor(t)}
+            color={color}
           />
         )}
         <Typography
@@ -574,6 +712,7 @@ const TaskListItem = ({
           textAlign={"left"}
           sx={{
             width: "100%",
+            p: 1,
           }}
         >
           <Tooltip
@@ -588,7 +727,7 @@ const TaskListItem = ({
             <Typography
               level="body-lg"
               variant="outlined"
-              color={statusColor(t)}
+              color={color}
               sx={(theme) => ({
                 boxShadow: theme.palette.mode === "light" ? "sm" : "none",
                 ml: -0.5,
@@ -604,47 +743,137 @@ const TaskListItem = ({
           </Tooltip>
           {node.name}
         </Typography>
-        <Stack
-          direction={"row"}
-          gap={2}
-          sx={{
-            justifyContent: "flex-end",
+        <AccordionGroup
+          sx={(theme) => ({
             width: "100%",
-            position: "sticky",
-            bottom: 0,
-            right: 0,
-          }}
+            borderEndStartRadius: "sm",
+            borderEndEndRadius: "sm",
+            backdropFilter: "blur(10px)",
+            backgroundColor: theme.palette.background.body,
+            overflow: "clip",
+            p: 0,
+            m: 0,
+          })}
+          variant="plain"
+          component={Sheet}
         >
-          <Tooltip title={"Task Identifier"}>
+          {(contextAndTools?.tools?.length ?? 0) > 0 && (
+            <Accordion
+              variant="outlined"
+              onChange={(e) => {
+                e.stopPropagation();
+                e.preventDefault();
+              }}
+              disabled={
+                (contextAndTools?.tools?.length ?? 0) === 0 ||
+                t.status === TaskStatus.idle
+              }
+              sx={{ flex: "1 1 auto", p: 0, m: 0 }}
+            >
+              <AccordionSummary
+                sx={{
+                  verticalAlign: "middle",
+                }}
+              >
+                <Typography
+                  level="body-sm"
+                  component={Chip}
+                  color={color}
+                  sx={{
+                    fontFamily: "monospace",
+                    fontSize: "0.7rem",
+                    overflow: "hidden",
+                    textOverflow: "ellipsis",
+                    wordBreak: "break-word",
+                    alignSelf: "center",
+                    whiteSpace: "nowrap",
+                    mr: 0,
+                    maxLines: 1,
+                    background: "transparent",
+                  }}
+                >
+                  ({contextAndTools?.tools?.length ?? "?"}) Skills
+                </Typography>
+              </AccordionSummary>
+
+              <AccordionDetails>
+                <List wrap={true} orientation="horizontal">
+                  {contextAndTools?.tools?.map((tool) => (
+                    <ListItem key={`x-${tool}`} sx={{ p: 0 }}>
+                      <ListItemDecorator sx={{ ml: -3, pl: 3 }}>
+                        ・
+                      </ListItemDecorator>
+                      <ListItemContent sx={{ pr: 2 }}>
+                        <Typography level="body-xs" fontSize={"0.6rem"}>
+                          {tool}
+                        </Typography>
+                      </ListItemContent>
+                    </ListItem>
+                  ))}
+                </List>
+              </AccordionDetails>
+            </Accordion>
+          )}
+          <Stack
+            direction={"row"}
+            gap={0.75}
+            sx={{
+              justifyContent: "flex-end",
+              width: "100%",
+              position: "sticky",
+              bottom: 0,
+              right: 0,
+            }}
+          >
+            {mostRelevantOutput?.title && (
+              <Tooltip title={"Latest Action"}>
+                <Typography
+                  level="body-xs"
+                  component={Chip}
+                  variant="outlined"
+                  sx={(theme) => ({
+                    pt: 0.75,
+                    borderRadius: 0,
+                    background: "transparent",
+                    boxShadow: theme.palette.mode === "light" ? "sm" : "none",
+                  })}
+                >
+                  {mostRelevantOutput.title}
+                </Typography>
+              </Tooltip>
+            )}
+            <Tooltip title={"Task Identifier"}>
+              <Typography
+                level="body-xs"
+                component={Chip}
+                variant="outlined"
+                sx={(theme) => ({
+                  pt: 0.75,
+                  borderRadius: 0,
+                  background: "transparent",
+                  boxShadow: theme.palette.mode === "light" ? "sm" : "none",
+                })}
+              >
+                {t.displayId}
+              </Typography>
+            </Tooltip>
             <Typography
-              level="body-sm"
+              color={color}
+              level="body-xs"
               component={Chip}
               variant="outlined"
-              color={statusColor(t)}
               sx={(theme) => ({
-                pt: 0.5,
+                p: 0.5,
+                pt: 0.75,
                 background: "transparent",
+                borderRadius: 0,
                 boxShadow: theme.palette.mode === "light" ? "sm" : "none",
               })}
             >
-              {t.displayId}
+              {mapPacketTypeToStatus(t.value.type)}
             </Typography>
-          </Tooltip>
-          <Typography
-            color={statusColor(t)}
-            level="body-sm"
-            component={Chip}
-            variant="outlined"
-            sx={(theme) => ({
-              p: 0.5,
-              pt: 0.5,
-              background: "transparent",
-              boxShadow: theme.palette.mode === "light" ? "sm" : "none",
-            })}
-          >
-            {mapPacketTypeToStatus(t.value.type)}
-          </Typography>
-        </Stack>
+          </Stack>
+        </AccordionGroup>
       </ListItemDecorator>
       <ListItemContent
         sx={{
@@ -668,7 +897,7 @@ const TaskListItem = ({
           sx={{ boxShadow: "xl" }}
         >
           <ListItemButton
-            color={statusColor(t)}
+            color={color}
             variant="plain"
             sx={{ p: "0.1rem", m: 0, borderRadius: "0.1rem" }}
             onClick={(e) => {
@@ -717,7 +946,7 @@ const TaskListItem = ({
               >
                 <Typography level="title-lg">Actions:</Typography>
                 <Chip sx={{ minWidth: "2.5rem", textAlign: "center" }}>
-                  {Math.round(packetGroups.length / 2)}
+                  {packetGroups.length}
                 </Chip>
               </Sheet>
               <List
@@ -744,10 +973,10 @@ const TaskListItem = ({
                 >
                   <ModalDialog>
                     <DialogTitle id="task-dialog-title">
-                      {t.packets.map((p) => p.type).join(" → ")}
+                      Detailed task information coming soon!
                     </DialogTitle>
                     <DialogContent>
-                      Detailed task information coming soon!
+                      {t.packets.map((p) => p.type).join(" → ")}
                     </DialogContent>
                     <DialogActions>
                       <Button
@@ -777,9 +1006,46 @@ const TaskListItem = ({
           </ListItemButton>
           <AccordionGroup
             variant="outlined"
-            color={statusColor(t)}
+            color={color}
             sx={{ overflow: "clip", cursor: "auto" }}
+            onClick={(e) => {
+              e.preventDefault();
+              e.stopPropagation();
+            }}
           >
+            <Accordion
+              sx={{ maxWidth: "100%" }}
+              expanded={isContextExpanded}
+              onChange={(event, expanded) => {
+                setIsContextExpanded(expanded);
+                event.stopPropagation();
+                event.preventDefault();
+              }}
+              onClick={(event) => {
+                event.preventDefault();
+                event.stopPropagation();
+              }}
+              component={Stack}
+              direction={isContextExpanded ? "column" : "row"}
+            >
+              <AccordionSummary>
+                <SynthesizedContextTitle
+                  isOpen={isContextExpanded}
+                  synthesizedContext={contextAndTools?.synthesizedContext ?? []}
+                />
+              </AccordionSummary>
+              <AccordionDetails
+                onClick={(e) => {
+                  e.preventDefault();
+                  e.stopPropagation();
+                }}
+              >
+                <SynthesizedContextValue
+                  isOpen={isContextExpanded}
+                  synthesizedContext={contextAndTools?.synthesizedContext ?? []}
+                />
+              </AccordionDetails>
+            </Accordion>
             <Accordion
               sx={{ maxWidth: "100%" }}
               expanded={isResultExpanded}
@@ -792,39 +1058,33 @@ const TaskListItem = ({
                 event.preventDefault();
                 event.stopPropagation();
                 if (event.target instanceof HTMLAnchorElement) {
+                  if (event.target.href.startsWith("#")) {
+                    return;
+                  }
                   // open link
                   window.open(event.target.href, "_blank");
                   return;
                 }
               }}
+              component={Stack}
+              direction={isResultExpanded ? "column" : "row"}
             >
               <AccordionSummary>
-                <Stack direction={"row"}>
-                  <TaskResultTitle
-                    t={t}
-                    color={statusColor(t)}
-                    isOpen={true}
-                    nodes={nodes}
-                    edges={edges}
-                  />
-                  {!isResultExpanded && (
-                    <TaskResult
-                      t={t}
-                      color={statusColor(t)}
-                      nodes={nodes}
-                      edges={edges}
-                      isExpanded={false}
-                    />
-                  )}
-                </Stack>
+                <TaskResultTitle
+                  t={t}
+                  color={color}
+                  isOpen={isResultExpanded}
+                  nodes={nodes}
+                  edges={edges}
+                />
               </AccordionSummary>
               <AccordionDetails>
                 <TaskResult
                   t={t}
-                  color={statusColor(t)}
                   nodes={nodes}
                   edges={edges}
-                  isExpanded={true}
+                  isExpanded={isResultExpanded}
+                  color={color}
                 />
               </AccordionDetails>
             </Accordion>

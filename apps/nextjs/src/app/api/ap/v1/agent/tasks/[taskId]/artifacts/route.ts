@@ -5,7 +5,6 @@ import { type Artifact } from "lib/AgentProtocol/types";
 import { customAlphabet } from "nanoid";
 import { getServerSession, type Session } from "next-auth";
 
-import { makeServerIdIfNeeded } from "@acme/agent";
 import { appRouter } from "@acme/api";
 import { authOptions } from "@acme/auth";
 import { prisma, type Result } from "@acme/db";
@@ -82,7 +81,7 @@ export async function POST(
   });
 
   const namespace = req.headers.get("X-Skill-Namespace") || undefined;
-  const nodeId = req.headers.get("X-Skill-Task-Id") || undefined;
+  const nodeId = req.headers.get("X-Skill-Node-Id") || undefined;
   const goal = await caller.goal.limitedGoalFromExecution(taskId);
 
   const userId = goal?.userId;
@@ -100,15 +99,6 @@ export async function POST(
     return NextResponse.json("Unauthorized", { status: 401 });
   }
 
-  // const cookiePrefix = req.nextUrl.protocol === "https:" ? "__Secure-" : "";
-  // req.headers.set(
-  //   "cookie",
-  //   `${cookiePrefix}next-auth.session-token=${
-  //     namespaceSession.sessionToken
-  //   }; path=/; expires=${namespaceSession?.expires}; HttpOnly; ${
-  //     cookiePrefix.length > 0 ? "Secure;" : ""
-  //   } SameSite=Lax`,
-  // );
   const file = await req.blob();
   const contentType = req.headers.get("content-type") || file.type || "";
 
@@ -126,7 +116,7 @@ export async function POST(
     session: nextAuthNamespaceSession,
     contentType,
     file,
-    nodeId: makeServerIdIfNeeded(nodeId!),
+    nodeId: nodeId!,
     executionId: taskId,
     origin: req.nextUrl.origin,
   });

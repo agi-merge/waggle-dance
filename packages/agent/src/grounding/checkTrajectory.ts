@@ -8,6 +8,26 @@ import { type ChainValues } from "../strategy/AgentPacket";
 import { LLM_ALIASES, ModelStyle } from "../utils/llms";
 import { createModel } from "../utils/model";
 
+export function getMinimumScoreFromEnv(): number | null {
+  let minimumScore: number | null = null;
+  // FIXME: move env.mjs out of the nextjs app and into a package to use it instead
+  if (process.env.EXE_TRAJECTORY_EVALUATION === "true") {
+    minimumScore = 0.5;
+  } else if (process.env.EXE_TRAJECTORY_EVALUATION === "false") {
+    console.debug(`Skipping trajectory evaluation`);
+  } else if (process.env.EXE_TRAJECTORY_EVALUATION) {
+    minimumScore = parseFloat(process.env.EXE_TRAJECTORY_EVALUATION);
+  } else {
+    console.debug(`Skipping trajectory evaluation`);
+  }
+
+  if (minimumScore !== null) {
+    minimumScore = Math.max(0, Math.min(1, minimumScore));
+  }
+
+  return minimumScore;
+}
+
 async function checkTrajectory(
   response: string,
   originalResponse: string,
@@ -18,21 +38,12 @@ async function checkTrajectory(
   callbacks: Callbacks | undefined,
   evaluators: AgentTrajectoryEvaluator[],
 ): Promise<string | null> {
-  // FIXME: move env.mjs out of the nextjs app and into a package to use it instead
-  let minimumScore: number;
-  if (process.env.EXE_TRAJECTORY_EVALUATION === "true") {
-    minimumScore = 0.5;
-  } else if (process.env.EXE_TRAJECTORY_EVALUATION === "false") {
-    console.debug(`Skipping trajectory evaluation`);
-    return null;
-  } else if (process.env.EXE_TRAJECTORY_EVALUATION) {
-    minimumScore = parseFloat(process.env.EXE_TRAJECTORY_EVALUATION);
-  } else {
-    console.debug(`Skipping trajectory evaluation`);
+  let minimumScore = getMinimumScoreFromEnv();
+  if (minimumScore) {
     return null;
   }
 
-  minimumScore = Math.max(0, Math.min(1, minimumScore));
+  minimumScore = Math.max(0, Math.min(1, minimumScore!));
 
   const evaluations = await Promise.allSettled(
     evaluators.map((evaluator) =>
@@ -55,7 +66,7 @@ async function checkTrajectory(
     (
       await Promise.all(
         evaluations.map((e) =>
-          checkScore(e, response, originalResponse, minimumScore),
+          checkScore(e, response, originalResponse, minimumScore!),
         ),
       )
     ).find((v) => v?.length ?? false) || null
@@ -99,7 +110,7 @@ ${
     } else {
       // Try to repair the error
       const fast = createModel(
-        { modelName: LLM_ALIASES["smart-xlarge"], maxTokens: 3 },
+        { modelName: LLM_ALIASES["fast-large"], maxTokens: 3 },
         ModelStyle.Instruct, // does not need to be chat
       );
 

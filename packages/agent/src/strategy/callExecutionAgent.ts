@@ -18,7 +18,6 @@ import {
   StructuredOutputParser,
 } from "langchain/output_parsers";
 import { type AgentStep, type MessageContent } from "langchain/schema";
-import { type JsonObject } from "langchain/tools";
 import { AbortError } from "redis";
 import { v4 } from "uuid";
 import { parse as yamlParse } from "yaml";
@@ -32,11 +31,13 @@ import {
   createExecutePrompt,
   createMemory,
   TaskState,
-  type AgentPacket,
   type ChainValues,
   type MemoryType,
+  type ModelCreationProps,
 } from "../..";
-import checkTrajectory from "../grounding/checkTrajectory";
+import checkTrajectory, {
+  getMinimumScoreFromEnv,
+} from "../grounding/checkTrajectory";
 import {
   createContextAndToolsPrompt,
   type ToolsAndContextPickingInput,
@@ -44,7 +45,6 @@ import {
 import { isTaskCriticism } from "../prompts/types";
 import { invokeRewriteRunnable } from "../runnables/createRewriteRunnable";
 import saveMemoriesSkill from "../skills/saveMemories";
-import type Geo from "../utils/Geo";
 import {
   AgentPromptingMethod,
   getAgentPromptingMethodValue,
@@ -58,8 +58,8 @@ import {
 } from "../utils/llms";
 import { stringifyByMime } from "../utils/mimeTypeParser";
 import { createEmbeddings, createModel } from "../utils/model";
-import { type ModelCreationProps } from "../utils/OpenAIPropsBridging";
 import createSkills from "../utils/skills";
+import { type CallExecutionAgentProps } from "./execute/callExecutionAgent.types";
 
 export interface FunctionDefinition {
   /**
@@ -122,23 +122,9 @@ const reActOutputSchema = z.object({
   action_input: z.string(),
 });
 
-export async function callExecutionAgent(creation: {
-  creationProps: ModelCreationProps;
-  goalPrompt: string;
-  goalId: string;
-  executionId: string;
-  agentPromptingMethod: AgentPromptingMethod;
-  task: string;
-  dag: string;
-  revieweeTaskResults: TaskState[];
-  contentType: "application/json" | "application/yaml";
-  abortSignal: AbortSignal;
-  namespace: string;
-  lastToolInputs: Map<string, string>;
-  handlePacketCallback: (packet: AgentPacket) => Promise<void>;
-  agentProtocolOpenAPISpec?: JsonObject;
-  geo?: Geo;
-}): Promise<string | Error> {
+export async function callExecutionAgent(
+  creation: CallExecutionAgentProps,
+): Promise<string | Error> {
   const {
     goalId: _goalId,
     creationProps,
@@ -151,8 +137,9 @@ export async function callExecutionAgent(creation: {
     abortSignal,
     namespace,
     contentType,
-    agentProtocolOpenAPISpec,
+    lastToolInputs: _lastToolInputs,
     handlePacketCallback,
+    agentProtocolOpenAPISpec,
     geo,
   } = creation;
   const callbacks = creationProps.callbacks;
@@ -245,6 +232,7 @@ export async function callExecutionAgent(creation: {
       ...creationProps,
       modelName: LLM_ALIASES["smart-xlarge"],
       maxTokens: 300,
+      maxConcurrency: 2,
     },
     ModelStyle.Chat,
   ) as ChatOpenAI;
@@ -271,7 +259,7 @@ export async function callExecutionAgent(creation: {
       type: "not_implemented",
       id: ["Pick Context and Tools"],
     },
-    input: inputTaskAndGoalString,
+    input: inputTaskAndGoalString.slice(0, 100),
     runId,
   });
 
@@ -279,7 +267,7 @@ export async function callExecutionAgent(creation: {
     {},
     {
       tags: ["contextAndTools", ...tags],
-      callbacks,
+      // callbacks,
       runName: "Pick Context and Tools",
     },
   );
@@ -288,6 +276,12 @@ export async function callExecutionAgent(creation: {
     type: "handleToolEnd",
     lastToolInput: inputTaskAndGoalString,
     output: contextAndTools.tools?.join(", ") ?? "???",
+    runId,
+  });
+
+  void handlePacketCallback({
+    type: "contextAndTools",
+    ...contextAndTools,
     runId,
   });
 
@@ -328,6 +322,7 @@ export async function callExecutionAgent(creation: {
   );
 
   try {
+    const callRunId = v4();
     let call: ChainValues;
     try {
       // void handlePacketCallback({
@@ -339,6 +334,19 @@ export async function callExecutionAgent(creation: {
       //   },
       //   runId: v4(),
       // });
+
+      const runName = isCriticism
+        ? `Criticize Results ${taskObj.id}`
+        : `Execute Task ${taskObj.id}`;
+      void handlePacketCallback({
+        type: "handleToolStart",
+        input: taskObj.name,
+        tool: isCriticism
+          ? { lc: 1, type: "not_implemented", id: [runName] }
+          : { lc: 1, type: "not_implemented", id: [runName] },
+        runId: callRunId,
+      });
+
       if (agentPromptingMethod === AgentPromptingMethod.OpenAIAssistant) {
         call = await executor.invoke(
           {
@@ -371,6 +379,13 @@ export async function callExecutionAgent(creation: {
           callbacks,
         );
       }
+
+      void handlePacketCallback({
+        type: "handleToolEnd",
+        lastToolInput: "…",
+        output: stringifyByMime(returnType, call),
+        runId: callRunId,
+      });
     } catch (error) {
       if (error instanceof AbortError) {
         return error;
@@ -385,10 +400,27 @@ export async function callExecutionAgent(creation: {
         "\n",
       );
       const outputFixingParser = OutputFixingParser.fromLLM(exeLLM, baseParser);
+
+      const errorFixingRunId = v4();
+      void handlePacketCallback({
+        type: "handleToolStart",
+        input: inputTaskAndGoalString,
+        runId: errorFixingRunId,
+        tool: { lc: 1, type: "not_implemented", id: ["Fixing Response"] },
+      });
+
       const finalAnswer = await outputFixingParser.invoke(errorMessageToParse, {
         tags: [...tags, "fix"],
         runName: "ReAct Error Fixing",
       });
+
+      void handlePacketCallback({
+        type: "handleToolEnd",
+        lastToolInput: finalAnswer.action,
+        output: finalAnswer.action,
+        runId: errorFixingRunId,
+      });
+
       call = { output: finalAnswer.action_input };
     }
 
@@ -398,6 +430,20 @@ export async function callExecutionAgent(creation: {
     if (isCriticism) {
       return response;
     }
+
+    const rewriteRunId = v4();
+
+    void handlePacketCallback({
+      type: "handleToolStart",
+      input: response.slice(0, 100),
+      runId: rewriteRunId,
+      tool: { lc: 1, type: "not_implemented", id: ["Rewrite"] },
+    });
+
+    void handlePacketCallback({
+      type: "rewrite",
+      runId: rewriteRunId,
+    });
 
     const bestResponse = await invokeRewriteRunnable(response, {
       creationProps,
@@ -412,16 +458,18 @@ export async function callExecutionAgent(creation: {
       callbacks,
     });
 
+    void handlePacketCallback({
+      type: "handleToolEnd",
+      lastToolInput: inputTaskAndGoalString,
+      output: bestResponse.slice(0, 100),
+      runId: rewriteRunId,
+    });
+
     // make sure that we are at least saving the task result so that other notes can refer back.
-    const shouldSave = !isCriticism;
-    const save: Promise<unknown> = shouldSave
-      ? saveMemoriesSkill.skill.func({
-          memories: [bestResponse],
-          namespace: namespace,
-        })
-      : Promise.resolve(
-          "skipping save memory due to error or this being a criticism task",
-        );
+    const save: Promise<unknown> = saveMemoriesSkill.skill.func({
+      memories: [bestResponse],
+      namespace: namespace,
+    });
 
     void save;
 
@@ -430,6 +478,7 @@ export async function callExecutionAgent(creation: {
         ...creationProps,
         modelName: LLM_ALIASES["smart-xlarge"],
         maxTokens: 600,
+        maxConcurrency: 2,
       },
       ModelStyle.Chat,
     ) as ChatOpenAI;
@@ -448,15 +497,17 @@ export async function callExecutionAgent(creation: {
 
     try {
       const evaluators = [taskFulfillmentEvaluator];
-      void handlePacketCallback({
-        type: "handleAgentAction",
-        action: {
-          tool: "Reviewing Result",
-          toolInput: humanMessage!.toString(),
-          log: "",
-        },
-        runId: v4(),
-      });
+
+      const evaluationRunId = v4();
+      const shouldEvaluate = getMinimumScoreFromEnv() !== null;
+      shouldEvaluate &&
+        void handlePacketCallback({
+          type: "handleToolStart",
+          input: bestResponse.slice(0, 100),
+          runId: evaluationRunId,
+          tool: { lc: 1, type: "not_implemented", id: ["Review"] },
+        });
+
       const evaluationResult = await checkTrajectory(
         bestResponse,
         response,
@@ -468,6 +519,13 @@ export async function callExecutionAgent(creation: {
         evaluators,
       );
 
+      shouldEvaluate &&
+        void handlePacketCallback({
+          type: "handleToolEnd",
+          lastToolInput: inputTaskAndGoalString,
+          output: bestResponse,
+          runId: evaluationRunId,
+        });
       return `${bestResponse}
 ### Evaluation:
 ${evaluationResult}

@@ -47,7 +47,9 @@ export const env = createEnv({
     DISCORD_SECRET: z.string().min(32).max(32).optional(),
     POSTMARK_TOKEN: z.string().min(1).optional(),
     EMAIL_FROM: z.string().min(1).optional(),
-    MEMORY_TYPE: z.enum(["buffer", "conversation", "vector"]).optional(),
+    MEMORY_TYPE: z
+      .enum(["dynamic", "buffer", "conversation", "vector"])
+      .optional(),
     GITHUB_ID: z.string().min(20).max(21).optional(),
     GITHUB_SECRET: z.string().min(40).max(40).optional(),
     OPENAI_API_KEY: z.string().min(51).max(51).optional(),

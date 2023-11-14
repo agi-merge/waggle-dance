@@ -39,13 +39,17 @@ export const TaskProgress: React.FC<TaskProgressProps> = ({
           {
             <Typography
               level="body-md"
-              sx={{
+              sx={(theme) => ({
                 fontSize: { xs: "9pt", sm: "inherit" },
+                color:
+                  theme.palette.mode === "light"
+                    ? theme.palette.common.white
+                    : theme.palette.text.primary,
                 mixBlendMode: "difference",
                 whiteSpace: "nowrap",
                 overflow: "hidden",
                 textOverflow: "ellipsis",
-              }}
+              })}
             >
               {progressLabel}
             </Typography>
