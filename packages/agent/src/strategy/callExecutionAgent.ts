@@ -190,6 +190,12 @@ export async function callExecutionAgent(
     runId,
   });
 
+  void handlePacketCallback({
+    type: "contextAndTools",
+    contextAndTools,
+    runId,
+  });
+
   console.debug(`contextAndTools(${taskObj.id}):`, contextAndTools);
   const formattedMessages = await prompt.formatMessages({
     synthesizedContext: contextAndTools.synthesizedContext?.join("\n") ?? "N/A",
@@ -223,12 +229,16 @@ export async function callExecutionAgent(
     let call: ChainValues;
     try {
       void handlePacketCallback({
-        type: "handleAgentAction",
-        action: {
-          tool: isCriticism ? "Criticize Results" : "Execute Task",
-          toolInput: "",
-          log: "",
-        },
+        type: "handleToolStart",
+        input,
+        tool: isCriticism
+          ? { lc: 1, type: "not_implemented", id: ["Criticize Results"] }
+          : { lc: 1, type: "not_implemented", id: ["Execute Task"] },
+        // action: {
+        //   tool: isCriticism ? "Criticize Results" : "Execute Task",
+        //   toolInput: "",
+        //   log: "",
+        // },
         runId,
       });
       call = await executor.call(
@@ -240,6 +250,12 @@ export async function callExecutionAgent(
         },
         callbacks,
       );
+      void handlePacketCallback({
+        type: "handleToolEnd",
+        lastToolInput: "…",
+        output: stringifyByMime(returnType, call),
+        runId,
+      });
     } catch (error) {
       if (error instanceof AbortError) {
         return error;

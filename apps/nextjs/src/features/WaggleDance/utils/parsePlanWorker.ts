@@ -1,7 +1,5 @@
-// parseWorker.ts
+// parsePlanWorker.ts
 import { parse } from "yaml";
-
-import { type DraftExecutionGraph } from "@acme/db";
 
 import {
   AgentPacketFinishedTypes,
@@ -10,7 +8,8 @@ import {
   type AgentPacket,
   type AgentPacketFinishedType,
   type PlanWireFormat,
-} from "../../../../../../packages/agent";
+} from "@acme/agent";
+import { type DraftExecutionGraph } from "@acme/db";
 
 interface MyWorkerGlobalScope {
   onmessage: (event: MessageEvent) => void;
@@ -18,7 +17,7 @@ interface MyWorkerGlobalScope {
 }
 
 declare const self: MyWorkerGlobalScope;
-console.debug("parseWorker.ts");
+console.debug("parsePlanWorker.ts");
 let dag: DraftExecutionGraph | null | undefined;
 let tokens = "";
 let goal = "";
