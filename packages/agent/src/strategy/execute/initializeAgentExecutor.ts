@@ -19,11 +19,11 @@ import {
   getAgentPromptingMethodValue,
   InitializeAgentExecutorOptionsAgentTypes,
   InitializeAgentExecutorOptionsStructuredAgentTypes,
+  LLM_ALIASES,
   type InitializeAgentExecutorOptionsAgentType,
   type InitializeAgentExecutorOptionsStructuredAgentType,
 } from "../../utils/llms";
 import { type ModelCreationProps } from "../../utils/OpenAIPropsBridging";
-import { LLM_ALIASES } from "../utils/llms";
 
 export async function initializeExecutor(
   _goalPrompt: string,
@@ -112,13 +112,6 @@ export async function initializeExecutor(
       asAgent: true,
     });
 
-    agent.bind({
-      callbacks,
-      // signal: abortSignal,
-      tags,
-      runName,
-    });
-
     // const parser = StructuredOutputParser.fromZodSchema(
     //   z.custom<PlanWireFormat>(),
     // );
@@ -126,7 +119,12 @@ export async function initializeExecutor(
     // const outputFixingParser = OutputFixingParser.fromLLM(llm, parser);
 
     executor = AgentExecutor.fromAgentAndTools({
-      agent,
+      agent: agent.bind({
+        callbacks,
+        // signal: abortSignal,
+        tags,
+        runName,
+      }),
       memory,
       tools: structuredTools,
       earlyStoppingMethod: "generate",

@@ -30,6 +30,7 @@ import {
   createCriticizePrompt,
   createExecutePrompt,
   createMemory,
+  extractTier,
   TaskState,
   type ChainValues,
   type MemoryType,
@@ -44,6 +45,7 @@ import {
 } from "../prompts/createContextAndToolsPrompt";
 import { isTaskCriticism } from "../prompts/types";
 import { invokeRewriteRunnable } from "../runnables/createRewriteRunnable";
+import retrieveMemoriesSkill from "../skills/retrieveMemories";
 import saveMemoriesSkill from "../skills/saveMemories";
 import {
   AgentPromptingMethod,
@@ -213,9 +215,42 @@ export async function callExecutionAgent(
     { type: "retrieval" },
   ];
 
-  const inputTaskAndGoal: ToolsAndContextPickingInput = {
+  const taskAndGoal = {
     task: `${taskObj.name}`,
     inServiceOfGoal: goalPrompt,
+  };
+
+  let memories;
+  // TODO: better way to check if we should retrieve memories
+  if (extractTier(taskObj.id) !== "1") {
+    const retrieveMemoriesRunId = v4(); // generate a new UUID for the runId
+
+    void handlePacketCallback({
+      type: "handleToolStart",
+      input: "Retrieve Memories",
+      runId: retrieveMemoriesRunId,
+      tool: { lc: 1, type: "not_implemented", id: ["Retrieve Memories"] },
+    });
+    memories = await retrieveMemoriesSkill.skill.func({
+      retrievals: [
+        `What matches "${stringifyByMime(returnType, taskAndGoal)}"?`,
+      ],
+      namespace: namespace,
+    });
+
+    void handlePacketCallback({
+      type: "handleToolEnd",
+      lastToolInput: "Retrieve Memories",
+      output: memories,
+      runId: retrieveMemoriesRunId,
+    });
+  } else {
+    memories = "None yet";
+  }
+
+  const inputTaskAndGoal: ToolsAndContextPickingInput = {
+    ...taskAndGoal,
+    longTermMemories: memories,
     // availableDataSources: [],
     availableTools: skills.map((s) => s.type),
   };
@@ -244,7 +279,7 @@ export async function callExecutionAgent(
     .pipe(
       smallSmartHelperModel.bind({
         signal: abortSignal,
-        runName: "Pick Context and Tools",
+        runName: "Synthesize Context & Tools",
         tags: ["contextAndTools", ...tags],
         callbacks,
       }),
@@ -257,7 +292,7 @@ export async function callExecutionAgent(
     tool: {
       lc: 1,
       type: "not_implemented",
-      id: ["Pick Context and Tools"],
+      id: ["Synthesize Context & Tools"],
     },
     input: inputTaskAndGoalString.slice(0, 100),
     runId,
@@ -267,15 +302,15 @@ export async function callExecutionAgent(
     {},
     {
       tags: ["contextAndTools", ...tags],
-      // callbacks,
-      runName: "Pick Context and Tools",
+      callbacks,
+      runName: "Synthesize Context & Tools",
     },
   );
 
   void handlePacketCallback({
     type: "handleToolEnd",
-    lastToolInput: inputTaskAndGoalString,
-    output: contextAndTools.tools?.join(", ") ?? "???",
+    lastToolInput: inputTaskAndGoalString.slice(0, 100),
+    output: stringifyByMime(returnType, contextAndTools),
     runId,
   });
 
@@ -382,7 +417,7 @@ export async function callExecutionAgent(
 
       void handlePacketCallback({
         type: "handleToolEnd",
-        lastToolInput: "…",
+        lastToolInput: taskObj.name,
         output: stringifyByMime(returnType, call),
         runId: callRunId,
       });
@@ -465,13 +500,33 @@ export async function callExecutionAgent(
       runId: rewriteRunId,
     });
 
-    // make sure that we are at least saving the task result so that other notes can refer back.
-    const save: Promise<unknown> = saveMemoriesSkill.skill.func({
-      memories: [bestResponse],
-      namespace: namespace,
-    });
+    void (async () => {
+      const saveRunId = v4();
+      await handlePacketCallback({
+        type: "handleToolStart",
+        input: bestResponse.slice(0, 100),
+        runId: saveRunId,
+        tool: {
+          lc: 1,
+          type: "not_implemented",
+          id: ["Save to Long-term Memory"],
+        },
+      });
+      // make sure that we are at least saving the task result so that other notes can refer back.
+      const save: Promise<unknown> = saveMemoriesSkill.skill.func({
+        memories: [bestResponse],
+        namespace: namespace,
+      });
 
-    void save;
+      await save;
+
+      await handlePacketCallback({
+        type: "handleToolEnd",
+        lastToolInput: bestResponse.slice(0, 100),
+        output: bestResponse.slice(0, 100),
+        runId: saveRunId,
+      });
+    })();
 
     const mediumSmartHelperModel = createModel(
       {

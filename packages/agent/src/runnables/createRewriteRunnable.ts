@@ -44,7 +44,9 @@ export async function createRewriteRunnable({
   response,
 }: CreateRewriteRunnableParams) {
   const chatHistory = (await memory?.loadMemoryVariables({
-    input: taskObj.name,
+    input: `${taskObj.name}: [
+  ${contextAndTools.synthesizedContext?.join("\n\n")}
+]`,
   })) as { chat_history: { value?: string; message?: string } };
 
   const systemMessagePrompt = SystemMessagePromptTemplate.fromTemplate(
@@ -59,7 +61,7 @@ export async function createRewriteRunnable({
     chatHistory.chat_history.value ||
       chatHistory.chat_history.message ||
       chatHistory.chat_history ||
-      intermediateSteps.map((s) => s.observation),
+      intermediateSteps.map((s) => s.observation).join("\n\n"),
   )}
   ## Time
   ${new Date().toString()}
