@@ -440,15 +440,16 @@ export async function callExecutionAgent(
       });
       void handlePacketCallback({
         type: "handleToolEnd",
-        lastToolInput: finalAnswer.action,
-        output: finalAnswer.action,
+        lastToolInput: inputTaskAndGoalString,
+        output: finalAnswer.action_input,
         runId: errorFixingRunId,
       });
       call = { output: finalAnswer.action_input };
     }
 
     const response = call?.output ? (call.output as string) : "";
-    const intermediateSteps = call?.intermediateSteps as AgentStep[];
+    const intermediateSteps =
+      (call?.intermediateSteps as AgentStep[] | undefined) ?? [];
 
     if (isCriticism) {
       return response;
@@ -483,7 +484,7 @@ export async function callExecutionAgent(
 
     void handlePacketCallback({
       type: "handleToolEnd",
-      lastToolInput: inputTaskAndGoalString,
+      lastToolInput: response.slice(0, 100),
       output: bestResponse.slice(0, 100),
       runId: rewriteRunId,
     });
@@ -566,7 +567,7 @@ export async function callExecutionAgent(
         void handlePacketCallback({
           type: "handleToolEnd",
           lastToolInput: inputTaskAndGoalString,
-          output: bestResponse,
+          output: evaluationResult ?? "No evaluation result",
           runId: evaluationRunId,
         });
       return `${bestResponse}
