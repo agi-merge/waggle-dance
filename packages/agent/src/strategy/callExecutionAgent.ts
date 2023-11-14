@@ -1,4 +1,5 @@
 // agent/strategy/callExecutionAgent.ts
+import { isAbortError } from "next/dist/server/pipe-readable";
 import {
   AgentExecutor,
   initializeAgentExecutorWithOptions,
@@ -18,7 +19,6 @@ import {
   StructuredOutputParser,
 } from "langchain/output_parsers";
 import { type AgentStep, type MessageContent } from "langchain/schema";
-import { AbortError } from "redis";
 import { v4 } from "uuid";
 import { parse as yamlParse } from "yaml";
 import { z } from "zod";
@@ -422,7 +422,7 @@ export async function callExecutionAgent(
         runId: callRunId,
       });
     } catch (error) {
-      if (error instanceof AbortError) {
+      if (isAbortError(error)) {
         return error;
       }
       let errorMessageToParse =
