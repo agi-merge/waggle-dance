@@ -34,6 +34,9 @@ export const mapPacketTypeToStatus = (
     case "handleChatModelEnd":
     case "handleChatModelStart":
     case "contextAndTools":
+    case "refine":
+    case "rewrite":
+    case "review":
       return TaskStatus.working;
 
     case "idle":

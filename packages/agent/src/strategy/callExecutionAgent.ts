@@ -20,7 +20,9 @@ import {
   TaskState,
   type ChainValues,
 } from "../..";
-import checkTrajectory from "../grounding/checkTrajectory";
+import checkTrajectory, {
+  getMinimumScoreFromEnv,
+} from "../grounding/checkTrajectory";
 import {
   createContextAndToolsPrompt,
   type ToolsAndContextPickingInput,
@@ -170,7 +172,7 @@ export async function callExecutionAgent(
       type: "not_implemented",
       id: ["Pick Context and Tools"],
     },
-    input: inputTaskAndGoalString,
+    input: inputTaskAndGoalString.slice(0, 100),
     runId,
   });
 
@@ -226,27 +228,26 @@ export async function callExecutionAgent(
   );
 
   try {
+    const callRunId = v4();
     let call: ChainValues;
     try {
+      const runName = isCriticism
+        ? `Criticize Results ${taskObj.id}`
+        : `Execute Task ${taskObj.id}`;
       void handlePacketCallback({
         type: "handleToolStart",
-        input,
+        input: taskObj.name,
         tool: isCriticism
-          ? { lc: 1, type: "not_implemented", id: ["Criticize Results"] }
-          : { lc: 1, type: "not_implemented", id: ["Execute Task"] },
-        // action: {
-        //   tool: isCriticism ? "Criticize Results" : "Execute Task",
-        //   toolInput: "",
-        //   log: "",
-        // },
-        runId,
+          ? { lc: 1, type: "not_implemented", id: [runName] }
+          : { lc: 1, type: "not_implemented", id: [runName] },
+        runId: callRunId,
       });
       call = await executor.call(
         {
           input,
           signal: abortSignal,
           tags,
-          runName: isCriticism ? "Criticize Results" : "Execute Task",
+          runName,
         },
         callbacks,
       );
@@ -254,7 +255,7 @@ export async function callExecutionAgent(
         type: "handleToolEnd",
         lastToolInput: "…",
         output: stringifyByMime(returnType, call),
-        runId,
+        runId: callRunId,
       });
     } catch (error) {
       if (error instanceof AbortError) {
@@ -271,10 +272,11 @@ export async function callExecutionAgent(
       );
       const outputFixingParser = OutputFixingParser.fromLLM(exeLLM, baseParser);
 
+      const errorFixingRunId = v4();
       void handlePacketCallback({
         type: "handleToolStart",
-        input,
-        runId,
+        input: inputTaskAndGoalString,
+        runId: errorFixingRunId,
         tool: { lc: 1, type: "not_implemented", id: ["Fixing Response"] },
       });
 
@@ -287,7 +289,7 @@ export async function callExecutionAgent(
         type: "handleToolEnd",
         lastToolInput: finalAnswer.action,
         output: finalAnswer.action,
-        runId,
+        runId: errorFixingRunId,
       });
 
       call = { output: finalAnswer.action_input };
@@ -300,11 +302,18 @@ export async function callExecutionAgent(
       return response;
     }
 
+    const rewriteRunId = v4();
+
     void handlePacketCallback({
       type: "handleToolStart",
-      input,
-      runId,
+      input: response.slice(0, 100),
+      runId: rewriteRunId,
       tool: { lc: 1, type: "not_implemented", id: ["Rewrite"] },
+    });
+
+    void handlePacketCallback({
+      type: "rewrite",
+      runId: rewriteRunId,
     });
 
     const bestResponse = await invokeRewriteRunnable(response, {
@@ -322,21 +331,16 @@ export async function callExecutionAgent(
 
     void handlePacketCallback({
       type: "handleToolEnd",
-      lastToolInput: input,
-      output: bestResponse,
-      runId,
+      lastToolInput: inputTaskAndGoalString,
+      output: bestResponse.slice(0, 100),
+      runId: rewriteRunId,
     });
 
     // make sure that we are at least saving the task result so that other notes can refer back.
-    const shouldSave = !isCriticism;
-    const save: Promise<unknown> = shouldSave
-      ? saveMemoriesSkill.skill.func({
-          memories: [bestResponse],
-          namespace: namespace,
-        })
-      : Promise.resolve(
-          "skipping save memory due to error or this being a criticism task",
-        );
+    const save: Promise<unknown> = saveMemoriesSkill.skill.func({
+      memories: [bestResponse],
+      namespace: namespace,
+    });
 
     void save;
 
@@ -365,6 +369,16 @@ export async function callExecutionAgent(
     try {
       const evaluators = [taskFulfillmentEvaluator];
 
+      const evaluationRunId = v4();
+      const shouldEvaluate = getMinimumScoreFromEnv() !== null;
+      shouldEvaluate &&
+        void handlePacketCallback({
+          type: "handleToolStart",
+          input: bestResponse.slice(0, 100),
+          runId: evaluationRunId,
+          tool: { lc: 1, type: "not_implemented", id: ["Review"] },
+        });
+
       const evaluationResult = await checkTrajectory(
         bestResponse,
         response,
@@ -376,6 +390,13 @@ export async function callExecutionAgent(
         evaluators,
       );
 
+      shouldEvaluate &&
+        void handlePacketCallback({
+          type: "handleToolEnd",
+          lastToolInput: inputTaskAndGoalString,
+          output: bestResponse,
+          runId: evaluationRunId,
+        });
       return `${bestResponse}
 ### Evaluation:
 ${evaluationResult}

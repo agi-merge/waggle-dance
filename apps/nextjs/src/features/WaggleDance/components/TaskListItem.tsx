@@ -41,6 +41,7 @@ import { v4 } from "uuid";
 import { stringify } from "yaml";
 
 import {
+  findContextAndTools,
   findResult,
   getMostRelevantOutput,
   isAgentPacketFinishedType,
@@ -76,6 +77,7 @@ interface TaskListItemProps extends ListItemProps {
 }
 enum GroupType {
   Skill = "Skill",
+  Custom = "Custom",
   Retriever = "Retriever",
   Success = "Success",
   Error = "Error",
@@ -129,6 +131,13 @@ const getGroupType = (group: AgentPacket[]): GroupType => {
       case "handleRetrieverEnd":
       case "handleRetrieverError":
         return GroupType.Retriever;
+
+      case "artifact":
+      case "contextAndTools":
+      case "refine":
+      case "rewrite":
+      case "review":
+        return GroupType.Custom;
 
       default:
         if (isAgentPacketFinishedType(packet)) {
@@ -190,6 +199,29 @@ const getGroupOutput = (group: AgentPacket[]): GroupOutput | null => {
       parsedTitle = title;
       parsedOutput = o;
       break;
+    case GroupType.Custom:
+      switch (lastPacket.type) {
+        case "artifact":
+          parsedTitle = "Artifact";
+          parsedOutput = lastPacket.url.toString();
+          break;
+        case "contextAndTools":
+          parsedTitle = "Pick Context and Tools";
+          parsedOutput = stringify(lastPacket.synthesizedContext?.join("\n "));
+          break;
+        case "refine":
+          parsedTitle = "Refine";
+          parsedOutput = "…";
+          break;
+        case "review":
+          parsedTitle = "Review";
+          parsedOutput = "…";
+          break;
+        case "rewrite":
+          parsedTitle = "Rewrite";
+          parsedOutput = "…";
+          break;
+      }
     case GroupType.Skill:
       const toolName: string | undefined = group.reduce(
         (acc: string | undefined, packet) => {
@@ -419,6 +451,82 @@ const TaskResultTitle = ({
   );
 };
 
+const SynthesizedContextValue = ({
+  synthesizedContext,
+  isOpen,
+}: {
+  synthesizedContext: string[];
+  isOpen: boolean;
+}): React.ReactNode => {
+  if (isOpen) {
+    return (
+      <List sx={{ p: 0 }} marker="circle">
+        {synthesizedContext.map((c) => (
+          <ListItem key={c}>
+            <ListItemContent>
+              <Typography
+                level="body-sm"
+                sx={{
+                  wordBreak: "break-word",
+                  maxLines: 1,
+                  textOverflow: "ellipsis",
+                  p: 1,
+                }}
+              >
+                {c}
+              </Typography>
+            </ListItemContent>
+          </ListItem>
+        ))}
+      </List>
+    );
+  } else {
+    return (
+      <Typography
+        level="body-sm"
+        sx={{
+          wordBreak: "break-word",
+          maxLines: 1,
+          textOverflow: "ellipsis",
+          p: 1,
+        }}
+      >
+        {synthesizedContext.join(" • ")}
+      </Typography>
+    );
+  }
+};
+
+const SynthesizedContextTitle = ({
+  synthesizedContext,
+  isOpen,
+}: {
+  synthesizedContext: string[];
+  isOpen: boolean;
+}) => {
+  return (
+    <Typography
+      level="title-lg"
+      sx={{
+        p: 0.25,
+        m: 0.25,
+        maxLines: 1,
+        whiteSpace: isOpen ? "normal" : "nowrap",
+        overflow: isOpen ? "visible" : "hidden",
+        textOverflow: isOpen ? "clip" : "ellipsis",
+      }}
+    >
+      Synthesized Context:
+      {isOpen ? null : (
+        <SynthesizedContextValue
+          isOpen={isOpen}
+          synthesizedContext={synthesizedContext}
+        />
+      )}
+    </Typography>
+  );
+};
+
 const TaskResult = ({
   t,
   color: _color,
@@ -481,6 +589,7 @@ const TaskListItem = ({
 }: TaskListItemProps) => {
   const { mode } = useColorScheme();
   const [isResultExpanded, setIsResultExpanded] = useState(false);
+  const [isContextExpanded, setIsContextExpanded] = useState(false);
   const node = useMemo(() => t.findNode(nodes), [nodes, t]);
   const [selectedGroup, setSelectedGroup] = useState<AgentPacket[] | null>(
     null,
@@ -519,6 +628,20 @@ const TaskListItem = ({
     return Object.values(groups).reverse();
   }, [t.packets]);
 
+  const contextAndTools = useMemo(() => {
+    const contextAndTools = findContextAndTools(t.packets);
+    return contextAndTools;
+  }, [t.packets]);
+
+  const mostRelevantOutput = useMemo(() => {
+    const lastPacketGroup = packetGroups.length ? packetGroups[0] : [];
+    const lastPacket = lastPacketGroup?.length
+      ? lastPacketGroup[lastPacketGroup.length - 1]
+      : null;
+    return lastPacket && getMostRelevantOutput(lastPacket as AgentPacket);
+  }, [packetGroups]);
+
+  const color = useMemo(() => statusColor(t), [t, statusColor]);
   if (!node) {
     return null;
   }
@@ -553,13 +676,14 @@ const TaskListItem = ({
           flexWrap: "wrap",
           position: "relative",
           boxShadow: "md",
-          backgroundColor:
-            theme.palette.mode === "dark"
-              ? theme.palette[statusColor(t)!].softBg
-              : theme.palette[statusColor(t)!][300],
+          backgroundColor: !!color
+            ? theme.palette.mode === "dark"
+              ? theme.palette[color].softBg
+              : theme.palette[color][300]
+            : theme.palette.background.surface,
         })}
         variant={mode === "dark" ? "soft" : "outlined"}
-        color={statusColor(t)}
+        color={color}
       >
         {isRunning && t.status === TaskStatus.working && (
           <LinearProgress
@@ -594,7 +718,7 @@ const TaskListItem = ({
             <Typography
               level="body-lg"
               variant="outlined"
-              color={statusColor(t)}
+              color={color}
               sx={(theme) => ({
                 boxShadow: theme.palette.mode === "light" ? "sm" : "none",
                 ml: -0.5,
@@ -723,7 +847,7 @@ const TaskListItem = ({
               >
                 <Typography level="title-lg">Actions:</Typography>
                 <Chip sx={{ minWidth: "2.5rem", textAlign: "center" }}>
-                  {Math.round(packetGroups.length / 2)}
+                  {packetGroups.length}
                 </Chip>
               </Sheet>
               <List
@@ -788,6 +912,38 @@ const TaskListItem = ({
           >
             <Accordion
               sx={{ maxWidth: "100%" }}
+              expanded={isContextExpanded}
+              onChange={(event, expanded) => {
+                setIsContextExpanded(expanded);
+                event.stopPropagation();
+                event.preventDefault();
+              }}
+              onClick={(event) => {
+                event.preventDefault();
+                event.stopPropagation();
+              }}
+              component={Stack}
+              direction={isContextExpanded ? "column" : "row"}
+            >
+              <AccordionSummary>
+                <SynthesizedContextTitle
+                  isOpen={isContextExpanded}
+                  synthesizedContext={contextAndTools?.synthesizedContext ?? []}
+                />
+              </AccordionSummary>
+              <AccordionDetails>
+                {isContextExpanded && (
+                  <SynthesizedContextValue
+                    isOpen={isContextExpanded}
+                    synthesizedContext={
+                      contextAndTools?.synthesizedContext ?? []
+                    }
+                  />
+                )}
+              </AccordionDetails>
+            </Accordion>
+            <Accordion
+              sx={{ maxWidth: "100%" }}
               expanded={isResultExpanded}
               onChange={(event, expanded) => {
                 setIsResultExpanded(expanded);
@@ -803,26 +959,26 @@ const TaskListItem = ({
                   return;
                 }
               }}
+              component={Stack}
+              direction={isResultExpanded ? "column" : "row"}
             >
               <AccordionSummary>
-                <Stack direction={"row"}>
-                  <TaskResultTitle
+                <TaskResultTitle
+                  t={t}
+                  color={statusColor(t)}
+                  isOpen={true}
+                  nodes={nodes}
+                  edges={edges}
+                />
+                {!isResultExpanded && (
+                  <TaskResult
                     t={t}
                     color={statusColor(t)}
-                    isOpen={true}
                     nodes={nodes}
                     edges={edges}
+                    isExpanded={false}
                   />
-                  {!isResultExpanded && (
-                    <TaskResult
-                      t={t}
-                      color={statusColor(t)}
-                      nodes={nodes}
-                      edges={edges}
-                      isExpanded={false}
-                    />
-                  )}
-                </Stack>
+                )}
               </AccordionSummary>
               <AccordionDetails>
                 <TaskResult
@@ -830,7 +986,7 @@ const TaskListItem = ({
                   color={statusColor(t)}
                   nodes={nodes}
                   edges={edges}
-                  isExpanded={true}
+                  isExpanded={isResultExpanded}
                 />
               </AccordionDetails>
             </Accordion>

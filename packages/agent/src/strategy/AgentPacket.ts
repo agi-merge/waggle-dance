@@ -46,7 +46,10 @@ export type AgentPacketType =
   | "starting"
   | "working"
   | "idle"
-  | "contextAndTools";
+  | "contextAndTools"
+  | "rewrite"
+  | "refine"
+  | "review";
 
 export const AgentPacketFinishedTypes = [
   "handleAgentEnd",
@@ -259,6 +262,9 @@ export type WaggleDanceAgentPacket =
     } & BaseAgentPacketWithIds)
   | ({
       type: "rewrite";
+    } & BaseAgentPacketWithIds)
+  | ({
+      type: "review";
     } & BaseAgentPacketWithIds)
   | ({ type: "artifact"; url: string | URL } & BaseAgentPacketWithIds);
 
