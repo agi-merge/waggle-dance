@@ -743,6 +743,70 @@ const TaskListItem = ({
           </Tooltip>
           {node.name}
         </Typography>
+        <Stack
+          direction={"row"}
+          gap={0.75}
+          sx={{
+            justifyContent: "flex-end",
+            width: "100%",
+            position: "sticky",
+            bottom: 0,
+            right: 0,
+          }}
+        >
+          {mostRelevantOutput?.title && (
+            <Tooltip title={"Latest Action"}>
+              <Typography
+                level="body-xs"
+                component={Chip}
+                variant="soft"
+                color={color}
+                sx={(theme) => ({
+                  pt: 0.75,
+                  borderRadius: 0,
+                  borderLeft: "1px solid",
+                  borderTop: "1px solid",
+                  boxShadow: theme.palette.mode === "light" ? "sm" : "none",
+                })}
+              >
+                {mostRelevantOutput.title}
+              </Typography>
+            </Tooltip>
+          )}
+          <Tooltip title={"Task Identifier"}>
+            <Typography
+              level="body-xs"
+              component={Chip}
+              variant="soft"
+              color={color}
+              sx={(theme) => ({
+                pt: 0.75,
+                borderRadius: 0,
+                borderLeft: "1px solid",
+                borderTop: "1px solid",
+                boxShadow: theme.palette.mode === "light" ? "sm" : "none",
+              })}
+            >
+              {t.displayId}
+            </Typography>
+          </Tooltip>
+          <Typography
+            color={color}
+            level="body-xs"
+            component={Chip}
+            variant="soft"
+            sx={(theme) => ({
+              p: 0.5,
+              pt: 0.75,
+              borderRadius: 0,
+              borderLeft: "1px solid",
+              borderTop: "1px solid",
+              boxShadow: theme.palette.mode === "light" ? "sm" : "none",
+            })}
+          >
+            {mapPacketTypeToStatus(t.value.type)}
+          </Typography>
+        </Stack>
         <AccordionGroup
           sx={(theme) => ({
             width: "100%",
@@ -768,7 +832,8 @@ const TaskListItem = ({
                 (contextAndTools?.tools?.length ?? 0) === 0 ||
                 t.status === TaskStatus.idle
               }
-              sx={{ flex: "1 1 auto", p: 0, m: 0 }}
+              sx={{ flex: "1 1 auto", p: 0, mx: -0.2 }}
+              color={color}
             >
               <AccordionSummary
                 sx={{
@@ -788,6 +853,7 @@ const TaskListItem = ({
                     alignSelf: "center",
                     whiteSpace: "nowrap",
                     mr: 0,
+                    pt: 0.5,
                     maxLines: 1,
                     background: "transparent",
                   }}
@@ -814,65 +880,6 @@ const TaskListItem = ({
               </AccordionDetails>
             </Accordion>
           )}
-          <Stack
-            direction={"row"}
-            gap={0.75}
-            sx={{
-              justifyContent: "flex-end",
-              width: "100%",
-              position: "sticky",
-              bottom: 0,
-              right: 0,
-            }}
-          >
-            {mostRelevantOutput?.title && (
-              <Tooltip title={"Latest Action"}>
-                <Typography
-                  level="body-xs"
-                  component={Chip}
-                  variant="outlined"
-                  sx={(theme) => ({
-                    pt: 0.75,
-                    borderRadius: 0,
-                    background: "transparent",
-                    boxShadow: theme.palette.mode === "light" ? "sm" : "none",
-                  })}
-                >
-                  {mostRelevantOutput.title}
-                </Typography>
-              </Tooltip>
-            )}
-            <Tooltip title={"Task Identifier"}>
-              <Typography
-                level="body-xs"
-                component={Chip}
-                variant="outlined"
-                sx={(theme) => ({
-                  pt: 0.75,
-                  borderRadius: 0,
-                  background: "transparent",
-                  boxShadow: theme.palette.mode === "light" ? "sm" : "none",
-                })}
-              >
-                {t.displayId}
-              </Typography>
-            </Tooltip>
-            <Typography
-              color={color}
-              level="body-xs"
-              component={Chip}
-              variant="outlined"
-              sx={(theme) => ({
-                p: 0.5,
-                pt: 0.75,
-                background: "transparent",
-                borderRadius: 0,
-                boxShadow: theme.palette.mode === "light" ? "sm" : "none",
-              })}
-            >
-              {mapPacketTypeToStatus(t.value.type)}
-            </Typography>
-          </Stack>
         </AccordionGroup>
       </ListItemDecorator>
       <ListItemContent
