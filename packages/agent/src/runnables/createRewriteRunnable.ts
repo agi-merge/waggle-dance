@@ -83,7 +83,7 @@ export async function createRewriteRunnable({
   const smartHelperModel = createModel(
     {
       ...creationProps,
-      modelName: LLM_ALIASES["fast"],
+      modelName: LLM_ALIASES["smart-xlarge"],
     },
     ModelStyle.Chat,
   ) as ChatOpenAI;

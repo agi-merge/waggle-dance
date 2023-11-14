@@ -188,7 +188,7 @@ export async function callExecutionAgent(
         executionId,
         namespace,
         returnType,
-        modelName: creationProps.modelName || LLM_ALIASES["fast"],
+        modelName: creationProps.modelName!,
       });
   const tags = [
     isCriticism ? "criticize" : "execute",
@@ -265,7 +265,7 @@ export async function callExecutionAgent(
   const smallSmartHelperModel = createModel(
     {
       ...creationProps,
-      modelName: LLM_ALIASES["fast-large"],
+      modelName: LLM_ALIASES["smart-xlarge"],
       maxTokens: 300,
       maxConcurrency: 2,
     },
@@ -520,7 +520,7 @@ export async function callExecutionAgent(
     const mediumSmartHelperModel = createModel(
       {
         ...creationProps,
-        modelName: LLM_ALIASES["fast-large"],
+        modelName: LLM_ALIASES["smart-xlarge"],
         maxTokens: 600,
         maxConcurrency: 2,
       },
