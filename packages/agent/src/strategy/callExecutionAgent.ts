@@ -248,11 +248,22 @@ export async function callExecutionAgent(
     memories = "None yet";
   }
 
+  // humanReadable function
+  const humanReadable = (fnName: string) => {
+    return fnName
+      .replace(/_/g, " ") // replace underscores with spaces
+      .replace(/-/g, " ") // replace hyphens with spaces
+      .replace(/([a-z])([A-Z])/g, "$1 $2") // insert space between a lowercase and uppercase letter
+      .replace(/\b\w/g, (l) => l.toUpperCase()); // convert first letter of each word to uppercase
+  };
+
   const inputTaskAndGoal: ToolsAndContextPickingInput = {
     ...taskAndGoal,
     longTermMemories: memories,
     // availableDataSources: [],
-    availableTools: skills.map((s) => s.type),
+    availableTools: skills.map((s) =>
+      humanReadable(s.type === "function" ? s.function.name : s.type),
+    ),
   };
 
   const inputTaskAndGoalString = stringifyByMime(returnType, inputTaskAndGoal);
@@ -333,12 +344,11 @@ export async function callExecutionAgent(
   // filter all available tools by the ones that were selected by the context and tools selection agent
   const filteredSkills = (contextAndTools.tools ?? []).flatMap((t) => {
     return skills.filter((s) =>
-      s.type === "function" ? t === s.function.name : s.type === t,
+      s.type === "function"
+        ? humanReadable(t) === humanReadable(s.function.name)
+        : s.type === humanReadable(t),
     );
   });
-  // const filteredSkills = (contextAndTools.tools ?? []).flatMap((t) => {
-  //   return _skills.filter((s) => s.name === t);
-  // });
 
   const runName = isCriticism ? `Criticize ${taskObj.id}` : `Exe ${taskObj.id}`;
   const executor = await initializeExecutor(
