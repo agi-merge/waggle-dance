@@ -754,25 +754,40 @@ const TaskListItem = ({
             right: 0,
           }}
         >
-          {mostRelevantOutput?.title && (
-            <Tooltip title={"Latest Action"}>
-              <Typography
-                level="body-xs"
-                component={Chip}
-                variant="soft"
-                color={color}
-                sx={(theme) => ({
-                  pt: 0.75,
-                  borderRadius: 0,
-                  borderLeft: "1px solid",
-                  borderTop: "1px solid",
-                  boxShadow: theme.palette.mode === "light" ? "sm" : "none",
-                })}
-              >
-                {mostRelevantOutput.title}
-              </Typography>
-            </Tooltip>
-          )}
+          <Tooltip title={"Number of actions/steps taken by the agent"}>
+            <Typography
+              level="body-xs"
+              component={Chip}
+              variant="soft"
+              color={color}
+              sx={(theme) => ({
+                pt: 0.75,
+                borderRadius: 0,
+                borderLeft: "1px solid",
+                borderTop: "1px solid",
+                boxShadow: theme.palette.mode === "light" ? "sm" : "none",
+              })}
+            >
+              Step {packetGroups.length}
+            </Typography>
+          </Tooltip>
+          <Tooltip title={"Latest Action"}>
+            <Typography
+              level="body-xs"
+              component={Chip}
+              variant="soft"
+              color={color}
+              sx={(theme) => ({
+                pt: 0.75,
+                borderRadius: 0,
+                borderLeft: "1px solid",
+                borderTop: "1px solid",
+                boxShadow: theme.palette.mode === "light" ? "sm" : "none",
+              })}
+            >
+              {mostRelevantOutput?.title ?? "Idle"}
+            </Typography>
+          </Tooltip>
           <Tooltip title={"Task Identifier"}>
             <Typography
               level="body-xs"
