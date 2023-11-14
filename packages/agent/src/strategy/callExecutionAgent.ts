@@ -192,7 +192,7 @@ export async function callExecutionAgent(
 
   void handlePacketCallback({
     type: "contextAndTools",
-    contextAndTools,
+    ...contextAndTools,
     runId,
   });
 

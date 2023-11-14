@@ -9,11 +9,13 @@ export const mapPacketTypeToStatus = (
     case "handleAgentEnd":
     case "artifact":
       return TaskStatus.done;
+
     case "error":
     case "handleLLMError":
     case "handleChainError":
     case "handleAgentError":
       return TaskStatus.error;
+
     case "working":
     case "t":
     case "handleToolError":
@@ -31,12 +33,9 @@ export const mapPacketTypeToStatus = (
     case "handleRetrieverEnd":
     case "handleChatModelEnd":
     case "handleChatModelStart":
+    case "contextAndTools":
       return TaskStatus.working;
-    case "handleChatModelEnd":
-    case "handleChatModelStart":
-    case "handleRetrieverEnd":
-    case "handleRetrieverStart":
-      return TaskStatus.working;
+
     case "idle":
     case undefined:
       return TaskStatus.idle;

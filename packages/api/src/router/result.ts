@@ -1,4 +1,5 @@
 import { type Prisma } from "@prisma/client";
+import { v4 } from "uuid";
 import { z } from "zod";
 
 import {
@@ -139,6 +140,7 @@ export const resultRouter = createTRPCRouter({
           const stubValue: AgentPacket = {
             type: "artifact",
             url: artifactUrl,
+            runId: v4(),
           };
           // create the result
           const result = await ctx.prisma.result.create({

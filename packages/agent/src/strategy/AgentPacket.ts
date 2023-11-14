@@ -12,6 +12,8 @@ import {
 import { parse as jsonParse } from "superjson";
 import { parse as yamlParse } from "yaml";
 
+import { type ContextAndTools } from "./execute/callExecutionAgent.types";
+
 export type ChainValues = Record<string, unknown>;
 export type BaseAgentPacket = {
   type: AgentPacketType;
@@ -39,10 +41,12 @@ export type AgentPacketType =
   | "handleToolStart"
   | "handleAgentAction"
   | "handleText"
+  | "handleToolError"
+  // ours
   | "starting"
   | "working"
   | "idle"
-  | "handleToolError";
+  | "contextAndTools";
 
 export const AgentPacketFinishedTypes = [
   "handleAgentEnd",
@@ -134,6 +138,28 @@ export const findResult = (packets: AgentPacket[]): string => {
   }
 };
 
+export const findContextAndTools = (
+  packets: AgentPacket[],
+): ContextAndTools | null => {
+  const lastContextAndToolsPacket = packets.findLast((packet) => {
+    try {
+      return packet.type === "contextAndTools";
+    } catch (err) {
+      return false;
+    }
+  }) as
+    | ({
+        type: "contextAndTools";
+      } & ContextAndTools)
+    | null;
+
+  return {
+    synthesizedContext:
+      lastContextAndToolsPacket?.synthesizedContext ?? undefined,
+    tools: lastContextAndToolsPacket?.tools ?? undefined,
+  };
+};
+
 const extractText = (
   outputs: ChainValues | Generation | { text: string },
 ): { title: string; output: string } | undefined => {
@@ -211,14 +237,35 @@ export function getMostRelevantOutput(packet: AgentPacket): {
       return { title: "Retrieve", output: String(packet.err) };
     case "handleChatModelStart":
       return { title: "?", output: String(packet.llm) };
+    case "working":
+      return { title: "Working", output: "working" };
+    case "idle":
+      return { title: "Idle", output: "idle" };
+    case "starting":
+      return { title: "Starting", output: "starting" };
+    case "handleToolStart":
+      return { title: "Skill", output: packet.input };
     default:
       return { title: "", output: "None" };
   }
 }
+export type WaggleDanceAgentPacket =
+  | ({
+      type: "contextAndTools";
+    } & BaseAgentPacketWithIds &
+      ContextAndTools)
+  | ({
+      type: "refine";
+    } & BaseAgentPacketWithIds)
+  | ({
+      type: "rewrite";
+    } & BaseAgentPacketWithIds)
+  | ({ type: "artifact"; url: string | URL } & BaseAgentPacketWithIds);
 
 // TODO: group these by origination for different logic, or maybe different typings
 
 export type AgentPacket =
+  | WaggleDanceAgentPacket
   | ({
       type: "handleChatModelStart";
       llm: Serialized;
@@ -296,7 +343,6 @@ export type AgentPacket =
       severity: "warn" | "human" | "fatal";
       error: string;
     } & BaseAgentPacket)
-  | ({ type: "artifact"; url: string | URL } & BaseAgentPacket)
   // client-side only
   | ({ type: "starting"; nodeId: string } & BaseAgentPacket)
   | ({ type: "working"; nodeId: string } & BaseAgentPacket)
