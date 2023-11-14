@@ -265,7 +265,7 @@ export async function callExecutionAgent(
   const smallSmartHelperModel = createModel(
     {
       ...creationProps,
-      modelName: LLM_ALIASES["smart-xlarge"],
+      modelName: LLM_ALIASES["fast-large"],
       maxTokens: 300,
       maxConcurrency: 2,
     },
@@ -531,7 +531,7 @@ export async function callExecutionAgent(
     const mediumSmartHelperModel = createModel(
       {
         ...creationProps,
-        modelName: LLM_ALIASES["smart-xlarge"],
+        modelName: LLM_ALIASES["fast-large"],
         maxTokens: 600,
         maxConcurrency: 2,
       },
@@ -605,17 +605,19 @@ async function initializeExecutor(
   memory: MemoryType,
   runName: string,
   systemMessage: MessageContent | undefined,
-  humanMessage: MessageContent | undefined,
+  _humanMessage: MessageContent | undefined,
   callbacks: Callbacks | undefined,
 ) {
-  const structuredTools = tools.filter(
-    (t) => (t as StructuredTool) !== undefined,
-  ) as StructuredTool[];
   let executor;
   const agentType = getAgentPromptingMethodValue(agentPromptingMethod);
   let options:
     | InitializeAgentExecutorOptions
     | InitializeAgentExecutorOptionsStructured;
+
+  // traditional agents do not support OpenAI Capabilities (Tools)
+  const structuredTools = tools.filter(
+    (t) => (t as StructuredTool) !== undefined,
+  ) as StructuredTool[];
   if (
     InitializeAgentExecutorOptionsAgentTypes.includes(
       agentType as InitializeAgentExecutorOptionsAgentType,
@@ -625,10 +627,10 @@ async function initializeExecutor(
       agentType,
       earlyStoppingMethod: "generate",
       returnIntermediateSteps: true,
-      maxIterations: 5,
+      maxIterations: 15,
       ...creationProps,
       tags,
-      handleParsingErrors: false,
+      handleParsingErrors: true,
     } as InitializeAgentExecutorOptions;
 
     if (
@@ -652,9 +654,10 @@ async function initializeExecutor(
       agentType: agentType,
       returnIntermediateSteps: true,
       earlyStoppingMethod: "generate",
-      handleParsingErrors: false,
-      maxIterations: 5,
+      handleParsingErrors: true,
+      maxIterations: 15,
       ...creationProps,
+      callbacks,
       tags,
     } as InitializeAgentExecutorOptionsStructured;
 
@@ -670,8 +673,9 @@ async function initializeExecutor(
   } else if (agentPromptingMethod === AgentPromptingMethod.PlanAndExecute) {
     executor = PlanAndExecuteAgentExecutor.fromLLMAndTools({
       llm,
-      tools: tools as Tool[],
+      tools: structuredTools as Tool[],
       tags,
+      callbacks,
     });
   } else {
     //if (agentPromptingMethod === AgentPromptingMethod.OpenAIAssistant) {
@@ -679,7 +683,7 @@ async function initializeExecutor(
       model: LLM_ALIASES["smart-xlarge"],
       instructions: systemMessage!.toString(),
       name: "Planning Agent",
-      tools: structuredTools,
+      tools,
       asAgent: true,
     });
 
@@ -702,11 +706,11 @@ async function initializeExecutor(
       tools: structuredTools,
       earlyStoppingMethod: "generate",
       returnIntermediateSteps: true,
-      maxIterations: 5,
+      maxIterations: 15,
       ...creationProps,
       callbacks,
       tags,
-      handleParsingErrors: false,
+      handleParsingErrors: true,
     }); //.pipe(outputFixingParser);
   }
   return executor;
