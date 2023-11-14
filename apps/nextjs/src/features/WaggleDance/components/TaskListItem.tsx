@@ -206,7 +206,7 @@ const getGroupOutput = (group: AgentPacket[]): GroupOutput | null => {
           parsedOutput = lastPacket.url.toString();
           break;
         case "contextAndTools":
-          parsedTitle = "Pick Context and Tools";
+          parsedTitle = "Synthesize Context & Tools";
           parsedOutput = stringify(lastPacket.synthesizedContext?.join("\n "));
           break;
         case "refine":

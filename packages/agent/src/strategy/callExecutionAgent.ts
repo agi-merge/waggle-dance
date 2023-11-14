@@ -191,7 +191,7 @@ export async function callExecutionAgent(
     .pipe(
       smallSmartHelperModel.bind({
         signal: abortSignal,
-        runName: "Pick Context and Tools",
+        runName: "Synthesize Context & Tools",
         tags: ["contextAndTools", ...tags],
         callbacks,
       }),
@@ -204,7 +204,7 @@ export async function callExecutionAgent(
     tool: {
       lc: 1,
       type: "not_implemented",
-      id: ["Pick Context and Tools"],
+      id: ["Synthesize Context & Tools"],
     },
     input: inputTaskAndGoalString.slice(0, 100),
     runId,
@@ -215,7 +215,7 @@ export async function callExecutionAgent(
     {
       tags: ["contextAndTools", ...tags],
       callbacks,
-      runName: "Pick Context and Tools",
+      runName: "Synthesize Context & Tools",
     },
   );
 
