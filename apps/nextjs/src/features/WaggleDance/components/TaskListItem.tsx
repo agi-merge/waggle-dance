@@ -396,10 +396,12 @@ const TaskResultsValue = ({
   t,
   nodes,
   edges,
+  isOpen,
 }: {
   t: TaskState;
   nodes: DraftExecutionNode[];
   edges: DraftExecutionEdge[];
+  isOpen: boolean;
 }) => {
   return (
     <Typography
@@ -408,6 +410,7 @@ const TaskResultsValue = ({
         wordBreak: "break-word",
         maxLines: 1,
         textOverflow: "ellipsis",
+        overflow: isOpen ? "visible" : "hidden",
         p: 1,
       }}
     >
@@ -446,7 +449,9 @@ const TaskResultTitle = ({
       }}
     >
       {t.status === TaskStatus.error ? "Error: " : "Result: "}
-      {isOpen ? null : <TaskResultsValue t={t} nodes={nodes} edges={edges} />}
+      {isOpen ? null : (
+        <TaskResultsValue t={t} nodes={nodes} edges={edges} isOpen={isOpen} />
+      )}
     </Typography>
   );
 };
@@ -460,9 +465,10 @@ const SynthesizedContextValue = ({
 }): React.ReactNode => {
   if (isOpen) {
     return (
-      <List sx={{ p: 0 }} marker="circle">
+      <List sx={{ p: 0 }}>
         {synthesizedContext.map((c) => (
-          <ListItem key={c}>
+          <ListItem key={c} component={Box}>
+            <ListItemDecorator>→</ListItemDecorator>
             <ListItemContent>
               <Typography
                 level="body-sm"
@@ -668,6 +674,8 @@ const TaskListItem = ({
             xs: "row",
             sm: "column",
           },
+          p: 0,
+          overflow: "clip",
           alignSelf: "start",
           alignItems: "start",
           zIndex: 2,
@@ -696,7 +704,7 @@ const TaskListItem = ({
             }}
             determinate={false}
             thickness={2}
-            color={statusColor(t)}
+            color={color}
           />
         )}
         <Typography
@@ -704,6 +712,7 @@ const TaskListItem = ({
           textAlign={"left"}
           sx={{
             width: "100%",
+            p: 1,
           }}
         >
           <Tooltip
@@ -734,47 +743,137 @@ const TaskListItem = ({
           </Tooltip>
           {node.name}
         </Typography>
-        <Stack
-          direction={"row"}
-          gap={2}
-          sx={{
-            justifyContent: "flex-end",
+        <AccordionGroup
+          sx={(theme) => ({
             width: "100%",
-            position: "sticky",
-            bottom: 0,
-            right: 0,
-          }}
+            borderEndStartRadius: "sm",
+            borderEndEndRadius: "sm",
+            backdropFilter: "blur(10px)",
+            backgroundColor: theme.palette.background.body,
+            overflow: "clip",
+            p: 0,
+            m: 0,
+          })}
+          variant="plain"
+          component={Sheet}
         >
-          <Tooltip title={"Task Identifier"}>
+          {(contextAndTools?.tools?.length ?? 0) > 0 && (
+            <Accordion
+              variant="outlined"
+              onChange={(e) => {
+                e.stopPropagation();
+                e.preventDefault();
+              }}
+              disabled={
+                (contextAndTools?.tools?.length ?? 0) === 0 ||
+                t.status === TaskStatus.idle
+              }
+              sx={{ flex: "1 1 auto", p: 0, m: 0 }}
+            >
+              <AccordionSummary
+                sx={{
+                  verticalAlign: "middle",
+                }}
+              >
+                <Typography
+                  level="body-sm"
+                  component={Chip}
+                  color={color}
+                  sx={{
+                    fontFamily: "monospace",
+                    fontSize: "0.7rem",
+                    overflow: "hidden",
+                    textOverflow: "ellipsis",
+                    wordBreak: "break-word",
+                    alignSelf: "center",
+                    whiteSpace: "nowrap",
+                    mr: 0,
+                    maxLines: 1,
+                    background: "transparent",
+                  }}
+                >
+                  ({contextAndTools?.tools?.length ?? "?"}) Skills
+                </Typography>
+              </AccordionSummary>
+
+              <AccordionDetails>
+                <List wrap={true} orientation="horizontal">
+                  {contextAndTools?.tools?.map((tool) => (
+                    <ListItem key={`x-${tool}`} sx={{ p: 0 }}>
+                      <ListItemDecorator sx={{ ml: -3, pl: 3 }}>
+                        ・
+                      </ListItemDecorator>
+                      <ListItemContent sx={{ pr: 2 }}>
+                        <Typography level="body-xs" fontSize={"0.6rem"}>
+                          {tool}
+                        </Typography>
+                      </ListItemContent>
+                    </ListItem>
+                  ))}
+                </List>
+              </AccordionDetails>
+            </Accordion>
+          )}
+          <Stack
+            direction={"row"}
+            gap={0.75}
+            sx={{
+              justifyContent: "flex-end",
+              width: "100%",
+              position: "sticky",
+              bottom: 0,
+              right: 0,
+            }}
+          >
+            {mostRelevantOutput?.title && (
+              <Tooltip title={"Latest Action"}>
+                <Typography
+                  level="body-xs"
+                  component={Chip}
+                  variant="outlined"
+                  sx={(theme) => ({
+                    pt: 0.75,
+                    borderRadius: 0,
+                    background: "transparent",
+                    boxShadow: theme.palette.mode === "light" ? "sm" : "none",
+                  })}
+                >
+                  {mostRelevantOutput.title}
+                </Typography>
+              </Tooltip>
+            )}
+            <Tooltip title={"Task Identifier"}>
+              <Typography
+                level="body-xs"
+                component={Chip}
+                variant="outlined"
+                sx={(theme) => ({
+                  pt: 0.75,
+                  borderRadius: 0,
+                  background: "transparent",
+                  boxShadow: theme.palette.mode === "light" ? "sm" : "none",
+                })}
+              >
+                {t.displayId}
+              </Typography>
+            </Tooltip>
             <Typography
-              level="body-sm"
+              color={color}
+              level="body-xs"
               component={Chip}
               variant="outlined"
-              color={statusColor(t)}
               sx={(theme) => ({
-                pt: 0.5,
+                p: 0.5,
+                pt: 0.75,
                 background: "transparent",
+                borderRadius: 0,
                 boxShadow: theme.palette.mode === "light" ? "sm" : "none",
               })}
             >
-              {t.displayId}
+              {mapPacketTypeToStatus(t.value.type)}
             </Typography>
-          </Tooltip>
-          <Typography
-            color={statusColor(t)}
-            level="body-sm"
-            component={Chip}
-            variant="outlined"
-            sx={(theme) => ({
-              p: 0.5,
-              pt: 0.5,
-              background: "transparent",
-              boxShadow: theme.palette.mode === "light" ? "sm" : "none",
-            })}
-          >
-            {mapPacketTypeToStatus(t.value.type)}
-          </Typography>
-        </Stack>
+          </Stack>
+        </AccordionGroup>
       </ListItemDecorator>
       <ListItemContent
         sx={{
@@ -798,7 +897,7 @@ const TaskListItem = ({
           sx={{ boxShadow: "xl" }}
         >
           <ListItemButton
-            color={statusColor(t)}
+            color={color}
             variant="plain"
             sx={{ p: "0.1rem", m: 0, borderRadius: "0.1rem" }}
             onClick={(e) => {
@@ -907,8 +1006,12 @@ const TaskListItem = ({
           </ListItemButton>
           <AccordionGroup
             variant="outlined"
-            color={statusColor(t)}
+            color={color}
             sx={{ overflow: "clip", cursor: "auto" }}
+            onClick={(e) => {
+              e.preventDefault();
+              e.stopPropagation();
+            }}
           >
             <Accordion
               sx={{ maxWidth: "100%" }}
@@ -931,15 +1034,16 @@ const TaskListItem = ({
                   synthesizedContext={contextAndTools?.synthesizedContext ?? []}
                 />
               </AccordionSummary>
-              <AccordionDetails>
-                {isContextExpanded && (
-                  <SynthesizedContextValue
-                    isOpen={isContextExpanded}
-                    synthesizedContext={
-                      contextAndTools?.synthesizedContext ?? []
-                    }
-                  />
-                )}
+              <AccordionDetails
+                onClick={(e) => {
+                  e.preventDefault();
+                  e.stopPropagation();
+                }}
+              >
+                <SynthesizedContextValue
+                  isOpen={isContextExpanded}
+                  synthesizedContext={contextAndTools?.synthesizedContext ?? []}
+                />
               </AccordionDetails>
             </Accordion>
             <Accordion
@@ -954,6 +1058,9 @@ const TaskListItem = ({
                 event.preventDefault();
                 event.stopPropagation();
                 if (event.target instanceof HTMLAnchorElement) {
+                  if (event.target.href.startsWith("#")) {
+                    return;
+                  }
                   // open link
                   window.open(event.target.href, "_blank");
                   return;
@@ -965,28 +1072,19 @@ const TaskListItem = ({
               <AccordionSummary>
                 <TaskResultTitle
                   t={t}
-                  color={statusColor(t)}
-                  isOpen={true}
+                  color={color}
+                  isOpen={isResultExpanded}
                   nodes={nodes}
                   edges={edges}
                 />
-                {!isResultExpanded && (
-                  <TaskResult
-                    t={t}
-                    color={statusColor(t)}
-                    nodes={nodes}
-                    edges={edges}
-                    isExpanded={false}
-                  />
-                )}
               </AccordionSummary>
               <AccordionDetails>
                 <TaskResult
                   t={t}
-                  color={statusColor(t)}
                   nodes={nodes}
                   edges={edges}
                   isExpanded={isResultExpanded}
+                  color={color}
                 />
               </AccordionDetails>
             </Accordion>
