@@ -12,7 +12,7 @@
   },
   "dependencies": {
     "@acme/db": "^0.1.0",
-    "axios": "^1.6.1",
+    "axios": "^1.6.2",
     "cheerio": "1.0.0-rc.12",
     "graphql": "^16.8.1",
     "js-tiktoken": "^1.0.7",
