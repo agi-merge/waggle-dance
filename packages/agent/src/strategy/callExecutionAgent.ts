@@ -1,7 +1,6 @@
 // agent/strategy/callExecutionAgent.ts
 import { isAbortError } from "next/dist/server/pipe-readable";
 import { type ChatOpenAI } from "langchain/chat_models/openai";
-import { type OpenAIToolType } from "langchain/dist/experimental/openai_assistant/schema";
 import { type StructuredTool } from "langchain/dist/tools/base";
 import { loadEvaluator } from "langchain/evaluation";
 import {
@@ -182,7 +181,7 @@ export async function callExecutionAgent(
   namespace && tags.push(namespace);
   creationProps.modelName && tags.push(creationProps.modelName);
 
-  const _skills = createSkills(
+  const skills = createSkills(
     exeLLM,
     embeddings,
     agentPromptingMethod,
@@ -193,11 +192,9 @@ export async function callExecutionAgent(
     geo,
   );
 
-  const skills: OpenAIToolType = [
-    ..._skills.map((s) => formatToOpenAIAssistantTool(s)),
-    { type: "code_interpreter" },
-    { type: "retrieval" },
-  ];
+  // const skills: OpenAIToolType = [
+  //   ..._skills.map((s) => formatToOpenAIAssistantTool(s)),
+  // ];
 
   const taskAndGoal = {
     task: `${taskObj.name}`,
@@ -209,14 +206,15 @@ export async function callExecutionAgent(
   if (extractTier(taskObj.id) !== "1") {
     const retrieveMemoriesRunId = v4(); // generate a new UUID for the runId
 
+    const retrievals = [stringifyByMime(returnType, taskAndGoal)];
     void handlePacketCallback({
       type: "handleToolStart",
-      input: "Retrieve Memories",
+      input: retrievals.join(", "),
       runId: retrieveMemoriesRunId,
       tool: { lc: 1, type: "not_implemented", id: ["Retrieve Memories"] },
     });
     memories = await retrieveMemoriesSkill.skill.func({
-      retrievals: [`${stringifyByMime(returnType, taskAndGoal)}`],
+      retrievals,
       namespace,
     });
 
@@ -243,9 +241,7 @@ export async function callExecutionAgent(
     ...taskAndGoal,
     longTermMemories: memories,
     // availableDataSources: [],
-    availableTools: skills.map((s) =>
-      humanReadable(s.type === "function" ? s.function.name : s.type),
-    ),
+    availableTools: skills.map((s) => humanReadable(s.name)),
   };
 
   const inputTaskAndGoalString = stringifyByMime(returnType, inputTaskAndGoal);
@@ -325,11 +321,8 @@ export async function callExecutionAgent(
 
   // filter all available tools by the ones that were selected by the context and tools selection agent
   const filteredSkills = (contextAndTools.tools ?? []).flatMap((t) => {
-    return skills.filter((s) =>
-      s.type === "function"
-        ? humanReadable(t) === humanReadable(s.function.name)
-        : s.type === humanReadable(t),
-    );
+    const readableT = humanReadable(t);
+    return skills.filter((s) => humanReadable(s.name) === readableT);
   });
 
   const runName = isCriticism ? `Criticize ${taskObj.id}` : `Exe ${taskObj.id}`;
@@ -365,27 +358,25 @@ export async function callExecutionAgent(
           : { lc: 1, type: "not_implemented", id: [runName] },
         runId: callRunId,
       });
-      // combine all messages into a single input string
-      const input: string = formattedMessages
-        .map(
-          (m) =>
-            `[${m._getType().toUpperCase()}]\n${m.content}[/${m
-              ._getType()
-              .toUpperCase()}]`,
-        )
-        .join("\n\n");
+
+      const content = humanMessage?.toString();
+      if (!content) {
+        throw new Error("No content found for OpenAI Assistant");
+      }
       if (agentPromptingMethod === AgentPromptingMethod.OpenAIAssistant) {
-        call = await executor.invoke(
-          {
-            content: input,
-          },
-          {
-            runName: `OpenAIAssistant ${taskObj.id}`,
-            tags,
-            callbacks,
-          },
-        );
+        call = await executor.invoke({
+          content,
+        });
       } else {
+        // combine all messages into a single input string
+        const input: string = formattedMessages
+          .map(
+            (m) =>
+              `[${m._getType().toUpperCase()}]\n${m.content}[/${m
+                ._getType()
+                .toUpperCase()}]`,
+          )
+          .join("\n\n");
         call = await executor.call(
           {
             input,
@@ -406,6 +397,14 @@ export async function callExecutionAgent(
     } catch (error) {
       if (isAbortError(error)) {
         return error;
+      }
+      // re-throw errors that we can't fix
+      if (error as Error) {
+        // regex matching 'input values have n keys, you must specify an input key or pass only 1 key as input'
+        if ((error as Error).message.match(/input values have \d+ keys/)) {
+          call = { output: error };
+          throw error;
+        }
       }
       let errorMessageToParse =
         ((error as Error) && (error as Error).message) || String(error);
@@ -532,7 +531,8 @@ export async function callExecutionAgent(
       const evaluators = [taskFulfillmentEvaluator];
 
       const evaluationRunId = v4();
-      const shouldEvaluate = getMinimumScoreFromEnv() !== null;
+      const minReviewScore = getMinimumScoreFromEnv();
+      const shouldEvaluate = minReviewScore !== null;
       shouldEvaluate &&
         void handlePacketCallback({
           type: "handleToolStart",

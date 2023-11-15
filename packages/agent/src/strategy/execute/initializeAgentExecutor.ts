@@ -7,14 +7,14 @@ import {
 import { type Callbacks } from "langchain/callbacks";
 import { type ChatOpenAI } from "langchain/chat_models/openai";
 import { type InitializeAgentExecutorOptionsStructured } from "langchain/dist/agents/initialize";
-import { type OpenAIToolType } from "langchain/dist/experimental/openai_assistant/schema";
 import { type StructuredTool, type Tool } from "langchain/dist/tools/base";
 import { OpenAIAssistantRunnable } from "langchain/experimental/openai_assistant";
 import { PlanAndExecuteAgentExecutor } from "langchain/experimental/plan_and_execute";
 import { type OpenAI } from "langchain/llms/openai";
 import { type MessageContent } from "langchain/schema";
+import type { OpenAI as OpenAIClient } from "openai";
 
-import { type MemoryType } from "../../..";
+import { formatToOpenAIAssistantTool, type MemoryType } from "../../..";
 import {
   AgentPromptingMethod,
   getAgentPromptingMethodValue,
@@ -26,12 +26,17 @@ import {
 } from "../../utils/llms";
 import { type ModelCreationProps } from "../../utils/OpenAIPropsBridging";
 
+export type OpenAITool =
+  | OpenAIClient.Beta.AssistantCreateParams.AssistantToolsCode
+  | OpenAIClient.Beta.AssistantCreateParams.AssistantToolsRetrieval
+  | OpenAIClient.Beta.AssistantCreateParams.AssistantToolsFunction;
+
 export async function initializeExecutor(
   _goalPrompt: string,
   agentPromptingMethod: AgentPromptingMethod,
   _taskObj: { id: string },
   creationProps: ModelCreationProps,
-  tools: OpenAIToolType | StructuredTool[],
+  tools: StructuredTool[],
   llm: OpenAI | ChatOpenAI,
   tags: string[],
   memory: MemoryType,
@@ -40,9 +45,6 @@ export async function initializeExecutor(
   humanMessage: MessageContent | undefined,
   callbacks: Callbacks | undefined,
 ) {
-  const structuredTools = tools.filter(
-    (t) => "description" in t,
-  ) as StructuredTool[];
   let executor;
   const agentType = getAgentPromptingMethodValue(agentPromptingMethod);
   let options:
@@ -71,7 +73,7 @@ export async function initializeExecutor(
     }
 
     executor = await initializeAgentExecutorWithOptions(
-      structuredTools as Tool[],
+      tools as Tool[],
       llm,
       options,
     );
@@ -94,11 +96,7 @@ export async function initializeExecutor(
       options.memory = memory;
     }
 
-    executor = await initializeAgentExecutorWithOptions(
-      structuredTools,
-      llm,
-      options,
-    );
+    executor = await initializeAgentExecutorWithOptions(tools, llm, options);
   } else if (agentPromptingMethod === AgentPromptingMethod.PlanAndExecute) {
     executor = PlanAndExecuteAgentExecutor.fromLLMAndTools({
       llm,
@@ -106,21 +104,23 @@ export async function initializeExecutor(
       tags,
     });
   } else {
+    const openAIAssistantTools = [
+      ...tools.map(formatToOpenAIAssistantTool),
+      { type: "code_interpreter" },
+      { type: "retrieval" },
+    ] as OpenAITool[];
     //if (agentPromptingMethod === AgentPromptingMethod.OpenAIAssistant) {
     const agent = await OpenAIAssistantRunnable.createAssistant({
       model: LLM_ALIASES["smart-xlarge"],
       instructions: systemMessage!.toString(),
       name: "Execution Agent",
-      tools,
+      tools: openAIAssistantTools,
+      pollIntervalMs: 250,
       asAgent: true,
     });
-
-    // const parser = StructuredOutputParser.fromZodSchema(
-    //   z.custom<PlanWireFormat>(),
-    // );
-
-    // const outputFixingParser = OutputFixingParser.fromLLM(llm, parser);
-
+    const structuredTools = tools
+      .flatMap((t) => t)
+      .filter((t) => "description" in t);
     executor = AgentExecutor.fromAgentAndTools({
       agent,
       memory,
@@ -132,7 +132,7 @@ export async function initializeExecutor(
       callbacks,
       tags,
       handleParsingErrors: true,
-    }); //.pipe(outputFixingParser);
+    });
   }
   return executor;
 }
