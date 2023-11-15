@@ -23,7 +23,7 @@
 ## Quick Start
 
 - [![Cloud Preview](https://img.shields.io/badge/PREVIEW-waggledance.ai-blue?style=flat&logo=world&logoColor=white)](https://waggledance.ai) Try the cloud preview ↗
-- <a href="https://vercel.com/new/clone?repository-url=https%3A%2F%2Fgithub.com%2Fagi-merge%2Fwaggle-dance&env=NEXTAUTH_URL,OPENAI_API_KEY,WEAVIATE_HOST,WEAVIATE_API_KEY,WEAVIATE_SCHEME,LONG_TERM_MEMORY_INDEX_NAME,KV_URL,KV_REST_API_URL,KV_REST_API_TOKEN,KV_REST_API_READ_ONLY_TOKEN,POSTGRES_PRISMA_URL,POSTGRES_URL_NON_POOLING,EDGE_CONFIG,EDGE_CONFIG_WRITE&project-name=waggle-dance&repository-name=waggle-dance" alt="Deploy with Vercel"><img src="https://vercel.com/button" height="20" /></a> Deploy to Vercel
+- <a href="https://vercel.com/new/clone?repository-url=https%3A%2F%2Fgithub.com%2Fagi-merge%2Fwaggle-dance&env=NEXTAUTH_URL,OPENAI_API_KEY,WEAVIATE_HOST,WEAVIATE_API_KEY,WEAVIATE_SCHEME,LONG_TERM_MEMORY_INDEX_NAME,KV_URL,KV_REST_API_URL,KV_REST_API_TOKEN,KV_REST_API_READ_ONLY_TOKEN,POSTGRES_PRISMA_URL,POSTGRES_URL_NON_POOLING,EDGE_CONFIG&project-name=waggle-dance&repository-name=waggle-dance" alt="Deploy with Vercel"><img src="https://vercel.com/button" height="20" /></a> Deploy to Vercel
 - [Build and run from source](#-running-locally-and-development)
 - [Join the Discord](https://discord.gg/ttt9YmhQU6)
 - ⭐️ Help with algorithm: star this repo
