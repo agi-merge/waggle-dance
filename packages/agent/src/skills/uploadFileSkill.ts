@@ -80,6 +80,7 @@ const uploadFileSkill = new DynamicZodSkill({
       const artifact = (await response.json()) as {
         artifact_id: string;
         file_name: string;
+        relative_path: string;
       };
 
       return artifact ? artifact.artifact_id : "Error: unexpected return value";

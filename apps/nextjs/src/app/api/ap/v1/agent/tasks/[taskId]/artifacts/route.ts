@@ -187,7 +187,7 @@ export async function uploadAndSaveResult({
     result,
     artifact: {
       artifact_id: result.id,
-      file_name: blobUrl,
+      file_name: result.id,
       agent_created: true,
       relative_path: blobUrl,
       created_at: result.createdAt.toISOString(),
