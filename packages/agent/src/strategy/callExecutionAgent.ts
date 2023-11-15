@@ -479,31 +479,29 @@ export async function callExecutionAgent(
       runId: rewriteRunId,
     });
 
-    void (async () => {
-      const saveRunId = v4();
-      await handlePacketCallback({
-        type: "handleToolStart",
-        input: bestResponse.slice(0, 100),
-        runId: saveRunId,
-        tool: {
-          lc: 1,
-          type: "not_implemented",
-          id: ["Save to Long-term Memory"],
-        },
-      });
-      // make sure that we are at least saving the task result so that other notes can refer back.
-      const saveOutput = await saveMemoriesSkill.skill.func({
-        memories: [bestResponse],
-        namespace: namespace,
-      });
+    const saveRunId = v4();
+    await handlePacketCallback({
+      type: "handleToolStart",
+      input: bestResponse.slice(0, 100),
+      runId: saveRunId,
+      tool: {
+        lc: 1,
+        type: "not_implemented",
+        id: ["Save to Long-term Memory"],
+      },
+    });
+    // make sure that we are at least saving the task result so that other notes can refer back.
+    const saveOutput = await saveMemoriesSkill.skill.func({
+      memories: [bestResponse],
+      namespace: namespace,
+    });
 
-      await handlePacketCallback({
-        type: "handleToolEnd",
-        lastToolInput: bestResponse.slice(0, 100),
-        output: saveOutput,
-        runId: saveRunId,
-      });
-    })();
+    await handlePacketCallback({
+      type: "handleToolEnd",
+      lastToolInput: bestResponse.slice(0, 100),
+      output: saveOutput,
+      runId: saveRunId,
+    });
 
     const mediumSmartHelperModel = createModel(
       {
