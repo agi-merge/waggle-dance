@@ -12,6 +12,7 @@ import {
 import { WebBrowser } from "langchain/tools/webbrowser";
 
 import cca2Map from "../lib/cca2Map.json";
+import downloadFileSkill from "../skills/downloadFileSkill";
 import requestUserHelpSkill from "../skills/requestUserHelpSkill";
 import uploadFileSkill from "../skills/uploadFileSkill";
 import type Geo from "./Geo";
@@ -133,6 +134,7 @@ const makePrettyOrganicResult = (r: OrganicResult): string => {
     r.is_climate_pledge_friendly ? "Climate Pledge" : ""
   }`;
 };
+
 class AmazonSearch extends SearchApi {
   static lc_name(): string {
     return "Amazon Search";
@@ -226,6 +228,7 @@ function createSkills(
     requestUserHelpSkill.toTool(agentPromptingMethod, returnType),
     // selfHelpSkill.toTool(agentPromptingMethod, returnType),
     uploadFileSkill.toTool(agentPromptingMethod, returnType),
+    downloadFileSkill.toTool(agentPromptingMethod, returnType),
     new WebBrowser({ model: llm, embeddings }),
   ];
 
