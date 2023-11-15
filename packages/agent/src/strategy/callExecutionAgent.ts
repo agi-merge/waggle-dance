@@ -1,24 +1,14 @@
 // agent/strategy/callExecutionAgent.ts
 import { isAbortError } from "next/dist/server/pipe-readable";
-import {
-  AgentExecutor,
-  initializeAgentExecutorWithOptions,
-  type InitializeAgentExecutorOptions,
-} from "langchain/agents";
-import { type Callbacks } from "langchain/callbacks";
 import { type ChatOpenAI } from "langchain/chat_models/openai";
-import { type InitializeAgentExecutorOptionsStructured } from "langchain/dist/agents/initialize";
 import { type OpenAIToolType } from "langchain/dist/experimental/openai_assistant/schema";
-import { type StructuredTool, type Tool } from "langchain/dist/tools/base";
+import { type StructuredTool } from "langchain/dist/tools/base";
 import { loadEvaluator } from "langchain/evaluation";
-import { OpenAIAssistantRunnable } from "langchain/experimental/openai_assistant";
-import { PlanAndExecuteAgentExecutor } from "langchain/experimental/plan_and_execute";
-import { type OpenAI } from "langchain/llms/openai";
 import {
   OutputFixingParser,
   StructuredOutputParser,
 } from "langchain/output_parsers";
-import { type AgentStep, type MessageContent } from "langchain/schema";
+import { type AgentStep } from "langchain/schema";
 import { v4 } from "uuid";
 import { parse as yamlParse } from "yaml";
 import { z } from "zod";
@@ -33,8 +23,6 @@ import {
   extractTier,
   TaskState,
   type ChainValues,
-  type MemoryType,
-  type ModelCreationProps,
 } from "../..";
 import checkTrajectory, {
   getMinimumScoreFromEnv,
@@ -49,19 +37,15 @@ import retrieveMemoriesSkill from "../skills/retrieveMemories";
 import saveMemoriesSkill from "../skills/saveMemories";
 import {
   AgentPromptingMethod,
-  getAgentPromptingMethodValue,
-  InitializeAgentExecutorOptionsAgentTypes,
-  InitializeAgentExecutorOptionsStructuredAgentTypes,
   LLM,
   LLM_ALIASES,
   ModelStyle,
-  type InitializeAgentExecutorOptionsAgentType,
-  type InitializeAgentExecutorOptionsStructuredAgentType,
 } from "../utils/llms";
 import { stringifyByMime } from "../utils/mimeTypeParser";
 import { createEmbeddings, createModel } from "../utils/model";
 import createSkills from "../utils/skills";
 import { type CallExecutionAgentProps } from "./execute/callExecutionAgent.types";
+import { initializeExecutor } from "./execute/initializeAgentExecutor";
 
 export interface FunctionDefinition {
   /**
@@ -232,10 +216,8 @@ export async function callExecutionAgent(
       tool: { lc: 1, type: "not_implemented", id: ["Retrieve Memories"] },
     });
     memories = await retrieveMemoriesSkill.skill.func({
-      retrievals: [
-        `What matches "${stringifyByMime(returnType, taskAndGoal)}"?`,
-      ],
-      namespace: namespace,
+      retrievals: [`${stringifyByMime(returnType, taskAndGoal)}`],
+      namespace,
     });
 
     void handlePacketCallback({
@@ -383,29 +365,27 @@ export async function callExecutionAgent(
           : { lc: 1, type: "not_implemented", id: [runName] },
         runId: callRunId,
       });
-
+      // combine all messages into a single input string
+      const input: string = formattedMessages
+        .map(
+          (m) =>
+            `[${m._getType().toUpperCase()}]\n${m.content}[/${m
+              ._getType()
+              .toUpperCase()}]`,
+        )
+        .join("\n\n");
       if (agentPromptingMethod === AgentPromptingMethod.OpenAIAssistant) {
         call = await executor.invoke(
           {
-            content: humanMessage!.toString(),
-            file_ids: [],
+            content: input,
           },
           {
-            runName: `Exe ${taskObj.id}: ${taskObj.name.slice(0, 10)}`,
+            runName: `OpenAIAssistant ${taskObj.id}`,
             tags,
             callbacks,
           },
         );
       } else {
-        // combine all messages into a single input string
-        const input: string = formattedMessages
-          .map(
-            (m) =>
-              `[${m._getType().toUpperCase()}]\n${m.content}[/${m
-                ._getType()
-                .toUpperCase()}]`,
-          )
-          .join("\n\n");
         call = await executor.call(
           {
             input,
@@ -458,6 +438,7 @@ export async function callExecutionAgent(
     }
 
     const response = call?.output ? (call.output as string) : "";
+    // intermediate steps are not available for OpenAI Assistants
     const intermediateSteps =
       (call?.intermediateSteps as AgentStep[] | undefined) ?? [];
 
@@ -512,17 +493,15 @@ export async function callExecutionAgent(
         },
       });
       // make sure that we are at least saving the task result so that other notes can refer back.
-      const save: Promise<unknown> = saveMemoriesSkill.skill.func({
+      const saveOutput = await saveMemoriesSkill.skill.func({
         memories: [bestResponse],
         namespace: namespace,
       });
 
-      await save;
-
       await handlePacketCallback({
         type: "handleToolEnd",
         lastToolInput: bestResponse.slice(0, 100),
-        output: bestResponse.slice(0, 100),
+        output: saveOutput,
         runId: saveRunId,
       });
     })();
@@ -562,22 +541,27 @@ export async function callExecutionAgent(
           tool: { lc: 1, type: "not_implemented", id: ["Review"] },
         });
 
-      const evaluationResult = await checkTrajectory(
-        bestResponse,
-        response,
-        humanMessage!.toString(),
-        intermediateSteps,
-        abortSignal,
-        tags,
-        callbacks,
-        evaluators,
-      );
+      const evaluationResult =
+        shouldEvaluate &&
+        (await checkTrajectory(
+          bestResponse,
+          response,
+          humanMessage!.toString(),
+          intermediateSteps,
+          abortSignal,
+          tags,
+          callbacks,
+          evaluators,
+        ));
 
       shouldEvaluate &&
         void handlePacketCallback({
           type: "handleToolEnd",
           lastToolInput: inputTaskAndGoalString,
-          output: evaluationResult ?? "No evaluation result",
+          output:
+            typeof evaluationResult === "string"
+              ? evaluationResult
+              : "No evaluation result",
           runId: evaluationRunId,
         });
       return `${bestResponse}
@@ -591,126 +575,4 @@ ${evaluationResult}
     console.error(error);
     return error as Error;
   }
-}
-
-async function initializeExecutor(
-  _goalPrompt: string,
-  agentPromptingMethod: AgentPromptingMethod,
-  _taskObj: { id: string },
-  creationProps: ModelCreationProps,
-  tools: OpenAIToolType | StructuredTool[],
-  llm: OpenAI | ChatOpenAI,
-  tags: string[],
-  memory: MemoryType,
-  runName: string,
-  systemMessage: MessageContent | undefined,
-  _humanMessage: MessageContent | undefined,
-  callbacks: Callbacks | undefined,
-) {
-  let executor;
-  const agentType = getAgentPromptingMethodValue(agentPromptingMethod);
-  let options:
-    | InitializeAgentExecutorOptions
-    | InitializeAgentExecutorOptionsStructured;
-
-  // traditional agents do not support OpenAI Capabilities (Tools)
-  const structuredTools = tools.filter(
-    (t) => (t as StructuredTool) !== undefined,
-  ) as StructuredTool[];
-  if (
-    InitializeAgentExecutorOptionsAgentTypes.includes(
-      agentType as InitializeAgentExecutorOptionsAgentType,
-    )
-  ) {
-    options = {
-      agentType,
-      earlyStoppingMethod: "generate",
-      returnIntermediateSteps: true,
-      maxIterations: 15,
-      ...creationProps,
-      tags,
-      handleParsingErrors: true,
-    } as InitializeAgentExecutorOptions;
-
-    if (
-      agentType !== "zero-shot-react-description" &&
-      agentType !== "chat-zero-shot-react-description"
-    ) {
-      options.memory = memory;
-    }
-
-    executor = await initializeAgentExecutorWithOptions(
-      tools as Tool[],
-      llm,
-      options,
-    );
-  } else if (
-    InitializeAgentExecutorOptionsStructuredAgentTypes.includes(
-      agentType as InitializeAgentExecutorOptionsStructuredAgentType,
-    )
-  ) {
-    options = {
-      agentType: agentType,
-      returnIntermediateSteps: true,
-      earlyStoppingMethod: "generate",
-      handleParsingErrors: true,
-      maxIterations: 15,
-      ...creationProps,
-      callbacks,
-      tags,
-    } as InitializeAgentExecutorOptionsStructured;
-
-    if (agentType !== "structured-chat-zero-shot-react-description") {
-      options.memory = memory;
-    }
-
-    executor = await initializeAgentExecutorWithOptions(
-      structuredTools,
-      llm,
-      options,
-    );
-  } else if (agentPromptingMethod === AgentPromptingMethod.PlanAndExecute) {
-    executor = PlanAndExecuteAgentExecutor.fromLLMAndTools({
-      llm,
-      tools: structuredTools as Tool[],
-      tags,
-      callbacks,
-    });
-  } else {
-    //if (agentPromptingMethod === AgentPromptingMethod.OpenAIAssistant) {
-    const agent = await OpenAIAssistantRunnable.createAssistant({
-      model: LLM_ALIASES["smart-xlarge"],
-      instructions: systemMessage!.toString(),
-      name: "Planning Agent",
-      tools,
-      asAgent: true,
-    });
-
-    agent.bind({
-      callbacks,
-      // signal: abortSignal,
-      tags,
-      runName,
-    });
-
-    // const parser = StructuredOutputParser.fromZodSchema(
-    //   z.custom<PlanWireFormat>(),
-    // );
-
-    // const outputFixingParser = OutputFixingParser.fromLLM(llm, parser);
-
-    executor = AgentExecutor.fromAgentAndTools({
-      agent,
-      memory,
-      tools: structuredTools,
-      earlyStoppingMethod: "generate",
-      returnIntermediateSteps: true,
-      maxIterations: 15,
-      ...creationProps,
-      callbacks,
-      tags,
-      handleParsingErrors: true,
-    }); //.pipe(outputFixingParser);
-  }
-  return executor;
 }

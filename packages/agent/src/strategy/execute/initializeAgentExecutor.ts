@@ -7,6 +7,7 @@ import {
 import { type Callbacks } from "langchain/callbacks";
 import { type ChatOpenAI } from "langchain/chat_models/openai";
 import { type InitializeAgentExecutorOptionsStructured } from "langchain/dist/agents/initialize";
+import { type OpenAIToolType } from "langchain/dist/experimental/openai_assistant/schema";
 import { type StructuredTool, type Tool } from "langchain/dist/tools/base";
 import { OpenAIAssistantRunnable } from "langchain/experimental/openai_assistant";
 import { PlanAndExecuteAgentExecutor } from "langchain/experimental/plan_and_execute";
@@ -30,7 +31,7 @@ export async function initializeExecutor(
   agentPromptingMethod: AgentPromptingMethod,
   _taskObj: { id: string },
   creationProps: ModelCreationProps,
-  tools: StructuredTool[],
+  tools: OpenAIToolType | StructuredTool[],
   llm: OpenAI | ChatOpenAI,
   tags: string[],
   memory: MemoryType,
@@ -39,7 +40,9 @@ export async function initializeExecutor(
   humanMessage: MessageContent | undefined,
   callbacks: Callbacks | undefined,
 ) {
-  const structuredTools = tools.filter((t) => t !== undefined);
+  const structuredTools = tools.filter(
+    (t) => "description" in t,
+  ) as StructuredTool[];
   let executor;
   const agentType = getAgentPromptingMethodValue(agentPromptingMethod);
   let options:
@@ -54,10 +57,10 @@ export async function initializeExecutor(
       agentType,
       earlyStoppingMethod: "generate",
       returnIntermediateSteps: true,
-      maxIterations: 5,
+      maxIterations: 15,
       ...creationProps,
       tags,
-      handleParsingErrors: false,
+      handleParsingErrors: true,
     } as InitializeAgentExecutorOptions;
 
     if (
@@ -68,7 +71,7 @@ export async function initializeExecutor(
     }
 
     executor = await initializeAgentExecutorWithOptions(
-      tools as Tool[],
+      structuredTools as Tool[],
       llm,
       options,
     );
@@ -81,8 +84,8 @@ export async function initializeExecutor(
       agentType: agentType,
       returnIntermediateSteps: true,
       earlyStoppingMethod: "generate",
-      handleParsingErrors: false,
-      maxIterations: 5,
+      handleParsingErrors: true,
+      maxIterations: 15,
       ...creationProps,
       tags,
     } as InitializeAgentExecutorOptionsStructured;
@@ -107,8 +110,8 @@ export async function initializeExecutor(
     const agent = await OpenAIAssistantRunnable.createAssistant({
       model: LLM_ALIASES["smart-xlarge"],
       instructions: systemMessage!.toString(),
-      name: "Planning Agent",
-      tools: structuredTools,
+      name: "Execution Agent",
+      tools,
       asAgent: true,
     });
 
@@ -119,21 +122,16 @@ export async function initializeExecutor(
     // const outputFixingParser = OutputFixingParser.fromLLM(llm, parser);
 
     executor = AgentExecutor.fromAgentAndTools({
-      agent: agent.bind({
-        callbacks,
-        // signal: abortSignal,
-        tags,
-        runName,
-      }),
+      agent,
       memory,
       tools: structuredTools,
       earlyStoppingMethod: "generate",
       returnIntermediateSteps: true,
-      maxIterations: 5,
+      maxIterations: 15,
       ...creationProps,
       callbacks,
       tags,
-      handleParsingErrors: false,
+      handleParsingErrors: true,
     }); //.pipe(outputFixingParser);
   }
   return executor;
