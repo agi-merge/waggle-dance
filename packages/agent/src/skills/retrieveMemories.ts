@@ -50,7 +50,7 @@ const retrieveMemoriesSkill = new DynamicZodSkill({
 
     const returnValue = `Retrieved ${
       relevantDocs.length
-    } memories: ${formatDocumentsAsString(relevantDocs)}`;
+    } memories: [${formatDocumentsAsString(relevantDocs)}]`;
 
     console.debug(
       `retrieveMemoriesSkill(${retrievals.slice(0, 100)})=`,
