@@ -213,6 +213,23 @@ function getSearchLocation(
   return { location, hl, gl };
 }
 
+export const requiredSkills = (
+  agentPromptingMethod: AgentPromptingMethod,
+  returnType: "YAML" | "JSON",
+) => [
+  requestUserHelpSkill.toTool(agentPromptingMethod, returnType),
+  // selfHelpSkill.toTool(agentPromptingMethod, returnType),
+];
+
+export const removeRequiredSkills = (
+  skills: StructuredTool[],
+  agentPromptingMethod: AgentPromptingMethod,
+  returnType: "YAML" | "JSON",
+) => {
+  const reqs = new Set(requiredSkills(agentPromptingMethod, returnType));
+  return skills.filter((s) => !reqs.has(s));
+};
+
 // skill === tool
 function createSkills(
   llm: OpenAI | ChatOpenAI,
@@ -225,8 +242,7 @@ function createSkills(
   geo?: Geo,
 ): StructuredTool[] {
   const tools = [
-    requestUserHelpSkill.toTool(agentPromptingMethod, returnType),
-    // selfHelpSkill.toTool(agentPromptingMethod, returnType),
+    ...requiredSkills(agentPromptingMethod, returnType),
     uploadFileSkill.toTool(agentPromptingMethod, returnType),
     downloadFileSkill.toTool(agentPromptingMethod, returnType),
     new WebBrowser({ model: llm, embeddings }),

@@ -35,7 +35,10 @@ import saveMemoriesSkill from "../skills/saveMemories";
 import { LLM, LLM_ALIASES, ModelStyle } from "../utils/llms";
 import { stringifyByMime } from "../utils/mimeTypeParser";
 import { createEmbeddings, createModel } from "../utils/model";
-import createSkills from "../utils/skills";
+import createSkills, {
+  removeRequiredSkills,
+  requiredSkills,
+} from "../utils/skills";
 import {
   contextAndToolsOutputSchema,
   reActOutputSchema,
@@ -165,7 +168,11 @@ export async function callExecutionAgent(
     ...taskAndGoal,
     longTermMemories: memories,
     // availableDataSources: [],
-    availableTools: skills.map((s) => s.name),
+    availableTools: removeRequiredSkills(
+      skills,
+      agentPromptingMethod,
+      returnType,
+    ).map((s) => s.name), // we filter required skills out here
   };
 
   const inputTaskAndGoalString = stringifyByMime(returnType, inputTaskAndGoal);
@@ -219,6 +226,12 @@ export async function callExecutionAgent(
       runName: "Synthesize Context & Tools",
     },
   );
+  if (contextAndTools.tools) {
+    const reqs = requiredSkills(agentPromptingMethod, returnType).map(
+      (s) => s.name,
+    );
+    contextAndTools.tools = [...contextAndTools.tools, ...reqs];
+  }
 
   void handlePacketCallback({
     type: "handleToolEnd",
