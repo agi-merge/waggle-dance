@@ -1,5 +1,6 @@
-import { stringify as jsonStringify } from "superjson";
-import { stringify as yamlStringify } from "yaml";
+import { parse as jsonParse, stringify as jsonStringify } from "superjson";
+import { parse as yamlParse, stringify as yamlStringify } from "yaml";
+import { type z } from "zod";
 
 export type Data = {
   [key: string]:
@@ -44,5 +45,38 @@ export function stringifyByMime(
     case "application/yaml":
     case "YAML":
       return yamlStringify(data);
+  }
+}
+
+export function parseByMime(
+  returnType: ParseableMimeTypes | DisplayMimeTypes,
+  data: string,
+): unknown {
+  switch (returnType) {
+    case "application/json":
+    case "JSON":
+      return jsonParse(data);
+    case "application/yaml":
+    case "YAML":
+      return yamlParse(data);
+  }
+}
+
+export function parseAnyFormat<T>(
+  data: string,
+  schema: z.ZodType<T>,
+): T | null | undefined {
+  try {
+    const json = jsonParse(data);
+    schema.parse(json);
+    return json as T | null | undefined;
+  } catch (err) {
+    try {
+      const yaml: unknown = yamlParse(data);
+      schema.parse(yaml);
+      return yaml as T | null | undefined;
+    } catch (err) {
+      return null;
+    }
   }
 }
