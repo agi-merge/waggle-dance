@@ -21,7 +21,7 @@ type CreateRewriteRunnableParams = {
   returnType: "JSON" | "YAML";
   contextAndTools: ContextAndTools;
   intermediateSteps: AgentStep[];
-  memory: MemoryType;
+  memory: MemoryType | undefined;
   response: string;
   tags: string[];
   callbacks: Callbacks | undefined;
@@ -39,12 +39,18 @@ export async function createRewriteRunnable({
   memory,
   response,
 }: CreateRewriteRunnableParams) {
-  const chatHistory = (await memory?.loadMemoryVariables({
+  let chatHistory = (await memory?.loadMemoryVariables({
     input: `${taskObj.name}: [
   ${contextAndTools.synthesizedContext?.join("\n\n")}
 ]`,
-  })) as { chat_history: { value?: string; message?: string } };
-
+  })) as
+    | { chat_history: { value?: string; message?: string } }
+    | undefined
+    | null;
+  if (!chatHistory || "chat_history" in chatHistory === false) {
+    // guard against runtime access of undefined, when MEMORY_TYPE is undefined/disabled
+    chatHistory = null;
+  }
   const systemMessagePrompt = SystemMessagePromptTemplate.fromTemplate(
     `You are an attentive, helpful, diligent, and expert executive assistant, charged with editing the Final Answer for a Task.
   # Variables Start
@@ -54,9 +60,9 @@ export async function createRewriteRunnable({
   ## Log
   ${stringifyByMime(
     returnType,
-    chatHistory.chat_history.value ||
-      chatHistory.chat_history.message ||
-      chatHistory.chat_history ||
+    chatHistory?.chat_history.value ||
+      chatHistory?.chat_history.message ||
+      chatHistory?.chat_history ||
       intermediateSteps.map((s) => s.observation).join("\n\n"),
   )}
   ## Time

@@ -34,7 +34,7 @@ export async function createMemory({
   inputKey,
   memoryKey,
   returnUnderlying,
-}: MemoryOptions): Promise<MemoryType> {
+}: MemoryOptions): Promise<MemoryType | undefined> {
   if (inputKey === undefined) {
     inputKey = "input";
   }
@@ -44,7 +44,7 @@ export async function createMemory({
   if (returnUnderlying === undefined) {
     returnUnderlying = true;
   }
-  switch (memoryType || process.env.MEMORY_TYPE) {
+  switch (memoryType) {
     case "dynamic":
       const buffer = createMemory({
         namespace,
@@ -73,7 +73,9 @@ export async function createMemory({
         returnUnderlying,
       });
 
-      const memories = await Promise.all([buffer, conversation, vector]);
+      const memories = (
+        await Promise.all([buffer, conversation, vector])
+      ).flatMap((m) => ((m as BaseMemory) ? (m as BaseMemory) : []));
 
       const combined = new CombinedMemory({
         memories,
@@ -173,5 +175,7 @@ export async function createMemory({
 
     // });
   }
-  throw new Error(`Unknown memory type ${memoryType}`);
+  if (memoryType !== undefined) {
+    throw new Error(`Unknown memory type ${memoryType}`);
+  }
 }

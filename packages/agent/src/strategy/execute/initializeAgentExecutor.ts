@@ -27,7 +27,7 @@ export async function initializeExecutor(
   tools: StructuredTool[],
   llm: OpenAI | ChatOpenAI,
   tags: string[],
-  memory: MemoryType,
+  memory: MemoryType | undefined,
 ) {
   let executor;
   const agentType = getAgentPromptingMethodValue(agentPromptingMethod);
