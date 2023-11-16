@@ -1,25 +1,9 @@
 import { z } from "zod";
 
-import { makeServerIdIfNeeded } from "../..";
 import DynamicZodSkill from "./DynamicZodSkill";
 
 const schema = z.object({
-  executionId: z
-    .string()
-    .cuid()
-    .describe(
-      "The task execution id to securely download from. You must pass the system EXECUTION ID variable as the executionId.",
-    ),
-  taskId: z
-    .string()
-    .describe(
-      "The task to associate the file with. You must pass the system TASK ID.",
-    ),
-  artifactId: z
-    .string()
-    .describe(
-      "The artifact id of the file to download. You must pass the system ARTIFACT ID.",
-    ),
+  url: z.string().url().describe("One or more of the system FILES' URLs."),
   namespace: z
     .string()
     .min(1)
@@ -32,19 +16,15 @@ const downloadFileSkill = new DynamicZodSkill({
   name: "Read File",
   description: `Read/Download private files from your cloud filesystem, after they have been provided to you, or previously saved by you.`,
   func: async (input, _runManager) => {
-    const { executionId, taskId, artifactId, namespace } = schema.parse(input);
-    const nodeId = makeServerIdIfNeeded(taskId, executionId);
-    console.debug("downloadFileSkill", executionId, nodeId, artifactId);
-    const response = await fetch(
-      `${process.env.NEXTAUTH_URL}/api/ap/v1/agent/tasks/${executionId}/artifacts/${artifactId}`,
-      {
-        method: "GET",
-        headers: {
-          "X-Skill-Namespace": namespace,
-          "X-Skill-Node-Id": nodeId,
-        },
+    const { url, namespace } = schema.parse(input);
+    console.debug("downloadFileSkill", url);
+    // FIXME: sanitize the url to make sure it's not a security risk, e.g. local filesystem access
+    const response = await fetch(url, {
+      method: "GET",
+      headers: {
+        "User-Agent": "waggledance.ai/skill",
       },
-    );
+    });
     if (response.ok) {
       const artifact = await response.blob();
       return artifact
