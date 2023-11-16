@@ -126,12 +126,7 @@ export const findResult = (packets: AgentPacket[]): string => {
             if (parsed as AgentPacket) {
               return findResult([parsed as AgentPacket]);
             } else {
-              const parsed: unknown = yamlParse(finishPacket.value);
-              if (parsed as AgentPacket) {
-                return findResult([parsed as AgentPacket]);
-              } else {
-                throw new FindResultError(packets, err);
-              }
+              throw new FindResultError(packets, err);
             }
           } catch (err) {
             console.error(err);
