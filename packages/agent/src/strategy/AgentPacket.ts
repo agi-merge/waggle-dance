@@ -12,6 +12,7 @@ import {
 import { parse as jsonParse } from "superjson";
 import { parse as yamlParse } from "yaml";
 
+import { removeEnclosingMarkdown } from "../..";
 import { type ContextAndTools } from "./execute/callExecutionAgent.types";
 
 export type ChainValues = Record<string, unknown>;
@@ -93,6 +94,15 @@ export const findFinishPacket = (packets: AgentPacket[]): AgentPacket => {
   return packet;
 };
 
+class FindResultError extends Error {
+  constructor(packets: AgentPacket[], originalError?: unknown) {
+    super();
+    this.message = `Could not find result in: ${packets.join(
+      ", ",
+    )}, after ${String(originalError)}`;
+    this.cause = originalError;
+  }
+}
 export const findResult = (packets: AgentPacket[]): string => {
   const finishPacket = findFinishPacket(packets);
   switch (finishPacket.type) {
@@ -115,6 +125,13 @@ export const findResult = (packets: AgentPacket[]): string => {
             const parsed: unknown = jsonParse(finishPacket.value);
             if (parsed as AgentPacket) {
               return findResult([parsed as AgentPacket]);
+            } else {
+              const parsed: unknown = yamlParse(finishPacket.value);
+              if (parsed as AgentPacket) {
+                return findResult([parsed as AgentPacket]);
+              } else {
+                throw new FindResultError(packets, err);
+              }
             }
           } catch (err) {
             console.error(err);
@@ -168,9 +185,7 @@ const extractText = (
 ): { title: string; output: string } | undefined => {
   const actionString =
     "text" in outputs
-      ? (outputs["text"] as string)
-          .replaceAll("```json", "")
-          .replaceAll("```", "")
+      ? removeEnclosingMarkdown(outputs["text"] as string)
       : "None";
   try {
     const { action: title, action_input: output } = JSON.parse(
