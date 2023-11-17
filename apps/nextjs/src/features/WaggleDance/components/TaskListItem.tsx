@@ -6,6 +6,7 @@ import {
   Download,
   ErrorOutline,
   QuestionAnswer,
+  QuestionMark,
 } from "@mui/icons-material";
 import {
   Box,
@@ -194,6 +195,9 @@ const getGroupOutput = (group: AgentPacket[]): GroupOutput | null => {
         // would double up w/ LLM End
         return null;
       }
+      if (lastPacket.type === "handleLLMEnd") {
+        parsedColor = "success";
+      }
       const { title, output: o } = getMostRelevantOutput(
         group.findLast((p) => !!p)!,
       );
@@ -358,6 +362,20 @@ const renderPacketGroup = (
         return <Construction />;
       case GroupType.Retriever:
         return <Download />;
+      case GroupType.Custom:
+        switch (group[group.length - 1]?.type) {
+          case "artifact":
+            return <Download />;
+          case "contextAndTools":
+            return <QuestionAnswer />;
+          case "refine":
+            return <QuestionAnswer />;
+          case "review":
+            return <QuestionAnswer />;
+          case "rewrite":
+            return <QuestionAnswer />;
+        }
+        return <QuestionMark />;
       case GroupType.Success:
         return <AssignmentTurnedIn />;
       case GroupType.Error:
@@ -792,15 +810,15 @@ const TaskListItem = ({
           <Divider orientation="vertical" />
           <Tooltip title={"Latest Action"}>
             <Typography
-              level="body-xs"
+              level="body-sm"
               textAlign={"center"}
               variant="plain"
               fontFamily={"monospace"}
               color={color}
             >
-              {mostRelevantOutput?.title.length
-                ? mostRelevantOutput.title
-                : "Idle"}
+              {mostRelevantOutput?.emoji.length
+                ? mostRelevantOutput.emoji
+                : "💤"}
             </Typography>
           </Tooltip>
         </Stack>
