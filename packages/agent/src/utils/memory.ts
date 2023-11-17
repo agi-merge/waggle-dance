@@ -1,4 +1,3 @@
-import { type Document } from "langchain/document";
 import { OpenAI } from "langchain/llms/openai";
 import {
   BufferMemory,
@@ -122,12 +121,8 @@ export async function createMemory({
           createEmbeddings({ modelName: LLM.embeddings }),
         );
 
-        // extremely important to avoid data leaks/context poisoning.
-        const filterFn = (doc: Document) => {
-          return doc.metadata?.namespace === namespace;
-        };
         return new VectorStoreRetrieverMemory({
-          vectorStoreRetriever: vectorStore.asRetriever(15, filterFn),
+          vectorStoreRetriever: vectorStore.asRetriever(15),
         });
       }
     case "conversation":
