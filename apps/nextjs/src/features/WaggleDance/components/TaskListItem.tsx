@@ -772,16 +772,21 @@ const TaskListItem = ({
         </Typography>
         <Stack
           component={Sheet}
-          variant="outlined"
           direction={"row"}
           gap={1}
-          sx={{
+          sx={(theme) => ({
             justifyContent: "center",
             width: "100%",
             position: "sticky",
             bottom: 0,
+            left: 0,
             right: 0,
-          }}
+            backgroundColor: theme.palette.background.backdrop,
+            mixBlendMode: "screen",
+            backdropFilter: "drop-shadow(2px 2px 2px black)",
+          })}
+          variant="outlined"
+          color={color}
         >
           <Tooltip title={`${artifactPackets.length} Downloads available`}>
             <Typography
@@ -826,14 +831,15 @@ const TaskListItem = ({
             width: "100%",
             borderEndStartRadius: "sm",
             borderEndEndRadius: "sm",
-            backdropFilter: "blur(10px)",
-            backgroundColor: theme.palette.background.body,
+            opacity: 0.9,
             overflow: "clip",
             p: 0,
             m: 0,
           })}
+          size="sm"
           variant="plain"
-          component={Sheet}
+          component={Card}
+          color={color}
         >
           {(contextAndTools?.tools?.length ?? 0) > 0 && (
             <Accordion
@@ -872,19 +878,27 @@ const TaskListItem = ({
                     background: "transparent",
                   }}
                 >
-                  ({contextAndTools?.tools?.length ?? "?"}) Skills
+                  ({contextAndTools?.tools?.length ?? "?"}) Skills Selected
                 </Typography>
               </AccordionSummary>
 
               <AccordionDetails>
-                <List wrap={true} orientation="horizontal">
+                <List wrap={true} orientation="horizontal" size="sm">
                   {contextAndTools?.tools?.map((tool) => (
                     <ListItem key={`x-${tool}`} sx={{ p: 0 }}>
-                      <ListItemDecorator sx={{ ml: -3, pl: 3 }}>
+                      <ListItemDecorator sx={{ py: -2, ml: -2, pl: 3 }}>
                         ・
                       </ListItemDecorator>
-                      <ListItemContent sx={{ pr: 2 }}>
-                        <Typography level="body-xs" fontSize={"0.6rem"}>
+                      <ListItemContent sx={{ my: -2, py: 2, pr: 1.5 }}>
+                        <Typography
+                          level="body-xs"
+                          fontSize={"0.6rem"}
+                          flexWrap={"wrap"}
+                          sx={{
+                            wordBreak: "break-word",
+                            overflowWrap: "anywhere",
+                          }}
+                        >
                           {tool}
                         </Typography>
                       </ListItemContent>
