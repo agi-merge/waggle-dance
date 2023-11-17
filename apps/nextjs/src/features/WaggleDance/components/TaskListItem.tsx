@@ -45,7 +45,6 @@ import { z } from "zod";
 import {
   findArtifactPackets,
   findContextAndTools,
-  findResult,
   getMostRelevantOutput,
   isAgentPacketFinishedType,
   rootPlanId,
@@ -430,7 +429,7 @@ const TaskResultsValue = ({
       t.value.type === "working" && t.nodeId === rootPlanId
         ? `...${nodes.length} tasks and ${edges.length} interdependencies`
         : isAgentPacketFinishedType(t.value)
-          ? findResult([t.value])
+          ? getMostRelevantOutput(t.value).output
           : "None";
     const AgentPacketShape = z.custom<AgentPacket>();
     const packet = parseAnyFormat(result, AgentPacketShape);
@@ -439,7 +438,7 @@ const TaskResultsValue = ({
         packet.type === "working" && packet.nodeId === rootPlanId
           ? `...${nodes.length} tasks and ${edges.length} interdependencies`
           : isAgentPacketFinishedType(packet)
-            ? findResult([packet])
+            ? getMostRelevantOutput(packet).output
             : "None";
     }
     if (!isOpen) {
@@ -999,6 +998,27 @@ const TaskListItem = ({
                       Detailed task information coming soon!
                     </DialogTitle>
                     <DialogContent>
+                      <List>
+                        {artifactPackets.map((p) => (
+                          <ListItem key={p.url.toString()}>
+                            {/* get the file extension if it exists */}
+                            <ListItemDecorator>
+                              {p.contentType}
+                            </ListItemDecorator>
+                            <Link
+                              autoFocus
+                              href={p.url}
+                              onClick={(e) => {
+                                e.preventDefault();
+                                e.stopPropagation();
+                                window.open(p.url, "_blank");
+                              }}
+                            >
+                              {p.url.toString()}
+                            </Link>
+                          </ListItem>
+                        ))}
+                      </List>
                       {t.packets.map((p) => p.type).join(" → ")}
                     </DialogContent>
                     <DialogActions>
