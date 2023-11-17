@@ -15,6 +15,7 @@ import {
   DialogActions,
   DialogContent,
   DialogTitle,
+  Divider,
   LinearProgress,
   List,
   ListItem,
@@ -54,7 +55,6 @@ import {
   type TaskState,
 } from "@acme/agent";
 import { isTaskCriticism } from "@acme/agent/src/prompts/types";
-import { mapPacketTypeToStatus } from "@acme/agent/src/prompts/utils/mapPacketToStatus";
 import { parseAnyFormat } from "@acme/agent/src/utils/mimeTypeParser";
 import { type DraftExecutionEdge, type DraftExecutionNode } from "@acme/db";
 
@@ -219,7 +219,7 @@ const getGroupOutput = (group: AgentPacket[]): GroupOutput | null => {
           parsedOutput = "…";
           break;
         case "rewrite":
-          parsedTitle = "Rewrite";
+          parsedTitle = "Improve Answer";
           parsedOutput = "…";
           break;
       }
@@ -232,7 +232,7 @@ const getGroupOutput = (group: AgentPacket[]): GroupOutput | null => {
           if (packet.type === "handleToolStart") {
             return packet.tool.id[packet.tool.id.length - 1];
           } else if (packet.type === "handleAgentAction") {
-            return packet.action.tool;
+            return `act: ${packet.action.tool}`;
           }
           return acc;
         },
@@ -695,11 +695,11 @@ const TaskListItem = ({
           boxShadow: "md",
           backgroundColor: !!color
             ? theme.palette.mode === "dark"
-              ? theme.palette[color].softBg
+              ? theme.palette[color].outlinedActiveBg
               : theme.palette[color][300]
             : theme.palette.background.surface,
         })}
-        variant={mode === "dark" ? "soft" : "outlined"}
+        variant={mode === "dark" ? "outlined" : "outlined"}
         color={color}
       >
         {isRunning && t.status === TaskStatus.working && (
@@ -753,83 +753,55 @@ const TaskListItem = ({
           {node.name}
         </Typography>
         <Stack
+          component={Sheet}
+          variant="outlined"
           direction={"row"}
-          gap={0.75}
+          gap={1}
           sx={{
-            justifyContent: "flex-end",
+            justifyContent: "center",
             width: "100%",
             position: "sticky",
             bottom: 0,
             right: 0,
           }}
         >
+          <Tooltip title={`${artifactPackets.length} Downloads available`}>
+            <Typography
+              level="body-xs"
+              variant="plain"
+              fontFamily={"monospace"}
+              color={artifactPackets.length ? "success" : "neutral"}
+              textAlign={"center"}
+            >
+              {artifactPackets.length}
+              <Download />
+            </Typography>
+          </Tooltip>
+          <Divider orientation="vertical" />
           <Tooltip title={"Number of actions/steps taken by the agent"}>
             <Typography
               level="body-xs"
-              component={Chip}
-              variant="soft"
-              color={color}
-              sx={(theme) => ({
-                pt: 0.75,
-                borderRadius: 0,
-                borderLeft: "1px solid",
-                borderTop: "1px solid",
-                boxShadow: theme.palette.mode === "light" ? "sm" : "none",
-              })}
+              variant="plain"
+              textAlign={"center"}
+              fontFamily={"monospace"}
             >
-              Step {packetGroups.length}
+              {packetGroups.length} Actions
             </Typography>
           </Tooltip>
+          <Divider orientation="vertical" />
           <Tooltip title={"Latest Action"}>
             <Typography
               level="body-xs"
-              component={Chip}
-              variant="soft"
+              textAlign={"center"}
+              variant="plain"
+              fontFamily={"monospace"}
               color={color}
-              sx={(theme) => ({
-                pt: 0.75,
-                borderRadius: 0,
-                borderLeft: "1px solid",
-                borderTop: "1px solid",
-                boxShadow: theme.palette.mode === "light" ? "sm" : "none",
-              })}
             >
-              {mostRelevantOutput?.title ?? "Idle"}
+              {mostRelevantOutput?.title.length
+                ? mostRelevantOutput.title
+                : "Idle"}
             </Typography>
           </Tooltip>
-          <Tooltip title={"Task Identifier"}>
-            <Typography
-              level="body-xs"
-              component={Chip}
-              variant="soft"
-              color={color}
-              sx={(theme) => ({
-                pt: 0.75,
-                borderRadius: 0,
-                borderLeft: "1px solid",
-                borderTop: "1px solid",
-                boxShadow: theme.palette.mode === "light" ? "sm" : "none",
-              })}
-            >
-              {t.displayId}
-            </Typography>
-          </Tooltip>
-          <Typography
-            color={color}
-            level="body-xs"
-            component={Chip}
-            variant="soft"
-            sx={(theme) => ({
-              p: 0.5,
-              pt: 0.75,
-              borderRadius: 0,
-              borderLeft: "1px solid",
-              borderTop: "1px solid",
-              boxShadow: theme.palette.mode === "light" ? "sm" : "none",
-            })}
-          >
-            {mapPacketTypeToStatus(t.value.type)}
-          </Typography>
         </Stack>
         <AccordionGroup
           sx={(theme) => ({
@@ -961,7 +933,7 @@ const TaskListItem = ({
                 <Chip sx={{ minWidth: "2.5rem", textAlign: "center" }}>
                   {packetGroups.length}
                 </Chip>
-                {artifactPackets.length && (
+                {artifactPackets.length ? (
                   <Button
                     size="sm"
                     variant="plain"
@@ -979,7 +951,7 @@ const TaskListItem = ({
                   >
                     All Files ({artifactPackets.length})
                   </Button>
-                )}
+                ) : null}
               </Sheet>
               <List
                 size="sm"
