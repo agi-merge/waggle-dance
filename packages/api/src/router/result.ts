@@ -102,6 +102,9 @@ export const resultRouter = createTRPCRouter({
         nodeId: z.string().min(1),
         executionId: z.string().cuid().min(1),
         artifactUrl: z.string().url(),
+        contentType: z
+          .string()
+          .refine((x) => !!x.match(/^[a-zA-Z]+\/[a-zA-Z]+$/)),
       }),
     )
     .mutation(async ({ ctx, input }) => {
@@ -141,6 +144,7 @@ export const resultRouter = createTRPCRouter({
             type: "artifact",
             url: artifactUrl,
             nodeId,
+            contentType: input.contentType,
             runId: v4(),
           };
           // create the result

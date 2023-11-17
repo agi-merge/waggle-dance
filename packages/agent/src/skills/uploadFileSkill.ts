@@ -1,4 +1,5 @@
 import Base64 from "crypto-js/enc-base64";
+import { stringify } from "yaml";
 import { z } from "zod";
 
 import { makeServerIdIfNeeded } from "../prompts/types/serverDAGId";
@@ -85,9 +86,12 @@ const uploadFileSkill = new DynamicZodSkill({
         relative_path: string;
       };
 
-      return artifact
-        ? artifact.relative_path
-        : "Error: unexpected return value";
+      return stringify({
+        url: !!artifact
+          ? artifact.relative_path
+          : "Error: unexpected return value",
+        mimeType,
+      });
     } else {
       return `Error: ${response.status} ${response.statusText}`;
     }

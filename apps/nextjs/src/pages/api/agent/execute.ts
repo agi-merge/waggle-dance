@@ -176,6 +176,7 @@ export default async function ExecuteStream(req: NextRequest) {
           {
             type: "artifact",
             url: packet.output,
+            contentType,
             nodeId: task.id,
             runId: v4(),
           },
