@@ -444,28 +444,29 @@ export async function callExecutionAgent(
           tool: { lc: 1, type: "not_implemented", id: ["Review"] },
         });
 
-      const evaluationResult = await checkTrajectory(
-        bestResponse,
-        response,
-        input,
-        intermediateSteps,
-        abortSignal,
-        tags,
-        callbacks,
-        evaluators,
-      );
+        const evaluationResult = await checkTrajectory(
+          bestResponse,
+          response,
+          input,
+          intermediateSteps,
+          abortSignal,
+          tags,
+          callbacks,
+          evaluators,
+        );
 
-      shouldEvaluate &&
         void handlePacketCallback({
           type: "handleToolEnd",
           lastToolInput: inputTaskAndGoalString,
           output: bestResponse,
           runId: evaluationRunId,
         });
-      return `${bestResponse}
+        return `${bestResponse}
 ### Evaluation:
-${evaluationResult}
-`;
+${evaluationResult}`;
+      } else {
+        return bestResponse;
+      }
     } catch (error) {
       return error as Error;
     }
