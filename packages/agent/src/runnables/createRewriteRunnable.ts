@@ -29,6 +29,10 @@ type CreateRewriteRunnableParams = {
 
 const rewriteResponseAck = `ack`;
 
+function sanitizeInput(input: string): string {
+  return input.replaceAll(/[-[\]{}()*+?.,\\^$|#\s`]/g, "\\$&");
+}
+
 export async function createRewriteRunnable({
   creationProps,
   abortSignal,
@@ -58,18 +62,20 @@ export async function createRewriteRunnable({
   ${taskObj.id}: ${taskObj.name}
   ${stringifyByMime(returnType, contextAndTools.synthesizedContext)}
   ## Log
-  ${stringifyByMime(
-    returnType,
-    chatHistory?.chat_history.value ||
-      chatHistory?.chat_history.message ||
-      chatHistory?.chat_history ||
-      intermediateSteps.map((s) => s.observation).join("\n\n"),
+  ${sanitizeInput(
+    stringifyByMime(
+      returnType,
+      chatHistory?.chat_history.value ||
+        chatHistory?.chat_history.message ||
+        chatHistory?.chat_history ||
+        intermediateSteps.map((s) => s.observation).join("\n\n"),
+    ),
   )}
   ## Time
   ${new Date().toString()}
   ${formattingConstraints}
   ## Final Answer
-  ${response}
+  ${sanitizeInput(response)}
   # End Variables`,
   );
 
