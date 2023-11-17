@@ -2,6 +2,7 @@ import { type ChatOpenAI } from "langchain/chat_models/openai";
 import { type Embeddings } from "langchain/embeddings/base";
 import { type OpenAI } from "langchain/llms/openai";
 import {
+  JsonSpec,
   SearchApi,
   SerpAPI,
   WolframAlphaTool,
@@ -12,6 +13,7 @@ import {
 import { WebBrowser } from "langchain/tools/webbrowser";
 
 import cca2Map from "../lib/cca2Map.json";
+import { AgentProtocolToolkit } from "../skills/AgentProtocolToolkit";
 import downloadFileSkill from "../skills/downloadFileSkill";
 import requestUserHelpSkill from "../skills/requestUserHelpSkill";
 import uploadFileSkill from "../skills/uploadFileSkill";
@@ -216,7 +218,7 @@ function getSearchLocation(
 export const requiredSkills = (
   agentPromptingMethod: AgentPromptingMethod,
   returnType: "YAML" | "JSON",
-) => [
+): StructuredTool[] => [
   requestUserHelpSkill.toTool(agentPromptingMethod, returnType),
   // selfHelpSkill.toTool(agentPromptingMethod, returnType),
 ];
@@ -287,11 +289,11 @@ function createSkills(
     );
   }
 
-  // if (agentProtocolOpenAPISpec) {
-  //   const openAPISpec = new JsonSpec(agentProtocolOpenAPISpec);
-  //   const toolkit = new AgentProtocolToolkit(openAPISpec, llm, {});
-  //   tools.push(...toolkit.tools);
-  // }
+  if (agentProtocolOpenAPISpec) {
+    const openAPISpec = new JsonSpec(agentProtocolOpenAPISpec);
+    const toolkit = new AgentProtocolToolkit(openAPISpec, llm, {});
+    tools.push(...toolkit.tools);
+  }
 
   return tools as StructuredTool[];
 }
