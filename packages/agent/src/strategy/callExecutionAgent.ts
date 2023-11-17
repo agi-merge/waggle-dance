@@ -368,7 +368,7 @@ export async function callExecutionAgent(
       taskObj,
       returnType,
       contextAndTools,
-      intermediateSteps,
+      intermediateSteps: intermediateSteps ?? [],
       memory: shortTermMemory,
       response,
       tags,
@@ -436,8 +436,9 @@ export async function callExecutionAgent(
       const evaluators = [taskFulfillmentEvaluator];
 
       const evaluationRunId = v4();
-      const shouldEvaluate = getMinimumScoreFromEnv() !== null;
-      shouldEvaluate &&
+      const shouldEvaluate =
+        getMinimumScoreFromEnv() !== null && !!intermediateSteps;
+      if (shouldEvaluate) {
         void handlePacketCallback({
           type: "handleToolStart",
           input: bestResponse.slice(0, 100),
