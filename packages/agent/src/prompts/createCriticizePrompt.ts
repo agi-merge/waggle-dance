@@ -15,11 +15,16 @@ export function createCriticizePrompt(params: {
   revieweeTaskResults: TaskState[];
   goalPrompt: string;
   nodes: DraftExecutionNode[];
-  namespace: string;
+  executionNamespace: string;
   returnType: "JSON" | "YAML";
 }): ChatPromptTemplate {
-  const { revieweeTaskResults, nodes, returnType, namespace, goalPrompt } =
-    params;
+  const {
+    revieweeTaskResults,
+    nodes,
+    returnType,
+    executionNamespace,
+    goalPrompt,
+  } = params;
 
   const schema = criticizeSchema(returnType, "unknown");
 
@@ -34,7 +39,7 @@ ${node.name}
 ## ID:
 ${node.id}
 ## NAMESPACE:
-${namespace}
+${executionNamespace}
 ## OUTPUT:
 ${returnType === "JSON" ? jsonStringify(task.value) : yamlStringify(task.value)}
 # END REVIEWEE TASK ${i > 0 ? ` ${i}` : ""}

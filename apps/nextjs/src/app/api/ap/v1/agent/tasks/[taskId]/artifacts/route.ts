@@ -147,10 +147,7 @@ export async function uploadFile({ contentType, file }: UploadFileParams) {
     addRandomSuffix: true,
   });
 
-  return {
-    artifactId: artifactId,
-    blobUrl: blob.url,
-  };
+  return blob;
 }
 
 type UploadAndSaveResultParams = UploadFileParams & {
@@ -166,9 +163,11 @@ export async function uploadAndSaveResult({
   executionId,
   nodeId,
   ...uploadFileParams
-}: UploadAndSaveResultParams): Promise<{ result: Result; artifact: Artifact }> {
-  const { artifactId: _artifactId, blobUrl } =
-    await uploadFile(uploadFileParams);
+}: UploadAndSaveResultParams): Promise<{
+  result: Result;
+  artifact: Artifact & { content_type: string };
+}> {
+  const { contentType, url } = await uploadFile(uploadFileParams);
 
   const caller = appRouter.createCaller({
     session,
@@ -180,16 +179,18 @@ export async function uploadAndSaveResult({
     executionId,
     nodeId,
     resultId: undefined,
-    artifactUrl: blobUrl,
+    artifactUrl: url,
+    contentType,
   });
 
   return {
     result,
     artifact: {
       artifact_id: result.id,
-      file_name: blobUrl,
+      file_name: result.id,
       agent_created: true,
-      relative_path: blobUrl,
+      relative_path: url,
+      content_type: contentType,
       created_at: result.createdAt.toISOString(),
     },
   };

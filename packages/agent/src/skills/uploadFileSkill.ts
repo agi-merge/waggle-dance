@@ -1,4 +1,5 @@
 import Base64 from "crypto-js/enc-base64";
+import { stringify } from "yaml";
 import { z } from "zod";
 
 import { makeServerIdIfNeeded } from "../prompts/types/serverDAGId";
@@ -9,12 +10,14 @@ const schema = z.object({
     textOrBase64: z
       .string()
       .min(1)
-      .describe("Non-placeholder plain text content of the file.")
+      .describe(
+        "Plain text or binary, must match mime. The non-placeholder, verbatim, REAL, exact contents of the file. If it is long, to save space, encode it as a Base64 string.",
+      )
       .or(
         z
           .string()
           .refine((c) => Base64.parse(c).words.length > 0)
-          .describe("base64 encoded content of the file."),
+          .describe("Base64-encoded string contents of the file."),
       ),
     mimeType: z
       .string()
@@ -45,8 +48,8 @@ const schema = z.object({
 });
 
 const uploadFileSkill = new DynamicZodSkill({
-  name: "Upload File",
-  description: `Write/Upload/Save files.`,
+  name: "Write File",
+  description: `Write/Upload/Save private files to your cloud filesystem.`,
   func: async (input, _runManager) => {
     const {
       file: { textOrBase64, mimeType },
@@ -80,9 +83,15 @@ const uploadFileSkill = new DynamicZodSkill({
       const artifact = (await response.json()) as {
         artifact_id: string;
         file_name: string;
+        relative_path: string;
       };
 
-      return artifact ? artifact.artifact_id : "Error: unexpected return value";
+      return stringify({
+        url: !!artifact
+          ? artifact.relative_path
+          : "Error: unexpected return value",
+        mimeType,
+      });
     } else {
       return `Error: ${response.status} ${response.statusText}`;
     }

@@ -37,7 +37,7 @@ export type CreateCallbackParams = {
   revieweeTaskResults: TaskState[];
   contentType: "application/json" | "application/yaml";
   abortController: AbortController;
-  namespace: string;
+  executionNamespace: string;
   req: NextRequest;
   lastToolInputs?: Map<string, string>;
 };
@@ -56,7 +56,7 @@ export const createCallbacks = (
     revieweeTaskResults: TaskState[],
     contentType: "application/json" | "application/yaml",
     abortController: AbortController,
-    namespace: string,
+    executionNamespace: string,
     req: NextRequest,
     lastToolInputs?: Map<string, string>,
   ) => Promise<void>,
@@ -74,7 +74,7 @@ export const createCallbacks = (
     revieweeTaskResults,
     contentType,
     abortController,
-    namespace,
+    executionNamespace,
     req,
     lastToolInputs,
   } = params;
@@ -110,7 +110,7 @@ export const createCallbacks = (
           revieweeTaskResults,
           contentType,
           abortController,
-          namespace,
+          executionNamespace,
           req,
           lastToolInputs,
         );
@@ -142,7 +142,7 @@ export const createCallbacks = (
           revieweeTaskResults,
           contentType,
           abortController,
-          namespace,
+          executionNamespace,
           req,
           lastToolInputs,
         );
@@ -153,13 +153,17 @@ export const createCallbacks = (
         runId: string,
         parentRunId?: string,
         _extraParams?: Record<string, unknown>,
-        _tags?: string[],
-        _metadata?: Record<string, unknown>,
+        tags?: string[],
+        metadata?: Record<string, unknown>,
+        name?: string,
       ): Promise<void> | void {
         const packet: AgentPacket = {
           type: "handleLLMStart",
           runId,
           parentRunId,
+          name,
+          metadata,
+          tags,
           llmHash: hashCode(JSON.stringify(llm)),
           hash: hashCode(JSON.stringify(prompts)),
         };
@@ -177,7 +181,7 @@ export const createCallbacks = (
           revieweeTaskResults,
           contentType,
           abortController,
-          namespace,
+          executionNamespace,
           req,
           lastToolInputs,
         );
@@ -207,7 +211,7 @@ export const createCallbacks = (
           revieweeTaskResults,
           contentType,
           abortController,
-          namespace,
+          executionNamespace,
           req,
           lastToolInputs,
         );
@@ -237,7 +241,7 @@ export const createCallbacks = (
           revieweeTaskResults,
           contentType,
           abortController,
-          namespace,
+          executionNamespace,
           req,
           lastToolInputs,
         );
@@ -268,7 +272,7 @@ export const createCallbacks = (
           revieweeTaskResults,
           contentType,
           abortController,
-          namespace,
+          executionNamespace,
           req,
           lastToolInputs,
         ); // can be 'Output parser not set'
@@ -301,7 +305,7 @@ export const createCallbacks = (
           revieweeTaskResults,
           contentType,
           abortController,
-          namespace,
+          executionNamespace,
           req,
           lastToolInputs,
         );
@@ -331,7 +335,7 @@ export const createCallbacks = (
           revieweeTaskResults,
           contentType,
           abortController,
-          namespace,
+          executionNamespace,
           req,
           lastToolInputs,
         );
@@ -361,7 +365,7 @@ export const createCallbacks = (
           revieweeTaskResults,
           contentType,
           abortController,
-          namespace,
+          executionNamespace,
           req,
           lastToolInputs,
         );

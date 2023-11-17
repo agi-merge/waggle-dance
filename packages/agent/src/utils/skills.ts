@@ -2,6 +2,7 @@ import { type ChatOpenAI } from "langchain/chat_models/openai";
 import { type Embeddings } from "langchain/embeddings/base";
 import { type OpenAI } from "langchain/llms/openai";
 import {
+  JsonSpec,
   SearchApi,
   SerpAPI,
   WolframAlphaTool,
@@ -12,6 +13,8 @@ import {
 import { WebBrowser } from "langchain/tools/webbrowser";
 
 import cca2Map from "../lib/cca2Map.json";
+import { AgentProtocolToolkit } from "../skills/AgentProtocolToolkit";
+import downloadFileSkill from "../skills/downloadFileSkill";
 import requestUserHelpSkill from "../skills/requestUserHelpSkill";
 import uploadFileSkill from "../skills/uploadFileSkill";
 import type Geo from "./Geo";
@@ -133,6 +136,7 @@ const makePrettyOrganicResult = (r: OrganicResult): string => {
     r.is_climate_pledge_friendly ? "Climate Pledge" : ""
   }`;
 };
+
 class AmazonSearch extends SearchApi {
   static lc_name(): string {
     return "Amazon Search";
@@ -211,6 +215,23 @@ function getSearchLocation(
   return { location, hl, gl };
 }
 
+export const requiredSkills = (
+  agentPromptingMethod: AgentPromptingMethod,
+  returnType: "YAML" | "JSON",
+): StructuredTool[] => [
+  requestUserHelpSkill.toTool(agentPromptingMethod, returnType),
+  // selfHelpSkill.toTool(agentPromptingMethod, returnType),
+];
+
+export const removeRequiredSkills = (
+  skills: StructuredTool[],
+  agentPromptingMethod: AgentPromptingMethod,
+  returnType: "YAML" | "JSON",
+) => {
+  const reqs = new Set(requiredSkills(agentPromptingMethod, returnType));
+  return skills.filter((s) => !reqs.has(s));
+};
+
 // skill === tool
 function createSkills(
   llm: OpenAI | ChatOpenAI,
@@ -223,9 +244,9 @@ function createSkills(
   geo?: Geo,
 ): StructuredTool[] {
   const tools: StructuredTool[] = [
-    requestUserHelpSkill.toTool(agentPromptingMethod, returnType),
-    // selfHelpSkill.toTool(agentPromptingMethod, returnType),
+    ...requiredSkills(agentPromptingMethod, returnType),
     uploadFileSkill.toTool(agentPromptingMethod, returnType),
+    downloadFileSkill.toTool(agentPromptingMethod, returnType),
     new WebBrowser({ model: llm, embeddings }),
   ];
 
@@ -268,11 +289,11 @@ function createSkills(
     );
   }
 
-  // if (agentProtocolOpenAPISpec) {
-  //   const openAPISpec = new JsonSpec(agentProtocolOpenAPISpec);
-  //   const toolkit = new AgentProtocolToolkit(openAPISpec, llm, {});
-  //   tools.push(...toolkit.tools);
-  // }
+  if (agentProtocolOpenAPISpec) {
+    const openAPISpec = new JsonSpec(agentProtocolOpenAPISpec);
+    const toolkit = new AgentProtocolToolkit(openAPISpec, llm, {});
+    tools.push(...toolkit.tools);
+  }
 
   return tools;
 }

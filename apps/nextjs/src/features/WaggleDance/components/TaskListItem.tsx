@@ -6,6 +6,7 @@ import {
   Download,
   ErrorOutline,
   QuestionAnswer,
+  QuestionMark,
 } from "@mui/icons-material";
 import {
   Box,
@@ -15,6 +16,7 @@ import {
   DialogActions,
   DialogContent,
   DialogTitle,
+  Divider,
   LinearProgress,
   List,
   ListItem,
@@ -28,7 +30,6 @@ import {
   Tooltip,
   Typography,
   useColorScheme,
-  type BoxProps,
   type ListItemProps,
 } from "@mui/joy";
 import Accordion from "@mui/joy/Accordion";
@@ -39,23 +40,23 @@ import Markdown from "react-markdown";
 import remarkGfm from "remark-gfm";
 import { v4 } from "uuid";
 import { stringify } from "yaml";
+import { z } from "zod";
 
 import {
+  findArtifactPackets,
   findContextAndTools,
-  findResult,
   getMostRelevantOutput,
   isAgentPacketFinishedType,
   rootPlanId,
   TaskStatus,
   type AgentPacket,
+  type ArtifactAgentPacket,
   type BaseAgentPacketWithIds,
   type TaskState,
 } from "@acme/agent";
 import { isTaskCriticism } from "@acme/agent/src/prompts/types";
-import { mapPacketTypeToStatus } from "@acme/agent/src/prompts/utils/mapPacketToStatus";
+import { parseAnyFormat } from "@acme/agent/src/utils/mimeTypeParser";
 import { type DraftExecutionEdge, type DraftExecutionNode } from "@acme/db";
-
-import { stringifyMax } from "../utils/stringifyMax";
 
 type StatusColor =
   | "danger"
@@ -193,6 +194,9 @@ const getGroupOutput = (group: AgentPacket[]): GroupOutput | null => {
         // would double up w/ LLM End
         return null;
       }
+      if (lastPacket.type === "handleLLMEnd") {
+        parsedColor = "success";
+      }
       const { title, output: o } = getMostRelevantOutput(
         group.findLast((p) => !!p)!,
       );
@@ -218,10 +222,11 @@ const getGroupOutput = (group: AgentPacket[]): GroupOutput | null => {
           parsedOutput = "…";
           break;
         case "rewrite":
-          parsedTitle = "Rewrite";
+          parsedTitle = "Improve Answer";
           parsedOutput = "…";
           break;
       }
+      break;
     case GroupType.Skill:
       const toolName: string | undefined = group.reduce(
         (acc: string | undefined, packet) => {
@@ -231,7 +236,7 @@ const getGroupOutput = (group: AgentPacket[]): GroupOutput | null => {
           if (packet.type === "handleToolStart") {
             return packet.tool.id[packet.tool.id.length - 1];
           } else if (packet.type === "handleAgentAction") {
-            return packet.action.tool;
+            return `act: ${packet.action.tool}`;
           }
           return acc;
         },
@@ -293,8 +298,8 @@ const getGroupOutput = (group: AgentPacket[]): GroupOutput | null => {
         lastPacket.type === "handleRetrieverError"
           ? String(lastPacket.err)
           : lastPacket.type === "handleRetrieverEnd"
-          ? stringify(lastPacket.documents)
-          : parsedOutput;
+            ? stringify(lastPacket.documents)
+            : parsedOutput;
       break;
   }
 
@@ -356,6 +361,20 @@ const renderPacketGroup = (
         return <Construction />;
       case GroupType.Retriever:
         return <Download />;
+      case GroupType.Custom:
+        switch (group[group.length - 1]?.type) {
+          case "artifact":
+            return <Download />;
+          case "contextAndTools":
+            return <QuestionAnswer />;
+          case "refine":
+            return <QuestionAnswer />;
+          case "review":
+            return <QuestionAnswer />;
+          case "rewrite":
+            return <QuestionAnswer />;
+        }
+        return <QuestionMark />;
       case GroupType.Success:
         return <AssignmentTurnedIn />;
       case GroupType.Error:
@@ -396,30 +415,68 @@ const TaskResultsValue = ({
   t,
   nodes,
   edges,
+  artifacts,
   isOpen,
 }: {
   t: TaskState;
   nodes: DraftExecutionNode[];
   edges: DraftExecutionEdge[];
+  artifacts: ArtifactAgentPacket[];
   isOpen: boolean;
 }) => {
-  return (
-    <Typography
-      level="body-sm"
-      sx={{
-        wordBreak: "break-word",
-        maxLines: 1,
-        textOverflow: "ellipsis",
-        overflow: isOpen ? "visible" : "hidden",
-        p: 1,
-      }}
-    >
-      {t.value.type === "working" && t.nodeId === rootPlanId
+  const result = useMemo(() => {
+    let result =
+      t.value.type === "working" && t.nodeId === rootPlanId
         ? `...${nodes.length} tasks and ${edges.length} interdependencies`
         : isAgentPacketFinishedType(t.value)
-        ? findResult([t.value]).replace(/\\n/g, " ")
-        : "None"}
-    </Typography>
+          ? getMostRelevantOutput(t.value).output
+          : "None";
+    const AgentPacketShape = z.custom<AgentPacket>();
+    const packet = parseAnyFormat(result, AgentPacketShape);
+    if (packet) {
+      result =
+        packet.type === "working" && packet.nodeId === rootPlanId
+          ? `...${nodes.length} tasks and ${edges.length} interdependencies`
+          : isAgentPacketFinishedType(packet)
+            ? getMostRelevantOutput(packet).output
+            : "None";
+    }
+    if (!isOpen) {
+      return result.replace(/\\n/g, " ");
+    }
+    return result;
+  }, [t.value, t.nodeId, nodes.length, edges.length, isOpen]);
+  return isOpen ? (
+    <>
+      <Typography
+        level="body-sm"
+        sx={{
+          wordBreak: "break-word",
+          maxLines: 1,
+          textOverflow: "ellipsis",
+          overflow: isOpen ? "visible" : "hidden",
+          p: 1,
+        }}
+      >
+        {artifacts.length ? `${artifacts.length} Downloads` : null}
+      </Typography>
+      <ResultMarkdown t={t} nodes={nodes} edges={edges} result={result} />
+    </>
+  ) : (
+    <>
+      <Typography
+        level="body-sm"
+        sx={{
+          wordBreak: "break-word",
+          maxLines: 1,
+          textOverflow: "ellipsis",
+          overflow: isOpen ? "visible" : "hidden",
+          p: 1,
+        }}
+      >
+        {result}
+      </Typography>
+    </>
   );
 };
 
@@ -427,12 +484,14 @@ const TaskResultTitle = ({
   t,
   color,
   isOpen,
+  artifacts,
   nodes,
   edges,
 }: {
   t: TaskState;
   color: StatusColor;
   isOpen: boolean;
+  artifacts: ArtifactAgentPacket[];
   nodes: DraftExecutionNode[];
   edges: DraftExecutionEdge[];
 }) => {
@@ -450,7 +509,13 @@ const TaskResultTitle = ({
     >
       {t.status === TaskStatus.error ? "Error: " : "Result: "}
       {isOpen ? null : (
-        <TaskResultsValue t={t} nodes={nodes} edges={edges} isOpen={isOpen} />
+        <TaskResultsValue
+          t={t}
+          nodes={nodes}
+          edges={edges}
+          isOpen={isOpen}
+          artifacts={artifacts}
+        />
       )}
     </Typography>
   );
@@ -505,9 +570,11 @@ const SynthesizedContextValue = ({
 
 const SynthesizedContextTitle = ({
   synthesizedContext,
+  context,
   isOpen,
 }: {
   synthesizedContext: string[];
+  context: string | null;
   isOpen: boolean;
 }) => {
   return (
@@ -522,61 +589,16 @@ const SynthesizedContextTitle = ({
         textOverflow: isOpen ? "clip" : "ellipsis",
       }}
     >
-      Synthesized Context:
+      {context?.length ?? false ? "" : "Synthesized "} Context:
       {isOpen ? null : (
         <SynthesizedContextValue
           isOpen={isOpen}
-          synthesizedContext={synthesizedContext}
+          synthesizedContext={
+            context?.length ?? false ? [context!] : synthesizedContext
+          }
         />
       )}
     </Typography>
-  );
-};
-
-const TaskResult = ({
-  t,
-  color: _color,
-  nodes,
-  edges,
-  isExpanded,
-  ...props
-}: {
-  t: TaskState;
-  color: StatusColor;
-  nodes: DraftExecutionNode[];
-  edges: DraftExecutionEdge[];
-  isExpanded: boolean;
-} & BoxProps) => {
-  const result = useMemo(() => {
-    return findResult(t.packets).replace(/\\n/g, " ");
-  }, [t.packets]);
-  return (
-    <>
-      {isExpanded ? (
-        <Box
-          {...props}
-          sx={{
-            overflow: isExpanded ? "scroll" : "inherit",
-            display: isExpanded ? "flex" : "inherit",
-          }}
-        >
-          <ResultMarkdown t={t} nodes={nodes} edges={edges} result={result} />
-        </Box>
-      ) : (
-        <Typography
-          level="body-xs"
-          variant="plain"
-          sx={{
-            alignSelf: "center",
-            whiteSpace: "nowrap",
-            overflow: "hidden",
-            textOverflow: "ellipsis",
-          }}
-        >
-          {result}
-        </Typography>
-      )}
-    </>
   );
 };
 
@@ -639,6 +661,11 @@ const TaskListItem = ({
     return contextAndTools;
   }, [t.packets]);
 
+  const artifactPackets = useMemo(() => {
+    const artifactPackets = findArtifactPackets(t.packets);
+    return artifactPackets;
+  }, [t.packets]);
+
   const mostRelevantOutput = useMemo(() => {
     const lastPacketGroup = packetGroups.length ? packetGroups[0] : [];
     const lastPacket = lastPacketGroup?.length
@@ -686,11 +713,11 @@ const TaskListItem = ({
           boxShadow: "md",
           backgroundColor: !!color
             ? theme.palette.mode === "dark"
-              ? theme.palette[color].softBg
+              ? theme.palette[color].outlinedActiveBg
               : theme.palette[color][300]
             : theme.palette.background.surface,
         })}
-        variant={mode === "dark" ? "soft" : "outlined"}
+        variant={mode === "dark" ? "outlined" : "outlined"}
         color={color}
       >
         {isRunning && t.status === TaskStatus.working && (
@@ -744,97 +771,75 @@ const TaskListItem = ({
           {node.name}
         </Typography>
         <Stack
+          component={Sheet}
           direction={"row"}
-          gap={0.75}
-          sx={{
-            justifyContent: "flex-end",
+          gap={1}
+          sx={(theme) => ({
+            justifyContent: "center",
             width: "100%",
             position: "sticky",
             bottom: 0,
+            left: 0,
             right: 0,
-          }}
+            backgroundColor: theme.palette.background.backdrop,
+            mixBlendMode: "screen",
+            backdropFilter: "drop-shadow(2px 2px 2px black)",
+          })}
+          variant="outlined"
+          color={color}
         >
+          <Tooltip title={`${artifactPackets.length} Downloads available`}>
+            <Typography
+              level="body-xs"
+              variant="plain"
+              fontFamily={"monospace"}
+              color={artifactPackets.length ? "success" : "neutral"}
+              textAlign={"center"}
+            >
+              {artifactPackets.length}
+              <Download />
+            </Typography>
+          </Tooltip>
+          <Divider orientation="vertical" />
           <Tooltip title={"Number of actions/steps taken by the agent"}>
             <Typography
               level="body-xs"
-              component={Chip}
-              variant="soft"
-              color={color}
-              sx={(theme) => ({
-                pt: 0.75,
-                borderRadius: 0,
-                borderLeft: "1px solid",
-                borderTop: "1px solid",
-                boxShadow: theme.palette.mode === "light" ? "sm" : "none",
-              })}
+              variant="plain"
+              textAlign={"center"}
+              fontFamily={"monospace"}
             >
-              Step {packetGroups.length}
+              {packetGroups.length} Actions
             </Typography>
           </Tooltip>
+          <Divider orientation="vertical" />
           <Tooltip title={"Latest Action"}>
             <Typography
-              level="body-xs"
-              component={Chip}
-              variant="soft"
+              level="body-sm"
+              textAlign={"center"}
+              variant="plain"
+              fontFamily={"monospace"}
               color={color}
-              sx={(theme) => ({
-                pt: 0.75,
-                borderRadius: 0,
-                borderLeft: "1px solid",
-                borderTop: "1px solid",
-                boxShadow: theme.palette.mode === "light" ? "sm" : "none",
-              })}
             >
-              {mostRelevantOutput?.title ?? "Idle"}
+              {mostRelevantOutput?.emoji.length
+                ? mostRelevantOutput.emoji
+                : "💤"}
             </Typography>
           </Tooltip>
-          <Tooltip title={"Task Identifier"}>
-            <Typography
-              level="body-xs"
-              component={Chip}
-              variant="soft"
-              color={color}
-              sx={(theme) => ({
-                pt: 0.75,
-                borderRadius: 0,
-                borderLeft: "1px solid",
-                borderTop: "1px solid",
-                boxShadow: theme.palette.mode === "light" ? "sm" : "none",
-              })}
-            >
-              {t.displayId}
-            </Typography>
-          </Tooltip>
-          <Typography
-            color={color}
-            level="body-xs"
-            component={Chip}
-            variant="soft"
-            sx={(theme) => ({
-              p: 0.5,
-              pt: 0.75,
-              borderRadius: 0,
-              borderLeft: "1px solid",
-              borderTop: "1px solid",
-              boxShadow: theme.palette.mode === "light" ? "sm" : "none",
-            })}
-          >
-            {mapPacketTypeToStatus(t.value.type)}
-          </Typography>
         </Stack>
         <AccordionGroup
           sx={(theme) => ({
             width: "100%",
             borderEndStartRadius: "sm",
             borderEndEndRadius: "sm",
-            backdropFilter: "blur(10px)",
-            backgroundColor: theme.palette.background.body,
+            opacity: 0.9,
             overflow: "clip",
             p: 0,
             m: 0,
           })}
+          size="sm"
           variant="plain"
-          component={Sheet}
+          component={Card}
+          color={color}
         >
           {(contextAndTools?.tools?.length ?? 0) > 0 && (
             <Accordion
@@ -873,19 +878,27 @@ const TaskListItem = ({
                     background: "transparent",
                   }}
                 >
-                  ({contextAndTools?.tools?.length ?? "?"}) Skills
+                  ({contextAndTools?.tools?.length ?? "?"}) Skills Selected
                 </Typography>
               </AccordionSummary>
 
               <AccordionDetails>
-                <List wrap={true} orientation="horizontal">
+                <List wrap={true} orientation="horizontal" size="sm">
                   {contextAndTools?.tools?.map((tool) => (
                     <ListItem key={`x-${tool}`} sx={{ p: 0 }}>
-                      <ListItemDecorator sx={{ ml: -3, pl: 3 }}>
+                      <ListItemDecorator sx={{ py: -2, ml: -2, pl: 3 }}>
                         ・
                       </ListItemDecorator>
-                      <ListItemContent sx={{ pr: 2 }}>
-                        <Typography level="body-xs" fontSize={"0.6rem"}>
+                      <ListItemContent sx={{ my: -2, py: 2, pr: 1.5 }}>
+                        <Typography
+                          level="body-xs"
+                          fontSize={"0.6rem"}
+                          flexWrap={"wrap"}
+                          sx={{
+                            wordBreak: "break-word",
+                            overflowWrap: "anywhere",
+                          }}
+                        >
                           {tool}
                         </Typography>
                       </ListItemContent>
@@ -937,30 +950,12 @@ const TaskListItem = ({
               component={Stack}
               gap={1.5}
             >
-              {node.context && (
-                <Typography level="title-lg" sx={{ pl: "0.35rem", zIndex: 1 }}>
-                  Context:{" "}
-                  <Typography
-                    fontWeight={"normal"}
-                    level="body-sm"
-                    className="text-wrap"
-                    color="neutral"
-                    sx={{
-                      display: "-webkit-box",
-                      WebkitBoxOrient: "vertical",
-                      WebkitLineClamp: 3, // Number of lines you want to display
-                      overflow: "hidden",
-                      textOverflow: "ellipsis",
-                    }}
-                  >
-                    {stringifyMax(node.context, 200)}
-                  </Typography>
-                </Typography>
-              )}
               <Sheet
                 sx={{
                   zIndex: 1,
                   pl: "0.35rem",
+                  flexDirection: "row",
+                  flex: "1 1 auto",
                 }}
                 component={Stack}
                 direction="row"
@@ -970,6 +965,25 @@ const TaskListItem = ({
                 <Chip sx={{ minWidth: "2.5rem", textAlign: "center" }}>
                   {packetGroups.length}
                 </Chip>
+                {artifactPackets.length ? (
+                  <Button
+                    size="sm"
+                    variant="plain"
+                    color="success"
+                    startDecorator={<Download />}
+                    sx={{
+                      // align right
+                      ml: "auto",
+                    }}
+                    onClick={(e) => {
+                      setSelectedGroup(artifactPackets);
+                      e.preventDefault();
+                      e.stopPropagation();
+                    }}
+                  >
+                    All Files ({artifactPackets.length})
+                  </Button>
+                ) : null}
               </Sheet>
               <List
                 size="sm"
@@ -998,6 +1012,27 @@ const TaskListItem = ({
                       Detailed task information coming soon!
                     </DialogTitle>
                     <DialogContent>
+                      <List>
+                        {artifactPackets.map((p) => (
+                          <ListItem key={p.url.toString()}>
+                            {/* get the file extension if it exists */}
+                            <ListItemDecorator>
+                              {p.contentType}
+                            </ListItemDecorator>
+                            <Link
+                              autoFocus
+                              href={p.url}
+                              onClick={(e) => {
+                                e.preventDefault();
+                                e.stopPropagation();
+                                window.open(p.url, "_blank");
+                              }}
+                            >
+                              {p.url.toString()}
+                            </Link>
+                          </ListItem>
+                        ))}
+                      </List>
                       {t.packets.map((p) => p.type).join(" → ")}
                     </DialogContent>
                     <DialogActions>
@@ -1053,7 +1088,10 @@ const TaskListItem = ({
               <AccordionSummary>
                 <SynthesizedContextTitle
                   isOpen={isContextExpanded}
-                  synthesizedContext={contextAndTools?.synthesizedContext ?? []}
+                  context={node.context}
+                  synthesizedContext={
+                    contextAndTools?.synthesizedContext ?? ["…"]
+                  }
                 />
               </AccordionSummary>
               <AccordionDetails
@@ -1064,7 +1102,11 @@ const TaskListItem = ({
               >
                 <SynthesizedContextValue
                   isOpen={isContextExpanded}
-                  synthesizedContext={contextAndTools?.synthesizedContext ?? []}
+                  synthesizedContext={
+                    node.context?.length
+                      ? [node.context]
+                      : contextAndTools?.synthesizedContext ?? ["…"]
+                  }
                 />
               </AccordionDetails>
             </Accordion>
@@ -1098,15 +1140,16 @@ const TaskListItem = ({
                   isOpen={isResultExpanded}
                   nodes={nodes}
                   edges={edges}
+                  artifacts={artifactPackets}
                 />
               </AccordionSummary>
               <AccordionDetails>
-                <TaskResult
-                  t={t}
+                <TaskResultsValue
                   nodes={nodes}
                   edges={edges}
-                  isExpanded={isResultExpanded}
-                  color={color}
+                  t={t}
+                  isOpen
+                  artifacts={artifactPackets}
                 />
               </AccordionDetails>
             </Accordion>

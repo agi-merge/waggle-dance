@@ -39,11 +39,11 @@ export async function initializeExecutor(
   tools: StructuredTool[],
   llm: OpenAI | ChatOpenAI,
   tags: string[],
-  memory: MemoryType,
   runName: string,
   systemMessage: MessageContent | undefined,
   humanMessage: MessageContent | undefined,
   callbacks: Callbacks | undefined,
+  memory: MemoryType | undefined,
 ) {
   let executor;
   const agentType = getAgentPromptingMethodValue(agentPromptingMethod);

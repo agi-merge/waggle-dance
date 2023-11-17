@@ -6,9 +6,11 @@ import { type Document } from "langchain/document";
 import { ScoreThresholdRetriever } from "langchain/retrievers/score_threshold";
 import { type JsonObject } from "langchain/tools";
 import { MemoryVectorStore } from "langchain/vectorstores/memory";
+import { v4 } from "uuid";
 import { stringify } from "yaml";
 
 import createNamespace from "@acme/agent/src/memory/namespace";
+import downloadFileSkill from "@acme/agent/src/skills/downloadFileSkill";
 import { LLM, type AgentPromptingMethod } from "@acme/agent/src/utils/llms";
 import { type CreateResultParams } from "@acme/api/src/router/result";
 import {
@@ -119,7 +121,7 @@ export default async function ExecuteStream(req: NextRequest) {
     | undefined;
   let goalId: string | undefined;
   let executionId: string | undefined;
-  let namespace: string | undefined;
+  let executionNamespace: string | undefined;
   let resolveStreamEnded: () => void;
   let rejectStreamEnded: (reason?: string) => void;
   const streamEndedPromise = new Promise<void>((resolve, reject) => {
@@ -147,7 +149,7 @@ export default async function ExecuteStream(req: NextRequest) {
     revieweeTaskResults: TaskState[],
     contentType: "application/json" | "application/yaml",
     abortController: AbortController,
-    namespace: string,
+    executionNamespace: string,
     req: NextRequest,
     lastToolInputs?: Map<string, string>,
   ) => {
@@ -160,6 +162,40 @@ export default async function ExecuteStream(req: NextRequest) {
       }
       // Store the last tool input for this run
       lastToolInputs.set(packet.runId, packet.input);
+    } else if (packet.type === "handleToolEnd") {
+      const toolStart = allSentPackets.find(
+        (p) => "runId" in p && p.runId === packet.runId,
+      );
+
+      if (
+        toolStart?.type === "handleAgentAction" &&
+        toolStart.action.tool === downloadFileSkill.skill.name
+      ) {
+        // create side-effects for certain skills
+        await handlePacket(
+          {
+            type: "artifact",
+            url: packet.output,
+            contentType,
+            nodeId: task.id,
+            runId: v4(),
+          },
+          controller,
+          encoder,
+          creationProps,
+          goalPrompt,
+          parsedGoalId,
+          agentPromptingMethod,
+          task,
+          dag,
+          revieweeTaskResults,
+          contentType,
+          abortController,
+          executionNamespace,
+          req,
+          lastToolInputs,
+        );
+      }
     }
 
     if (!abortController.signal.aborted) {
@@ -217,7 +253,7 @@ export default async function ExecuteStream(req: NextRequest) {
               revieweeTaskResults,
               contentType,
               abortController,
-              namespace,
+              executionNamespace,
               req,
               lastToolInputs,
             );
@@ -265,7 +301,7 @@ export default async function ExecuteStream(req: NextRequest) {
     dag: DraftExecutionGraph | null,
     revieweeTaskResults: TaskState[],
     contentType: "application/json" | "application/yaml",
-    namespace: string,
+    executionNamespace: string,
     agentProtocolOpenAPISpec: JsonObject | undefined,
     req: NextRequest,
     encoder: TextEncoder,
@@ -284,7 +320,7 @@ export default async function ExecuteStream(req: NextRequest) {
       revieweeTaskResults,
       contentType,
       abortSignal: abortControllerWrapper.controller.signal,
-      namespace: namespace,
+      executionNamespace,
       lastToolInputs,
       handlePacketCallback: async (packet: AgentPacket) => {
         await handlePacket(
@@ -300,7 +336,7 @@ export default async function ExecuteStream(req: NextRequest) {
           revieweeTaskResults,
           contentType,
           abortControllerWrapper.controller,
-          namespace,
+          executionNamespace,
           req,
           lastToolInputs,
         );
@@ -357,7 +393,7 @@ export default async function ExecuteStream(req: NextRequest) {
     node = task;
     goalId = parsedGoalId;
     executionId = parsedExecutionId;
-    namespace = createNamespace({ goalId, executionId });
+    executionNamespace = createNamespace({ goalId, executionId });
 
     const encoder = new TextEncoder();
     // helps augment tool errors and ends so that they do not trigger error handlers for different inputs
@@ -378,7 +414,7 @@ export default async function ExecuteStream(req: NextRequest) {
           revieweeTaskResults,
           contentType,
           abortController: abortControllerWrapper.controller,
-          namespace: namespace!,
+          executionNamespace: executionNamespace!,
           req,
           lastToolInputs,
         };
@@ -396,7 +432,7 @@ export default async function ExecuteStream(req: NextRequest) {
           dag,
           revieweeTaskResults,
           contentType,
-          namespace!,
+          executionNamespace!,
           agentProtocolOpenAPISpec,
           req,
           encoder,

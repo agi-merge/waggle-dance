@@ -24,7 +24,7 @@ type CreateRewriteRunnableParams = {
   taskObj: { id: string; name: string };
   returnType: "JSON" | "YAML";
   contextAndTools: ContextAndTools;
-  memory: MemoryType;
+  memory: MemoryType | undefined;
   response: string;
   tags: string[];
   intermediateSteps: AgentStep[] | undefined;
@@ -32,6 +32,10 @@ type CreateRewriteRunnableParams = {
 };
 
 const rewriteResponseAck = `ack`;
+
+function sanitizeInput(input: string): string {
+  return input.replaceAll(/[-[\]{}()*+?.,\\^$|#\s`]/g, "\\$&");
+}
 
 export async function createRewriteRunnable({
   creationProps,
@@ -43,12 +47,18 @@ export async function createRewriteRunnable({
   memory,
   response,
 }: CreateRewriteRunnableParams) {
-  const chatHistory = (await memory?.loadMemoryVariables({
+  let chatHistory = (await memory?.loadMemoryVariables({
     input: `${taskObj.name}: [
   ${contextAndTools.synthesizedContext?.join("\n\n")}
 ]`,
-  })) as { chat_history: { value?: string; message?: string } };
-
+  })) as
+    | { chat_history: { value?: string; message?: string } }
+    | undefined
+    | null;
+  if (!chatHistory || "chat_history" in chatHistory === false) {
+    // guard against runtime access of undefined, when MEMORY_TYPE is undefined/disabled
+    chatHistory = null;
+  }
   const systemMessagePrompt = SystemMessagePromptTemplate.fromTemplate(
     `You are an attentive, helpful, diligent, and expert executive assistant, charged with editing the Final Answer for a Task.
   # Variables Start
@@ -56,18 +66,20 @@ export async function createRewriteRunnable({
   ${taskObj.id}: ${taskObj.name}
   ${stringifyByMime(returnType, contextAndTools.synthesizedContext)}
   ## Log
-  ${stringifyByMime(
-    returnType,
-    chatHistory.chat_history.value ||
-      chatHistory.chat_history.message ||
-      chatHistory.chat_history ||
-      intermediateSteps?.map((s) => s.observation).join("\n\n"),
+  ${sanitizeInput(
+    stringifyByMime(
+      returnType,
+      chatHistory?.chat_history.value ||
+        chatHistory?.chat_history.message ||
+        chatHistory?.chat_history ||
+        intermediateSteps?.map((s) => s.observation).join("\n\n"),
+    ),
   )}
   ## Time
   ${new Date().toString()}
   ${formattingConstraints}
   ## Final Answer
-  ${response}
+  ${sanitizeInput(response)}
   # End Variables`,
   );
 

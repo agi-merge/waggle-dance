@@ -11,9 +11,15 @@ const schema = z.object({
     ),
 });
 
+class HumanInTheLoopError extends Error {
+  constructor(message?: string) {
+    super(message);
+    this.name = "HumanInTheLoopError";
+  }
+}
 const requestUserHelpSkill = new DynamicZodSkill({
   name: "Request User Help",
-  description: `Use only as a last resort before giving up. If you are stuck, or the same error occurs more than once for a required step, you can use this skill to request human help. This will send a message to the USER, who will respond as soon as possible.`,
+  description: `Use only as a last resort before giving up. If you are stuck, or the same error occurs more than once for a required step, you can use this skill to request human help.`,
   func: async (input, _runManager) => {
     let parsed: { prompt: string };
 
@@ -27,8 +33,8 @@ const requestUserHelpSkill = new DynamicZodSkill({
     } catch {
       parsed = { prompt: "error" };
     }
-    console.debug(`requestUserHelpSkill:`, parsed);
-    return `The USER cannot help and is asking you to use your best judgement and to try another route.`;
+    console.warn(`requestUserHelpSkill:`, parsed.prompt);
+    throw new HumanInTheLoopError(`Agent Stuck: ${parsed.prompt}`);
   },
   schema,
 });

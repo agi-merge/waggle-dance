@@ -38,8 +38,8 @@ export default function createNamespace(
 }
 
 // it is okay for the taskId to not be encrypted, as the other portion is.
-export function createChatNamespace(namespace: string, taskId: string) {
-  return `${namespace}_chat_history_${taskId}`;
+export function createSTMNamespace(executionNamespace: string, taskId: string) {
+  return `${executionNamespace}_chat_history_${taskId}`;
 }
 
 export function isNamespaceMatch(

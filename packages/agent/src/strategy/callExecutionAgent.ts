@@ -10,7 +10,6 @@ import {
 import { type AgentStep } from "langchain/schema";
 import { v4 } from "uuid";
 import { parse as yamlParse } from "yaml";
-import { z } from "zod";
 import zodToJsonSchema from "zod-to-json-schema";
 
 import { type DraftExecutionGraph } from "@acme/db";
@@ -18,7 +17,7 @@ import { type DraftExecutionGraph } from "@acme/db";
 import {
   createCriticizePrompt,
   createExecutePrompt,
-  createMemory,
+  createMemory as createShortTermMemory,
   extractTier,
   TaskState,
   type ChainValues,
@@ -42,8 +41,15 @@ import {
 } from "../utils/llms";
 import { stringifyByMime } from "../utils/mimeTypeParser";
 import { createEmbeddings, createModel } from "../utils/model";
-import createSkills from "../utils/skills";
-import { type CallExecutionAgentProps } from "./execute/callExecutionAgent.types";
+import createSkills, {
+  removeRequiredSkills,
+  requiredSkills,
+} from "../utils/skills";
+import {
+  contextAndToolsOutputSchema,
+  reActOutputSchema,
+  type CallExecutionAgentProps,
+} from "./execute/callExecutionAgent.types";
 import { initializeExecutor } from "./execute/initializeAgentExecutor";
 
 export interface FunctionDefinition {
@@ -92,21 +98,6 @@ export function formatToOpenAIAssistantTool(
   };
 }
 
-export type ContextAndTools = {
-  synthesizedContext?: string[] | undefined;
-  tools?: string[] | undefined;
-};
-// could be replaced with?
-// https://js.langchain.com/docs/modules/chains/additional/openai_functions/tagging
-const contextAndToolsOutputSchema = z.object({
-  synthesizedContext: z.array(z.string()).optional(),
-  tools: z.array(z.string()).optional(),
-});
-const reActOutputSchema = z.object({
-  action: z.string(),
-  action_input: z.string(),
-});
-
 export async function callExecutionAgent(
   creation: CallExecutionAgentProps,
 ): Promise<string | Error> {
@@ -120,7 +111,7 @@ export async function callExecutionAgent(
     dag,
     revieweeTaskResults: revieweeTaskResultsNeedDeserialization,
     abortSignal,
-    namespace,
+    executionNamespace,
     contentType,
     lastToolInputs: _lastToolInputs,
     handlePacketCallback,
@@ -139,8 +130,8 @@ export async function callExecutionAgent(
   };
   const isCriticism = isTaskCriticism(taskObj.id);
   const returnType = contentType === "application/json" ? "JSON" : "YAML";
-  const memory = await createMemory({
-    namespace,
+  const shortTermMemory = await createShortTermMemory({
+    executionNamespace,
     taskId: taskObj.id,
     returnUnderlying: false,
   });
@@ -163,13 +154,14 @@ export async function callExecutionAgent(
         revieweeTaskResults,
         goalPrompt,
         nodes: dagObj.nodes,
-        namespace,
+        executionNamespace,
         returnType,
       })
     : createExecutePrompt({
         taskObj,
+        taskResults: revieweeTaskResults,
         executionId,
-        namespace,
+        executionNamespace,
         returnType,
         modelName: creationProps.modelName!,
       });
@@ -178,7 +170,6 @@ export async function callExecutionAgent(
     agentPromptingMethod,
     taskObj.id,
   ];
-  namespace && tags.push(namespace);
   creationProps.modelName && tags.push(creationProps.modelName);
 
   const skills = createSkills(
@@ -214,8 +205,8 @@ export async function callExecutionAgent(
       tool: { lc: 1, type: "not_implemented", id: ["Retrieve Memories"] },
     });
     memories = await retrieveMemoriesSkill.skill.func({
-      retrievals,
-      namespace,
+      retrievals: [goalPrompt, task],
+      namespace: executionNamespace,
     });
 
     void handlePacketCallback({
@@ -241,7 +232,11 @@ export async function callExecutionAgent(
     ...taskAndGoal,
     longTermMemories: memories,
     // availableDataSources: [],
-    availableTools: skills.map((s) => humanReadable(s.name)),
+    availableTools: removeRequiredSkills(
+      skills,
+      agentPromptingMethod,
+      returnType,
+    ).map((s) => humanReadable(s.name)), // we filter required skills out here
   };
 
   const inputTaskAndGoalString = stringifyByMime(returnType, inputTaskAndGoal);
@@ -295,6 +290,12 @@ export async function callExecutionAgent(
       runName: "Synthesize Context & Tools",
     },
   );
+  if (contextAndTools.tools) {
+    const reqs = requiredSkills(agentPromptingMethod, returnType).map(
+      (s) => s.name,
+    );
+    contextAndTools.tools = [...contextAndTools.tools, ...reqs];
+  }
 
   void handlePacketCallback({
     type: "handleToolEnd",
@@ -334,11 +335,11 @@ export async function callExecutionAgent(
     filteredSkills,
     exeLLM,
     tags,
-    memory,
     runName,
     systemMessage,
     humanMessage,
     callbacks,
+    shortTermMemory, //FIXME: OpenAI Functions crashes when using conversation/buffer memory
   );
 
   let call: ChainValues | undefined;
@@ -438,8 +439,9 @@ export async function callExecutionAgent(
 
     const response = call?.output ? (call.output as string) : "";
     // intermediate steps are not available for OpenAI Assistants
-    const intermediateSteps =
-      (call?.intermediateSteps as AgentStep[] | undefined) ?? [];
+    const intermediateSteps = call?.intermediateSteps as
+      | AgentStep[]
+      | undefined;
 
     if (isCriticism) {
       return response;
@@ -465,8 +467,8 @@ export async function callExecutionAgent(
       taskObj,
       returnType,
       contextAndTools,
-      intermediateSteps,
-      memory,
+      intermediateSteps: intermediateSteps ?? [],
+      memory: shortTermMemory,
       response,
       tags,
       callbacks,
@@ -480,7 +482,7 @@ export async function callExecutionAgent(
     });
 
     const saveRunId = v4();
-    await handlePacketCallback({
+    void handlePacketCallback({
       type: "handleToolStart",
       input: bestResponse.slice(0, 100),
       runId: saveRunId,
@@ -491,15 +493,15 @@ export async function callExecutionAgent(
       },
     });
     // make sure that we are at least saving the task result so that other notes can refer back.
-    const saveOutput = await saveMemoriesSkill.skill.func({
+    const _saveOutput = await saveMemoriesSkill.skill.func({
       memories: [bestResponse],
-      namespace: namespace,
+      namespace: executionNamespace,
     });
 
-    await handlePacketCallback({
+    void handlePacketCallback({
       type: "handleToolEnd",
       lastToolInput: bestResponse.slice(0, 100),
-      output: saveOutput,
+      output: bestResponse.slice(0, 100),
       runId: saveRunId,
     });
 
@@ -530,8 +532,9 @@ export async function callExecutionAgent(
 
       const evaluationRunId = v4();
       const minReviewScore = getMinimumScoreFromEnv();
-      const shouldEvaluate = minReviewScore !== null;
-      shouldEvaluate &&
+      const shouldEvaluate = minReviewScore !== null && !!intermediateSteps;
+
+      if (shouldEvaluate) {
         void handlePacketCallback({
           type: "handleToolStart",
           input: bestResponse.slice(0, 100),
@@ -539,9 +542,7 @@ export async function callExecutionAgent(
           tool: { lc: 1, type: "not_implemented", id: ["Review"] },
         });
 
-      const evaluationResult =
-        shouldEvaluate &&
-        (await checkTrajectory(
+        const evaluationResult = await checkTrajectory(
           bestResponse,
           response,
           humanMessage!.toString(),
@@ -550,9 +551,8 @@ export async function callExecutionAgent(
           tags,
           callbacks,
           evaluators,
-        ));
+        );
 
-      shouldEvaluate &&
         void handlePacketCallback({
           type: "handleToolEnd",
           lastToolInput: inputTaskAndGoalString,
@@ -562,10 +562,12 @@ export async function callExecutionAgent(
               : "No evaluation result",
           runId: evaluationRunId,
         });
-      return `${bestResponse}
+        return `${bestResponse}
 ### Evaluation:
-${evaluationResult}
-`;
+${evaluationResult}`;
+      } else {
+        return bestResponse;
+      }
     } catch (error) {
       return error as Error;
     }

@@ -27,7 +27,7 @@ export type CallExecutionAgentProps = {
   revieweeTaskResults: TaskState[];
   contentType: "application/json" | "application/yaml";
   abortSignal: AbortSignal;
-  namespace: string;
+  executionNamespace: string;
   lastToolInputs: Map<string, string>;
   handlePacketCallback: (packet: AgentPacket) => Promise<void>;
   agentProtocolOpenAPISpec?: JsonObject;

@@ -41,8 +41,8 @@ export async function GET(
       return {
         artifact_id: r.id,
         agent_created: true,
-        file_name: r.artifactUrls[0] ?? "error",
-        relative_path: null,
+        file_name: r.id,
+        relative_path: r.artifactUrls[0] || null,
         created_at: r.createdAt.toISOString() ?? new Date().toISOString(),
       };
     }) || [];
