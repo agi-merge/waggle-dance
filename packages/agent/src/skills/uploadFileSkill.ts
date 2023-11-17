@@ -85,7 +85,9 @@ const uploadFileSkill = new DynamicZodSkill({
         relative_path: string;
       };
 
-      return artifact ? artifact.artifact_id : "Error: unexpected return value";
+      return artifact
+        ? artifact.relative_path
+        : "Error: unexpected return value";
     } else {
       return `Error: ${response.status} ${response.statusText}`;
     }

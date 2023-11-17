@@ -28,7 +28,6 @@ import {
   Tooltip,
   Typography,
   useColorScheme,
-  type BoxProps,
   type ListItemProps,
 } from "@mui/joy";
 import Accordion from "@mui/joy/Accordion";
@@ -39,8 +38,10 @@ import Markdown from "react-markdown";
 import remarkGfm from "remark-gfm";
 import { v4 } from "uuid";
 import { stringify } from "yaml";
+import { z } from "zod";
 
 import {
+  findArtifactPackets,
   findContextAndTools,
   findResult,
   getMostRelevantOutput,
@@ -48,6 +49,7 @@ import {
   rootPlanId,
   TaskStatus,
   type AgentPacket,
+  type ArtifactAgentPacket,
   type BaseAgentPacketWithIds,
   type TaskState,
 } from "@acme/agent";
@@ -55,8 +57,6 @@ import { isTaskCriticism } from "@acme/agent/src/prompts/types";
 import { mapPacketTypeToStatus } from "@acme/agent/src/prompts/utils/mapPacketToStatus";
 import { parseAnyFormat } from "@acme/agent/src/utils/mimeTypeParser";
 import { type DraftExecutionEdge, type DraftExecutionNode } from "@acme/db";
-
-import { stringifyMax } from "../utils/stringifyMax";
 
 type StatusColor =
   | "danger"
@@ -397,11 +397,13 @@ const TaskResultsValue = ({
   t,
   nodes,
   edges,
+  artifacts,
   isOpen,
 }: {
   t: TaskState;
   nodes: DraftExecutionNode[];
   edges: DraftExecutionEdge[];
+  artifacts: ArtifactAgentPacket[];
   isOpen: boolean;
 }) => {
   const result = useMemo(() => {
@@ -411,7 +413,8 @@ const TaskResultsValue = ({
         : isAgentPacketFinishedType(t.value)
           ? findResult([t.value])
           : "None";
-    const packet = parseAnyFormat(result) as AgentPacket | null | undefined;
+    const AgentPacketShape = z.custom<AgentPacket>();
+    const packet = parseAnyFormat(result, AgentPacketShape);
     if (packet) {
       result =
         packet.type === "working" && packet.nodeId === rootPlanId
@@ -424,20 +427,38 @@ const TaskResultsValue = ({
       return result.replace(/\\n/g, " ");
     }
     return result;
-  }, [edges.length, nodes.length, t.nodeId, t.value]);
-  return (
-    <Typography
-      level="body-sm"
-      sx={{
-        wordBreak: "break-word",
-        maxLines: 1,
-        textOverflow: "ellipsis",
-        overflow: isOpen ? "visible" : "hidden",
-        p: 1,
-      }}
-    >
-      {result}
-    </Typography>
+  }, [t.value, t.nodeId, nodes.length, edges.length, isOpen]);
+  return isOpen ? (
+    <>
+      <Typography
+        level="body-sm"
+        sx={{
+          wordBreak: "break-word",
+          maxLines: 1,
+          textOverflow: "ellipsis",
+          overflow: isOpen ? "visible" : "hidden",
+          p: 1,
+        }}
+      >
+        {artifacts.length ? `${artifacts.length} Downloads` : null}
+      </Typography>
+      <ResultMarkdown t={t} nodes={nodes} edges={edges} result={result} />
+    </>
+  ) : (
+    <>
+      <Typography
+        level="body-sm"
+        sx={{
+          wordBreak: "break-word",
+          maxLines: 1,
+          textOverflow: "ellipsis",
+          overflow: isOpen ? "visible" : "hidden",
+          p: 1,
+        }}
+      >
+        {result}
+      </Typography>
+    </>
   );
 };
 
@@ -445,12 +466,14 @@ const TaskResultTitle = ({
   t,
   color,
   isOpen,
+  artifacts,
   nodes,
   edges,
 }: {
   t: TaskState;
   color: StatusColor;
   isOpen: boolean;
+  artifacts: ArtifactAgentPacket[];
   nodes: DraftExecutionNode[];
   edges: DraftExecutionEdge[];
 }) => {
@@ -468,7 +491,13 @@ const TaskResultTitle = ({
     >
       {t.status === TaskStatus.error ? "Error: " : "Result: "}
       {isOpen ? null : (
-        <TaskResultsValue t={t} nodes={nodes} edges={edges} isOpen={isOpen} />
+        <TaskResultsValue
+          t={t}
+          nodes={nodes}
+          edges={edges}
+          isOpen={isOpen}
+          artifacts={artifacts}
+        />
       )}
     </Typography>
   );
@@ -523,9 +552,11 @@ const SynthesizedContextValue = ({
 
 const SynthesizedContextTitle = ({
   synthesizedContext,
+  context,
   isOpen,
 }: {
   synthesizedContext: string[];
+  context: string | null;
   isOpen: boolean;
 }) => {
   return (
@@ -540,61 +571,16 @@ const SynthesizedContextTitle = ({
         textOverflow: isOpen ? "clip" : "ellipsis",
       }}
     >
-      Synthesized Context:
+      {context?.length ?? false ? "" : "Synthesized "} Context:
       {isOpen ? null : (
         <SynthesizedContextValue
           isOpen={isOpen}
-          synthesizedContext={synthesizedContext}
+          synthesizedContext={
+            context?.length ?? false ? [context!] : synthesizedContext
+          }
         />
       )}
     </Typography>
-  );
-};
-
-const TaskResult = ({
-  t,
-  color: _color,
-  nodes,
-  edges,
-  isExpanded,
-  ...props
-}: {
-  t: TaskState;
-  color: StatusColor;
-  nodes: DraftExecutionNode[];
-  edges: DraftExecutionEdge[];
-  isExpanded: boolean;
-} & BoxProps) => {
-  const result = useMemo(() => {
-    return findResult(t.packets).replace(/\\n/g, " ");
-  }, [t.packets]);
-  return (
-    <>
-      {isExpanded ? (
-        <Box
-          {...props}
-          sx={{
-            overflow: isExpanded ? "scroll" : "inherit",
-            display: isExpanded ? "flex" : "inherit",
-          }}
-        >
-          <ResultMarkdown t={t} nodes={nodes} edges={edges} result={result} />
-        </Box>
-      ) : (
-        <Typography
-          level="body-xs"
-          variant="plain"
-          sx={{
-            alignSelf: "center",
-            whiteSpace: "nowrap",
-            overflow: "hidden",
-            textOverflow: "ellipsis",
-          }}
-        >
-          {result}
-        </Typography>
-      )}
-    </>
   );
 };
 
@@ -655,6 +641,11 @@ const TaskListItem = ({
   const contextAndTools = useMemo(() => {
     const contextAndTools = findContextAndTools(t.packets);
     return contextAndTools;
+  }, [t.packets]);
+
+  const artifactPackets = useMemo(() => {
+    const artifactPackets = findArtifactPackets(t.packets);
+    return artifactPackets;
   }, [t.packets]);
 
   const mostRelevantOutput = useMemo(() => {
@@ -955,30 +946,12 @@ const TaskListItem = ({
               component={Stack}
               gap={1.5}
             >
-              {node.context && (
-                <Typography level="title-lg" sx={{ pl: "0.35rem", zIndex: 1 }}>
-                  Context:{" "}
-                  <Typography
-                    fontWeight={"normal"}
-                    level="body-sm"
-                    className="text-wrap"
-                    color="neutral"
-                    sx={{
-                      display: "-webkit-box",
-                      WebkitBoxOrient: "vertical",
-                      WebkitLineClamp: 3, // Number of lines you want to display
-                      overflow: "hidden",
-                      textOverflow: "ellipsis",
-                    }}
-                  >
-                    {stringifyMax(node.context, 200)}
-                  </Typography>
-                </Typography>
-              )}
               <Sheet
                 sx={{
                   zIndex: 1,
                   pl: "0.35rem",
+                  flexDirection: "row",
+                  flex: "1 1 auto",
                 }}
                 component={Stack}
                 direction="row"
@@ -988,6 +961,25 @@ const TaskListItem = ({
                 <Chip sx={{ minWidth: "2.5rem", textAlign: "center" }}>
                   {packetGroups.length}
                 </Chip>
+                {artifactPackets.length && (
+                  <Button
+                    size="sm"
+                    variant="plain"
+                    color="success"
+                    startDecorator={<Download />}
+                    sx={{
+                      // align right
+                      ml: "auto",
+                    }}
+                    onClick={(e) => {
+                      setSelectedGroup(artifactPackets);
+                      e.preventDefault();
+                      e.stopPropagation();
+                    }}
+                  >
+                    All Files ({artifactPackets.length})
+                  </Button>
+                )}
               </Sheet>
               <List
                 size="sm"
@@ -1071,7 +1063,10 @@ const TaskListItem = ({
               <AccordionSummary>
                 <SynthesizedContextTitle
                   isOpen={isContextExpanded}
-                  synthesizedContext={contextAndTools?.synthesizedContext ?? []}
+                  context={node.context}
+                  synthesizedContext={
+                    contextAndTools?.synthesizedContext ?? ["…"]
+                  }
                 />
               </AccordionSummary>
               <AccordionDetails
@@ -1082,7 +1077,11 @@ const TaskListItem = ({
               >
                 <SynthesizedContextValue
                   isOpen={isContextExpanded}
-                  synthesizedContext={contextAndTools?.synthesizedContext ?? []}
+                  synthesizedContext={
+                    node.context?.length
+                      ? [node.context]
+                      : contextAndTools?.synthesizedContext ?? ["…"]
+                  }
                 />
               </AccordionDetails>
             </Accordion>
@@ -1116,15 +1115,16 @@ const TaskListItem = ({
                   isOpen={isResultExpanded}
                   nodes={nodes}
                   edges={edges}
+                  artifacts={artifactPackets}
                 />
               </AccordionSummary>
               <AccordionDetails>
-                <TaskResult
-                  t={t}
+                <TaskResultsValue
                   nodes={nodes}
                   edges={edges}
-                  isExpanded={isResultExpanded}
-                  color={color}
+                  t={t}
+                  isOpen
+                  artifacts={artifactPackets}
                 />
               </AccordionDetails>
             </Accordion>

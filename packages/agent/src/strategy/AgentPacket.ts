@@ -50,12 +50,12 @@ export type AgentPacketType =
   | "contextAndTools"
   | "rewrite"
   | "refine"
-  | "review";
+  | "review"
+  | "artifact";
 
 export const AgentPacketFinishedTypes = [
   "handleAgentEnd",
   "done",
-  "artifact", // maybe not done? could be a side-effect of agents mid-run
   "error",
   "handleChainError",
   "handleLLMError",
@@ -175,6 +175,20 @@ export const findContextAndTools = (
   };
 };
 
+export const findArtifactPackets = (
+  packets: AgentPacket[],
+): Array<ArtifactAgentPacket> => {
+  const artifactPackets = packets.filter((packet) => {
+    try {
+      return packet.type === "artifact";
+    } catch (err) {
+      return false;
+    }
+  }) as Array<ArtifactAgentPacket>;
+
+  return artifactPackets;
+};
+
 const extractText = (
   outputs: ChainValues | Generation | { text: string },
 ): { title: string; output: string } | undefined => {
@@ -262,6 +276,12 @@ export function getMostRelevantOutput(packet: AgentPacket): {
       return { title: "", output: "None" };
   }
 }
+
+export type ArtifactAgentPacket = {
+  type: "artifact";
+  nodeId: string;
+  url: string | URL;
+} & BaseAgentPacketWithIds;
 export type WaggleDanceAgentPacket =
   | ({
       type: "contextAndTools";
@@ -276,7 +296,7 @@ export type WaggleDanceAgentPacket =
   | ({
       type: "review";
     } & BaseAgentPacketWithIds)
-  | ({ type: "artifact"; url: string | URL } & BaseAgentPacketWithIds);
+  | ArtifactAgentPacket;
 
 // TODO: group these by origination for different logic, or maybe different typings
 

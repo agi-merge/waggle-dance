@@ -140,6 +140,7 @@ export const resultRouter = createTRPCRouter({
           const stubValue: AgentPacket = {
             type: "artifact",
             url: artifactUrl,
+            nodeId,
             runId: v4(),
           };
           // create the result

@@ -6,6 +6,7 @@ import { type Document } from "langchain/document";
 import { ScoreThresholdRetriever } from "langchain/retrievers/score_threshold";
 import { type JsonObject } from "langchain/tools";
 import { MemoryVectorStore } from "langchain/vectorstores/memory";
+import { v4 } from "uuid";
 import { stringify } from "yaml";
 
 import createNamespace from "@acme/agent/src/memory/namespace";
@@ -160,6 +161,30 @@ export default async function ExecuteStream(req: NextRequest) {
       }
       // Store the last tool input for this run
       lastToolInputs.set(packet.runId, packet.input);
+    } else if (packet.type === "handleToolEnd") {
+      switch (
+        packet.runId
+        // find a matching packet with the same runId or parentRunId
+      ) {
+      }
+      // create side-effects for certain skills
+      await handlePacket(
+        { type: "artifact", url: packet.output, nodeId: task.id, runId: v4() },
+        controller,
+        encoder,
+        creationProps,
+        goalPrompt,
+        parsedGoalId,
+        agentPromptingMethod,
+        task,
+        dag,
+        revieweeTaskResults,
+        contentType,
+        abortController,
+        executionNamespace,
+        req,
+        lastToolInputs,
+      );
     }
 
     if (!abortController.signal.aborted) {

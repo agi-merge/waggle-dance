@@ -7,7 +7,6 @@ export const mapPacketTypeToStatus = (
   switch (packetType) {
     case "done":
     case "handleAgentEnd":
-    case "artifact":
       return TaskStatus.done;
 
     case "error":
@@ -37,6 +36,7 @@ export const mapPacketTypeToStatus = (
     case "refine":
     case "rewrite":
     case "review":
+    case "artifact":
       return TaskStatus.working;
 
     case "idle":
