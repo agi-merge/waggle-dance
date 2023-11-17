@@ -153,13 +153,17 @@ export const createCallbacks = (
         runId: string,
         parentRunId?: string,
         _extraParams?: Record<string, unknown>,
-        _tags?: string[],
-        _metadata?: Record<string, unknown>,
+        tags?: string[],
+        metadata?: Record<string, unknown>,
+        name?: string,
       ): Promise<void> | void {
         const packet: AgentPacket = {
           type: "handleLLMStart",
           runId,
           parentRunId,
+          name,
+          metadata,
+          tags,
           llmHash: hashCode(JSON.stringify(llm)),
           hash: hashCode(JSON.stringify(prompts)),
         };
