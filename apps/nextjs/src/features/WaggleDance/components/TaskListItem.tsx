@@ -53,6 +53,7 @@ import {
 } from "@acme/agent";
 import { isTaskCriticism } from "@acme/agent/src/prompts/types";
 import { mapPacketTypeToStatus } from "@acme/agent/src/prompts/utils/mapPacketToStatus";
+import { parseAnyFormat } from "@acme/agent/src/utils/mimeTypeParser";
 import { type DraftExecutionEdge, type DraftExecutionNode } from "@acme/db";
 
 import { stringifyMax } from "../utils/stringifyMax";
@@ -293,8 +294,8 @@ const getGroupOutput = (group: AgentPacket[]): GroupOutput | null => {
         lastPacket.type === "handleRetrieverError"
           ? String(lastPacket.err)
           : lastPacket.type === "handleRetrieverEnd"
-          ? stringify(lastPacket.documents)
-          : parsedOutput;
+            ? stringify(lastPacket.documents)
+            : parsedOutput;
       break;
   }
 
@@ -403,6 +404,27 @@ const TaskResultsValue = ({
   edges: DraftExecutionEdge[];
   isOpen: boolean;
 }) => {
+  const result = useMemo(() => {
+    let result =
+      t.value.type === "working" && t.nodeId === rootPlanId
+        ? `...${nodes.length} tasks and ${edges.length} interdependencies`
+        : isAgentPacketFinishedType(t.value)
+          ? findResult([t.value])
+          : "None";
+    const packet = parseAnyFormat(result) as AgentPacket | null | undefined;
+    if (packet) {
+      result =
+        packet.type === "working" && packet.nodeId === rootPlanId
+          ? `...${nodes.length} tasks and ${edges.length} interdependencies`
+          : isAgentPacketFinishedType(packet)
+            ? findResult([packet])
+            : "None";
+    }
+    if (!isOpen) {
+      return result.replace(/\\n/g, " ");
+    }
+    return result;
+  }, [edges.length, nodes.length, t.nodeId, t.value]);
   return (
     <Typography
       level="body-sm"
@@ -414,11 +436,7 @@ const TaskResultsValue = ({
         p: 1,
       }}
     >
-      {t.value.type === "working" && t.nodeId === rootPlanId
-        ? `...${nodes.length} tasks and ${edges.length} interdependencies`
-        : isAgentPacketFinishedType(t.value)
-        ? findResult([t.value]).replace(/\\n/g, " ")
-        : "None"}
+      {result}
     </Typography>
   );
 };
