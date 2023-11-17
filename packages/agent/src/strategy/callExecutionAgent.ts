@@ -342,7 +342,7 @@ export async function callExecutionAgent(
     }
 
     const response = call?.output ? (call.output as string) : "";
-    const intermediateSteps = call.intermediateSteps as AgentStep[];
+    const intermediateSteps = call.intermediateSteps as AgentStep[] | undefined;
 
     if (isCriticism) {
       return response;
