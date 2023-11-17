@@ -223,6 +223,7 @@ const getGroupOutput = (group: AgentPacket[]): GroupOutput | null => {
           parsedOutput = "…";
           break;
       }
+      break;
     case GroupType.Skill:
       const toolName: string | undefined = group.reduce(
         (acc: string | undefined, packet) => {
