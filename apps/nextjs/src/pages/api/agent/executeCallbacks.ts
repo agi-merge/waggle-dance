@@ -37,7 +37,7 @@ export type CreateCallbackParams = {
   revieweeTaskResults: TaskState[];
   contentType: "application/json" | "application/yaml";
   abortController: AbortController;
-  namespace: string;
+  executionNamespace: string;
   req: NextRequest;
   lastToolInputs?: Map<string, string>;
 };
@@ -56,7 +56,7 @@ export const createCallbacks = (
     revieweeTaskResults: TaskState[],
     contentType: "application/json" | "application/yaml",
     abortController: AbortController,
-    namespace: string,
+    executionNamespace: string,
     req: NextRequest,
     lastToolInputs?: Map<string, string>,
   ) => Promise<void>,
@@ -74,7 +74,7 @@ export const createCallbacks = (
     revieweeTaskResults,
     contentType,
     abortController,
-    namespace,
+    executionNamespace,
     req,
     lastToolInputs,
   } = params;
@@ -110,7 +110,7 @@ export const createCallbacks = (
           revieweeTaskResults,
           contentType,
           abortController,
-          namespace,
+          executionNamespace,
           req,
           lastToolInputs,
         );
@@ -142,7 +142,7 @@ export const createCallbacks = (
           revieweeTaskResults,
           contentType,
           abortController,
-          namespace,
+          executionNamespace,
           req,
           lastToolInputs,
         );
@@ -177,7 +177,7 @@ export const createCallbacks = (
           revieweeTaskResults,
           contentType,
           abortController,
-          namespace,
+          executionNamespace,
           req,
           lastToolInputs,
         );
@@ -207,7 +207,7 @@ export const createCallbacks = (
           revieweeTaskResults,
           contentType,
           abortController,
-          namespace,
+          executionNamespace,
           req,
           lastToolInputs,
         );
@@ -237,7 +237,7 @@ export const createCallbacks = (
           revieweeTaskResults,
           contentType,
           abortController,
-          namespace,
+          executionNamespace,
           req,
           lastToolInputs,
         );
@@ -268,7 +268,7 @@ export const createCallbacks = (
           revieweeTaskResults,
           contentType,
           abortController,
-          namespace,
+          executionNamespace,
           req,
           lastToolInputs,
         ); // can be 'Output parser not set'
@@ -301,7 +301,7 @@ export const createCallbacks = (
           revieweeTaskResults,
           contentType,
           abortController,
-          namespace,
+          executionNamespace,
           req,
           lastToolInputs,
         );
@@ -331,7 +331,7 @@ export const createCallbacks = (
           revieweeTaskResults,
           contentType,
           abortController,
-          namespace,
+          executionNamespace,
           req,
           lastToolInputs,
         );
@@ -361,7 +361,7 @@ export const createCallbacks = (
           revieweeTaskResults,
           contentType,
           abortController,
-          namespace,
+          executionNamespace,
           req,
           lastToolInputs,
         );

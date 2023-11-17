@@ -9,7 +9,7 @@ import {
 } from "langchain/memory";
 import { MemoryVectorStore } from "langchain/vectorstores/memory";
 
-import { createChatNamespace } from "../memory/namespace";
+import { createSTMNamespace } from "../memory/namespace";
 import { LLM, LLM_ALIASES } from "./llms";
 import { createEmbeddings } from "./model";
 import { vectorStoreFromIndex } from "./vectorStore";
@@ -20,7 +20,7 @@ export type MemoryType =
 // | BaseMessage[]
 // | undefined;
 export type MemoryOptions = {
-  namespace: string | null;
+  executionNamespace: string | null;
   taskId: string;
   memoryType?: string | undefined;
   inputKey?: string | undefined;
@@ -28,7 +28,7 @@ export type MemoryOptions = {
   returnUnderlying?: boolean | undefined;
 };
 export async function createMemory({
-  namespace,
+  executionNamespace,
   taskId,
   memoryType,
   inputKey,
@@ -47,7 +47,7 @@ export async function createMemory({
   switch (memoryType) {
     case "dynamic":
       const buffer = createMemory({
-        namespace,
+        executionNamespace,
         taskId,
         memoryType: "buffer",
         inputKey,
@@ -56,7 +56,7 @@ export async function createMemory({
       });
 
       const conversation = createMemory({
-        namespace,
+        executionNamespace,
         taskId,
         memoryType: "conversation",
         inputKey,
@@ -65,7 +65,7 @@ export async function createMemory({
       });
 
       const vector = createMemory({
-        namespace,
+        executionNamespace,
         taskId,
         memoryType: "vector",
         inputKey,
@@ -89,10 +89,14 @@ export async function createMemory({
         returnMessages: returnUnderlying,
       });
     case "vector":
-      if (namespace) {
+      if (executionNamespace) {
         console.debug("Creating chat history vector store from index");
+        const shortTermMemoryNamespace = createSTMNamespace(
+          executionNamespace,
+          taskId,
+        );
         const vectorStore = await vectorStoreFromIndex(
-          createChatNamespace(namespace, taskId),
+          shortTermMemoryNamespace,
         );
 
         // extremely important to avoid data leaks/context poisoning.
@@ -100,7 +104,7 @@ export async function createMemory({
           where: {
             operator: "Equal",
             path: ["namespace"],
-            valueText: namespace,
+            valueText: shortTermMemoryNamespace,
           },
         });
 

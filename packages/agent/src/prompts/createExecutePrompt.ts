@@ -11,7 +11,7 @@ export function createExecutePrompt(params: {
   taskObj: { id: string; name: string };
   taskResults: TaskState[];
   executionId: string;
-  namespace: string;
+  executionNamespace: string;
   returnType: "YAML" | "JSON";
   modelName: string;
 }): ChatPromptTemplate {
@@ -21,7 +21,7 @@ export function createExecutePrompt(params: {
     returnType,
     modelName,
     executionId,
-    namespace,
+    executionNamespace,
   } = params;
   const useSystemPrompt = modelName.startsWith("gpt-"); // only gpt family of openai models for now
 
@@ -37,7 +37,7 @@ NAME: ${taskObj.name}
 ## EXECUTION ID:
 ${executionId}
 ## NAMESPACE:
-${namespace}
+${executionNamespace}
 ## CONTEXT:
 {synthesizedContext}
 ${

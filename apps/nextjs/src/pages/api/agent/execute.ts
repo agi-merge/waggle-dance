@@ -119,7 +119,7 @@ export default async function ExecuteStream(req: NextRequest) {
     | undefined;
   let goalId: string | undefined;
   let executionId: string | undefined;
-  let namespace: string | undefined;
+  let executionNamespace: string | undefined;
   let resolveStreamEnded: () => void;
   let rejectStreamEnded: (reason?: string) => void;
   const streamEndedPromise = new Promise<void>((resolve, reject) => {
@@ -147,7 +147,7 @@ export default async function ExecuteStream(req: NextRequest) {
     revieweeTaskResults: TaskState[],
     contentType: "application/json" | "application/yaml",
     abortController: AbortController,
-    namespace: string,
+    executionNamespace: string,
     req: NextRequest,
     lastToolInputs?: Map<string, string>,
   ) => {
@@ -217,7 +217,7 @@ export default async function ExecuteStream(req: NextRequest) {
               revieweeTaskResults,
               contentType,
               abortController,
-              namespace,
+              executionNamespace,
               req,
               lastToolInputs,
             );
@@ -268,7 +268,7 @@ export default async function ExecuteStream(req: NextRequest) {
     dag: DraftExecutionGraph,
     revieweeTaskResults: TaskState[],
     contentType: "application/json" | "application/yaml",
-    namespace: string,
+    executionNamespace: string,
     agentProtocolOpenAPISpec: JsonObject | undefined,
     req: NextRequest,
     encoder: TextEncoder,
@@ -302,7 +302,7 @@ export default async function ExecuteStream(req: NextRequest) {
       dag,
       revieweeTaskResults,
       contentType,
-      namespace,
+      executionNamespace,
       agentProtocolOpenAPISpec,
       req,
       encoder,
@@ -321,7 +321,7 @@ export default async function ExecuteStream(req: NextRequest) {
     dag: DraftExecutionGraph | null,
     revieweeTaskResults: TaskState[],
     contentType: "application/json" | "application/yaml",
-    namespace: string,
+    executionNamespace: string,
     agentProtocolOpenAPISpec: JsonObject | undefined,
     req: NextRequest,
     encoder: TextEncoder,
@@ -340,7 +340,7 @@ export default async function ExecuteStream(req: NextRequest) {
       revieweeTaskResults,
       contentType,
       abortSignal: abortControllerWrapper.controller.signal,
-      namespace: namespace,
+      executionNamespace,
       lastToolInputs,
       handlePacketCallback: async (packet: AgentPacket) => {
         await handlePacket(
@@ -356,7 +356,7 @@ export default async function ExecuteStream(req: NextRequest) {
           revieweeTaskResults,
           contentType,
           abortControllerWrapper.controller,
-          namespace,
+          executionNamespace,
           req,
           lastToolInputs,
         );
@@ -413,7 +413,7 @@ export default async function ExecuteStream(req: NextRequest) {
     node = task;
     goalId = parsedGoalId;
     executionId = parsedExecutionId;
-    namespace = createNamespace({ goalId, executionId });
+    executionNamespace = createNamespace({ goalId, executionId });
 
     const encoder = new TextEncoder();
     // helps augment tool errors and ends so that they do not trigger error handlers for different inputs
@@ -434,7 +434,7 @@ export default async function ExecuteStream(req: NextRequest) {
           revieweeTaskResults,
           contentType,
           abortController: abortControllerWrapper.controller,
-          namespace: namespace!,
+          executionNamespace: executionNamespace!,
           req,
           lastToolInputs,
         };
@@ -452,7 +452,7 @@ export default async function ExecuteStream(req: NextRequest) {
           dag,
           revieweeTaskResults,
           contentType,
-          namespace!,
+          executionNamespace!,
           agentProtocolOpenAPISpec,
           req,
           encoder,

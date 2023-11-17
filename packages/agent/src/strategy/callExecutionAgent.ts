@@ -16,7 +16,7 @@ import { type DraftExecutionGraph } from "@acme/db";
 import {
   createCriticizePrompt,
   createExecutePrompt,
-  createMemory,
+  createMemory as createShortTermMemory,
   extractTier,
   TaskState,
   type ChainValues,
@@ -59,7 +59,7 @@ export async function callExecutionAgent(
     dag,
     revieweeTaskResults: revieweeTaskResultsNeedDeserialization,
     abortSignal,
-    namespace,
+    executionNamespace,
     contentType,
     lastToolInputs: _lastToolInputs,
     handlePacketCallback,
@@ -78,8 +78,8 @@ export async function callExecutionAgent(
   };
   const isCriticism = isTaskCriticism(taskObj.id);
   const returnType = contentType === "application/json" ? "JSON" : "YAML";
-  const memory = await createMemory({
-    namespace,
+  const shortTermMemory = await createShortTermMemory({
+    executionNamespace,
     taskId: taskObj.id,
     returnUnderlying: false,
   });
@@ -102,14 +102,14 @@ export async function callExecutionAgent(
         revieweeTaskResults,
         goalPrompt,
         nodes: dagObj.nodes,
-        namespace,
+        executionNamespace,
         returnType,
       })
     : createExecutePrompt({
         taskObj,
         taskResults: revieweeTaskResults,
         executionId,
-        namespace,
+        executionNamespace,
         returnType,
         modelName: creationProps.modelName || LLM_ALIASES["fast"],
       });
@@ -118,7 +118,6 @@ export async function callExecutionAgent(
     agentPromptingMethod,
     taskObj.id,
   ];
-  namespace && tags.push(namespace);
   creationProps.modelName && tags.push(creationProps.modelName);
 
   const skills = createSkills(
@@ -149,10 +148,8 @@ export async function callExecutionAgent(
       tool: { lc: 1, type: "not_implemented", id: ["Retrieve Memories"] },
     });
     memories = await retrieveMemoriesSkill.skill.func({
-      retrievals: [
-        `What matches "${stringifyByMime(returnType, taskAndGoal)}"?`,
-      ],
-      namespace: namespace,
+      retrievals: [goalPrompt, task],
+      namespace: executionNamespace,
     });
 
     void handlePacketCallback({
@@ -273,7 +270,7 @@ export async function callExecutionAgent(
     filteredSkills,
     exeLLM,
     tags,
-    memory, //FIXME: OpenAI Functions crashes when using conversation/buffer memory
+    shortTermMemory, //FIXME: OpenAI Functions crashes when using conversation/buffer memory
   );
 
   try {
@@ -372,7 +369,7 @@ export async function callExecutionAgent(
       returnType,
       contextAndTools,
       intermediateSteps,
-      memory,
+      memory: shortTermMemory,
       response,
       tags,
       callbacks,
@@ -400,7 +397,7 @@ export async function callExecutionAgent(
       // make sure that we are at least saving the task result so that other notes can refer back.
       const save: Promise<unknown> = saveMemoriesSkill.skill.func({
         memories: [bestResponse],
-        namespace: namespace,
+        namespace: executionNamespace,
       });
 
       await save;
