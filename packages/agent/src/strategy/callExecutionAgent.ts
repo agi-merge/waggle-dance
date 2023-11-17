@@ -107,6 +107,7 @@ export async function callExecutionAgent(
       })
     : createExecutePrompt({
         taskObj,
+        taskResults: revieweeTaskResults,
         executionId,
         namespace,
         returnType,
