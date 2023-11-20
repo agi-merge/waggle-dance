@@ -35,13 +35,14 @@ const toolsAndContextExamples: ToolsAndContextExample[] = [
         "All necessary input variables like  URL were included directly in the context.",
       "Formatting Safety":
         "Special characters which could have wrapped the URL, such as single quotes, were escaped or omitted.",
+      Terse:
+        "Lack of long-term memory is not called out, which helps reduce response length and increase relevant context density.",
     },
     input: {
       task: "Access and extract text from https://silennaihin.com/random/plain.html",
       inServiceOfGoal:
         "Open https://silennaihin.com/random/plain.html and paste all of the text on the page in a .txt file",
-      longTermMemories:
-        "Previously, I have accessed similar websites but did not extract text.",
+      longTermMemories: "",
       availableTools: [
         "Figma",
         "Web Browser",
@@ -57,7 +58,6 @@ const toolsAndContextExamples: ToolsAndContextExample[] = [
         "The task involves accessing and extracting text from a website: https://silennaihin.com/random/plain.html, and writing it to a .txt file.",
         "The text shall not be interpreted or summarized, only extracted.",
         "If the web browser is not fruitful, try using a more advanced scraping library by running JavaScript",
-        "In the past, I have accessed similar websites but did not extract text. This experience may be useful in completing the current task.",
       ],
       tools: ["Web Browser", "Write File", "JavaScript eval()"],
     },
