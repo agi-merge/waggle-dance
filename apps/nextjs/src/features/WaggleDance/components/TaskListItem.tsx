@@ -825,7 +825,7 @@ const TaskListItem = ({
           </Tooltip>
         </Stack>
         <AccordionGroup
-          sx={(theme) => ({
+          sx={(_theme) => ({
             width: "100%",
             borderEndStartRadius: "sm",
             borderEndEndRadius: "sm",
