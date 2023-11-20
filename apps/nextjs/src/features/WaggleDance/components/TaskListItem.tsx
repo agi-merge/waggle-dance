@@ -45,6 +45,7 @@ import { z } from "zod";
 import {
   findArtifactPackets,
   findContextAndTools,
+  findResult,
   getMostRelevantOutput,
   isAgentPacketFinishedType,
   rootPlanId,
@@ -428,24 +429,21 @@ const TaskResultsValue = ({
     let result =
       t.value.type === "working" && t.nodeId === rootPlanId
         ? `...${nodes.length} tasks and ${edges.length} interdependencies`
-        : isAgentPacketFinishedType(t.value)
-          ? getMostRelevantOutput(t.value).output
-          : "None";
+        : findResult(t.packets);
     const AgentPacketShape = z.custom<AgentPacket>();
     const packet = parseAnyFormat(result, AgentPacketShape);
     if (packet) {
       result =
-        packet.type === "working" && packet.nodeId === rootPlanId
+        t.value.type === "working" && t.nodeId === rootPlanId
           ? `...${nodes.length} tasks and ${edges.length} interdependencies`
-          : isAgentPacketFinishedType(packet)
-            ? getMostRelevantOutput(packet).output
-            : "None";
+          : findResult(t.packets);
     }
-    if (!isOpen) {
+    if (typeof result === "string") {
       return result.replace(/\\n/g, " ");
+    } else {
+      return stringify(result).replace(/\\n/g, " ");
     }
-    return result;
-  }, [t.value, t.nodeId, nodes.length, edges.length, isOpen]);
+  }, [t.value.type, t.nodeId, t.packets, nodes.length, edges.length]);
   return isOpen ? (
     <>
       <Typography
