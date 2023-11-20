@@ -251,7 +251,12 @@ export async function callExecutionAgent(
 
   // because AgentExecutor does not accept BaseMessages, we must render the messages into a single string
   const input: string = formattedMessages
-    .map((m) => `[${m._getType()}]\n${m.content}`)
+    .map(
+      (m) =>
+        `[${m._getType().toUpperCase()}]\n${m.content}[/${m
+          ._getType()
+          .toUpperCase()}]`,
+    )
     .join("\n\n");
 
   // filter all available tools by the ones that were selected by the context and tools selection agent
