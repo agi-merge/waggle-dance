@@ -16,7 +16,7 @@ export type ToolsAndContextPickingInput = {
 };
 
 export type ToolsAndContextPickingOutput = {
-  synthesizedContext: object;
+  synthesizedContext: string[];
   tools: string[];
 };
 
@@ -240,11 +240,6 @@ You are an efficient and expert assistant, distilling context from the informati
 You are also helping to pick a minimal set of enabled Tools (try to have no overlap in capabilities).
 # Current Time:
 ${new Date().toString()}
-# Schema:
-(
-  tools: string[]
-  synthesizedContext: ([key: string]: string))[]
-)
 # Rules:
 - synthesizedContext must not be empty!
 - Your response must be valid ${returnType}
