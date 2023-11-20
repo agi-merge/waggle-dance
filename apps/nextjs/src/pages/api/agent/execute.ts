@@ -1,11 +1,11 @@
 // pages/api/agent/execute.ts
 
-import { isAbortError } from "next/dist/server/pipe-readable";
-import { type NextRequest } from "next/server";
 import { type Document } from "langchain/document";
 import { ScoreThresholdRetriever } from "langchain/retrievers/score_threshold";
 import { type JsonObject } from "langchain/tools";
 import { MemoryVectorStore } from "langchain/vectorstores/memory";
+import { isAbortError } from "next/dist/server/pipe-readable";
+import { type NextRequest } from "next/server";
 import { v4 } from "uuid";
 import { stringify } from "yaml";
 
@@ -234,8 +234,8 @@ export default async function ExecuteStream(req: NextRequest) {
             const repetitionError: AgentPacket = {
               type: "error",
               severity: "warn",
-              error: `RepetitionError: there will be an automatic recovery for this soon.\n ${repetitionCheckResult.similarDocuments.map(
-                (doc) => `${doc.pageContent}`,
+              error: `RepetitionError: there will be an automatic recovery for this soon.\n\n ${repetitionCheckResult.similarDocuments.map(
+                (doc, i) => `${i}. ${doc.pageContent}\n\n`,
               )}`,
               ...repetitionCheckResult,
             };
