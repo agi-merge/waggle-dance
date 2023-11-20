@@ -288,15 +288,17 @@ export async function callExecutionAgent(
           : { lc: 1, type: "not_implemented", id: [runName] },
         runId: callRunId,
       });
+
       call = await executor.call(
         {
           input,
           signal: abortSignal,
           tags,
-          runName,
+          runName: isCriticism ? "Criticize Results" : "Execute Task",
         },
         callbacks,
       );
+
       void handlePacketCallback({
         type: "handleToolEnd",
         lastToolInput: taskObj.name,
