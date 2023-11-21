@@ -88,6 +88,7 @@ export const createCallbacks = (
         tags?: string[],
         metadata?: Record<string, unknown>,
       ): void | Promise<void> {
+        console.debug("handleRetrieverStart", runId, parentRunId);
         const packet: AgentPacket = {
           type: "handleRetrieverStart",
           retriever,
@@ -121,6 +122,7 @@ export const createCallbacks = (
         parentRunId?: string,
         tags?: string[],
       ): void | Promise<void> {
+        console.debug("handleRetrieverEnd", runId, parentRunId);
         const packet: AgentPacket = {
           type: "handleRetrieverEnd",
           documents,
@@ -152,18 +154,21 @@ export const createCallbacks = (
         prompts: string[],
         runId: string,
         parentRunId?: string,
-        _extraParams?: Record<string, unknown>,
+        extraParams?: Record<string, unknown>,
         tags?: string[],
         metadata?: Record<string, unknown>,
         name?: string,
       ): Promise<void> | void {
+        console.debug("handleLLMStart", runId, parentRunId);
         const packet: AgentPacket = {
           type: "handleLLMStart",
           runId,
           parentRunId,
+          prompts,
           name,
-          metadata,
+          extraParams,
           tags,
+          metadata,
           llmHash: hashCode(JSON.stringify(llm)),
           hash: hashCode(JSON.stringify(prompts)),
         };
@@ -191,13 +196,13 @@ export const createCallbacks = (
         runId: string,
         parentRunId?: string,
       ): Promise<void> | void {
+        console.debug("handleLLMEnd", runId, parentRunId);
         const packet: AgentPacket = {
           type: "handleLLMEnd",
           output,
           runId,
           parentRunId,
         };
-
         void handlePacket(
           packet,
           controller,
@@ -221,6 +226,7 @@ export const createCallbacks = (
         runId: string,
         parentRunId?: string | undefined,
       ): void | Promise<void> {
+        console.warn("handleLLMError", runId, parentRunId);
         const packet: AgentPacket = createErrorPacket(
           "handleLLMError",
           err,
@@ -252,6 +258,7 @@ export const createCallbacks = (
         runId: string,
         parentRunId?: string | undefined,
       ): void | Promise<void> {
+        console.debug("handleChainError", runId, parentRunId);
         const packet: AgentPacket = createErrorPacket(
           "handleChainError",
           err,
@@ -284,6 +291,7 @@ export const createCallbacks = (
         runId: string,
         parentRunId?: string | undefined,
       ): void | Promise<void> {
+        console.debug("handleToolStart", runId, parentRunId);
         const packet: AgentPacket = {
           type: "handleToolStart",
           tool,
@@ -315,6 +323,7 @@ export const createCallbacks = (
         runId: string,
         parentRunId?: string | undefined,
       ): void | Promise<void> {
+        console.debug("handleToolEnd", runId, parentRunId);
         const packet: AgentPacket = {
           type: "handleToolEnd",
           output,
@@ -345,6 +354,7 @@ export const createCallbacks = (
         runId: string,
         parentRunId?: string | undefined,
       ): void | Promise<void> {
+        console.debug("handleToolError", runId, parentRunId);
         const packet: AgentPacket = createErrorPacket(
           "handleToolError",
           err,
