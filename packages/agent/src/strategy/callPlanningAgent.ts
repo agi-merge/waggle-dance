@@ -135,7 +135,7 @@ export async function callPlanningAgent(
         }
       };
 
-      const modelName = LLM_ALIASES["fast-large"];
+      const modelName = LLM_ALIASES["smart-xlarge"];
       let encoding: Tiktoken;
       try {
         encoding = encodingForModel(modelName as TiktokenModel);

@@ -48,7 +48,8 @@ const schema = z.object({
 });
 
 const uploadFileSkill = new DynamicZodSkill({
-  name: "Write File",
+  name: "write_file",
+  readableName: "Write File",
   description: `Write/Upload/Save private files to your cloud filesystem.`,
   func: async (input, _runManager) => {
     const {

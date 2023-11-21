@@ -23,6 +23,7 @@ type SkillFunction<T extends z.ZodObject<any, any, any, any>> = (
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 interface SkillOptions<T extends z.ZodObject<any, any, any, any>> {
   name: string;
+  readableName: string;
   description: string;
   func: SkillFunction<T>;
   recoveryFunc?(input: string): SkillOptions<T>;

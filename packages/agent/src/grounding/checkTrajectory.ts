@@ -39,11 +39,11 @@ async function checkTrajectory(
   evaluators: AgentTrajectoryEvaluator[],
 ): Promise<string | null> {
   let minimumScore = getMinimumScoreFromEnv();
-  if (minimumScore) {
+  if (minimumScore === null || minimumScore === undefined) {
     return null;
   }
 
-  minimumScore = Math.max(0, Math.min(1, minimumScore!));
+  minimumScore = Math.max(0, Math.min(1, minimumScore));
 
   const evaluations = await Promise.allSettled(
     evaluators.map((evaluator) =>

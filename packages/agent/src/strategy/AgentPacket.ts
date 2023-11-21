@@ -354,9 +354,11 @@ export type AgentPacket =
   | ({ type: "handleLLMError"; err: any } & BaseAgentPacketWithIds)
   | ({
       type: "handleLLMStart";
+      prompts: string[];
       llmHash?: number;
       hash?: number;
       name?: string;
+      extraParams?: Record<string, unknown>;
       tags?: string[];
       metadata?: Record<string, unknown>;
     } & BaseAgentPacketWithIds)

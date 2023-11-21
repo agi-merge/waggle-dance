@@ -27,7 +27,8 @@ export const stringifyMax = (value: unknown, max: number) => {
 };
 
 const saveMemoriesSkill = new DynamicZodSkill({
-  name: "Save Memories",
+  name: "save_memories",
+  readableName: "Save Memories",
   description: `Never call this before using other tools. Useful for making sure that important facts and entities are stored in long-term memory to help other team members achieve the user's GOAL.`,
   func: async (input, _runManager) => {
     const { memories, namespace } = schema.parse(input);

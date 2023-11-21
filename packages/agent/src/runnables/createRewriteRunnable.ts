@@ -20,10 +20,10 @@ type CreateRewriteRunnableParams = {
   taskObj: { id: string; name: string };
   returnType: "JSON" | "YAML";
   contextAndTools: ContextAndTools;
-  intermediateSteps: AgentStep[];
   memory: MemoryType | undefined;
   response: string;
   tags: string[];
+  intermediateSteps: AgentStep[] | undefined;
   callbacks: Callbacks | undefined;
 };
 
@@ -68,7 +68,9 @@ export async function createRewriteRunnable({
       chatHistory?.chat_history.value ||
         chatHistory?.chat_history.message ||
         chatHistory?.chat_history ||
-        intermediateSteps.map((s) => sanitizeInput(s.observation)).join("\n\n"),
+        intermediateSteps
+          ?.map((s) => sanitizeInput(s.observation))
+          .join("\n\n"),
     ),
   )}
   ## Time
@@ -91,7 +93,7 @@ export async function createRewriteRunnable({
   const smartHelperModel = createModel(
     {
       ...creationProps,
-      modelName: LLM_ALIASES["fast"],
+      modelName: LLM_ALIASES["smart-xlarge"],
     },
     ModelStyle.Chat,
   ) as ChatOpenAI;

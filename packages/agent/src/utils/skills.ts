@@ -243,7 +243,7 @@ function createSkills(
   agentProtocolOpenAPISpec?: JsonObject,
   geo?: Geo,
 ): StructuredTool[] {
-  const tools = [
+  const tools: StructuredTool[] = [
     ...requiredSkills(agentPromptingMethod, returnType),
     uploadFileSkill.toTool(agentPromptingMethod, returnType),
     downloadFileSkill.toTool(agentPromptingMethod, returnType),
@@ -295,7 +295,7 @@ function createSkills(
     tools.push(...toolkit.tools);
   }
 
-  return tools as StructuredTool[];
+  return tools;
 }
 
 export default createSkills;

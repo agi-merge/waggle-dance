@@ -227,7 +227,7 @@ export function createContextAndToolsPrompt({
     SystemMessagePromptTemplate.fromTemplate(
       `
 You are an efficient and expert assistant, distilling context from the information you have been given.
-You are also helping to pick a minimal set of enabled Tools (try to have no overlap in capabilities).
+You are also helping to pick a minimal set of enabled Tools.
 # Current Time:
 ${new Date().toString()}
 # Rules:
