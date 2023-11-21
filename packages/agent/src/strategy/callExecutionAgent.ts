@@ -365,9 +365,16 @@ export async function callExecutionAgent(
         throw new Error("No content found for OpenAI Assistant");
       }
       if (agentPromptingMethod === AgentPromptingMethod.OpenAIAssistant) {
-        call = await executor.invoke({
-          content,
-        });
+        call = await executor.invoke(
+          {
+            content,
+          },
+          {
+            runName,
+            tags,
+            callbacks,
+          },
+        );
       } else {
         // combine all messages into a single input string
         const input: string = formattedMessages
