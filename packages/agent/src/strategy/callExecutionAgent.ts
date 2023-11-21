@@ -228,15 +228,21 @@ export async function callExecutionAgent(
       .replaceAll(/\b\w/g, (l) => l.toUpperCase()); // convert first letter of each word to uppercase
   };
 
+  const availableTools = removeRequiredSkills(
+    skills,
+    agentPromptingMethod,
+    returnType,
+  ).map((s) => humanReadable(s.name)); // we filter required skills out here
+
+  if (agentPromptingMethod === AgentPromptingMethod.OpenAIAssistant) {
+    availableTools.push("Python Sandbox");
+    availableTools.push("Retrieval and Data Analysis");
+  }
   const inputTaskAndGoal: ToolsAndContextPickingInput = {
     ...taskAndGoal,
     longTermMemories: memories,
     // availableDataSources: [],
-    availableTools: removeRequiredSkills(
-      skills,
-      agentPromptingMethod,
-      returnType,
-    ).map((s) => humanReadable(s.name)), // we filter required skills out here
+    availableTools,
   };
 
   const inputTaskAndGoalString = stringifyByMime(returnType, inputTaskAndGoal);
