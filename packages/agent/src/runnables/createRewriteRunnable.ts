@@ -30,7 +30,7 @@ type CreateRewriteRunnableParams = {
 const rewriteResponseAck = `ack`;
 
 function sanitizeInput(input: string): string {
-  return input.replaceAll(/[-[\]{}()*+?.,\\^$|#\s`]/g, "\\$&");
+  return input.replaceAll("{", "{{").replaceAll("}", "}}");
 }
 
 export async function createRewriteRunnable({
@@ -68,7 +68,9 @@ export async function createRewriteRunnable({
       chatHistory?.chat_history.value ||
         chatHistory?.chat_history.message ||
         chatHistory?.chat_history ||
-        intermediateSteps?.map((s) => s.observation).join("\n\n"),
+        intermediateSteps
+          ?.map((s) => sanitizeInput(s.observation))
+          .join("\n\n"),
     ),
   )}
   ## Time

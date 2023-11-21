@@ -3,12 +3,7 @@ import { type Embeddings } from "langchain/embeddings/base";
 import { OpenAIEmbeddings } from "langchain/embeddings/openai";
 import { OpenAI } from "langchain/llms/openai";
 
-import {
-  AgentPromptingMethod,
-  LLM_ALIASES,
-  ModelStyle,
-  type LLMAliasKey,
-} from "./llms";
+import { AgentPromptingMethod, LLM_ALIASES, ModelStyle } from "./llms";
 import {
   type EmbeddingsCreationProps,
   type ModelCreationProps,
@@ -26,18 +21,18 @@ function getAzureDeploymentName(
     }
   })?.[0];
 
-  switch (llmAliasKey as LLMAliasKey) {
+  switch (llmAliasKey) {
     case "fast":
-      return process.env.AZURE_OPENAI_API_FAST_DEPLOYMENT_NAME;
+      return process.env.AZURE_OPENAI_API_FAST_DEPLOYMENT_NAME?.toString();
     case "fast-large":
-      return process.env.AZURE_OPENAI_API_FAST_LARGE_DEPLOYMENT_NAME;
+      return process.env.AZURE_OPENAI_API_FAST_LARGE_DEPLOYMENT_NAME?.toString();
     case "smart":
-      return process.env.AZURE_OPENAI_API_SMART_DEPLOYMENT_NAME;
+      return process.env.AZURE_OPENAI_API_SMART_DEPLOYMENT_NAME?.toString();
     case "smart-large":
-      return process.env.AZURE_OPENAI_API_SMART_LARGE_DEPLOYMENT_NAME;
+      return process.env.AZURE_OPENAI_API_SMART_LARGE_DEPLOYMENT_NAME?.toString();
     // TODO: smart-xl
     default:
-      return process.env.AZURE_OPENAI_API_DEPLOYMENT_NAME;
+      return process.env.AZURE_OPENAI_API_DEPLOYMENT_NAME?.toString();
   }
 }
 

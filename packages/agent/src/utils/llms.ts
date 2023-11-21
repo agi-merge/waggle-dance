@@ -133,7 +133,7 @@ export interface Setting {
 
 export const llmResponseTokenLimit = (llm: string) => {
   switch (llm) {
-    case LLM.embeddings:
+    case LLM.embeddings.toString():
       return 256;
     default:
       return -1;

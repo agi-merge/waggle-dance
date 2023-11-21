@@ -16,7 +16,7 @@ export type ToolsAndContextPickingInput = {
 };
 
 export type ToolsAndContextPickingOutput = {
-  synthesizedContext: object;
+  synthesizedContext: string[];
   tools: string[];
 };
 
@@ -30,18 +30,19 @@ const toolsAndContextExamples: ToolsAndContextExample[] = [
   {
     exampleRemarks: {
       "Self-Awareness":
-        "As a LLM, it is implied that the agent can understand HTML, CSS, etc, so no superfluous information was added to the context.",
+        "The agent understands HTML, CSS, and JavaScript, which are essential for web scraping.",
       "Input Variables":
-        "All necessary input variables like  URL were included directly in the context.",
+        "The URL 'https://silennaihin.com/random/plain.html' is directly included in the context.",
       "Formatting Safety":
-        "Special characters which could have wrapped the URL, such as single quotes, were escaped or omitted.",
+        "Special characters in the URL are properly handled.",
+      Terse:
+        "The agent's lack of long-term memory is not explicitly mentioned to keep the context concise.",
     },
     input: {
       task: "Access and extract text from https://silennaihin.com/random/plain.html",
       inServiceOfGoal:
         "Open https://silennaihin.com/random/plain.html and paste all of the text on the page in a .txt file",
-      longTermMemories:
-        "Previously, I have accessed similar websites but did not extract text.",
+      longTermMemories: "",
       availableTools: [
         "Figma",
         "Web Browser",
@@ -57,7 +58,6 @@ const toolsAndContextExamples: ToolsAndContextExample[] = [
         "The task involves accessing and extracting text from a website: https://silennaihin.com/random/plain.html, and writing it to a .txt file.",
         "The text shall not be interpreted or summarized, only extracted.",
         "If the web browser is not fruitful, try using a more advanced scraping library by running JavaScript",
-        "In the past, I have accessed similar websites but did not extract text. This experience may be useful in completing the current task.",
       ],
       tools: ["Web Browser", "Write File", "JavaScript eval()"],
     },
@@ -73,7 +73,7 @@ const toolsAndContextExamples: ToolsAndContextExample[] = [
       inServiceOfGoal:
         "Analyze the stock market trends for the past 5 years and predict the future trends. Create a .xlsx report of the findings.",
       longTermMemories:
-        "Previously, I have analyzed stock market trends for shorter periods.",
+        "The stock market has shown significant volatility in the past, with trends influenced by factors such as the COVID-19 pandemic, the Suez Canal blockage, and the Evergrande debt crisis.",
       availableTools: [
         "Retrieve Memories",
         "Save Memories",
@@ -89,7 +89,6 @@ const toolsAndContextExamples: ToolsAndContextExample[] = [
       synthesizedContext: [
         "The task involves analyzing stock market trends over the past 5 years and making predictions about future trends.",
         "The stock market is inherently volatile, with many factors influencing trends. This makes analysis a complex task.",
-        "In the past, I have analyzed stock market trends for shorter periods, which may provide some insight into the current task.",
       ],
       tools: ["Retrieve Memories", "Bloomberg Terminal", "Google Finance"],
     },
@@ -99,15 +98,13 @@ const toolsAndContextExamples: ToolsAndContextExample[] = [
     exampleRemarks: {
       contextInsight:
         "The synthesized context shows the limitations of the agent's knowledge.",
-      taskChallenge:
-        "The task is complex and requires a deep understanding of AI technologies. The agent will need to navigate a vast amount of information and distill it into a concise and informative report.",
     },
     input: {
       task: "Research AgentGPT",
       inServiceOfGoal:
         "Compare and contrast AgentGPT, AutoGPT, BabyAGI, https://waggledance.ai, and SuperAGI. Find similar projects or state of the art research papers. Create a .md (GFM) report of the findings.",
       longTermMemories:
-        "Previously, I have researched similar AI technologies.",
+        "Previous research on AI technologies like OpenAI's GPT-3, Google's BERT, and Facebook's BART has revealed a wide range of approaches and methodologies, including transformer architectures, reinforcement learning, and unsupervised learning. Also, there were significant advancements in the field of AI with the introduction of transformer-based models like BERT and GPT-3.",
       availableTools: [
         "Memory Retrieval",
         "Memory Storage",
@@ -131,7 +128,6 @@ const toolsAndContextExamples: ToolsAndContextExample[] = [
       synthesizedContext: [
         "The task is to research AgentGPT, and find similar projects or state of the art research papers.",
         "My training data prior to my knowledge cut-off does not contain coherent information about AgentGPT",
-        "In the past, I have researched similar AI technologies, which may provide some insight into the current task.",
       ],
       tools: [
         "Memory Retrieval",
@@ -146,15 +142,13 @@ const toolsAndContextExamples: ToolsAndContextExample[] = [
     exampleRemarks: {
       contextInsight:
         "The synthesized context shows the importance of long-term memory in performing tasks.",
-      taskChallenge:
-        "The task is complex and requires a deep understanding of programming languages. The agent will need to leverage its long-term memory to complete the task efficiently.",
     },
     input: {
       task: "Write a Python script to scrape data from a website",
       inServiceOfGoal:
         "Write a Python script to scrape data from https://example.com and store the data in a CSV file.",
       longTermMemories:
-        "Previously, I have written a similar Python script to scrape data from a different website.",
+        "A similar Python script was written in the past to scrape data from https://anotherexample.com using BeautifulSoup and requests libraries.",
       availableTools: [
         "Python",
         "Web Browser",
@@ -167,7 +161,6 @@ const toolsAndContextExamples: ToolsAndContextExample[] = [
     output: {
       synthesizedContext: [
         "The task is to write a Python script to scrape data from https://example.com and store the data in a CSV file.",
-        "In the past, I have written a similar Python script to scrape data from a different website. This experience will be crucial in completing the current task.",
       ],
       tools: ["Python", "Google Search", "Stack Overflow", "Write File"],
     },
@@ -176,15 +169,13 @@ const toolsAndContextExamples: ToolsAndContextExample[] = [
     exampleRemarks: {
       contextInsight:
         "The synthesized context shows the limitations of the agent's knowledge.",
-      taskChallenge:
-        "The task is complex and requires a deep understanding of AI technologies. The agent will need to navigate a vast amount of information and distill it into a concise and informative report.",
     },
     input: {
       task: "Research AgentGPT",
       inServiceOfGoal:
         "Compare and contrast AgentGPT, AutoGPT, BabyAGI, https://waggledance.ai, and SuperAGI. Find similar projects or state of the art research papers. Create a .md (GFM) report of the findings.",
       longTermMemories:
-        "Previously, I have researched similar AI technologies.",
+        "Research on similar AI technologies like OpenAI's GPT-3, Google's BERT, and Facebook's BART has revealed a wide range of approaches and methodologies, including transformer architectures, reinforcement learning, and unsupervised learning. Notable projects include Google's BERT, which introduced the concept of bidirectional transformers, and OpenAI's GPT-3, which demonstrated the power of large-scale unsupervised learning.",
       availableTools: [
         "Memory Retrieval",
         "Memory Storage",
@@ -208,7 +199,6 @@ const toolsAndContextExamples: ToolsAndContextExample[] = [
       synthesizedContext: [
         "The task is to research AgentGPT, and find similar projects or state of the art research papers.",
         "My training data prior to my knowledge cut-off does not contain coherent information about AgentGPT",
-        "In the past, I have researched similar AI technologies, which may provide some insight into the current task.",
       ],
       tools: [
         "Memory Retrieval",
@@ -240,11 +230,6 @@ You are an efficient and expert assistant, distilling context from the informati
 You are also helping to pick a minimal set of enabled Tools (try to have no overlap in capabilities).
 # Current Time:
 ${new Date().toString()}
-# Schema:
-(
-  tools: string[]
-  synthesizedContext: ([key: string]: string))[]
-)
 # Rules:
 - synthesizedContext must not be empty!
 - Your response must be valid ${returnType}
