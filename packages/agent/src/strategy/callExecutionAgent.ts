@@ -222,10 +222,10 @@ export async function callExecutionAgent(
   // humanReadable function
   const humanReadable = (fnName: string) => {
     return fnName
-      .replace(/_/g, " ") // replace underscores with spaces
-      .replace(/-/g, " ") // replace hyphens with spaces
-      .replace(/([a-z])([A-Z])/g, "$1 $2") // insert space between a lowercase and uppercase letter
-      .replace(/\b\w/g, (l) => l.toUpperCase()); // convert first letter of each word to uppercase
+      .replaceAll(/_/g, " ") // replace underscores with spaces
+      .replaceAll(/-/g, " ") // replace hyphens with spaces
+      .replaceAll(/([a-z])([A-Z])/g, "$1 $2") // insert space between a lowercase and uppercase letter
+      .replaceAll(/\b\w/g, (l) => l.toUpperCase()); // convert first letter of each word to uppercase
   };
 
   const inputTaskAndGoal: ToolsAndContextPickingInput = {
@@ -291,8 +291,8 @@ export async function callExecutionAgent(
     },
   );
   if (contextAndTools.tools) {
-    const reqs = requiredSkills(agentPromptingMethod, returnType).map(
-      (s) => s.name,
+    const reqs = requiredSkills(agentPromptingMethod, returnType).map((s) =>
+      humanReadable(s.name),
     );
     contextAndTools.tools = [...contextAndTools.tools, ...reqs];
   }
