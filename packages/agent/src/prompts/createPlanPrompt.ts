@@ -70,7 +70,7 @@ const highQualityExamples = [
     input: {
       "Available Tools": [
         "Amazon Search",
-        "Write File",
+        "write_file",
         "web-browser",
         "JavaScript eval()",
       ],
@@ -117,7 +117,7 @@ const highQualityExamples = [
     input: {
       Time: "5 Nov. 2023",
       "Available Tools": [
-        "Write File",
+        "write_file",
         "web-browser",
         "Google Search",
         "Amazon Search",
@@ -185,7 +185,7 @@ const highQualityExamples = [
         "Calculator",
         "arXiv Search",
         "Wikipedia Search",
-        "Write File",
+        "write_file",
         "Google Scholar",
         "Google Translate",
       ],

@@ -18,7 +18,8 @@ class HumanInTheLoopError extends Error {
   }
 }
 const requestUserHelpSkill = new DynamicZodSkill({
-  name: "Request User Help",
+  name: "request_user_help",
+  readableName: "Request Human Help",
   description: `Use only as a last resort before giving up. If you are stuck, or the same error occurs more than once for a required step, you can use this skill to request human help.`,
   func: async (input, _runManager) => {
     let parsed: { prompt: string };

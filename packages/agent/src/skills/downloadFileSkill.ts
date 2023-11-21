@@ -13,7 +13,8 @@ const schema = z.object({
 });
 
 const downloadFileSkill = new DynamicZodSkill({
-  name: "Read File",
+  name: "read_file",
+  readableName: "Read File",
   description: `Read/Download private files from your cloud filesystem, after they have been provided to you, or previously saved by you.`,
   func: async (input, _runManager) => {
     const { url /*namespace*/ } = schema.parse(input);
