@@ -4,7 +4,7 @@ on:
   pull_request:
     branches: ["*"]
   push:
-    branches: ["main"]
+    branches: ["main", "develop"]
   merge_group:
 
 # You can leverage Vercel Remote Caching with Turbo to speed up your builds
