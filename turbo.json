@@ -1,6 +1,9 @@
 {
   "$schema": "https://turborepo.org/schema.json",
   "globalDependencies": ["**/.env"],
+  "remoteCache": {
+    "signature": true
+  },
   "pipeline": {
     "db:generate": {
       "inputs": ["prisma/schema.prisma"],
