@@ -15,20 +15,20 @@
     "axios": "^1.6.2",
     "cheerio": "1.0.0-rc.12",
     "graphql": "^16.8.1",
-    "js-tiktoken": "^1.0.7",
+    "js-tiktoken": "^1.0.8",
     "net": "^1.0.2",
-    "redis": "^4.6.10",
+    "redis": "^4.6.11",
     "serpapi": "^2.0.0",
     "tls": "^0.0.1",
     "weaviate-ts-client": "^1.6.0",
     "yaml": "^2.3.4",
     "zod": "^3.22.4",
-    "zod-to-json-schema": "^3.21.4"
+    "zod-to-json-schema": "^3.22.0"
   },
   "devDependencies": {
     "@acme/eslint-config": "^0.1.0",
     "@types/crypto-js": "^4.2.1",
-    "eslint": "^8.53.0",
-    "typescript": "^5.2.2"
+    "eslint": "^8.54.0",
+    "typescript": "^5.3.2"
   }
 }
