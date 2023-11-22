@@ -2,7 +2,7 @@
   "name": "waggle-dance",
   "private": true,
   "engines": {
-    "node": ">=v18.18.2"
+    "node": ">=18.18.2"
   },
   "packageManager": "pnpm@8.10.2",
   "scripts": {
@@ -19,8 +19,12 @@
     "lint": "turbo lint && manypkg check && turbo type-check",
     "lint:fix": "turbo lint:fix && manypkg fix",
     "type-check": "turbo type-check"
+    "postinstall": "pnpm lint:ws",
+    "lint:ws": "pnpm dlx sherif@latest"
   },
-  "dependencies": {
+  "devDependencies": {
+    "turbo": "^1.10.16",
+    "zod": "^3.22.4",
     "@acme/eslint-config": "^0.1.0",
     "@ianvs/prettier-plugin-sort-imports": "^4.1.1",
     "@manypkg/cli": "^0.21.0",
@@ -29,10 +33,7 @@
     "eslint": "^8.53.0",
     "prettier": "^3.1.0",
     "prettier-plugin-tailwindcss": "^0.5.7",
-    "turbo": "^1.10.16",
     "typescript": "^5.2.2"
   },
-  "devDependencies": {
-    "zod": "^3.22.4"
-  }
+  "prettier": "@acme/prettier-config"
 }
