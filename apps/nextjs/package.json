@@ -14,10 +14,10 @@
     "with-env": "dotenv -e ../../.env --"
   },
   "dependencies": {
-    "@acme/agent": "workspace:^0.1.0",
-    "@acme/api": "workspace:^0.1.0",
-    "@acme/auth": "workspace:^0.1.0",
-    "@acme/db": "workspace:^0.1.0",
+    "@acme/agent": "0.1.0",
+    "@acme/api": "0.1.0",
+    "@acme/auth": "0.1.0",
+    "@acme/db": "0.1.0",
     "@acme/tailwind-config": "^0.1.0",
     "@aws-sdk/client-s3": "^3.451.0",
     "@emotion/react": "^11.11.1",
@@ -64,10 +64,9 @@
     "zustand": "^4.4.6"
   },
   "devDependencies": {
-    "@acme/eslint-config": "workspace:^0.2.0",
-    "@acme/prettier-config": "workspace:^0.1.0",
-    "@acme/tailwind-config": "workspace:^0.1.0",
-    "@acme/tsconfig": "workspace:^0.1.0",
+    "@acme/eslint-config": "0.2.0",
+    "@acme/prettier-config": "0.1.0",
+    "@acme/tsconfig": "0.1.0",
     "@types/d3": "^7.4.3",
     "@types/d3-force": "^3.0.9",
     "@types/formidable": "^3.4.5",
