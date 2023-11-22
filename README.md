@@ -157,25 +157,6 @@ As a best practice, run `turbo lint` before starting a feature and after finishi
 
 - [See all markdown included in the project for more specifics!](https://github.com/search?q=repo%3Aagi-merge%2Fwaggle-dance+path%3A*.md&type=code)
 
-#### Reading List
-
-- [GPT best practices](https://platform.openai.com/docs/guides/gpt-best-practices)
-- [Jerry Liu (LLama Index) on state & history of Agentic AI, context management](https://podcasts.apple.com/us/podcast/the-twiml-ai-podcast-formerly-this-week-in-machine/id1116303051?i=1000612216800)
-- [Join the discord](https://discord.gg/ttt9YmhQU6)
-- [Using AI Agents to Solve Complex Problems](https://haystack.deepset.ai/blog/introducing-haystack-agents)
-- [Examples of Prompt Based Apps](https://chatgpt-prompt-apps.com/)
-- [Another Example of a Prompt Based App](https://github.com/Significant-Gravitas/Auto-GPT)
-- [Python Notebook/Cookbook for Tinkering/Exploring](https://github.com/openai/openai-cookbook/blob/main/apps/chatbot-kickstarter/powering_your_products_with_chatgpt_and_your_data.ipynb)
-- [Constitutional AI in RLHF](https://astralcodexten.substack.com/p/constitutional-ai-rlhf-on-steroids)
-- [Understand different types of memory and vector database techniques](https://www.pinecone.io/learn/hnsw/)
-- [Interaction Nets](https://readonly.link/articles/https://cdn.inet.cic.run/docs/articles/programming-with-interaction-nets.md)
-
-## 🎖️ Citations
-
-- https://github.com/AGI-Edgerunners/Plan-and-Solve-Prompting
-- https://github.com/ysymyth/tree-of-thought-llm
-- Everything in Helpful Docs above
-
 ## 🤗 Special Thanks
 
 - Maintainers and Contributors of LangChain.js
