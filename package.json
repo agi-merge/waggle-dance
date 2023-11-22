@@ -7,7 +7,9 @@
   "packageManager": "pnpm@8.10.2",
   "scripts": {
     "prebuild": "node --experimental-modules ./build-tools/prebuild.mjs",
-    "env-sync": "SKIP_ENV_VALIDATION=1 node --experimental-modules ./build-tools/env-sync.mjs",
+    "env:code:sync": "SKIP_ENV_VALIDATION=1 node --experimental-modules ./build-tools/env-sync-code.mjs",
+    "env:vercel:push": "node --experimental-modules ./build-tools/env-sync-vercel.mjs push",
+    "env:vercel:clean": "node --experimental-modules ./build-tools/env-sync-vercel.mjs clean",
     "build": "pnpm prebuild && turbo build",
     "clean": "git clean -xdf node_modules",
     "clean:workspaces": "turbo clean",

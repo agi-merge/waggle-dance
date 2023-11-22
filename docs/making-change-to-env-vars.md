@@ -1,5 +1,13 @@
 # Adding/Removing/Changing Environment Variables
 
+`env.mjs` is the primary source of truth.
+
+You may try running the helper script, which automates updating the files below (except `env.mjs`)
+
+```bash
+pnpm env:code:sync
+```
+
 If you are making changes, you will need to make sure all of the following have been updated:
 
 - [Dockerfile](../Dockerfile)

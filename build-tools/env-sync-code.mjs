@@ -1,4 +1,7 @@
-// env-sync.js
+// env-sync-code.mjs
+// this dev script is used to use env.mjs as the source of truth for env vars.
+// for more info, see /docs/making-change-to-env-vars.md
+
 import fs from "fs";
 import path, { dirname } from "path";
 import { fileURLToPath } from "url";
