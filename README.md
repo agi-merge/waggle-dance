@@ -70,12 +70,11 @@ Basically, anything and everything goes! Though [multi-agent systems have a long
 
 ## 🏃 Running Locally and Development
 
-~~waggledance.ai can be deployed using Docker or manually using Node.js. Configuration of `.env` vars is required.~~
-Docker support is coming soon.
+waggledance.ai can be deployed locally using Docker or manually using Node.js. Configuration of `.env` vars is required.
 
-### Docker (coming soon)
+### Docker
 
-`docker-compose build && docker-compose up`
+`docker-compose up --build`
 
 ### Dependencies
 
