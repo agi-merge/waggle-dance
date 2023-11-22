@@ -1,8 +1,6 @@
 import { createEnv } from "@t3-oss/env-nextjs";
 import { z } from "zod";
 
-import { LLMAliasKeys } from "@acme/agent/src/utils/llms";
-
 const StartsWithCapital = z.string().refine((value) => /^[A-Z]/.test(value), {
   message: "Must start with a capital letter",
 });
@@ -15,7 +13,7 @@ const ApiClientSchema = z.object({
 
 const AllowApiClientsSchema = z.record(ApiClientSchema);
 
-export const env = createEnv({
+export const envSchema = {
   skipValidation: !!process.env.SKIP_ENV_VALIDATION,
   /**
    * Specify your server-side environment variables schema here. This way you can ensure the app isn't
@@ -108,10 +106,10 @@ export const env = createEnv({
           val === "false"
             ? false
             : val === "true"
-            ? 0.5
-            : typeof val === "string" && !isNaN(parseFloat(val))
-            ? parseFloat(val)
-            : val,
+              ? 0.5
+              : typeof val === "string" && !isNaN(parseFloat(val))
+                ? parseFloat(val)
+                : val,
         z.boolean().or(z.number().gte(0).lte(1)),
       )
       .optional(),
@@ -154,7 +152,7 @@ export const env = createEnv({
       // eslint-disable-next-line @typescript-eslint/no-unsafe-return
       .transform((str) => JSON.parse(str))
       .optional()
-      .default(`["${LLMAliasKeys.SmartLarge}", "${LLMAliasKeys.Embeddings}"]`),
+      .default(`["smart-large", "embeddings"]`),
   },
   /**
    * Destructure all variables from `process.env` to make sure they aren't tree-shaken away.
@@ -219,4 +217,6 @@ export const env = createEnv({
     BLOB_READ_WRITE_TOKEN: process.env.BLOB_READ_WRITE_TOKEN,
     ALLOW_API_CLIENTS: process.env.ALLOW_API_CLIENTS,
   },
-});
+};
+
+export const env = createEnv(envSchema);

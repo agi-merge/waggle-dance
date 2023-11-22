@@ -1,4 +1,6 @@
-import { checkEnv } from "./tools/check-env.mjs";
+import { checkEnv } from "./check-env.mjs";
+
+process.chdir(path.resolve(__dirname, ".."));
 
 if (!!process.env.SKIP_ENV_VALIDATION) {
   console.log(YELLOW + "⚠️ Skipping env validation!" + RESET);

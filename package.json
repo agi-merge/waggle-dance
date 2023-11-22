@@ -6,7 +6,8 @@
   },
   "packageManager": "pnpm@8.10.2",
   "scripts": {
-    "prebuild": "node --experimental-modules prebuild.mjs",
+    "prebuild": "node --experimental-modules ./build-tools/prebuild.mjs",
+    "env-sync": "SKIP_ENV_VALIDATION=1 node --experimental-modules ./build-tools/env-sync.mjs",
     "build": "pnpm prebuild && turbo build",
     "clean": "git clean -xdf node_modules",
     "clean:workspaces": "turbo clean",
@@ -30,5 +31,8 @@
     "prettier-plugin-tailwindcss": "^0.5.7",
     "turbo": "^1.10.16",
     "typescript": "^5.2.2"
+  },
+  "devDependencies": {
+    "zod": "^3.22.4"
   }
 }
