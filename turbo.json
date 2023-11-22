@@ -23,12 +23,15 @@
     "clean": {
       "cache": false
     },
-    "//#clean": {
-      "cache": false
-    },
     "type-check": {
       "dependsOn": ["^db:generate"],
       "cache": false
+    },
+    "start": {
+      "persistent": true,
+      "cache": false,
+      "dependsOn": ["^build"],
+      "outputs": []
     }
   },
   "globalEnv": [
@@ -39,7 +42,6 @@
     "GITHUB_SECRET",
     "EMAIL_FROM",
     "POSTMARK_TOKEN",
-    "EXPO_ROUTER_APP_ROOT",
     "NEXTAUTH_SECRET",
     "NEXTAUTH_URL",
     "NODE_ENV",

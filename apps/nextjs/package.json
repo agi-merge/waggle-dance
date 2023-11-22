@@ -43,6 +43,7 @@
     "jsonrepair": "^3.4.1",
     "langchain": "0.0.185",
     "mammoth": "^1.6.0",
+    "nanoid": "^5.0.3",
     "next": "^14.0.2",
     "next-auth": "^4.24.5",
     "pdf-parse": "^1.1.1",
