@@ -84,11 +84,11 @@ waggledance.ai can be deployed locally using Docker or manually using Node.js. C
 
 ### ⚙️ Configure Your Environment
 
-- Copy `.env.example` to `.env` and configure the environment variables. For help, please [reach out on Discord](https://discord.gg/ttt9YmhQU6). See [env.mjs](https://github.com/agi-merge/waggle-dance/blob/main/apps/nextjs/src/env.mjs) for explicit requirements.
+- Copy `.env.example` to `.env` and configure the environment variables. For help, please [reach out on Discord](https://discord.gg/ttt9YmhQU6). See [env-schema.mjs](https://github.com/agi-merge/waggle-dance/blob/main/apps/nextjs/src/env-schema.mjs) for explicit requirements.
 
 ### 🐘 Setting up Postgres
 
-Refer to [.env.example](https://github.com/agi-merge/waggle-dance/tree/main/.env.example) and [env.mjs](https://github.com/agi-merge/waggle-dance/tree/main/apps/nextjs/env.mjs) for the required environment variables.
+Refer to [.env.example](https://github.com/agi-merge/waggle-dance/tree/main/.env.example) and [env-schema.mjs](https://github.com/agi-merge/waggle-dance/tree/main/apps/nextjs/env-schema.mjs) for the required environment variables.
 Currently only Postgres via Prisma is supported. You can use a local Postgres instance (it is recommended to use Docker) or a cloud provider such as [Supabase](https://supabase.com).
 
 Once you have set up, secured, and configured your Postgres, run the following commands:

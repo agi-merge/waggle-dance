@@ -4,7 +4,6 @@
 import { execSync } from 'child_process';
 import fs from 'fs';
 import { exit } from 'process';
-import { checkEnv } from './check-env.mjs';
 
 // Check if a mode was provided
 const mode = process.argv[2];
@@ -33,17 +32,18 @@ if (!["production", "preview", "development"].includes(environment)) {
 }
 
 if (mode === "push") {
-  pushEnvVars();
+  await pushEnvVars();
 } else if (mode === "clean") {
   cleanEnvVars();
 }
 
-function pushEnvVars() {
+async function pushEnvVars() {
   // Import the envSchema only when needed
-  const { envSchema } = require('../apps/nextjs/src/env.mjs');
+  const { envSchema } = await import('../apps/nextjs/src/env-schema.mjs');
 
   // Validate the environment variables
   try {
+    const { checkEnv } = await import('../build-tools/check-env.mjs');
     checkEnv();
   } catch (error) {
     console.error(error.message);

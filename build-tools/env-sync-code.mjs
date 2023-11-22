@@ -7,7 +7,7 @@ import path, { dirname } from "path";
 import { fileURLToPath } from "url";
 import { parse, stringify } from "yaml";
 
-import { envSchema } from "../apps/nextjs/src/env.mjs";
+import { envSchema } from "../apps/nextjs/src/env-schema.mjs";
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = dirname(__filename);

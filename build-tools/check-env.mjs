@@ -15,7 +15,7 @@ const BLUE = "\x1b[34m";
 export const checkEnv = () => {
   // Load the contents of env.mjs and .env.example files
   const envMjsContent = fs.readFileSync(
-    join(__dirname, "../apps/nextjs/src/", "env.mjs"),
+    join(__dirname, "../apps/nextjs/src/", "env-schema.mjs"),
     "utf8",
   );
   const envExampleContent = fs.readFileSync(
@@ -41,7 +41,7 @@ export const checkEnv = () => {
     .map((line) => line.trim().split(":")[0].trim())
     .filter((variable) => variable !== "}," && variable !== "");
   console.log(
-    `Found these env vars in ${YELLOW + "env.mjs" + RESET}`,
+    `Found these env vars in ${YELLOW + "env-schema.mjs" + RESET}`,
     runtimeEnvVariableNames,
   );
 
@@ -53,7 +53,7 @@ export const checkEnv = () => {
   // Throw an error if any variables are missing
   if (missingVariables.length > 0) {
     throw new Error(
-      `The following variables are missing from env.mjs's runtimeEnv object, please add them with appropriate zod types/constraints:\n${missingVariables.join(
+      `The following variables are missing from env-schema.mjs's runtimeEnv object, please add them with appropriate zod types/constraints:\n${missingVariables.join(
         "\n",
       )}`,
     );
