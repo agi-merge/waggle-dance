@@ -31,6 +31,8 @@ export type OpenAITool =
   | OpenAIClient.Beta.AssistantCreateParams.AssistantToolsRetrieval
   | OpenAIClient.Beta.AssistantCreateParams.AssistantToolsFunction;
 
+export type InitializeExecutorReturnType = AgentExecutor | PlanAndExecuteAgentExecutor;
+
 export async function initializeExecutor(
   _goalPrompt: string,
   agentPromptingMethod: AgentPromptingMethod,
@@ -44,7 +46,7 @@ export async function initializeExecutor(
   humanMessage: MessageContent | undefined,
   callbacks: Callbacks | undefined,
   memory: MemoryType | undefined,
-) {
+): Promise<InitializeExecutorReturnType> {
   let executor;
   const agentType = getAgentPromptingMethodValue(agentPromptingMethod);
   let options:
@@ -98,7 +100,7 @@ export async function initializeExecutor(
 
     executor = await initializeAgentExecutorWithOptions(tools, llm, options);
   } else if (agentPromptingMethod === AgentPromptingMethod.PlanAndExecute) {
-    executor = PlanAndExecuteAgentExecutor.fromLLMAndTools({
+    executor = await PlanAndExecuteAgentExecutor.fromLLMAndTools({
       llm,
       tools: tools as Tool[],
       tags,
