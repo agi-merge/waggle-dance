@@ -57,18 +57,34 @@ async function pushEnvVars() {
   const lines = fs.readFileSync(envFilePath, 'utf8').split('\n');
   for (const line of lines) {
     // Split the line into name and value
-    const parts = line.split('=');
+    const parts = line.match(/^([^=]+)=(.*)$/);
+    if (!parts) continue; // Skip lines that don't match the pattern
 
-    // Check if the variable is in the envSchema
-    if (!Object.keys(envSchema.runtimeEnv).includes(parts[0])) {
-      continue; // skip this iteration if the variable is not in the envSchema
+    const key = parts[1];
+    let value = parts[2] || '';
+
+    value = JSON.stringify(value)
+    // Remove surrounding double quotes from the value
+    value = value.replace(/^"(.+(?="$))"$/, '$1');
+
+    // Trim the value and remove return characters
+    value = value.trim().replace(/[\r\n]+/g, '');
+
+    // Add or update the variable in Vercel
+    try {
+      // Remove the existing variable before adding the new one
+      execSync(`vercel env rm ${key} ${environment} -y`, { stdio: 'inherit' });
+      console.log(`Removed existing variable: ${key}`);
+    } catch (error) {
+      // If the variable does not exist, the command will fail, so catch the error and continue
+      console.error(`Error removing existing variable ${key}: ${error}`);
     }
 
-    // Add the variable to Vercel
     try {
-      const value = JSON.stringify(parts[1]);
-      const output = execSync(`echo ${value} | vercel env add ${parts[0]} ${environment}`);
-      console.log(`Output: ${output}`);
+      // Use printf instead of echo to avoid issues with newlines and escape sequences
+      const command = `printf '%s' "${value}" | vercel env add ${key} ${environment}`;
+      const output = execSync(command, { stdio: 'inherit' });
+      console.log(`Added variable: ${key}, output: ${output}`);
     } catch (error) {
       console.error(`exec error: ${error}`);
     }
