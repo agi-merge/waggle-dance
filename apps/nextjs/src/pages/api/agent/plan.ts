@@ -20,7 +20,84 @@ export const config = {
   },
   runtime: "edge",
 };
-
+/**
+ * @swagger
+ * /api/agent/plan:
+ *   post:
+ *     description: Returns a plan DAG for a given goal prompt
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             $ref: '#/components/schemas/PlanRequestBody'
+ *     responses:
+ *       200:
+ *         description: The request was successful. Successful responses will return a stream of individual JSON Text payloads.
+ *         headers:
+ *           Transfer-Encoding:
+ *             schema:
+ *               type: string
+ *             description: chunked
+ *         content:
+ *           text/plain:
+ *             schema:
+ *               $ref: '#/components/schemas/TextStream'
+ *       400:
+ *         description: Bad request. The request is missing required fields or has invalid data.
+ *       401:
+ *         description: Unauthorized. The client is not authenticated.
+ *       500:
+ *         description: Internal Server Error. An error occurred on the server.
+ *       default:
+ *         $ref: '#/components/responses/HttpErrorResponse'
+ * components:
+ *   schemas:
+ *     Error:
+ *       type: object
+ *       required:
+ *         - message
+ *       properties:
+ *         message:
+ *           type: string
+ *         code:
+ *           type: integer
+ *           format: int32
+ *     PlanRequestBody:
+ *       type: object
+ *       required:
+ *         - creationProps
+ *         - goalPrompt
+ *         - goalId
+ *         - executionId
+ *         - agentProtocolOpenAPISpec
+ *       properties:
+ *         creationProps:
+ *           type: object
+ *           properties:
+ *             verbose:
+ *               type: boolean
+ *         goalId:
+ *           type: string
+ *         goalPrompt:
+ *           type: string
+ *         agentProtocolOpenAPISpec:
+ *           type: object
+ *           additionalProperties: true
+ *         executionId:
+ *           type: string
+ *     TextStream:
+ *       type: string
+ *       description: A stream of text
+ *   responses:
+ *     HttpErrorResponse:
+ *       description: An error response
+ *       content:
+ *         application/json:
+ *           schema:
+ *             $ref: '#/components/schemas/Error'
+ *
+ */
 export default async function PlanStream(req: NextRequest) {
   console.debug("plan request");
   const abortController = new AbortController();
