@@ -20,7 +20,7 @@
     "redis": "^4.6.11",
     "serpapi": "^2.0.0",
     "tls": "^0.0.1",
-    "weaviate-ts-client": "^1.6.0",
+    "weaviate-ts-client": "^2.0.0",
     "yaml": "^2.3.4",
     "zod": "^3.22.4",
     "zod-to-json-schema": "^3.22.0"

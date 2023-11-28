@@ -16,8 +16,8 @@
     "@acme/db": "^0.1.0",
     "@trpc/client": "^10.44.1",
     "@trpc/server": "^10.44.1",
-    "@vercel/kv": "^0.2.4",
-    "superjson": "2.2.0",
+    "@vercel/kv": "^1.0.0",
+    "superjson": "2.2.1",
     "zod": "^3.22.4"
   },
   "devDependencies": {
