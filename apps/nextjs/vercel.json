@@ -4,7 +4,7 @@
   },
   "framework": "other",
   "outputDirectory": "apps/nextjs/.next",
-  "buildCommand": "cd ../.. pnpx turbo build",
+  "buildCommand": "pnpx turbo build",
   "installCommand": "pnpm install --store=node_modules.pnpm-store",
   "devCommand": "pnpm dev",
   "crons": [
