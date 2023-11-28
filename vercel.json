@@ -3,8 +3,8 @@
     "silent": true
   },
   "framework": "nextjs",
-  "outputDirectory": "apps/nextjs",
-  "buildCommand": "pnpx turbo build",
+  "outputDirectory": "apps/nextjs/.next",
+  "buildCommand": "pnpm build",
   "installCommand": "pnpm install --store=node_modules.pnpm-store",
   "devCommand": "pnpm dev",
   "crons": [

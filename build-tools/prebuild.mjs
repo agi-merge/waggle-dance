@@ -1,5 +1,8 @@
+import path from 'path';
+import { fileURLToPath } from 'url';
 import { checkEnv } from "./check-env.mjs";
 
+const __dirname = path.dirname(fileURLToPath(import.meta.url));
 process.chdir(path.resolve(__dirname, ".."));
 
 if (!!process.env.SKIP_ENV_VALIDATION) {
