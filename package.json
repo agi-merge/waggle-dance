@@ -2,14 +2,12 @@
   "name": "waggle-dance",
   "private": true,
   "engines": {
-    "node": "20.x"
+    "node": ">=18.18.2"
   },
   "packageManager": "pnpm@8.10.2",
   "scripts": {
     "prebuild": "node --experimental-modules ./build-tools/prebuild.mjs",
-    "env:code:sync": "SKIP_ENV_VALIDATION=1 node --experimental-modules ./build-tools/env-sync-code.mjs",
-    "env:vercel:push": "node --experimental-modules ./build-tools/env-sync-vercel.mjs push",
-    "env:vercel:clean": "node --experimental-modules ./build-tools/env-sync-vercel.mjs clean",
+    "env-sync": "SKIP_ENV_VALIDATION=1 node --experimental-modules ./build-tools/env-sync.mjs",
     "build": "pnpm prebuild && turbo build",
     "clean": "git clean -xdf node_modules",
     "clean:workspaces": "turbo clean",
@@ -17,24 +15,21 @@
     "db:push": "turbo db:push db:generate",
     "dev": "turbo dev --parallel",
     "start": "turbo start",
-    "format": "prettier --write \"**/*.{js,cjs,mjs,ts,tsx,md,json}\" --ignore-path .gitignore",
-    "lint": "turbo lint && manypkg check && turbo type-check",
-    "lint:fix": "turbo lint:fix && manypkg fix",
-    "type-check": "turbo type-check",
-    "lint:ws": "pnpm dlx sherif@latest"
+    "format": "turbo format --continue -- --cache --cache-location='node_modules/.cache/.prettiercache'",
+    "format:fix": "turbo format --continue -- --write --cache --cache-location='node_modules/.cache/.prettiercache'",
+    "lint": "turbo lint --continue -- --cache --cache-location 'node_modules/.cache/.eslintcache'",
+    "lint:fix": "turbo lint --continue -- --fix --cache --cache-location 'node_modules/.cache/.eslintcache'",
+    "lint:ws": "pnpm dlx sherif@latest",
+    "typecheck": "turbo typecheck"
   },
   "prettier": "@acme/prettier-config",
   "dependencies": {
-    "@acme/eslint-config": "^0.1.0",
+    "@acme/prettier-config": "0.1.0",
     "@ianvs/prettier-plugin-sort-imports": "^4.1.1",
     "@manypkg/cli": "^0.21.0",
-    "@typescript-eslint/eslint-plugin": "^6.13.0",
-    "@typescript-eslint/parser": "^6.13.0",
-    "eslint": "^8.54.0",
-    "prettier": "^3.1.0",
-    "prettier-plugin-tailwindcss": "^0.5.7",
+    "@turbo/gen": "^1.10.16",
+    "prettier": "^3.0.3",
     "turbo": "^1.10.16",
-    "typescript": "^5.3.2",
-    "zod": "^3.22.4"
+    "typescript": "^5.2.2"
   }
 }
