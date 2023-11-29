@@ -24,11 +24,11 @@ import { stringify } from "superjson";
 import { examplePrompts } from "@acme/agent";
 import { type AutoRefineFeedback } from "@acme/api/utils";
 
-import { api } from "~/utils/api";
-import routes from "~/utils/routes";
 import useApp from "~/stores/appStore";
 import useGoalStore from "~/stores/goalStore";
 import useWaggleDanceMachineStore from "~/stores/waggleDanceStore";
+import { api } from "~/utils/api";
+import routes from "~/utils/routes";
 import AutoRefineGoalToggle from "../AgentSettings/components/AutoRefineGoalToggle";
 import { TokenChip } from "./components/TokenChip";
 

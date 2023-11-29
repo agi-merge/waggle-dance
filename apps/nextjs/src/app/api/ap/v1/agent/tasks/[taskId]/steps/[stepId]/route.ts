@@ -1,8 +1,7 @@
 import { type NextRequest } from "next/server";
-import { getServerSession } from "next-auth";
 
 import { appRouter } from "@acme/api";
-import { authOptions } from "@acme/auth";
+import { auth } from "@acme/auth";
 import { prisma } from "@acme/db";
 
 // GET /ap/v1/agent/tasks/:taskId/steps/:stepId
@@ -19,11 +18,11 @@ export async function GET(
     );
   }
 
-  const session = await getServerSession(authOptions);
+  const session = await auth();
 
   const caller = appRouter.createCaller({
     session: session || null,
-    prisma,
+    db: prisma,
     origin: req.nextUrl.origin,
   });
   const exe = await caller.execution.byId({ id: taskId });

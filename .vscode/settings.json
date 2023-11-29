@@ -44,5 +44,6 @@
   "eslint.timeBudget.onFixes": {
     "warn": 10000,
     "error": 10000
-  }
+  },
+  "javascript.format.enable": false
 }

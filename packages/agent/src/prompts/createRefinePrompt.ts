@@ -18,16 +18,16 @@ const schema = (format: string) =>
 THE ONLY THING YOU MUST OUTPUT IS valid ${format} that matches the psuedo-code representation of AutoRefineFeedback.
 `.trim();
 
-type Feedback = {
+interface Feedback {
   type: "enhancement" | "error" | "warning";
   reason: string;
   replaceIndices: [number, number];
   refinedGoal: string;
   suggestedSkills: string[];
   suggestedData: string[];
-};
+}
 
-type ExampleFeedback = {
+interface ExampleFeedback {
   input: {
     goal: string;
     index: number;
@@ -36,16 +36,14 @@ type ExampleFeedback = {
     feedbacks: [Feedback];
     combinedRefinedGoal?: string | undefined;
   };
-};
-type Prompt = {
+}
+interface Prompt {
   title: string;
   prompt: string;
   tags: string[];
-};
+}
 
-type ExamplePrompts = {
-  [category: string]: Prompt[];
-};
+type ExamplePrompts = Record<string, Prompt[]>;
 
 export const examplePrompts: ExamplePrompts = {
   "📈 Market Research": [

@@ -1,9 +1,8 @@
 import { type NextRequest } from "next/server";
 import { type Artifact, type Task } from "lib/AgentProtocol/types";
-import { getServerSession } from "next-auth";
 
 import { appRouter } from "@acme/api";
-import { authOptions } from "@acme/auth";
+import { auth } from "@acme/auth";
 import { prisma } from "@acme/db";
 
 // GET /ap/v1/agent/tasks/:taskId
@@ -17,11 +16,11 @@ export async function GET(
       { status: 404 },
     );
   }
-  const session = (await getServerSession(authOptions)) || null;
+  const session = (await auth()) || null;
 
   const caller = appRouter.createCaller({
     session,
-    prisma,
+    db: prisma,
     origin: request.nextUrl.origin,
   });
 

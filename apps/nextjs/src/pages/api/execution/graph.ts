@@ -4,7 +4,7 @@ import { type NextApiRequest, type NextApiResponse } from "next";
 
 import { type OldPlanWireFormat } from "@acme/agent";
 import { appRouter } from "@acme/api";
-import { getServerSession, type Session } from "@acme/auth";
+import { auth, type Session } from "@acme/auth";
 import {
   ExecutionState,
   prisma,
@@ -31,7 +31,7 @@ export default async function updateGraphProxy(
   res: NextApiResponse,
 ) {
   try {
-    const session = await getServerSession({ req, res });
+    const session = await auth(req, res);
 
     const { json: params } = req.body as { json: UpdateGraphParams };
     params["session"] = session;
@@ -54,7 +54,7 @@ async function updateGraph({
 }: UpdateGraphParams): Promise<ExecutionGraph | Execution> {
   const caller = appRouter.createCaller({
     session: session || null,
-    prisma,
+    db: prisma,
     origin,
   });
   if (graph == null) {

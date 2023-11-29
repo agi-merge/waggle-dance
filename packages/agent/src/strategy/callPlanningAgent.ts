@@ -1,16 +1,18 @@
 // agent/strategy/callPlanningAgent.ts
 
 import {
-  encodingForModel,
-  type Tiktoken,
-  type TiktokenModel,
+  encodingForModel
+  
+  
 } from "js-tiktoken";
+import type {Tiktoken, TiktokenModel} from "js-tiktoken";
 import { LLMChain } from "langchain/chains";
-import { type JsonObject } from "langchain/tools";
+import type {JsonObject} from "langchain/tools";
 import { parse as jsonParse, stringify as jsonStringify } from "superjson";
 import { parse as yamlParse, stringify as yamlStringify } from "yaml";
 
-import { defaultAgentSettings, rootPlanId, type PlanWireFormat } from "../..";
+import { defaultAgentSettings, rootPlanId  } from "../..";
+import type {PlanWireFormat} from "../..";
 import {
   createPlanFormattingPrompt,
   createPlanPrompt,
@@ -22,7 +24,7 @@ import {
   ModelStyle,
 } from "../utils/llms";
 import { createEmbeddings, createModel } from "../utils/model";
-import { type ModelCreationProps } from "../utils/OpenAIPropsBridging";
+import type {ModelCreationProps} from "../utils/OpenAIPropsBridging";
 import createSkills from "../utils/skills";
 
 export async function callPlanningAgent(
@@ -110,7 +112,7 @@ export async function callPlanningAgent(
       console.error("error parsing dag", error);
       const formattingPrompt = createPlanFormattingPrompt(
         // eslint-disable-next-line @typescript-eslint/no-unsafe-argument
-        await createPlanChain.prompt.lc_kwargs["content"],
+        await createPlanChain.prompt.lc_kwargs.content,
         response,
         returnType,
       );
@@ -118,7 +120,7 @@ export async function callPlanningAgent(
       const matchResponseTokensWithMinimumAndPadding = (
         text: string,
         encoder: Tiktoken,
-        paddingMultiplier: number = 1.1,
+        paddingMultiplier = 1.1,
       ) => {
         if (paddingMultiplier <= 1) {
           throw new Error("paddingMultiplier must be greater than 1");

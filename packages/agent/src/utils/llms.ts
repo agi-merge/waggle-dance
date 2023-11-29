@@ -45,7 +45,7 @@ export const LLM_ALIASES: Record<LLMAliasKey, LLM> = {
   [LLMAliasKeys.SmartLarge]: LLM["gpt-4-32k"],
   [LLMAliasKeys.SmartXLarge]: LLM["gpt-4-1106-preview"],
   [LLMAliasKeys.SmartVisionXLarge]: LLM["gpt-4-vision-preview"],
-  [LLMAliasKeys.Embeddings]: LLM["embeddings"],
+  [LLMAliasKeys.Embeddings]: LLM.embeddings,
 };
 
 export enum Temperature {

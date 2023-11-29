@@ -16,7 +16,7 @@ import { RecursiveCharacterTextSplitter } from "langchain/text_splitter";
 
 import { createUserNamespace } from "@acme/agent";
 import { insertDocuments } from "@acme/agent/src/utils/vectorStore";
-import { getServerSession } from "@acme/auth";
+import { auth } from "@acme/auth";
 
 import { env } from "~/env.mjs";
 
@@ -59,10 +59,7 @@ const promisifiedParse = (
 };
 
 const handler = async (req: IncomingMessage, res: ServerResponse) => {
-  const session = await getServerSession({
-    req: req as NextApiRequest,
-    res: res as NextApiResponse,
-  });
+  const session = await auth(req as NextApiRequest, res as NextApiResponse);
 
   if (!session) {
     console.error("No session found");

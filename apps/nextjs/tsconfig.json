@@ -1,27 +1,19 @@
 {
-  "extends": "../../tsconfig.json",
+  "extends": "@acme/tsconfig/base.json",
   "compilerOptions": {
     "baseUrl": ".",
     "paths": {
-      "~/*": [
-        "./lib/*",
-        "./src/*"
-      ]
+      "~/*": ["./src/*"],
+      "@mui/material": ["./node_modules/@mui/joy"]
     },
     "plugins": [
       {
         "name": "next"
       }
     ],
+    "tsBuildInfoFile": "node_modules/.cache/tsbuildinfo.json",
     "strictNullChecks": true
   },
-  "exclude": [],
-  "include": [
-    "next-env.d.ts",
-    "**/*.ts",
-    "**/*.tsx",
-    "**/*.cjs",
-    "**/*.mjs",
-    ".next/types/**/*.ts"
-  ]
+  "include": ["lib/**/*", "src/**/*", ".next/types/**/*.ts"],
+  "exclude": ["node_modules"]
 }

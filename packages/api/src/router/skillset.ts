@@ -21,7 +21,7 @@ export const skillsetRouter = createTRPCRouter({
         throw new TRPCError({ code: "UNAUTHORIZED" });
       }
 
-      return ctx.prisma.skillset.create({
+      return ctx.db.skillset.create({
         data: {
           ...input,
           userSkillsets: {
@@ -37,7 +37,7 @@ export const skillsetRouter = createTRPCRouter({
   byId: protectedProcedure
     .input(z.object({ id: z.string() }))
     .query(({ ctx, input }) => {
-      return ctx.prisma.skillset.findUnique({
+      return ctx.db.skillset.findUnique({
         where: { id: input.id },
         include: {
           skills: true,
@@ -63,7 +63,7 @@ export const skillsetRouter = createTRPCRouter({
         throw new TRPCError({ code: "UNAUTHORIZED" });
       }
 
-      return ctx.prisma.skillset.update({
+      return ctx.db.skillset.update({
         where: { id: input.id },
         data: input,
       });
@@ -79,7 +79,7 @@ export const skillsetRouter = createTRPCRouter({
         throw new TRPCError({ code: "UNAUTHORIZED" });
       }
 
-      return ctx.prisma.skillset.delete({ where: { id: input } });
+      return ctx.db.skillset.delete({ where: { id: input } });
     }),
   // Add a skill to a skillset
   addSkill: protectedProcedure
@@ -90,7 +90,7 @@ export const skillsetRouter = createTRPCRouter({
       }),
     )
     .mutation(({ ctx, input }) => {
-      return ctx.prisma.skill.update({
+      return ctx.db.skill.update({
         where: { id: input.skillId },
         data: { skillsetId: input.skillsetId },
       });
@@ -105,7 +105,7 @@ export const skillsetRouter = createTRPCRouter({
       }),
     )
     .mutation(({ ctx, input }) => {
-      return ctx.prisma.skill.delete({
+      return ctx.db.skill.delete({
         where: {
           skillsetId: input.skillsetId,
           id: input.skillId,

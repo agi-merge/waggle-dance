@@ -13,13 +13,13 @@ import { get, type EdgeConfigValue } from "@vercel/edge-config";
 
 import { type ExecutionPlusGraph, type GoalPlusExe } from "@acme/db";
 
-import { api } from "~/utils/api";
-import routes from "~/utils/routes";
 import { env } from "~/env.mjs";
 import ErrorBoundary from "~/features/error/ErrorBoundary";
 import MainLayout from "~/features/MainLayout";
 import useSkillStore from "~/stores/skillStore";
 import useWaggleDanceMachineStore from "~/stores/waggleDanceStore";
+import { api } from "~/utils/api";
+import routes from "~/utils/routes";
 import useGoalStore from "../../stores/goalStore";
 
 const PageTitle = lazy(
@@ -113,7 +113,7 @@ const GoalPage = ({ alertConfigs }: Props) => {
   const [serverGoals] = api.goal.topByUser.useSuspenseQuery(undefined, {
     refetchOnMount: true,
     staleTime: 60_000,
-    useErrorBoundary: true,
+    // useErrorBoundary: true,
   });
 
   const route = useMemo(() => getRoute(router.query), [router.query]);

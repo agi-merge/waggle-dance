@@ -1,13 +1,10 @@
 import { ChatOpenAI } from "langchain/chat_models/openai";
-import { type Embeddings } from "langchain/embeddings/base";
+import type {Embeddings} from "langchain/embeddings/base";
 import { OpenAIEmbeddings } from "langchain/embeddings/openai";
 import { OpenAI } from "langchain/llms/openai";
 
 import { AgentPromptingMethod, LLM_ALIASES, ModelStyle } from "./llms";
-import {
-  type EmbeddingsCreationProps,
-  type ModelCreationProps,
-} from "./OpenAIPropsBridging";
+import type {EmbeddingsCreationProps, ModelCreationProps} from "./OpenAIPropsBridging";
 
 function getAzureDeploymentName(
   modelName: string | undefined,

@@ -1,6 +1,6 @@
 import { z } from "zod";
 
-import { type DraftExecutionEdge, type DraftExecutionNode } from "@acme/db";
+import type {DraftExecutionEdge, DraftExecutionNode} from "@acme/db";
 
 import { createTRPCRouter, protectedProcedure } from "../trpc";
 
@@ -18,7 +18,7 @@ export const graphRouter = createTRPCRouter({
       }),
     )
     .query(async ({ ctx }) => {
-      return await ctx.prisma.execution.findFirst({
+      return await ctx.db.execution.findFirst({
         where: { userId: ctx.session?.user.id },
         take: 1,
         orderBy: { updatedAt: "desc" }, // doesnt work as expected?
@@ -44,11 +44,11 @@ export const graphRouter = createTRPCRouter({
     )
     .query(async ({ ctx, input }) => {
       if (input as { graphId: string }) {
-        return await ctx.prisma.executionNode.findMany({
+        return await ctx.db.executionNode.findMany({
           where: { graphId: (input as { graphId: string }).graphId },
         });
       } else {
-        const execution = await ctx.prisma.execution.findUnique({
+        const execution = await ctx.db.execution.findUnique({
           where: { id: (input as { executionId: string }).executionId },
           include: { graph: { include: { nodes: true } } },
         });

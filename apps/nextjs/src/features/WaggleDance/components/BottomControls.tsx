@@ -1,11 +1,11 @@
 import React from "react";
 import { Box, Card, Divider, Link, Stack, Typography } from "@mui/joy";
 
-import { type Session } from "@acme/auth";
+import { Session } from "@acme/auth";
 import { type DraftExecutionGraph, type GoalPlusExe } from "@acme/db";
 
-import routes from "~/utils/routes";
 import AgentSettingsToggleButton from "~/features/AgentSettings/components/AgentSettingsToggleButton";
+import routes from "~/utils/routes";
 import { ExecutionSelect } from "./ExecutionSelect";
 import { StartStopButton } from "./StartStopButton";
 import { TaskProgress } from "./TaskProgress";

@@ -11,21 +11,28 @@
     "typecheck": "tsc --noEmit"
   },
   "dependencies": {
-    "@acme/agent": "^0.1.0",
-    "@acme/auth": "^0.1.0",
-    "@acme/db": "^0.1.0",
-    "@trpc/client": "^10.43.3",
-    "@trpc/server": "^10.43.3",
-    "@vercel/kv": "^0.2.4",
-    "superjson": "2.2.0",
+    "@acme/agent": "workspace:^0.1.0",
+    "@acme/auth": "workspace:^0.1.0",
+    "@acme/db": "workspace:^0.1.0",
+    "@trpc/client": "next",
+    "@trpc/server": "next",
+    "@vercel/kv": "^1.0.0",
+    "superjson": "2.2.1",
     "zod": "^3.22.4"
   },
   "devDependencies": {
-    "@acme/eslint-config": "0.2.0",
-    "@acme/prettier-config": "0.1.0",
-    "@acme/tsconfig": "0.1.0",
-    "eslint": "^8.53.0",
-    "prettier": "^3.0.3",
-    "typescript": "^5.2.2"
-  }
+    "@acme/eslint-config": "workspace:^0.2.0",
+    "@acme/prettier-config": "workspace:^0.1.0",
+    "@acme/tsconfig": "workspace:^0.1.0",
+    "eslint": "^8.54.0",
+    "prettier": "^3.1.0",
+    "typescript": "^5.3.2"
+  },
+  "eslintConfig": {
+    "root": true,
+    "extends": [
+      "@acme/eslint-config/base"
+    ]
+  },
+  "prettier": "@acme/prettier-config"
 }

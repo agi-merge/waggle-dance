@@ -88,7 +88,7 @@ const uploadFileSkill = new DynamicZodSkill({
       };
 
       return stringify({
-        url: !!artifact
+        url: artifact
           ? artifact.relative_path
           : "Error: unexpected return value",
         mimeType,

@@ -1,24 +1,24 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 // chain/utils/types.ts
 
-import { type Document } from "langchain/document";
-import { type Serialized } from "langchain/load/serializable";
-import {
-  type AgentAction,
-  type BaseMessage,
-  type Generation,
-  type LLMResult,
+import type { Document } from "langchain/document";
+import type { Serialized } from "langchain/load/serializable";
+import type {
+  AgentAction,
+  BaseMessage,
+  Generation,
+  LLMResult,
 } from "langchain/schema";
 import { parse as jsonParse } from "superjson";
 import { parse as yamlParse } from "yaml";
 
 import { removeEnclosingMarkdown } from "../..";
-import { type ContextAndTools } from "./execute/callExecutionAgent.types";
+import type { ContextAndTools } from "./execute/callExecutionAgent.types";
 
 export type ChainValues = Record<string, unknown>;
-export type BaseAgentPacket = {
+export interface BaseAgentPacket {
   type: AgentPacketType;
-};
+}
 
 export type BaseAgentPacketWithIds = BaseAgentPacket & {
   runId: string;
@@ -177,14 +177,14 @@ export const findContextAndTools = (
 
 export const findArtifactPackets = (
   packets: AgentPacket[],
-): Array<ArtifactAgentPacket> => {
+): ArtifactAgentPacket[] => {
   const artifactPackets = packets.filter((packet) => {
     try {
       return packet.type === "artifact";
     } catch (err) {
       return false;
     }
-  }) as Array<ArtifactAgentPacket>;
+  }) as ArtifactAgentPacket[];
 
   return artifactPackets;
 };
@@ -194,7 +194,7 @@ const extractText = (
 ): { title: string; output: string } | undefined => {
   const actionString =
     "text" in outputs
-      ? removeEnclosingMarkdown(outputs["text"] as string)
+      ? removeEnclosingMarkdown(outputs.text as string)
       : "None";
   try {
     const { action: title, action_input: output } = JSON.parse(
@@ -224,7 +224,7 @@ export function getMostRelevantOutput(packet: AgentPacket): {
       };
     case "handleLLMEnd":
       const gens = packet.output.generations;
-      if (!!gens) {
+      if (gens) {
         const output = gens
           .flat()
           .map((g) => g.text)
@@ -250,7 +250,7 @@ export function getMostRelevantOutput(packet: AgentPacket): {
       return {
         ...(extractText(packet.outputs) ?? {
           title: `Chain End ${packet.parentRunId}`,
-          output: String(packet.outputs["text"]),
+          output: String(packet.outputs.text),
         }),
         emoji: "🔗",
       };

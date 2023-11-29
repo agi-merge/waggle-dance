@@ -1,11 +1,11 @@
 // TokenChip.tsx
-import { Chip, Stack, Tooltip, Typography, type ChipProps } from "@mui/joy"
-import { encodingForModel, type Tiktoken } from "js-tiktoken"
-import { type TiktokenModel } from "langchain/dist/types/openai-types"
-import { useMemo } from "react"
-import { useDebounce } from "use-debounce"
+import { useMemo } from "react";
+import { Chip, Stack, Tooltip, Typography, type ChipProps } from "@mui/joy";
+import { encodingForModel, type Tiktoken } from "js-tiktoken";
+import { type TiktokenModel } from "langchain/dist/types/openai-types";
+import { useDebounce } from "use-debounce";
 
-import useWaggleDanceMachineStore from "~/stores/waggleDanceStore"
+import useWaggleDanceMachineStore from "~/stores/waggleDanceStore";
 
 const defaultMaxTokens = 200;
 
@@ -30,7 +30,9 @@ export const TokenChip = ({ prompt, maxTokens, ...props }: TokenChipProps) => {
       return encodingForModel(agentSettings.plan.modelName as TiktokenModel);
     } catch (error) {
       console.error(
-        `Error encoding model: ${(error as Error).message}. Falling back to "gpt-4".`,
+        `Error encoding model: ${
+          (error as Error).message
+        }. Falling back to "gpt-4".`,
       );
       return encodingForModel("gpt-4");
     }
@@ -75,8 +77,8 @@ export const TokenChip = ({ prompt, maxTokens, ...props }: TokenChipProps) => {
           ? color === "danger"
             ? "Your goal may be too short."
             : color === "warning"
-            ? "Your goal may be a bit short."
-            : "Your goal is sufficiently long."
+              ? "Your goal may be a bit short."
+              : "Your goal is sufficiently long."
           : "Errors are more likely to occur with very long goals."
       }`}
     >

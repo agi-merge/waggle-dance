@@ -2,18 +2,16 @@ import { type Prisma } from "@prisma/client";
 import { v4 } from "uuid";
 import { z } from "zod";
 
-import {
-  findFinishPacket,
-  makeServerIdIfNeeded,
-  type AgentPacket,
-} from "@acme/agent";
-import { type Session } from "@acme/auth";
-import { ExecutionState, type DraftExecutionNode, type Result } from "@acme/db";
+import type { AgentPacket } from "@acme/agent";
+import { findFinishPacket, makeServerIdIfNeeded } from "@acme/agent";
+import type { Session } from "@acme/auth";
+import type { DraftExecutionNode, Result } from "@acme/db";
+import { ExecutionState } from "@acme/db";
 
 import { createTRPCRouter, protectedProcedure } from "../trpc";
 import withLock from "./lock";
 
-export type CreateResultParams = {
+export interface CreateResultParams {
   goalId: string;
   node: DraftExecutionNode;
   executionId: string;
@@ -22,7 +20,7 @@ export type CreateResultParams = {
   state: ExecutionState;
   session?: Session | null;
   origin?: string | undefined;
-};
+}
 
 export const resultRouter = createTRPCRouter({
   byExecutionId: protectedProcedure
@@ -35,7 +33,7 @@ export const resultRouter = createTRPCRouter({
     )
     .query(async ({ ctx, input }) => {
       const { executionId, currentPage, pageSize } = input;
-      return await ctx.prisma.result.findMany({
+      return await ctx.db.result.findMany({
         where: { executionId },
         orderBy: { createdAt: "desc" },
         skip: (currentPage - 1) * pageSize,
@@ -51,7 +49,7 @@ export const resultRouter = createTRPCRouter({
       }),
     )
     .query(async ({ ctx, input }) => {
-      return await ctx.prisma.result.findFirst({
+      return await ctx.db.result.findFirst({
         where: { executionId: input.executionId, id: input.artifactId },
         select: { artifactUrls: true },
       });
@@ -71,12 +69,14 @@ export const resultRouter = createTRPCRouter({
       return await withLock(input.executionId, async () => {
         const { goalId, executionId, node, packets, state } = input;
         node.id = makeServerIdIfNeeded(node.id, executionId);
-        const result = ctx.prisma.result.create({
+        const result = ctx.db.result.create({
           data: {
             execution: { connect: { id: executionId } },
             goal: { connect: { id: goalId } },
-            value: findFinishPacket(packets) as Prisma.InputJsonValue,
-            packets: packets as Prisma.InputJsonValue[],
+            value: findFinishPacket(
+              packets,
+            ) as unknown as Prisma.InputJsonValue,
+            packets: packets as unknown[] as Prisma.InputJsonValue[],
             node: {
               connectOrCreate: {
                 where: { id: node.id },
@@ -86,12 +86,12 @@ export const resultRouter = createTRPCRouter({
           },
         });
 
-        const updateExecution = ctx.prisma.execution.update({
+        const updateExecution = ctx.db.execution.update({
           where: { id: executionId },
           data: { state },
         });
 
-        return await ctx.prisma.$transaction([result, updateExecution]);
+        return await ctx.db.$transaction([result, updateExecution]);
       });
     }),
 
@@ -110,7 +110,7 @@ export const resultRouter = createTRPCRouter({
     .mutation(async ({ ctx, input }) => {
       const { executionId, resultId, artifactUrl, nodeId } = input;
 
-      return await ctx.prisma.$transaction(async (prisma) => {
+      return await ctx.db.$transaction(async (prisma) => {
         // Fetch the existing result
         let result: Result | null;
 
@@ -147,14 +147,16 @@ export const resultRouter = createTRPCRouter({
             contentType: input.contentType,
             runId: v4(),
           };
+
+          const jsonValue = stubValue as unknown as Prisma.InputJsonValue;
           // create the result
-          const result = await ctx.prisma.result.create({
+          const result = await ctx.db.result.create({
             data: {
               execution: { connect: { id: executionId } },
               node: { connect: { id: nodeId } },
               goal: { connect: { id: execution?.goalId } },
-              value: stubValue,
-              packets: [stubValue],
+              value: jsonValue,
+              packets: [jsonValue],
               artifactUrls: [artifactUrl],
             },
           });

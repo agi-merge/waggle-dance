@@ -16,7 +16,7 @@ export const goalRouter = createTRPCRouter({
       return [];
     }
     return (
-      await ctx.prisma.goal.findMany({
+      await ctx.db.goal.findMany({
         where: { userId },
         orderBy: { updatedAt: "desc" },
         include: {
@@ -49,7 +49,7 @@ export const goalRouter = createTRPCRouter({
       if (!userId) {
         return null;
       }
-      return ctx.prisma.goal.findUnique({
+      return ctx.db.goal.findUnique({
         where: { id, userId },
         include: {
           executions: {
@@ -75,7 +75,7 @@ export const goalRouter = createTRPCRouter({
   limitedGoalFromExecution: optionalProtectedProcedure
     .input(z.string().min(1))
     .query(({ ctx, input: executionId }) => {
-      return ctx.prisma.goal.findFirst({
+      return ctx.db.goal.findFirst({
         where: { executions: { some: { id: executionId } } },
         select: { id: true, userId: true },
       });
@@ -96,7 +96,7 @@ export const goalRouter = createTRPCRouter({
         throw new TRPCError({ code: "UNAUTHORIZED" });
       }
 
-      return ctx.prisma.goal.create({
+      return ctx.db.goal.create({
         data: {
           prompt,
           userId,
@@ -132,7 +132,7 @@ export const goalRouter = createTRPCRouter({
         throw new TRPCError({ code: "UNAUTHORIZED" });
       }
 
-      return ctx.prisma.goal.delete({ where: { id: input, userId } });
+      return ctx.db.goal.delete({ where: { id: input, userId } });
     }),
 
   refine: publicProcedure

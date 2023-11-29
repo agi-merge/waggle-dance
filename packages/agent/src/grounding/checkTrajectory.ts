@@ -1,10 +1,10 @@
-import { type Callbacks } from "langchain/callbacks";
+import type { Callbacks } from "langchain/callbacks";
 import { LLMChain } from "langchain/chains";
-import { type AgentTrajectoryEvaluator } from "langchain/dist/evaluation/base";
+import type { AgentTrajectoryEvaluator } from "langchain/dist/evaluation/base";
 import { PromptTemplate } from "langchain/prompts";
-import { type AgentStep } from "langchain/schema";
+import type { AgentStep } from "langchain/schema";
 
-import { type ChainValues } from "../strategy/AgentPacket";
+import type { ChainValues } from "../strategy/AgentPacket";
 import { LLM_ALIASES, ModelStyle } from "../utils/llms";
 import { createModel } from "../utils/model";
 
@@ -123,7 +123,7 @@ ${
       const repairCall = (await repair.call({ error: evaluation.value })) as {
         text: string;
       };
-      const score: number | undefined = !!repairCall.text
+      const score: number | undefined = repairCall.text
         ? Number.parseFloat(repairCall.text) / 5
         : undefined;
       console.warn("Trajectory evaluation parsing failed", evaluation.value);

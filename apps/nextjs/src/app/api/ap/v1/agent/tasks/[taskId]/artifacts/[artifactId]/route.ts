@@ -1,8 +1,7 @@
 import { type NextRequest } from "next/server";
-import { getServerSession } from "next-auth";
 
 import { appRouter } from "@acme/api";
-import { authOptions } from "@acme/auth";
+import { auth } from "@acme/auth";
 import { prisma } from "@acme/db";
 
 /**
@@ -25,10 +24,10 @@ export async function GET(
     return Response.json("artifact_id is required", { status: 400 });
   }
 
-  const session = (await getServerSession(authOptions)) || null;
+  const session = (await auth()) || null;
   const caller = appRouter.createCaller({
     session,
-    prisma,
+    db: prisma,
     origin: req.nextUrl.origin,
   });
 

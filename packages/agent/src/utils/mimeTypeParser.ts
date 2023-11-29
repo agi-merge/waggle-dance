@@ -1,8 +1,8 @@
 import { parse as jsonParse, stringify as jsonStringify } from "superjson";
 import { parse as yamlParse, stringify as yamlStringify } from "yaml";
-import { type z } from "zod";
+import type {z} from "zod";
 
-export type Data = {
+export interface Data {
   [key: string]:
     | string
     | number
@@ -16,7 +16,7 @@ export type Data = {
     | object
     | object[]
     | null[];
-};
+}
 export type ParseableMimeTypes = "application/json" | "application/yaml";
 export type DisplayMimeTypes = "JSON" | "YAML";
 

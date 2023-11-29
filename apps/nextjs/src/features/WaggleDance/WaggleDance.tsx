@@ -30,13 +30,13 @@ import { useSession } from "next-auth/react";
 import { TaskStatus, type TaskState } from "@acme/agent";
 import { type ExecutionPlusGraph } from "@acme/db";
 
-import { api } from "~/utils/api";
-import routes from "~/utils/routes";
 import useApp from "~/stores/appStore";
 import useGoalStore from "~/stores/goalStore";
 import useWaggleDanceMachineStore, {
   createDraftExecution,
 } from "~/stores/waggleDanceStore";
+import { api } from "~/utils/api";
+import routes from "~/utils/routes";
 import useWaggleDanceAgentExecutor from "./hooks/useWaggleDanceAgentExecutor";
 
 const BottomControls = lazy(() => import("./components/BottomControls"));
@@ -253,7 +253,7 @@ const WaggleDance = ({}: Props) => {
   return (
     <Stack gap="1rem" sx={{ mx: -4 }}>
       <Box className="text-center">
-        <Typography level="body-sm" sx={{ opacity: session?.user.id ? 0 : 1 }}>
+        <Typography level="body-sm" sx={{ opacity: !!session?.user ? 0 : 1 }}>
           <Link href={routes.auth} target="_blank" color="primary">
             Sign in
           </Link>

@@ -3,10 +3,11 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 // packages/agent/src/utils/stringifyInvokeParams.ts
 import {
-  stringifyByMime,
-  type DisplayMimeTypes,
-  type ParseableMimeTypes,
+  stringifyByMime
+  
+  
 } from "./mimeTypeParser";
+import type {DisplayMimeTypes, ParseableMimeTypes} from "./mimeTypeParser";
 
 export function stringifyInvokeParams(
   returnType: ParseableMimeTypes | DisplayMimeTypes,

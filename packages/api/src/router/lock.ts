@@ -7,8 +7,8 @@ type LockFunction<T> = () => Promise<T>;
 async function withLock<T>(
   key: string,
   fn: LockFunction<T>,
-  retries: number = 5,
-  delay: number = 500,
+  retries = 5,
+  delay = 500,
 ): Promise<T> {
   if (!process.env.KV_REST_API_URL) {
     throw new Error("Missing KV_REST_API_URL");

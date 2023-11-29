@@ -2,14 +2,16 @@ import { z } from "zod";
 
 import {
   hookRootUpToServerGraph,
-  makeServerIdIfNeeded,
-  type ModelCreationProps,
+  makeServerIdIfNeeded
+  
 } from "@acme/agent";
+import type {ModelCreationProps} from "@acme/agent";
 import {
-  ExecutionState,
-  type DraftExecutionEdge,
-  type DraftExecutionNode,
+  ExecutionState
+  
+  
 } from "@acme/db";
+import type {DraftExecutionEdge, DraftExecutionNode} from "@acme/db";
 
 import { createTRPCRouter, protectedProcedure, publicProcedure } from "../trpc";
 import withLock from "./lock";
@@ -29,7 +31,7 @@ export const executionRouter = createTRPCRouter({
     )
     .query(async ({ ctx, input }) => {
       const { currentPage, pageSize } = input;
-      return await ctx.prisma.execution.findMany({
+      return await ctx.db.execution.findMany({
         where: { userId: ctx.session?.user.id },
         orderBy: { createdAt: "desc" },
         skip: (currentPage - 1) * pageSize,
@@ -56,7 +58,7 @@ export const executionRouter = createTRPCRouter({
       const userId = ctx.session.user.id;
 
       // create execution
-      return ctx.prisma.execution.create({
+      return ctx.db.execution.create({
         data: {
           goalId,
           userId,
@@ -97,7 +99,7 @@ export const executionRouter = createTRPCRouter({
       const userId = ctx.session.user.id;
 
       // create a new goal
-      const goal = await ctx.prisma.goal.create({
+      const goal = await ctx.db.goal.create({
         data: {
           prompt,
           userId,
@@ -105,7 +107,7 @@ export const executionRouter = createTRPCRouter({
       });
 
       // create a new execution and attach it to the newly created goal
-      const execution = await ctx.prisma.execution.create({
+      const execution = await ctx.db.execution.create({
         data: {
           goalId: goal.id,
           userId,
@@ -181,7 +183,7 @@ export const executionRouter = createTRPCRouter({
           tId: makeServerIdIfNeeded(edge.tId, executionId),
         }));
 
-        return ctx.prisma.executionGraph.upsert({
+        return ctx.db.executionGraph.upsert({
           where: { executionId },
           create: {
             executionId,
@@ -211,7 +213,7 @@ export const executionRouter = createTRPCRouter({
       const { executionId, state } = input;
       const userId = ctx.session.user.id;
 
-      return ctx.prisma.execution.update({
+      return ctx.db.execution.update({
         where: { id: executionId, userId },
         data: { state },
       });
@@ -223,7 +225,7 @@ export const executionRouter = createTRPCRouter({
       const { id } = input;
       const userId = ctx.session.user.id;
 
-      return ctx.prisma.execution.findUnique({
+      return ctx.db.execution.findUnique({
         where: {
           id,
           userId,

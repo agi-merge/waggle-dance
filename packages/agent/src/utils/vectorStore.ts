@@ -1,5 +1,5 @@
 import { Document } from "langchain/document";
-import { type Embeddings } from "langchain/embeddings/base";
+import type {Embeddings} from "langchain/embeddings/base";
 import { WeaviateStore } from "langchain/vectorstores/weaviate";
 import weaviate from "weaviate-ts-client";
 

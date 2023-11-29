@@ -1,20 +1,20 @@
-import { type z } from "zod";
+import type {z} from "zod";
 
 export type AutoRefineFeedbackType = "enhancement" | "error" | "warning";
 
-export type AutoRefineFeedbackItem = {
+export interface AutoRefineFeedbackItem {
   type: AutoRefineFeedbackType;
   reason: string;
   replaceIndices: [number, number];
   refinedGoal: string;
   suggestedSkills: string[];
   suggestedData: string[];
-};
+}
 
-export type AutoRefineFeedback = {
+export interface AutoRefineFeedback {
   feedback: AutoRefineFeedbackItem[];
   combinedRefinedGoal: string;
-};
+}
 
 export type TypeToZod<T> = {
   [K in keyof T]: T[K] extends string | number | boolean | null | undefined

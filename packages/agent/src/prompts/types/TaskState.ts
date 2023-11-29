@@ -1,8 +1,9 @@
-import { type DraftExecutionNode, type Result } from "@acme/db";
+import type {DraftExecutionNode, Result} from "@acme/db";
 
-import { rootPlanId, type AgentPacket } from "../../..";
+import { rootPlanId  } from "../../..";
+import type {AgentPacket} from "../../..";
 import { mapPacketTypeToStatus } from "../utils/mapPacketToStatus";
-import { type TaskStatus } from "./TaskStatus";
+import type {TaskStatus} from "./TaskStatus";
 
 // Wrapper of Result that adds some useful methods
 export class TaskState implements AugmentedResponse {

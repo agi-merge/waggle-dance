@@ -1,10 +1,9 @@
 import { type NextRequest } from "next/server";
 import { type Task, type TaskRequestBody } from "lib/AgentProtocol/types";
-import { getServerSession } from "next-auth";
 
 import { LLM_ALIASES } from "@acme/agent/src/utils/llms";
 import { appRouter } from "@acme/api";
-import { authOptions } from "@acme/auth";
+import { auth } from "@acme/auth";
 import { prisma, type ExecutionPlusGraph, type Goal } from "@acme/db";
 
 // POST /ap/v1/agent/tasks
@@ -24,10 +23,10 @@ export async function POST(request: NextRequest) {
   // });
 
   // create a goal and exe
-  const session = (await getServerSession(authOptions)) || null;
+  const session = (await auth()) || null;
   const caller = appRouter.createCaller({
     session,
-    prisma,
+    db: prisma,
     origin: request.nextUrl.origin,
   });
 
@@ -75,10 +74,10 @@ export async function GET(request: NextRequest) {
   const params = request.nextUrl.searchParams;
   const pageSize = Number(params.get("page_size") ?? 10);
   const currentPage = Number(params.get("current_page") ?? 1);
-  const session = (await getServerSession(authOptions)) || null;
+  const session = (await auth()) || null;
   const caller = appRouter.createCaller({
     session,
-    prisma,
+    db: prisma,
     origin: request.nextUrl.origin,
   });
 

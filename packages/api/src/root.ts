@@ -1,16 +1,16 @@
-import { authRouter as auth } from "./router/auth";
-import { executionRouter as execution } from "./router/execution";
-import { goalRouter as goal } from "./router/goal";
-import { graphRouter as graph } from "./router/graph";
-import { resultRouter as result } from "./router/result";
+import { authRouter } from "./router/auth";
+import { executionRouter } from "./router/execution";
+import { goalRouter } from "./router/goal";
+import { graphRouter } from "./router/graph";
+import { resultRouter } from "./router/result";
 import { createTRPCRouter } from "./trpc";
 
 export const appRouter = createTRPCRouter({
-  auth,
-  goal,
-  execution,
-  result,
-  graph,
+  auth: authRouter,
+  execution: executionRouter,
+  goal: goalRouter,
+  graph: graphRouter,
+  result: resultRouter,
 });
 
 // export type definition of API

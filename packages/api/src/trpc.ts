@@ -7,11 +7,11 @@
  * The pieces you will need to use are documented accordingly near the end
  */
 import { initTRPC, TRPCError } from "@trpc/server";
-import { type CreateNextContextOptions } from "@trpc/server/adapters/next";
 import superjson from "superjson";
 import { ZodError } from "zod";
 
-import { getServerSession, type Session } from "@acme/auth";
+import type { Session } from "@acme/auth";
+import { auth } from "@acme/auth";
 import { prisma } from "@acme/db";
 
 /**
@@ -23,10 +23,11 @@ import { prisma } from "@acme/db";
  * processing a request
  *
  */
-type CreateContextOptions = {
+interface CreateContextOptions {
   session: Session | null;
+  db: typeof prisma;
   origin: string | undefined;
-};
+}
 
 /**
  * This helper generates the "internals" for a tRPC context. If you need to use
@@ -39,9 +40,8 @@ type CreateContextOptions = {
  */
 const createInnerTRPCContext = (opts: CreateContextOptions) => {
   return {
-    session: opts.session,
-    prisma,
-    origin: opts.origin,
+    ...opts,
+    db: prisma,
   };
 };
 
@@ -50,19 +50,22 @@ const createInnerTRPCContext = (opts: CreateContextOptions) => {
  * process every request that goes through your tRPC endpoint
  * @link https://trpc.io/docs/context
  */
-export const createTRPCContext = async (opts: CreateNextContextOptions) => {
-  const { req, res } = opts;
+export const createTRPCContext = async (opts: {
+  req?: Request;
+  auth: Session | null;
+}) => {
+  const session = opts.auth ?? (await auth());
+  const origin =
+    opts.req?.headers.get("x-trpc-source") ??
+    opts.req?.headers.get("origin") ??
+    undefined;
 
-  // Get the session from the server using the unstable_getServerSession wrapper function
-  const session = await getServerSession({ req, res });
-
-  // if (!req.headers.origin) {
-  //   throw new Error("No origin header");
-  // }
+  console.log(">>> tRPC Request from", origin, "by", session?.user);
 
   return createInnerTRPCContext({
     session,
-    origin: req.headers.origin,
+    db: prisma,
+    origin,
   });
 };
 
@@ -135,26 +138,41 @@ const enforceUserIsAuthed = t.middleware(({ ctx, next }) => {
  */
 export const protectedProcedure = t.procedure.use(enforceUserIsAuthed);
 
+// /**
+//  * Reusable middleware that checks if a user is logged in before running the
+//  * procedure. If the user is not logged in, it sets the user to null.
+//  */
+// const checkUserIsAuthed = t.middleware(({ ctx, next }) => {
+//   if (!ctx.session?.user) {
+//     throw new TRPCError({ code: "UNAUTHORIZED" });
+//     // return next({
+//     //   ctx,
+//     // });
+//   }
+//   return next({
+//     ctx: {
+//       ...ctx,
+//       // infers the `session` as non-nullable
+//       session: { ...ctx.session, user: ctx.session.user },
+//     },
+//   });
+// });
+
 /**
- * Reusable middleware that checks if a user is logged in before running the
- * procedure. If the user is not logged in, it sets the user to null.
+ * Reusable middleware that enforces users are logged in before running the
+ * procedure
  */
-const checkUserIsAuthed = t.middleware(({ ctx, next }) => {
-  if (!ctx.session?.user) {
-    return next({
-      ctx: {
-        // infers the `session` as non-nullable
-        session: { ...ctx.session },
-      },
-    });
-  }
-  return next({
-    ctx: {
-      // infers the `session` as non-nullable
-      session: ctx.session,
-    },
-  });
-});
+// const enforceUserIsAuthed = t.middleware(({ ctx, next }) => {
+//   if (!ctx.session?.user) {
+//     throw new TRPCError({ code: "UNAUTHORIZED" });
+//   }
+//   return next({
+//     ctx: {
+//       // infers the `session` as non-nullable
+//       session: { ...ctx.session, user: ctx.session.user },
+//     },
+//   });
+// });
 
 /**
  * Optional Protected (authed) procedure
@@ -163,4 +181,5 @@ const checkUserIsAuthed = t.middleware(({ ctx, next }) => {
  * this. It checks the session and sets ctx.session.user to null if not
  * authenticated
  */
-export const optionalProtectedProcedure = t.procedure.use(checkUserIsAuthed);
+// export const optionalProtectedProcedure = t.procedure.use(checkUserIsAuthed);
+export const optionalProtectedProcedure = t.procedure.use(enforceUserIsAuthed);

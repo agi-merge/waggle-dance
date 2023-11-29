@@ -5,7 +5,6 @@ import {
   type StepRequestBody,
   type StepStatus,
 } from "lib/AgentProtocol/types";
-import { getServerSession } from "next-auth";
 import { parse } from "yaml";
 
 import {
@@ -16,7 +15,7 @@ import {
 } from "@acme/agent";
 import { AgentPromptingMethod, LLM_ALIASES } from "@acme/agent/src/utils/llms";
 import { appRouter } from "@acme/api";
-import { authOptions } from "@acme/auth";
+import { auth } from "@acme/auth";
 import { prisma, type DraftExecutionNode } from "@acme/db";
 
 import { type ExecuteRequestBody } from "~/features/WaggleDance/types/types";
@@ -39,11 +38,11 @@ export async function POST(
   //   return Response.json({ message: "Input is required" }, { status: 400 });
   // }
 
-  const session = (await getServerSession(authOptions)) || null;
+  const session = (await auth()) || null;
 
   const caller = appRouter.createCaller({
     session,
-    prisma,
+    db: prisma,
     origin: request.nextUrl.origin,
   });
 
@@ -143,8 +142,8 @@ export async function POST(
       result.packets.length === 0
         ? "created"
         : result.value
-        ? "completed"
-        : "running", // Update this based on your logic
+          ? "completed"
+          : "running", // Update this based on your logic
     output, // Update this based on your logic
     // additional_output: { packets }, // Update this based on your logic
 
@@ -191,11 +190,11 @@ export async function GET(
     );
   }
 
-  const session = (await getServerSession(authOptions)) || null;
+  const session = (await auth()) || null;
 
   const caller = appRouter.createCaller({
     session,
-    prisma,
+    db: prisma,
     origin: request.nextUrl.origin,
   });
 
@@ -210,8 +209,8 @@ export async function GET(
     const status = resultForStep?.value
       ? "completed"
       : resultForStep?.packets.length ?? 0 > 0
-      ? "running"
-      : "created";
+        ? "running"
+        : "created";
     const artifact: Artifact | null =
       status === "completed"
         ? {

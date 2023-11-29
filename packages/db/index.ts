@@ -1,11 +1,11 @@
-import {
-  PrismaClient,
-  type Execution,
-  type ExecutionEdge,
-  type ExecutionGraph,
-  type ExecutionNode,
-  type Goal,
-  type Result,
+import { PrismaClient } from "@prisma/client";
+import type {
+  Execution,
+  ExecutionEdge,
+  ExecutionGraph,
+  ExecutionNode,
+  Goal,
+  Result,
 } from "@prisma/client";
 
 export * from "@prisma/client";
@@ -36,10 +36,10 @@ export type ExecutionPlusGraph = Execution & {
 export type ExecutionGraphPlusNodesAndEdges = ExecutionGraph &
   ExecutionGraphNodesAndEdges;
 
-export type ExecutionGraphNodesAndEdges = {
+export interface ExecutionGraphNodesAndEdges {
   nodes: ExecutionNode[];
   edges: ExecutionEdge[];
-};
+}
 
 export type DraftExecutionGraph = Omit<
   ExecutionGraphPlusNodesAndEdges,

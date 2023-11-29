@@ -1,4 +1,4 @@
-import { type ExecutionNode } from "@acme/db";
+import type {ExecutionNode} from "@acme/db";
 
 export const rootPlanId = `👸🐝`;
 

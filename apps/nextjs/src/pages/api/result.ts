@@ -4,7 +4,7 @@ import { type NextApiRequest, type NextApiResponse } from "next";
 
 import { appRouter } from "@acme/api";
 import { type CreateResultParams } from "@acme/api/src/router/result";
-import { getServerSession } from "@acme/auth";
+import { auth } from "@acme/auth";
 import { prisma, type Execution, type Result } from "@acme/db";
 
 export const config = {
@@ -17,7 +17,7 @@ export default async function createResultProxy(
   res: NextApiResponse,
 ) {
   try {
-    const session = await getServerSession({ req, res });
+    const session = await auth(req, res);
 
     const params = req.body as CreateResultParams;
     params["session"] = session;
@@ -38,7 +38,7 @@ async function createResult(
   const { session, origin } = createResultOptions;
   const caller = appRouter.createCaller({
     session: session || null,
-    prisma,
+    db: prisma,
     origin,
   });
   const createResult = caller.result.create(createResultOptions);

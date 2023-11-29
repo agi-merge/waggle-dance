@@ -1,4 +1,4 @@
-import { type AgentPacketType } from "../../..";
+import type {AgentPacketType} from "../../..";
 import { TaskStatus } from "../types/TaskStatus";
 
 export const mapPacketTypeToStatus = (

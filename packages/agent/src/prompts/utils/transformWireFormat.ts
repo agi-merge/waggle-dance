@@ -3,27 +3,21 @@
 // as well as reducing the total token count
 // tradeoffs:
 
-import {
-  type DraftExecutionEdge,
-  type DraftExecutionGraph,
-  type DraftExecutionNode,
-} from "@acme/db";
+import type {DraftExecutionEdge, DraftExecutionGraph, DraftExecutionNode} from "@acme/db";
 
 import { makeServerIdIfNeeded, rootPlanId, rootPlanNode } from "../../..";
 import { criticismSuffix } from "../types";
 
-type ParentsDescriptor = {
+interface ParentsDescriptor {
   parents: number[];
-};
+}
 
-export type PlanWireFormat = {
-  [key: string]: (ParentsDescriptor | DraftExecutionNode)[];
-};
+export type PlanWireFormat = Record<string, (ParentsDescriptor | DraftExecutionNode)[]>;
 
-export type OldPlanWireFormat = {
+export interface OldPlanWireFormat {
   nodes: DraftExecutionNode[];
   edges: DraftExecutionEdge[];
-};
+}
 
 /**
  * This is called in order to hook nodes from levels with no dependencies up to the plan node.
@@ -58,7 +52,7 @@ export const hookRootUpToServerGraph = (
   executionId?: string,
 ) => {
   let root = graph.nodes.find((node) => node.id.endsWith(rootPlanId)); // brittle; depends on formulation of server ids
-  if (!!root) {
+  if (root) {
     return graph;
   }
   // add packets representing the graph state to the root node
@@ -97,7 +91,7 @@ export function transformWireFormat(
     nodes: [rootPlanNode(goalPrompt)],
     edges: [],
   };
-  const allNodes: { [key: string]: DraftExecutionNode } = {};
+  const allNodes: Record<string, DraftExecutionNode> = {};
 
   // Populate allNodes with initial nodes
   oldFormat.nodes.forEach((node) => {

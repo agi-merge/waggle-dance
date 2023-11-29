@@ -1,20 +1,21 @@
 // runnables/createRewriteRunnable.ts
-import { type Callbacks } from "langchain/callbacks";
-import { type ChatOpenAI } from "langchain/chat_models/openai";
+import type {Callbacks} from "langchain/callbacks";
+import type {ChatOpenAI} from "langchain/chat_models/openai";
 import {
   ChatPromptTemplate,
   HumanMessagePromptTemplate,
   SystemMessagePromptTemplate,
 } from "langchain/prompts";
-import { type AgentStep } from "langchain/schema";
+import type {AgentStep} from "langchain/schema";
 
-import { createModel, type MemoryType, type ModelCreationProps } from "../..";
+import { createModel   } from "../..";
+import type {MemoryType, ModelCreationProps} from "../..";
 import { formattingConstraints } from "../prompts/constraints/executeConstraints";
-import { type ContextAndTools } from "../strategy/execute/callExecutionAgent.types";
+import type {ContextAndTools} from "../strategy/execute/callExecutionAgent.types";
 import { LLM_ALIASES, ModelStyle } from "../utils/llms";
 import { stringifyByMime } from "../utils/mimeTypeParser";
 
-type CreateRewriteRunnableParams = {
+interface CreateRewriteRunnableParams {
   creationProps: ModelCreationProps;
   abortSignal: AbortSignal;
   taskObj: { id: string; name: string };
@@ -25,7 +26,7 @@ type CreateRewriteRunnableParams = {
   tags: string[];
   intermediateSteps: AgentStep[] | undefined;
   callbacks: Callbacks | undefined;
-};
+}
 
 const rewriteResponseAck = `ack`;
 

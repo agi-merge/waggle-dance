@@ -12,9 +12,15 @@ const ApiClientSchema = z.object({
 
 const AllowApiClientsSchema = z.record(ApiClientSchema);
 
-
 export const envSchema = {
   skipValidation: !!process.env.SKIP_ENV_VALIDATION,
+  shared: {
+    VERCEL_URL: z
+      .string()
+      .optional()
+      .transform((v) => (v ? `https://${v}` : undefined)),
+    PORT: z.coerce.number().default(3000),
+  },
   /**
    * Specify your server-side environment variables schema here. This way you can ensure the app isn't
    * built with invalid env vars.

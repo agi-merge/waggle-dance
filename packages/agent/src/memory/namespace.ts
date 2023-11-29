@@ -1,7 +1,7 @@
 import Base64 from "crypto-js/enc-base64";
 import sha256 from "crypto-js/sha256";
 
-import { type DraftExecutionNode } from "@acme/db";
+import type {DraftExecutionNode} from "@acme/db";
 
 export function saltAndHash(str: string): string {
   if (!process.env.VECTOR_NAMESPACE_SALT) {

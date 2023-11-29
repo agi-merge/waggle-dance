@@ -37,7 +37,7 @@ const config = {
     "**/*.config.js",
     "**/*.config.cjs",
     ".next",
-    "dist",
+    ".turbo",
     "pnpm-lock.yaml",
   ],
   reportUnusedDisableDirectives: true,

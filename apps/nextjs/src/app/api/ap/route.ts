@@ -1,5 +1,4 @@
-import { type NextRequest } from "next/server";
-
+import type { NextRequest } from "next/server";
 import AgentProtocolOpenAPISpec from "lib/AgentProtocol/openapi.json";
 
 export const dynamic = "force-static";

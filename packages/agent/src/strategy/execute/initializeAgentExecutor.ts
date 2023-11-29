@@ -1,37 +1,42 @@
 // agent/strategy/callExecutionAgent.ts
+import type { InitializeAgentExecutorOptions } from "langchain/agents";
 import {
   AgentExecutor,
   initializeAgentExecutorWithOptions,
-  type InitializeAgentExecutorOptions,
 } from "langchain/agents";
-import { type Callbacks } from "langchain/callbacks";
-import { type ChatOpenAI } from "langchain/chat_models/openai";
-import { type InitializeAgentExecutorOptionsStructured } from "langchain/dist/agents/initialize";
-import { type StructuredTool, type Tool } from "langchain/dist/tools/base";
+import type { Callbacks } from "langchain/callbacks";
+import type { ChatOpenAI } from "langchain/chat_models/openai";
+import type { InitializeAgentExecutorOptionsStructured } from "langchain/dist/agents/initialize";
 import { OpenAIAssistantRunnable } from "langchain/experimental/openai_assistant";
 import { PlanAndExecuteAgentExecutor } from "langchain/experimental/plan_and_execute";
-import { type OpenAI } from "langchain/llms/openai";
-import { type MessageContent } from "langchain/schema";
+import type { OpenAI } from "langchain/llms/openai";
+import type { MessageContent } from "langchain/schema";
+import type { StructuredTool, Tool } from "langchain/tools";
 import type { OpenAI as OpenAIClient } from "openai";
 
-import { formatToOpenAIAssistantTool, type MemoryType } from "../../..";
+import type { MemoryType } from "../../..";
+import { formatToOpenAIAssistantTool } from "../../..";
+import type {
+  InitializeAgentExecutorOptionsAgentType,
+  InitializeAgentExecutorOptionsStructuredAgentType,
+} from "../../utils/llms";
 import {
   AgentPromptingMethod,
   getAgentPromptingMethodValue,
   InitializeAgentExecutorOptionsAgentTypes,
   InitializeAgentExecutorOptionsStructuredAgentTypes,
   LLM_ALIASES,
-  type InitializeAgentExecutorOptionsAgentType,
-  type InitializeAgentExecutorOptionsStructuredAgentType,
 } from "../../utils/llms";
-import { type ModelCreationProps } from "../../utils/OpenAIPropsBridging";
+import type { ModelCreationProps } from "../../utils/OpenAIPropsBridging";
 
 export type OpenAITool =
   | OpenAIClient.Beta.AssistantCreateParams.AssistantToolsCode
   | OpenAIClient.Beta.AssistantCreateParams.AssistantToolsRetrieval
   | OpenAIClient.Beta.AssistantCreateParams.AssistantToolsFunction;
 
-export type InitializeExecutorReturnType = AgentExecutor | PlanAndExecuteAgentExecutor;
+export type InitializeExecutorReturnType =
+  | AgentExecutor
+  | PlanAndExecuteAgentExecutor;
 
 export async function initializeExecutor(
   _goalPrompt: string,
@@ -58,14 +63,14 @@ export async function initializeExecutor(
     )
   ) {
     options = {
-      agentType,
+      agentType: agentType!,
       earlyStoppingMethod: "generate",
       returnIntermediateSteps: true,
       maxIterations: 15,
       ...creationProps,
       tags,
       handleParsingErrors: true,
-    } as InitializeAgentExecutorOptions;
+    };
 
     if (
       agentType !== "zero-shot-react-description" &&
@@ -77,7 +82,7 @@ export async function initializeExecutor(
     executor = await initializeAgentExecutorWithOptions(
       tools as Tool[],
       llm,
-      options,
+      options as InitializeAgentExecutorOptions,
     );
   } else if (
     InitializeAgentExecutorOptionsStructuredAgentTypes.includes(
@@ -85,20 +90,24 @@ export async function initializeExecutor(
     )
   ) {
     options = {
-      agentType: agentType,
+      agentType: agentType!,
       returnIntermediateSteps: true,
       earlyStoppingMethod: "generate",
       handleParsingErrors: true,
       maxIterations: 15,
       ...creationProps,
       tags,
-    } as InitializeAgentExecutorOptionsStructured;
+    };
 
     if (agentType !== "structured-chat-zero-shot-react-description") {
       options.memory = memory;
     }
 
-    executor = await initializeAgentExecutorWithOptions(tools, llm, options);
+    executor = await initializeAgentExecutorWithOptions(
+      tools as Tool[],
+      llm,
+      options as InitializeAgentExecutorOptionsStructured,
+    );
   } else if (agentPromptingMethod === AgentPromptingMethod.PlanAndExecute) {
     executor = await PlanAndExecuteAgentExecutor.fromLLMAndTools({
       llm,

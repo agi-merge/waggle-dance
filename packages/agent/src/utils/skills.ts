@@ -1,15 +1,16 @@
-import { type ChatOpenAI } from "langchain/chat_models/openai";
-import { type Embeddings } from "langchain/embeddings/base";
-import { type OpenAI } from "langchain/llms/openai";
+import type {ChatOpenAI} from "langchain/chat_models/openai";
+import type {Embeddings} from "langchain/embeddings/base";
+import type {OpenAI} from "langchain/llms/openai";
 import {
   JsonSpec,
   SearchApi,
   SerpAPI,
-  WolframAlphaTool,
-  type JsonObject,
-  type SearchApiParameters,
-  type StructuredTool,
+  WolframAlphaTool
+  
+  
+  
 } from "langchain/tools";
+import type {JsonObject, SearchApiParameters, StructuredTool} from "langchain/tools";
 import { WebBrowser } from "langchain/tools/webbrowser";
 
 import cca2Map from "../lib/cca2Map.json";
@@ -18,15 +19,13 @@ import downloadFileSkill from "../skills/downloadFileSkill";
 import requestUserHelpSkill from "../skills/requestUserHelpSkill";
 import uploadFileSkill from "../skills/uploadFileSkill";
 import type Geo from "./Geo";
-import { type AgentPromptingMethod } from "./llms";
+import type {AgentPromptingMethod} from "./llms";
 
-type CCA2MapType = {
-  [key: string]: {
+type CCA2MapType = Record<string, {
     name: string;
-    divisions: { [key: string]: string };
+    divisions: Record<string, string>;
     languages: string[];
-  };
-};
+  }>;
 
 // literally just here to offer nice names in the UI
 class GoogleSearch extends SearchApi {
@@ -113,7 +112,7 @@ class YouTube extends SearchApi {
 //   }
 // }
 
-type OrganicResult = {
+interface OrganicResult {
   position?: number;
   asin?: string;
   title?: string;
@@ -127,7 +126,7 @@ type OrganicResult = {
   is_prime?: boolean;
   is_climate_pledge_friendly?: boolean;
   thumbnail: string;
-};
+}
 
 const makePrettyOrganicResult = (r: OrganicResult): string => {
   return `${r.position}. (ASIN: ${r.asin}) ${r.title?.slice(0, 75)}…\n${

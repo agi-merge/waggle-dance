@@ -1,13 +1,15 @@
-import { type Readable } from "stream";
-import { NextResponse, type NextRequest } from "next/server";
+import type { Readable } from "stream";
+import type { NextRequest } from "next/server";
+import { NextResponse } from "next/server";
 import { put } from "@vercel/blob";
-import { type Artifact } from "lib/AgentProtocol/types";
+import type { Artifact } from "lib/AgentProtocol/types";
 import { customAlphabet } from "nanoid";
-import { getServerSession, type Session } from "next-auth";
 
 import { appRouter } from "@acme/api";
-import { authOptions } from "@acme/auth";
-import { prisma, type Result } from "@acme/db";
+import type { Session } from "@acme/auth";
+import { auth } from "@acme/auth";
+import type { Result } from "@acme/db";
+import { prisma } from "@acme/db";
 
 import { mimeTypeMapping } from "~/features/AddDocuments/mimeTypes";
 
@@ -33,10 +35,10 @@ export async function GET(
   const pageSize = Number(params.get("page_size") ?? 10);
   const currentPage = Number(params.get("current_page") ?? 1);
 
-  const session = (await getServerSession(authOptions)) || null;
+  const session = (await auth()) || null;
   const caller = appRouter.createCaller({
     session,
-    prisma,
+    db: prisma,
     origin: req.nextUrl.origin,
   });
 
@@ -72,11 +74,11 @@ export async function POST(
     return Response.json("taskId in path is required", { status: 400 });
   }
 
-  const session = (await getServerSession(authOptions)) || null;
+  const session = (await auth()) || null;
 
   const caller = appRouter.createCaller({
     session,
-    prisma,
+    db: prisma,
     origin: req.nextUrl.origin,
   });
 
@@ -102,18 +104,18 @@ export async function POST(
   const file = await req.blob();
   const contentType = req.headers.get("content-type") || file.type || "";
 
-  const nextAuthNamespaceSession: Session | null =
-    session ||
-    (namespaceSession
-      ? {
-          user: {
-            id: namespaceSession.userId,
-          },
-          expires: namespaceSession.expires.toISOString(),
-        }
-      : null);
+  // const nextAuthNamespaceSession: Session | null =
+  //   session ||
+  //   (namespaceSession
+  //     ? {
+  //         user: {
+  //           id: namespaceSession.userId,
+  //         },
+  //         expires: namespaceSession.expires.toISOString(),
+  //       }
+  //     : null);
   const { artifact } = await uploadAndSaveResult({
-    session: nextAuthNamespaceSession,
+    session: session || namespaceSession || null,
     contentType,
     file,
     nodeId: nodeId!,
@@ -124,7 +126,7 @@ export async function POST(
   return NextResponse.json(artifact, { status: 201 });
 }
 
-type UploadFileParams = {
+interface UploadFileParams {
   contentType: string;
   file:
     | string
@@ -134,7 +136,7 @@ type UploadFileParams = {
     | FormData
     | ReadableStream<unknown>
     | File;
-};
+}
 
 export async function uploadFile({ contentType, file }: UploadFileParams) {
   const artifactId = nanoid();
@@ -169,9 +171,12 @@ export async function uploadAndSaveResult({
 }> {
   const { contentType, url } = await uploadFile(uploadFileParams);
 
+  if (!session) {
+    throw new Error("Session is required");
+  }
   const caller = appRouter.createCaller({
     session,
-    prisma,
+    db: prisma,
     origin,
   });
 

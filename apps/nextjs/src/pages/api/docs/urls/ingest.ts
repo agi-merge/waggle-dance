@@ -5,7 +5,7 @@ import { RecursiveCharacterTextSplitter } from "langchain/text_splitter";
 
 import { createUserNamespace } from "@acme/agent";
 import { insertDocuments } from "@acme/agent/src/utils/vectorStore";
-import { getServerSession } from "@acme/auth";
+import { auth } from "@acme/auth";
 
 import { env } from "~/env.mjs";
 
@@ -30,10 +30,7 @@ export type UploadError = {
 };
 
 const handler = async (req: IncomingMessage, res: NextApiResponse) => {
-  const session = await getServerSession({
-    req: req as NextApiRequest,
-    res,
-  });
+  const session = await auth(req as NextApiRequest, res);
 
   if (!session) {
     console.error("No session found");

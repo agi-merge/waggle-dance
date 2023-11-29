@@ -8,23 +8,23 @@ import {
 import { stringify as jsonStringify } from "superjson";
 import { stringify as yamlStringify } from "yaml";
 
-export type ToolsAndContextPickingInput = {
+export interface ToolsAndContextPickingInput {
   task: string;
   inServiceOfGoal: string;
   longTermMemories: string;
   availableTools: string[];
-};
+}
 
-export type ToolsAndContextPickingOutput = {
+export interface ToolsAndContextPickingOutput {
   synthesizedContext: string[];
   tools: string[];
-};
+}
 
-type ToolsAndContextExample = {
+interface ToolsAndContextExample {
   exampleRemarks: object;
   input: ToolsAndContextPickingInput;
   output: ToolsAndContextPickingOutput;
-};
+}
 
 const toolsAndContextExamples: ToolsAndContextExample[] = [
   {

@@ -11,8 +11,8 @@ import Tooltip from "@mui/joy/Tooltip";
 import Typography from "@mui/joy/Typography";
 import { signOut, useSession } from "next-auth/react";
 
-import routes from "~/utils/routes";
 import { app } from "~/constants";
+import routes from "~/utils/routes";
 import Footer from "./Footer";
 import ThemeToggle from "./ThemeToggle";
 
@@ -51,12 +51,12 @@ const Header = ({}) => {
           </Typography>
         </Typography>
         {session && (
-          <Tooltip title={`You are signed in as ${session.user.name}`}>
+          <Tooltip title={`You are signed in as ${session.user?.name}`}>
             <IconButton onClick={() => void signOut()} size="sm">
               <Avatar
                 className="mr-3"
-                src={session.user.image || undefined}
-                alt={session.user.name || undefined}
+                src={session.user?.image || undefined}
+                alt={session.user?.name || undefined}
               />
             </IconButton>
           </Tooltip>

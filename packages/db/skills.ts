@@ -1,7 +1,7 @@
 // FIXME: merge w/ DynamicZodSkill / skills / use the database
 import { z } from "zod";
 
-import { type Skillset } from ".";
+import type { Skillset } from ".";
 
 export type SkillsetCreate = Omit<Skillset, "index" | "id"> & {
   schema: z.ZodObject<z.ZodRawShape>;

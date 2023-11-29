@@ -3,9 +3,10 @@ import {
   BufferMemory,
   CombinedMemory,
   ConversationSummaryMemory,
-  VectorStoreRetrieverMemory,
-  type BaseMemory,
+  VectorStoreRetrieverMemory
+  
 } from "langchain/memory";
+import type {BaseMemory} from "langchain/memory";
 import { MemoryVectorStore } from "langchain/vectorstores/memory";
 
 import { createSTMNamespace } from "../memory/namespace";
@@ -18,14 +19,14 @@ export type MemoryType =
   BaseMemory;
 // | BaseMessage[]
 // | undefined;
-export type MemoryOptions = {
+export interface MemoryOptions {
   executionNamespace: string | null;
   taskId: string;
   memoryType?: string | undefined;
   inputKey?: string | undefined;
   memoryKey?: string | undefined;
   returnUnderlying?: boolean | undefined;
-};
+}
 export async function createMemory({
   executionNamespace,
   taskId,
@@ -74,7 +75,7 @@ export async function createMemory({
 
       const memories = (
         await Promise.all([buffer, conversation, vector])
-      ).flatMap((m) => ((m as BaseMemory) ? (m as BaseMemory) : []));
+      ).flatMap((m) => ((m!) ? (m) : []));
 
       const combined = new CombinedMemory({
         memories,
