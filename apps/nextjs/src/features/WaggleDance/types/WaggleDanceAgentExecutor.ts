@@ -1,28 +1,23 @@
-import { type MutableRefObject } from "react";
-import { JsonSpec, type JsonObject } from "langchain/tools";
+import type { MutableRefObject } from "react";
+import type { JsonObject } from "langchain/tools";
+import { JsonSpec } from "langchain/tools";
 import { stringify } from "yaml";
 
-import {
-  extractTier,
-  rootPlanNode,
-  TaskState,
-  TaskStatus,
-  type AgentPacket,
-  type AgentSettingsMap,
-} from "@acme/agent";
+import type { AgentPacket, AgentSettingsMap } from "@acme/agent";
+import { extractTier, rootPlanNode, TaskState, TaskStatus } from "@acme/agent";
 import { isTaskCriticism } from "@acme/agent/src/prompts/types";
-import { type DraftExecutionGraph, type DraftExecutionNode } from "@acme/db";
+import type { DraftExecutionGraph, DraftExecutionNode } from "@acme/db";
 
 import executeTask from "../utils/executeTask";
 import { isGoalReached } from "../utils/isGoalReached";
 import planTasks from "../utils/planTasks";
 import { sleep } from "../utils/sleep";
-import {
-  mapAgentSettingsToCreationProps,
-  type ExecuteRequestBody,
-  type GraphDataState,
-  type WaggleDanceResult,
+import type {
+  ExecuteRequestBody,
+  GraphDataState,
+  WaggleDanceResult,
 } from "./types";
+import { mapAgentSettingsToCreationProps } from "./types";
 
 type LogType = (...args: (string | number | object)[]) => void;
 export type InjectAgentPacketType = (
@@ -30,7 +25,7 @@ export type InjectAgentPacketType = (
   node: DraftExecutionNode,
 ) => void;
 
-export type RunParams = {
+export interface RunParams {
   goalPrompt: string;
   goalId: string;
   executionId: string;
@@ -39,7 +34,7 @@ export type RunParams = {
   injectAgentPacket: InjectAgentPacketType;
   log: (...args: (string | number | object)[]) => void;
   abortController: AbortController;
-};
+}
 
 class WaggleDanceAgentExecutor {
   private error: Error | null = null;
@@ -129,7 +124,7 @@ class WaggleDanceAgentExecutor {
     })();
 
     const scheduledTasks = new Set<string>();
-    while (true) {
+    for (;;) {
       const dag = this.graphDataState.current[0]; // Use the shared state to get the updated dag
       if (isGoalReached(dag, this.taskResults)) {
         console.debug("goal is reached");
@@ -206,7 +201,7 @@ class WaggleDanceAgentExecutor {
       }
     }
 
-    return this.error || this.taskResults;
+    return this.error ?? this.taskResults;
   }
 
   private setTaskResult(id: string, result: TaskState) {
@@ -220,7 +215,7 @@ class WaggleDanceAgentExecutor {
     agentProtocolOpenAPISpec?: JsonSpec,
   ): Promise<DraftExecutionGraph | null> {
     const creationProps = mapAgentSettingsToCreationProps(
-      this.agentSettings["plan"],
+      this.agentSettings.plan,
     );
     const fullPlanDAG = await planTasks({
       goalPrompt: this.goalPrompt,
@@ -246,10 +241,10 @@ class WaggleDanceAgentExecutor {
   }
 
   executeTasks(
-    tasks: Array<DraftExecutionNode>,
+    tasks: DraftExecutionNode[],
     dag: DraftExecutionGraph,
     scheduledTasks: Set<string>,
-    pendingTasks: Array<DraftExecutionNode>,
+    pendingTasks: DraftExecutionNode[],
     isDonePlanning: boolean,
     agentProtocolOpenAPISpec?: JsonSpec,
   ) {
@@ -283,14 +278,13 @@ class WaggleDanceAgentExecutor {
       }
 
       const creationProps = mapAgentSettingsToCreationProps(
-        this.agentSettings["execute"],
+        this.agentSettings.execute,
       );
       const executeRequest: ExecuteRequestBody = {
         goalPrompt: this.goalPrompt,
         goalId: this.goalId,
         executionId: this.executionId,
-        agentPromptingMethod:
-          this.agentSettings["execute"].agentPromptingMethod!,
+        agentPromptingMethod: this.agentSettings.execute.agentPromptingMethod!,
         task,
         dag,
         revieweeTaskResults,
@@ -336,13 +330,13 @@ class WaggleDanceAgentExecutor {
       error instanceof Error
         ? error
         : packet
-        ? new Error(String(packet))
-        : new Error(
-            `Unknown error: ${stringify(
-              error,
-              Object.getOwnPropertyNames(error),
-            )}`,
-          );
+          ? new Error(String(packet))
+          : new Error(
+              `Unknown error: ${stringify(
+                error,
+                Object.getOwnPropertyNames(error),
+              )}`,
+            );
   }
 
   private checkForCircularDependencies(): void {
@@ -416,8 +410,8 @@ class WaggleDanceAgentExecutor {
     }
 
     for (const edge of graph.edges) {
-      const sourcePathLength = nodePathLength.get(edge.sId) || 0;
-      const targetPathLength = nodePathLength.get(edge.tId) || 0;
+      const sourcePathLength = nodePathLength.get(edge.sId) ?? 0;
+      const targetPathLength = nodePathLength.get(edge.tId) ?? 0;
 
       if (sourcePathLength + 1 > targetPathLength) {
         nodePathLength.set(edge.tId, sourcePathLength + 1);

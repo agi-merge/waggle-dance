@@ -1,12 +1,11 @@
 import { OpenAI } from "langchain/llms/openai";
+import type { BaseMemory } from "langchain/memory";
 import {
   BufferMemory,
   CombinedMemory,
   ConversationSummaryMemory,
-  VectorStoreRetrieverMemory
-  
+  VectorStoreRetrieverMemory,
 } from "langchain/memory";
-import type {BaseMemory} from "langchain/memory";
 import { MemoryVectorStore } from "langchain/vectorstores/memory";
 
 import { createSTMNamespace } from "../memory/namespace";
@@ -45,7 +44,7 @@ export async function createMemory({
     returnUnderlying = true;
   }
   switch (memoryType) {
-    case "dynamic":
+    case "dynamic": {
       const buffer = createMemory({
         executionNamespace,
         taskId,
@@ -75,19 +74,21 @@ export async function createMemory({
 
       const memories = (
         await Promise.all([buffer, conversation, vector])
-      ).flatMap((m) => ((m!) ? (m) : []));
+      ).flatMap((m) => (m! ? m : []));
 
       const combined = new CombinedMemory({
         memories,
       });
 
       return combined;
-    case "buffer":
+    }
+    case "buffer": {
       return new BufferMemory({
         inputKey,
         memoryKey,
         returnMessages: returnUnderlying,
       });
+    }
     case "vector":
       if (executionNamespace) {
         console.debug("Creating chat history vector store from index");

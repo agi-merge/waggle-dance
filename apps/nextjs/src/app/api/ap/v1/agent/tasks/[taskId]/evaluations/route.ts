@@ -1,4 +1,5 @@
-import { NextResponse, type NextRequest } from "next/server";
+import { NextResponse  } from "next/server";
+import type {NextRequest} from "next/server";
 
 function toSnakeCase(str: string) {
   return str.replace(/([A-Z])/g, "_$1").toLowerCase();
@@ -21,31 +22,31 @@ function keysToSnakeCase(obj: Record<string, any>) {
   );
 }
 
-type RepositoryInfo = {
+interface RepositoryInfo {
   repoUrl: string;
   teamName: string;
   benchmarkGitCommitSha: string;
   agentGitCommitSha: string;
-};
+}
 
-type RunDetails = {
+interface RunDetails {
   runId: string;
   command: string;
   completionTime: string;
   benchmarkStartTime: string;
   testName: string;
-};
+}
 
-type TaskInfo = {
+interface TaskInfo {
   dataPath: string;
   isRegression: boolean;
   category: string[];
   task: string;
   answer: string;
   description: string;
-};
+}
 
-type Metrics = {
+interface Metrics {
   difficulty: string;
   success: boolean;
   attempted: boolean;
@@ -53,21 +54,21 @@ type Metrics = {
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   cost: any;
   runTime: string;
-};
+}
 
-type Config = {
+interface Config {
   agentBenchmarkConfigPath: string;
   host: string;
-};
+}
 
-type Evaluation = {
+interface Evaluation {
   repositoryInfo: RepositoryInfo;
   runDetails: RunDetails;
   taskInfo: TaskInfo;
   metrics: Metrics;
   reachedCutoff: boolean;
   config: Config;
-};
+}
 
 // eslint-disable-next-line @typescript-eslint/require-await
 export async function POST(

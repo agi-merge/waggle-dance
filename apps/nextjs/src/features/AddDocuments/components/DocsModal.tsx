@@ -6,9 +6,9 @@ import Modal from "@mui/joy/Modal";
 import ModalClose from "@mui/joy/ModalClose";
 import Tooltip from "@mui/joy/Tooltip";
 
-type Props = {
+interface Props {
   children: React.ReactNode;
-};
+}
 export default function DocsModal({ children }: Props) {
   const [open, setOpen] = React.useState<boolean>(false);
   return (

@@ -1,17 +1,15 @@
 // pages/goal/[[...goal]].tsx
-import { type ParsedUrlQuery } from "querystring";
+import type { ParsedUrlQuery } from "querystring";
 import { lazy, Suspense, useEffect, useMemo, useRef } from "react";
-import { type GetStaticPropsResult, type InferGetStaticPropsType } from "next";
+import type { GetStaticPropsResult, InferGetStaticPropsType } from "next";
 import { useRouter } from "next/router";
-import {
-  Skeleton,
-  type AlertPropsColorOverrides,
-  type ColorPaletteProp,
-} from "@mui/joy";
-import { type OverridableStringUnion } from "@mui/types";
-import { get, type EdgeConfigValue } from "@vercel/edge-config";
+import type { AlertPropsColorOverrides, ColorPaletteProp } from "@mui/joy";
+import { Skeleton } from "@mui/joy";
+import type { OverridableStringUnion } from "@mui/types";
+import type { EdgeConfigValue } from "@vercel/edge-config";
+import { get } from "@vercel/edge-config";
 
-import { type ExecutionPlusGraph, type GoalPlusExe } from "@acme/db";
+import type { ExecutionPlusGraph, GoalPlusExe } from "@acme/db";
 
 import { env } from "~/env.mjs";
 import ErrorBoundary from "~/features/error/ErrorBoundary";
@@ -31,17 +29,17 @@ const WaggleDanceSettingsAccordion = lazy(
 );
 const WaggleDance = lazy(() => import("~/features/WaggleDance/WaggleDance"));
 
-type AlertConfig = {
+interface AlertConfig {
   id: string;
   title: string;
   description: string;
   color: OverridableStringUnion<ColorPaletteProp, AlertPropsColorOverrides>;
   footer: string;
-};
+}
 
-type StaticProps = {
+interface StaticProps {
   alertConfigs: AlertConfig[];
-};
+}
 
 export const getStaticProps = async (): Promise<
   GetStaticPropsResult<StaticProps>
@@ -53,7 +51,7 @@ export const getStaticProps = async (): Promise<
   try {
     alertConfigs = await get("alerts");
   } catch {
-    if (!!env.EDGE_CONFIG) {
+    if (env.EDGE_CONFIG) {
       console.warn("Failed to fetch alerts from Vercel edge-config");
     }
     // handled below
@@ -67,7 +65,7 @@ export const getStaticProps = async (): Promise<
     alertConfigs = [];
   }
 
-  const typedAlertConfigs = alertConfigs as AlertConfig[];
+  const typedAlertConfigs = alertConfigs as unknown[] as AlertConfig[];
 
   if (!typedAlertConfigs) {
     return errorResponse;
@@ -236,8 +234,8 @@ function getGoal(
     }
   }
 
-  if (!goal && (prevSelectedGoal || serverGoals.length > 0)) {
-    return prevSelectedGoal || (serverGoals && serverGoals[0]);
+  if (!goal && (prevSelectedGoal ?? serverGoals.length > 0)) {
+    return prevSelectedGoal ?? (serverGoals && serverGoals[0]);
   }
   return goal;
 }

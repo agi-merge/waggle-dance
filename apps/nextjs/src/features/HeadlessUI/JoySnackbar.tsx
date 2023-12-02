@@ -1,5 +1,6 @@
 import * as React from "react";
-import Alert, { type AlertProps } from "@mui/joy/Alert";
+import Alert from "@mui/joy/Alert";
+import type {AlertProps} from "@mui/joy/Alert";
 import { keyframes } from "@mui/system";
 import type { ToastProps } from "@radix-ui/react-toast";
 import * as Toast from "@radix-ui/react-toast";

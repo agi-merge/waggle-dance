@@ -1,6 +1,6 @@
 // api/agent/result.ts
 
-import { type NextRequest } from "next/server";
+import type {NextRequest} from "next/server";
 import { parse } from "superjson";
 import { stringify } from "yaml";
 
@@ -11,12 +11,13 @@ import {
 } from "@acme/agent/src/utils/llms";
 
 import { env } from "~/env.mjs";
-import { type RefineRequestBody } from "~/features/WaggleDance/types/types";
+import type {RefineRequestBody} from "~/features/WaggleDance/types/types";
 import {
-  callRefiningAgent,
-  type AgentPacket,
-  type ModelCreationProps,
+  callRefiningAgent
+  
+  
 } from "../../../../../../packages/agent";
+import type {AgentPacket, ModelCreationProps} from "../../../../../../packages/agent";
 
 export const config = {
   api: {
@@ -25,9 +26,9 @@ export const config = {
   runtime: "edge",
 };
 
-export type CreateRefineParams = {
+export interface CreateRefineParams {
   prompt: string;
-};
+}
 
 // data proxy for edge
 export default async function RefineStream(req: NextRequest) {
@@ -40,7 +41,7 @@ export default async function RefineStream(req: NextRequest) {
     const { goalPrompt }: RefineRequestBody = parse(text);
 
     const creationProps: ModelCreationProps = {
-      modelName: LLM_ALIASES["fast"],
+      modelName: LLM_ALIASES.fast,
       temperature: TEMPERATURE_VALUES[Temperature.Stable],
       maxTokens: 350,
       streaming: true,

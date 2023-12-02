@@ -69,7 +69,7 @@ async function checkTrajectory(
           checkScore(e, response, originalResponse, minimumScore!),
         ),
       )
-    ).find((v) => v?.length ?? false) || null
+    ).find((v) => v?.length ?? false) ?? null
   );
 }
 

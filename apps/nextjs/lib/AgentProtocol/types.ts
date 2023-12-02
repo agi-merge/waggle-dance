@@ -2,19 +2,19 @@
  * Input parameters for the task. Any value is allowed.
  */
 
-import { type JsonValue } from "~/features/WaggleDance/types/types";
+import type {JsonValue} from "~/features/WaggleDance/types/types";
 
 export type TaskInput = JsonValue;
 /**
  * Artifact that the task has produced. Any value is allowed.
  */
-export type Artifact = {
+export interface Artifact {
   artifact_id: string;
   agent_created: boolean;
   file_name: string;
   relative_path: string | null;
   created_at: string;
-};
+}
 /**
  * Input parameters for the task step. Any value is allowed.
  */

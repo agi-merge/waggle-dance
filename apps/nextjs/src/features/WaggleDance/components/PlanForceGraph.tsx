@@ -1,7 +1,8 @@
 // NoSSRForceGraph.tsx
 import { useEffect, useRef, useState } from "react";
 import useResizeObserver from "@react-hook/resize-observer";
-import ForceGraph, { type ForceGraphProps } from "react-force-graph-2d";
+import type { ForceGraphProps } from "react-force-graph-2d";
+import ForceGraph from "react-force-graph-2d";
 // ok to do here bc all uses are dynamic (client side)
 
 import { useDebounce } from "use-debounce";
@@ -131,8 +132,8 @@ const renderNodeCanvasObject = (
   lines.forEach((line, index) => {
     ctx.fillText(
       line ?? "?",
-      node.x || 0,
-      (node.y || 0) - textHeight / 4 + index * fontSize,
+      node.x ?? 0,
+      (node.y ?? 0) - textHeight / 4 + index * fontSize,
     );
   });
 
@@ -159,7 +160,7 @@ const NoSSRForceGraph = ({ graphData }: ForceGraphProps) => {
   }, [containerRef, setContainerWidth]);
 
   useEffect(() => {
-    if (containerRef && containerRef.current) {
+    if (containerRef?.current) {
       containerRef.current.scrollIntoView();
     }
   }, [containerRef]);

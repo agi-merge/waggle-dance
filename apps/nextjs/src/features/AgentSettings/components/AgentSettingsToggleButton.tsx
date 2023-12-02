@@ -1,14 +1,7 @@
 import React from "react";
 import { ClickAwayListener } from "@mui/base";
-import {
-  Box,
-  Divider,
-  Link,
-  Menu,
-  Stack,
-  Typography,
-  type CardProps,
-} from "@mui/joy";
+import type { CardProps } from "@mui/joy";
+import { Box, Divider, Link, Menu, Stack, Typography } from "@mui/joy";
 
 import AddDocuments from "~/features/AddDocuments/AddDocuments";
 import DocsModal from "~/features/AddDocuments/components/DocsModal";
@@ -75,7 +68,7 @@ function AgentSettingsToggler({ children }: { children: React.ReactNode }) {
   );
 }
 
-function AgentSettingsToggleButton({}: CardProps) {
+function AgentSettingsToggleButton(_p: CardProps) {
   return (
     <AgentSettingsToggler>
       <AgentSettings />

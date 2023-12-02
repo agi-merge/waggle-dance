@@ -1,5 +1,5 @@
-import { type NextRequest } from "next/server";
-import { type Artifact, type Task } from "lib/AgentProtocol/types";
+import type { NextRequest } from "next/server";
+import type { Artifact, Task } from "lib/AgentProtocol/types";
 
 import { appRouter } from "@acme/api";
 import { auth } from "@acme/auth";
@@ -16,7 +16,7 @@ export async function GET(
       { status: 404 },
     );
   }
-  const session = (await auth()) || null;
+  const session = (await auth()) ?? null;
 
   const caller = appRouter.createCaller({
     session,
@@ -41,7 +41,7 @@ export async function GET(
         artifact_id: r.id,
         agent_created: true,
         file_name: r.id,
-        relative_path: r.artifactUrls[0] || null,
+        relative_path: r.artifactUrls[0] ?? null,
         created_at: r.createdAt.toISOString() ?? new Date().toISOString(),
       };
     }) || [];

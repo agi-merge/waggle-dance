@@ -10,25 +10,22 @@ import {
 } from "react";
 import router from "next/router";
 import { Lan, ListAlt } from "@mui/icons-material";
-import {
-  Card,
-  Link,
-  Skeleton,
-  type AlertPropsColorOverrides,
-  type ColorPaletteProp,
-} from "@mui/joy";
+import type { AlertPropsColorOverrides, ColorPaletteProp } from "@mui/joy";
+import { Card, Link, Skeleton } from "@mui/joy";
 import Box from "@mui/joy/Box";
-import Stack, { type StackProps } from "@mui/joy/Stack";
+import type { StackProps } from "@mui/joy/Stack";
+import Stack from "@mui/joy/Stack";
 import Tab from "@mui/joy/Tab";
 import TabList from "@mui/joy/TabList";
 import Tabs from "@mui/joy/Tabs";
 import Typography from "@mui/joy/Typography";
-import { type OverridableStringUnion } from "@mui/types";
+import type { OverridableStringUnion } from "@mui/types";
 import { TRPCClientError } from "@trpc/client";
 import { useSession } from "next-auth/react";
 
-import { TaskStatus, type TaskState } from "@acme/agent";
-import { type ExecutionPlusGraph } from "@acme/db";
+import type { TaskState } from "@acme/agent";
+import { TaskStatus } from "@acme/agent";
+import type { ExecutionPlusGraph } from "@acme/db";
 
 import useApp from "~/stores/appStore";
 import useGoalStore from "~/stores/goalStore";
@@ -46,7 +43,7 @@ const GraphTabPanel = lazy(() => import("./components/GraphTabPanel"));
 
 type Props = StackProps;
 // shows the graph, agents, results, general messages and chat input
-const WaggleDance = ({}: Props) => {
+const WaggleDance = (props: Props) => {
   const { selectedGoal } = useGoalStore();
   const {
     isRunning,
@@ -88,7 +85,9 @@ const WaggleDance = ({}: Props) => {
       let createdExecution: ExecutionPlusGraph | undefined;
 
       if (error) {
-        type HTTPStatusy = { httpStatus: number };
+        interface HTTPStatusy {
+          httpStatus: number;
+        }
         if (error instanceof TRPCClientError) {
           const data = error.data as HTTPStatusy;
           // route for anonymous users
@@ -251,9 +250,9 @@ const WaggleDance = ({}: Props) => {
   }, [done.length, isRunning]);
 
   return (
-    <Stack gap="1rem" sx={{ mx: -4 }}>
+    <Stack gap="1rem" sx={{ mx: -4 }} {...props}>
       <Box className="text-center">
-        <Typography level="body-sm" sx={{ opacity: !!session?.user ? 0 : 1 }}>
+        <Typography level="body-sm" sx={{ opacity: session?.user ? 0 : 1 }}>
           <Link href={routes.auth} target="_blank" color="primary">
             Sign in
           </Link>

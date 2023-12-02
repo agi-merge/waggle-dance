@@ -1,11 +1,12 @@
 // api/agent/result.ts
 
-import { type NextApiRequest, type NextApiResponse } from "next";
+import type { NextApiRequest, NextApiResponse } from "next";
 
 import { appRouter } from "@acme/api";
-import { type CreateResultParams } from "@acme/api/src/router/result";
+import type { CreateResultParams } from "@acme/api/src/router/result";
 import { auth } from "@acme/auth";
-import { prisma, type Execution, type Result } from "@acme/db";
+import type { Execution, Result } from "@acme/db";
+import { prisma } from "@acme/db";
 
 export const config = {
   runtime: "nodejs",
@@ -20,8 +21,8 @@ export default async function createResultProxy(
     const session = await auth(req, res);
 
     const params = req.body as CreateResultParams;
-    params["session"] = session;
-    params["origin"] = req.headers.origin;
+    params.session = session;
+    params.origin = req.headers.origin;
 
     const result = await createResult(params);
     console.debug("createResult result", result);
@@ -37,7 +38,7 @@ async function createResult(
 ): Promise<[Result, Execution]> {
   const { session, origin } = createResultOptions;
   const caller = appRouter.createCaller({
-    session: session || null,
+    session: session ?? null,
     db: prisma,
     origin,
   });

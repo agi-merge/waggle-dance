@@ -1,18 +1,20 @@
 // api/agent/plan.ts
 
-import { type NextRequest } from "next/server";
+import type { NextRequest } from "next/server";
 import { v4 } from "uuid";
 import { parse, stringify } from "yaml";
 
-import { type PlanRequestBody } from "~/features/WaggleDance/types/types";
+import type { PlanRequestBody } from "~/features/WaggleDance/types/types";
+import type {
+  AgentPacket,
+  PlanWireFormat,
+} from "../../../../../../packages/agent";
 import {
   callPlanningAgent,
   removeEnclosingMarkdown,
   transformWireFormat,
-  type AgentPacket,
-  type PlanWireFormat,
 } from "../../../../../../packages/agent";
-import { type UpdateGraphParams } from "../execution/graph";
+import type { UpdateGraphParams } from "../execution/graph";
 
 export const config = {
   api: {
@@ -299,7 +301,7 @@ export async function updateExecution(
   params: UpdateGraphParams,
   req: NextRequest,
 ): Promise<Response> {
-  const cookie = req.headers.get("cookie") || "";
+  const cookie = req.headers.get("cookie") ?? "";
   const body = JSON.stringify({ json: params });
   const response = await fetch(`${req.nextUrl.origin}/api/execution/graph`, {
     method: "POST",

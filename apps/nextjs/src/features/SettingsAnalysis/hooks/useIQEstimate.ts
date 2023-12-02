@@ -1,8 +1,8 @@
 import { useMemo } from "react";
-import { type AlertPropsColorOverrides, type ColorPaletteProp } from "@mui/joy";
-import { type OverridableStringUnion } from "@mui/types";
+import type { AlertPropsColorOverrides, ColorPaletteProp } from "@mui/joy";
+import type { OverridableStringUnion } from "@mui/types";
 
-import { type AgentSettingsMap } from "@acme/agent";
+import type { AgentSettingsMap } from "@acme/agent";
 
 export function getIQLevel(iq: number) {
   const n =
@@ -61,10 +61,13 @@ export function iqEstimate(agentSettingsMap: AgentSettingsMap): number {
     switch (type) {
       case "execute":
         typeMultiplier = 2;
+        break;
       case "review":
         typeMultiplier = 1;
+        break;
       case "plan":
         typeMultiplier = 1.5;
+        break;
     }
     const base = 1;
     let multiplier = 1; // gpt-3.5
@@ -75,8 +78,7 @@ export function iqEstimate(agentSettingsMap: AgentSettingsMap): number {
     return { base, multiplier, typeMultiplier };
   });
 
-  const minMax = (n: number, lb: number = 0, ub: number = 1) =>
-    Math.min(ub, Math.max(lb, n));
+  const minMax = (n: number, lb = 0, ub = 1) => Math.min(ub, Math.max(lb, n));
 
   const totalIQForAgentSettings = iqMultiplePairs.reduce((acc, curr, _i) => {
     return acc + curr.base * curr.multiplier * curr.typeMultiplier;

@@ -1,4 +1,5 @@
-import React, { useMemo, useState, type Dispatch } from "react";
+import type { Dispatch } from "react";
+import React, { useMemo, useState } from "react";
 import Link from "next/link";
 import {
   AssignmentTurnedIn,
@@ -8,6 +9,7 @@ import {
   QuestionAnswer,
   QuestionMark,
 } from "@mui/icons-material";
+import type { ListItemProps } from "@mui/joy";
 import {
   Box,
   Button,
@@ -30,7 +32,6 @@ import {
   Tooltip,
   Typography,
   useColorScheme,
-  type ListItemProps,
 } from "@mui/joy";
 import Accordion from "@mui/joy/Accordion";
 import AccordionDetails from "@mui/joy/AccordionDetails";
@@ -42,6 +43,12 @@ import { v4 } from "uuid";
 import { stringify } from "yaml";
 import { z } from "zod";
 
+import type {
+  AgentPacket,
+  ArtifactAgentPacket,
+  BaseAgentPacketWithIds,
+  TaskState,
+} from "@acme/agent";
 import {
   findArtifactPackets,
   findContextAndTools,
@@ -50,14 +57,10 @@ import {
   isAgentPacketFinishedType,
   rootPlanId,
   TaskStatus,
-  type AgentPacket,
-  type ArtifactAgentPacket,
-  type BaseAgentPacketWithIds,
-  type TaskState,
 } from "@acme/agent";
 import { isTaskCriticism } from "@acme/agent/src/prompts/types";
 import { parseAnyFormat } from "@acme/agent/src/utils/mimeTypeParser";
-import { type DraftExecutionEdge, type DraftExecutionNode } from "@acme/db";
+import type { DraftExecutionEdge, DraftExecutionNode } from "@acme/db";
 
 type StatusColor =
   | "danger"
@@ -157,14 +160,14 @@ const getGroupType = (group: AgentPacket[]): GroupType => {
 };
 
 // Define a type for GroupOutput
-type GroupOutput = {
+interface GroupOutput {
   type: GroupType;
   title: string;
   params?: string;
   color: "success" | "primary" | "neutral" | "danger" | "warning";
   output: string; // Replace 'any' with the actual type of the parsed output
   key: string;
-};
+}
 
 const getGroupOutput = (group: AgentPacket[]): GroupOutput | null => {
   const groupType = getGroupType(group);
@@ -190,7 +193,7 @@ const getGroupOutput = (group: AgentPacket[]): GroupOutput | null => {
   switch (groupType) {
     case GroupType.Success:
     case GroupType.Error:
-    case GroupType.Working:
+    case GroupType.Working: {
       if (lastPacket.type === "handleChainEnd") {
         // would double up w/ LLM End
         return null;
@@ -204,6 +207,7 @@ const getGroupOutput = (group: AgentPacket[]): GroupOutput | null => {
       parsedTitle = title;
       parsedOutput = o;
       break;
+    }
     case GroupType.Custom:
       switch (lastPacket.type) {
         case "artifact":
@@ -228,10 +232,10 @@ const getGroupOutput = (group: AgentPacket[]): GroupOutput | null => {
           break;
       }
       break;
-    case GroupType.Skill:
+    case GroupType.Skill: {
       const toolName: string | undefined = group.reduce(
         (acc: string | undefined, packet) => {
-          if (!!acc) {
+          if (acc) {
             return acc;
           }
           if (packet.type === "handleToolStart") {
@@ -245,7 +249,7 @@ const getGroupOutput = (group: AgentPacket[]): GroupOutput | null => {
       );
       const toolParams: string | undefined = group.reduce(
         (acc: string | undefined, packet) => {
-          if (!!acc) {
+          if (acc) {
             return acc;
           }
           if (
@@ -261,8 +265,7 @@ const getGroupOutput = (group: AgentPacket[]): GroupOutput | null => {
           }
           if (
             packet.type === "handleAgentAction" &&
-            packet.action &&
-            packet.action.toolInput &&
+            packet.action?.toolInput &&
             typeof packet.action.toolInput === "string"
           ) {
             return packet.action.toolInput.slice(0, 40);
@@ -275,7 +278,7 @@ const getGroupOutput = (group: AgentPacket[]): GroupOutput | null => {
       parsedTitle = toolName ? toolName : parsedTitle;
       const output: string | undefined =
         group.reduce((acc: string | undefined, packet) => {
-          if (!!acc) {
+          if (acc) {
             return acc;
           }
           if (packet.type === "handleToolEnd") {
@@ -291,9 +294,10 @@ const getGroupOutput = (group: AgentPacket[]): GroupOutput | null => {
             return String(packet.err);
           }
           return acc;
-        }, undefined) || "";
+        }, undefined) ?? "";
       parsedOutput = output;
       break;
+    }
     case GroupType.Retriever:
       parsedOutput =
         lastPacket.type === "handleRetrieverError"
@@ -639,7 +643,7 @@ const TaskListItem = ({
 
     t.packets.forEach((packet) => {
       if (isBaseAgentPacketWithIds(packet)) {
-        const groupId = packet.runId || packet.parentRunId || v4();
+        const groupId = packet.runId ?? packet.parentRunId ?? v4();
         if (groupId) {
           // Check if groupId is not undefined
           if (!groups[groupId]) {
@@ -709,7 +713,7 @@ const TaskListItem = ({
           flexWrap: "wrap",
           position: "relative",
           boxShadow: "md",
-          backgroundColor: !!color
+          backgroundColor: color
             ? theme.palette.mode === "dark"
               ? theme.palette[color].outlinedActiveBg
               : theme.palette[color][300]
@@ -1018,7 +1022,6 @@ const TaskListItem = ({
                               {p.contentType}
                             </ListItemDecorator>
                             <Link
-                              autoFocus
                               href={p.url}
                               onClick={(e) => {
                                 e.preventDefault();

@@ -1,24 +1,26 @@
-import { NextResponse, type NextRequest } from "next/server";
-import {
-  type Artifact,
-  type Step,
-  type StepRequestBody,
-  type StepStatus,
+import type { NextRequest } from "next/server";
+import { NextResponse } from "next/server";
+import type {
+  Artifact,
+  Step,
+  StepRequestBody,
+  StepStatus,
 } from "lib/AgentProtocol/types";
 import { parse } from "yaml";
 
+import type { AgentPacket } from "@acme/agent";
 import {
   findFinishPacket,
   getMostRelevantOutput,
   makeServerIdIfNeeded,
-  type AgentPacket,
 } from "@acme/agent";
 import { AgentPromptingMethod, LLM_ALIASES } from "@acme/agent/src/utils/llms";
 import { appRouter } from "@acme/api";
 import { auth } from "@acme/auth";
-import { prisma, type DraftExecutionNode } from "@acme/db";
+import type { DraftExecutionNode } from "@acme/db";
+import { prisma } from "@acme/db";
 
-import { type ExecuteRequestBody } from "~/features/WaggleDance/types/types";
+import type { ExecuteRequestBody } from "~/features/WaggleDance/types/types";
 import { uploadAndSaveResult } from "../artifacts/route";
 
 // POST /ap/v1/agent/tasks/:taskId/steps
@@ -38,7 +40,7 @@ export async function POST(
   //   return Response.json({ message: "Input is required" }, { status: 400 });
   // }
 
-  const session = (await auth()) || null;
+  const session = (await auth()) ?? null;
 
   const caller = appRouter.createCaller({
     session,
@@ -60,15 +62,15 @@ export async function POST(
   const latestResult = exe.results.length > 0 ? exe.results[0] : null;
   exe.graph?.nodes.shift();
   const latestResultNode =
-    exe.graph?.nodes.find((n) => n.id === latestResult?.nodeId) ||
+    exe.graph?.nodes.find((n) => n.id === latestResult?.nodeId) ??
     exe.graph?.nodes.length
       ? exe.graph?.nodes[0]
       : null;
   const node: DraftExecutionNode = {
-    id: latestResultNode?.id || taskId,
-    name: latestResultNode?.name || latestResultNode?.context || "error",
+    id: latestResultNode?.id ?? taskId,
+    name: latestResultNode?.name ?? latestResultNode?.context ?? "error",
     graphId: exe.graph?.id,
-    context: latestResultNode?.context || null,
+    context: latestResultNode?.context ?? null,
   };
   // const completedTasks = exe.results.length;
 
@@ -90,8 +92,8 @@ export async function POST(
     dag: exe.graph,
     revieweeTaskResults: [],
     agentPromptingMethod: AgentPromptingMethod.OpenAIStructuredChat,
-    goalPrompt: goal?.prompt || "error",
-    creationProps: { modelName: LLM_ALIASES["fast"], maxTokens: 350 },
+    goalPrompt: goal?.prompt ?? "error",
+    creationProps: { modelName: LLM_ALIASES.fast, maxTokens: 350 },
   } as ExecuteRequestBody;
 
   const executeResponse = await fetch(
@@ -99,7 +101,7 @@ export async function POST(
     {
       method: "POST",
       headers: {
-        Cookie: request.headers.get("cookie") || "",
+        Cookie: request.headers.get("cookie") ?? "",
         "Content-Type": "application/json",
       },
       body: JSON.stringify(input),
@@ -115,7 +117,7 @@ export async function POST(
 
   // upload artifact
 
-  const contentType = request.headers.get("content-type") || "";
+  const contentType = request.headers.get("content-type") ?? "";
   // const file = await request.blob();
 
   const output = getMostRelevantOutput(finishPacket).output;
@@ -190,7 +192,7 @@ export async function GET(
     );
   }
 
-  const session = (await auth()) || null;
+  const session = (await auth()) ?? null;
 
   const caller = appRouter.createCaller({
     session,
@@ -214,7 +216,7 @@ export async function GET(
     const artifact: Artifact | null =
       status === "completed"
         ? {
-            artifact_id: resultForStep?.id || node.id,
+            artifact_id: resultForStep?.id ?? node.id,
             agent_created: true,
             file_name: resultForStep?.artifactUrls[0] ?? "error",
             relative_path: null,
@@ -225,9 +227,9 @@ export async function GET(
         : null;
     const step: Step = {
       name: node.name,
-      input: node.context || node.name,
+      input: node.context ?? node.name,
       output: artifactFromResult,
-      artifacts: (artifact && [artifact]) || [],
+      artifacts: (artifact && [artifact]) ?? [],
       is_last: isLast,
       task_id: taskId,
       step_id: node.id,
@@ -239,10 +241,10 @@ export async function GET(
 
   // Define pagination object
   const pagination = {
-    total_items: steps?.length || 0,
+    total_items: steps?.length ?? 0,
     total_pages: 1, // Update this based on your pagination logic
     current_page: 1, // Update this based on your pagination logic
-    page_size: steps?.length || 0, // Update this based on your pagination logic
+    page_size: steps?.length ?? 0, // Update this based on your pagination logic
   };
 
   request.headers.delete("Content-Type");

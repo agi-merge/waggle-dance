@@ -1,5 +1,6 @@
 // GoalForm.tsx
-import React, { type FormEvent } from "react";
+import type { FormEvent } from "react";
+import React from "react";
 import { FormControl, Textarea } from "@mui/joy";
 
 interface GoalFormProps {
@@ -19,7 +20,6 @@ export default function GoalForm({
     <form onSubmit={handleSubmit} className="my-3 space-y-2 pb-2">
       <FormControl disabled={isPageLoading}>
         <Textarea
-          autoFocus
           id="goalTextarea"
           name="goalTextarea"
           placeholder={"What's your goal? …Not sure? Check Examples!"}

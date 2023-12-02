@@ -1,17 +1,17 @@
 // runnables/createRewriteRunnable.ts
-import type {Callbacks} from "langchain/callbacks";
-import type {ChatOpenAI} from "langchain/chat_models/openai";
+import type { Callbacks } from "langchain/callbacks";
+import type { ChatOpenAI } from "langchain/chat_models/openai";
 import {
   ChatPromptTemplate,
   HumanMessagePromptTemplate,
   SystemMessagePromptTemplate,
 } from "langchain/prompts";
-import type {AgentStep} from "langchain/schema";
+import type { AgentStep } from "langchain/schema";
 
-import { createModel   } from "../..";
-import type {MemoryType, ModelCreationProps} from "../..";
+import type { MemoryType, ModelCreationProps } from "../..";
+import { createModel } from "../..";
 import { formattingConstraints } from "../prompts/constraints/executeConstraints";
-import type {ContextAndTools} from "../strategy/execute/callExecutionAgent.types";
+import type { ContextAndTools } from "../strategy/execute/callExecutionAgent.types";
 import { LLM_ALIASES, ModelStyle } from "../utils/llms";
 import { stringifyByMime } from "../utils/mimeTypeParser";
 
@@ -66,9 +66,9 @@ export async function createRewriteRunnable({
   ${sanitizeInput(
     stringifyByMime(
       returnType,
-      chatHistory?.chat_history.value ||
-        chatHistory?.chat_history.message ||
-        chatHistory?.chat_history ||
+      chatHistory?.chat_history.value ??
+        chatHistory?.chat_history.message ??
+        chatHistory?.chat_history ??
         intermediateSteps
           ?.map((s) => sanitizeInput(s.observation))
           .join("\n\n"),

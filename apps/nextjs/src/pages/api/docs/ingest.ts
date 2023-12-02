@@ -1,12 +1,12 @@
 // api/docs/ingest.ts
 
 import { createReadStream } from "fs";
-import { type IncomingMessage, type ServerResponse } from "http";
+import type { IncomingMessage, ServerResponse } from "http";
 import { Writable } from "stream";
-import { type NextApiRequest, type NextApiResponse } from "next";
+import type { NextApiRequest, NextApiResponse } from "next";
 import formidable from "formidable";
 import type IncomingForm from "formidable/Formidable";
-import { type BaseDocumentLoader } from "langchain/dist/document_loaders/base";
+import type { BaseDocumentLoader } from "langchain/dist/document_loaders/base";
 import { CSVLoader } from "langchain/document_loaders/fs/csv";
 import { DocxLoader } from "langchain/document_loaders/fs/docx";
 import { JSONLoader } from "langchain/document_loaders/fs/json";
@@ -39,9 +39,9 @@ interface HasMessage {
   message: string;
 }
 
-export type UploadError = {
+export interface UploadError {
   error: string;
-};
+}
 
 const promisifiedParse = (
   req: IncomingMessage,
@@ -116,7 +116,7 @@ const handler = async (req: IncomingMessage, res: ServerResponse) => {
                     } else if (file.mimetype === "application/json") {
                       loader = new JSONLoader(file.filepath);
                     } else if (
-                      file.mimetype?.startsWith("text/") ||
+                      file.mimetype?.startsWith("text/") ??
                       file.mimetype?.startsWith("application/")
                     ) {
                       loader = new TextLoader(file.filepath);

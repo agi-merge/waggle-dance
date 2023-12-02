@@ -1,4 +1,4 @@
-import { type NextRequest } from "next/server";
+import type { NextRequest } from "next/server";
 
 import { appRouter } from "@acme/api";
 import { auth } from "@acme/auth";
@@ -21,7 +21,7 @@ export async function GET(
   const session = await auth();
 
   const caller = appRouter.createCaller({
-    session: session || null,
+    session: session ?? null,
     db: prisma,
     origin: req.nextUrl.origin,
   });
@@ -32,7 +32,7 @@ export async function GET(
       { status: 404 },
     );
   }
-  const taskSteps = exe.graph?.nodes || [];
+  const taskSteps = exe.graph?.nodes ?? [];
 
   const step = taskSteps.find((step) => step.id === stepId);
 

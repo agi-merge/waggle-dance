@@ -11,9 +11,9 @@ import Tooltip from "@mui/joy/Tooltip";
 import Title from "~/features/MainLayout/components/PageTitle";
 import useSkillStore from "~/stores/skillStore";
 
-type Props = {
+interface Props {
   children: React.ReactNode;
-};
+}
 export default function SkillsModal({ children }: Props) {
   const { selectedSkillsLength } = useSkillStore();
   const [open, setOpen] = React.useState<boolean>(false);

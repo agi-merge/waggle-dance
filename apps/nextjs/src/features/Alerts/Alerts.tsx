@@ -3,7 +3,7 @@ import type { InferGetStaticPropsType } from "next";
 import { Warning } from "@mui/icons-material";
 import { Alert, Button, Stack, Typography } from "@mui/joy";
 
-import { type getStaticProps } from "~/pages/goal/[[...goal]]";
+import type {getStaticProps} from "~/pages/goal/[[...goal]]";
 import useAlertsStore from "~/stores/alertsStore";
 
 const Alerts = ({

@@ -1,36 +1,32 @@
 // agent/strategy/callExecutionAgent.ts
 import { isAbortError } from "next/dist/server/pipe-readable";
-import type {ChatOpenAI} from "langchain/chat_models/openai";
+import type { ChatOpenAI } from "langchain/chat_models/openai";
 import { loadEvaluator } from "langchain/evaluation";
 import {
   OutputFixingParser,
   StructuredOutputParser,
 } from "langchain/output_parsers";
-import type {AgentStep} from "langchain/schema";
-import type {StructuredTool} from "langchain/tools";
+import type { AgentStep } from "langchain/schema";
+import type { StructuredTool } from "langchain/tools";
 import { v4 } from "uuid";
 import { parse as yamlParse } from "yaml";
 import zodToJsonSchema from "zod-to-json-schema";
 
-import type {DraftExecutionGraph} from "@acme/db";
+import type { DraftExecutionGraph } from "@acme/db";
 
+import type { ChainValues } from "../..";
 import {
   createCriticizePrompt,
   createExecutePrompt,
   createMemory as createShortTermMemory,
   extractTier,
-  TaskState
-  
+  TaskState,
 } from "../..";
-import type {ChainValues} from "../..";
 import checkTrajectory, {
   getMinimumScoreFromEnv,
 } from "../grounding/checkTrajectory";
-import {
-  createContextAndToolsPrompt
-  
-} from "../prompts/createContextAndToolsPrompt";
-import type {ToolsAndContextPickingInput} from "../prompts/createContextAndToolsPrompt";
+import type { ToolsAndContextPickingInput } from "../prompts/createContextAndToolsPrompt";
+import { createContextAndToolsPrompt } from "../prompts/createContextAndToolsPrompt";
 import { isTaskCriticism } from "../prompts/types";
 import { invokeRewriteRunnable } from "../runnables/createRewriteRunnable";
 import retrieveMemoriesSkill from "../skills/retrieveMemories";
@@ -47,12 +43,11 @@ import createSkills, {
   removeRequiredSkills,
   requiredSkills,
 } from "../utils/skills";
+import type { CallExecutionAgentProps } from "./execute/callExecutionAgent.types";
 import {
   contextAndToolsOutputSchema,
-  reActOutputSchema
-  
+  reActOutputSchema,
 } from "./execute/callExecutionAgent.types";
-import type {CallExecutionAgentProps} from "./execute/callExecutionAgent.types";
 import { initializeExecutor } from "./execute/initializeAgentExecutor";
 
 export interface FunctionDefinition {
@@ -389,7 +384,7 @@ export async function callExecutionAgent(
         const input: string = formattedMessages
           .map(
             (m) =>
-              `[${m._getType().toUpperCase()}]\n${m.content}[/${m
+              `[${m._getType().toUpperCase()}]\n${m.content.toString()}[/${m
                 ._getType()
                 .toUpperCase()}]`,
           )

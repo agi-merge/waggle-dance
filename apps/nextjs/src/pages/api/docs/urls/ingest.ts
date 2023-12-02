@@ -1,5 +1,5 @@
-import { type IncomingMessage } from "http";
-import { type NextApiRequest, type NextApiResponse } from "next";
+import type {IncomingMessage} from "http";
+import type {NextApiRequest, NextApiResponse} from "next";
 import { PlaywrightWebBaseLoader } from "langchain/document_loaders/web/playwright";
 import { RecursiveCharacterTextSplitter } from "langchain/text_splitter";
 
@@ -25,9 +25,9 @@ interface HasMessage {
   message: string;
 }
 
-export type UploadError = {
+export interface UploadError {
   error: string;
-};
+}
 
 const handler = async (req: IncomingMessage, res: NextApiResponse) => {
   const session = await auth(req as NextApiRequest, res);

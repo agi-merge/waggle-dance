@@ -1,10 +1,11 @@
-import { type NextRequest } from "next/server";
-import { type Task, type TaskRequestBody } from "lib/AgentProtocol/types";
+import type { NextRequest } from "next/server";
+import type { Task, TaskRequestBody } from "lib/AgentProtocol/types";
 
 import { LLM_ALIASES } from "@acme/agent/src/utils/llms";
 import { appRouter } from "@acme/api";
 import { auth } from "@acme/auth";
-import { prisma, type ExecutionPlusGraph, type Goal } from "@acme/db";
+import type { ExecutionPlusGraph, Goal } from "@acme/db";
+import { prisma } from "@acme/db";
 
 // POST /ap/v1/agent/tasks
 export async function POST(request: NextRequest) {
@@ -14,7 +15,7 @@ export async function POST(request: NextRequest) {
   }
   const additionalInput = body.additional_input as { goal_id: string };
   let additionalGoalId: string | null = null;
-  if (additionalInput && additionalInput.goal_id) {
+  if (additionalInput?.goal_id) {
     additionalGoalId = additionalInput.goal_id;
   }
 
@@ -23,7 +24,7 @@ export async function POST(request: NextRequest) {
   // });
 
   // create a goal and exe
-  const session = (await auth()) || null;
+  const session = (await auth()) ?? null;
   const caller = appRouter.createCaller({
     session,
     db: prisma,
@@ -40,8 +41,8 @@ export async function POST(request: NextRequest) {
     executionId: exe.id,
     goalId,
     goalPrompt: body.input as string,
-    creationProps: { modelName: LLM_ALIASES["fast"], maxTokens: 350 },
-    cookie: cookie || "",
+    creationProps: { modelName: LLM_ALIASES.fast, maxTokens: 350 },
+    cookie: cookie ?? "",
   });
 
   const task: Task = {
@@ -74,7 +75,7 @@ export async function GET(request: NextRequest) {
   const params = request.nextUrl.searchParams;
   const pageSize = Number(params.get("page_size") ?? 10);
   const currentPage = Number(params.get("current_page") ?? 1);
-  const session = (await auth()) || null;
+  const session = (await auth()) ?? null;
   const caller = appRouter.createCaller({
     session,
     db: prisma,
@@ -115,7 +116,7 @@ export async function GET(request: NextRequest) {
         artifact_id: r.id,
         agent_created: true,
         file_name: r.id,
-        relative_path: r.artifactUrls[0] || null,
+        relative_path: r.artifactUrls[0] ?? null,
         created_at: r.createdAt.toISOString(),
       })) ?? [],
   }));

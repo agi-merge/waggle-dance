@@ -1,13 +1,9 @@
 // conversions.ts
 
-import {
-  type GraphData,
-  type LinkObject,
-  type NodeObject,
-} from "react-force-graph-2d";
+import type {GraphData, LinkObject, NodeObject} from "react-force-graph-2d";
 
-import { type TaskState } from "@acme/agent";
-import { type DraftExecutionGraph } from "@acme/db";
+import type {TaskState} from "@acme/agent";
+import type {DraftExecutionGraph} from "@acme/db";
 
 export function dagToGraphData(
   dag: DraftExecutionGraph | null | undefined,
@@ -28,8 +24,8 @@ export function dagToGraphData(
   });
 
   // Create a lookup object for finding NodeObject by id
-  const nodeLookup: { [id: string]: NodeObject } = nodes.reduce(
-    (lookup: { [id: string]: NodeObject }, node) => {
+  const nodeLookup: Record<string, NodeObject> = nodes.reduce(
+    (lookup: Record<string, NodeObject>, node) => {
       if (node.id !== undefined) {
         lookup[node.id] = node;
       }

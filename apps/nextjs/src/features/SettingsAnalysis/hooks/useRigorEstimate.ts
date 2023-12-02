@@ -1,6 +1,6 @@
 import { useMemo } from "react";
-import { type AlertPropsColorOverrides, type ColorPaletteProp } from "@mui/joy";
-import { type OverridableStringUnion } from "@mui/types";
+import type {AlertPropsColorOverrides, ColorPaletteProp} from "@mui/joy";
+import type {OverridableStringUnion} from "@mui/types";
 
 const rigorScale: {
   limit: number;

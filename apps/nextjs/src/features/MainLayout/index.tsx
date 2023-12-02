@@ -1,7 +1,7 @@
 // features/MainLayout/index.tsx
 
 import React, { lazy, Suspense, useEffect, useMemo, useState } from "react";
-import { type InferGetStaticPropsType } from "next";
+import type {InferGetStaticPropsType} from "next";
 import Head from "next/head";
 import { useRouter } from "next/router";
 import { Sheet, Skeleton, Stack } from "@mui/joy";
@@ -12,7 +12,7 @@ import LinearProgress from "@mui/joy/LinearProgress";
 import { useColorScheme } from "@mui/joy/styles";
 
 import { app } from "~/constants";
-import { type getStaticProps } from "~/pages/goal/[[...goal]]";
+import type {getStaticProps} from "~/pages/goal/[[...goal]]";
 import useApp from "~/stores/appStore";
 
 const Alerts = lazy(() => import("../Alerts/Alerts"));

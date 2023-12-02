@@ -3,17 +3,19 @@ import React, { useState } from "react";
 import { useRouter } from "next/router";
 import { UploadFile } from "@mui/icons-material";
 import Box from "@mui/joy/Box";
-import Card, { type CardProps } from "@mui/joy/Card";
+import Card from "@mui/joy/Card";
+import type {CardProps} from "@mui/joy/Card";
 import Link from "@mui/joy/Link";
 import Tooltip from "@mui/joy/Tooltip";
 
 import routes from "~/utils/routes";
 import {
-  useIngest,
-  type IngestFile,
+  useIngest
+  
 } from "~/features/AddDocuments/AddDocuments";
+import type {IngestFile} from "~/features/AddDocuments/AddDocuments";
 import { acceptExtensions } from "~/features/AddDocuments/mimeTypes";
-import { type UploadResponse } from "../../pages/api/docs/ingest";
+import type {UploadResponse} from "../../pages/api/docs/ingest";
 
 type DropZoneProps = CardProps;
 interface ContainerProps {

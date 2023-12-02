@@ -1,40 +1,37 @@
 // WaggleDance/types.ts
-import { type Dispatch, type SetStateAction } from "react";
-import { type JsonObject } from "langchain/tools";
+import type {Dispatch, SetStateAction} from "react";
+import type {JsonObject} from "langchain/tools";
 
+import type {AgentSettings, ModelCreationProps, TaskState} from "@acme/agent";
 import {
-  type AgentSettings,
-  type ModelCreationProps,
-  type TaskState,
-} from "@acme/agent";
-import {
-  TEMPERATURE_VALUES,
-  type AgentPromptingMethod,
+  TEMPERATURE_VALUES
+  
 } from "@acme/agent/src/utils/llms";
-import { type DraftExecutionGraph, type DraftExecutionNode } from "@acme/db";
+import type {AgentPromptingMethod} from "@acme/agent/src/utils/llms";
+import type {DraftExecutionGraph, DraftExecutionNode} from "@acme/db";
 
 import { env } from "~/env.mjs";
 
 export type PlanResult = DraftExecutionGraph;
 
-export type WaggleDanceContextType = {
+export interface WaggleDanceContextType {
   dag: DraftExecutionGraph;
   updateDAG: (dag: DraftExecutionGraph) => void;
-};
+}
 
-export type TaskResult = {
+export interface TaskResult {
   taskId: string;
   result: string;
-};
+}
 
-export type Review = {
+export interface Review {
   overall: number;
-};
+}
 
-export type ReviewResult = {
+export interface ReviewResult {
   target: string;
   review: Review;
-};
+}
 
 export type BaseResultType = JsonValue | void;
 export type WaggleDanceResult = Record<string, TaskState>;
@@ -54,7 +51,7 @@ export type JsonValue =
   | boolean
   | null
   | object
-  | Array<JsonValue>;
+  | JsonValue[];
 
 export function mapAgentSettingsToCreationProps(
   agentSettings: AgentSettings,

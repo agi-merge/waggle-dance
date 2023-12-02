@@ -2,7 +2,8 @@ import * as React from "react";
 import { useCallback, useMemo } from "react";
 import NextLink from "next/link";
 import { ClickAwayListener } from "@mui/base";
-import Box, { type BoxProps } from "@mui/joy/Box";
+import type { BoxProps } from "@mui/joy/Box";
+import Box from "@mui/joy/Box";
 import Chip from "@mui/joy/Chip";
 import FormControl from "@mui/joy/FormControl";
 import FormLabel from "@mui/joy/FormLabel";
@@ -13,10 +14,10 @@ import Tooltip from "@mui/joy/Tooltip";
 import Typography from "@mui/joy/Typography";
 
 import { rootPlanId } from "@acme/agent";
-import { type ExecutionPlusGraph } from "@acme/db";
+import type { ExecutionPlusGraph } from "@acme/db";
 
-import routes from "~/utils/routes";
 import useWaggleDanceMachineStore from "~/stores/waggleDanceStore";
+import routes from "~/utils/routes";
 import timeAgo from "../utils/timeAgo";
 
 type ExecutionSelectProps = BoxProps & {
@@ -37,7 +38,7 @@ export const ExecutionSelect = ({
   const names = useMemo(() => {
     return executions?.map((e) => {
       // Cast the graph unsafely to DAG and get the nodes
-      const nodes = e?.graph?.nodes || [];
+      const nodes = e?.graph?.nodes ?? [];
 
       // Use reduce to build the names string
       return nodes.reduce((acc, node) => {
@@ -106,7 +107,7 @@ export const ExecutionSelect = ({
             </Box>
             {names?.length && names[i] && (
               <Tooltip
-                title={names && names[i]}
+                title={names?.[i]}
                 enterDelay={500}
                 enterNextDelay={500}
                 followCursor={true}
@@ -167,7 +168,7 @@ export const ExecutionSelect = ({
 
   return (
     <Box {...props}>
-      {showDisabled ||
+      {showDisabled ??
         ((executions?.length ?? 0) > 0 && (
           <FormControl>
             <ClickAwayListener onClickAway={handleClose}>

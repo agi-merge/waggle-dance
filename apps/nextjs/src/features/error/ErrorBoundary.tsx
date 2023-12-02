@@ -1,6 +1,7 @@
 // components/ErrorBoundary.tsx
-import React, { type ErrorInfo, type ReactNode } from "react";
-import { type NextRouter } from "next/router";
+import type { ErrorInfo, ReactNode } from "react";
+import React from "react";
+import type { NextRouter } from "next/router";
 import { Box, Button, Divider, Stack, Typography } from "@mui/joy";
 import { track } from "@vercel/analytics";
 
@@ -31,14 +32,14 @@ class ErrorBoundary extends React.Component<
     const props: Record<string, string | number | boolean | null> = {
       message: error.message,
       name: error.name,
-      stack: error.stack || null,
-      componentStack: info.componentStack || null,
+      stack: error.stack ?? null,
+      componentStack: info.componentStack ?? null,
     };
     track("error", props);
   }
 
   render(): ReactNode {
-    if (!!this.state.error) {
+    if (this.state.error) {
       return <ErrorDisplay error={this.state.error} />;
     }
 

@@ -1,4 +1,4 @@
-import { type Prisma } from "@prisma/client";
+import type {Prisma} from "@prisma/client";
 import { v4 } from "uuid";
 import { z } from "zod";
 

@@ -33,7 +33,7 @@ export const authRouter = createTRPCRouter({
 
       //clohiv6ix0000yy7tmt3vl3km
       const ret: Session = {
-        expires: session?.expires.toISOString() || new Date().toISOString(),
+        expires: session?.expires.toISOString() ?? new Date().toISOString(),
         user: {
           id: userId,
         },

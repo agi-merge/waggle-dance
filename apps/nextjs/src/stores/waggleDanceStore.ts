@@ -4,17 +4,17 @@ import { v4 } from "uuid";
 import { create } from "zustand";
 import { createJSONStorage, persist } from "zustand/middleware";
 
+import type { AgentSettings } from "@acme/agent";
 import {
   defaultAgentSettings,
   hookRootUpToServerGraph,
   rootPlanId,
-  type AgentSettings,
 } from "@acme/agent";
-import {
-  type DraftExecutionGraph,
-  type Execution,
-  type ExecutionPlusGraph,
-  type GoalPlusExe,
+import type {
+  DraftExecutionGraph,
+  Execution,
+  ExecutionPlusGraph,
+  GoalPlusExe,
 } from "@acme/db";
 
 import { app } from "~/constants";
@@ -75,7 +75,7 @@ const useWaggleDanceMachineStore = create(
       setExecution: (newExecution, goalPrompt) => {
         console.debug("setExecution", newExecution);
         set(() => ({
-          execution: newExecution || null,
+          execution: newExecution ?? null,
           graph:
             (newExecution?.graph &&
               hookRootUpToServerGraph(
@@ -83,7 +83,7 @@ const useWaggleDanceMachineStore = create(
                 rootPlanId,
                 newExecution.id,
                 goalPrompt,
-              )) ||
+              )) ??
             hookRootUpToServerGraph(
               {
                 nodes: [],

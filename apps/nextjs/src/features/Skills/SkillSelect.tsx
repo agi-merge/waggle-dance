@@ -1,22 +1,22 @@
+import type { CheckboxProps } from "@mui/joy";
 import {
   Accordion,
   AccordionDetails,
   AccordionGroup,
   AccordionSummary,
   Checkbox,
-  type CheckboxProps,
 } from "@mui/joy";
 import Typography from "@mui/joy/Typography";
 import { v4 } from "uuid";
 
-import { type Skillset } from "@acme/db";
+import type { Skillset } from "@acme/db";
 import { skillDatabase } from "@acme/db/skills";
 
-import theme from "~/styles/theme";
 import useSkillStore from "~/stores/skillStore";
+import theme from "~/styles/theme";
 import Alerts from "../Alerts/Alerts";
 
-const SkillSelect = ({}) => {
+const SkillSelect = () => {
   const { selectedSkills, toggleSkill } = useSkillStore();
   const handleCheckboxChange = (skill: Skillset) => {
     toggleSkill(skill);

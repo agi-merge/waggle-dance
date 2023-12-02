@@ -1,6 +1,7 @@
 // features/AgentSettings.tsx
 
-import React, { useMemo, type SyntheticEvent } from "react";
+import React, { useMemo  } from "react";
+import type {SyntheticEvent} from "react";
 import { InfoOutlined } from "@mui/icons-material";
 import { Chip } from "@mui/joy";
 import Alert from "@mui/joy/Alert";
@@ -30,7 +31,7 @@ export function AgentSettings() {
   const [isShowingAlert, setIsShowingAlert] = React.useState(false);
   const { data: session } = useSession();
 
-  const types: Array<"plan" | "review" | "execute"> = [
+  const types: ("plan" | "review" | "execute")[] = [
     "plan",
     "review",
     "execute",

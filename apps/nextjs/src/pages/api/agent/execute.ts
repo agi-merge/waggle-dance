@@ -1,33 +1,37 @@
 // pages/api/agent/execute.ts
 
-import { type Document } from "langchain/document";
-import { ScoreThresholdRetriever } from "langchain/retrievers/score_threshold";
-import { type JsonObject } from "langchain/tools";
-import { MemoryVectorStore } from "langchain/vectorstores/memory";
 import { isAbortError } from "next/dist/server/pipe-readable";
-import { type NextRequest } from "next/server";
+import type { NextRequest } from "next/server";
+import type { Document } from "langchain/document";
+import { ScoreThresholdRetriever } from "langchain/retrievers/score_threshold";
+import type { JsonObject } from "langchain/tools";
+import { MemoryVectorStore } from "langchain/vectorstores/memory";
 import { v4 } from "uuid";
 import { stringify } from "yaml";
 
 import createNamespace from "@acme/agent/src/memory/namespace";
 import downloadFileSkill from "@acme/agent/src/skills/downloadFileSkill";
-import { LLM, type AgentPromptingMethod } from "@acme/agent/src/utils/llms";
-import { type CreateResultParams } from "@acme/api/src/router/result";
-import {
-  type DraftExecutionGraph,
-  type DraftExecutionNode,
-  type ExecutionState,
+import type { AgentPromptingMethod } from "@acme/agent/src/utils/llms";
+import { LLM } from "@acme/agent/src/utils/llms";
+import type { CreateResultParams } from "@acme/api/src/router/result";
+import type {
+  DraftExecutionGraph,
+  DraftExecutionNode,
+  ExecutionState,
 } from "@acme/db";
 
-import { type ExecuteRequestBody } from "~/features/WaggleDance/types/types";
+import type { ExecuteRequestBody } from "~/features/WaggleDance/types/types";
+import type {
+  AgentPacket,
+  ModelCreationProps,
+  TaskState,
+} from "../../../../../../packages/agent";
 import {
   callExecutionAgent,
   createEmbeddings,
-  type AgentPacket,
-  type ModelCreationProps,
-  type TaskState,
 } from "../../../../../../packages/agent";
-import { createCallbacks, type CreateCallbackParams } from "./executeCallbacks";
+import type { CreateCallbackParams } from "./executeCallbacks";
+import { createCallbacks } from "./executeCallbacks";
 
 export const config = {
   api: {
@@ -225,7 +229,7 @@ export default async function ExecuteStream(req: NextRequest) {
           );
           recentPacketsBuffer.push(...repetitionCheckPacketBuffer);
           repetitionCheckPacketBuffer = [];
-          if (!!repetitionCheckResult) {
+          if (repetitionCheckResult) {
             if (repetitionErrorThrown) {
               throw new Error("Repetition error already thrown");
             }
@@ -234,9 +238,9 @@ export default async function ExecuteStream(req: NextRequest) {
             const repetitionError: AgentPacket = {
               type: "error",
               severity: "warn",
-              error: `RepetitionError: there will be an automatic recovery for this soon.\n\n ${repetitionCheckResult.similarDocuments.map(
-                (doc, i) => `${i}. ${doc.pageContent}\n\n`,
-              )}`,
+              error: `RepetitionError: there will be an automatic recovery for this soon.\n\n ${repetitionCheckResult.similarDocuments
+                .map((doc, i) => `${i}. ${doc.pageContent}`)
+                .join("\n\n")}`,
               ...repetitionCheckResult,
             };
 
@@ -259,25 +263,6 @@ export default async function ExecuteStream(req: NextRequest) {
             );
 
             throw repetitionError;
-            // await restartExecution(
-            //   controller,
-            //   repetitionCheckResult.recent,
-            //   repetitionCheckResult.similarDocuments,
-            //   creationProps,
-            //   goalPrompt,
-            //   parsedGoalId,
-            //   agentPromptingMethod,
-            //   task,
-            //   dag,
-            //   revieweeTaskResults,
-            //   contentType,
-            //   namespace,
-            //   req,
-            //   encoder,
-            //   resolveStreamEnded,
-            // );
-
-            return;
           }
         } catch (e) {
           console.error(String(e).slice(0, maxLogSize));
@@ -525,7 +510,7 @@ export default async function ExecuteStream(req: NextRequest) {
         const createResultPromise = fetch(`${req.nextUrl.origin}/api/result`, {
           method: "POST",
           headers: {
-            Cookie: req.headers.get("cookie") || "", // pass cookie so session logic still works
+            Cookie: req.headers.get("cookie") ?? "", // pass cookie so session logic still works
             "Content-Type": "application/json",
           },
           body: JSON.stringify(createResultParams),

@@ -1,5 +1,5 @@
 // api/execution/deleteOld.ts
-import { type NextApiRequest, type NextApiResponse } from "next";
+import type {NextApiRequest, NextApiResponse} from "next";
 
 import { prisma } from "@acme/db";
 

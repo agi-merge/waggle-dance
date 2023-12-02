@@ -204,7 +204,9 @@ const extractText = (
       action_input: string;
     };
     return { title, output };
-  } catch {}
+  } catch {
+    return undefined;
+  }
 };
 export function getMostRelevantOutput(packet: AgentPacket): {
   title: string;
@@ -222,7 +224,7 @@ export function getMostRelevantOutput(packet: AgentPacket): {
         output: packet.action.toolInput.slice(0, 50),
         emoji: "🛠️",
       };
-    case "handleLLMEnd":
+    case "handleLLMEnd": {
       const gens = packet.output.generations;
       if (gens) {
         const output = gens
@@ -236,6 +238,7 @@ export function getMostRelevantOutput(packet: AgentPacket): {
         output: "Error: unknown result",
         emoji: "💡❓",
       };
+    }
     case "handleAgentEnd":
       return { title: "Done", output: packet.value, emoji: "✅" };
     case "handleToolEnd":

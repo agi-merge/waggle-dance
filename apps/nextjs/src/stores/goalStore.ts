@@ -4,10 +4,10 @@ import { v4 } from "uuid";
 import { create } from "zustand";
 import { createJSONStorage, persist } from "zustand/middleware";
 
-import { type GoalPlusExe } from "@acme/db";
+import type { GoalPlusExe } from "@acme/db";
 
-import routes from "~/utils/routes";
 import { app } from "~/constants";
+import routes from "~/utils/routes";
 
 export interface GoalStore {
   goalMap: Record<string, GoalPlusExe>;
@@ -112,8 +112,8 @@ const useGoalStore = () =>
               selectedGoal: replaceDraftId
                 ? goal
                 : state.selectedGoal?.id === goal.id
-                ? goal
-                : state.selectedGoal,
+                  ? goal
+                  : state.selectedGoal,
               prevSelectedGoal:
                 state.prevSelectedGoal?.id === goal.id
                   ? goal
@@ -171,7 +171,7 @@ const useGoalStore = () =>
           });
         },
         getGoalInputValue() {
-          return get().selectedGoal?.prompt || "";
+          return get().selectedGoal?.prompt ?? "";
         },
         setGoalInputValue(newGoalInputValue: string) {
           set((state) => {

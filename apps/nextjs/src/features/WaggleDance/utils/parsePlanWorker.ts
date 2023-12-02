@@ -1,15 +1,17 @@
 // parsePlanWorker.ts
 import { parse } from "yaml";
 
+import type {
+  AgentPacket,
+  AgentPacketFinishedType,
+  PlanWireFormat,
+} from "@acme/agent";
 import {
   AgentPacketFinishedTypes,
   removeEnclosingMarkdown,
   transformWireFormat,
-  type AgentPacket,
-  type AgentPacketFinishedType,
-  type PlanWireFormat,
 } from "@acme/agent";
-import { type DraftExecutionGraph } from "@acme/db";
+import type { DraftExecutionGraph } from "@acme/db";
 
 interface MyWorkerGlobalScope {
   onmessage: (event: MessageEvent) => void;
@@ -53,7 +55,7 @@ self.onmessage = function (
       goal,
       executionId,
     );
-    if (yaml && yaml.nodes && yaml.nodes.length > 0) {
+    if (yaml?.nodes && yaml.nodes.length > 0) {
       dag = {
         nodes: yaml.nodes,
         edges: yaml.edges,

@@ -4,7 +4,8 @@ import { useCallback, useMemo } from "react";
 import { default as NextLink } from "next/link";
 import { useRouter } from "next/router";
 import { Add, Close } from "@mui/icons-material";
-import Box, { type BoxProps } from "@mui/joy/Box";
+import Box from "@mui/joy/Box";
+import type {BoxProps} from "@mui/joy/Box";
 import Divider from "@mui/joy/Divider";
 import IconButton from "@mui/joy/IconButton";
 import Stack from "@mui/joy/Stack";
@@ -14,7 +15,7 @@ import Tabs from "@mui/joy/Tabs";
 import Tooltip from "@mui/joy/Tooltip";
 import Typography from "@mui/joy/Typography";
 
-import { type Goal, type GoalPlusExe } from "@acme/db";
+import type {Goal, GoalPlusExe} from "@acme/db";
 
 import { api } from "~/utils/api";
 import routes from "~/utils/routes";

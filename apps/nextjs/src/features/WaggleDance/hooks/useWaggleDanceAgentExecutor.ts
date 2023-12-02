@@ -1,42 +1,36 @@
 // features/WaggleDance/hooks/useWaggleDance.ts
 
-import {
-  useCallback,
-  useEffect,
-  useMemo,
-  useRef,
-  useState,
-  type MutableRefObject,
-} from "react";
+import type { MutableRefObject } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { isAbortError } from "next/dist/server/pipe-readable";
-import { type GraphData } from "react-force-graph-2d";
+import type { GraphData } from "react-force-graph-2d";
 import { v4 } from "uuid";
 // import { type GraphData } from "../components/ForceGraph";
 import { stringify } from "yaml";
 
+import type { AgentPacket } from "@acme/agent";
 import {
   getMostRelevantOutput,
   rootPlanId,
   rootPlanNode,
   TaskState,
-  type AgentPacket,
 } from "@acme/agent";
-import { type DraftExecutionNode, type ExecutionPlusGraph } from "@acme/db";
+import type { DraftExecutionNode, ExecutionPlusGraph } from "@acme/db";
 
 import useApp from "~/stores/appStore";
 import useGoalStore from "~/stores/goalStore";
 import useWaggleDanceMachineStore from "~/stores/waggleDanceStore";
 import { api } from "~/utils/api";
-import { type GraphDataState, type WaggleDanceResult } from "../types/types";
+import type { GraphDataState, WaggleDanceResult } from "../types/types";
 import WaggleDanceAgentExecutor from "../types/WaggleDanceAgentExecutor";
 import { dagToGraphData } from "../utils/conversions";
 
-export type LogMessage = {
+export interface LogMessage {
   message: string;
   type: "info" | "error";
   timestamp: Date;
   id: string;
-};
+}
 
 const useWaggleDanceAgentExecutor = () => {
   const { setIsRunning, agentSettings, execution, graph, setGraph } =
@@ -52,24 +46,22 @@ const useWaggleDanceAgentExecutor = () => {
   const { selectedGoal: goal } = useGoalStore();
 
   const { mutate: updateExecutionState } =
-    api.execution.updateState.useMutation({
-      onSettled: () => {},
-    });
+    api.execution.updateState.useMutation({});
 
   const results = useMemo(() => {
     return (
       execution?.results?.map((r) => {
-        const result = r.value as AgentPacket;
+        const result = r.value as unknown as AgentPacket;
 
         const taskState = new TaskState({
           ...r,
-          packets: r.packets as AgentPacket[],
+          packets: r.packets as unknown as AgentPacket[],
           value: result,
-          id: r.nodeId || v4(), // FIXME: is this ok?
+          id: r.nodeId ?? v4(), // FIXME: is this ok?
         });
 
         return taskState;
-      }) || []
+      }) ?? []
     );
   }, [execution?.results]);
 
@@ -189,7 +181,7 @@ const useWaggleDanceAgentExecutor = () => {
         throw new Error("a node does not exist to receive data");
       }
       setAgentPackets((prevAgentPackets) => {
-        const existingTask = prevAgentPackets[node.id] || resultsMap[node.id];
+        const existingTask = prevAgentPackets[node.id] ?? resultsMap[node.id];
 
         log(
           `injectAgentPacket: ${existingTask?.value.type} -> ${agentPacket.type}`,

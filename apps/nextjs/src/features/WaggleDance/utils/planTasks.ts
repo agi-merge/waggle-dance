@@ -1,21 +1,20 @@
 // features/WaggleDance/utils/planTasks.ts
 
-import { type JsonObject } from "langchain/tools";
+import type { JsonObject } from "langchain/tools";
 
-import { type DraftExecutionGraph, type DraftExecutionNode } from "@acme/db";
+import type { DraftExecutionGraph, DraftExecutionNode } from "@acme/db";
 
-import {
-  rootPlanId,
-  rootPlanNode,
-  type AgentPacket,
-  type ModelCreationProps,
+import type {
+  AgentPacket,
+  ModelCreationProps,
 } from "../../../../../../packages/agent";
-import { type GraphDataState } from "../types/types";
-import { type InjectAgentPacketType } from "../types/WaggleDanceAgentExecutor";
+import { rootPlanId, rootPlanNode } from "../../../../../../packages/agent";
+import type { GraphDataState } from "../types/types";
+import type { InjectAgentPacketType } from "../types/WaggleDanceAgentExecutor";
 import PlanUpdateIntervalHandler from "./PlanUpdateIntervalHandler";
 import { sleep } from "./sleep";
 
-export type PlanTasksProps = {
+export interface PlanTasksProps {
   goalPrompt: string;
   goalId: string;
   executionId: string;
@@ -29,7 +28,7 @@ export type PlanTasksProps = {
     dag: DraftExecutionGraph,
   ) => Promise<void>;
   agentProtocolOpenAPISpec?: JsonObject;
-};
+}
 
 export default async function planTasks({
   goalPrompt,
@@ -116,12 +115,12 @@ export default async function planTasks({
       postMessageCount--;
       const { dag: newDag, error, finishPacket } = event.data;
 
-      if (!!finishPacket) {
+      if (finishPacket) {
         injectAgentPacket(finishPacket, initialNode!);
         return;
       }
 
-      if (!!error) {
+      if (error) {
         return;
       }
 
@@ -145,7 +144,7 @@ export default async function planTasks({
     let buffer = Buffer.alloc(0);
     let objectStartIndex = 0; // This index will track the start of the current YAML object.
 
-    async function streamToString(stream: ReadableStream<Uint8Array>) {
+    const streamToString = async (stream: ReadableStream<Uint8Array>) => {
       const decoder = new TextDecoder();
       const transformStream = new TransformStream<Uint8Array, string>({
         transform(chunk, controller) {
@@ -204,7 +203,7 @@ export default async function planTasks({
         }
         await sleep(100);
       }
-    }
+    };
 
     await streamToString(stream);
     return partialDAG;

@@ -2,11 +2,12 @@
 import { parse } from "yaml";
 
 import {
-  findFinishPacket,
-  type AgentPacket,
+  findFinishPacket
+  
 } from "../../../../../../packages/agent";
-import { type ExecuteRequestBody } from "../types/types";
-import { type InjectAgentPacketType } from "../types/WaggleDanceAgentExecutor";
+import type {AgentPacket} from "../../../../../../packages/agent";
+import type {ExecuteRequestBody} from "../types/types";
+import type {InjectAgentPacketType} from "../types/WaggleDanceAgentExecutor";
 
 async function fetchTaskData(
   request: ExecuteRequestBody,
@@ -30,12 +31,12 @@ function processResponseBuffer(tokens: string): AgentPacket {
   return packet;
 }
 
-export type ExecuteTaskProps = {
+export interface ExecuteTaskProps {
   request: ExecuteRequestBody;
   injectAgentPacket: InjectAgentPacketType;
   log: (...args: (string | number | object)[]) => void;
   abortSignal: AbortSignal;
-};
+}
 
 export default async function executeTask({
   request,
@@ -107,7 +108,7 @@ export default async function executeTask({
     tokens += buffer.toString();
   }
 
-  if (!tokens || !tokens.length) {
+  if (!tokens?.length) {
     throw new Error(
       `No buffered tokens ${tokens} for response ${response.status} result ${result.done} `,
     );

@@ -1,7 +1,8 @@
 import { create } from "zustand";
 
-import { type Skillset } from "@acme/db";
-import { skillDatabase, type NullableSkillset } from "@acme/db/skills";
+import type {Skillset} from "@acme/db";
+import { skillDatabase  } from "@acme/db/skills";
+import type {NullableSkillset} from "@acme/db/skills";
 
 import { logger } from "./loggerMiddleware";
 

@@ -1,11 +1,11 @@
 import { TabPanel } from "@mui/joy";
-import { type GraphData } from "react-force-graph-2d";
+import type {GraphData} from "react-force-graph-2d";
 
 import PlanForceGraph from "./PlanForceGraph";
 
-type GraphTabPanelProps = {
+interface GraphTabPanelProps {
   data: GraphData;
-};
+}
 
 // const NoSSRForceGraph = dynamic(() => import("react-force-graph-2d"), {
 //   ssr: false,

@@ -1,6 +1,7 @@
-import { NextResponse, type NextRequest } from "next/server";
+import type { NextRequest } from "next/server";
+import { NextResponse } from "next/server";
 
-import { type Geo } from "@acme/agent";
+import type { Geo } from "@acme/agent";
 
 import { env } from "./env.mjs";
 
@@ -25,9 +26,9 @@ export function addGeoToApiAgentMiddleware(req: NextRequest) {
   if (url.pathname.startsWith("/api/agent/")) {
     const { geo } = req as { geo: Geo };
 
-    const cca2 = geo?.country || "US";
-    const city = geo?.city || "San Francisco";
-    const region = geo?.region || "CA";
+    const cca2 = geo?.country ?? "US";
+    const city = geo?.city ?? "San Francisco";
+    const region = geo?.region ?? "CA";
 
     url.searchParams.set("country", cca2);
     url.searchParams.set("city", city);
@@ -120,7 +121,7 @@ function setCookieFromXCookie(
   requestHeaders: Headers,
 ) {
   if (url.pathname.startsWith("/api/ap/")) {
-    const rawAuthToken = req.headers.get("X-Cookie") || "";
+    const rawAuthToken = req.headers.get("X-Cookie") ?? "";
     // Check if the Authorization header is in the expected format
     if (rawAuthToken.length) {
       // const authTokenParts = rawAuthToken.split(" ");

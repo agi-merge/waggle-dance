@@ -1,4 +1,3 @@
-import { PrismaClient } from "@prisma/client";
 import type {
   Execution,
   ExecutionEdge,
@@ -7,6 +6,7 @@ import type {
   Goal,
   Result,
 } from "@prisma/client";
+import { PrismaClient } from "@prisma/client";
 
 export * from "@prisma/client";
 export * from "./skills";
@@ -17,7 +17,7 @@ export * from "./prisma/zod/index";
 
 const globalForPrisma = globalThis as { prisma?: PrismaClient };
 export const prisma =
-  globalForPrisma.prisma ||
+  globalForPrisma.prisma ??
   new PrismaClient({
     log: process.env.NODE_ENV === "development" ? ["error", "warn"] : ["error"],
   });

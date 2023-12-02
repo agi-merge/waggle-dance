@@ -16,7 +16,7 @@ import routes from "~/utils/routes";
 import Footer from "./Footer";
 import ThemeToggle from "./ThemeToggle";
 
-const Header = ({}) => {
+const Header = () => {
   const { data: session } = useSession();
   const [isOpen, setIsOpen] = React.useState(false);
   const [anchorEl, setAnchorEl] = React.useState<null | HTMLElement>(null);
@@ -55,8 +55,8 @@ const Header = ({}) => {
             <IconButton onClick={() => void signOut()} size="sm">
               <Avatar
                 className="mr-3"
-                src={session.user?.image || undefined}
-                alt={session.user?.name || undefined}
+                src={session.user?.image ?? undefined}
+                alt={session.user?.name ?? undefined}
               />
             </IconButton>
           </Tooltip>
@@ -103,8 +103,8 @@ const Header = ({}) => {
                       <IconButton onClick={() => void signOut()}>
                         <Avatar
                           className="mr-3"
-                          src={session.user.image || undefined}
-                          alt={session.user.name || undefined}
+                          src={session.user.image ?? undefined}
+                          alt={session.user.name ?? undefined}
                         />
                       </IconButton>
                     </Tooltip>

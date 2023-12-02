@@ -35,7 +35,7 @@ export async function GET(
   const pageSize = Number(params.get("page_size") ?? 10);
   const currentPage = Number(params.get("current_page") ?? 1);
 
-  const session = (await auth()) || null;
+  const session = (await auth()) ?? null;
   const caller = appRouter.createCaller({
     session,
     db: prisma,
@@ -74,7 +74,7 @@ export async function POST(
     return Response.json("taskId in path is required", { status: 400 });
   }
 
-  const session = (await auth()) || null;
+  const session = await auth();
 
   const caller = appRouter.createCaller({
     session,
@@ -82,27 +82,28 @@ export async function POST(
     origin: req.nextUrl.origin,
   });
 
-  const namespace = req.headers.get("X-Skill-Namespace") || undefined;
-  const nodeId = req.headers.get("X-Skill-Node-Id") || undefined;
+  const namespace = req.headers.get("X-Skill-Namespace") ?? undefined;
+  const nodeId = req.headers.get("X-Skill-Node-Id") ?? undefined;
   const goal = await caller.goal.limitedGoalFromExecution(taskId);
 
   const userId = goal?.userId;
 
   const namespaceSession =
-    !!(goal && namespace && userId) &&
-    (await caller.auth.getInsecureSessionForNamespace({
-      userId,
-      namespace,
-      goalId: goal.id,
-      executionId: taskId,
-    }));
+    goal && namespace && userId
+      ? await caller.auth.getInsecureSessionForNamespace({
+          userId,
+          namespace,
+          goalId: goal.id,
+          executionId: taskId,
+        })
+      : null;
 
   if (!namespaceSession && !session) {
     return NextResponse.json("Unauthorized", { status: 401 });
   }
 
   const file = await req.blob();
-  const contentType = req.headers.get("content-type") || file.type || "";
+  const contentType = req.headers.get("content-type") ?? file.type ?? "";
 
   // const nextAuthNamespaceSession: Session | null =
   //   session ||
@@ -115,7 +116,7 @@ export async function POST(
   //       }
   //     : null);
   const { artifact } = await uploadAndSaveResult({
-    session: session || namespaceSession || null,
+    session: session ?? namespaceSession ?? null,
     contentType,
     file,
     nodeId: nodeId!,

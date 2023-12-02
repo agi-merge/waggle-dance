@@ -19,12 +19,12 @@ import IconButton from "@mui/joy/IconButton";
 import List from "@mui/joy/List";
 import ListItem from "@mui/joy/ListItem";
 
-import { type TaskState } from "@acme/agent";
-import { type DraftExecutionEdge, type DraftExecutionNode } from "@acme/db";
+import type { TaskState } from "@acme/agent";
+import type { DraftExecutionEdge, DraftExecutionNode } from "@acme/db";
 
 const TaskListItem = lazy(() => import("./TaskListItem"));
 
-type TaskListTabProps = {
+interface TaskListTabProps {
   sortedTaskStates: TaskState[];
   nodes: DraftExecutionNode[];
   edges: DraftExecutionEdge[];
@@ -34,12 +34,12 @@ type TaskListTabProps = {
   isRunning: boolean;
   taskListRef: React.RefObject<HTMLUListElement>;
   listItemsRef: React.MutableRefObject<HTMLLIElement[]>;
-};
+}
 
-type Coordinate = {
+interface Coordinate {
   x: number;
   y: number;
-};
+}
 const NodeConnector = ({
   from,
   to,
@@ -173,8 +173,8 @@ export const TaskListTab = ({
                 {tier === "0"
                   ? `Planning`
                   : isLast
-                  ? "End"
-                  : `Task Tier ${tier}`}
+                    ? "End"
+                    : `Task Tier ${tier}`}
               </Typography>
               <KeyboardArrowDown
                 sx={{
@@ -214,7 +214,7 @@ export const TaskListTab = ({
                   statusColor={statusColor}
                   isRunning={isRunning}
                   listItemsRef={listItemsRef}
-                  isExpanded={open[tier] || false}
+                  isExpanded={open[tier] ?? false}
                 />
               ))}
             </Suspense>

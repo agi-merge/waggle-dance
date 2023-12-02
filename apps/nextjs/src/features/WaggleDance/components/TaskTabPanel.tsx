@@ -1,16 +1,17 @@
 import {
-  TabPanel,
-  type AlertPropsColorOverrides,
-  type ColorPaletteProp,
+  TabPanel
+  
+  
 } from "@mui/joy";
-import { type OverridableStringUnion } from "@mui/types";
+import type {AlertPropsColorOverrides, ColorPaletteProp} from "@mui/joy";
+import type {OverridableStringUnion} from "@mui/types";
 
-import { type TaskState } from "@acme/agent";
-import { type DraftExecutionEdge, type DraftExecutionNode } from "@acme/db";
+import type {TaskState} from "@acme/agent";
+import type {DraftExecutionEdge, DraftExecutionNode} from "@acme/db";
 
 import TaskListTab from "./TaskListTab";
 
-type TaskTabPanelProps = {
+interface TaskTabPanelProps {
   nodes: DraftExecutionNode[];
   edges: DraftExecutionEdge[];
   sortedTaskStates: TaskState[];
@@ -20,7 +21,7 @@ type TaskTabPanelProps = {
   isRunning: boolean;
   listItemsRef: React.MutableRefObject<HTMLLIElement[]>;
   taskListRef: React.RefObject<HTMLUListElement>;
-};
+}
 
 const TaskTabPanel = ({
   nodes,

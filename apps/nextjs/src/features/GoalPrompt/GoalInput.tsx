@@ -13,7 +13,8 @@ import {
 } from "@mui/joy";
 import Box from "@mui/joy/Box";
 import Button from "@mui/joy/Button";
-import Card, { type CardProps } from "@mui/joy/Card";
+import type { CardProps } from "@mui/joy/Card";
+import Card from "@mui/joy/Card";
 import Divider from "@mui/joy/Divider";
 // import Grid from "@mui/joy/Grid";
 import Stack from "@mui/joy/Stack";
@@ -22,7 +23,7 @@ import { TRPCClientError } from "@trpc/client";
 import { stringify } from "superjson";
 
 import { examplePrompts } from "@acme/agent";
-import { type AutoRefineFeedback } from "@acme/api/utils";
+import type { AutoRefineFeedback } from "@acme/api/utils";
 
 import useApp from "~/stores/appStore";
 import useGoalStore from "~/stores/goalStore";
@@ -45,7 +46,7 @@ const TemplatesModal = lazy(
 
 type GoalInputProps = CardProps;
 
-export default function GoalInput({}: GoalInputProps) {
+export default function GoalInput(props: GoalInputProps) {
   const { getGoalInputValue, setGoalInputValue, upsertGoal, selectedGoal } =
     useGoalStore();
   const { setIsAutoStartEnabled } = useWaggleDanceMachineStore();
@@ -83,7 +84,9 @@ export default function GoalInput({}: GoalInputProps) {
               });
             },
             onError: (e) => {
-              type HTTPStatusy = { httpStatus: number };
+              interface HTTPStatusy {
+                httpStatus: number;
+              }
               if (e instanceof TRPCClientError) {
                 const data = e.data as HTTPStatusy;
                 // route for anonymous users
@@ -173,6 +176,7 @@ export default function GoalInput({}: GoalInputProps) {
 
   return (
     <Box
+      {...props}
       display="flex"
       flexDirection="column"
       justifyContent="space-between"
@@ -197,7 +201,7 @@ export default function GoalInput({}: GoalInputProps) {
             borderRadius: 2,
           }}
         >
-          <TokenChip prompt={selectedGoal?.prompt || ""} />
+          <TokenChip prompt={selectedGoal?.prompt ?? ""} />
           <Divider orientation="vertical" />
           <Button
             size="sm"
@@ -240,7 +244,9 @@ export default function GoalInput({}: GoalInputProps) {
                       {index !== prompts.length - 1 && <Divider />}
                       <List size="sm" component={Card} variant="outlined">
                         {prompts.map((prompt) => (
-                          <React.Fragment key={`${category}_${prompt.tags}`}>
+                          <React.Fragment
+                            key={`${category}_${prompt.tags.join(",")}`}
+                          >
                             <ListItem>
                               <ListItemButton
                                 onClick={() => {

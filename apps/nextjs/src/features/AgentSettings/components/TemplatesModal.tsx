@@ -6,11 +6,11 @@ import Modal from "@mui/joy/Modal";
 import ModalClose from "@mui/joy/ModalClose";
 import Tooltip from "@mui/joy/Tooltip";
 
-type Props = {
+interface Props {
   children: React.ReactNode;
   open: boolean;
   setOpen: (isOpen: boolean) => void;
-};
+}
 export default function TemplatesModal({ children, open, setOpen }: Props) {
   return (
     <>

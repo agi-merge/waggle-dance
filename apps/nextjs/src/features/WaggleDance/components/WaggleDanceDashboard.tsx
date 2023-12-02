@@ -11,16 +11,16 @@ import {
 } from "@mui/joy";
 import Typography from "@mui/joy/Typography";
 
-import { type GoalPlusExe } from "@acme/db";
+import type {GoalPlusExe} from "@acme/db";
 
 import AddDocuments from "~/features/AddDocuments/AddDocuments";
 import SkillSelect from "~/features/Skills/SkillSelect";
 
-type WaggleDanceDashboardProps = {
+interface WaggleDanceDashboardProps {
   goal: GoalPlusExe; // replace with the proper type
   skillsLabel: string;
   selectedSkillsLength: number;
-};
+}
 
 const WaggleDanceDashboard = ({
   goal,

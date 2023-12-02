@@ -1,16 +1,17 @@
-import type {ChatOpenAI} from "langchain/chat_models/openai";
-import type {Embeddings} from "langchain/embeddings/base";
-import type {OpenAI} from "langchain/llms/openai";
+import type { ChatOpenAI } from "langchain/chat_models/openai";
+import type { Embeddings } from "langchain/embeddings/base";
+import type { OpenAI } from "langchain/llms/openai";
+import type {
+  JsonObject,
+  SearchApiParameters,
+  StructuredTool,
+} from "langchain/tools";
 import {
   JsonSpec,
   SearchApi,
   SerpAPI,
-  WolframAlphaTool
-  
-  
-  
+  WolframAlphaTool,
 } from "langchain/tools";
-import type {JsonObject, SearchApiParameters, StructuredTool} from "langchain/tools";
 import { WebBrowser } from "langchain/tools/webbrowser";
 
 import cca2Map from "../lib/cca2Map.json";
@@ -19,13 +20,16 @@ import downloadFileSkill from "../skills/downloadFileSkill";
 import requestUserHelpSkill from "../skills/requestUserHelpSkill";
 import uploadFileSkill from "../skills/uploadFileSkill";
 import type Geo from "./Geo";
-import type {AgentPromptingMethod} from "./llms";
+import type { AgentPromptingMethod } from "./llms";
 
-type CCA2MapType = Record<string, {
+type CCA2MapType = Record<
+  string,
+  {
     name: string;
     divisions: Record<string, string>;
     languages: string[];
-  }>;
+  }
+>;
 
 // literally just here to offer nice names in the UI
 class GoogleSearch extends SearchApi {
@@ -172,9 +176,9 @@ function getSearchLocation(
   destination: "SerpAPI" | "SearchApi",
   geo?: Geo,
 ): { location: string; hl: string; gl: string } {
-  const cca2 = geo?.country || "US";
-  const city = geo?.city || "San Francisco";
-  const region = geo?.region || "CA";
+  const cca2 = geo?.country ?? "US";
+  const city = geo?.city ?? "San Francisco";
+  const region = geo?.region ?? "CA";
 
   const countryInfo = (cca2Map as CCA2MapType)[cca2];
   const friendlyCountryName = countryInfo?.name;
@@ -186,10 +190,10 @@ function getSearchLocation(
   const geos: string[] = [];
 
   const serpGeo = {
-    country: friendlyCountryName || geo?.country,
+    country: friendlyCountryName ?? geo?.country,
     city: city,
-    region: friendlyRegionName || geo?.region,
-    languages: languages || [],
+    region: friendlyRegionName ?? geo?.region,
+    languages: languages ?? [],
   };
   if (serpGeo) {
     if (serpGeo.city) {
@@ -205,8 +209,8 @@ function getSearchLocation(
     }
   }
 
-  const hl = languages?.split(",")?.[0]?.toLowerCase() || "en";
-  const gl = geo?.country?.toLowerCase() || "us";
+  const hl = languages?.split(",")?.[0]?.toLowerCase() ?? "en";
+  const gl = geo?.country?.toLowerCase() ?? "us";
 
   const location =
     geos.length > 0 ? geos.join(",") : "Los Angeles,California,United States";

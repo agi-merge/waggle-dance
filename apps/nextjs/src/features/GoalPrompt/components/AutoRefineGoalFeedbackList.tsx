@@ -1,9 +1,7 @@
-import { Box, Typography, type BoxProps } from "@mui/joy";
+import { Box, Typography  } from "@mui/joy";
+import type {BoxProps} from "@mui/joy";
 
-import {
-  type AutoRefineFeedback,
-  type AutoRefineFeedbackItem,
-} from "@acme/api/utils";
+import type {AutoRefineFeedback, AutoRefineFeedbackItem} from "@acme/api/utils";
 
 type Props = BoxProps & {
   feedback: AutoRefineFeedback | null;

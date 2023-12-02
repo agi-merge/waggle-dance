@@ -1,29 +1,26 @@
 // api/agent/result.ts
 
-import { type NextApiRequest, type NextApiResponse } from "next";
+import type { NextApiRequest, NextApiResponse } from "next";
 
-import { type OldPlanWireFormat } from "@acme/agent";
+import type { OldPlanWireFormat } from "@acme/agent";
 import { appRouter } from "@acme/api";
-import { auth, type Session } from "@acme/auth";
-import {
-  ExecutionState,
-  prisma,
-  type Execution,
-  type ExecutionGraph,
-} from "@acme/db";
+import type { Session } from "@acme/auth";
+import { auth } from "@acme/auth";
+import type { Execution, ExecutionGraph } from "@acme/db";
+import { ExecutionState, prisma } from "@acme/db";
 
 export const config = {
   runtime: "nodejs",
 };
 
-export type UpdateGraphParams = {
+export interface UpdateGraphParams {
   goalId: string;
   executionId: string;
   graph: OldPlanWireFormat | null;
   goalPrompt: string;
   session?: Session | null;
   origin?: string | undefined;
-};
+}
 
 // data proxy for edge
 export default async function updateGraphProxy(
@@ -34,8 +31,8 @@ export default async function updateGraphProxy(
     const session = await auth(req, res);
 
     const { json: params } = req.body as { json: UpdateGraphParams };
-    params["session"] = session;
-    params["origin"] = req.headers.origin;
+    params.session = session;
+    params.origin = req.headers.origin;
 
     const result = await updateGraph(params);
     res.status(200).json(result);
@@ -53,7 +50,7 @@ async function updateGraph({
   origin,
 }: UpdateGraphParams): Promise<ExecutionGraph | Execution> {
   const caller = appRouter.createCaller({
-    session: session || null,
+    session: session ?? null,
     db: prisma,
     origin,
   });

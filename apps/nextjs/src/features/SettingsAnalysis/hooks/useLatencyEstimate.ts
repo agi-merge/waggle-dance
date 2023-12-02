@@ -1,21 +1,18 @@
 import { useMemo } from "react";
-import { type AlertPropsColorOverrides, type ColorPaletteProp } from "@mui/joy";
-import { type OverridableStringUnion } from "@mui/types";
+import type { AlertPropsColorOverrides, ColorPaletteProp } from "@mui/joy";
+import type { OverridableStringUnion } from "@mui/types";
 
-import {
-  defaultAgentSettings,
-  type AgentSettings,
-  type AgentSettingsMap,
-} from "@acme/agent";
+import type { AgentSettings, AgentSettingsMap } from "@acme/agent";
+import { defaultAgentSettings } from "@acme/agent";
 import { AgentPromptingMethod } from "@acme/agent/src/utils/llms";
-import { type NullableSkillset } from "@acme/db/skills";
+import type { NullableSkillset } from "@acme/db/skills";
 
-export type LatencyScaleItem = {
+export interface LatencyScaleItem {
   limit: number;
   color: OverridableStringUnion<ColorPaletteProp, AlertPropsColorOverrides>;
   label: string;
   description: string;
-};
+}
 
 // Define the latency scale and corresponding colors
 const latencyScale: LatencyScaleItem[] = [
@@ -53,7 +50,7 @@ const latencyScale: LatencyScaleItem[] = [
 
 // Get latency level based on the latency value
 export function getLatencyLevel(latency: number) {
-  return (latencyScale.find((scale) => latency <= scale.limit) ||
+  return (latencyScale.find((scale) => latency <= scale.limit) ??
     latencyScale[latencyScale.length - 1])!; // idk tsc was complaining without the bang
 }
 
@@ -70,16 +67,19 @@ export function latencyEstimate(
         throw new Error(`Invalid agent type: ${type}`);
       }
       let promptingMethod =
-        agentSettings.agentPromptingMethod ||
+        agentSettings.agentPromptingMethod ??
         defaultAgentSettings[type].agentPromptingMethod;
       if (promptingMethod === null) {
         switch (type) {
           case "execute":
             promptingMethod = AgentPromptingMethod.ChatConversationalReAct;
+            break;
           case "plan":
             promptingMethod = AgentPromptingMethod.ZeroShotReAct;
+            break;
           case "review":
             promptingMethod = AgentPromptingMethod.ZeroShotReAct;
+            break;
         }
         // throw new Error("Agent prompting method is null");
       }
@@ -87,10 +87,13 @@ export function latencyEstimate(
       switch (type) {
         case "execute":
           typeMultiplier = 2;
+          break;
         case "review":
           typeMultiplier = 1.25;
+          break;
         case "plan":
           typeMultiplier = 1;
+          break;
       }
       let latency = 0;
       let multiplier = 1; // gpt-3.5
@@ -101,6 +104,7 @@ export function latencyEstimate(
       switch (promptingMethod) {
         case AgentPromptingMethod.ZeroShotReAct:
           latency += 1;
+          break;
         case AgentPromptingMethod.OpenAIFunctions:
           latency += 1.1;
           break;
@@ -121,8 +125,7 @@ export function latencyEstimate(
     },
   );
 
-  const minMax = (n: number, lb: number = 0, ub: number = 1) =>
-    Math.min(ub, Math.max(lb, n));
+  const minMax = (n: number, lb = 0, ub = 1) => Math.min(ub, Math.max(lb, n));
 
   const totalLatencyForAgentSettings = latencyMultiplierPairs.reduce(
     (acc, curr, _i) => {

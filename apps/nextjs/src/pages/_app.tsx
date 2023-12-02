@@ -1,15 +1,17 @@
 // _app.tsx
 import "../styles/globals.css";
 
-import { CssVarsProvider } from "@mui/joy/styles";
-import { GetServerSideProps, InferGetServerSidePropsType } from "next";
-import { SessionProvider } from "next-auth/react";
+import { Suspense, useCallback, useEffect } from "react";
+import type { GetServerSideProps, InferGetServerSidePropsType } from "next";
 import type { AppType } from "next/app";
 import dynamic from "next/dynamic";
 import { useRouter } from "next/router";
-import { Suspense, useCallback, useEffect } from "react";
+import { CssVarsProvider } from "@mui/joy/styles";
+import type { HTTPHeaders } from "@trpc/client";
+import { SessionProvider } from "next-auth/react";
 
-import { Session } from "@acme/auth";
+import type { Session } from "@acme/auth";
+import { auth } from "@acme/auth";
 
 import { TRPCReactProvider } from "~/app/providers";
 import useApp from "~/stores/appStore";
@@ -18,23 +20,22 @@ import theme from "~/styles/theme";
 const Analytics = dynamic(() =>
   import("@vercel/analytics/react").then((mod) => mod.Analytics),
 );
-type RouteControllerProps = {
+interface RouteControllerProps {
   children: React.ReactNode;
-};
+}
 
 type Props = InferGetServerSidePropsType<typeof getServerSideProps> & {
+  headers: HTTPHeaders;
   session: Session | null;
 };
 
 export const getServerSideProps: GetServerSideProps = async (context) => {
-  const { req, res } = context;
-  const headers = req.headers;
-  // const session = await auth(req, res);
-
-  // You can now use the headers object as needed
+  const { req } = context;
+  const headers: HTTPHeaders = req.headers;
+  const session = await auth(context);
 
   return {
-    props: { headers }, // return props here
+    props: { session, headers }, // return props here
   };
 };
 
@@ -71,7 +72,7 @@ const MyApp: AppType<Props> = ({
 }) => {
   return (
     <SessionProvider session={session}>
-      <TRPCReactProvider headers={headers()}>
+      <TRPCReactProvider headers={headers}>
         <RouteControllerProvider>
           <CssVarsProvider theme={theme} defaultMode="system">
             <Component {...pageProps} />

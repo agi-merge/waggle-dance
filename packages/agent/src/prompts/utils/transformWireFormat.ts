@@ -3,7 +3,11 @@
 // as well as reducing the total token count
 // tradeoffs:
 
-import type {DraftExecutionEdge, DraftExecutionGraph, DraftExecutionNode} from "@acme/db";
+import type {
+  DraftExecutionEdge,
+  DraftExecutionGraph,
+  DraftExecutionNode,
+} from "@acme/db";
 
 import { makeServerIdIfNeeded, rootPlanId, rootPlanNode } from "../../..";
 import { criticismSuffix } from "../types";
@@ -12,7 +16,10 @@ interface ParentsDescriptor {
   parents: number[];
 }
 
-export type PlanWireFormat = Record<string, (ParentsDescriptor | DraftExecutionNode)[]>;
+export type PlanWireFormat = Record<
+  string,
+  (ParentsDescriptor | DraftExecutionNode)[]
+>;
 
 export interface OldPlanWireFormat {
   nodes: DraftExecutionNode[];
@@ -160,15 +167,15 @@ export function transformWireFormat(
     id: n.id,
     name: n.name,
     context: n.context,
-    graphId: n.graphId || null,
+    graphId: n.graphId ?? null,
   }));
   const edges: DraftExecutionEdge[] = oldFormat.edges
     .filter((e) => e.sId.length >= 3 && e.tId.length >= 3)
     .map((e) => ({
-      id: e.id || null,
+      id: e.id ?? null,
       sId: e.sId,
       tId: e.tId,
-      graphId: e.graphId || null,
+      graphId: e.graphId ?? null,
     }));
 
   const mappedOldFormat: DraftExecutionGraph = {

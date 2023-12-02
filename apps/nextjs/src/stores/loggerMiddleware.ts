@@ -1,8 +1,4 @@
-import {
-  type State,
-  type StateCreator,
-  type StoreMutatorIdentifier,
-} from "zustand";
+import type {State, StateCreator, StoreMutatorIdentifier} from "zustand";
 
 export type LoggerMiddleware = <
   T extends State,

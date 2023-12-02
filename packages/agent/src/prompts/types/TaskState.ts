@@ -1,9 +1,9 @@
-import type {DraftExecutionNode, Result} from "@acme/db";
+import type { DraftExecutionNode, Result } from "@acme/db";
 
-import { rootPlanId  } from "../../..";
-import type {AgentPacket} from "../../..";
+import type { AgentPacket } from "../../..";
+import { rootPlanId } from "../../..";
 import { mapPacketTypeToStatus } from "../utils/mapPacketToStatus";
-import type {TaskStatus} from "./TaskStatus";
+import type { TaskStatus } from "./TaskStatus";
 
 // Wrapper of Result that adds some useful methods
 export class TaskState implements AugmentedResponse {
@@ -61,7 +61,7 @@ export function extractTier(fromId: string | null): string | null {
   const tier =
     tierAndOptionalServerIdSplit?.[tierAndOptionalServerIdSplit.length - 1];
 
-  return tier || null;
+  return tier ?? null;
 }
 
 export function extractTaskNumber(nodeId: string | null): number | null {
