@@ -1,8 +1,9 @@
-import baseConfig from "@acme/tailwind-config";
 import type { Config } from "tailwindcss";
+
+import baseConfig from "@acme/tailwind-config";
 
 export default {
   darkMode: "class",
-  content: ["./src/**/*.tsx"],
+  content: ["./src/**/*.{ts,tsx}"],
   presets: [baseConfig],
 } satisfies Config;

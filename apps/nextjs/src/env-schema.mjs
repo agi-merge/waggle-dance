@@ -13,7 +13,6 @@ const ApiClientSchema = z.object({
 const AllowApiClientsSchema = z.record(ApiClientSchema);
 
 export const envSchema = {
-  skipValidation: !!process.env.SKIP_ENV_VALIDATION,
   shared: {
     VERCEL_URL: z
       .string()
@@ -223,4 +222,8 @@ export const envSchema = {
     BLOB_READ_WRITE_TOKEN: process.env.BLOB_READ_WRITE_TOKEN,
     ALLOW_API_CLIENTS: process.env.ALLOW_API_CLIENTS,
   },
+  skipValidation:
+    !!process.env.CI ||
+    !!process.env.SKIP_ENV_VALIDATION ||
+    process.env.npm_lifecycle_event === "lint",
 };

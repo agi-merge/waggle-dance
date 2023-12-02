@@ -2,9 +2,9 @@
   "name": "waggle-dance",
   "private": true,
   "engines": {
-    "node": ">=18.18.2"
+    "node": "20.x"
   },
-  "packageManager": "pnpm@8.10.2",
+  "packageManager": "pnpm@8.11.0",
   "scripts": {
     "prebuild": "node --experimental-modules ./build-tools/prebuild.mjs",
     "env-sync": "SKIP_ENV_VALIDATION=1 node --experimental-modules ./build-tools/env-sync.mjs",
@@ -24,6 +24,7 @@
     "typecheck": "turbo typecheck"
   },
   "devDependencies": {
+    "@acme/eslint-config": "workspace:^0.2.0",
     "@acme/prettier-config": "workspace:^0.1.0",
     "@ianvs/prettier-plugin-sort-imports": "^4.1.1",
     "@turbo/gen": "^1.10.16",

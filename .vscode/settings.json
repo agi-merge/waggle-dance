@@ -1,10 +1,16 @@
 {
   "editor.codeActionsOnSave": {
     "source.fixAll.eslint": true,
+    "source.fixAll": "always",
     "source.organizeImports": true
   },
   "editor.defaultFormatter": "esbenp.prettier-vscode",
   "editor.formatOnSave": true,
+  "typescript.tsdk": "node_modules/typescript/lib",
+  "typescript.enablePromptUseWorkspaceTsdk": true,
+  "typescript.tsserver.maxTsServerMemory": 6144,
+  "typescript.tsserver.experimental.enableProjectDiagnostics": true,
+  "tailwindCSS.experimental.configFile": "./packages/config/tailwind/index.ts",
   "eslint.rules.customizations": [
     {
       "rule": "*",
@@ -12,38 +18,19 @@
     }
   ],
   "eslint.workingDirectories": [
-    { "pattern": "apps/**/*" },
-    { "pattern": "packages/**/*" },
-    {
-      "pattern": "apps/*/"
-    },
-    {
-      "pattern": "packages/*/"
-    }
+    { "pattern": "apps/*/" },
+    { "pattern": "packages/*/" },
+    { "pattern": "tooling/*/" }
   ],
-  "eslint.options": {},
-  "typescript.tsdk": "node_modules/typescript/lib",
-  "typescript.enablePromptUseWorkspaceTsdk": true,
-  "typescript.tsserver.maxTsServerMemory": 6144,
-  "typescript.tsserver.experimental.enableProjectDiagnostics": true,
-  "tailwindCSS.experimental.configFile": "./packages/config/tailwind/index.ts",
   "eslint.validate": [
     "javascript",
     "javascriptreact",
     "typescript",
     "typescriptreact"
   ],
-  "eslint.timeBudget.onValidation": {
-    "warn": 8000,
-    "error": 8000
-  },
   "eslint.enable": true,
   "eslint.format.enable": true,
   "eslint.lintTask.enable": true,
-  "eslint.run": "onSave",
-  "eslint.timeBudget.onFixes": {
-    "warn": 10000,
-    "error": 10000
-  },
+  "eslint.run": "onType",
   "javascript.format.enable": false
 }
