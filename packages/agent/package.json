@@ -11,7 +11,7 @@
     "typecheck": "tsc --noEmit"
   },
   "dependencies": {
-    "@acme/db": "^0.1.0",
+    "@acme/db": "workspace:^",
     "axios": "^1.6.2",
     "cheerio": "1.0.0-rc.12",
     "graphql": "^16.8.1",
@@ -27,13 +27,13 @@
     "zod-to-json-schema": "^3.22.1"
   },
   "devDependencies": {
-    "@acme/eslint-config": "workspace:^0.2.0",
-    "@acme/prettier-config": "workspace:^0.1.0",
-    "@acme/tsconfig": "workspace:^0.1.0",
-    "eslint": "^8.54.0",
+    "@acme/eslint-config": "workspace:^",
+    "@acme/prettier-config": "workspace:^",
+    "@acme/tsconfig": "workspace:^",
+    "@types/crypto-js": "^4.2.1",
+    "eslint": "^8.55.0",
     "prettier": "^3.1.0",
-    "typescript": "^5.3.2",
-    "@types/crypto-js": "^4.2.1"
+    "typescript": "^5.3.2"
   },
   "eslintConfig": {
     "root": true,

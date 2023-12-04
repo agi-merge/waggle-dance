@@ -24,8 +24,8 @@
     "typecheck": "turbo typecheck"
   },
   "devDependencies": {
-    "@acme/eslint-config": "workspace:^0.2.0",
-    "@acme/prettier-config": "workspace:^0.1.0",
+    "@acme/eslint-config": "workspace:^",
+    "@acme/prettier-config": "workspace:^",
     "@ianvs/prettier-plugin-sort-imports": "^4.1.1",
     "@turbo/gen": "^1.10.16",
     "prettier": "^3.1.0",

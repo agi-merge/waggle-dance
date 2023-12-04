@@ -11,7 +11,7 @@
     "typecheck": "tsc --noEmit"
   },
   "dependencies": {
-    "@acme/db": "workspace:^0.1.0",
+    "@acme/db": "workspace:^",
     "@auth/core": "0.18.0",
     "@auth/prisma-adapter": "^1.0.9",
     "next": "^14.0.3",
@@ -20,10 +20,10 @@
     "react-dom": "18.2.0"
   },
   "devDependencies": {
-    "@acme/eslint-config": "workspace:^0.2.0",
-    "@acme/prettier-config": "workspace:^0.1.0",
-    "@acme/tsconfig": "workspace:^0.1.0",
-    "eslint": "^8.54.0",
+    "@acme/eslint-config": "workspace:^",
+    "@acme/prettier-config": "workspace:^",
+    "@acme/tsconfig": "workspace:^",
+    "eslint": "^8.55.0",
     "prettier": "^3.1.0",
     "typescript": "^5.3.2"
   },
