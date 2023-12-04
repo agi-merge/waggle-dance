@@ -34,7 +34,8 @@
   },
   "pnpm": {
     "overrides": {
-      "@auth/core": "0.18.0"
+      "@auth/core": "0.18.0",
+      "next": "14.0.3"
     }
   },
   "prettier": "@acme/prettier-config"
