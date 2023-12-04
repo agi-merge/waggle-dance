@@ -5,8 +5,8 @@ settings:
   excludeLinksFromLockfile: false
 
 overrides:
-  '@auth/core': 0.18.0
-  next: 14.0.3
+  '@auth/core': 0.18.4
+  next-auth>next: ^14.0.3
 
 importers:
 
@@ -61,8 +61,8 @@ importers:
         specifier: ^5.14.19
         version: 5.14.19(@mui/material@5.14.19)(@types/react@18.2.41)(react@18.2.0)
       '@mui/joy':
-        specifier: 5.0.0-beta.15
-        version: 5.0.0-beta.15(@emotion/react@11.11.1)(@emotion/styled@11.11.0)(@types/react@18.2.41)(react-dom@18.2.0)(react@18.2.0)
+        specifier: 5.0.0-beta.16
+        version: 5.0.0-beta.16(@emotion/react@11.11.1)(@emotion/styled@11.11.0)(@types/react@18.2.41)(react-dom@18.2.0)(react@18.2.0)
       '@mui/material':
         specifier: ^5.14.19
         version: 5.14.19(@emotion/react@11.11.1)(@emotion/styled@11.11.0)(@types/react@18.2.41)(react-dom@18.2.0)(react@18.2.0)
@@ -127,7 +127,7 @@ importers:
         specifier: ^5.0.4
         version: 5.0.4
       next:
-        specifier: 14.0.3
+        specifier: ^14.0.3
         version: 14.0.3(@babel/core@7.23.5)(react-dom@18.2.0)(react@18.2.0)
       next-auth:
         specifier: 5.0.0-beta.4
@@ -224,8 +224,8 @@ importers:
         specifier: ^3.1.0
         version: 3.1.0
       tailwindcss:
-        specifier: 3.3.5
-        version: 3.3.5
+        specifier: 3.3.6
+        version: 3.3.6
       typescript:
         specifier: ^5.3.2
         version: 5.3.2
@@ -349,13 +349,13 @@ importers:
         specifier: workspace:^
         version: link:../db
       '@auth/core':
-        specifier: 0.18.0
-        version: 0.18.0
+        specifier: 0.18.4
+        version: 0.18.4
       '@auth/prisma-adapter':
         specifier: ^1.0.9
         version: 1.0.9(@prisma/client@5.6.0)
       next:
-        specifier: 14.0.3
+        specifier: ^14.0.3
         version: 14.0.3(@babel/core@7.23.5)(react-dom@18.2.0)(react@18.2.0)
       next-auth:
         specifier: 5.0.0-beta.4
@@ -493,8 +493,8 @@ importers:
         specifier: ^10.4.16
         version: 10.4.16(postcss@8.4.32)
       tailwindcss:
-        specifier: 3.3.5
-        version: 3.3.5
+        specifier: 3.3.6
+        version: 3.3.6
     devDependencies:
       '@acme/eslint-config':
         specifier: workspace:^
@@ -582,8 +582,8 @@ packages:
       z-schema: 5.0.5
     dev: false
 
-  /@auth/core@0.18.0:
-    resolution: {integrity: sha512-Xb41H3FIv4PlTZmwoFvntaNlVTwIqFxIg7i0/ieHOOxf/7H8EJpGTWoNrqKhwMyZEPU6fHp+VcUiqdX3vFrWSg==}
+  /@auth/core@0.18.4:
+    resolution: {integrity: sha512-GsNhsP1xE/3FoNS3dVkPjqRljLNJ4iyL2OLv3klQGNvw3bMpROFcK4lqhx7+pPHiamnVaYt2vg1xbB+lsNaevg==}
     peerDependencies:
       nodemailer: ^6.8.0
     peerDependenciesMeta:
@@ -591,8 +591,8 @@ packages:
         optional: true
     dependencies:
       '@panva/hkdf': 1.1.1
-      cookie: 0.5.0
-      jose: 4.15.4
+      cookie: 0.6.0
+      jose: 5.1.3
       oauth4webapi: 2.4.0
       preact: 10.11.3
       preact-render-to-string: 5.2.3(preact@10.11.3)
@@ -603,7 +603,7 @@ packages:
     peerDependencies:
       '@prisma/client': '>=2.26.0 || >=3 || >=4 || >=5'
     dependencies:
-      '@auth/core': 0.18.0
+      '@auth/core': 0.18.4
       '@prisma/client': 5.6.0(prisma@5.6.0)
     transitivePeerDependencies:
       - nodemailer
@@ -1130,29 +1130,6 @@ packages:
       zod: 3.22.4
     dev: false
 
-  /@mui/base@5.0.0-beta.24(@types/react@18.2.41)(react-dom@18.2.0)(react@18.2.0):
-    resolution: {integrity: sha512-bKt2pUADHGQtqWDZ8nvL2Lvg2GNJyd/ZUgZAJoYzRgmnxBL9j36MSlS3+exEdYkikcnvVafcBtD904RypFKb0w==}
-    engines: {node: '>=12.0.0'}
-    peerDependencies:
-      '@types/react': ^17.0.0 || ^18.0.0
-      react: ^17.0.0 || ^18.0.0
-      react-dom: ^17.0.0 || ^18.0.0
-    peerDependenciesMeta:
-      '@types/react':
-        optional: true
-    dependencies:
-      '@babel/runtime': 7.23.5
-      '@floating-ui/react-dom': 2.0.4(react-dom@18.2.0)(react@18.2.0)
-      '@mui/types': 7.2.10(@types/react@18.2.41)
-      '@mui/utils': 5.14.19(@types/react@18.2.41)(react@18.2.0)
-      '@popperjs/core': 2.11.8
-      '@types/react': 18.2.41
-      clsx: 2.0.0
-      prop-types: 15.8.1
-      react: 18.2.0
-      react-dom: 18.2.0(react@18.2.0)
-    dev: false
-
   /@mui/base@5.0.0-beta.25(@types/react@18.2.41)(react-dom@18.2.0)(react@18.2.0):
     resolution: {integrity: sha512-Iiv+IcappRRv6IBlknIVmLkXxfp51NEX1+l9f+dIbBuPU4PaRULegr1lCeHKsC45KU5ruxM5xMg4R/de03aJQg==}
     engines: {node: '>=12.0.0'}
@@ -1197,8 +1174,8 @@ packages:
       react: 18.2.0
     dev: false
 
-  /@mui/joy@5.0.0-beta.15(@emotion/react@11.11.1)(@emotion/styled@11.11.0)(@types/react@18.2.41)(react-dom@18.2.0)(react@18.2.0):
-    resolution: {integrity: sha512-CJU6DPs6yGMIGiZpku4audyAKcAXBM9vgeeegXVt68dGhAXeSSVd+UKynUoj4gcwh0Zxbfxav6oohVYoGX6bpg==}
+  /@mui/joy@5.0.0-beta.16(@emotion/react@11.11.1)(@emotion/styled@11.11.0)(@types/react@18.2.41)(react-dom@18.2.0)(react@18.2.0):
+    resolution: {integrity: sha512-0TMN/WXyKiwKg0svTsRMjFPONFNz1aDiNWEa14CudthW6Dzi8wzVfzjm0agqDmEh4KHfXwBjFPXSIREnki4dPg==}
     engines: {node: '>=12.0.0'}
     peerDependencies:
       '@emotion/react': ^11.5.0
@@ -1217,7 +1194,7 @@ packages:
       '@babel/runtime': 7.23.5
       '@emotion/react': 11.11.1(@types/react@18.2.41)(react@18.2.0)
       '@emotion/styled': 11.11.0(@emotion/react@11.11.1)(@types/react@18.2.41)(react@18.2.0)
-      '@mui/base': 5.0.0-beta.24(@types/react@18.2.41)(react-dom@18.2.0)(react@18.2.0)
+      '@mui/base': 5.0.0-beta.25(@types/react@18.2.41)(react-dom@18.2.0)(react@18.2.0)
       '@mui/core-downloads-tracker': 5.14.19
       '@mui/system': 5.14.19(@emotion/react@11.11.1)(@emotion/styled@11.11.0)(@types/react@18.2.41)(react@18.2.0)
       '@mui/types': 7.2.10(@types/react@18.2.41)
@@ -2306,7 +2283,7 @@ packages:
     resolution: {integrity: sha512-qk1VnkGl17Ypmj1ydyWSVDipoQV4UK+8HXsllIVLus+eLEmg0kzpV4xNzuzKKIAtto5V+0S6BjFy1o+q0BWe4w==}
     peerDependencies:
       '@tanstack/react-query': ^5.8.1
-      next: 14.0.3
+      next: ^13 || ^14
       react: ^18.0.0
       react-dom: ^18.0.0
     dependencies:
@@ -2349,7 +2326,7 @@ packages:
       '@trpc/client': 11.0.0-alpha-next-2023-11-24-13-58-38.113+c379e467a
       '@trpc/react-query': 11.0.0-alpha-next-2023-11-24-13-58-38.113+c379e467a
       '@trpc/server': 11.0.0-alpha-next-2023-11-24-13-58-38.113+c379e467a
-      next: 14.0.3
+      next: '*'
       react: '>=16.8.0'
       react-dom: '>=16.8.0'
     dependencies:
@@ -3762,6 +3739,11 @@ packages:
 
   /cookie@0.5.0:
     resolution: {integrity: sha512-YZ3GUyn/o8gfKJlnlX7g7xq4gyO6OSuhGPKaaGssGB2qgDUS0gPgtTvoyZLTt9Ab6dC4hfc9dV5arkvc/OCmrw==}
+    engines: {node: '>= 0.6'}
+    dev: false
+
+  /cookie@0.6.0:
+    resolution: {integrity: sha512-U71cyTamuh1CRNCfpGY6to28lxvNwPG4Guz/EVjgf3Jmzv0vlDp1atT9eS5dDjMYHucpHbWns6Lwf3BKz6svdw==}
     engines: {node: '>= 0.6'}
     dev: false
 
@@ -5858,8 +5840,8 @@ packages:
     resolution: {integrity: sha512-gFqAIbuKyyso/3G2qhiO2OM6shY6EPP/R0+mkDbyspxKazh8BXDC5FiFsUjlczgdNz/vfra0da2y+aHrusLG/Q==}
     hasBin: true
 
-  /jose@4.15.4:
-    resolution: {integrity: sha512-W+oqK4H+r5sITxfxpSU+MMdr/YSWGvgZMQDIsNoBDGGy4i7GBPTtvFKibQzW06n3U3TqHjhvBJsirShsEJ6eeQ==}
+  /jose@5.1.3:
+    resolution: {integrity: sha512-GPExOkcMsCLBTi1YetY2LmkoY559fss0+0KVa6kOfb2YFe84nAM7Nm/XzuZozah4iHgmBGrCOHL5/cy670SBRw==}
     dev: false
 
   /js-file-download@0.4.12:
@@ -7489,14 +7471,14 @@ packages:
   /next-auth@5.0.0-beta.4(next@14.0.3)(react@18.2.0):
     resolution: {integrity: sha512-vgocjvwPA8gxd/zrIP/vr9lJ/HeNe+C56lPP1D3sdyenHt8KncQV6ro7q0xCsDp1fcOKx7WAWVZH5o8aMxDzgw==}
     peerDependencies:
-      next: 14.0.3
+      next: ^14.0.3
       nodemailer: ^6.6.5
       react: ^18.2.0
     peerDependenciesMeta:
       nodemailer:
         optional: true
     dependencies:
-      '@auth/core': 0.18.0
+      '@auth/core': 0.18.4
       next: 14.0.3(@babel/core@7.23.5)(react-dom@18.2.0)(react@18.2.0)
       react: 18.2.0
     dev: false
@@ -7506,7 +7488,7 @@ packages:
     engines: {node: '>=12'}
     hasBin: true
     peerDependencies:
-      next: 14.0.3
+      next: '>=9'
     dependencies:
       '@types/swagger-jsdoc': 6.0.1
       cleye: 1.3.2
@@ -9294,8 +9276,8 @@ packages:
     resolution: {integrity: sha512-9QNk5KwDF+Bvz+PyObkmSYjI5ksVUYtjW7AU22r2NKcfLJcXp96hkDWU3+XndOsUb+AQ9QhfzfCT2O+CNWT5Tw==}
     dev: false
 
-  /tailwindcss@3.3.5:
-    resolution: {integrity: sha512-5SEZU4J7pxZgSkv7FP1zY8i2TIAOooNZ1e/OGtxIEv6GltpoiXUqWvLy89+a10qYTB1N5Ifkuw9lqQkN9sscvA==}
+  /tailwindcss@3.3.6:
+    resolution: {integrity: sha512-AKjF7qbbLvLaPieoKeTjG1+FyNZT6KaJMJPFeQyLfIp7l82ggH1fbHJSsYIvnbTFQOlkh+gBYpyby5GT1LIdLw==}
     engines: {node: '>=14.0.0'}
     hasBin: true
     dependencies:
