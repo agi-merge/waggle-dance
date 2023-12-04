@@ -1,7 +1,7 @@
 // features/AgentSettings.tsx
 
-import React, { useMemo  } from "react";
-import type {SyntheticEvent} from "react";
+import React, { useMemo } from "react";
+import type { SyntheticEvent } from "react";
 import { InfoOutlined } from "@mui/icons-material";
 import { Chip } from "@mui/joy";
 import Alert from "@mui/joy/Alert";
@@ -21,9 +21,9 @@ import {
   Temperature,
 } from "@acme/agent/src/utils/llms";
 
-import routes from "~/utils/routes";
 import { env } from "~/env.mjs";
 import useWaggleDanceMachineStore from "~/stores/waggleDanceStore";
+import routes from "~/utils/routes";
 
 export function AgentSettings() {
   const { agentSettings, setAgentSettings, isRunning } =

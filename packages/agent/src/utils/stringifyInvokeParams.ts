@@ -2,12 +2,8 @@
 
 /* eslint-disable @typescript-eslint/no-explicit-any */
 // packages/agent/src/utils/stringifyInvokeParams.ts
-import {
-  stringifyByMime
-  
-  
-} from "./mimeTypeParser";
-import type {DisplayMimeTypes, ParseableMimeTypes} from "./mimeTypeParser";
+import { stringifyByMime } from "./mimeTypeParser";
+import type { DisplayMimeTypes, ParseableMimeTypes } from "./mimeTypeParser";
 
 export function stringifyInvokeParams(
   returnType: ParseableMimeTypes | DisplayMimeTypes,

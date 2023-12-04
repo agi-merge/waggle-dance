@@ -1,8 +1,8 @@
-import type {ZeroShotCreatePromptArgs} from "langchain/agents";
+import type { ZeroShotCreatePromptArgs } from "langchain/agents";
 import { createOpenApiAgent, OpenApiToolkit } from "langchain/agents/toolkits";
-import type {BaseLanguageModel} from "langchain/base_language";
-import type {OpenAPIChainOptions} from "langchain/chains";
-import type {JsonSpec} from "langchain/tools";
+import type { BaseLanguageModel } from "langchain/base_language";
+import type { OpenAPIChainOptions } from "langchain/chains";
+import type { JsonSpec } from "langchain/tools";
 
 export type AgentProtocolCreatePromptArgs = OpenAPIChainOptions &
   ZeroShotCreatePromptArgs & {

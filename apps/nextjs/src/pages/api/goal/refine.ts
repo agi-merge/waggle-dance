@@ -1,6 +1,6 @@
 // api/agent/result.ts
 
-import type {NextRequest} from "next/server";
+import type { NextRequest } from "next/server";
 import { parse } from "superjson";
 import { stringify } from "yaml";
 
@@ -11,13 +11,12 @@ import {
 } from "@acme/agent/src/utils/llms";
 
 import { env } from "~/env.mjs";
-import type {RefineRequestBody} from "~/features/WaggleDance/types/types";
-import {
-  callRefiningAgent
-  
-  
+import type { RefineRequestBody } from "~/features/WaggleDance/types/types";
+import { callRefiningAgent } from "../../../../../../packages/agent";
+import type {
+  AgentPacket,
+  ModelCreationProps,
 } from "../../../../../../packages/agent";
-import type {AgentPacket, ModelCreationProps} from "../../../../../../packages/agent";
 
 export const config = {
   api: {

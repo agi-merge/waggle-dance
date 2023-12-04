@@ -1,6 +1,6 @@
-import type {OpenAIEmbeddingsParams} from "langchain/embeddings/openai";
-import type {BaseLLMParams} from "langchain/llms/base";
-import type {OpenAIInput} from "langchain/llms/openai";
+import type { OpenAIEmbeddingsParams } from "langchain/embeddings/openai";
+import type { BaseLLMParams } from "langchain/llms/base";
+import type { OpenAIInput } from "langchain/llms/openai";
 
 interface OpenAIConfigurationParameters {
   apiKey?:

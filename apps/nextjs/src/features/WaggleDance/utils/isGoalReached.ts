@@ -1,5 +1,5 @@
-import type {TaskState} from "@acme/agent";
-import type {DraftExecutionGraph} from "@acme/db";
+import type { TaskState } from "@acme/agent";
+import type { DraftExecutionGraph } from "@acme/db";
 
 export function isGoalReached(
   dag: DraftExecutionGraph,

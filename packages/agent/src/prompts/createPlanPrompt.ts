@@ -6,7 +6,7 @@ import {
   PromptTemplate,
   SystemMessagePromptTemplate,
 } from "langchain/prompts";
-import type {StructuredTool} from "langchain/tools";
+import type { StructuredTool } from "langchain/tools";
 import { stringify as jsonStringify } from "superjson";
 import { stringify as yamlStringify } from "yaml";
 import { zodToJsonSchema } from "zod-to-json-schema";

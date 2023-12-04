@@ -2,7 +2,7 @@ import React from "react";
 import { Box, Card, Divider, Link, Stack, Typography } from "@mui/joy";
 
 import type { Session } from "@acme/auth";
-import type {DraftExecutionGraph, GoalPlusExe} from "@acme/db";
+import type { DraftExecutionGraph, GoalPlusExe } from "@acme/db";
 
 import AgentSettingsToggleButton from "~/features/AgentSettings/components/AgentSettingsToggleButton";
 import routes from "~/utils/routes";

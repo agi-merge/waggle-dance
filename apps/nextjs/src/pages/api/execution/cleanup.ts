@@ -1,5 +1,5 @@
 // api/execution/cleanup.ts
-import type {NextApiRequest, NextApiResponse} from "next";
+import type { NextApiRequest, NextApiResponse } from "next";
 
 import { ExecutionState, prisma } from "@acme/db";
 

@@ -1,6 +1,6 @@
 import { parse as jsonParse, stringify as jsonStringify } from "superjson";
 import { parse as yamlParse, stringify as yamlStringify } from "yaml";
-import type {z} from "zod";
+import type { z } from "zod";
 
 export interface Data {
   [key: string]:

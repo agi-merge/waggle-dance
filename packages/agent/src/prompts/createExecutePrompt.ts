@@ -5,7 +5,7 @@ import {
 } from "langchain/prompts";
 
 import executeConstraints from "./constraints/executeConstraints";
-import type {TaskState} from "./types/TaskState";
+import type { TaskState } from "./types/TaskState";
 
 export function createExecutePrompt(params: {
   taskObj: { id: string; name: string };

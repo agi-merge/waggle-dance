@@ -1,14 +1,11 @@
 // WaggleDance/types.ts
-import type {Dispatch, SetStateAction} from "react";
-import type {JsonObject} from "langchain/tools";
+import type { Dispatch, SetStateAction } from "react";
+import type { JsonObject } from "langchain/tools";
 
-import type {AgentSettings, ModelCreationProps, TaskState} from "@acme/agent";
-import {
-  TEMPERATURE_VALUES
-  
-} from "@acme/agent/src/utils/llms";
-import type {AgentPromptingMethod} from "@acme/agent/src/utils/llms";
-import type {DraftExecutionGraph, DraftExecutionNode} from "@acme/db";
+import type { AgentSettings, ModelCreationProps, TaskState } from "@acme/agent";
+import { TEMPERATURE_VALUES } from "@acme/agent/src/utils/llms";
+import type { AgentPromptingMethod } from "@acme/agent/src/utils/llms";
+import type { DraftExecutionGraph, DraftExecutionNode } from "@acme/db";
 
 import { env } from "~/env.mjs";
 
@@ -45,13 +42,7 @@ export type TaskResultsState = [
   Dispatch<SetStateAction<Record<string, TaskState>>>,
 ];
 
-export type JsonValue =
-  | string
-  | number
-  | boolean
-  | null
-  | object
-  | JsonValue[];
+export type JsonValue = string | number | boolean | null | object | JsonValue[];
 
 export function mapAgentSettingsToCreationProps(
   agentSettings: AgentSettings,

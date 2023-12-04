@@ -11,7 +11,7 @@ import {
 } from "@mui/joy";
 import Typography from "@mui/joy/Typography";
 
-import type {GoalPlusExe} from "@acme/db";
+import type { GoalPlusExe } from "@acme/db";
 
 import AddDocuments from "~/features/AddDocuments/AddDocuments";
 import SkillSelect from "~/features/Skills/SkillSelect";

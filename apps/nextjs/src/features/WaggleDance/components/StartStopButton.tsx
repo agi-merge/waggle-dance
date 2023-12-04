@@ -3,7 +3,7 @@ import React from "react";
 import { PlayCircle, StopCircle } from "@mui/icons-material";
 import { Button, CircularProgress, Stack, Typography } from "@mui/joy";
 
-import type {DraftExecutionGraph} from "@acme/db";
+import type { DraftExecutionGraph } from "@acme/db";
 
 interface StartStopButtonProps {
   isRunning: boolean;

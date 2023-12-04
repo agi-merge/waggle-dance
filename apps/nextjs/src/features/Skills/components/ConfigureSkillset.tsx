@@ -1,7 +1,7 @@
 import { Settings } from "@mui/icons-material";
 import { IconButton } from "@mui/joy";
 
-import type {Skillset} from "@acme/db";
+import type { Skillset } from "@acme/db";
 
 interface Props {
   skill: Skillset;

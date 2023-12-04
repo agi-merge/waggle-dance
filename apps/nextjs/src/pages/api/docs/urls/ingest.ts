@@ -1,5 +1,5 @@
-import type {IncomingMessage} from "http";
-import type {NextApiRequest, NextApiResponse} from "next";
+import type { IncomingMessage } from "http";
+import type { NextApiRequest, NextApiResponse } from "next";
 import { PlaywrightWebBaseLoader } from "langchain/document_loaders/web/playwright";
 import { RecursiveCharacterTextSplitter } from "langchain/text_splitter";
 

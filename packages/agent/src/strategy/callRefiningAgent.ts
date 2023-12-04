@@ -5,7 +5,7 @@ import { LLMChain } from "langchain/chains";
 import { createRefinePrompt } from "../prompts/createRefinePrompt";
 import { ModelStyle } from "../utils/llms";
 import { createModel } from "../utils/model";
-import type {ModelCreationProps} from "../utils/OpenAIPropsBridging";
+import type { ModelCreationProps } from "../utils/OpenAIPropsBridging";
 
 export async function callRefiningAgent(params: {
   creationProps: ModelCreationProps;
@@ -35,8 +35,8 @@ export async function callRefiningAgent(params: {
   const feedback = call?.response
     ? (call.response as string)
     : call?.text
-    ? (call.text as string)
-    : "error";
+      ? (call.text as string)
+      : "error";
 
   console.debug("refining feedback", feedback);
 

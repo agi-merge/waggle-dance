@@ -1,18 +1,14 @@
 // agent/strategy/callPlanningAgent.ts
 
-import {
-  encodingForModel
-  
-  
-} from "js-tiktoken";
-import type {Tiktoken, TiktokenModel} from "js-tiktoken";
+import { encodingForModel } from "js-tiktoken";
+import type { Tiktoken, TiktokenModel } from "js-tiktoken";
 import { LLMChain } from "langchain/chains";
-import type {JsonObject} from "langchain/tools";
+import type { JsonObject } from "langchain/tools";
 import { parse as jsonParse, stringify as jsonStringify } from "superjson";
 import { parse as yamlParse, stringify as yamlStringify } from "yaml";
 
-import { defaultAgentSettings, rootPlanId  } from "../..";
-import type {PlanWireFormat} from "../..";
+import { defaultAgentSettings, rootPlanId } from "../..";
+import type { PlanWireFormat } from "../..";
 import {
   createPlanFormattingPrompt,
   createPlanPrompt,
@@ -24,7 +20,7 @@ import {
   ModelStyle,
 } from "../utils/llms";
 import { createEmbeddings, createModel } from "../utils/model";
-import type {ModelCreationProps} from "../utils/OpenAIPropsBridging";
+import type { ModelCreationProps } from "../utils/OpenAIPropsBridging";
 import createSkills from "../utils/skills";
 
 export async function callPlanningAgent(
@@ -95,8 +91,8 @@ export async function callPlanningAgent(
     const response = call?.response
       ? (call.response as string)
       : call?.text
-      ? (call.text as string)
-      : stringError;
+        ? (call.text as string)
+        : stringError;
 
     try {
       const parsedDAG =
@@ -178,8 +174,8 @@ export async function callPlanningAgent(
       const dag = call?.response
         ? (call.response as string)
         : call?.text
-        ? (call.text as string)
-        : stringError;
+          ? (call.text as string)
+          : stringError;
 
       return dag;
     }

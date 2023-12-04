@@ -1,4 +1,4 @@
-import type {AgentPromptingMethod, LLM, Temperature} from "./llms";
+import type { AgentPromptingMethod, LLM, Temperature } from "./llms";
 
 export interface AgentSettings {
   modelName: LLM;

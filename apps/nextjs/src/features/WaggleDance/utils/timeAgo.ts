@@ -6,12 +6,11 @@ export default function timeAgo(date: Date | string) {
     }
   }
 
-
   const now = new Date();
   const secondsAgo = Math.round((now.getTime() - date.getTime()) / 1000);
 
   if (secondsAgo < 60) {
-    return 'just now';
+    return "just now";
   } else if (secondsAgo < 3600) {
     return `${Math.floor(secondsAgo / 60)}m ago`;
   } else if (secondsAgo < 86400) {

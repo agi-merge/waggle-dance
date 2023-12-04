@@ -5,7 +5,7 @@ import { default as NextLink } from "next/link";
 import { useRouter } from "next/router";
 import { Add, Close } from "@mui/icons-material";
 import Box from "@mui/joy/Box";
-import type {BoxProps} from "@mui/joy/Box";
+import type { BoxProps } from "@mui/joy/Box";
 import Divider from "@mui/joy/Divider";
 import IconButton from "@mui/joy/IconButton";
 import Stack from "@mui/joy/Stack";
@@ -15,14 +15,14 @@ import Tabs from "@mui/joy/Tabs";
 import Tooltip from "@mui/joy/Tooltip";
 import Typography from "@mui/joy/Typography";
 
-import type {Goal, GoalPlusExe} from "@acme/db";
+import type { Goal, GoalPlusExe } from "@acme/db";
 
-import { api } from "~/utils/api";
-import routes from "~/utils/routes";
 import useIsAppleDevice from "~/hooks/useIsAppleDevice";
 import useApp from "~/stores/appStore";
 import useGoalStore, { draftGoalPrefix } from "~/stores/goalStore";
 import useWaggleDanceMachineStore from "~/stores/waggleDanceStore";
+import { api } from "~/utils/api";
+import routes from "~/utils/routes";
 
 interface GoalTabProps extends BoxProps {
   tab: GoalPlusExe;

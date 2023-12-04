@@ -1,10 +1,10 @@
 // callExecutionAgent.types.ts
 
-import type {JsonObject} from "langchain/tools";
+import type { JsonObject } from "langchain/tools";
 import { z } from "zod";
 
-import type {AgentPacket, Geo, ModelCreationProps, TaskState} from "../../..";
-import type {AgentPromptingMethod} from "../../utils/llms";
+import type { AgentPacket, Geo, ModelCreationProps, TaskState } from "../../..";
+import type { AgentPromptingMethod } from "../../utils/llms";
 
 export interface ContextAndTools {
   synthesizedContext?: string[];

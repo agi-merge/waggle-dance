@@ -1,4 +1,4 @@
-import type {ModelCreationProps} from "../utils/OpenAIPropsBridging";
+import type { ModelCreationProps } from "../utils/OpenAIPropsBridging";
 
 export type AgentType = "plan" | "execute" | "criticize" | "refine";
 

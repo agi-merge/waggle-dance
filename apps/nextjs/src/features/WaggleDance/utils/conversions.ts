@@ -1,9 +1,9 @@
 // conversions.ts
 
-import type {GraphData, LinkObject, NodeObject} from "react-force-graph-2d";
+import type { GraphData, LinkObject, NodeObject } from "react-force-graph-2d";
 
-import type {TaskState} from "@acme/agent";
-import type {DraftExecutionGraph} from "@acme/db";
+import type { TaskState } from "@acme/agent";
+import type { DraftExecutionGraph } from "@acme/db";
 
 export function dagToGraphData(
   dag: DraftExecutionGraph | null | undefined,

@@ -1,5 +1,5 @@
 import { TabPanel } from "@mui/joy";
-import type {GraphData} from "react-force-graph-2d";
+import type { GraphData } from "react-force-graph-2d";
 
 import PlanForceGraph from "./PlanForceGraph";
 

@@ -4,10 +4,9 @@ import {
   checkboxClasses,
   Sheet,
   Tooltip,
-  Typography
-  
+  Typography,
 } from "@mui/joy";
-import type {SheetProps} from "@mui/joy";
+import type { SheetProps } from "@mui/joy";
 
 import useApp from "~/stores/appStore";
 

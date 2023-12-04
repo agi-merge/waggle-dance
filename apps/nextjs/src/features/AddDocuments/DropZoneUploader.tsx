@@ -4,18 +4,15 @@ import { useRouter } from "next/router";
 import { UploadFile } from "@mui/icons-material";
 import Box from "@mui/joy/Box";
 import Card from "@mui/joy/Card";
-import type {CardProps} from "@mui/joy/Card";
+import type { CardProps } from "@mui/joy/Card";
 import Link from "@mui/joy/Link";
 import Tooltip from "@mui/joy/Tooltip";
 
-import routes from "~/utils/routes";
-import {
-  useIngest
-  
-} from "~/features/AddDocuments/AddDocuments";
-import type {IngestFile} from "~/features/AddDocuments/AddDocuments";
+import { useIngest } from "~/features/AddDocuments/AddDocuments";
+import type { IngestFile } from "~/features/AddDocuments/AddDocuments";
 import { acceptExtensions } from "~/features/AddDocuments/mimeTypes";
-import type {UploadResponse} from "../../pages/api/docs/ingest";
+import routes from "~/utils/routes";
+import type { UploadResponse } from "../../pages/api/docs/ingest";
 
 type DropZoneProps = CardProps;
 interface ContainerProps {

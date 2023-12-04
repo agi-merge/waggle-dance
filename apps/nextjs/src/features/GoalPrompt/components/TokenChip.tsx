@@ -1,10 +1,10 @@
 // TokenChip.tsx
 import { useMemo } from "react";
-import { Chip, Stack, Tooltip, Typography  } from "@mui/joy";
-import type {ChipProps} from "@mui/joy";
-import { encodingForModel  } from "js-tiktoken";
-import type {Tiktoken} from "js-tiktoken";
-import type {TiktokenModel} from "langchain/dist/types/openai-types";
+import { Chip, Stack, Tooltip, Typography } from "@mui/joy";
+import type { ChipProps } from "@mui/joy";
+import { encodingForModel } from "js-tiktoken";
+import type { Tiktoken } from "js-tiktoken";
+import type { TiktokenModel } from "langchain/dist/types/openai-types";
 import { useDebounce } from "use-debounce";
 
 import useWaggleDanceMachineStore from "~/stores/waggleDanceStore";

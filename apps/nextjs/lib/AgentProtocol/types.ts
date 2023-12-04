@@ -2,7 +2,7 @@
  * Input parameters for the task. Any value is allowed.
  */
 
-import type {JsonValue} from "~/features/WaggleDance/types/types";
+import type { JsonValue } from "~/features/WaggleDance/types/types";
 
 export type TaskInput = JsonValue;
 /**

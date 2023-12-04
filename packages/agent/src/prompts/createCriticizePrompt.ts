@@ -6,10 +6,10 @@ import {
 import { stringify as jsonStringify } from "superjson";
 import { stringify as yamlStringify } from "yaml";
 
-import type {DraftExecutionNode} from "@acme/db";
+import type { DraftExecutionNode } from "@acme/db";
 
 import { criticizeSchema } from "./schemas/criticizeSchema";
-import type {TaskState} from "./types/TaskState";
+import type { TaskState } from "./types/TaskState";
 
 export function createCriticizePrompt(params: {
   revieweeTaskResults: TaskState[];

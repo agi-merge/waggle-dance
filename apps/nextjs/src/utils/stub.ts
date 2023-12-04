@@ -1,4 +1,4 @@
-import type {Step, Task} from "lib/AgentProtocol/types";
+import type { Step, Task } from "lib/AgentProtocol/types";
 
 export const tasks: Record<string, Task> = {};
 export const steps: Record<string, Step> = {};

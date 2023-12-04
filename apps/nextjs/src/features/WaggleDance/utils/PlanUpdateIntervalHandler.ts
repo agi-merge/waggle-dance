@@ -1,4 +1,4 @@
-import type {DraftExecutionGraph} from "@acme/db";
+import type { DraftExecutionGraph } from "@acme/db";
 
 export class PlanUpdateIntervalHandler {
   private interval: number | null = null;
