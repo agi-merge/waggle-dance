@@ -41,7 +41,7 @@
     "crypto-js": "^4.2.0",
     "eventsource-parser": "^1.1.1",
     "formidable": "^3.5.1",
-    "langchain": "0.0.197",
+    "langchain": "0.0.200",
     "mammoth": "^1.6.0",
     "nanoid": "^5.0.4",
     "next": "^14.0.3",

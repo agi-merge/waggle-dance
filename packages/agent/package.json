@@ -16,7 +16,7 @@
     "cheerio": "1.0.0-rc.12",
     "graphql": "^16.8.1",
     "js-tiktoken": "^1.0.8",
-    "langchain": "0.0.197",
+    "langchain": "0.0.200",
     "net": "^1.0.2",
     "redis": "^4.6.11",
     "serpapi": "^2.0.0",

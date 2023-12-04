@@ -118,8 +118,8 @@ importers:
         specifier: ^3.5.1
         version: 3.5.1
       langchain:
-        specifier: 0.0.197
-        version: 0.0.197(@upstash/redis@1.25.1)(mammoth@1.6.0)(pdf-parse@1.1.1)(playwright@1.40.1)
+        specifier: 0.0.200
+        version: 0.0.200(@upstash/redis@1.25.1)(mammoth@1.6.0)(pdf-parse@1.1.1)(playwright@1.40.1)
       mammoth:
         specifier: ^1.6.0
         version: 1.6.0
@@ -248,8 +248,8 @@ importers:
         specifier: ^1.0.8
         version: 1.0.8
       langchain:
-        specifier: 0.0.197
-        version: 0.0.197(axios@1.6.2)(cheerio@1.0.0-rc.12)(redis@4.6.11)(weaviate-ts-client@2.0.0)
+        specifier: 0.0.200
+        version: 0.0.200(axios@1.6.2)(cheerio@1.0.0-rc.12)(redis@4.6.11)(weaviate-ts-client@2.0.0)
       net:
         specifier: ^1.0.2
         version: 1.0.2
@@ -1115,8 +1115,8 @@ packages:
     resolution: {integrity: sha512-dfLbk+PwWvFzSxwk3n5ySL0hfBog779o8h68wK/7/APo/7cgyWp5jcXockbxdk5kFRkbeXWm4Fbi9FrdN381sA==}
     dev: false
 
-  /@langchain/core@0.0.1:
-    resolution: {integrity: sha512-VgpKcfvtC+oN5ZfCX1k05fXmMs87/U0j4KzOiGbgIjwO9xfE8bIMesodinDQO1H5ohF1SEDE1tSeVXz/bTuang==}
+  /@langchain/core@0.0.7:
+    resolution: {integrity: sha512-YYTOsc20iIMbS2I1bhJpZSsDwspA3HgpeYhGEpFWjW9963wuH76W3OUCPfqESiJZiNeVzDTv0B9IaG4HyhuQXg==}
     engines: {node: '>=18'}
     dependencies:
       ansi-styles: 5.2.0
@@ -6021,8 +6021,8 @@ packages:
       graceful-fs: 4.2.11
     dev: false
 
-  /langchain@0.0.197(@upstash/redis@1.25.1)(mammoth@1.6.0)(pdf-parse@1.1.1)(playwright@1.40.1):
-    resolution: {integrity: sha512-hD6wJAmYME5p4M99CxVqKhRZ3F+lx7jxKNsbF5dpSLePJy7Jjc87a0Asus9825LvJG+WWhanTMSVq8QBeCpXdA==}
+  /langchain@0.0.200(@upstash/redis@1.25.1)(mammoth@1.6.0)(pdf-parse@1.1.1)(playwright@1.40.1):
+    resolution: {integrity: sha512-ljuwCLPd+NIp8sRtrI0zSHE17ZFbMODOc46JZjnXq0nt9QTF74S3K83y9una+U+w/r0iMmKY8H4QCHThULYHpg==}
     engines: {node: '>=18'}
     peerDependencies:
       '@aws-crypto/sha256-js': ^5.0.0
@@ -6035,7 +6035,7 @@ packages:
       '@aws-sdk/client-sfn': ^3.310.0
       '@aws-sdk/credential-provider-node': ^3.388.0
       '@azure/storage-blob': ^12.15.0
-      '@clickhouse/client': ^0.0.14
+      '@clickhouse/client': ^0.2.5
       '@cloudflare/ai': ^1.0.12
       '@elastic/elasticsearch': ^8.4.0
       '@getmetal/metal-sdk': '*'
@@ -6045,6 +6045,7 @@ packages:
       '@gomomento/sdk-web': ^1.51.1
       '@google-ai/generativelanguage': ^0.2.1
       '@google-cloud/storage': ^6.10.1
+      '@gradientai/nodejs-sdk': ^1.2.0
       '@huggingface/inference': ^2.6.4
       '@mozilla/readability': '*'
       '@notionhq/client': ^2.2.10
@@ -6101,6 +6102,7 @@ packages:
       neo4j-driver: '*'
       node-llama-cpp: '*'
       notion-to-md: ^3.1.0
+      officeparser: ^4.0.4
       pdf-parse: 1.1.1
       peggy: ^3.0.2
       pg: ^8.11.0
@@ -6109,6 +6111,7 @@ packages:
       playwright: ^1.32.1
       portkey-ai: ^0.1.11
       puppeteer: ^19.7.2
+      pyodide: ^0.24.1
       redis: ^4.6.4
       replicate: ^0.18.0
       sonix-speech-recognition: ^2.1.1
@@ -6163,6 +6166,8 @@ packages:
       '@google-ai/generativelanguage':
         optional: true
       '@google-cloud/storage':
+        optional: true
+      '@gradientai/nodejs-sdk':
         optional: true
       '@huggingface/inference':
         optional: true
@@ -6276,6 +6281,8 @@ packages:
         optional: true
       notion-to-md:
         optional: true
+      officeparser:
+        optional: true
       pdf-parse:
         optional: true
       peggy:
@@ -6291,6 +6298,8 @@ packages:
       portkey-ai:
         optional: true
       puppeteer:
+        optional: true
+      pyodide:
         optional: true
       redis:
         optional: true
@@ -6322,7 +6331,7 @@ packages:
         optional: true
     dependencies:
       '@anthropic-ai/sdk': 0.9.1
-      '@langchain/core': 0.0.1
+      '@langchain/core': 0.0.7
       '@upstash/redis': 1.25.1
       binary-extensions: 2.2.0
       expr-eval: 2.0.2
@@ -6347,8 +6356,8 @@ packages:
       - encoding
     dev: false
 
-  /langchain@0.0.197(axios@1.6.2)(cheerio@1.0.0-rc.12)(redis@4.6.11)(weaviate-ts-client@2.0.0):
-    resolution: {integrity: sha512-hD6wJAmYME5p4M99CxVqKhRZ3F+lx7jxKNsbF5dpSLePJy7Jjc87a0Asus9825LvJG+WWhanTMSVq8QBeCpXdA==}
+  /langchain@0.0.200(axios@1.6.2)(cheerio@1.0.0-rc.12)(redis@4.6.11)(weaviate-ts-client@2.0.0):
+    resolution: {integrity: sha512-ljuwCLPd+NIp8sRtrI0zSHE17ZFbMODOc46JZjnXq0nt9QTF74S3K83y9una+U+w/r0iMmKY8H4QCHThULYHpg==}
     engines: {node: '>=18'}
     peerDependencies:
       '@aws-crypto/sha256-js': ^5.0.0
@@ -6361,7 +6370,7 @@ packages:
       '@aws-sdk/client-sfn': ^3.310.0
       '@aws-sdk/credential-provider-node': ^3.388.0
       '@azure/storage-blob': ^12.15.0
-      '@clickhouse/client': ^0.0.14
+      '@clickhouse/client': ^0.2.5
       '@cloudflare/ai': ^1.0.12
       '@elastic/elasticsearch': ^8.4.0
       '@getmetal/metal-sdk': '*'
@@ -6371,6 +6380,7 @@ packages:
       '@gomomento/sdk-web': ^1.51.1
       '@google-ai/generativelanguage': ^0.2.1
       '@google-cloud/storage': ^6.10.1
+      '@gradientai/nodejs-sdk': ^1.2.0
       '@huggingface/inference': ^2.6.4
       '@mozilla/readability': '*'
       '@notionhq/client': ^2.2.10
@@ -6427,6 +6437,7 @@ packages:
       neo4j-driver: '*'
       node-llama-cpp: '*'
       notion-to-md: ^3.1.0
+      officeparser: ^4.0.4
       pdf-parse: 1.1.1
       peggy: ^3.0.2
       pg: ^8.11.0
@@ -6435,6 +6446,7 @@ packages:
       playwright: ^1.32.1
       portkey-ai: ^0.1.11
       puppeteer: ^19.7.2
+      pyodide: ^0.24.1
       redis: ^4.6.4
       replicate: ^0.18.0
       sonix-speech-recognition: ^2.1.1
@@ -6489,6 +6501,8 @@ packages:
       '@google-ai/generativelanguage':
         optional: true
       '@google-cloud/storage':
+        optional: true
+      '@gradientai/nodejs-sdk':
         optional: true
       '@huggingface/inference':
         optional: true
@@ -6602,6 +6616,8 @@ packages:
         optional: true
       notion-to-md:
         optional: true
+      officeparser:
+        optional: true
       pdf-parse:
         optional: true
       peggy:
@@ -6617,6 +6633,8 @@ packages:
       portkey-ai:
         optional: true
       puppeteer:
+        optional: true
+      pyodide:
         optional: true
       redis:
         optional: true
@@ -6648,7 +6666,7 @@ packages:
         optional: true
     dependencies:
       '@anthropic-ai/sdk': 0.9.1
-      '@langchain/core': 0.0.1
+      '@langchain/core': 0.0.7
       axios: 1.6.2
       binary-extensions: 2.2.0
       cheerio: 1.0.0-rc.12
