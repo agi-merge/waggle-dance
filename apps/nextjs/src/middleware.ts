@@ -80,7 +80,7 @@ export function middleware(req: NextRequest) {
     style-src 'self' ${styleDirectives} ${allowedClientsStr};
     object-src 'none';
     base-uri 'self';
-    form-action 'self';
+    form-action 'self' ${allowedClientsStr};
     frame-ancestors 'none';
     ${
       !isLocalhost
